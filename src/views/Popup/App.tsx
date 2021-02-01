@@ -8,6 +8,7 @@ function App() {
         <p>
           Edit <code>src/views/Popup/App.tsx</code> and save.
         </p>
+        <p>From localStorage: {localStorage.getItem("test")}</p>
         <a
           className="App-link"
           href="https://reactjs.org"

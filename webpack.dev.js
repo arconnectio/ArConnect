@@ -7,7 +7,6 @@ module.exports = merge(
   override.webpack(base(process.env.NODE_ENV), process.env.NODE_ENV),
   {
     mode: process.env.NODE_ENV,
-    plugins: [new ChromeExtensionReloader()],
-    output: {}
+    plugins: [new ChromeExtensionReloader()]
   }
 );
