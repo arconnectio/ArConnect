@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "author": "th8ta",
   "description": "Secure wallet management for Arweave",
-  "permissions": [],
+  "permissions": ["activeTab"],
   "background": {
     "scripts": ["static/js/background.js"]
   },
@@ -21,5 +21,12 @@
   "options_ui": {
     "page": "options.html"
   },
-  "web_accessible_resources": ["welcome.html", "welcome.js"]
+  "web_accessible_resources": ["welcome.html", "static/js/api.js"],
+  "content_scripts": [
+    {
+      "matches": ["file://*/*", "http://*/*", "https://*/*"],
+      "js": ["static/js/contentscript.js"],
+      "run_at": "document_end"
+    }
+  ]
 }

@@ -12,8 +12,9 @@ function override(config, env) {
     popup: paths.appIndexJs,
     options: paths.appSrc + "/options",
     background: paths.appSrc + "/background",
-    content: paths.appSrc + "/content",
-    welcome: paths.appSrc + "/welcome"
+    contentscript: paths.appSrc + "/contentscript",
+    welcome: paths.appSrc + "/welcome",
+    api: paths.appSrc + "/api"
   };
   config.output.filename = "static/js/[name].js";
   config.optimization.splitChunks = {

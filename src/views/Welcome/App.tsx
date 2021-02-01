@@ -1,6 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 export default function App() {
+  useEffect(() => {
+    localStorage.setItem("test", "tttttt");
+  }, []);
+
   return (
     <div className="App">
       <header className="App-header">
