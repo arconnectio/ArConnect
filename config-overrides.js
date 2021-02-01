@@ -1,26 +1,35 @@
 const paths = require("react-scripts/config/paths"),
   HtmlWebpackPlugin = require("html-webpack-plugin"),
   ManifestPlugin = require("webpack-manifest-plugin"),
-  MiniCssExtractPlugin = require("mini-css-extract-plugin");
+  MiniCssExtractPlugin = require("mini-css-extract-plugin"),
+  path = require("path");
 
 module.exports = {
   webpack: override
 };
 
 function override(config, env) {
-  config.entry = {
-    popup: paths.appIndexJs,
-    options: paths.appSrc + "/options",
-    background: paths.appSrc + "/background",
-    contentscript: paths.appSrc + "/contentscript",
-    welcome: paths.appSrc + "/welcome",
-    api: paths.appSrc + "/api"
+  let newConfig = {
+    ...config,
+    entry: {
+      popup: paths.appIndexJs,
+      options: paths.appSrc + "/options",
+      background: paths.appSrc + "/background",
+      contentscript: paths.appSrc + "/contentscript",
+      welcome: paths.appSrc + "/welcome",
+      api: paths.appSrc + "/api"
+    },
+    output: {
+      path: path.join(__dirname, "./build"),
+      filename: "static/js/[name].js"
+    },
+    optimization: {
+      splitChunks: {
+        cacheGroups: { default: false }
+      },
+      runtimeChunk: false
+    }
   };
-  config.output.filename = "static/js/[name].js";
-  config.optimization.splitChunks = {
-    cacheGroups: { default: false }
-  };
-  config.optimization.runtimeChunk = false;
 
   const minifyOpts = {
       removeComments: true,
@@ -43,8 +52,8 @@ function override(config, env) {
       minify: isEnvProduction && minifyOpts
     });
 
-  config.plugins = replacePlugin(
-    config.plugins,
+  newConfig.plugins = replacePlugin(
+    newConfig.plugins,
     (name) => /HtmlWebpackPlugin/i.test(name),
     indexHtmlPlugin
   );
@@ -57,7 +66,7 @@ function override(config, env) {
     minify: isEnvProduction && minifyOpts
   });
 
-  config.plugins.push(optionsHtmlPlugin);
+  newConfig.plugins.push(optionsHtmlPlugin);
 
   const welcomeHtmlPlugin = new HtmlWebpackPlugin({
     inject: true,
@@ -67,14 +76,14 @@ function override(config, env) {
     minify: isEnvProduction && minifyOpts
   });
 
-  config.plugins.push(welcomeHtmlPlugin);
+  newConfig.plugins.push(welcomeHtmlPlugin);
 
   const manifestPlugin = new ManifestPlugin({
     fileName: "asset-manifest.json"
   });
 
-  config.plugins = replacePlugin(
-    config.plugins,
+  newConfig.plugins = replacePlugin(
+    newConfig.plugins,
     (name) => /ManifestPlugin/i.test(name),
     manifestPlugin
   );
@@ -83,16 +92,16 @@ function override(config, env) {
     filename: "static/css/[name].css"
   });
 
-  config.plugins = replacePlugin(
-    config.plugins,
+  newConfig.plugins = replacePlugin(
+    newConfig.plugins,
     (name) => /MiniCssExtractPlugin/i.test(name),
     miniCssExtractPlugin
   );
-  config.plugins = replacePlugin(config.plugins, (name) =>
+  newConfig.plugins = replacePlugin(newConfig.plugins, (name) =>
     /GenerateSW/i.test(name)
   );
 
-  return config;
+  return newConfig;
 }
 
 function replacePlugin(plugins, nameMatcher, newPlugin) {
