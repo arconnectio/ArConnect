@@ -4,3 +4,4 @@
 .eslintcache
 *.env
 *.local
+*.log

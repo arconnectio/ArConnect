@@ -4,7 +4,7 @@ import reducers, { plainReducers } from "./reducers";
 function saveLocal(state: any) {
   try {
     for (const st in state) {
-      localStorage.setItem(`wallet_${st}`, JSON.stringify({ val: state[st] }));
+      localStorage.setItem(`arweave_${st}`, JSON.stringify({ val: state[st] }));
     }
   } catch {}
 }
@@ -14,7 +14,7 @@ function loadLocal() {
 
   try {
     for (const reducer in plainReducers) {
-      const serialisedReducer = localStorage.getItem(`wallet_${reducer}`);
+      const serialisedReducer = localStorage.getItem(`arweave_${reducer}`);
 
       if (serialisedReducer !== null)
         serialisedState[reducer] = JSON.parse(serialisedReducer).val;

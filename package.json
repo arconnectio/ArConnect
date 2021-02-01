@@ -4,13 +4,15 @@
   "private": true,
   "dependencies": {
     "@geist-ui/react": "^2.1.0-canary.2",
+    "@primer/octicons-react": "^11.2.0",
     "arweave": "^1.10.3",
     "react": "^17.0.1",
     "react-app-rewired": "^2.0",
     "react-dom": "^17.0.1",
     "react-redux": "^7.2.2",
     "react-scripts": "4.0.1",
-    "redux": "^4.0.5"
+    "redux": "^4.0.5",
+    "use-color-scheme": "^1.1.1"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.129",

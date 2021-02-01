@@ -2,11 +2,15 @@ import React from "react";
 import { CssBaseline, GeistProvider } from "@geist-ui/react";
 import { Provider as ReduxProvider } from "react-redux";
 import store from "../stores";
+// @ts-ignore
+import { useColorScheme } from "use-color-scheme";
 
 export default function Provider({ children }: Props) {
+  const { scheme } = useColorScheme();
+
   return (
     <ReduxProvider store={store}>
-      <GeistProvider>
+      <GeistProvider theme={{ type: scheme }}>
         <CssBaseline />
         {children}
       </GeistProvider>
