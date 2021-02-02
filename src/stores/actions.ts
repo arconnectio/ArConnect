@@ -1,3 +1,4 @@
+import { IProfileAction } from "./reducers/profile";
 import { IWalletsAction, Wallet } from "./reducers/wallets";
 
 export function addWallet(wallet: Wallet): IWalletsAction {
@@ -25,6 +26,13 @@ export function setWallets(wallets: Wallet[]): IWalletsAction {
   return {
     type: "SET_WALLETS",
     payload: { wallets }
+  };
+}
+
+export function switchProfile(address: string): IProfileAction {
+  return {
+    type: "SWITCH_PROFILE",
+    payload: { address }
   };
 }
 

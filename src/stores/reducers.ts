@@ -1,9 +1,11 @@
 import { combineReducers } from "redux";
 
 import wallets from "./reducers/wallets";
+import profile from "./reducers/profile";
 
 export const plainReducers = {
-  wallets
+  wallets,
+  profile
 };
 const reducers = combineReducers(plainReducers);
 

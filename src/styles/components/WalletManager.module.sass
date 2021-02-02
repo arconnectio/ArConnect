@@ -1,0 +1,51 @@
+.CurrentWallet
+  position: relative
+  padding: .3em 0
+  text-align: center
+  border-bottom: 1px solid #eaeaea
+  margin-bottom: .3em
+  background-color: #fff
+
+  @media (prefers-color-scheme: dark)
+    border-bottom-color: #333
+    background-color: #000
+
+  h1
+    font-size: 2em
+    font-weight: 500
+    margin: 0
+      bottom: .11em
+    cursor: pointer
+
+  p
+    font-size: .82em
+    margin: 0
+    color: #666
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+    width: 80%
+    margin: 0 auto
+    cursor: pointer
+    transition: all .23s ease-in-out
+
+    &:hover
+      opacity: .77
+
+    @media (prefers-color-scheme: dark)
+      color: #888
+
+  .Icon
+    position: absolute
+    top: 50%
+    right: 1em
+    cursor: pointer
+    color: #666
+    transform: translateY(-50%)
+
+    @media (prefers-color-scheme: dark)
+      color: #888
+
+    svg
+      width: 1.23em
+      height: 1.23em

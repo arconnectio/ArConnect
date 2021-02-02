@@ -17,7 +17,7 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import { generateMnemonic, getKeyFromMnemonic } from "arweave-mnemonic-keys";
 import { useDispatch, useSelector } from "react-redux";
 import { Wallet } from "../../stores/reducers/wallets";
-import { setWallets } from "../../stores/actions";
+import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
 import Cryptr from "cryptr";
 import Arweave from "arweave";
@@ -128,6 +128,7 @@ export default function App() {
     }
 
     dispath(setWallets(wallets));
+    dispath(switchProfile(wallets[0].address));
     setLoading(false);
     loadWalletsModal.setVisible(false);
     setToast({ text: "Loaded wallets", type: "success" });
@@ -307,7 +308,7 @@ export default function App() {
           Cancel
         </Modal.Action>
         <Modal.Action onClick={login} loading={loading}>
-          Submit
+          Load
         </Modal.Action>
       </Modal>
       <Modal {...seedModal.bindings}>
