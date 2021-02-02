@@ -9,6 +9,7 @@
     "arweave-mnemonic-keys": "^0.0.3",
     "copy-to-clipboard": "^3.3.1",
     "cryptr": "^6.0.2",
+    "framer-motion": "^3.3.0-beta.22",
     "react": "^17.0.1",
     "react-app-rewired": "^2.0",
     "react-dom": "^17.0.1",
