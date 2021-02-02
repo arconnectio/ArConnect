@@ -12,12 +12,14 @@ import {
 import { FileIcon } from "@primer/octicons-react";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { generateMnemonic, getKeyFromMnemonic } from "arweave-mnemonic-keys";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Wallet } from "../../stores/reducers/wallets";
 import { setWallets } from "../../stores/actions";
 import Arweave from "arweave";
 import weaveid_logo from "../../assets/weaveid.png";
+import logo from "../../assets/logo.png";
 import styles from "../../styles/views/Welcome/view.module.sass";
+import { RootState } from "../../stores/reducers";
 
 export default function App() {
   const theme = useTheme(),
@@ -33,6 +35,7 @@ export default function App() {
     >([]),
     [loading, setLoading] = useState(false),
     dispath = useDispatch(),
+    walletsStore = useSelector((state: RootState) => state.wallets),
     seedModal = useModal(false),
     [seedKeyfile, setSeedKeyfile] = useState<{
       address: string;
@@ -55,6 +58,10 @@ export default function App() {
     };
     // eslint-disable-next-line
   }, [fileInput.current]);
+
+  useEffect(() => {
+    if (walletsStore.length > 0) window.close();
+  }, [walletsStore]);
 
   function loadFiles() {
     if (fileInput.current?.files)
@@ -158,6 +165,7 @@ export default function App() {
     <>
       <div className={styles.Welcome}>
         <Card className={styles.Card}>
+          <img src={logo} alt="logo" className={styles.Logo} />
           <h1>
             Welcome to{" "}
             <span style={{ color: theme.palette.success }}>WeaveMask</span>
