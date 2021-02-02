@@ -66,10 +66,6 @@ export default function App() {
     // eslint-disable-next-line
   }, [fileInput.current]);
 
-  useEffect(() => {
-    if (walletsStore.length > 0) window.close();
-  }, [walletsStore]);
-
   function loadFiles() {
     if (fileInput.current?.files)
       for (const file of fileInput.current.files) {
@@ -127,11 +123,12 @@ export default function App() {
       wallets.push({ address, keyfile, name });
     }
 
-    dispath(setWallets(wallets));
+    dispath(setWallets([...walletsStore, ...wallets]));
     dispath(switchProfile(wallets[0].address));
     setLoading(false);
     loadWalletsModal.setVisible(false);
     setToast({ text: "Loaded wallets", type: "success" });
+    window.close();
   }
 
   async function weaveIDLogin() {
@@ -152,7 +149,12 @@ export default function App() {
     seedModal.setVisible(true);
     dispath(
       setWallets([
-        { keyfile: encryptedKeyfile, address, name: "Generated wallet" }
+        ...walletsStore,
+        {
+          keyfile: encryptedKeyfile,
+          address,
+          name: `Account ${walletsStore.length}`
+        }
       ])
     );
     setLoading(false);
@@ -192,6 +194,18 @@ export default function App() {
     setPasswordGiven(true);
   }
 
+  function checkPassword() {
+    try {
+      const cryptr = new Cryptr(passwordInput.state);
+
+      cryptr.decrypt(walletsStore[0].keyfile);
+      setPasswordGiven(true);
+      setToast({ text: "Logged in", type: "success" });
+    } catch {
+      setToast({ text: "Wrong password", type: "error" });
+    }
+  }
+
   return (
     <>
       <div className={styles.Welcome}>
@@ -206,7 +220,9 @@ export default function App() {
             {!passwordGiven && (
               <>
                 <br />
-                Please create a password to encrypt your keyfiles
+                {walletsStore.length === 0
+                  ? "Please create a password to encrypt your keyfiles"
+                  : "Please enter your password"}
               </>
             )}
           </p>
@@ -225,13 +241,24 @@ export default function App() {
                 {...passwordInput.bindings}
                 placeholder="Password..."
               />
+              {walletsStore.length === 0 && (
+                <>
+                  <Spacer />
+                  <Input.Password
+                    {...passwordInputAgain.bindings}
+                    placeholder="Password again..."
+                  />
+                </>
+              )}
               <Spacer />
-              <Input.Password
-                {...passwordInputAgain.bindings}
-                placeholder="Password again..."
-              />
-              <Spacer />
-              <Button onClick={createPassword}>Create</Button>
+              <Button
+                onClick={() => {
+                  if (walletsStore.length === 0) createPassword();
+                  else checkPassword();
+                }}
+              >
+                {walletsStore.length === 0 ? "Create" : "Login"}
+              </Button>
             </>
           )}
         </Card>

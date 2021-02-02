@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../stores/reducers";
-import { removeWallet, renameWallet, switchProfile } from "../stores/actions";
+import {
+  removeWallet,
+  renameWallet,
+  signOut,
+  switchProfile
+} from "../stores/actions";
 import { Tooltip } from "@geist-ui/react";
 import {
   ChevronDownIcon,
@@ -41,6 +46,15 @@ export default function WalletManager() {
     return `${
       inputSizes.find(({ address }) => address === addr)?.width ?? "1"
     }px`;
+  }
+
+  function deleteWallet(addr: string) {
+    if (wallets.length - 1 > 0) {
+      dispatch(switchProfile(wallets[0].address));
+      dispatch(removeWallet(addr));
+    } else {
+      dispatch(signOut());
+    }
   }
 
   return (
@@ -90,22 +104,19 @@ export default function WalletManager() {
                   <p>{wallet.address}</p>
                 </div>
                 <div
-                  className={
-                    styles.Remove +
-                    " " +
-                    (wallets.length > 1 ? "" : styles.DisabledRemove)
-                  }
-                  onClick={() => {
-                    if (wallets.length > 1)
-                      dispatch(removeWallet(wallet.address));
-                  }}
+                  className={styles.Remove}
+                  onClick={() => deleteWallet(wallet.address)}
                 >
                   <TrashcanIcon />
                 </div>
               </div>
             ))}
-            {/** TODO: redirect to add new wallet route/screen */}
-            <div className={styles.Wallet + " " + styles.AddWallet}>
+            <div
+              className={styles.Wallet + " " + styles.AddWallet}
+              onClick={() =>
+                window.open(chrome.runtime.getURL("/welcome.html"))
+              }
+            >
               <PlusIcon />
               Add wallet
             </div>
