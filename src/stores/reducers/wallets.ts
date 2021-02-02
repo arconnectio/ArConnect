@@ -1,7 +1,5 @@
-import { JWKInterface } from "arweave/node/lib/wallet";
-
 export interface Wallet {
-  keyfile: JWKInterface;
+  keyfile: string; // encrypted string
   address: string;
   name: string;
 }

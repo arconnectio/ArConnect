@@ -7,7 +7,10 @@ import {
   Modal,
   Textarea,
   useToasts,
-  Tooltip
+  Tooltip,
+  useInput,
+  Input,
+  Spacer
 } from "@geist-ui/react";
 import { FileIcon } from "@primer/octicons-react";
 import { JWKInterface } from "arweave/node/lib/wallet";
@@ -15,11 +18,12 @@ import { generateMnemonic, getKeyFromMnemonic } from "arweave-mnemonic-keys";
 import { useDispatch, useSelector } from "react-redux";
 import { Wallet } from "../../stores/reducers/wallets";
 import { setWallets } from "../../stores/actions";
+import { RootState } from "../../stores/reducers";
+import Cryptr from "cryptr";
 import Arweave from "arweave";
 import weaveid_logo from "../../assets/weaveid.png";
 import logo from "../../assets/logo.png";
 import styles from "../../styles/views/Welcome/view.module.sass";
-import { RootState } from "../../stores/reducers";
 
 export default function App() {
   const theme = useTheme(),
@@ -45,7 +49,10 @@ export default function App() {
       host: "arweave.net",
       port: 443,
       protocol: "https"
-    });
+    }),
+    passwordInput = useInput(""),
+    passwordInputAgain = useInput(""),
+    [passwordGiven, setPasswordGiven] = useState(false);
 
   useEffect(() => {
     if (!fileInput.current) return;
@@ -113,7 +120,8 @@ export default function App() {
 
     for (let i = 0; i < keyfilesToLoad.length; i++) {
       const address = await arweave.wallets.jwkToAddress(keyfilesToLoad[i]),
-        keyfile = keyfilesToLoad[i],
+        cryptr = new Cryptr(passwordInput.state),
+        keyfile = cryptr.encrypt(JSON.stringify(keyfilesToLoad[i])),
         name = `Account ${i + 1}`;
 
       wallets.push({ address, keyfile, name });
@@ -134,12 +142,18 @@ export default function App() {
 
     const mnemonic = await generateMnemonic(),
       keyfile: JWKInterface = await getKeyFromMnemonic(mnemonic),
-      address = await arweave.wallets.jwkToAddress(keyfile);
+      address = await arweave.wallets.jwkToAddress(keyfile),
+      cryptr = new Cryptr(passwordInput.state),
+      encryptedKeyfile = cryptr.encrypt(JSON.stringify(keyfile));
 
     setSeed(mnemonic);
     setSeedKeyfile({ address, keyfile });
     seedModal.setVisible(true);
-    dispath(setWallets([{ keyfile, address, name: "Generated wallet" }]));
+    dispath(
+      setWallets([
+        { keyfile: encryptedKeyfile, address, name: "Generated wallet" }
+      ])
+    );
     setLoading(false);
   }
 
@@ -161,6 +175,22 @@ export default function App() {
     document.body.removeChild(el);
   }
 
+  function createPassword() {
+    if (passwordInput.state === "" || passwordInputAgain.state === "") {
+      setToast({ text: "Please fill both password fields", type: "error" });
+      return;
+    }
+    if (passwordInput.state !== passwordInputAgain.state) {
+      setToast({ text: "The two passwords are not the same", type: "error" });
+      return;
+    }
+    if (passwordInputAgain.state.length < 5) {
+      setToast({ text: "Weak password", type: "error" });
+      return;
+    }
+    setPasswordGiven(true);
+  }
+
   return (
     <>
       <div className={styles.Welcome}>
@@ -172,15 +202,37 @@ export default function App() {
           </h1>
           <p style={{ color: theme.palette.accents_4 }}>
             Secure wallet management for Arweave
+            {!passwordGiven && (
+              <>
+                <br />
+                Please create a password to encrypt your keyfiles
+              </>
+            )}
           </p>
-          <div className={styles.Actions}>
-            <Button onClick={() => loadWalletsModal.setVisible(true)}>
-              Load wallet(s)
-            </Button>
-            <Button onClick={createWallet} loading={loading}>
-              New wallet
-            </Button>
-          </div>
+          {(passwordGiven && (
+            <div className={styles.Actions}>
+              <Button onClick={() => loadWalletsModal.setVisible(true)}>
+                Load wallet(s)
+              </Button>
+              <Button onClick={createWallet} loading={loading}>
+                New wallet
+              </Button>
+            </div>
+          )) || (
+            <>
+              <Input.Password
+                {...passwordInput.bindings}
+                placeholder="Password..."
+              />
+              <Spacer />
+              <Input.Password
+                {...passwordInputAgain.bindings}
+                placeholder="Password again..."
+              />
+              <Spacer />
+              <Button onClick={createPassword}>Create</Button>
+            </>
+          )}
         </Card>
       </div>
       <Modal {...loadWalletsModal.bindings}>
