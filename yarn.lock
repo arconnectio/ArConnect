@@ -1416,6 +1416,14 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
+"@limestonefi/api@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@limestonefi/api/-/api-0.1.2.tgz#eb37452ba5a2beede83dee8e965e14cee5e8b8f6"
+  integrity sha512-DoPctY3eGFwGnkqR5Ejom268PSYg+MpHwQ+hTRVrzNUE0YYeKZQYqnVF3vkeHzUdsIaFi/+YbgD+yfl+Cnr7qg==
+  dependencies:
+    ar-gql "^0.0.3"
+    arweave "^1.10.0"
+
 "@lordvlad/asn1.js@^5.1.1":
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/@lordvlad/asn1.js/-/asn1.js-5.1.1.tgz#468d5ff5f9045e0951a7d0e89a33e5f26a252df3"
@@ -1770,6 +1778,11 @@
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
+
+"@types/limestonefi__api@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@types/limestonefi__api/-/limestonefi__api-0.1.0.tgz#4dac7831ac13177d18295b385aa43a05b3a980b4"
+  integrity sha512-K/Sju973RNI6TTu1MV/0+XdBTspJOVH53m3n+dJ/W8g/xHNs2Fha4kOXuR73Zg6Di2RhHWKQ+X7MasVKcgPYyA==
 
 "@types/minimatch@*":
   version "3.0.3"
@@ -2356,6 +2369,13 @@ aproba@^1.1.1:
   resolved "https://registry.yarnpkg.com/aproba/-/aproba-1.2.0.tgz#6802e6264efd18c790a1b0d517f0f2627bf2c94a"
   integrity sha512-Y9J6ZjXtoYh8RnXVCMOU/ttDmk1aBjunq9vO0ta5x85WDQiQfUF9sIPBITdbiiIVcBo03Hi3jMxigBtsddlXRw==
 
+ar-gql@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/ar-gql/-/ar-gql-0.0.3.tgz#3c0734e572a26842ffbdb6bb343182f96e2a711f"
+  integrity sha512-P9xdIVU6InndVBO9n6nbKpu1A1Ad/6Yr02Lf835zZiEq4t60zMkp6epb88gr+YnXbDYdKuCrXTJWMHpHK7ZNTw==
+  dependencies:
+    node-fetch "^2.6.1"
+
 argparse@^1.0.7:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/argparse/-/argparse-1.0.10.tgz#bcd6791ea5ae09725e17e5ad988134cd40b3d911"
@@ -2464,7 +2484,7 @@ arweave-mnemonic-keys@^0.0.3:
     human-crypto-keys "^0.1.4"
     libp2p-crypto "^0.18.0"
 
-arweave@^1.10.3:
+arweave@^1.10.0, arweave@^1.10.3:
   version "1.10.3"
   resolved "https://registry.yarnpkg.com/arweave/-/arweave-1.10.3.tgz#70bb21ba14ba564aaea7d4c2f9e220beca4d5032"
   integrity sha512-fHIIeMNCO7uhLUmyybI8Xl5c19RAoznjKiK0vUmW3rnzo3Wmy06NZs0M7njN0bKPH+RCaHRDuIhyhETWwKj1sw==
@@ -7751,6 +7771,11 @@ node-addon-api@^2.0.0:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-2.0.2.tgz#432cfa82962ce494b132e9d72a15b29f71ff5d32"
   integrity sha512-Ntyt4AIXyaLIuMHF6IOoTakB3K+RWxwtsHNRxllEoA6vPwP9o4866g6YWDLUdnucilZhmkxiHwHr11gAENw+QA==
+
+node-fetch@^2.6.1:
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.1.tgz#045bd323631f76ed2e2b55573394416b639a0052"
+  integrity sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==
 
 node-forge@^0.10.0:
   version "0.10.0"

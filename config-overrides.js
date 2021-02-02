@@ -13,7 +13,6 @@ function override(config, env) {
     ...config,
     entry: {
       popup: paths.appIndexJs,
-      options: paths.appSrc + "/options",
       background: paths.appSrc + "/background",
       contentscript: paths.appSrc + "/contentscript",
       welcome: paths.appSrc + "/welcome",
@@ -57,16 +56,6 @@ function override(config, env) {
     (name) => /HtmlWebpackPlugin/i.test(name),
     indexHtmlPlugin
   );
-
-  const optionsHtmlPlugin = new HtmlWebpackPlugin({
-    inject: true,
-    chunks: ["options"],
-    template: paths.appPublic + "/options.html",
-    filename: "options.html",
-    minify: isEnvProduction && minifyOpts
-  });
-
-  newConfig.plugins.push(optionsHtmlPlugin);
 
   const welcomeHtmlPlugin = new HtmlWebpackPlugin({
     inject: true,

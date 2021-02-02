@@ -18,9 +18,6 @@
     "default_title": "Popup",
     "default_popup": "popup.html"
   },
-  "options_ui": {
-    "page": "options.html"
-  },
   "web_accessible_resources": ["welcome.html", "static/js/api.js"],
   "content_scripts": [
     {
