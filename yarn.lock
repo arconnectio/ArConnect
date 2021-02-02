@@ -11441,6 +11441,11 @@ wbuf@^1.1.0, wbuf@^1.7.3:
   dependencies:
     minimalistic-assert "^1.0.0"
 
+weaveid@^1.0.26:
+  version "1.0.26"
+  resolved "https://registry.yarnpkg.com/weaveid/-/weaveid-1.0.26.tgz#22d8b32a7803194c8ee184bcffcc1bc3bd451dce"
+  integrity sha512-C6TZ58ecdmn/lmuNHT13xVSZ6pWYAxK6KaeJT6itHrnGAfBSLa2kDXGMP9oeJpoh0vIX6tMksgIsAlwqZRA2qw==
+
 web-encoding@^1.0.2, web-encoding@^1.0.5, web-encoding@^1.0.6:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/web-encoding/-/web-encoding-1.0.6.tgz#ec631356ee523b4474ecbcae680440bd1e79416a"

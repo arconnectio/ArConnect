@@ -21,6 +21,13 @@ export function renameWallet(address: string, name: string): IWalletsAction {
   };
 }
 
+export function setWallets(wallets: Wallet[]): IWalletsAction {
+  return {
+    type: "SET_WALLETS",
+    payload: { wallets }
+  };
+}
+
 export function signOut() {
   return {
     type: "USER_SIGNOUT",

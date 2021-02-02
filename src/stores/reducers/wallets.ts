@@ -7,11 +7,17 @@ export interface Wallet {
 }
 
 export interface IWalletsAction {
-  type: "ADD_WALLET" | "REMOVE_WALLET" | "USER_SIGNOUT" | "RENAME_WALLET";
+  type:
+    | "ADD_WALLET"
+    | "REMOVE_WALLET"
+    | "USER_SIGNOUT"
+    | "RENAME_WALLET"
+    | "SET_WALLETS";
   payload: {
     name?: string;
     wallet?: Wallet;
     address?: string;
+    wallets?: Wallet[];
   };
 }
 
@@ -40,6 +46,10 @@ export default function walletsReducer(
           ? { ...wallet, name: action.payload.name ?? "" }
           : wallet
       );
+
+    case "SET_WALLETS":
+      if (!action.payload.wallets) break;
+      return action.payload.wallets;
 
     case "USER_SIGNOUT":
       return [];

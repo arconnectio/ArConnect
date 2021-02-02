@@ -12,6 +12,10 @@ import {
 import { FileIcon } from "@primer/octicons-react";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { getKeyFromMnemonic } from "arweave-mnemonic-keys";
+import { useDispatch } from "react-redux";
+import { Wallet } from "../../stores/reducers/wallets";
+import { setWallets } from "../../stores/actions";
+import Arweave from "arweave";
 import weaveid_logo from "../../assets/weaveid.png";
 import styles from "../../styles/views/Welcome/view.module.sass";
 
@@ -20,14 +24,15 @@ export default function App() {
     fileInput = useRef<HTMLInputElement>(null),
     loadWalletsModal = useModal(false),
     [seed, setSeed] = useState<string>(),
-    [_, setToast] = useToasts(),
+    [, setToast] = useToasts(),
     [keyfiles, setKeyfiles] = useState<
       {
         keyfile: JWKInterface;
         filename?: string;
       }[]
     >([]),
-    [loading, setLoading] = useState(false);
+    [loading, setLoading] = useState(false),
+    dispath = useDispatch();
 
   useEffect(() => {
     if (!fileInput.current) return;
@@ -77,13 +82,39 @@ export default function App() {
   }
 
   async function login() {
+    if (loading) return;
     setLoading(true);
-    let keyfilesToLoad: JWKInterface[] = keyfiles.map(({ keyfile }) => keyfile);
+    const keyfilesToLoad: JWKInterface[] = keyfiles.map(
+        ({ keyfile }) => keyfile
+      ),
+      arweave = new Arweave({
+        host: "arweave.net",
+        port: 443,
+        protocol: "https"
+      }),
+      wallets: Wallet[] = [];
+
     if (seed) {
       const keyFromSeed: JWKInterface = await getKeyFromMnemonic(seed);
       keyfilesToLoad.push(keyFromSeed);
     }
+
+    for (let i = 0; i < keyfilesToLoad.length; i++) {
+      const address = await arweave.wallets.jwkToAddress(keyfilesToLoad[i]),
+        keyfile = keyfilesToLoad[i],
+        name = `Account ${i + 1}`;
+
+      wallets.push({ address, keyfile, name });
+    }
+
+    dispath(setWallets(wallets));
     setLoading(false);
+    loadWalletsModal.setVisible(false);
+    setToast({ text: "Loaded wallets", type: "success" });
+  }
+
+  async function weaveIDLogin() {
+    setToast({ text: "WeaveID is not yet implemented.", type: "error" });
   }
 
   return (
@@ -125,7 +156,11 @@ export default function App() {
             className={styles.Seed}
           ></Textarea>
           <span className={styles.OR}>OR</span>
-          <Button type="secondary" className={styles.WeaveIDButton}>
+          <Button
+            type="secondary"
+            className={styles.WeaveIDButton}
+            onClick={weaveIDLogin}
+          >
             <img src={weaveid_logo} alt="weaveid-logo" />
             WeaveID
           </Button>
@@ -162,7 +197,7 @@ export default function App() {
           >
             <div className={styles.items}>
               <FileIcon size={24} />
-              {keyfiles.length > 0 ? "Load more keyfile(s)" : "Load keyfile(s)"}
+              {keyfiles.length > 0 ? "Add more keyfile(s)" : "Load keyfile(s)"}
             </div>
           </Card>
         </Modal.Content>
@@ -172,7 +207,9 @@ export default function App() {
         >
           Cancel
         </Modal.Action>
-        <Modal.Action onClick={login}>Submit</Modal.Action>
+        <Modal.Action onClick={login} loading={loading}>
+          Submit
+        </Modal.Action>
       </Modal>
       <input
         type="file"

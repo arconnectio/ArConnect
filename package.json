@@ -13,7 +13,8 @@
     "react-redux": "^7.2.2",
     "react-scripts": "4.0.1",
     "redux": "^4.0.5",
-    "use-color-scheme": "^1.1.1"
+    "use-color-scheme": "^1.1.1",
+    "weaveid": "^1.0.26"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.129",
