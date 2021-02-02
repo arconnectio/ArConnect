@@ -11,7 +11,7 @@ import {
 } from "@geist-ui/react";
 import { FileIcon } from "@primer/octicons-react";
 import { JWKInterface } from "arweave/node/lib/wallet";
-import { getKeyFromMnemonic } from "arweave-mnemonic-keys";
+import { generateMnemonic, getKeyFromMnemonic } from "arweave-mnemonic-keys";
 import { useDispatch } from "react-redux";
 import { Wallet } from "../../stores/reducers/wallets";
 import { setWallets } from "../../stores/actions";
@@ -32,7 +32,17 @@ export default function App() {
       }[]
     >([]),
     [loading, setLoading] = useState(false),
-    dispath = useDispatch();
+    dispath = useDispatch(),
+    seedModal = useModal(false),
+    [seedKeyfile, setSeedKeyfile] = useState<{
+      address: string;
+      keyfile: JWKInterface;
+    }>(),
+    arweave = new Arweave({
+      host: "arweave.net",
+      port: 443,
+      protocol: "https"
+    });
 
   useEffect(() => {
     if (!fileInput.current) return;
@@ -87,11 +97,6 @@ export default function App() {
     const keyfilesToLoad: JWKInterface[] = keyfiles.map(
         ({ keyfile }) => keyfile
       ),
-      arweave = new Arweave({
-        host: "arweave.net",
-        port: 443,
-        protocol: "https"
-      }),
       wallets: Wallet[] = [];
 
     if (seed) {
@@ -117,6 +122,38 @@ export default function App() {
     setToast({ text: "WeaveID is not yet implemented.", type: "error" });
   }
 
+  async function createWallet() {
+    setLoading(true);
+
+    const mnemonic = await generateMnemonic(),
+      keyfile: JWKInterface = await getKeyFromMnemonic(mnemonic),
+      address = await arweave.wallets.jwkToAddress(keyfile);
+
+    setSeed(mnemonic);
+    setSeedKeyfile({ address, keyfile });
+    seedModal.setVisible(true);
+    dispath(setWallets([{ keyfile, address, name: "Generated wallet" }]));
+    setLoading(false);
+  }
+
+  function downloadSeedWallet() {
+    if (!seedKeyfile) return;
+    const el = document.createElement("a");
+
+    el.setAttribute(
+      "href",
+      `data:application/json;charset=utf-8,${encodeURIComponent(
+        JSON.stringify(seedKeyfile.keyfile, null, 2)
+      )}`
+    );
+    el.setAttribute("download", `arweave-keyfile-${seedKeyfile.address}.json`);
+    el.style.display = "none";
+
+    document.body.appendChild(el);
+    el.click();
+    document.body.removeChild(el);
+  }
+
   return (
     <>
       <div className={styles.Welcome}>
@@ -132,7 +169,9 @@ export default function App() {
             <Button onClick={() => loadWalletsModal.setVisible(true)}>
               Load wallet(s)
             </Button>
-            <Button>New wallet</Button>
+            <Button onClick={createWallet} loading={loading}>
+              New wallet
+            </Button>
           </div>
         </Card>
       </div>
@@ -210,6 +249,22 @@ export default function App() {
         <Modal.Action onClick={login} loading={loading}>
           Submit
         </Modal.Action>
+      </Modal>
+      <Modal {...seedModal.bindings}>
+        <Modal.Title>Generated a wallet</Modal.Title>
+        <Modal.Subtitle>Make sure to remember this seedphrase</Modal.Subtitle>
+        <Modal.Content>
+          <Textarea
+            value={seed}
+            readOnly
+            className={styles.Seed + " " + styles.NewSeed}
+          ></Textarea>
+          <p style={{ textAlign: "center" }}>...and download your keyfile.</p>
+          <Button onClick={downloadSeedWallet} style={{ width: "100%" }}>
+            Download
+          </Button>
+        </Modal.Content>
+        <Modal.Action>Ok</Modal.Action>
       </Modal>
       <input
         type="file"
