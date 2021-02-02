@@ -46,8 +46,17 @@
   @media (prefers-color-scheme: dark)
     border-color: #333 !important
 
-  svg
-    margin-right: 1em
+  .items
+    display: flex
+    overflow: hidden
+    align-items: center
+
+    .Filename
+      margin: 0
+      white-space: nowrap
+
+    svg
+      margin-right: 1em
 
 .Seed
   display: block !important
@@ -75,3 +84,12 @@
   &::after
     right: 0
     left: unset
+
+.WeaveIDButton
+  width: 100% !important
+  align-items: center
+  margin-top: 1em
+
+  img
+    height: 1.8em
+    margin-right: .5em
