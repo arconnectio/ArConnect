@@ -8,6 +8,8 @@ import WalletManager from "../../../components/WalletManager";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
 import limestone from "@limestonefi/api";
+import Community from "community-js";
+import logo from "../../../assets/logo.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
 
 export default function Home() {
@@ -33,7 +35,10 @@ export default function Home() {
     >([]),
     [arPrice, setArPrice] = useState(1),
     theme = useTheme(),
-    dispatch = useDispatch();
+    dispatch = useDispatch(),
+    [pstPricesAndLogos, setPstPricesAndLogos] = useState<
+      { id: string; price: number; logo: string }[]
+    >([]);
 
   useEffect(() => {
     loadBalance();
@@ -41,6 +46,11 @@ export default function Home() {
     loadTransactions();
     // eslint-disable-next-line
   }, [profile]);
+
+  useEffect(() => {
+    loadPSTPricesAndLogos();
+    // eslint-disable-next-line
+  }, [psts]);
 
   async function loadBalance() {
     try {
@@ -77,6 +87,25 @@ export default function Home() {
     return val.slice(0, 10);
   }
 
+  async function loadPSTPricesAndLogos() {
+    if (!psts) return;
+    const verto = new Verto(),
+      community = new Community(arweave);
+
+    for (const pst of psts) {
+      try {
+        await community.setCommunityTx(pst.id);
+        const price = (await verto.latestPrice(pst.id)) ?? 0,
+          logo = (await community.getState()).settings.get("communityLogo");
+
+        setPstPricesAndLogos((val) => [
+          ...val.filter(({ id }) => id === pst.id),
+          { id: pst.id, price, logo }
+        ]);
+      } catch {}
+    }
+  }
+
   return (
     <div className={styles.Home}>
       <WalletManager />
@@ -100,9 +129,25 @@ export default function Home() {
           {(psts &&
             psts.length > 0 &&
             psts.map((pst, i) => (
-              <div key={i}>
-                {pst.balance}
-                {pst.ticker}
+              <div className={styles.PST} key={i}>
+                <img
+                  src={
+                    pstPricesAndLogos.find(({ id }) => id === pst.id)?.logo ??
+                    logo
+                  }
+                  alt=""
+                />
+                <div>
+                  <h1>
+                    {pst.balance} {pst.ticker}
+                  </h1>
+                  <h2>
+                    {pst.balance *
+                      (pstPricesAndLogos.find(({ id }) => id === pst.id)
+                        ?.price ?? 0)}{" "}
+                    AR
+                  </h2>
+                </div>
               </div>
             ))) || <p className={styles.EmptyIndicatorText}>No PSTs</p>}
         </Tabs.Item>

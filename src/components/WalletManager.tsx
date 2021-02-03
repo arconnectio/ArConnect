@@ -91,6 +91,7 @@ export default function WalletManager() {
                   <input
                     type="text"
                     value={wallet.name}
+                    title="Type to change wallet name"
                     onChange={(e) => {
                       dispatch(renameWallet(wallet.address, e.target.value));
                       adjustSizes();

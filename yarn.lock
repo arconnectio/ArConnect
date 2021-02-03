@@ -2882,7 +2882,7 @@ arweave-mnemonic-keys@^0.0.3:
     human-crypto-keys "^0.1.4"
     libp2p-crypto "^0.18.0"
 
-arweave@^1.10.0, arweave@^1.10.3:
+arweave@^1.10.0:
   version "1.10.3"
   resolved "https://registry.yarnpkg.com/arweave/-/arweave-1.10.3.tgz#70bb21ba14ba564aaea7d4c2f9e220beca4d5032"
   integrity sha512-fHIIeMNCO7uhLUmyybI8Xl5c19RAoznjKiK0vUmW3rnzo3Wmy06NZs0M7njN0bKPH+RCaHRDuIhyhETWwKj1sw==
@@ -2892,7 +2892,7 @@ arweave@^1.10.0, arweave@^1.10.3:
     base64-js "^1.3.1"
     bignumber.js "^8.1.1"
 
-arweave@^1.10.2:
+arweave@^1.10.2, arweave@^1.10.3:
   version "1.10.5"
   resolved "https://registry.yarnpkg.com/arweave/-/arweave-1.10.5.tgz#2f80e7a5d13e13c77d609d20ffad40f58e13d386"
   integrity sha512-F2A9mkqY0lu/y19WEpcmXjiIRO6Sh7OvOfmCGT9Y7c8hs1VYMhzSWaDYhAzd4y3VT1AQUAcD8xFzmX3gC9gA7Q==
@@ -3988,7 +3988,7 @@ commondir@^1.0.1:
   resolved "https://registry.yarnpkg.com/commondir/-/commondir-1.0.1.tgz#ddd800da0c66127393cca5950ea968a3aaf1253b"
   integrity sha1-3dgA2gxmEnOTzKWVDqloo6rxJTs=
 
-community-js@^1.1.15:
+community-js@^1.1.15, community-js@^1.1.21:
   version "1.1.21"
   resolved "https://registry.yarnpkg.com/community-js/-/community-js-1.1.21.tgz#b924f57acd9db1ec055eaef69a8d050b9abc37cf"
   integrity sha512-NbIvxllQS1EOu6PvmEGGsorI3DBYw74wvlT+K7csKoxt3nl7WOk6XBgGROVzgL42BWCRyYnnW+saqYKxb+IlHw==
