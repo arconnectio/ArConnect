@@ -13,6 +13,9 @@ import {
   PlusIcon,
   TrashcanIcon
 } from "@primer/octicons-react";
+// @ts-ignore
+import { useColorScheme } from "use-color-scheme";
+import { QRCode } from "react-qr-svg";
 import { motion, AnimatePresence } from "framer-motion";
 import copy from "copy-to-clipboard";
 import styles from "../styles/components/WalletManager.module.sass";
@@ -27,7 +30,8 @@ export default function WalletManager() {
         address: string;
         width: number;
       }[]
-    >([]);
+    >([]),
+    { scheme } = useColorScheme();
 
   useEffect(() => {
     adjustSizes();
@@ -62,7 +66,23 @@ export default function WalletManager() {
       <h1 onClick={() => setOpen(!open)}>
         {wallets.find(({ address }) => address === profile)?.name ?? ""}
       </h1>
-      <Tooltip text="Copy address" placement="bottom" style={{ width: "100%" }}>
+      <Tooltip
+        text={
+          <>
+            <p style={{ textAlign: "center", margin: "0 0 .35em" }}>
+              Click to copy address
+            </p>
+            <QRCode
+              className={styles.QRCode}
+              value={profile}
+              bgColor={scheme === "dark" ? "#000000" : "#ffffff"}
+              fgColor={scheme === "dark" ? "#ffffff" : "#000000"}
+            />
+          </>
+        }
+        placement="bottom"
+        style={{ width: "100%" }}
+      >
         <p onClick={() => copy(profile)}>{profile}</p>
       </Tooltip>
       <div
