@@ -42,3 +42,99 @@
       padding: .25em 0 .75em
       text-align: center
       justify-content: center
+
+  div[class~=content]
+    padding-top: 0 !important
+
+.Transaction
+  $sidePadding: .7em
+  position: relative
+  border-bottom: 1px solid #f5f5f5
+  padding: .7em $sidePadding .3em
+  cursor: pointer
+  color: #666
+  transition: all .23s ease-in-out
+
+  &.ViewMore
+    padding: .65em $sidePadding
+    text-align: center
+    color: #000
+    font-size: 1.22em
+    font-weight: 600
+
+    @media (prefers-color-scheme: dark)
+      color: #fff
+
+  @media (prefers-color-scheme: dark)
+    border-bottom-color: #333
+    color: #888
+
+  &:hover
+    background-color: #fff
+
+    @media (prefers-color-scheme: dark)
+      background-color: #000
+
+  .Details
+    display: flex
+    align-items: center
+    width: 74%
+
+    .Direction
+      position: relative
+      display: block
+      width: 4.3em
+      height: 1.85em
+      margin-right: .3em
+
+      svg
+        position: absolute
+        top: 0
+        left: 0
+        right: 0
+        bottom: 0
+
+    .Data
+      overflow: hidden
+
+      h1
+        font-size: 1.3em
+        line-height: 1em
+        margin: 0
+          bottom: .1em
+        font-weight: 600
+        color: #000
+
+        @media (prefers-color-scheme: dark)
+          color: #fff
+
+      p
+        font-size: 1.05em
+        margin: 0
+        font-weight: 500
+        width: 100%
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
+
+        .Status
+          text-transform: capitalize
+
+  .Cost
+    position: absolute
+    right: $sidePadding
+    top: 50%
+    text-align: right
+    transform: translateY(-50%)
+
+    h1, h2
+      font-weight: 500
+      margin: 0
+      line-height: 1em
+
+    h1
+      font-size: 1.23em
+      margin-bottom: .15em
+
+    h2
+      font-size: 1.05em
