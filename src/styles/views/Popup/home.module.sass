@@ -1,3 +1,5 @@
+$sidePaddingTransactions: .7em
+  
 .Home
   background-color: #fafafa
 
@@ -46,17 +48,16 @@
   div[class~=content]
     padding-top: 0 !important
 
-.Transaction
-  $sidePadding: .7em
+.Transaction, .PST
   position: relative
   border-bottom: 1px solid #e6e6e6
-  padding: .7em $sidePadding .3em
+  padding: .7em $sidePaddingTransactions .3em
   cursor: pointer
   color: #666
   transition: all .23s ease-in-out
 
   &.ViewMore
-    padding: .65em $sidePadding
+    padding: .65em $sidePaddingTransactions
     text-align: center
     color: #000
     font-size: 1.22em
@@ -122,7 +123,7 @@
 
   .Cost
     position: absolute
-    right: $sidePadding
+    right: $sidePaddingTransactions
     top: 50%
     text-align: right
     transform: translateY(-50%)
@@ -147,3 +148,55 @@
 
   @media (prefers-color-scheme: dark)
     color: #888
+
+.PST
+  display: flex
+  align-items: center
+  position: relative
+  padding: .9em $sidePaddingTransactions .7em
+
+  .Logo
+    position: relative
+    border-radius: 100%
+    overflow: hidden
+    width: 2.2em
+    height: 2.2em
+    background-color: #e2e2e2
+    margin-right: .5em
+
+    @media (prefers-color-scheme: dark)
+      background-color: #1a1a1a
+
+    img
+      position: absolute
+      top: 50%
+      left: 50%
+      width: 85%
+      height: 85%
+      transform: translate(-50%, -50%)
+
+  h1
+    font-size: 1.3em
+    line-height: 1em
+    margin: 0
+      bottom: .1em
+    font-weight: 600
+    color: #000
+
+    @media (prefers-color-scheme: dark)
+      color: #fff
+
+  h2
+    font-size: 1.05em
+    font-weight: 500
+    margin: 0
+    line-height: 1em
+
+  .Arrow
+    position: absolute
+    right: $sidePaddingTransactions
+    top: 50%
+    font-size: 1.45em
+    display: flex
+    align-items: center
+    transform: translateY(-50%)

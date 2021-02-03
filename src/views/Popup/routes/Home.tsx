@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
-import { QuestionIcon, SignOutIcon, SignInIcon } from "@primer/octicons-react";
+import {
+  QuestionIcon,
+  SignOutIcon,
+  SignInIcon,
+  ChevronRightIcon
+} from "@primer/octicons-react";
 import { Tabs, Tooltip, useTheme } from "@geist-ui/react";
 import { setAssets } from "../../../stores/actions";
 import WalletManager from "../../../components/WalletManager";
@@ -98,11 +103,15 @@ export default function Home() {
         const price = (await verto.latestPrice(pst.id)) ?? 0,
           logo = (await community.getState()).settings.get("communityLogo");
 
+        console.log(price, logo);
+
         setPstPricesAndLogos((val) => [
           ...val.filter(({ id }) => id === pst.id),
           { id: pst.id, price, logo }
         ]);
-      } catch {}
+      } catch (e) {
+        console.log(e);
+      }
     }
   }
 
@@ -129,14 +138,22 @@ export default function Home() {
           {(psts &&
             psts.length > 0 &&
             psts.map((pst, i) => (
-              <div className={styles.PST} key={i}>
-                <img
-                  src={
-                    pstPricesAndLogos.find(({ id }) => id === pst.id)?.logo ??
-                    logo
-                  }
-                  alt=""
-                />
+              <div
+                className={styles.PST}
+                key={i}
+                onClick={() =>
+                  window.open(`https://viewblock.io/arweave/address/${pst.id}`)
+                }
+              >
+                <div className={styles.Logo}>
+                  <img
+                    src={
+                      pstPricesAndLogos.find(({ id }) => id === pst.id)?.logo ??
+                      logo
+                    }
+                    alt="pst-logo"
+                  />
+                </div>
                 <div>
                   <h1>
                     {pst.balance} {pst.ticker}
@@ -147,6 +164,9 @@ export default function Home() {
                         ?.price ?? 0)}{" "}
                     AR
                   </h2>
+                </div>
+                <div className={styles.Arrow}>
+                  <ChevronRightIcon />
                 </div>
               </div>
             ))) || <p className={styles.EmptyIndicatorText}>No PSTs</p>}

@@ -7,7 +7,7 @@
     "@limestonefi/api": "^0.1.2",
     "@primer/octicons-react": "^11.2.0",
     "@verto/lib": "^0.9.6",
-    "arweave": "^1.10.3",
+    "arweave": "^1.10.5",
     "arweave-mnemonic-keys": "^0.0.3",
     "community-js": "^1.1.21",
     "copy-to-clipboard": "^3.3.1",
