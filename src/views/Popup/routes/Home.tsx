@@ -134,7 +134,7 @@ export default function Home() {
                       style={{
                         color:
                           tx.status === "success"
-                            ? theme.palette.success
+                            ? theme.palette.cyan
                             : tx.status === "error"
                             ? theme.palette.error
                             : tx.status === "pending"
@@ -150,11 +150,11 @@ export default function Home() {
               </div>
               <div className={styles.Cost}>
                 <h1>
-                  {tx.type === "in" ? "+" : "-"}
+                  {tx.amount !== 0 && (tx.type === "in" ? "+" : "-")}
                   {formatBalance(tx.amount)} AR
                 </h1>
                 <h2>
-                  {tx.type === "in" ? "+" : "-"}
+                  {tx.amount !== 0 && (tx.type === "in" ? "+" : "-")}
                   {formatBalance(tx.amount * arPrice)} USD
                 </h2>
               </div>
