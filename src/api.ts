@@ -32,6 +32,7 @@ const WeaveMaskAPI = {
       window.addEventListener("message", callback);
       document.body.appendChild(requestPermissionOverlay);
 
+      // @ts-ignore
       function callback(e: MessageEvent<any>) {
         if (
           !e.data.type ||

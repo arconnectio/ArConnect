@@ -9,6 +9,8 @@ import {
 } from "@primer/octicons-react";
 import { Tabs, Tooltip, useTheme } from "@geist-ui/react";
 import { setAssets } from "../../../stores/actions";
+import { goTo } from "react-chrome-extension-router";
+import PST from "./PST";
 import WalletManager from "../../../components/WalletManager";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
@@ -138,7 +140,12 @@ export default function Home() {
                 className={styles.PST}
                 key={i}
                 onClick={() =>
-                  window.open(`https://viewblock.io/arweave/address/${pst.id}`)
+                  goTo(PST, {
+                    name: pst.name,
+                    id: pst.id,
+                    balance: pst.balance,
+                    ticker: pst.ticker
+                  })
                 }
               >
                 <div className={styles.Logo}>
