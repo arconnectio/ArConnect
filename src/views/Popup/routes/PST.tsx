@@ -2,7 +2,14 @@ import React, { useEffect, useState } from "react";
 import { ArrowLeftIcon, ArrowSwitchIcon } from "@primer/octicons-react";
 import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
-import { Tabs, useTabs } from "@geist-ui/react";
+import {
+  Input,
+  Tabs,
+  useInput,
+  useTabs,
+  Button,
+  Spacer
+} from "@geist-ui/react";
 // @ts-ignore
 import { useColorScheme } from "use-color-scheme";
 import Verto from "@verto/lib";
@@ -15,7 +22,12 @@ import styles from "../../../styles/views/Popup/PST.module.sass";
 export default function PST({ id, name, balance, ticker }: Asset) {
   const [arPrice, setArPrice] = useState(0),
     { scheme } = useColorScheme(),
-    tabs = useTabs("1");
+    tabs = useTabs("1"),
+    transferInput = useInput(""),
+    [inputState, setInputState] = useState<
+      "default" | "secondary" | "success" | "warning" | "error"
+    >(),
+    [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadArPrice();
@@ -31,6 +43,18 @@ export default function PST({ id, name, balance, ticker }: Asset) {
   async function loadArPrice() {
     const verto = new Verto();
     setArPrice((await verto.latestPrice(id)) ?? 0);
+  }
+
+  async function transfer() {
+    if (
+      transferInput.state === "" ||
+      Number(transferInput.state) <= 0 ||
+      Number(transferInput.state) > balance
+    )
+      return setInputState("error");
+    setLoading(true);
+    // TODO: transfer
+    setLoading(false);
   }
 
   return (
@@ -56,7 +80,24 @@ export default function PST({ id, name, balance, ticker }: Asset) {
             }
             value="1"
           >
-            Transfer
+            <div className={styles.Transfer}>
+              <Spacer />
+              <Input
+                {...transferInput.bindings}
+                placeholder="Transfer amount..."
+                type="number"
+                status={inputState}
+                labelRight={ticker}
+              />
+              <Spacer />
+              <Button
+                style={{ width: "100%" }}
+                onClick={transfer}
+                loading={loading}
+              >
+                Transfer
+              </Button>
+            </div>
           </Tabs.Item>
           <Tabs.Item
             label={
