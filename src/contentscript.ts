@@ -22,12 +22,10 @@ document.head.appendChild(interFont);
 addScriptToWindow(chrome.extension.getURL("/static/js/api.js"));
 
 window.addEventListener("message", (e) => {
-  if (!e.data.type) return;
-  switch (e.data.type) {
-    case "connect":
-      //window.postMessage({ type: "connect_confirm" }, window.location.origin);
-      break;
-  }
+  if (!e.data || !e.data.type || e.data.ext !== "weavemask") return;
+  chrome.runtime.sendMessage(e.data, (res) =>
+    window.postMessage(res, window.location.origin)
+  );
 });
 
 export {};

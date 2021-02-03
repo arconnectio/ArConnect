@@ -10,26 +10,14 @@ export default function App() {
   const wallets = useSelector((state: RootState) => state.wallets);
 
   useEffect(() => {
-    chrome.runtime.onMessage.addListener(authListener);
-
-    return function cleanup() {
-      chrome.runtime.onMessage.removeListener(authListener);
-    };
+    const authStorage = localStorage.getItem("arweave_auth");
+    if (authStorage && JSON.parse(authStorage).val) goTo(Auth);
   }, []);
 
   useEffect(() => {
     if (wallets.length === 0)
       window.open(chrome.runtime.getURL("/welcome.html"));
   }, [wallets]);
-
-  async function authListener(
-    res: any,
-    sender: chrome.runtime.MessageSender,
-    sendResponse: (response?: any) => void
-  ) {
-    goTo(Auth);
-    sendResponse("test");
-  }
 
   return (
     <Router>
