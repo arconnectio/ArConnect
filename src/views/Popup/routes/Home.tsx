@@ -14,7 +14,7 @@ import Arweave from "arweave";
 import Verto from "@verto/lib";
 import limestone from "@limestonefi/api";
 import Community from "community-js";
-import logo from "../../../assets/logo.png";
+import arweaveLogo from "../../../assets/arweave.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
 
 export default function Home() {
@@ -103,15 +103,11 @@ export default function Home() {
         const price = (await verto.latestPrice(pst.id)) ?? 0,
           logo = (await community.getState()).settings.get("communityLogo");
 
-        console.log(price, logo);
-
         setPstPricesAndLogos((val) => [
           ...val.filter(({ id }) => id === pst.id),
           { id: pst.id, price, logo }
         ]);
-      } catch (e) {
-        console.log(e);
-      }
+      } catch (e) {}
     }
   }
 
@@ -149,7 +145,7 @@ export default function Home() {
                   <img
                     src={
                       pstPricesAndLogos.find(({ id }) => id === pst.id)?.logo ??
-                      logo
+                      arweaveLogo
                     }
                     alt="pst-logo"
                   />

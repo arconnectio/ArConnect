@@ -9,11 +9,15 @@
     "scripts": ["static/js/background.js"]
   },
   "icons": {
-    "192": "logo192.png"
+    "64": "logo64.png",
+    "128": "logo128.png",
+    "256": "logo256.png"
   },
   "browser_action": {
     "default_icon": {
-      "192": "logo192.png"
+      "64": "logo64.png",
+      "128": "logo128.png",
+      "256": "logo256.png"
     },
     "default_title": "Popup",
     "default_popup": "popup.html"
