@@ -1,3 +1,4 @@
+import { Asset, IAssetsAction } from "./reducers/assets";
 import { IProfileAction } from "./reducers/profile";
 import { IWalletsAction, Wallet } from "./reducers/wallets";
 
@@ -33,6 +34,13 @@ export function switchProfile(address: string): IProfileAction {
   return {
     type: "SWITCH_PROFILE",
     payload: { address }
+  };
+}
+
+export function setAssets(address: string, assets: Asset[]): IAssetsAction {
+  return {
+    type: "UPDATE_ASSETS",
+    payload: { address, assets }
   };
 }
 

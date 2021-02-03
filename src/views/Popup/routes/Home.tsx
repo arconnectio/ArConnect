@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
 import { QuestionIcon, SignOutIcon, SignInIcon } from "@primer/octicons-react";
 import { Tabs, Tooltip, useTheme } from "@geist-ui/react";
+import { setAssets } from "../../../stores/actions";
 import WalletManager from "../../../components/WalletManager";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
@@ -18,14 +19,9 @@ export default function Home() {
       protocol: "https"
     }),
     profile = useSelector((state: RootState) => state.profile),
-    [psts, setPSTs] = useState<
-      {
-        id: string;
-        name: string;
-        ticker: string;
-        balance: number;
-      }[]
-    >([]),
+    psts = useSelector((state: RootState) => state.assets).find(
+      ({ address }) => address === profile
+    )?.assets,
     [transactions, setTransactions] = useState<
       {
         id: string;
@@ -36,7 +32,8 @@ export default function Home() {
       }[]
     >([]),
     [arPrice, setArPrice] = useState(1),
-    theme = useTheme();
+    theme = useTheme(),
+    dispatch = useDispatch();
 
   useEffect(() => {
     loadBalance();
@@ -62,7 +59,7 @@ export default function Home() {
     const verto = new Verto();
 
     try {
-      setPSTs(await verto.getAssets(profile));
+      dispatch(setAssets(profile, await verto.getAssets(profile)));
     } catch {}
   }
 
@@ -100,74 +97,79 @@ export default function Home() {
       </div>
       <Tabs initialValue="1" className={styles.Tabs}>
         <Tabs.Item label="PSTs" value="1">
-          {psts.map((pst, i) => (
-            <div key={i}>
-              {pst.balance}
-              {pst.ticker}
-            </div>
-          ))}
+          {(psts &&
+            psts.length > 0 &&
+            psts.map((pst, i) => (
+              <div key={i}>
+                {pst.balance}
+                {pst.ticker}
+              </div>
+            ))) || <p className={styles.EmptyIndicatorText}>No PSTs</p>}
         </Tabs.Item>
         <Tabs.Item label="Transactions" value="2">
-          {transactions.map((tx, i) => (
-            <div
-              className={styles.Transaction}
-              key={i}
-              onClick={() =>
-                window.open(`https://viewblock.io/arweave/tx/${tx.id}`)
-              }
-            >
-              <div className={styles.Details}>
-                <span className={styles.Direction}>
-                  {(tx.type === "in" && <SignInIcon size={24} />) || (
-                    <SignOutIcon size={24} />
-                  )}
-                </span>
-                <div className={styles.Data}>
+          {(transactions.length > 0 &&
+            transactions.map((tx, i) => (
+              <div
+                className={styles.Transaction}
+                key={i}
+                onClick={() =>
+                  window.open(`https://viewblock.io/arweave/tx/${tx.id}`)
+                }
+              >
+                <div className={styles.Details}>
+                  <span className={styles.Direction}>
+                    {(tx.type === "in" && <SignInIcon size={24} />) || (
+                      <SignOutIcon size={24} />
+                    )}
+                  </span>
+                  <div className={styles.Data}>
+                    <h1>
+                      {tx.type === "in"
+                        ? "Incoming transaction"
+                        : "Outgoing transaction"}
+                    </h1>
+                    <p>
+                      <span
+                        className={styles.Status}
+                        style={{
+                          color:
+                            tx.status === "success"
+                              ? theme.palette.cyan
+                              : tx.status === "error"
+                              ? theme.palette.error
+                              : tx.status === "pending"
+                              ? theme.palette.warning
+                              : undefined
+                        }}
+                      >
+                        {tx.status} ·{" "}
+                      </span>
+                      {tx.id}
+                    </p>
+                  </div>
+                </div>
+                <div className={styles.Cost}>
                   <h1>
-                    {tx.type === "in"
-                      ? "Incoming transaction"
-                      : "Outgoing transaction"}
+                    {tx.amount !== 0 && (tx.type === "in" ? "+" : "-")}
+                    {formatBalance(tx.amount)} AR
                   </h1>
-                  <p>
-                    <span
-                      className={styles.Status}
-                      style={{
-                        color:
-                          tx.status === "success"
-                            ? theme.palette.cyan
-                            : tx.status === "error"
-                            ? theme.palette.error
-                            : tx.status === "pending"
-                            ? theme.palette.warning
-                            : undefined
-                      }}
-                    >
-                      {tx.status} ·{" "}
-                    </span>
-                    {tx.id}
-                  </p>
+                  <h2>
+                    {tx.amount !== 0 && (tx.type === "in" ? "+" : "-")}
+                    {formatBalance(tx.amount * arPrice)} USD
+                  </h2>
                 </div>
               </div>
-              <div className={styles.Cost}>
-                <h1>
-                  {tx.amount !== 0 && (tx.type === "in" ? "+" : "-")}
-                  {formatBalance(tx.amount)} AR
-                </h1>
-                <h2>
-                  {tx.amount !== 0 && (tx.type === "in" ? "+" : "-")}
-                  {formatBalance(tx.amount * arPrice)} USD
-                </h2>
-              </div>
+            ))) || <p className={styles.EmptyIndicatorText}>No transactions</p>}
+          {transactions.length > 0 && (
+            <div
+              className={styles.Transaction + " " + styles.ViewMore}
+              onClick={() =>
+                window.open(`https://viewblock.io/arweave/address/${profile}`)
+              }
+            >
+              View more...
             </div>
-          ))}
-          <div
-            className={styles.Transaction + " " + styles.ViewMore}
-            onClick={() =>
-              window.open(`https://viewblock.io/arweave/address/${profile}`)
-            }
-          >
-            View more...
-          </div>
+          )}
         </Tabs.Item>
       </Tabs>
     </div>
