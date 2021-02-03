@@ -13,6 +13,21 @@ function addScriptToWindow(path: string) {
   }
 }
 
+const interFont = document.createElement("link");
+interFont.rel = "stylesheet";
+interFont.href =
+  "https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap";
+document.head.appendChild(interFont);
+
 addScriptToWindow(chrome.extension.getURL("/static/js/api.js"));
+
+window.addEventListener("message", (e) => {
+  if (!e.data.type) return;
+  switch (e.data.type) {
+    case "connect":
+      //window.postMessage({ type: "connect_confirm" }, window.location.origin);
+      break;
+  }
+});
 
 export {};
