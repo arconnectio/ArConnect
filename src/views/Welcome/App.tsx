@@ -195,15 +195,22 @@ export default function App() {
   }
 
   function checkPassword() {
-    try {
-      const cryptr = new Cryptr(passwordInput.state);
+    setLoading(true);
+    // we need to wait a bit, because the decrypting
+    // freezes the program, and the loading does not start
+    setTimeout(() => {
+      try {
+        const cryptr = new Cryptr(passwordInput.state);
 
-      cryptr.decrypt(walletsStore[0].keyfile);
-      setPasswordGiven(true);
-      setToast({ text: "Logged in", type: "success" });
-    } catch {
-      setToast({ text: "Wrong password", type: "error" });
-    }
+        cryptr.decrypt(walletsStore[0].keyfile);
+        setPasswordGiven(true);
+        setToast({ text: "Logged in", type: "success" });
+      } catch {
+        setToast({ text: "Wrong password", type: "error" });
+      } finally {
+        setLoading(false);
+      }
+    }, 100);
   }
 
   return (
@@ -256,6 +263,7 @@ export default function App() {
                   if (walletsStore.length === 0) createPassword();
                   else checkPassword();
                 }}
+                loading={loading}
               >
                 {walletsStore.length === 0 ? "Create" : "Login"}
               </Button>
@@ -352,7 +360,7 @@ export default function App() {
             Download
           </Button>
         </Modal.Content>
-        <Modal.Action>Ok</Modal.Action>
+        <Modal.Action onClick={() => window.close()}>Ok</Modal.Action>
       </Modal>
       <input
         type="file"
