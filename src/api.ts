@@ -1,7 +1,7 @@
+import { sendMessage, validateMessage } from "./utils/messenger";
+
 declare global {
   interface Window {
-    weavemask_id: string;
-    arweave: typeof ArweaveAPI;
     weavemask: typeof WeaveMaskAPI;
   }
 }
@@ -25,21 +25,18 @@ const WeaveMaskAPI = {
     `);
 
     return new Promise((resolve, reject) => {
-      window.postMessage(
+      sendMessage(
         { type: "connect", ext: "weavemask", sender: "api", permissions },
-        window.location.origin
+        undefined,
+        undefined,
+        false
       );
       window.addEventListener("message", callback);
       document.body.appendChild(requestPermissionOverlay);
 
       // @ts-ignore
       function callback(e: MessageEvent<any>) {
-        if (
-          !e.data.type ||
-          e.data.ext !== "weavemask" ||
-          e.data.type !== "connect_result"
-        )
-          return;
+        if (!validateMessage(e.data, { type: "connect_result" })) return;
         window.removeEventListener("message", callback);
         document.body.removeChild(requestPermissionOverlay);
         if (e.data.res) resolve(e.data.message);
@@ -49,8 +46,6 @@ const WeaveMaskAPI = {
   }
 };
 
-const ArweaveAPI = {};
-
 // TODO: extract this to it's own library, import from there
 type PermissionType =
   | "ACCESS_ADDRESS"
@@ -59,6 +54,5 @@ type PermissionType =
   | "SIGN_TRANSACTION";
 
 window.weavemask = WeaveMaskAPI;
-window.arweave = ArweaveAPI;
 
 export {};

@@ -1,3 +1,5 @@
+import { sendMessage, validateMessage } from "./utils/messenger";
+
 function addScriptToWindow(path: string) {
   try {
     const container = document.head || document.documentElement,
@@ -22,10 +24,8 @@ document.head.appendChild(interFont);
 addScriptToWindow(chrome.extension.getURL("/static/js/api.js"));
 
 window.addEventListener("message", (e) => {
-  if (!e.data || !e.data.type || e.data.ext !== "weavemask") return;
-  chrome.runtime.sendMessage(e.data, (res) =>
-    window.postMessage(res, window.location.origin)
-  );
+  if (!validateMessage(e.data, {}) || !e.data.type) return;
+  sendMessage(e.data, (res) => sendMessage(res, undefined, undefined, false));
 });
 
 export {};

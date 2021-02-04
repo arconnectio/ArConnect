@@ -22,7 +22,11 @@
     "default_title": "Popup",
     "default_popup": "popup.html"
   },
-  "web_accessible_resources": ["welcome.html", "static/js/api.js"],
+  "web_accessible_resources": [
+    "welcome.html",
+    "static/js/api.js",
+    "static/js/utils/messenger.js"
+  ],
   "content_scripts": [
     {
       "matches": ["file://*/*", "http://*/*", "https://*/*"],

@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Button, Input, Spacer, useInput } from "@geist-ui/react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
-import styles from "../../../styles/views/Popup/auth.module.sass";
+import { sendMessage } from "../../../utils/messenger";
 import Cryptr from "cryptr";
+import styles from "../../../styles/views/Popup/auth.module.sass";
 
 export default function Auth() {
   const passwordInput = useInput(""),
@@ -20,9 +21,10 @@ export default function Auth() {
       readPermissions: PermissionType[] | undefined =
         authVal && JSON.parse(authVal).permissions;
 
+    // TODO: cache permissions
     if (readPermissions) setPermissions(readPermissions);
     else {
-      chrome.runtime.sendMessage({
+      sendMessage({
         type: "connect_result",
         ext: "weavemask",
         res: false,
@@ -54,7 +56,7 @@ export default function Auth() {
   function accept() {
     if (!loggedIn) return;
     localStorage.removeItem("arweave_auth");
-    chrome.runtime.sendMessage({
+    sendMessage({
       type: "connect_result",
       ext: "weavemask",
       res: true,
@@ -65,7 +67,7 @@ export default function Auth() {
   }
 
   function cancel() {
-    chrome.runtime.sendMessage({
+    sendMessage({
       type: "connect_result",
       ext: "weavemask",
       res: false,
@@ -127,11 +129,13 @@ export default function Auth() {
         <>
           <h1>Permissions</h1>
           <p>Please allow these permissions for this site</p>
-          <ul>
-            {permissions.map((permission) => (
-              <li>{getPermissionDescription(permission)}</li>
-            ))}
-          </ul>
+          {(permissions.length > 0 && (
+            <ul>
+              {permissions.map((permission) => (
+                <li>{getPermissionDescription(permission)}</li>
+              ))}
+            </ul>
+          )) || <p>No permissions requested.</p>}
           <Spacer />
           <Button style={{ width: "100%" }} onClick={accept} type="success">
             Accept
