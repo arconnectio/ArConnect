@@ -25,7 +25,7 @@ export function validateMessage(
   message: any,
   { sender, type }: { sender?: MessageSender; type?: MessageType }
 ) {
-  if (!message) return;
+  if (!message) return false;
   if (
     !message.ext ||
     message.ext !== "weavemask" ||
