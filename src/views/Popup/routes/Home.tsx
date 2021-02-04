@@ -10,13 +10,17 @@ import {
 import { Tabs, Tooltip, useTheme } from "@geist-ui/react";
 import { setAssets } from "../../../stores/actions";
 import { goTo } from "react-chrome-extension-router";
+import axios from "axios";
 import PST from "./PST";
 import WalletManager from "../../../components/WalletManager";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
 import limestone from "@limestonefi/api";
-import Community from "community-js";
 import arweaveLogo from "../../../assets/arweave.png";
+import verto_light_logo from "../../../assets/verto_light.png";
+import verto_dark_logo from "../../../assets/verto_dark.png";
+// @ts-ignore
+import { useColorScheme } from "use-color-scheme";
 import styles from "../../../styles/views/Popup/home.module.sass";
 
 export default function Home() {
@@ -43,9 +47,8 @@ export default function Home() {
     [arPrice, setArPrice] = useState(1),
     theme = useTheme(),
     dispatch = useDispatch(),
-    [pstPricesAndLogos, setPstPricesAndLogos] = useState<
-      { id: string; price: number; logo: string }[]
-    >([]);
+    [pstPrices, setPstPrices] = useState<{ id: string; price: number }[]>([]),
+    { scheme } = useColorScheme();
 
   useEffect(() => {
     loadBalance();
@@ -55,7 +58,7 @@ export default function Home() {
   }, [profile]);
 
   useEffect(() => {
-    loadPSTPricesAndLogos();
+    loadPSTPrices();
     // eslint-disable-next-line
   }, [psts]);
 
@@ -73,10 +76,30 @@ export default function Home() {
   }
 
   async function loadPSTs() {
-    const verto = new Verto();
-
     try {
-      dispatch(setAssets(profile, await verto.getAssets(profile)));
+      const { data } = await axios.get(
+          "https://community.xyz/caching/communities"
+        ),
+        pstsWithBalance = data.filter(
+          ({
+            state: { balances }
+          }: {
+            state: { balances: Record<string, number> };
+          }) => balances[profile]
+        );
+
+      dispatch(
+        setAssets(
+          profile,
+          pstsWithBalance.map((pst: any) => ({
+            id: pst.id,
+            name: pst.state.name,
+            ticker: pst.state.ticker,
+            logo: pst.state.settings.communityLogo,
+            balance: pst.state.balances[profile] ?? 0
+          }))
+        )
+      );
     } catch {}
   }
 
@@ -94,25 +117,30 @@ export default function Home() {
     return val.slice(0, 10);
   }
 
-  async function loadPSTPricesAndLogos() {
+  async function loadPSTPrices() {
     if (!psts) return;
-    const verto = new Verto(),
-      community = new Community(arweave);
+    const verto = new Verto();
 
     for (const pst of psts) {
       try {
-        await community.setCommunityTx(pst.id);
-        const price = (await verto.latestPrice(pst.id)) ?? 0,
-          logo = (await community.getState()).settings.get("communityLogo");
+        const price = (await verto.latestPrice(pst.id)) ?? 0;
 
-        setPstPricesAndLogos((val) => [
+        setPstPrices((val) => [
           ...val.filter(({ id }) => id === pst.id),
-          { id: pst.id, price, logo }
+          { id: pst.id, price }
         ]);
-      } catch (e) {
-        console.log(e);
-      }
+      } catch {}
     }
+  }
+
+  function logo(id: string) {
+    if (!psts) return arweaveLogo;
+    const pst = psts.find((pst) => pst.id === id);
+    if (!pst || !pst.logo) return arweaveLogo;
+    else if (pst.ticker === "VRT") {
+      if (scheme === "dark") return verto_dark_logo;
+      else return verto_light_logo;
+    } else return `https://arweave.net/${pst.logo}`;
   }
 
   return (
@@ -150,14 +178,14 @@ export default function Home() {
                   })
                 }
               >
-                <div className={styles.Logo}>
-                  <img
-                    src={
-                      pstPricesAndLogos.find(({ id }) => id === pst.id)?.logo ??
-                      arweaveLogo
-                    }
-                    alt="pst-logo"
-                  />
+                <div
+                  className={
+                    styles.Logo +
+                    " " +
+                    (pst.ticker === "VRT" ? styles.NoOutline : "")
+                  }
+                >
+                  <img src={logo(pst.id)} alt="pst-logo" />
                 </div>
                 <div>
                   <h1>
@@ -165,8 +193,8 @@ export default function Home() {
                   </h1>
                   <h2>
                     {pst.balance *
-                      (pstPricesAndLogos.find(({ id }) => id === pst.id)
-                        ?.price ?? 0)}{" "}
+                      (pstPrices.find(({ id }) => id === pst.id)?.price ??
+                        0)}{" "}
                     AR
                   </h2>
                 </div>

@@ -4723,16 +4723,6 @@ community-js@^1.1.15:
     smartweave "^0.4.25"
     tiny-worker "^2.3.0"
 
-community-js@^1.1.27:
-  version "1.1.27"
-  resolved "https://registry.yarnpkg.com/community-js/-/community-js-1.1.27.tgz#6f0a2a8396e08a2ff2b909cec565cf94895b50ab"
-  integrity sha512-fwldXyzL/KTMER8C5jCr3kOcKaklJDqUpKzyz7bZcxnkazqZ2jrlRaB6R29NRsdQ4MlU4FaZu3UiFjfpeJbIpA==
-  dependencies:
-    arweave "^1.10.6"
-    axios "^0.21.1"
-    smartweave "^0.4.25"
-    tiny-worker "^2.3.0"
-
 component-emitter@^1.2.1:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/component-emitter/-/component-emitter-1.3.0.tgz#16e4070fba8ae29b679f2215853ee181ab2eabc0"

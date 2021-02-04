@@ -164,8 +164,15 @@ $sidePaddingTransactions: .7em
     background-color: #e2e2e2
     margin-right: .5em
 
+    &.NoOutline
+      overflow: visible
+      border-radius: 0
+
     @media (prefers-color-scheme: dark)
       background-color: #1a1a1a
+
+      &.NoOutline
+        background-color: transparent
 
     img
       position: absolute

@@ -3,6 +3,7 @@ export interface Asset {
   ticker: string;
   name: string;
   balance: number;
+  logo?: string;
 }
 
 export interface AssetStateItem {

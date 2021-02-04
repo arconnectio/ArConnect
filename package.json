@@ -9,7 +9,7 @@
     "@verto/lib": "^0.9.6",
     "arweave": "^1.10.6",
     "arweave-mnemonic-keys": "^0.0.3",
-    "community-js": "^1.1.27",
+    "axios": "^0.21.1",
     "copy-to-clipboard": "^3.3.1",
     "cryptr": "^6.0.2",
     "framer-motion": "^3.3.0-beta.22",
