@@ -9,7 +9,7 @@
     "@verto/lib": "^0.9.6",
     "arweave": "^1.10.6",
     "arweave-mnemonic-keys": "^0.0.3",
-    "community-js": "^1.1.21",
+    "community-js": "^1.1.27",
     "copy-to-clipboard": "^3.3.1",
     "cryptr": "^6.0.2",
     "framer-motion": "^3.3.0-beta.22",
@@ -19,7 +19,7 @@
     "react-dom": "^17.0.1",
     "react-qr-svg": "^2.3.0",
     "react-redux": "^7.2.2",
-    "react-scripts": "4.0.1",
+    "react-scripts": "^4.0.2",
     "redux": "^4.0.5",
     "use-color-scheme": "^1.1.1",
     "weaveid": "^1.0.26"

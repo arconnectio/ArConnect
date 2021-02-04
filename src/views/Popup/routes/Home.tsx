@@ -109,7 +109,9 @@ export default function Home() {
           ...val.filter(({ id }) => id === pst.id),
           { id: pst.id, price, logo }
         ]);
-      } catch (e) {}
+      } catch (e) {
+        console.log(e);
+      }
     }
   }
 
