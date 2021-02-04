@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Input, Spacer, useInput } from "@geist-ui/react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
@@ -12,7 +12,27 @@ export default function Auth() {
     >(),
     wallets = useSelector((state: RootState) => state.wallets),
     [loading, setLoading] = useState(false),
-    [loggedIn, setLoggedIn] = useState(false);
+    [loggedIn, setLoggedIn] = useState(false),
+    [permissions, setPermissions] = useState<PermissionType[]>([]);
+
+  useEffect(() => {
+    const authVal = localStorage.getItem("arweave_auth"),
+      readPermissions: PermissionType[] | undefined =
+        authVal && JSON.parse(authVal).permissions;
+
+    if (readPermissions) setPermissions(readPermissions);
+    else {
+      chrome.runtime.sendMessage({
+        type: "connect_result",
+        ext: "weavemask",
+        res: false,
+        message: "No permissions requested",
+        sender: "popup"
+      });
+      localStorage.removeItem("arweave_auth");
+      window.close();
+    }
+  }, []);
 
   async function login() {
     setLoading(true);
@@ -56,6 +76,24 @@ export default function Auth() {
     window.close();
   }
 
+  function getPermissionDescription(permission: PermissionType) {
+    switch (permission) {
+      case "ACCESS_ADDRESS":
+        return "Access the current address in WeaveMask";
+
+      case "ACCESS_ALL_ADDRESSES":
+        return "Access all wallets' addresses in WeaveMask";
+
+      case "CREATE_TRANSACTION":
+        return "Create a new transaction";
+
+      case "SIGN_TRANSACTION":
+        return "Sign a transaction";
+    }
+
+    return "Invalid permission";
+  }
+
   return (
     <div className={styles.Auth}>
       {(!loggedIn && (
@@ -90,9 +128,9 @@ export default function Auth() {
           <h1>Permissions</h1>
           <p>Please allow these permissions for this site</p>
           <ul>
-            <li>Permission</li>
-            <li>Another</li>
-            <li>Etc...</li>
+            {permissions.map((permission) => (
+              <li>{getPermissionDescription(permission)}</li>
+            ))}
           </ul>
           <Spacer />
           <Button style={{ width: "100%" }} onClick={accept} type="success">
@@ -107,3 +145,10 @@ export default function Auth() {
     </div>
   );
 }
+
+// TODO: extract this to it's own library, import from there
+type PermissionType =
+  | "ACCESS_ADDRESS"
+  | "ACCESS_ALL_ADDRESSES"
+  | "CREATE_TRANSACTION"
+  | "SIGN_TRANSACTION";

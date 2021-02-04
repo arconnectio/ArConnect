@@ -14,7 +14,7 @@ function createHTMLFromString(html: string) {
 }
 
 const WeaveMaskAPI = {
-  connect(): Promise<any> {
+  connect(permissions: PermissionType[]): Promise<any> {
     const requestPermissionOverlay = createHTMLFromString(`
       <div style="position: fixed; top: 0; bottom: 0; left: 0; right: 0; z-index: 1000000000000; background-color: rgba(0, 0, 0, .73); font-family: 'Inter', sans-serif;">
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff;">
@@ -26,7 +26,7 @@ const WeaveMaskAPI = {
 
     return new Promise((resolve, reject) => {
       window.postMessage(
-        { type: "connect", ext: "weavemask", sender: "api" },
+        { type: "connect", ext: "weavemask", sender: "api", permissions },
         window.location.origin
       );
       window.addEventListener("message", callback);
@@ -50,6 +50,13 @@ const WeaveMaskAPI = {
 };
 
 const ArweaveAPI = {};
+
+// TODO: extract this to it's own library, import from there
+type PermissionType =
+  | "ACCESS_ADDRESS"
+  | "ACCESS_ALL_ADDRESSES"
+  | "CREATE_TRANSACTION"
+  | "SIGN_TRANSACTION";
 
 window.weavemask = WeaveMaskAPI;
 window.arweave = ArweaveAPI;
