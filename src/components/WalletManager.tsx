@@ -54,18 +54,28 @@ export default function WalletManager() {
 
   function deleteWallet(addr: string) {
     if (wallets.length - 1 > 0) {
-      dispatch(switchProfile(wallets[0].address));
+      if (profile === addr)
+        dispatch(
+          switchProfile(
+            wallets.find(({ address }) => address !== addr)?.address ||
+              wallets[0].address
+          )
+        );
       dispatch(removeWallet(addr));
     } else {
       dispatch(signOut());
     }
   }
 
+  function currentWalletName() {
+    const currentWallet = wallets.find(({ address }) => address === profile);
+    if (currentWallet) return currentWallet.name;
+    else return "Wallet";
+  }
+
   return (
     <div className={styles.CurrentWallet}>
-      <h1 onClick={() => setOpen(!open)}>
-        {wallets.find(({ address }) => address === profile)?.name ?? ""}
-      </h1>
+      <h1 onClick={() => setOpen(!open)}>{currentWalletName()}</h1>
       <Tooltip
         text={
           <>
