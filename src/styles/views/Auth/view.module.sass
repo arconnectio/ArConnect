@@ -1,118 +1,33 @@
-@use "../../variables"
-@import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap")
-  
-.Welcome
-  position: relative
+.Auth
+  display: flex
+  flex-direction: column
+  justify-content: center
   height: 100vh
-
-  .Card
-    position: absolute
-    top: 50%
-    left: 50%
-    text-align: center
-    width: 30% !important
-    transform: translate(-50%, -50%)
-
-    @media screen and (max-width: variables.$smaller-screens)
-      width: 43% !important
-
-    h1
-      font-size: 2.5em
-      font-weight: 500
-      margin-bottom: 0
-
-      span
-        text-transform: uppercase
-        font-weight: 600
-        display: inline-block
-
-    .th8ta
-      font-family: 'Ubuntu', sans-serif
-      font-size: 1.6em
-      font-weight: 700
-      margin-bottom: 1em
-
-      span
-        background: linear-gradient(142.25deg, #fc9867 23.99%, #ab9df2 73.9%)
-        -webkit-background-clip: text
-        -webkit-text-fill-color: transparent
-
-    .Actions
-      margin-top: 1em
-
-      button
-        margin: 0 1em
-
-    .Logo
-      display: block
-      height: 4.65em
-      width: 4.65em
-      margin: 0 auto
-        bottom: 1.25em
-
-.FileInput
-  position: fixed
-  top: -1em
-  left: -1em
-  width: 1px
-  height: 1px
-  opacity: 0
-
-.FileContent
-  cursor: pointer
-  margin-top: 1em !important
-  border: 1px dashed #eaeaea !important
-
+  background-color: #fff
+  padding: 0 1.3em
+  
   @media (prefers-color-scheme: dark)
-    border-color: #333 !important
+    background-color: #000
 
-  .items
-    display: flex
-    overflow: hidden
-    align-items: center
+  h1
+    text-align: center
+    margin: 0
+    line-height: 1em
+    font-size: 2.2em
+    font-weight: 600
 
-    .Filename
-      margin: 0
-      white-space: nowrap
-
-    svg
-      margin-right: 1em
-
-.Seed
-  display: block !important
-  margin-top: 1em !important
-
-  &.NewSeed
-    margin-top: 0 !important
-
-.OR
-  position: relative
-  margin-top: 1em
-  display: block
-  text-align: center
-
-  &::after, &::before
-    content: ''
-    position: absolute
-    top: 50%
-    left: 0
-    width: 44%
-    height: 1px
-    background-color: #eaeaea
-    transform: translateY(-50%)
+  p
+    text-align: center
+    font-size: 1.05em
+    color: #666
+    font-weight: 500
+    margin: .5em 0 1.6em
 
     @media (prefers-color-scheme: dark)
-      background-color: #fff
+      color: #888
 
-  &::after
-    right: 0
-    left: unset
+  div[class~=with-label]
+    width: 100%
 
-.WeaveIDButton
-  width: 100% !important
-  align-items: center
-  margin-top: 1em
-
-  img
-    height: 1.8em
-    margin-right: .5em
+    div
+      width: 100%

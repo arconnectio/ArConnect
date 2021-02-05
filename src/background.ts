@@ -44,18 +44,20 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
       chrome.browserAction.setBadgeText({ text: "1" });
       chrome.browserAction.setBadgeBackgroundColor({ color: "#ff0000" });
-      localStorage.setItem(
-        "arweave_auth",
-        JSON.stringify({
-          val: true,
-          permissions: message.permissions,
-          type: "connect"
-        })
-      );
 
       chrome.windows.create(
         {
-          url: "https://verto.exchange",
+          url: `${chrome.extension.getURL(
+            "auth.html"
+          )}?auth=${encodeURIComponent(
+            JSON.stringify({
+              val: true,
+              permissions: message.permissions,
+              type: "connect",
+              url: "https://TODO.com/"
+            })
+          )}`,
+          focused: true,
           type: "popup",
           width: 385,
           height: 635
