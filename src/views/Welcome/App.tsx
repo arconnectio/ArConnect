@@ -340,7 +340,9 @@ export default function App() {
           >
             <div className={styles.items}>
               <FileIcon size={24} />
-              {keyfiles.length > 0 ? "Add more keyfile(s)" : "Load keyfile(s)"}
+              {keyfiles.length > 0
+                ? "Add more keyfile(s)"
+                : "Load keyfile(s) from filesystem"}
             </div>
           </Card>
         </Modal.Content>

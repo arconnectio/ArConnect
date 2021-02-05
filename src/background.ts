@@ -1,7 +1,7 @@
 import { MessageFormat, sendMessage, validateMessage } from "./utils/messenger";
 
 chrome.runtime.onInstalled.addListener(() => {
-  window.open(chrome.runtime.getURL("/welcome.html"));
+  if (!walletsStored()) window.open(chrome.runtime.getURL("/welcome.html"));
 });
 
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
@@ -10,13 +10,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
   switch (message.type) {
     case "connect":
-      const wallets = localStorage.getItem("arweave_wallets");
-
-      if (
-        !wallets ||
-        !JSON.parse(wallets).val ||
-        JSON.parse(wallets).val.length === 0
-      )
+      if (!walletsStored())
         return sendMessage(
           {
             type: "connect_result",
@@ -94,5 +88,17 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
       break;
   }
 });
+
+function walletsStored(): boolean {
+  const wallets = localStorage.getItem("arweave_wallets");
+
+  if (
+    !wallets ||
+    !JSON.parse(wallets).val ||
+    JSON.parse(wallets).val.length === 0
+  )
+    return false;
+  return true;
+}
 
 export {};
