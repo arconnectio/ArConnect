@@ -1,4 +1,5 @@
 import { Asset, IAssetsAction } from "./reducers/assets";
+import { IPermissionsAction, IPermissionState } from "./reducers/permissions";
 import { IProfileAction } from "./reducers/profile";
 import { IWalletsAction, Wallet } from "./reducers/wallets";
 
@@ -44,9 +45,36 @@ export function setAssets(address: string, assets: Asset[]): IAssetsAction {
   };
 }
 
+export function setPermissions(
+  url: string,
+  permissions: PermissionType[]
+): IPermissionsAction {
+  return {
+    type: "SET_PERMISSIONS",
+    payload: { url, permissions }
+  };
+}
+
+export function removePermissions(
+  url: string,
+  permissions: PermissionType[]
+): IPermissionsAction {
+  return {
+    type: "REMOVE_PERMISSIONS",
+    payload: { url, permissions }
+  };
+}
+
 export function signOut() {
   return {
     type: "USER_SIGNOUT",
     payload: {}
   };
 }
+
+// TODO: extract this to it's own library, import from there
+type PermissionType =
+  | "ACCESS_ADDRESS"
+  | "ACCESS_ALL_ADDRESSES"
+  | "CREATE_TRANSACTION"
+  | "SIGN_TRANSACTION";

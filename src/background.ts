@@ -46,7 +46,11 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
       chrome.browserAction.setBadgeBackgroundColor({ color: "#ff0000" });
       localStorage.setItem(
         "arweave_auth",
-        JSON.stringify({ val: true, permissions: message.permissions })
+        JSON.stringify({
+          val: true,
+          permissions: message.permissions,
+          type: "connect"
+        })
       );
 
       chrome.runtime.onMessage.addListener((msg) => {

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Button, Input, Spacer, useInput } from "@geist-ui/react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
 import { sendMessage } from "../../../utils/messenger";
+import { setPermissions } from "../../../stores/actions";
 import Cryptr from "cryptr";
 import styles from "../../../styles/views/Popup/auth.module.sass";
 
@@ -14,15 +15,24 @@ export default function Auth() {
     wallets = useSelector((state: RootState) => state.wallets),
     [loading, setLoading] = useState(false),
     [loggedIn, setLoggedIn] = useState(false),
-    [permissions, setPermissions] = useState<PermissionType[]>([]);
+    permissions = useSelector((state: RootState) => state.permissions),
+    [requestedPermissions, setRequestedPermissions] = useState<
+      PermissionType[]
+    >([]),
+    [currentURL, setCurrentURL] = useState<string>(),
+    [type, setType] = useState<
+      "connect" | "create_transaction" | "sign_transaction"
+    >(),
+    dispatch = useDispatch();
 
   useEffect(() => {
     const authVal = localStorage.getItem("arweave_auth"),
       readPermissions: PermissionType[] | undefined =
-        authVal && JSON.parse(authVal).permissions;
+        authVal && JSON.parse(authVal).permissions,
+      authType: "connect" | "create_transaction" | "sign_transaction" =
+        authVal && JSON.parse(authVal).type;
 
-    // TODO: cache permissions
-    if (readPermissions) setPermissions(readPermissions);
+    if (readPermissions) setRequestedPermissions(readPermissions);
     else {
       sendMessage({
         type: "connect_result",
@@ -34,7 +44,35 @@ export default function Auth() {
       localStorage.removeItem("arweave_auth");
       window.close();
     }
+
+    if (authType) setType(authType);
+    else {
+      sendMessage({
+        type: "connect_result",
+        ext: "weavemask",
+        res: false,
+        message: "Invalid auth call",
+        sender: "popup"
+      });
+      localStorage.removeItem("arweave_auth");
+      window.close();
+    }
+    chrome.tabs.query({ active: true, currentWindow: true }, (res) => {
+      if (res[0] && res[0].url) setCurrentURL(getRealURL(res[0].url));
+      else urlError();
+    });
   }, []);
+
+  function getRealURL(url: string) {
+    const arweaveTxRegex = /(http|https)(:\/\/)(.*)(\.arweave\.net\/)/g,
+      match = url.match(arweaveTxRegex);
+    if (match)
+      return (
+        match[0].replace(/(http|https)(:\/\/)/, "") +
+        url.replace(arweaveTxRegex, "").split("/")[0]
+      );
+    else return url.replace(/(http|https)(:\/\/)/, "").split("/")[0];
+  }
 
   async function login() {
     setLoading(true);
@@ -53,8 +91,22 @@ export default function Auth() {
     }, 70);
   }
 
+  function urlError() {
+    sendMessage({
+      type: "connect_result",
+      ext: "weavemask",
+      res: false,
+      message: "No tab selected",
+      sender: "popup"
+    });
+    localStorage.removeItem("arweave_auth");
+    window.close();
+  }
+
   function accept() {
     if (!loggedIn) return;
+    if (!currentURL) return urlError();
+    dispatch(setPermissions(currentURL, requestedPermissions));
     localStorage.removeItem("arweave_auth");
     sendMessage({
       type: "connect_result",
@@ -129,10 +181,10 @@ export default function Auth() {
         <>
           <h1>Permissions</h1>
           <p>Please allow these permissions for this site</p>
-          {(permissions.length > 0 && (
+          {(requestedPermissions.length > 0 && (
             <ul>
-              {permissions.map((permission) => (
-                <li>{getPermissionDescription(permission)}</li>
+              {requestedPermissions.map((permission, i) => (
+                <li key={i}>{getPermissionDescription(permission)}</li>
               ))}
             </ul>
           )) || <p>No permissions requested.</p>}
