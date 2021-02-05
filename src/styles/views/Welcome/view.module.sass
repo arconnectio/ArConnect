@@ -26,17 +26,6 @@
         font-weight: 600
         display: inline-block
 
-    .th8ta
-      font-family: 'Ubuntu', sans-serif
-      font-size: 1.6em
-      font-weight: 700
-      margin-bottom: 1em
-
-      span
-        background: linear-gradient(142.25deg, #fc9867 23.99%, #ab9df2 73.9%)
-        -webkit-background-clip: text
-        -webkit-text-fill-color: transparent
-
     .Actions
       margin-top: 1em
 
@@ -116,3 +105,23 @@
   img
     height: 1.8em
     margin-right: .5em
+
+.th8ta
+  position: absolute
+  bottom: 2em
+  left: 50%
+  font-family: 'Ubuntu', sans-serif
+  font-size: 1.8em
+  font-weight: 700
+  margin: 0
+  text-decoration: none
+  color: #000
+  transform: translateX(-50%)
+
+  @media (prefers-color-scheme: dark)
+    color: #fff
+
+  span
+    background: linear-gradient(142.25deg, #fc9867 23.99%, #ab9df2 73.9%)
+    -webkit-background-clip: text
+    -webkit-text-fill-color: transparent

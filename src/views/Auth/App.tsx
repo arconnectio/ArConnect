@@ -182,6 +182,9 @@ export default function App() {
           <Button style={{ width: "100%" }} onClick={cancel}>
             Cancel
           </Button>
+          <h2 className={styles.th8ta}>
+            th<span>8</span>ta
+          </h2>
         </>
       )) || (
         <>

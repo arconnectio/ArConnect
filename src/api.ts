@@ -6,23 +6,25 @@ declare global {
   }
 }
 
-function createHTMLFromString(html: string) {
+function createOverlay(text: string) {
   const container = document.createElement("div");
-  container.innerHTML = html;
+  container.innerHTML = `
+    <div style="position: fixed; top: 0; bottom: 0; left: 0; right: 0; z-index: 1000000000000; background-color: rgba(0, 0, 0, .73); font-family: 'Inter', sans-serif;">
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff;">
+        <h1 style="text-align: center; margin: 0; font-size: 3em; font-weight: 600; margin-bottom: .35em; line-height: 1em;">WeaveMask</h1>
+        <p style="text-align: center; font-size: 1.2em; font-weight: 500;">${text}</p>
+      </div>
+    </div>
+  `;
 
   return container;
 }
 
 const WeaveMaskAPI = {
   connect(permissions: PermissionType[]): Promise<any> {
-    const requestPermissionOverlay = createHTMLFromString(`
-      <div style="position: fixed; top: 0; bottom: 0; left: 0; right: 0; z-index: 1000000000000; background-color: rgba(0, 0, 0, .73); font-family: 'Inter', sans-serif;">
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff;">
-          <h1 style="text-align: center; margin: 0; font-size: 3em; font-weight: 600; margin-bottom: .35em; line-height: 1em;">WeaveMask</h1>
-          <p style="text-align: center; font-size: 1.2em; font-weight: 500;">This page is requesting permission to connect to WeaveMask...<br />Please open the extension popup to continue.</p>
-        </div>
-      </div>
-    `);
+    const requestPermissionOverlay = createOverlay(
+      "This page is requesting permission to connect to WeaveMask...<br />Please review them in the popup."
+    );
 
     return new Promise((resolve, reject) => {
       sendMessage(

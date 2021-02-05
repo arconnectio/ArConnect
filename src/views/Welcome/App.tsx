@@ -222,9 +222,6 @@ export default function App() {
             Welcome to{" "}
             <span style={{ color: theme.palette.success }}>WeaveMask</span>
           </h1>
-          <h2 className={styles.th8ta}>
-            by Th<span>8</span>ta
-          </h2>
           <p style={{ color: theme.palette.accents_4 }}>
             Secure wallet management for Arweave
             {!passwordGiven && (
@@ -274,6 +271,14 @@ export default function App() {
           )}
         </Card>
       </div>
+      <a
+        className={styles.th8ta}
+        href="https://th8ta.org"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Th<span>8</span>ta
+      </a>
       <Modal {...loadWalletsModal.bindings}>
         <Modal.Title>Load wallet(s)</Modal.Title>
         <Modal.Subtitle>
