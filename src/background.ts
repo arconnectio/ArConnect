@@ -53,6 +53,15 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         })
       );
 
+      chrome.windows.create(
+        {
+          url: "https://verto.exchange",
+          type: "popup",
+          width: 385,
+          height: 635
+        },
+        (window) => {}
+      );
       chrome.runtime.onMessage.addListener((msg) => {
         if (!validateMessage(msg, { sender: "popup", type: "connect_result" }))
           return;

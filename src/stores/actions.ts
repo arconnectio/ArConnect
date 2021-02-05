@@ -1,5 +1,5 @@
 import { Asset, IAssetsAction } from "./reducers/assets";
-import { IPermissionsAction, IPermissionState } from "./reducers/permissions";
+import { IPermissionsAction } from "./reducers/permissions";
 import { IProfileAction } from "./reducers/profile";
 import { IWalletsAction, Wallet } from "./reducers/wallets";
 

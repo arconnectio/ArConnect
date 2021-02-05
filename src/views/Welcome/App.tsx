@@ -222,6 +222,9 @@ export default function App() {
             Welcome to{" "}
             <span style={{ color: theme.palette.success }}>WeaveMask</span>
           </h1>
+          <h2 className={styles.th8ta}>
+            by Th<span>8</span>ta
+          </h2>
           <p style={{ color: theme.palette.accents_4 }}>
             Secure wallet management for Arweave
             {!passwordGiven && (

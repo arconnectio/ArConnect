@@ -16,7 +16,8 @@ function override(config, env) {
       background: paths.appSrc + "/background",
       contentscript: paths.appSrc + "/contentscript",
       welcome: paths.appSrc + "/welcome",
-      api: paths.appSrc + "/api"
+      api: paths.appSrc + "/api",
+      auth: paths.appSrc + "/auth"
     },
     output: {
       path: path.join(__dirname, "./build"),
@@ -66,6 +67,16 @@ function override(config, env) {
   });
 
   newConfig.plugins.push(welcomeHtmlPlugin);
+
+  const authHtmlPlugin = new HtmlWebpackPlugin({
+    inject: true,
+    chunks: ["auth"],
+    template: paths.appPublic + "/auth.html",
+    filename: "auth.html",
+    minify: isEnvProduction && minifyOpts
+  });
+
+  newConfig.plugins.push(authHtmlPlugin);
 
   const manifestPlugin = new ManifestPlugin({
     fileName: "asset-manifest.json"
