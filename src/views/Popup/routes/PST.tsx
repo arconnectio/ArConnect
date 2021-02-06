@@ -2,34 +2,56 @@ import React, { useEffect, useState } from "react";
 import {
   ArrowLeftIcon,
   ArrowSwitchIcon,
-  InfoIcon,
-  TrashcanIcon
+  TrashcanIcon,
+  InfoIcon
 } from "@primer/octicons-react";
 import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
-import { Tabs, useTabs, useModal, Modal, Loading } from "@geist-ui/react";
+import {
+  Input,
+  Tabs,
+  useInput,
+  useTabs,
+  Button,
+  Spacer,
+  useModal,
+  Modal,
+  Loading
+} from "@geist-ui/react";
 import { useColorScheme } from "use-color-scheme";
 import { useDispatch, useSelector } from "react-redux";
 import { removeAsset } from "../../../stores/actions";
 import { RootState } from "../../../stores/reducers";
+import { JWKInterface } from "arweave/node/lib/wallet";
+import { interactWrite } from "smartweave";
+import Cryptr from "cryptr";
+import Arweave from "arweave";
 import Verto from "@verto/lib";
 import Home from "./Home";
-import axios from "axios";
-import communityxyz_logo from "../../../assets/communityxyz.png";
 import verto_logo_light from "../../../assets/verto_light.png";
 import verto_logo_dark from "../../../assets/verto_dark.png";
+import axios from "axios";
 import styles from "../../../styles/views/Popup/PST.module.sass";
 
 export default function PST({ id, name, balance, ticker }: Asset) {
   const [arPrice, setArPrice] = useState(0),
     { scheme } = useColorScheme(),
     tabs = useTabs("1"),
+    transferInput = useInput(""),
+    addressInput = useInput(""),
+    passwordInput = useInput(""),
+    [inputState, setInputState] = useState<
+      "default" | "secondary" | "success" | "warning" | "error"
+    >(),
+    [loading, setLoading] = useState(false),
     dispatch = useDispatch(),
     profile = useSelector((state: RootState) => state.profile),
     removeModal = useModal(false),
+    [showPasswordInput, setShowPasswordInput] = useState(false),
     [description, setDescription] = useState(""),
     [links, setLinks] = useState<string[]>([]),
-    [loading, setLoading] = useState(false);
+    [loadingData, setLoadingData] = useState(false),
+    wallets = useSelector((state: RootState) => state.wallets);
 
   useEffect(() => {
     loadArPrice();
@@ -48,7 +70,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
   }
 
   async function loadData() {
-    setLoading(true);
+    setLoadingData(true);
     try {
       const { data } = await axios.get(
           "https://community.xyz/caching/communities"
@@ -62,7 +84,66 @@ export default function PST({ id, name, balance, ticker }: Asset) {
         ...community.state.settings?.communityDiscussionLinks
       ]);
     } catch {}
+    setLoadingData(false);
+  }
+
+  function forwardToPassword() {
+    if (
+      transferInput.state === "" ||
+      Number(transferInput.state) <= 0 ||
+      Number(transferInput.state) > balance
+    )
+      return setInputState("error");
+    setShowPasswordInput(true);
+    setInputState("default");
+  }
+
+  async function transfer() {
+    setLoading(true);
+
+    let keyfile: JWKInterface | undefined = undefined;
+    try {
+      const cryptr = new Cryptr(passwordInput.state),
+        currentWallet = wallets.find(({ address }) => address === profile);
+
+      if (currentWallet) {
+        const decodedKeyfile = cryptr.decrypt(currentWallet.keyfile);
+        keyfile = JSON.parse(decodedKeyfile);
+      } else setInputState("error");
+    } catch {
+      setInputState("error");
+    }
+
+    if (keyfile) {
+      try {
+        const arweave = new Arweave({
+          host: "arweave.net",
+          port: 443,
+          protocol: "https"
+        });
+        await interactWrite(
+          // @ts-ignore
+          arweave,
+          keyfile,
+          id,
+          {
+            function: "transfer",
+            target: addressInput.state,
+            qty: Number(transferInput.state)
+          },
+          [
+            { name: "Exchange", value: "Verto" },
+            { name: "Type", value: "Transfer" }
+          ],
+          addressInput.state.toString()
+        );
+      } catch {}
+    }
     setLoading(false);
+    setShowPasswordInput(false);
+    transferInput.setState("");
+    addressInput.setState("");
+    passwordInput.setState("");
   }
 
   function removePst() {
@@ -101,7 +182,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
             value="1"
           >
             <div className={styles.About}>
-              {(loading && <Loading />) ||
+              {(loadingData && <Loading />) ||
                 ((description || (links && links.length > 0)) && (
                   <>
                     <p>{description}</p>
@@ -140,7 +221,50 @@ export default function PST({ id, name, balance, ticker }: Asset) {
               </>
             }
             value="2"
-          ></Tabs.Item>
+          >
+            <div className={styles.Transfer}>
+              <Spacer />
+              {(!showPasswordInput && (
+                <>
+                  <Input
+                    {...transferInput.bindings}
+                    placeholder="Transfer amount..."
+                    type="number"
+                    status={inputState}
+                    labelRight={ticker}
+                    min="0"
+                    max={balance}
+                  />
+                  <Spacer />
+                  <Input
+                    {...addressInput.bindings}
+                    placeholder="Transfer address..."
+                  />
+                  <Spacer />
+                  <Button style={{ width: "100%" }} onClick={forwardToPassword}>
+                    Transfer
+                  </Button>
+                </>
+              )) || (
+                <>
+                  <Input
+                    {...passwordInput.bindings}
+                    placeholder="Password..."
+                    status={inputState}
+                    type="password"
+                  />
+                  <Spacer />
+                  <Button
+                    style={{ width: "100%" }}
+                    onClick={transfer}
+                    loading={loading}
+                  >
+                    Transfer
+                  </Button>
+                </>
+              )}
+            </div>
+          </Tabs.Item>
           <Tabs.Item
             label={
               <>
