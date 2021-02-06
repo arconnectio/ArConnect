@@ -2,26 +2,19 @@ import React, { useEffect, useState } from "react";
 import {
   ArrowLeftIcon,
   ArrowSwitchIcon,
+  InfoIcon,
   TrashcanIcon
 } from "@primer/octicons-react";
 import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
-import {
-  Input,
-  Tabs,
-  useInput,
-  useTabs,
-  Button,
-  Spacer,
-  useModal,
-  Modal
-} from "@geist-ui/react";
+import { Tabs, useTabs, useModal, Modal, Loading } from "@geist-ui/react";
 import { useColorScheme } from "use-color-scheme";
 import { useDispatch, useSelector } from "react-redux";
 import { removeAsset } from "../../../stores/actions";
 import { RootState } from "../../../stores/reducers";
 import Verto from "@verto/lib";
 import Home from "./Home";
+import axios from "axios";
 import communityxyz_logo from "../../../assets/communityxyz.png";
 import verto_logo_light from "../../../assets/verto_light.png";
 import verto_logo_dark from "../../../assets/verto_dark.png";
@@ -31,22 +24,20 @@ export default function PST({ id, name, balance, ticker }: Asset) {
   const [arPrice, setArPrice] = useState(0),
     { scheme } = useColorScheme(),
     tabs = useTabs("1"),
-    transferInput = useInput(""),
-    [inputState, setInputState] = useState<
-      "default" | "secondary" | "success" | "warning" | "error"
-    >(),
-    [loading, setLoading] = useState(false),
     dispatch = useDispatch(),
     profile = useSelector((state: RootState) => state.profile),
-    removeModal = useModal(false);
+    removeModal = useModal(false),
+    [description, setDescription] = useState(""),
+    [links, setLinks] = useState<string[]>([]),
+    [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadArPrice();
+    loadData();
     // eslint-disable-next-line
   }, [id]);
 
   useEffect(() => {
-    if (tabs.state === "2") window.open(`https://community.xyz/#${id}`);
     if (tabs.state === "3")
       window.open(`https://verto.exchange/token?id=${id}`);
   }, [tabs, id]);
@@ -56,15 +47,21 @@ export default function PST({ id, name, balance, ticker }: Asset) {
     setArPrice((await verto.latestPrice(id)) ?? 0);
   }
 
-  async function transfer() {
-    if (
-      transferInput.state === "" ||
-      Number(transferInput.state) <= 0 ||
-      Number(transferInput.state) > balance
-    )
-      return setInputState("error");
+  async function loadData() {
     setLoading(true);
-    // TODO: transfer
+    try {
+      const { data } = await axios.get(
+          "https://community.xyz/caching/communities"
+        ),
+        community = data.find((psc: any) => psc.id === id);
+
+      if (!community) return;
+      setDescription(community.state.settings?.communityDescription ?? "");
+      setLinks([
+        community.state.settings?.communityAppUrl,
+        ...community.state.settings?.communityDiscussionLinks
+      ]);
+    } catch {}
     setLoading(false);
   }
 
@@ -97,40 +94,49 @@ export default function PST({ id, name, balance, ticker }: Asset) {
           <Tabs.Item
             label={
               <>
-                <ArrowSwitchIcon />
-                Transfer
+                <InfoIcon />
+                About
               </>
             }
             value="1"
           >
-            <div className={styles.Transfer}>
-              <Spacer />
-              <Input
-                {...transferInput.bindings}
-                placeholder="Transfer amount..."
-                type="number"
-                status={inputState}
-                labelRight={ticker}
-              />
-              <Spacer />
-              <Button
-                style={{ width: "100%" }}
-                onClick={transfer}
-                loading={loading}
-              >
-                Transfer
-              </Button>
+            <div className={styles.About}>
+              {(loading && <Loading />) ||
+                ((description || (links && links.length > 0)) && (
+                  <>
+                    <p>{description}</p>
+                    <ul>
+                      {links.map((link, i) => (
+                        <li key={i}>
+                          <a href={link} onClick={() => window.open(link)}>
+                            {link
+                              .replace(/(https|http):\/\//, "")
+                              .replace(/\/$/, "")}
+                          </a>
+                        </li>
+                      ))}
+                      <li>
+                        <a
+                          href={`https://community.xyz/#${id}`}
+                          onClick={() =>
+                            window.open(`https://community.xyz/#${id}`)
+                          }
+                        >
+                          community.xyz/{name.toLowerCase()}
+                        </a>
+                      </li>
+                    </ul>
+                  </>
+                )) || (
+                  <p style={{ textAlign: "center" }}>No data for this PST.</p>
+                )}
             </div>
           </Tabs.Item>
           <Tabs.Item
             label={
               <>
-                <img
-                  src={communityxyz_logo}
-                  alt="community-xyz"
-                  className={styles.TabItemIcon}
-                />
-                CommunityXYZ
+                <ArrowSwitchIcon />
+                Transfer
               </>
             }
             value="2"
