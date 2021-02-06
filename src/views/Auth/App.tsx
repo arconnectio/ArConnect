@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
 import { sendMessage } from "../../utils/messenger";
 import { setPermissions } from "../../stores/actions";
+import { getRealURL } from "../../utils/url";
 import Cryptr from "cryptr";
 import styles from "../../styles/views/Auth/view.module.sass";
 
@@ -23,7 +24,8 @@ export default function App() {
     [type, setType] = useState<
       "connect" | "create_transaction" | "sign_transaction"
     >(),
-    dispatch = useDispatch();
+    dispatch = useDispatch(),
+    [alreadyHasPermissions, setAlreadyHasPermissions] = useState(false);
 
   useEffect(() => {
     const authVal = new URL(window.location.href).searchParams.get("auth");
@@ -51,9 +53,21 @@ export default function App() {
       decodedAuthParam.permissions &&
       decodedAuthParam.url
     ) {
+      const realURL = getRealURL(decodedAuthParam.url),
+        existingPermissions = permissions.find(({ url }) => url === realURL);
+
       setType(decodedAuthParam.type);
       setRequestedPermissions(decodedAuthParam.permissions);
-      setCurrentURL(getRealURL(decodedAuthParam.url));
+      setCurrentURL(realURL);
+
+      if (existingPermissions && existingPermissions.permissions.length > 0) {
+        setAlreadyHasPermissions(true);
+        setRequestedPermissions(
+          decodedAuthParam.permissions.filter(
+            (perm) => !existingPermissions.permissions.includes(perm)
+          )
+        );
+      }
     } else {
       sendMessage({
         type: "connect_result",
@@ -63,6 +77,7 @@ export default function App() {
         sender: "popup"
       });
       window.close();
+      return;
     }
 
     window.addEventListener("beforeunload", cancel);
@@ -70,18 +85,8 @@ export default function App() {
     return function cleanup() {
       window.removeEventListener("beforeunload", cancel);
     };
+    // eslint-disable-next-line
   }, []);
-
-  function getRealURL(url: string) {
-    const arweaveTxRegex = /(http|https)(:\/\/)(.*)(\.arweave\.net\/)/g,
-      match = url.match(arweaveTxRegex);
-    if (match)
-      return (
-        match[0].replace(/(http|https)(:\/\/)/, "") +
-        url.replace(arweaveTxRegex, "").split("/")[0]
-      );
-    else return url.replace(/(http|https)(:\/\/)/, "").split("/")[0];
-  }
 
   async function login() {
     setLoading(true);
@@ -189,7 +194,9 @@ export default function App() {
       )) || (
         <>
           <h1>Permissions</h1>
-          <p>Please allow these permissions for this site</p>
+          {(alreadyHasPermissions && (
+            <p>This site wants to access more permissions:</p>
+          )) || <p>Please allow these permissions for this site</p>}
           {(requestedPermissions.length > 0 && (
             <ul>
               {requestedPermissions.map((permission, i) => (

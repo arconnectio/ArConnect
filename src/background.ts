@@ -1,4 +1,6 @@
+import { IPermissionState } from "./stores/reducers/permissions";
 import { MessageFormat, sendMessage, validateMessage } from "./utils/messenger";
+import { getRealURL } from "./utils/url";
 
 chrome.runtime.onInstalled.addListener(() => {
   if (!walletsStored()) window.open(chrome.runtime.getURL("/welcome.html"));
@@ -52,6 +54,42 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               sendResponse
             );
 
+          const permissionsStroage = localStorage.getItem(
+              "arweave_permissions"
+            ),
+            tabURL = currentTabArray[0].url;
+
+          if (permissionsStroage) {
+            const permissions: IPermissionState[] = JSON.parse(
+                permissionsStroage
+              ).val,
+              existingPermissions = permissions.find(
+                ({ url }) => url === getRealURL(tabURL)
+              )?.permissions;
+
+            if (existingPermissions) {
+              let hasAllPermissions = true;
+
+              for (const permission of message.permissions)
+                if (!existingPermissions.includes(permission))
+                  hasAllPermissions = false;
+
+              if (hasAllPermissions)
+                return sendMessage(
+                  {
+                    type: "connect_result",
+                    ext: "weavemask",
+                    res: false,
+                    message:
+                      "All permissions are already allowed for this site",
+                    sender: "background"
+                  },
+                  undefined,
+                  sendResponse
+                );
+            }
+          }
+
           chrome.windows.create(
             {
               url: `${chrome.extension.getURL(
@@ -61,7 +99,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                   val: true,
                   permissions: message.permissions,
                   type: "connect",
-                  url: currentTabArray[0].url
+                  url: tabURL
                 })
               )}`,
               focused: true,
