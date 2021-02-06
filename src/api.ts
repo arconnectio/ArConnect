@@ -65,6 +65,26 @@ const WeaveMaskAPI = {
         else reject(e.data.message);
       }
     });
+  },
+  getAllAddresses(): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      sendMessage(
+        { type: "get_all_addresses", ext: "weavemask", sender: "api" },
+        undefined,
+        undefined,
+        false
+      );
+      window.addEventListener("message", callback);
+
+      // @ts-ignore
+      function callback(e: MessageEvent<any>) {
+        if (!validateMessage(e.data, { type: "get_all_addresses_result" }))
+          return;
+        window.removeEventListener("message", callback);
+        if (e.data.addresses) resolve(e.data.addresses);
+        else reject(e.data.message);
+      }
+    });
   }
 };
 

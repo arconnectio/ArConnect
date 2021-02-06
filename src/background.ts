@@ -1,5 +1,10 @@
 import { IPermissionState } from "./stores/reducers/permissions";
-import { MessageFormat, sendMessage, validateMessage } from "./utils/messenger";
+import {
+  MessageFormat,
+  MessageType,
+  sendMessage,
+  validateMessage
+} from "./utils/messenger";
 import { getRealURL } from "./utils/url";
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -28,17 +33,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         { active: true, currentWindow: true },
         (currentTabArray) => {
           if (!currentTabArray[0] || !currentTabArray[0].url)
-            return sendMessage(
-              {
-                type: "connect_result",
-                ext: "weavemask",
-                res: false,
-                message: "No tabs opened",
-                sender: "background"
-              },
-              undefined,
-              sendResponse
-            );
+            return sendNoTabError(sendResponse, "connect_result");
 
           if (!message.permissions)
             return sendMessage(
@@ -124,33 +119,97 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
     case "get_active_address":
       const currentAddressStore = localStorage.getItem("arweave_profile");
 
-      if (currentAddressStore) {
-        const currentAddress = JSON.parse(currentAddressStore).val;
+      chrome.tabs.query(
+        { active: true, currentWindow: true },
+        (currentTabArray) => {
+          if (!currentTabArray[0] || !currentTabArray[0].url)
+            return sendNoTabError(sendResponse, "get_active_address_result");
 
-        sendMessage(
-          {
-            type: "get_active_address_result",
-            ext: "weavemask",
-            res: true,
-            address: currentAddress,
-            sender: "background"
-          },
-          undefined,
-          sendResponse
-        );
-      } else {
-        sendMessage(
-          {
-            type: "get_active_address_result",
-            ext: "weavemask",
-            res: false,
-            message: "Error getting current address",
-            sender: "background"
-          },
-          undefined,
-          sendResponse
-        );
-      }
+          if (!checkPermissions(["ACCESS_ADDRESS"], currentTabArray[0].url))
+            return sendPermissionError(
+              sendResponse,
+              "get_active_address_result"
+            );
+          if (currentAddressStore) {
+            const currentAddress = JSON.parse(currentAddressStore).val;
+
+            sendMessage(
+              {
+                type: "get_active_address_result",
+                ext: "weavemask",
+                res: true,
+                address: currentAddress,
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          } else {
+            sendMessage(
+              {
+                type: "get_active_address_result",
+                ext: "weavemask",
+                res: false,
+                message: "Error getting current address",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          }
+        }
+      );
+
+      return true;
+
+    case "get_all_addresses":
+      const addressesStore = localStorage.getItem("arweave_wallets");
+
+      chrome.tabs.query(
+        { active: true, currentWindow: true },
+        (currentTabArray) => {
+          if (!currentTabArray[0] || !currentTabArray[0].url)
+            return sendNoTabError(sendResponse, "get_all_addresses_result");
+
+          if (
+            !checkPermissions(["ACCESS_ALL_ADDRESSES"], currentTabArray[0].url)
+          )
+            return sendPermissionError(
+              sendResponse,
+              "get_all_addresses_result"
+            );
+          if (addressesStore) {
+            const allAddresses = JSON.parse(addressesStore).val,
+              addresses = allAddresses.map(
+                ({ address }: { address: string }) => address
+              );
+
+            sendMessage(
+              {
+                type: "get_all_addresses_result",
+                ext: "weavemask",
+                res: true,
+                addresses,
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          } else {
+            sendMessage(
+              {
+                type: "get_all_addresses_result",
+                ext: "weavemask",
+                res: false,
+                message: "Error getting all addresses",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          }
+        }
+      );
 
       return true;
 
@@ -170,5 +229,66 @@ function walletsStored(): boolean {
     return false;
   return true;
 }
+
+function checkPermissions(permissions: PermissionType[], url: string) {
+  const storedPermissions = localStorage.getItem("arweave_permissions");
+  url = getRealURL(url);
+
+  if (storedPermissions) {
+    const parsedPermissions = JSON.parse(storedPermissions).val,
+      sitePermissions: PermissionType[] = parsedPermissions.find(
+        (val: IPermissionState) => val.url === url
+      )?.permissions;
+
+    if (!sitePermissions) return false;
+
+    for (const permission of permissions)
+      if (!sitePermissions.includes(permission)) return false;
+
+    return true;
+  } else return false;
+}
+
+function sendNoTabError(
+  sendResponse: (response?: any) => void,
+  type: MessageType
+) {
+  sendMessage(
+    {
+      type,
+      ext: "weavemask",
+      res: false,
+      message: "No tabs opened",
+      sender: "background"
+    },
+    undefined,
+    sendResponse
+  );
+}
+
+function sendPermissionError(
+  sendResponse: (response?: any) => void,
+  type: MessageType
+) {
+  sendMessage(
+    {
+      type,
+      ext: "weavemask",
+      res: false,
+      message:
+        "The site does not have the required permissions for this action",
+      sender: "background"
+    },
+    undefined,
+    sendResponse
+  );
+}
+
+// TODO: extract this to it's own library, import from there
+type PermissionType =
+  | "ACCESS_ADDRESS"
+  | "ACCESS_ALL_ADDRESSES"
+  | "CREATE_TRANSACTION"
+  | "SIGN_TRANSACTION";
 
 export {};
