@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Input, Spacer, useInput } from "@geist-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
-import { sendMessage } from "../../utils/messenger";
+import { sendMessage, MessageType } from "../../utils/messenger";
 import { setPermissions } from "../../stores/actions";
 import { getRealURL } from "../../utils/url";
 import Cryptr from "cryptr";
@@ -21,17 +21,17 @@ export default function App() {
       PermissionType[]
     >([]),
     [currentURL, setCurrentURL] = useState<string>(),
-    [type, setType] = useState<
-      "connect" | "create_transaction" | "sign_transaction"
-    >(),
+    [type, setType] = useState<AuthType>(),
     dispatch = useDispatch(),
     [alreadyHasPermissions, setAlreadyHasPermissions] = useState(false);
 
   useEffect(() => {
     const authVal = new URL(window.location.href).searchParams.get("auth");
-    if (!authVal) {
+
+    // invalid auth
+    if (!authVal && type === "connect") {
       sendMessage({
-        type: "connect_result",
+        type: getReturnType(),
         ext: "weavemask",
         res: false,
         message: "Invalid auth call",
@@ -39,45 +39,50 @@ export default function App() {
       });
       window.close();
       return;
-    }
 
-    const decodedAuthParam: {
-      val: boolean;
-      permissions?: PermissionType[];
-      type?: "connect" | "create_transaction" | "sign_transaction";
-      url?: string;
-    } = JSON.parse(decodeURIComponent(authVal));
+      // auth
+    } else if (authVal && type === "connect") {
+      const decodedAuthParam: {
+        val: boolean;
+        permissions?: PermissionType[];
+        type?: AuthType;
+        url?: string;
+      } = JSON.parse(decodeURIComponent(authVal));
 
-    if (
-      decodedAuthParam.type &&
-      decodedAuthParam.permissions &&
-      decodedAuthParam.url
-    ) {
-      const realURL = getRealURL(decodedAuthParam.url),
-        existingPermissions = permissions.find(({ url }) => url === realURL);
+      if (
+        decodedAuthParam.type &&
+        decodedAuthParam.permissions &&
+        decodedAuthParam.url
+      ) {
+        const realURL = getRealURL(decodedAuthParam.url),
+          existingPermissions = permissions.find(({ url }) => url === realURL);
 
-      setType(decodedAuthParam.type);
-      setRequestedPermissions(decodedAuthParam.permissions);
-      setCurrentURL(realURL);
+        setType(decodedAuthParam.type);
+        setRequestedPermissions(decodedAuthParam.permissions);
+        setCurrentURL(realURL);
 
-      if (existingPermissions && existingPermissions.permissions.length > 0) {
-        setAlreadyHasPermissions(true);
-        setRequestedPermissions(
-          decodedAuthParam.permissions.filter(
-            (perm) => !existingPermissions.permissions.includes(perm)
-          )
-        );
+        if (existingPermissions && existingPermissions.permissions.length > 0) {
+          setAlreadyHasPermissions(true);
+          setRequestedPermissions(
+            decodedAuthParam.permissions.filter(
+              (perm) => !existingPermissions.permissions.includes(perm)
+            )
+          );
+        }
+      } else {
+        sendMessage({
+          type: getReturnType(),
+          ext: "weavemask",
+          res: false,
+          message: "Invalid auth call",
+          sender: "popup"
+        });
+        window.close();
+        return;
       }
+
+      // other actions that need decryption
     } else {
-      sendMessage({
-        type: "connect_result",
-        ext: "weavemask",
-        res: false,
-        message: "Invalid auth call",
-        sender: "popup"
-      });
-      window.close();
-      return;
     }
 
     window.addEventListener("beforeunload", cancel);
@@ -98,6 +103,19 @@ export default function App() {
         const cryptr = new Cryptr(passwordInput.state);
         cryptr.decrypt(wallets[0].keyfile);
         setLoggedIn(true);
+
+        if (type !== "connect") {
+          if (!currentURL) return urlError();
+          else {
+            sendMessage({
+              type: getReturnType(),
+              ext: "weavemask",
+              res: true,
+              message: "Success",
+              sender: "popup"
+            });
+          }
+        } else setLoggedIn(true);
       } catch {
         setPasswordStatus("error");
       }
@@ -107,7 +125,7 @@ export default function App() {
 
   function urlError() {
     sendMessage({
-      type: "connect_result",
+      type: getReturnType(),
       ext: "weavemask",
       res: false,
       message: "No tab selected",
@@ -116,12 +134,22 @@ export default function App() {
     window.close();
   }
 
+  function getReturnType(): MessageType {
+    if (type === "connect") return "connect_result";
+    else if (type === "create_transaction") return "create_transaction_result";
+    else if (type === "sign_transaction") return "sign_transaction_result";
+    else if (type === "create_and_sign_transaction")
+      return "create_and_sign_transaction_result";
+    //
+    return "connect_result";
+  }
+
   function accept() {
     if (!loggedIn) return;
     if (!currentURL) return urlError();
     dispatch(setPermissions(currentURL, requestedPermissions));
     sendMessage({
-      type: "connect_result",
+      type: getReturnType(),
       ext: "weavemask",
       res: true,
       message: "Success",
@@ -132,7 +160,7 @@ export default function App() {
 
   function cancel() {
     sendMessage({
-      type: "connect_result",
+      type: getReturnType(),
       ext: "weavemask",
       res: false,
       message: "User cancelled the login",
@@ -164,10 +192,22 @@ export default function App() {
       {(!loggedIn && (
         <>
           <h1>Sign In</h1>
-          <p>
-            This site wants to connect to WeaveMask. Please enter your password
-            to continue.
-          </p>
+          {(type === "connect" && (
+            <p>
+              This site wants to connect to WeaveMask. Please enter your
+              password to continue.
+            </p>
+          )) || (
+            <p>
+              This site wants to{" "}
+              {type === "sign_transaction"
+                ? "sign a transaction"
+                : type === "create_transaction"
+                ? "create a transaction"
+                : "create and sign a transaction"}
+              . Please enter your password to continue.
+            </p>
+          )}
           <Input
             {...passwordInput.bindings}
             status={passwordStatus}
@@ -224,3 +264,9 @@ type PermissionType =
   | "ACCESS_ALL_ADDRESSES"
   | "CREATE_TRANSACTION"
   | "SIGN_TRANSACTION";
+
+type AuthType =
+  | "connect"
+  | "create_transaction"
+  | "sign_transaction"
+  | "create_and_sign_transaction";

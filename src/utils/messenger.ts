@@ -8,7 +8,15 @@ export interface MessageFormat {
 }
 
 type MessageSender = "popup" | "background" | "api";
-type MessageType = "connect" | "connect_result" | "connect_result";
+export type MessageType =
+  | "connect"
+  | "connect_result"
+  | "create_transaction"
+  | "create_transaction_result"
+  | "sign_transaction"
+  | "sign_transaction_result"
+  | "create_and_sign_transaction"
+  | "create_and_sign_transaction_result";
 
 export function sendMessage(
   message: MessageFormat,
