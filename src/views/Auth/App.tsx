@@ -29,7 +29,7 @@ export default function App() {
     const authVal = new URL(window.location.href).searchParams.get("auth");
 
     // invalid auth
-    if (!authVal && type === "connect") {
+    if (!authVal) {
       sendMessage({
         type: getReturnType(),
         ext: "weavemask",
@@ -39,50 +39,56 @@ export default function App() {
       });
       window.close();
       return;
+    }
 
-      // auth
-    } else if (authVal && type === "connect") {
-      const decodedAuthParam: {
-        val: boolean;
-        permissions?: PermissionType[];
-        type?: AuthType;
-        url?: string;
-      } = JSON.parse(decodeURIComponent(authVal));
+    const decodedAuthParam: {
+      val: boolean;
+      permissions?: PermissionType[];
+      type?: AuthType;
+      url?: string;
+    } = JSON.parse(decodeURIComponent(authVal));
 
-      if (
-        decodedAuthParam.type &&
-        decodedAuthParam.permissions &&
-        decodedAuthParam.url
-      ) {
-        const realURL = getRealURL(decodedAuthParam.url),
-          existingPermissions = permissions.find(({ url }) => url === realURL);
+    if (!decodedAuthParam.type) {
+      sendMessage({
+        type: getReturnType(),
+        ext: "weavemask",
+        res: false,
+        message: "Invalid auth call",
+        sender: "popup"
+      });
+      window.close();
+      return;
+    } else setType(decodedAuthParam.type);
 
-        setType(decodedAuthParam.type);
-        setRequestedPermissions(decodedAuthParam.permissions);
-        setCurrentURL(realURL);
+    if (
+      decodedAuthParam.type === "connect" &&
+      decodedAuthParam.permissions &&
+      decodedAuthParam.url
+    ) {
+      const realURL = getRealURL(decodedAuthParam.url),
+        existingPermissions = permissions.find(({ url }) => url === realURL);
 
-        if (existingPermissions && existingPermissions.permissions.length > 0) {
-          setAlreadyHasPermissions(true);
-          setRequestedPermissions(
-            decodedAuthParam.permissions.filter(
-              (perm) => !existingPermissions.permissions.includes(perm)
-            )
-          );
-        }
-      } else {
-        sendMessage({
-          type: getReturnType(),
-          ext: "weavemask",
-          res: false,
-          message: "Invalid auth call",
-          sender: "popup"
-        });
-        window.close();
-        return;
+      setRequestedPermissions(decodedAuthParam.permissions);
+      setCurrentURL(realURL);
+
+      if (existingPermissions && existingPermissions.permissions.length > 0) {
+        setAlreadyHasPermissions(true);
+        setRequestedPermissions(
+          decodedAuthParam.permissions.filter(
+            (perm) => !existingPermissions.permissions.includes(perm)
+          )
+        );
       }
-
-      // other actions that need decryption
     } else {
+      sendMessage({
+        type: getReturnType(),
+        ext: "weavemask",
+        res: false,
+        message: "Invalid auth call",
+        sender: "popup"
+      });
+      window.close();
+      return;
     }
 
     window.addEventListener("beforeunload", cancel);
@@ -147,7 +153,12 @@ export default function App() {
   function accept() {
     if (!loggedIn) return;
     if (!currentURL) return urlError();
-    dispatch(setPermissions(currentURL, requestedPermissions));
+
+    const currentPerms: PermissionType[] =
+      permissions.find(({ url }) => url === currentURL)?.permissions ?? [];
+    dispatch(
+      setPermissions(currentURL, [...currentPerms, ...requestedPermissions])
+    );
     sendMessage({
       type: getReturnType(),
       ext: "weavemask",

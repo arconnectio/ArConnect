@@ -16,7 +16,9 @@ export type MessageType =
   | "sign_transaction"
   | "sign_transaction_result"
   | "create_and_sign_transaction"
-  | "create_and_sign_transaction_result";
+  | "create_and_sign_transaction_result"
+  | "get_active_address"
+  | "get_active_address_result";
 
 export function sendMessage(
   message: MessageFormat,

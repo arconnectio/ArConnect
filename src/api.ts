@@ -21,7 +21,7 @@ function createOverlay(text: string) {
 }
 
 const WeaveMaskAPI = {
-  connect(permissions: PermissionType[]): Promise<any> {
+  connect(permissions: PermissionType[]): Promise<boolean> {
     const requestPermissionOverlay = createOverlay(
       "This page is requesting permission to connect to WeaveMask...<br />Please review them in the popup."
     );
@@ -41,7 +41,27 @@ const WeaveMaskAPI = {
         if (!validateMessage(e.data, { type: "connect_result" })) return;
         window.removeEventListener("message", callback);
         document.body.removeChild(requestPermissionOverlay);
-        if (e.data.res) resolve(e.data.message);
+        if (e.data.res) resolve(true);
+        else reject(e.data.message);
+      }
+    });
+  },
+  getActiveAddress(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      sendMessage(
+        { type: "get_active_address", ext: "weavemask", sender: "api" },
+        undefined,
+        undefined,
+        false
+      );
+      window.addEventListener("message", callback);
+
+      // @ts-ignore
+      function callback(e: MessageEvent<any>) {
+        if (!validateMessage(e.data, { type: "get_active_address_result" }))
+          return;
+        window.removeEventListener("message", callback);
+        if (e.data.address) resolve(e.data.address);
         else reject(e.data.message);
       }
     });

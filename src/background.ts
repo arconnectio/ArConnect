@@ -9,22 +9,21 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   const message: MessageFormat = msg;
   if (!validateMessage(message, { sender: "api" })) return;
+  if (!walletsStored())
+    return sendMessage(
+      {
+        type: "connect_result",
+        ext: "weavemask",
+        res: false,
+        message: "No wallets added to WeaveMask",
+        sender: "background"
+      },
+      undefined,
+      sendResponse
+    );
 
   switch (message.type) {
     case "connect":
-      if (!walletsStored())
-        return sendMessage(
-          {
-            type: "connect_result",
-            ext: "weavemask",
-            res: false,
-            message: "No wallets added to WeaveMask",
-            sender: "background"
-          },
-          undefined,
-          sendResponse
-        );
-
       chrome.tabs.query(
         { active: true, currentWindow: true },
         (currentTabArray) => {
@@ -120,6 +119,39 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
       );
 
       // true for async listener
+      return true;
+
+    case "get_active_address":
+      const currentAddressStore = localStorage.getItem("arweave_profile");
+
+      if (currentAddressStore) {
+        const currentAddress = JSON.parse(currentAddressStore).val;
+
+        sendMessage(
+          {
+            type: "get_active_address_result",
+            ext: "weavemask",
+            res: true,
+            address: currentAddress,
+            sender: "background"
+          },
+          undefined,
+          sendResponse
+        );
+      } else {
+        sendMessage(
+          {
+            type: "get_active_address_result",
+            ext: "weavemask",
+            res: false,
+            message: "Error getting current address",
+            sender: "background"
+          },
+          undefined,
+          sendResponse
+        );
+      }
+
       return true;
 
     default:
