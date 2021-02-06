@@ -30,7 +30,8 @@ export default function WalletManager() {
         width: number;
       }[]
     >([]),
-    { scheme } = useColorScheme();
+    { scheme } = useColorScheme(),
+    [copyStatus, setCopyStatus] = useState(false);
 
   useEffect(() => {
     adjustSizes();
@@ -72,6 +73,12 @@ export default function WalletManager() {
     else return "Wallet";
   }
 
+  function copyAddress() {
+    copy(profile);
+    setCopyStatus(true);
+    setTimeout(() => setCopyStatus(false), 280);
+  }
+
   return (
     <div className={styles.CurrentWallet}>
       <h1 onClick={() => setOpen(!open)}>{currentWalletName()}</h1>
@@ -92,7 +99,9 @@ export default function WalletManager() {
         placement="bottom"
         style={{ width: "100%" }}
       >
-        <p onClick={() => copy(profile)}>{profile}</p>
+        <p onClick={copyAddress} className={copyStatus ? styles.Copied : ""}>
+          {profile}
+        </p>
       </Tooltip>
       <div
         className={styles.Icon + " " + (open ? styles.Open : "")}

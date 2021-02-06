@@ -43,6 +43,9 @@ export default function PST({ id, name, balance, ticker }: Asset) {
     [inputState, setInputState] = useState<
       "default" | "secondary" | "success" | "warning" | "error"
     >(),
+    [addressInputState, setAddressInputState] = useState<
+      "default" | "secondary" | "success" | "warning" | "error"
+    >(),
     [loading, setLoading] = useState(false),
     dispatch = useDispatch(),
     profile = useSelector((state: RootState) => state.profile),
@@ -94,12 +97,16 @@ export default function PST({ id, name, balance, ticker }: Asset) {
       Number(transferInput.state) > balance
     )
       return setInputState("error");
+    if (addressInput.state === "") return setAddressInputState("error");
+
     setShowPasswordInput(true);
     setInputState("default");
+    setAddressInputState("default");
   }
 
   async function transfer() {
     setLoading(true);
+    if (passwordInput.state === "") return setInputState("error");
 
     let keyfile: JWKInterface | undefined = undefined;
     try {
@@ -238,6 +245,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
                   <Spacer />
                   <Input
                     {...addressInput.bindings}
+                    status={addressInputState}
                     placeholder="Transfer address..."
                   />
                   <Spacer />
