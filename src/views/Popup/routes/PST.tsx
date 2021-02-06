@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { ArrowLeftIcon, ArrowSwitchIcon } from "@primer/octicons-react";
+import {
+  ArrowLeftIcon,
+  ArrowSwitchIcon,
+  TrashcanIcon
+} from "@primer/octicons-react";
 import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
 import {
@@ -8,10 +12,14 @@ import {
   useInput,
   useTabs,
   Button,
-  Spacer
+  Spacer,
+  useModal,
+  Modal
 } from "@geist-ui/react";
-// @ts-ignore
 import { useColorScheme } from "use-color-scheme";
+import { useDispatch, useSelector } from "react-redux";
+import { removeAsset } from "../../../stores/actions";
+import { RootState } from "../../../stores/reducers";
 import Verto from "@verto/lib";
 import Home from "./Home";
 import communityxyz_logo from "../../../assets/communityxyz.png";
@@ -27,7 +35,10 @@ export default function PST({ id, name, balance, ticker }: Asset) {
     [inputState, setInputState] = useState<
       "default" | "secondary" | "success" | "warning" | "error"
     >(),
-    [loading, setLoading] = useState(false);
+    [loading, setLoading] = useState(false),
+    dispatch = useDispatch(),
+    profile = useSelector((state: RootState) => state.profile),
+    removeModal = useModal(false);
 
   useEffect(() => {
     loadArPrice();
@@ -57,6 +68,12 @@ export default function PST({ id, name, balance, ticker }: Asset) {
     setLoading(false);
   }
 
+  function removePst() {
+    dispatch(removeAsset(profile, id));
+    removeModal.setVisible(false);
+    goTo(Home);
+  }
+
   return (
     <>
       <div className={styles.Head}>
@@ -66,6 +83,12 @@ export default function PST({ id, name, balance, ticker }: Asset) {
         <h1>{name}</h1>
       </div>
       <div className={styles.PST}>
+        <button
+          onClick={() => removeModal.setVisible(true)}
+          className={styles.Remove}
+        >
+          <TrashcanIcon />
+        </button>
         <h1 className={styles.Balance}>
           {balance} <span>{ticker}</span>
         </h1>
@@ -127,6 +150,16 @@ export default function PST({ id, name, balance, ticker }: Asset) {
           ></Tabs.Item>
         </Tabs>
       </div>
+      <Modal {...removeModal.bindings}>
+        <Modal.Title>Remove PST?</Modal.Title>
+        <Modal.Content>
+          <p>Do you want to remove this PST from the displayed PSTs list?</p>
+        </Modal.Content>
+        <Modal.Action passive onClick={() => removeModal.setVisible(false)}>
+          Cancel
+        </Modal.Action>
+        <Modal.Action onClick={removePst}>Remove</Modal.Action>
+      </Modal>
     </>
   );
 }

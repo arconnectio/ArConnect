@@ -2960,6 +2960,11 @@
   dependencies:
     source-map "^0.6.1"
 
+"@types/use-color-scheme@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@types/use-color-scheme/-/use-color-scheme-1.1.0.tgz#5d58f9d86162cd511440b046e0fe9474996880ea"
+  integrity sha512-3504NBjeghT8CMw+0blDduq+dvdNev6UNFTP9D+7/HvxTQSw0Z7rtMv2UHU7TIaULwIO37qpSSz0riWk7PRH5A==
+
 "@types/webpack-sources@*":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@types/webpack-sources/-/webpack-sources-2.0.0.tgz#08216ab9be2be2e1499beaebc4d469cec81e82a7"

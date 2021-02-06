@@ -13,7 +13,6 @@ import {
   PlusIcon,
   TrashcanIcon
 } from "@primer/octicons-react";
-// @ts-ignore
 import { useColorScheme } from "use-color-scheme";
 import { QRCode } from "react-qr-svg";
 import { motion, AnimatePresence } from "framer-motion";

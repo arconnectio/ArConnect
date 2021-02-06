@@ -19,7 +19,6 @@ import limestone from "@limestonefi/api";
 import arweaveLogo from "../../../assets/arweave.png";
 import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
-// @ts-ignore
 import { useColorScheme } from "use-color-scheme";
 import styles from "../../../styles/views/Popup/home.module.sass";
 
@@ -96,7 +95,8 @@ export default function Home() {
             name: pst.state.name,
             ticker: pst.state.ticker,
             logo: pst.state.settings.communityLogo,
-            balance: pst.state.balances[profile] ?? 0
+            balance: pst.state.balances[profile] ?? 0,
+            removed: psts?.find(({ id }) => id === pst.id)?.removed ?? false
           }))
         )
       );
@@ -164,45 +164,47 @@ export default function Home() {
       <Tabs initialValue="1" className={styles.Tabs}>
         <Tabs.Item label="PSTs" value="1">
           {(psts &&
-            psts.length > 0 &&
-            psts.map((pst, i) => (
-              <div
-                className={styles.PST}
-                key={i}
-                onClick={() =>
-                  goTo(PST, {
-                    name: pst.name,
-                    id: pst.id,
-                    balance: pst.balance,
-                    ticker: pst.ticker
-                  })
-                }
-              >
+            psts.filter(({ removed }) => !removed).length > 0 &&
+            psts
+              .filter(({ removed }) => !removed)
+              .map((pst, i) => (
                 <div
-                  className={
-                    styles.Logo +
-                    " " +
-                    (pst.ticker === "VRT" ? styles.NoOutline : "")
+                  className={styles.PST}
+                  key={i}
+                  onClick={() =>
+                    goTo(PST, {
+                      name: pst.name,
+                      id: pst.id,
+                      balance: pst.balance,
+                      ticker: pst.ticker
+                    })
                   }
                 >
-                  <img src={logo(pst.id)} alt="pst-logo" />
+                  <div
+                    className={
+                      styles.Logo +
+                      " " +
+                      (pst.ticker === "VRT" ? styles.NoOutline : "")
+                    }
+                  >
+                    <img src={logo(pst.id)} alt="pst-logo" />
+                  </div>
+                  <div>
+                    <h1>
+                      {pst.balance} {pst.ticker}
+                    </h1>
+                    <h2>
+                      {pst.balance *
+                        (pstPrices.find(({ id }) => id === pst.id)?.price ??
+                          0)}{" "}
+                      AR
+                    </h2>
+                  </div>
+                  <div className={styles.Arrow}>
+                    <ChevronRightIcon />
+                  </div>
                 </div>
-                <div>
-                  <h1>
-                    {pst.balance} {pst.ticker}
-                  </h1>
-                  <h2>
-                    {pst.balance *
-                      (pstPrices.find(({ id }) => id === pst.id)?.price ??
-                        0)}{" "}
-                    AR
-                  </h2>
-                </div>
-                <div className={styles.Arrow}>
-                  <ChevronRightIcon />
-                </div>
-              </div>
-            ))) || <p className={styles.EmptyIndicatorText}>No PSTs</p>}
+              ))) || <p className={styles.EmptyIndicatorText}>No PSTs</p>}
         </Tabs.Item>
         <Tabs.Item label="Transactions" value="2">
           {(transactions.length > 0 &&

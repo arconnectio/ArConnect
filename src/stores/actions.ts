@@ -65,6 +65,13 @@ export function removePermissions(
   };
 }
 
+export function removeAsset(address: string, id: string): IAssetsAction {
+  return {
+    type: "REMOVE_ASSETS",
+    payload: { address, id }
+  };
+}
+
 export function signOut() {
   return {
     type: "USER_SIGNOUT",

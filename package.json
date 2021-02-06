@@ -33,6 +33,7 @@
     "@types/react-dom": "^16.9.0",
     "@types/react-redux": "^7.1.16",
     "@types/redux": "^3.6.0",
+    "@types/use-color-scheme": "^1.1.0",
     "prettier": "^2.2.1",
     "sass": "^1.32.5",
     "typescript": "^3.8.0",
