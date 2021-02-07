@@ -8,7 +8,9 @@ import { getRealURL } from "../../utils/url";
 import { PermissionType, PermissionDescriptions } from "weavemask";
 import { JWKInterface } from "arweave/web/lib/wallet";
 import Arweave from "arweave";
+import Transaction from "arweave/web/lib/transaction";
 import { CreateTransactionInterface } from "arweave/web/common";
+import { SignatureOptions } from "arweave/node/lib/crypto/crypto-interface";
 import Cryptr from "cryptr";
 import styles from "../../styles/views/Auth/view.module.sass";
 
@@ -31,7 +33,11 @@ export default function App() {
     [attributes, setAttributes] = useState<
       Partial<CreateTransactionInterface>
     >(),
-    profile = useSelector((state: RootState) => state.profile);
+    profile = useSelector((state: RootState) => state.profile),
+    [transaction, setTransaction] = useState<Transaction>(),
+    [signingOptions, setSigningOptions] = useState<
+      SignatureOptions | undefined
+    >();
 
   useEffect(() => {
     const authVal = new URL(window.location.href).searchParams.get("auth");
@@ -54,6 +60,8 @@ export default function App() {
       type?: AuthType;
       url?: string;
       attributes?: Partial<CreateTransactionInterface>;
+      transaction?: Transaction;
+      signingOptions?: SignatureOptions;
     } = JSON.parse(decodeURIComponent(authVal));
 
     if (!decodedAuthParam.type) {
@@ -74,7 +82,7 @@ export default function App() {
 
     if (decodedAuthParam.type === "connect" && decodedAuthParam.permissions) {
       const existingPermissions = permissions.find(
-        ({ url }) => url === getRealURL(url)
+        (permGroup) => permGroup.url === getRealURL(url)
       );
 
       setRequestedPermissions(decodedAuthParam.permissions);
@@ -98,6 +106,33 @@ export default function App() {
       if (!perms.includes("CREATE_TRANSACTION")) return sendPermissionError();
 
       setAttributes(decodedAuthParam.attributes);
+    } else if (
+      decodedAuthParam.type === "sign_transaction" &&
+      decodedAuthParam.transaction
+    ) {
+      const perms =
+        permissions.find((permItem) => permItem.url === getRealURL(url))
+          ?.permissions ?? [];
+      if (!perms.includes("SIGN_TRANSACTION")) return sendPermissionError();
+
+      setTransaction(decodedAuthParam.transaction);
+      setSigningOptions(decodedAuthParam.signingOptions);
+    } else if (
+      decodedAuthParam.type === "create_and_sign_transaction" &&
+      decodedAuthParam.attributes
+    ) {
+      if (!decodedAuthParam.url) return;
+      const perms =
+        permissions.find((permItem) => permItem.url === getRealURL(url))
+          ?.permissions ?? [];
+      if (
+        !perms.includes("CREATE_TRANSACTION") ||
+        !perms.includes("SIGN_TRANSACTION")
+      )
+        return sendPermissionError();
+
+      setAttributes(decodedAuthParam.attributes);
+      setSigningOptions(decodedAuthParam.signingOptions);
     } else {
       sendMessage({
         type: getReturnType(),
@@ -212,12 +247,50 @@ export default function App() {
       port: 443,
       protocol: "https"
     });
+    let tx: Transaction | undefined = transaction;
 
-    if (type === "create_transaction" && attributes && keyfile) {
+    if (
+      (type === "create_transaction" ||
+        type === "create_and_sign_transaction") &&
+      attributes &&
+      keyfile
+    ) {
       try {
-        const transaction = await arweave.createTransaction(
-          attributes,
-          keyfile
+        tx = await arweave.createTransaction(attributes, keyfile);
+
+        if (type === "create_transaction" && tx)
+          sendMessage({
+            type: getReturnType(),
+            ext: "weavemask",
+            res: true,
+            message: "Success",
+            sender: "popup",
+            transaction: tx
+          });
+      } catch {
+        sendMessage({
+          type: getReturnType(),
+          ext: "weavemask",
+          res: false,
+          message: "Could not create transaction",
+          sender: "popup"
+        });
+        setLoading(false);
+        window.close();
+        return;
+      }
+    }
+
+    if (
+      (type === "sign_transaction" || type === "create_and_sign_transaction") &&
+      tx
+    ) {
+      try {
+        const transactionInstance = new Transaction(tx);
+        await arweave.transactions.sign(
+          transactionInstance,
+          keyfile,
+          signingOptions
         );
 
         sendMessage({
@@ -226,14 +299,14 @@ export default function App() {
           res: true,
           message: "Success",
           sender: "popup",
-          transaction
+          transaction: transactionInstance
         });
-      } catch (e) {
+      } catch {
         sendMessage({
           type: getReturnType(),
           ext: "weavemask",
           res: false,
-          message: e,
+          message: "Could not sign transaction",
           sender: "popup"
         });
       }
