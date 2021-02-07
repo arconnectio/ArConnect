@@ -242,6 +242,47 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   }
 });
 
+// for wallet switch event
+// this comes from the popup sender
+chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
+  const message: MessageFormat = msg;
+  if (!validateMessage(message, { sender: "popup" })) return;
+  if (!walletsStored()) return;
+
+  switch (message.type) {
+    case "switch_wallet_event":
+      chrome.tabs.query(
+        { active: true, currentWindow: true },
+        (currentTabArray) => {
+          if (
+            !currentTabArray[0] ||
+            !currentTabArray[0].url ||
+            !currentTabArray[0].id
+          )
+            return;
+
+          if (
+            !checkPermissions(
+              ["ACCESS_ALL_ADDRESSES", "ACCESS_ADDRESS"],
+              currentTabArray[0].url
+            )
+          )
+            return;
+
+          sendMessage(
+            { ...message, type: "switch_wallet_event_forward" },
+            undefined,
+            undefined,
+            true,
+            currentTabArray[0].id
+          );
+        }
+      );
+
+      return true;
+  }
+});
+
 function walletsStored(): boolean {
   const wallets = localStorage.getItem("arweave_wallets");
 

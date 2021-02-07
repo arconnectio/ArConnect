@@ -104,9 +104,6 @@ const WeaveMaskAPI = {
   ): Promise<Transaction> {
     return new Promise((resolve, reject) => {});
   },
-  onWalletSwitch(listener: (address: string) => void): Promise<boolean> {
-    return new Promise((resolve, reject) => {});
-  },
   getPermissions(): Promise<PermissionType[]> {
     return new Promise((resolve, reject) => {
       sendMessage(
@@ -129,6 +126,14 @@ const WeaveMaskAPI = {
     });
   }
 };
+
+// listen to wallet switch event and dispatch it
+window.addEventListener("message", (e) => {
+  if (e.data.type !== "switch_wallet_event_forward" || !e.data.address) return;
+  dispatchEvent(
+    new CustomEvent("walletSwitch", { detail: { address: e.data.address } })
+  );
+});
 
 window.weavemask = WeaveMaskAPI;
 

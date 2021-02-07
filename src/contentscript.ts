@@ -1,4 +1,4 @@
-import { sendMessage, validateMessage } from "./utils/messenger";
+import { sendMessage, validateMessage, MessageFormat } from "./utils/messenger";
 
 function addScriptToWindow(path: string) {
   try {
@@ -26,6 +26,20 @@ addScriptToWindow(chrome.extension.getURL("/static/js/api.js"));
 window.addEventListener("message", (e) => {
   if (!validateMessage(e.data, {}) || !e.data.type) return;
   sendMessage(e.data, (res) => sendMessage(res, undefined, undefined, false));
+});
+
+// wallet switch event
+chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
+  const message: MessageFormat = msg;
+  if (
+    !validateMessage(message, {
+      sender: "popup",
+      type: "switch_wallet_event_forward"
+    })
+  )
+    return;
+
+  sendMessage(message, undefined, undefined, false);
 });
 
 export {};

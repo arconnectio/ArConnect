@@ -16,6 +16,7 @@ import {
 import { useColorScheme } from "use-color-scheme";
 import { QRCode } from "react-qr-svg";
 import { motion, AnimatePresence } from "framer-motion";
+import { sendMessage } from "../utils/messenger";
 import copy from "copy-to-clipboard";
 import styles from "../styles/components/WalletManager.module.sass";
 
@@ -55,11 +56,9 @@ export default function WalletManager() {
   function deleteWallet(addr: string) {
     if (wallets.length - 1 > 0) {
       if (profile === addr)
-        dispatch(
-          switchProfile(
-            wallets.find(({ address }) => address !== addr)?.address ||
-              wallets[0].address
-          )
+        switchWallet(
+          wallets.find(({ address }) => address !== addr)?.address ||
+            wallets[0].address
         );
       dispatch(removeWallet(addr));
     } else {
@@ -77,6 +76,19 @@ export default function WalletManager() {
     copy(profile);
     setCopyStatus(true);
     setTimeout(() => setCopyStatus(false), 280);
+  }
+
+  function switchWallet(address: string) {
+    dispatch(switchProfile(address));
+    setOpen(false);
+    sendMessage({
+      type: "switch_wallet_event",
+      ext: "weavemask",
+      res: true,
+      message: "",
+      address,
+      sender: "popup"
+    });
   }
 
   return (
@@ -121,10 +133,7 @@ export default function WalletManager() {
               <div className={styles.Wallet} key={i}>
                 <div
                   className={styles.Info}
-                  onClick={() => {
-                    dispatch(switchProfile(wallet.address));
-                    setOpen(false);
-                  }}
+                  onClick={() => switchWallet(wallet.address)}
                 >
                   <input
                     type="text"

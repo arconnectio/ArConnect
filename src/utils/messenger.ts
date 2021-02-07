@@ -22,17 +22,22 @@ export type MessageType =
   | "get_all_addresses"
   | "get_all_addresses_result"
   | "get_permissions"
-  | "get_permissions_result";
+  | "get_permissions_result"
+  | "switch_wallet_event"
+  | "switch_wallet_event_forward";
 
 export function sendMessage(
   message: MessageFormat,
   responseCallback?: (res: MessageFormat) => void,
   doResponse?: (response?: any) => void,
-  runtime: boolean = true
+  runtime: boolean = true,
+  targetTabID?: number
 ) {
   if (doResponse) return doResponse(message);
-  if (runtime) chrome.runtime.sendMessage(message, responseCallback);
-  else window.postMessage(message, window.location.origin);
+  if (runtime) {
+    if (!targetTabID) chrome.runtime.sendMessage(message, responseCallback);
+    else chrome.tabs.sendMessage(targetTabID, message, responseCallback);
+  } else window.postMessage(message, window.location.origin);
 }
 
 export function validateMessage(
