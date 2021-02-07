@@ -22,7 +22,7 @@ import { RootState } from "../../stores/reducers";
 import Cryptr from "cryptr";
 import Arweave from "arweave";
 import weaveid_logo from "../../assets/weaveid.png";
-import logo from "../../assets/logo.svg";
+import logo from "../../assets/logo.png";
 import styles from "../../styles/views/Welcome/view.module.sass";
 
 export default function App() {
