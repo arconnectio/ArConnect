@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Input, Spacer, useInput } from "@geist-ui/react";
+import { Button, Input, Spacer, useInput, Loading } from "@geist-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
 import { sendMessage, MessageType } from "../../utils/messenger";
@@ -301,29 +301,39 @@ export default function App() {
             th<span>8</span>ta
           </h2>
         </>
-      )) || (
-        <>
-          <h1>Permissions</h1>
-          {(alreadyHasPermissions && (
-            <p>This site wants to access more permissions:</p>
-          )) || <p>Please allow these permissions for this site</p>}
-          {(requestedPermissions.length > 0 && (
-            <ul>
-              {requestedPermissions.map((permission, i) => (
-                <li key={i}>{getPermissionDescription(permission)}</li>
-              ))}
-            </ul>
-          )) || <p>No permissions requested.</p>}
-          <Spacer />
-          <Button style={{ width: "100%" }} onClick={accept} type="success">
-            Accept
-          </Button>
-          <Spacer />
-          <Button style={{ width: "100%" }} onClick={cancel}>
-            Cancel
-          </Button>
-        </>
-      )}
+      )) ||
+        (type === "connect" && (
+          <>
+            <h1>Permissions</h1>
+            {(alreadyHasPermissions && (
+              <p>This site wants to access more permissions:</p>
+            )) || <p>Please allow these permissions for this site</p>}
+            {(requestedPermissions.length > 0 && (
+              <ul>
+                {requestedPermissions.map((permission, i) => (
+                  <li key={i}>{getPermissionDescription(permission)}</li>
+                ))}
+              </ul>
+            )) || <p>No permissions requested.</p>}
+            <Spacer />
+            <Button style={{ width: "100%" }} onClick={accept} type="success">
+              Accept
+            </Button>
+            <Spacer />
+            <Button style={{ width: "100%" }} onClick={cancel}>
+              Cancel
+            </Button>
+          </>
+        )) || (
+          <Loading
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)"
+            }}
+          />
+        )}
     </div>
   );
 }
