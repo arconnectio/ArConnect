@@ -161,7 +161,41 @@ const WeaveMaskAPI = {
     attributes: Partial<CreateTransactionInterface>,
     signatureOptions?: SignatureOptions
   ): Promise<Transaction> {
-    return new Promise((resolve, reject) => {});
+    const transactionOverlay = createOverlay(
+      "This page is trying to create and sign a transaction with WeaveMask...<br />Please use the popup to log in and continue."
+    );
+
+    return new Promise((resolve, reject) => {
+      sendMessage(
+        {
+          type: "create_and_sign_transaction",
+          ext: "weavemask",
+          sender: "api",
+          attributes,
+          signatureOptions
+        },
+        undefined,
+        undefined,
+        false
+      );
+      window.addEventListener("message", callback);
+      document.body.appendChild(transactionOverlay);
+
+      // @ts-ignore
+      function callback(e: MessageEvent<any>) {
+        if (
+          !validateMessage(e.data, {
+            type: "create_and_sign_transaction_result"
+          })
+        )
+          return;
+        window.removeEventListener("message", callback);
+        document.body.removeChild(transactionOverlay);
+
+        if (e.data.res && e.data.transaction) resolve(e.data.transaction);
+        else reject(e.data.message);
+      }
+    });
   },
   getPermissions(): Promise<PermissionType[]> {
     return new Promise((resolve, reject) => {

@@ -353,6 +353,74 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
       return true;
 
+    case "create_and_sign_transaction":
+      chrome.tabs.query(
+        { active: true, currentWindow: true },
+        (currentTabArray) => {
+          if (!currentTabArray[0] || !currentTabArray[0].url)
+            return sendNoTabError(
+              sendResponse,
+              "create_and_sign_transaction_result"
+            );
+
+          const tabURL = currentTabArray[0].url;
+          if (
+            !checkPermissions(
+              ["CREATE_TRANSACTION", "SIGN_TRANSACTION"],
+              tabURL
+            )
+          )
+            return sendPermissionError(
+              sendResponse,
+              "create_and_sign_transaction_result"
+            );
+          if (!message.attributes)
+            return sendMessage(
+              {
+                type: "create_and_sign_transaction_result",
+                ext: "weavemask",
+                res: false,
+                message: "No attributes submited",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+
+          chrome.windows.create(
+            {
+              url: `${chrome.extension.getURL(
+                "auth.html"
+              )}?auth=${encodeURIComponent(
+                JSON.stringify({
+                  type: "create_and_sign_transaction",
+                  url: tabURL,
+                  attributes: message.attributes,
+                  signingOptions: message.signatureOptions ?? undefined
+                })
+              )}`,
+              focused: true,
+              type: "popup",
+              width: 385,
+              height: 635
+            },
+            (window) => {}
+          );
+          chrome.runtime.onMessage.addListener((msg) => {
+            if (
+              !validateMessage(msg, {
+                sender: "popup",
+                type: "create_and_sign_transaction_result"
+              })
+            )
+              return;
+            sendMessage(msg, undefined, sendResponse);
+          });
+        }
+      );
+
+      return true;
+
     default:
       break;
   }
