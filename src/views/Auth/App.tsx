@@ -7,7 +7,8 @@ import { setPermissions } from "../../stores/actions";
 import { getRealURL } from "../../utils/url";
 import { PermissionType, PermissionDescriptions } from "weavemask";
 import { JWKInterface } from "arweave/web/lib/wallet";
-import Arweave, { CreateTransactionInterface } from "arweave/web/common";
+import Arweave from "arweave";
+import { CreateTransactionInterface } from "arweave/web/common";
 import Cryptr from "cryptr";
 import styles from "../../styles/views/Auth/view.module.sass";
 
@@ -213,16 +214,29 @@ export default function App() {
     });
 
     if (type === "create_transaction" && attributes && keyfile) {
-      const transaction = await arweave.createTransaction(attributes, keyfile);
+      try {
+        const transaction = await arweave.createTransaction(
+          attributes,
+          keyfile
+        );
 
-      sendMessage({
-        type: getReturnType(),
-        ext: "weavemask",
-        res: true,
-        message: "Success",
-        sender: "popup",
-        transaction
-      });
+        sendMessage({
+          type: getReturnType(),
+          ext: "weavemask",
+          res: true,
+          message: "Success",
+          sender: "popup",
+          transaction
+        });
+      } catch (e) {
+        sendMessage({
+          type: getReturnType(),
+          ext: "weavemask",
+          res: false,
+          message: e,
+          sender: "popup"
+        });
+      }
     }
 
     setLoading(false);
