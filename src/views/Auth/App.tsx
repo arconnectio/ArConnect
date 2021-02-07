@@ -6,8 +6,8 @@ import { sendMessage, MessageType } from "../../utils/messenger";
 import { setPermissions } from "../../stores/actions";
 import { getRealURL } from "../../utils/url";
 import { PermissionType, PermissionDescriptions } from "weavemask";
-import { CreateTransactionInterface } from "arweave/web/common";
-import Transaction from "arweave/node/lib/transaction";
+import { JWKInterface } from "arweave/web/lib/wallet";
+import Arweave, { CreateTransactionInterface } from "arweave/web/common";
 import Cryptr from "cryptr";
 import styles from "../../styles/views/Auth/view.module.sass";
 
@@ -29,7 +29,8 @@ export default function App() {
     [alreadyHasPermissions, setAlreadyHasPermissions] = useState(false),
     [attributes, setAttributes] = useState<
       Partial<CreateTransactionInterface>
-    >();
+    >(),
+    profile = useSelector((state: RootState) => state.profile);
 
   useEffect(() => {
     const authVal = new URL(window.location.href).searchParams.get("auth");
@@ -67,16 +68,15 @@ export default function App() {
     } else setType(decodedAuthParam.type);
 
     const url = decodedAuthParam.url;
-    if (
-      decodedAuthParam.type === "connect" &&
-      decodedAuthParam.permissions &&
-      url
-    ) {
-      const realURL = getRealURL(url),
-        existingPermissions = permissions.find(({ url }) => url === realURL);
+    if (!url) return urlError();
+    setCurrentURL(getRealURL(url));
+
+    if (decodedAuthParam.type === "connect" && decodedAuthParam.permissions) {
+      const existingPermissions = permissions.find(
+        ({ url }) => url === getRealURL(url)
+      );
 
       setRequestedPermissions(decodedAuthParam.permissions);
-      setCurrentURL(realURL);
 
       if (existingPermissions && existingPermissions.permissions.length > 0) {
         setAlreadyHasPermissions(true);
@@ -88,13 +88,12 @@ export default function App() {
       }
     } else if (
       decodedAuthParam.type === "create_transaction" &&
-      decodedAuthParam.attributes &&
-      url
+      decodedAuthParam.attributes
     ) {
       if (!decodedAuthParam.url) return;
       const perms =
-        permissions.find(({ url }) => url === getRealURL(url))?.permissions ??
-        [];
+        permissions.find((permItem) => permItem.url === getRealURL(url))
+          ?.permissions ?? [];
       if (!perms.includes("CREATE_TRANSACTION")) return sendPermissionError();
 
       setAttributes(decodedAuthParam.attributes);
@@ -125,18 +124,29 @@ export default function App() {
     setTimeout(() => {
       // try to login by decrypting
       try {
-        const cryptr = new Cryptr(passwordInput.state);
-        cryptr.decrypt(wallets[0].keyfile);
+        const cryptr = new Cryptr(passwordInput.state),
+          keyfileToDecrypt = wallets.find(({ address }) => address === profile)
+            ?.keyfile;
+
+        if (!keyfileToDecrypt) {
+          setPasswordStatus("error");
+          setLoading(false);
+          return;
+        }
+        const decryptedKeyfile = cryptr.decrypt(keyfileToDecrypt);
         setLoggedIn(true);
 
         if (type !== "connect") {
           if (!currentURL) return urlError();
-          else handleNonPermissionAction();
-        } else setLoggedIn(true);
+          else handleNonPermissionAction(JSON.parse(decryptedKeyfile));
+        } else {
+          setLoggedIn(true);
+          setLoading(false);
+        }
       } catch {
         setPasswordStatus("error");
+        setLoading(false);
       }
-      setLoading(false);
     }, 70);
   }
 
@@ -195,19 +205,28 @@ export default function App() {
     return PermissionDescriptions[permission];
   }
 
-  function handleNonPermissionAction() {
-    if (type === "create_transaction") {
-      // TODO
+  async function handleNonPermissionAction(keyfile: JWKInterface) {
+    const arweave = new Arweave({
+      host: "arweave.net",
+      port: 443,
+      protocol: "https"
+    });
+
+    if (type === "create_transaction" && attributes && keyfile) {
+      const transaction = await arweave.createTransaction(attributes, keyfile);
+
+      sendMessage({
+        type: getReturnType(),
+        ext: "weavemask",
+        res: true,
+        message: "Success",
+        sender: "popup",
+        transaction
+      });
     }
 
-    //
-    sendMessage({
-      type: getReturnType(),
-      ext: "weavemask",
-      res: true,
-      message: "Success",
-      sender: "popup"
-    });
+    setLoading(false);
+    window.close();
   }
 
   function sendPermissionError() {
