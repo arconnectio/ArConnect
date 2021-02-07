@@ -228,8 +228,6 @@ window.addEventListener("message", (e) => {
   );
 });
 
-// TODO
-// @ts-ignore
 window.weavemask = WeaveMaskAPI;
 
 export {};
