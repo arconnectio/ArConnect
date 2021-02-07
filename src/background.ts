@@ -12,8 +12,10 @@ chrome.runtime.onInstalled.addListener(() => {
   if (!walletsStored()) window.open(chrome.runtime.getURL("/welcome.html"));
 });
 
+// listen for messages from the content script
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   const message: MessageFormat = msg;
+
   if (!validateMessage(message, { sender: "api" })) return;
   if (!walletsStored())
     return sendMessage(
@@ -28,14 +30,25 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
       sendResponse
     );
 
-  switch (message.type) {
-    case "connect":
-      chrome.tabs.query(
-        { active: true, currentWindow: true },
-        (currentTabArray) => {
-          if (!currentTabArray[0] || !currentTabArray[0].url)
-            return sendNoTabError(sendResponse, "connect_result");
+  chrome.tabs.query(
+    { active: true, currentWindow: true },
+    (currentTabArray) => {
+      // check if there is a current tab (selected)
+      // this will return false if the current tab
+      // is an internal browser tab
+      // because we cannot inject there
+      if (!currentTabArray[0] || !currentTabArray[0].url)
+        return sendNoTabError(
+          sendResponse,
+          `${message.type}_result` as MessageType
+        );
 
+      const tabURL = currentTabArray[0].url;
+
+      switch (message.type) {
+        // connect to weavemask
+        case "connect":
+          // a permission array must be submitted
           if (!message.permissions)
             return sendMessage(
               {
@@ -50,9 +63,8 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             );
 
           const permissionsStroage = localStorage.getItem(
-              "arweave_permissions"
-            ),
-            tabURL = currentTabArray[0].url;
+            "arweave_permissions"
+          );
 
           // check requested permissions and existing permissions
           if (permissionsStroage) {
@@ -63,13 +75,18 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 ({ url }) => url === getRealURL(tabURL)
               )?.permissions;
 
+            // the site has a saved permission store
             if (existingPermissions) {
               let hasAllPermissions = true;
 
+              // if there is one permission that isn't stored in the
+              // permissions store of the url
+              // we set hasAllPermissions to false
               for (const permission of message.permissions)
                 if (!existingPermissions.includes(permission))
                   hasAllPermissions = false;
 
+              // if all permissions are already granted we return
               if (hasAllPermissions)
                 return sendMessage(
                   {
@@ -86,24 +103,11 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             }
           }
 
-          chrome.windows.create(
-            {
-              url: `${chrome.extension.getURL(
-                "auth.html"
-              )}?auth=${encodeURIComponent(
-                JSON.stringify({
-                  permissions: message.permissions,
-                  type: "connect",
-                  url: tabURL
-                })
-              )}`,
-              focused: true,
-              type: "popup",
-              width: 385,
-              height: 635
-            },
-            (window) => {}
-          );
+          createAuthPopup({
+            permissions: message.permissions,
+            type: "connect",
+            url: tabURL
+          });
           chrome.runtime.onMessage.addListener((msg) => {
             if (
               !validateMessage(msg, { sender: "popup", type: "connect_result" })
@@ -111,22 +115,14 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               return;
             sendMessage(msg, undefined, sendResponse);
           });
-        }
-      );
 
-      // true for async listener
-      return true;
+          break;
 
-    case "get_active_address":
-      const currentAddressStore = localStorage.getItem("arweave_profile");
+        // get the active/selected address
+        case "get_active_address":
+          const currentAddressStore = localStorage.getItem("arweave_profile");
 
-      chrome.tabs.query(
-        { active: true, currentWindow: true },
-        (currentTabArray) => {
-          if (!currentTabArray[0] || !currentTabArray[0].url)
-            return sendNoTabError(sendResponse, "get_active_address_result");
-
-          if (!checkPermissions(["ACCESS_ADDRESS"], currentTabArray[0].url))
+          if (!checkPermissions(["ACCESS_ADDRESS"], tabURL))
             return sendPermissionError(
               sendResponse,
               "get_active_address_result"
@@ -158,23 +154,14 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               sendResponse
             );
           }
-        }
-      );
 
-      return true;
+          break;
 
-    case "get_all_addresses":
-      const addressesStore = localStorage.getItem("arweave_wallets");
+        // get all addresses added to WeaveMask
+        case "get_all_addresses":
+          const addressesStore = localStorage.getItem("arweave_wallets");
 
-      chrome.tabs.query(
-        { active: true, currentWindow: true },
-        (currentTabArray) => {
-          if (!currentTabArray[0] || !currentTabArray[0].url)
-            return sendNoTabError(sendResponse, "get_all_addresses_result");
-
-          if (
-            !checkPermissions(["ACCESS_ALL_ADDRESSES"], currentTabArray[0].url)
-          )
+          if (!checkPermissions(["ACCESS_ALL_ADDRESSES"], tabURL))
             return sendPermissionError(
               sendResponse,
               "get_all_addresses_result"
@@ -209,42 +196,27 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               sendResponse
             );
           }
-        }
-      );
 
-      return true;
+          break;
 
-    case "get_permissions":
-      chrome.tabs.query(
-        { active: true, currentWindow: true },
-        (currentTabArray) => {
-          if (!currentTabArray[0] || !currentTabArray[0].url)
-            return sendNoTabError(sendResponse, "get_all_addresses_result");
-
+        // return permissions for the current url
+        case "get_permissions":
           sendMessage(
             {
               type: "get_permissions_result",
               ext: "weavemask",
               res: true,
-              permissions: getPermissions(currentTabArray[0].url),
+              permissions: getPermissions(tabURL),
               sender: "background"
             },
             undefined,
             sendResponse
           );
-        }
-      );
 
-      return true;
+          break;
 
-    case "create_transaction":
-      chrome.tabs.query(
-        { active: true, currentWindow: true },
-        (currentTabArray) => {
-          if (!currentTabArray[0] || !currentTabArray[0].url)
-            return sendNoTabError(sendResponse, "create_transaction_result");
-
-          const tabURL = currentTabArray[0].url;
+        // create a transaction
+        case "create_transaction":
           if (!checkPermissions(["CREATE_TRANSACTION"], tabURL))
             return sendPermissionError(
               sendResponse,
@@ -263,24 +235,11 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               sendResponse
             );
 
-          chrome.windows.create(
-            {
-              url: `${chrome.extension.getURL(
-                "auth.html"
-              )}?auth=${encodeURIComponent(
-                JSON.stringify({
-                  type: "create_transaction",
-                  url: tabURL,
-                  attributes: message.attributes
-                })
-              )}`,
-              focused: true,
-              type: "popup",
-              width: 385,
-              height: 635
-            },
-            (window) => {}
-          );
+          createAuthPopup({
+            type: "create_transaction",
+            url: tabURL,
+            attributes: message.attributes
+          });
           chrome.runtime.onMessage.addListener((msg) => {
             if (
               !validateMessage(msg, {
@@ -291,19 +250,11 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               return;
             sendMessage(msg, undefined, sendResponse);
           });
-        }
-      );
 
-      return true;
+          break;
 
-    case "sign_transaction":
-      chrome.tabs.query(
-        { active: true, currentWindow: true },
-        (currentTabArray) => {
-          if (!currentTabArray[0] || !currentTabArray[0].url)
-            return sendNoTabError(sendResponse, "sign_transaction_result");
-
-          const tabURL = currentTabArray[0].url;
+        // sign a transaction
+        case "sign_transaction":
           if (!checkPermissions(["SIGN_TRANSACTION"], tabURL))
             return sendPermissionError(sendResponse, "sign_transaction_result");
           if (!message.transaction)
@@ -319,25 +270,12 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               sendResponse
             );
 
-          chrome.windows.create(
-            {
-              url: `${chrome.extension.getURL(
-                "auth.html"
-              )}?auth=${encodeURIComponent(
-                JSON.stringify({
-                  type: "sign_transaction",
-                  url: tabURL,
-                  transaction: message.transaction,
-                  signingOptions: message.options ?? undefined
-                })
-              )}`,
-              focused: true,
-              type: "popup",
-              width: 385,
-              height: 635
-            },
-            (window) => {}
-          );
+          createAuthPopup({
+            type: "sign_transaction",
+            url: tabURL,
+            transaction: message.transaction,
+            signingOptions: message.options ?? undefined
+          });
           chrome.runtime.onMessage.addListener((msg) => {
             if (
               !validateMessage(msg, {
@@ -348,22 +286,11 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               return;
             sendMessage(msg, undefined, sendResponse);
           });
-        }
-      );
 
-      return true;
+          break;
 
-    case "create_and_sign_transaction":
-      chrome.tabs.query(
-        { active: true, currentWindow: true },
-        (currentTabArray) => {
-          if (!currentTabArray[0] || !currentTabArray[0].url)
-            return sendNoTabError(
-              sendResponse,
-              "create_and_sign_transaction_result"
-            );
-
-          const tabURL = currentTabArray[0].url;
+        // create and sign a transaction at the same time
+        case "create_and_sign_transaction":
           if (
             !checkPermissions(
               ["CREATE_TRANSACTION", "SIGN_TRANSACTION"],
@@ -387,25 +314,12 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               sendResponse
             );
 
-          chrome.windows.create(
-            {
-              url: `${chrome.extension.getURL(
-                "auth.html"
-              )}?auth=${encodeURIComponent(
-                JSON.stringify({
-                  type: "create_and_sign_transaction",
-                  url: tabURL,
-                  attributes: message.attributes,
-                  signingOptions: message.signatureOptions ?? undefined
-                })
-              )}`,
-              focused: true,
-              type: "popup",
-              width: 385,
-              height: 635
-            },
-            (window) => {}
-          );
+          createAuthPopup({
+            type: "create_and_sign_transaction",
+            url: tabURL,
+            attributes: message.attributes,
+            signingOptions: message.signatureOptions ?? undefined
+          });
           chrome.runtime.onMessage.addListener((msg) => {
             if (
               !validateMessage(msg, {
@@ -416,18 +330,22 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               return;
             sendMessage(msg, undefined, sendResponse);
           });
-        }
-      );
 
-      return true;
+          break;
 
-    default:
-      break;
-  }
+        default:
+          break;
+      }
+    }
+  );
+
+  // for an async listening mechanism, we need to return true
+  return true;
 });
 
-// for wallet switch event
-// this comes from the popup sender
+// listen for messages from the popup
+// right now the only message from there
+// is for the wallet switch event
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   const message: MessageFormat = msg;
   if (!validateMessage(message, { sender: "popup" })) return;
@@ -467,6 +385,25 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   }
 });
 
+// create an authenticator popup
+// data: the data sent to the popup
+// encoded
+function createAuthPopup(data: any) {
+  chrome.windows.create(
+    {
+      url: `${chrome.extension.getURL("auth.html")}?auth=${encodeURIComponent(
+        JSON.stringify(data)
+      )}`,
+      focused: true,
+      type: "popup",
+      width: 385,
+      height: 635
+    },
+    (window) => {}
+  );
+}
+
+// check if there are any wallets stored
 function walletsStored(): boolean {
   const wallets = localStorage.getItem("arweave_wallets");
 
@@ -479,6 +416,7 @@ function walletsStored(): boolean {
   return true;
 }
 
+// check the given permissions
 function checkPermissions(permissions: PermissionType[], url: string) {
   const storedPermissions = getPermissions(url);
 
@@ -490,6 +428,7 @@ function checkPermissions(permissions: PermissionType[], url: string) {
   } else return false;
 }
 
+// get permissing for the given url
 function getPermissions(url: string): PermissionType[] {
   const storedPermissions = localStorage.getItem("arweave_permissions");
   url = getRealURL(url);
@@ -506,6 +445,8 @@ function getPermissions(url: string): PermissionType[] {
   return [];
 }
 
+// send error if there are no tabs opened
+// or if they are not accessible
 function sendNoTabError(
   sendResponse: (response?: any) => void,
   type: MessageType
@@ -523,6 +464,8 @@ function sendNoTabError(
   );
 }
 
+// send error if the site does not have permission
+// to execute a type of action
 function sendPermissionError(
   sendResponse: (response?: any) => void,
   type: MessageType

@@ -26,6 +26,9 @@ export type MessageType =
   | "switch_wallet_event"
   | "switch_wallet_event_forward";
 
+// the sendMessage function provides an easier messaging functionality
+// we use this function everywhere, and it returns the desired messaging
+// functionality based on the input data
 export function sendMessage(
   message: MessageFormat,
   responseCallback?: (res: MessageFormat) => void,
@@ -33,13 +36,19 @@ export function sendMessage(
   runtime: boolean = true,
   targetTabID?: number
 ) {
-  if (doResponse) return doResponse(message);
+  if (doResponse) return doResponse(message); // reply in the chrome.runtime.onMessage listener
   if (runtime) {
+    // message with chrome.runtime or chrome.tabs
     if (!targetTabID) chrome.runtime.sendMessage(message, responseCallback);
-    else chrome.tabs.sendMessage(targetTabID, message, responseCallback);
-  } else window.postMessage(message, window.location.origin);
+    // send message to popup or background script
+    else chrome.tabs.sendMessage(targetTabID, message, responseCallback); // send message to content script
+  } else window.postMessage(message, window.location.origin); // communication between content script - api (injected script)
 }
 
+// this function validates messages and check if they are from the extension
+// other extensions could interfer with the functionality of WeaveMask
+// for example with the window.postMessage function
+// this ensures that that does not happen
 export function validateMessage(
   message: any,
   { sender, type }: { sender?: MessageSender; type?: MessageType }
