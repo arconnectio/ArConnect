@@ -8,6 +8,7 @@ import {
 import { getRealURL } from "./utils/url";
 import { PermissionType } from "weavemask";
 
+// open the welcome page
 chrome.runtime.onInstalled.addListener(() => {
   if (!walletsStored()) window.open(chrome.runtime.getURL("/welcome.html"));
 });

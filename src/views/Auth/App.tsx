@@ -40,6 +40,7 @@ export default function App() {
     >();
 
   useEffect(() => {
+    // get the auth param from the url
     const authVal = new URL(window.location.href).searchParams.get("auth");
 
     // invalid auth
@@ -55,6 +56,7 @@ export default function App() {
       return;
     }
 
+    // decode the auth param from the authVal
     const decodedAuthParam: {
       permissions?: PermissionType[];
       type?: AuthType;
@@ -64,6 +66,7 @@ export default function App() {
       signingOptions?: SignatureOptions;
     } = JSON.parse(decodeURIComponent(authVal));
 
+    // if the type does not exist, this is an invalid call
     if (!decodedAuthParam.type) {
       sendMessage({
         type: getReturnType(),
@@ -76,17 +79,24 @@ export default function App() {
       return;
     } else setType(decodedAuthParam.type);
 
-    const url = decodedAuthParam.url;
+    // get the current tab url from the decoded auth val
+    let url = decodedAuthParam.url;
     if (!url) return urlError();
     setCurrentURL(getRealURL(url));
+    url = getRealURL(url);
 
+    // connect event
     if (decodedAuthParam.type === "connect" && decodedAuthParam.permissions) {
+      // get the existing permissions
       const existingPermissions = permissions.find(
-        (permGroup) => permGroup.url === getRealURL(url)
+        (permGroup) => permGroup.url === url
       );
 
+      // set the requested permissions to all requested
       setRequestedPermissions(decodedAuthParam.permissions);
 
+      // filter the requested permissions: only display/ask for permissions
+      // that the url does not have yet
       if (existingPermissions && existingPermissions.permissions.length > 0) {
         setAlreadyHasPermissions(true);
         setRequestedPermissions(
@@ -95,44 +105,46 @@ export default function App() {
           )
         );
       }
+
+      // create transaction event
     } else if (
       decodedAuthParam.type === "create_transaction" &&
       decodedAuthParam.attributes
     ) {
-      if (!decodedAuthParam.url) return;
-      const perms =
-        permissions.find((permItem) => permItem.url === getRealURL(url))
-          ?.permissions ?? [];
-      if (!perms.includes("CREATE_TRANSACTION")) return sendPermissionError();
+      // check permissions
+      if (!checkPermissions(["CREATE_TRANSACTION"], url))
+        return sendPermissionError();
 
+      // set the transaction attributes
       setAttributes(decodedAuthParam.attributes);
+
+      // sign transaction event
     } else if (
       decodedAuthParam.type === "sign_transaction" &&
       decodedAuthParam.transaction
     ) {
-      const perms =
-        permissions.find((permItem) => permItem.url === getRealURL(url))
-          ?.permissions ?? [];
-      if (!perms.includes("SIGN_TRANSACTION")) return sendPermissionError();
+      // check permissions
+      if (!checkPermissions(["SIGN_TRANSACTION"], url))
+        return sendPermissionError();
 
+      // set the current transaction and the signing options
       setTransaction(decodedAuthParam.transaction);
       setSigningOptions(decodedAuthParam.signingOptions);
+
+      // create and sign transactions
     } else if (
       decodedAuthParam.type === "create_and_sign_transaction" &&
       decodedAuthParam.attributes
     ) {
-      if (!decodedAuthParam.url) return;
-      const perms =
-        permissions.find((permItem) => permItem.url === getRealURL(url))
-          ?.permissions ?? [];
-      if (
-        !perms.includes("CREATE_TRANSACTION") ||
-        !perms.includes("SIGN_TRANSACTION")
-      )
+      // check permissions
+      if (!checkPermissions(["CREATE_TRANSACTION", "SIGN_TRANSACTION"], url))
         return sendPermissionError();
 
+      // set tx attributes and signing options
       setAttributes(decodedAuthParam.attributes);
       setSigningOptions(decodedAuthParam.signingOptions);
+
+      // if non of the types matched, this is an invalid auth call
     } else {
       sendMessage({
         type: getReturnType(),
@@ -145,6 +157,7 @@ export default function App() {
       return;
     }
 
+    // send cancel event if the popup is closed by the user
     window.addEventListener("beforeunload", cancel);
 
     return function cleanup() {
@@ -153,6 +166,7 @@ export default function App() {
     // eslint-disable-next-line
   }, []);
 
+  // decrypt current wallet
   async function login() {
     setLoading(true);
     // we need to wait a bit, because the decrypting
@@ -172,9 +186,12 @@ export default function App() {
         const decryptedKeyfile = cryptr.decrypt(keyfileToDecrypt);
         setLoggedIn(true);
 
+        // any event that needs authentication, but not the connect event
         if (type !== "connect") {
           if (!currentURL) return urlError();
           else handleNonPermissionAction(JSON.parse(decryptedKeyfile));
+
+          // connect event
         } else {
           setLoggedIn(true);
           setLoading(false);
@@ -186,6 +203,7 @@ export default function App() {
     }, 70);
   }
 
+  // invalid url sent
   function urlError() {
     sendMessage({
       type: getReturnType(),
@@ -197,6 +215,7 @@ export default function App() {
     window.close();
   }
 
+  // get the type that needs to be returned in the message
   function getReturnType(): MessageType {
     if (type === "connect") return "connect_result";
     else if (type === "create_transaction") return "create_transaction_result";
@@ -207,6 +226,7 @@ export default function App() {
     return "connect_result";
   }
 
+  // accept permissions
   function accept() {
     if (!loggedIn) return;
     if (!currentURL) return urlError();
@@ -226,6 +246,7 @@ export default function App() {
     window.close();
   }
 
+  // cancel login or permission request
   function cancel() {
     sendMessage({
       type: getReturnType(),
@@ -237,18 +258,23 @@ export default function App() {
     window.close();
   }
 
+  // return the description of a permission
   function getPermissionDescription(permission: PermissionType) {
     return PermissionDescriptions[permission];
   }
 
+  // actions that are not connect
   async function handleNonPermissionAction(keyfile: JWKInterface) {
     const arweave = new Arweave({
       host: "arweave.net",
       port: 443,
       protocol: "https"
     });
+    // create a transaction object, and set it to the existing transaction
+    // if it had been submitted for signing
     let tx: Transaction | undefined = transaction;
 
+    // create a transaction
     if (
       (type === "create_transaction" ||
         type === "create_and_sign_transaction") &&
@@ -256,8 +282,10 @@ export default function App() {
       keyfile
     ) {
       try {
+        // create the transaction
         tx = await arweave.createTransaction(attributes, keyfile);
 
+        // send the transaction object to the user
         if (type === "create_transaction" && tx)
           sendMessage({
             type: getReturnType(),
@@ -281,11 +309,13 @@ export default function App() {
       }
     }
 
+    // sign a transaction
     if (
       (type === "sign_transaction" || type === "create_and_sign_transaction") &&
       tx
     ) {
       try {
+        // create transaction from object and sign it
         const transactionInstance = new Transaction(tx);
         await arweave.transactions.sign(
           transactionInstance,
@@ -316,6 +346,7 @@ export default function App() {
     window.close();
   }
 
+  // problem with permissions
   function sendPermissionError() {
     sendMessage({
       type: getReturnType(),
@@ -325,6 +356,15 @@ export default function App() {
         "The site does not have the required permissions for this action",
       sender: "popup"
     });
+  }
+
+  function checkPermissions(permissionsToCheck: PermissionType[], url: string) {
+    const perms =
+      permissions.find((permItem) => permItem.url === url)?.permissions ?? [];
+
+    for (const pm of permissionsToCheck) if (!perms.includes(pm)) return false;
+
+    return true;
   }
 
   return (
