@@ -246,6 +246,10 @@ export default function App() {
             <>
               <Input.Password
                 {...passwordInput.bindings}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter" && walletsStore.length > 0)
+                    checkPassword();
+                }}
                 placeholder="Password..."
               />
               {walletsStore.length === 0 && (
@@ -254,6 +258,9 @@ export default function App() {
                   <Input.Password
                     {...passwordInputAgain.bindings}
                     placeholder="Password again..."
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") createPassword();
+                    }}
                   />
                 </>
               )}

@@ -224,6 +224,9 @@ export default function App() {
             status={passwordStatus}
             placeholder="Password..."
             type="password"
+            onKeyPress={(e) => {
+              if (e.key === "Enter") login();
+            }}
           />
           <Spacer />
           <Button
