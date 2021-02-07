@@ -54,6 +54,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             ),
             tabURL = currentTabArray[0].url;
 
+          // check requested permissions and existing permissions
           if (permissionsStroage) {
             const permissions: IPermissionState[] = JSON.parse(
                 permissionsStroage
@@ -91,7 +92,6 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 "auth.html"
               )}?auth=${encodeURIComponent(
                 JSON.stringify({
-                  val: true,
                   permissions: message.permissions,
                   type: "connect",
                   url: tabURL
@@ -232,6 +232,65 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             undefined,
             sendResponse
           );
+        }
+      );
+
+      return true;
+
+    case "create_transaction":
+      chrome.tabs.query(
+        { active: true, currentWindow: true },
+        (currentTabArray) => {
+          if (!currentTabArray[0] || !currentTabArray[0].url)
+            return sendNoTabError(sendResponse, "create_transaction_result");
+
+          const tabURL = currentTabArray[0].url;
+          if (!checkPermissions(["CREATE_TRANSACTION"], tabURL))
+            return sendPermissionError(
+              sendResponse,
+              "create_transaction_result"
+            );
+          if (!message.attributes)
+            return sendMessage(
+              {
+                type: "create_transaction_result",
+                ext: "weavemask",
+                res: false,
+                message: "No attributes submited",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+
+          chrome.windows.create(
+            {
+              url: `${chrome.extension.getURL(
+                "auth.html"
+              )}?auth=${encodeURIComponent(
+                JSON.stringify({
+                  type: "create_transaction",
+                  url: tabURL,
+                  attributes: message.attributes
+                })
+              )}`,
+              focused: true,
+              type: "popup",
+              width: 385,
+              height: 635
+            },
+            (window) => {}
+          );
+          chrome.runtime.onMessage.addListener((msg) => {
+            if (
+              !validateMessage(msg, {
+                sender: "popup",
+                type: "create_transaction_result"
+              })
+            )
+              return;
+            sendMessage(msg, undefined, sendResponse);
+          });
         }
       );
 

@@ -6,6 +6,8 @@ import { sendMessage, MessageType } from "../../utils/messenger";
 import { setPermissions } from "../../stores/actions";
 import { getRealURL } from "../../utils/url";
 import { PermissionType, PermissionDescriptions } from "weavemask";
+import { CreateTransactionInterface } from "arweave/web/common";
+import Transaction from "arweave/node/lib/transaction";
 import Cryptr from "cryptr";
 import styles from "../../styles/views/Auth/view.module.sass";
 
@@ -24,7 +26,10 @@ export default function App() {
     [currentURL, setCurrentURL] = useState<string>(),
     [type, setType] = useState<AuthType>(),
     dispatch = useDispatch(),
-    [alreadyHasPermissions, setAlreadyHasPermissions] = useState(false);
+    [alreadyHasPermissions, setAlreadyHasPermissions] = useState(false),
+    [attributes, setAttributes] = useState<
+      Partial<CreateTransactionInterface>
+    >();
 
   useEffect(() => {
     const authVal = new URL(window.location.href).searchParams.get("auth");
@@ -43,10 +48,10 @@ export default function App() {
     }
 
     const decodedAuthParam: {
-      val: boolean;
       permissions?: PermissionType[];
       type?: AuthType;
       url?: string;
+      attributes?: Partial<CreateTransactionInterface>;
     } = JSON.parse(decodeURIComponent(authVal));
 
     if (!decodedAuthParam.type) {
@@ -61,12 +66,13 @@ export default function App() {
       return;
     } else setType(decodedAuthParam.type);
 
+    const url = decodedAuthParam.url;
     if (
       decodedAuthParam.type === "connect" &&
       decodedAuthParam.permissions &&
-      decodedAuthParam.url
+      url
     ) {
-      const realURL = getRealURL(decodedAuthParam.url),
+      const realURL = getRealURL(url),
         existingPermissions = permissions.find(({ url }) => url === realURL);
 
       setRequestedPermissions(decodedAuthParam.permissions);
@@ -80,6 +86,18 @@ export default function App() {
           )
         );
       }
+    } else if (
+      decodedAuthParam.type === "create_transaction" &&
+      decodedAuthParam.attributes &&
+      url
+    ) {
+      if (!decodedAuthParam.url) return;
+      const perms =
+        permissions.find(({ url }) => url === getRealURL(url))?.permissions ??
+        [];
+      if (!perms.includes("CREATE_TRANSACTION")) return sendPermissionError();
+
+      setAttributes(decodedAuthParam.attributes);
     } else {
       sendMessage({
         type: getReturnType(),
@@ -113,15 +131,7 @@ export default function App() {
 
         if (type !== "connect") {
           if (!currentURL) return urlError();
-          else {
-            sendMessage({
-              type: getReturnType(),
-              ext: "weavemask",
-              res: true,
-              message: "Success",
-              sender: "popup"
-            });
-          }
+          else handleNonPermissionAction();
         } else setLoggedIn(true);
       } catch {
         setPasswordStatus("error");
@@ -183,6 +193,32 @@ export default function App() {
 
   function getPermissionDescription(permission: PermissionType) {
     return PermissionDescriptions[permission];
+  }
+
+  function handleNonPermissionAction() {
+    if (type === "create_transaction") {
+      // TODO
+    }
+
+    //
+    sendMessage({
+      type: getReturnType(),
+      ext: "weavemask",
+      res: true,
+      message: "Success",
+      sender: "popup"
+    });
+  }
+
+  function sendPermissionError() {
+    sendMessage({
+      type: getReturnType(),
+      ext: "weavemask",
+      res: false,
+      message:
+        "The site does not have the required permissions for this action",
+      sender: "popup"
+    });
   }
 
   return (
