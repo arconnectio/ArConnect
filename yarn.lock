@@ -13106,10 +13106,10 @@ weaveid@^1.0.26:
   resolved "https://registry.yarnpkg.com/weaveid/-/weaveid-1.0.26.tgz#22d8b32a7803194c8ee184bcffcc1bc3bd451dce"
   integrity sha512-C6TZ58ecdmn/lmuNHT13xVSZ6pWYAxK6KaeJT6itHrnGAfBSLa2kDXGMP9oeJpoh0vIX6tMksgIsAlwqZRA2qw==
 
-weavemask@0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/weavemask/-/weavemask-0.0.2.tgz#3dcf8ebe79b3c9108a1892319b5946cccf6db59d"
-  integrity sha512-K4xI9T6oD8QUtRT8WcsL3i0MQm0jKKKS8loVQxnYMRhqagajgHTRg5OPufL6SNGGeIUc8eMdzRXZKm29w2Fovw==
+weavemask@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/weavemask/-/weavemask-0.0.3.tgz#7343e563c12a5cadd72fae8ca8b8abefb75b8c43"
+  integrity sha512-+xZnYK+/pZAlDIKFfhrvq10tQg/8fBmwEgx0FOwPlpU4eYkMA58uzNSglJAJLa5bgwaOZPgAUcfbr8zHzCKphw==
 
 web-encoding@^1.0.2, web-encoding@^1.0.5, web-encoding@^1.0.6:
   version "1.0.6"

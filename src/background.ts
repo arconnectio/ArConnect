@@ -214,6 +214,29 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
       return true;
 
+    case "get_permissions":
+      chrome.tabs.query(
+        { active: true, currentWindow: true },
+        (currentTabArray) => {
+          if (!currentTabArray[0] || !currentTabArray[0].url)
+            return sendNoTabError(sendResponse, "get_all_addresses_result");
+
+          sendMessage(
+            {
+              type: "get_permissions_result",
+              ext: "weavemask",
+              res: true,
+              permissions: getPermissions(currentTabArray[0].url),
+              sender: "background"
+            },
+            undefined,
+            sendResponse
+          );
+        }
+      );
+
+      return true;
+
     default:
       break;
   }
@@ -232,22 +255,30 @@ function walletsStored(): boolean {
 }
 
 function checkPermissions(permissions: PermissionType[], url: string) {
+  const storedPermissions = getPermissions(url);
+
+  if (storedPermissions.length > 0) {
+    for (const permission of permissions)
+      if (!storedPermissions.includes(permission)) return false;
+
+    return true;
+  } else return false;
+}
+
+function getPermissions(url: string): PermissionType[] {
   const storedPermissions = localStorage.getItem("arweave_permissions");
   url = getRealURL(url);
 
   if (storedPermissions) {
     const parsedPermissions = JSON.parse(storedPermissions).val,
-      sitePermissions: PermissionType[] = parsedPermissions.find(
-        (val: IPermissionState) => val.url === url
-      )?.permissions;
+      sitePermissions: PermissionType[] =
+        parsedPermissions.find((val: IPermissionState) => val.url === url)
+          ?.permissions ?? [];
 
-    if (!sitePermissions) return false;
+    return sitePermissions;
+  }
 
-    for (const permission of permissions)
-      if (!sitePermissions.includes(permission)) return false;
-
-    return true;
-  } else return false;
+  return [];
 }
 
 function sendNoTabError(

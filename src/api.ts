@@ -1,6 +1,8 @@
 import { sendMessage, validateMessage } from "./utils/messenger";
 import { PermissionType } from "weavemask";
 import Transaction from "arweave/web/lib/transaction";
+import { CreateTransactionInterface } from "arweave/web/common";
+import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 
 function createOverlay(text: string) {
   const container = document.createElement("div");
@@ -37,6 +39,7 @@ const WeaveMaskAPI = {
         if (!validateMessage(e.data, { type: "connect_result" })) return;
         window.removeEventListener("message", callback);
         document.body.removeChild(requestPermissionOverlay);
+
         if (e.data.res) resolve(true);
         else reject(e.data.message);
       }
@@ -57,6 +60,7 @@ const WeaveMaskAPI = {
         if (!validateMessage(e.data, { type: "get_active_address_result" }))
           return;
         window.removeEventListener("message", callback);
+
         if (e.data.address) resolve(e.data.address);
         else reject(e.data.message);
       }
@@ -77,22 +81,52 @@ const WeaveMaskAPI = {
         if (!validateMessage(e.data, { type: "get_all_addresses_result" }))
           return;
         window.removeEventListener("message", callback);
+
         if (e.data.addresses) resolve(e.data.addresses);
         else reject(e.data.message);
       }
     });
   },
-  createTransaction(): Promise<Transaction> {
+  createTransaction(
+    attributes: Partial<CreateTransactionInterface>
+  ): Promise<Transaction> {
     return new Promise((resolve, reject) => {});
   },
-  signTransaction(): Promise<void> {
+  signTransaction(
+    transaction: Transaction,
+    options?: SignatureOptions
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {});
+  },
+  createAndSignTransaction(
+    attributes: Partial<CreateTransactionInterface>,
+    signatureOptions?: SignatureOptions
+  ): Promise<Transaction> {
     return new Promise((resolve, reject) => {});
   },
   onWalletSwitch(listener: (address: string) => void): Promise<boolean> {
     return new Promise((resolve, reject) => {});
   },
   getPermissions(): Promise<PermissionType[]> {
-    return new Promise((resolve, reject) => {});
+    return new Promise((resolve, reject) => {
+      sendMessage(
+        { type: "get_permissions", ext: "weavemask", sender: "api" },
+        undefined,
+        undefined,
+        false
+      );
+      window.addEventListener("message", callback);
+
+      // @ts-ignore
+      function callback(e: MessageEvent<any>) {
+        if (!validateMessage(e.data, { type: "get_permissions_result" }))
+          return;
+        window.removeEventListener("message", callback);
+
+        if (e.data.permissions) resolve(e.data.permissions);
+        else reject(e.data.message);
+      }
+    });
   }
 };
 
