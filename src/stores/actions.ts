@@ -3,6 +3,8 @@ import { IPermissionsAction } from "./reducers/permissions";
 import { IProfileAction } from "./reducers/profile";
 import { IWalletsAction, Wallet } from "./reducers/wallets";
 
+import { PermissionType } from "weavemask";
+
 export function addWallet(wallet: Wallet): IWalletsAction {
   return {
     type: "ADD_WALLET",
@@ -78,10 +80,3 @@ export function signOut() {
     payload: {}
   };
 }
-
-// TODO: extract this to it's own library, import from there
-type PermissionType =
-  | "ACCESS_ADDRESS"
-  | "ACCESS_ALL_ADDRESSES"
-  | "CREATE_TRANSACTION"
-  | "SIGN_TRANSACTION";

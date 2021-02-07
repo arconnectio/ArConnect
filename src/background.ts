@@ -6,6 +6,7 @@ import {
   validateMessage
 } from "./utils/messenger";
 import { getRealURL } from "./utils/url";
+import { PermissionType } from "weavemask";
 
 chrome.runtime.onInstalled.addListener(() => {
   if (!walletsStored()) window.open(chrome.runtime.getURL("/welcome.html"));
@@ -283,12 +284,5 @@ function sendPermissionError(
     sendResponse
   );
 }
-
-// TODO: extract this to it's own library, import from there
-type PermissionType =
-  | "ACCESS_ADDRESS"
-  | "ACCESS_ALL_ADDRESSES"
-  | "CREATE_TRANSACTION"
-  | "SIGN_TRANSACTION";
 
 export {};

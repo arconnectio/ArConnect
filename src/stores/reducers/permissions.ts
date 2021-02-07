@@ -1,14 +1,9 @@
+import { PermissionType } from "weavemask";
+
 export interface IPermissionState {
   url: string;
   permissions: PermissionType[];
 }
-
-// TODO: extract this to it's own library, import from there
-type PermissionType =
-  | "ACCESS_ADDRESS"
-  | "ACCESS_ALL_ADDRESSES"
-  | "CREATE_TRANSACTION"
-  | "SIGN_TRANSACTION";
 
 export interface IPermissionsAction {
   type: "SET_PERMISSIONS" | "REMOVE_PERMISSIONS" | "USER_SIGNOUT";

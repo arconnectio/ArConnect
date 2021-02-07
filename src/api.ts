@@ -1,10 +1,6 @@
 import { sendMessage, validateMessage } from "./utils/messenger";
-
-declare global {
-  interface Window {
-    weavemask: typeof WeaveMaskAPI;
-  }
-}
+import { PermissionType } from "weavemask";
+import Transaction from "arweave/web/lib/transaction";
 
 function createOverlay(text: string) {
   const container = document.createElement("div");
@@ -85,15 +81,20 @@ const WeaveMaskAPI = {
         else reject(e.data.message);
       }
     });
+  },
+  createTransaction(): Promise<Transaction> {
+    return new Promise((resolve, reject) => {});
+  },
+  signTransaction(): Promise<void> {
+    return new Promise((resolve, reject) => {});
+  },
+  onWalletSwitch(listener: (address: string) => void): Promise<boolean> {
+    return new Promise((resolve, reject) => {});
+  },
+  getPermissions(): Promise<PermissionType[]> {
+    return new Promise((resolve, reject) => {});
   }
 };
-
-// TODO: extract this to it's own library, import from there
-type PermissionType =
-  | "ACCESS_ADDRESS"
-  | "ACCESS_ALL_ADDRESSES"
-  | "CREATE_TRANSACTION"
-  | "SIGN_TRANSACTION";
 
 window.weavemask = WeaveMaskAPI;
 

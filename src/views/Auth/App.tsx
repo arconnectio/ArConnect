@@ -5,6 +5,7 @@ import { RootState } from "../../stores/reducers";
 import { sendMessage, MessageType } from "../../utils/messenger";
 import { setPermissions } from "../../stores/actions";
 import { getRealURL } from "../../utils/url";
+import { PermissionType, PermissionDescriptions } from "weavemask";
 import Cryptr from "cryptr";
 import styles from "../../styles/views/Auth/view.module.sass";
 
@@ -181,21 +182,7 @@ export default function App() {
   }
 
   function getPermissionDescription(permission: PermissionType) {
-    switch (permission) {
-      case "ACCESS_ADDRESS":
-        return "Access the current address in WeaveMask";
-
-      case "ACCESS_ALL_ADDRESSES":
-        return "Access all wallets' addresses in WeaveMask";
-
-      case "CREATE_TRANSACTION":
-        return "Create a new transaction";
-
-      case "SIGN_TRANSACTION":
-        return "Sign a transaction";
-    }
-
-    return "Invalid permission";
+    return PermissionDescriptions[permission];
   }
 
   return (
@@ -271,13 +258,6 @@ export default function App() {
     </div>
   );
 }
-
-// TODO: extract this to it's own library, import from there
-type PermissionType =
-  | "ACCESS_ADDRESS"
-  | "ACCESS_ALL_ADDRESSES"
-  | "CREATE_TRANSACTION"
-  | "SIGN_TRANSACTION";
 
 type AuthType =
   | "connect"
