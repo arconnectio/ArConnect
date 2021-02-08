@@ -7,7 +7,7 @@ import {
   signOut,
   switchProfile
 } from "../stores/actions";
-import { Tooltip } from "@geist-ui/react";
+import { Modal, Tooltip, useModal } from "@geist-ui/react";
 import {
   ChevronDownIcon,
   GearIcon,
@@ -35,7 +35,8 @@ export default function WalletManager() {
       }[]
     >([]),
     { scheme } = useColorScheme(),
-    [copyStatus, setCopyStatus] = useState(false);
+    [copyStatus, setCopyStatus] = useState(false),
+    logoutModal = useModal(false);
 
   useEffect(() => {
     adjustSizes();
@@ -173,19 +174,40 @@ export default function WalletManager() {
                   <PlusIcon />
                 </div>
               </Tooltip>
-              <Tooltip text="Log out">
-                <div className={styles.Action}>
-                  <SignOutIcon />
-                </div>
-              </Tooltip>
               <Tooltip text="Settings">
                 <div className={styles.Action}>
                   <GearIcon />
                 </div>
               </Tooltip>
+              <Tooltip text="Log out">
+                <div
+                  className={styles.Action}
+                  onClick={() => logoutModal.setVisible(true)}
+                >
+                  <SignOutIcon />
+                </div>
+              </Tooltip>
             </div>
           </motion.div>
         )}
+        <Modal {...logoutModal.bindings}>
+          <Modal.Title>Sign Out</Modal.Title>
+          <Modal.Content>
+            Do you really want to sign out from all wallets? <br />
+            Make sure you have your keyfiles / seedphrases locally!
+          </Modal.Content>
+          <Modal.Action passive onClick={() => logoutModal.setVisible(false)}>
+            Cancel
+          </Modal.Action>
+          <Modal.Action
+            onClick={() => {
+              dispatch(signOut());
+              logoutModal.setVisible(false);
+            }}
+          >
+            Ok
+          </Modal.Action>
+        </Modal>
       </AnimatePresence>
     </div>
   );
