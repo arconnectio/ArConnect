@@ -233,7 +233,7 @@ export default function Home() {
                         ? "Incoming transaction"
                         : "Outgoing transaction"}
                     </h1>
-                    <p>
+                    <p title={tx.id}>
                       <span
                         className={styles.Status}
                         style={{
