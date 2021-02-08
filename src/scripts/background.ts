@@ -216,7 +216,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
           break;
 
-        // create a transaction
+        // create and sign a transaction at the same time
         case "create_transaction":
           if (!checkPermissions(["CREATE_TRANSACTION"], tabURL))
             return sendPermissionError(
@@ -239,85 +239,6 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
           createAuthPopup({
             type: "create_transaction",
             url: tabURL,
-            attributes: message.attributes
-          });
-          chrome.runtime.onMessage.addListener((msg) => {
-            if (
-              !validateMessage(msg, {
-                sender: "popup",
-                type: "create_transaction_result"
-              })
-            )
-              return;
-            sendMessage(msg, undefined, sendResponse);
-          });
-
-          break;
-
-        // sign a transaction
-        case "sign_transaction":
-          if (!checkPermissions(["SIGN_TRANSACTION"], tabURL))
-            return sendPermissionError(sendResponse, "sign_transaction_result");
-          if (!message.transaction)
-            return sendMessage(
-              {
-                type: "sign_transaction_result",
-                ext: "weavemask",
-                res: false,
-                message: "No transaction submited",
-                sender: "background"
-              },
-              undefined,
-              sendResponse
-            );
-
-          createAuthPopup({
-            type: "sign_transaction",
-            url: tabURL,
-            transaction: message.transaction,
-            signingOptions: message.options ?? undefined
-          });
-          chrome.runtime.onMessage.addListener((msg) => {
-            if (
-              !validateMessage(msg, {
-                sender: "popup",
-                type: "sign_transaction_result"
-              })
-            )
-              return;
-            sendMessage(msg, undefined, sendResponse);
-          });
-
-          break;
-
-        // create and sign a transaction at the same time
-        case "create_and_sign_transaction":
-          if (
-            !checkPermissions(
-              ["CREATE_TRANSACTION", "SIGN_TRANSACTION"],
-              tabURL
-            )
-          )
-            return sendPermissionError(
-              sendResponse,
-              "create_and_sign_transaction_result"
-            );
-          if (!message.attributes)
-            return sendMessage(
-              {
-                type: "create_and_sign_transaction_result",
-                ext: "weavemask",
-                res: false,
-                message: "No attributes submited",
-                sender: "background"
-              },
-              undefined,
-              sendResponse
-            );
-
-          createAuthPopup({
-            type: "create_and_sign_transaction",
-            url: tabURL,
             attributes: message.attributes,
             signingOptions: message.signatureOptions ?? undefined
           });
@@ -325,7 +246,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             if (
               !validateMessage(msg, {
                 sender: "popup",
-                type: "create_and_sign_transaction_result"
+                type: "create_transaction_result"
               })
             )
               return;
