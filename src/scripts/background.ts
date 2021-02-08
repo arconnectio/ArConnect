@@ -1,11 +1,11 @@
-import { IPermissionState } from "./stores/reducers/permissions";
+import { IPermissionState } from "../stores/reducers/permissions";
 import {
   MessageFormat,
   MessageType,
   sendMessage,
   validateMessage
-} from "./utils/messenger";
-import { getRealURL } from "./utils/url";
+} from "../utils/messenger";
+import { getRealURL } from "../utils/url";
 import { PermissionType } from "weavemask";
 
 // open the welcome page

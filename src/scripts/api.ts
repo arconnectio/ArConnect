@@ -1,4 +1,4 @@
-import { sendMessage, validateMessage } from "./utils/messenger";
+import { sendMessage, validateMessage } from "../utils/messenger";
 import { PermissionType } from "weavemask";
 import Transaction from "arweave/web/lib/transaction";
 import { CreateTransactionInterface } from "arweave/web/common";

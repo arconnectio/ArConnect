@@ -1,4 +1,8 @@
-import { sendMessage, validateMessage, MessageFormat } from "./utils/messenger";
+import {
+  sendMessage,
+  validateMessage,
+  MessageFormat
+} from "../utils/messenger";
 
 function addScriptToWindow(path: string) {
   try {

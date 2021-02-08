@@ -1,8 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "./views/Auth/App";
-import Provider from "./components/Provider";
-import "./styles/index.sass";
+import App from "./Auth/App";
+import Provider from "../components/Provider";
+import "../styles/index.sass";
 
 ReactDOM.render(
   <React.StrictMode>

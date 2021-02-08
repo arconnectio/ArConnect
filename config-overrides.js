@@ -12,12 +12,12 @@ function override(config, env) {
   let newConfig = {
     ...config,
     entry: {
-      popup: paths.appIndexJs,
-      background: paths.appSrc + "/background",
-      contentscript: paths.appSrc + "/contentscript",
-      welcome: paths.appSrc + "/welcome",
-      api: paths.appSrc + "/api",
-      auth: paths.appSrc + "/auth"
+      popup: paths.appSrc + "/views/popup",
+      background: paths.appSrc + "/scripts/background",
+      contentscript: paths.appSrc + "/scripts/contentscript",
+      welcome: paths.appSrc + "/views/welcome",
+      api: paths.appSrc + "/scripts/api",
+      auth: paths.appSrc + "/views/auth"
     },
     output: {
       path: path.join(__dirname, "./build"),
@@ -44,7 +44,7 @@ function override(config, env) {
       minifyURLs: true
     },
     isEnvProduction = env === "production",
-    indexHtmlPlugin = new HtmlWebpackPlugin({
+    popupHtmlPlugin = new HtmlWebpackPlugin({
       inject: true,
       chunks: ["popup"],
       template: paths.appHtml,
@@ -55,7 +55,7 @@ function override(config, env) {
   newConfig.plugins = replacePlugin(
     newConfig.plugins,
     (name) => /HtmlWebpackPlugin/i.test(name),
-    indexHtmlPlugin
+    popupHtmlPlugin
   );
 
   const welcomeHtmlPlugin = new HtmlWebpackPlugin({
