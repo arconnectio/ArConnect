@@ -19,6 +19,8 @@ import { useColorScheme } from "use-color-scheme";
 import { QRCode } from "react-qr-svg";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendMessage } from "../utils/messenger";
+import { goTo } from "react-chrome-extension-router";
+import Settings from "../views/Popup/routes/Settings";
 import copy from "copy-to-clipboard";
 import "../styles/components/Tooltip.sass";
 import styles from "../styles/components/WalletManager.module.sass";
@@ -175,7 +177,7 @@ export default function WalletManager() {
                 </div>
               </Tooltip>
               <Tooltip text="Settings">
-                <div className={styles.Action}>
+                <div className={styles.Action} onClick={() => goTo(Settings)}>
                   <GearIcon />
                 </div>
               </Tooltip>

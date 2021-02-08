@@ -1,0 +1,55 @@
+.Settings
+  position: relative
+  background-color: #fafafa
+  text-align: center
+
+  @media (prefers-color-scheme: dark)
+    background-color: #111
+
+.Setting
+  position: relative
+  display: flex
+  align-items: center
+  justify-content: space-between
+  border-bottom: 1px solid #e6e6e6
+  padding: .9em .7em .7em
+  cursor: pointer
+  color: #666
+  transition: all .23s ease-in-out
+
+  @media (prefers-color-scheme: dark)
+    border-bottom-color: #333
+    color: #888
+
+  &:hover
+    background-color: #f5f5f5
+
+    @media (prefers-color-scheme: dark)
+      background-color: #000
+
+  &:last-child
+    border-bottom: none
+
+  h1
+    font-size: 1.3em
+    line-height: 1em
+    margin: 0
+      bottom: .1em
+    text-align: left
+    font-weight: 600
+    color: #000
+
+    @media (prefers-color-scheme: dark)
+      color: #fff
+
+  p
+    font-size: 1.05em
+    font-weight: 500
+    margin: 0
+    text-align: left
+    line-height: 1em
+
+  .Arrow
+    font-size: 1.55em
+    display: flex
+    align-items: center

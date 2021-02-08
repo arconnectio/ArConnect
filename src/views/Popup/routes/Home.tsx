@@ -154,7 +154,12 @@ export default function Home() {
         <h2>
           ${formatBalance(usdBalance ?? "0".repeat(10))} USD
           <Tooltip
-            text="Calculated using limestone.finance"
+            text={
+              <p style={{ textAlign: "center", margin: "0" }}>
+                Calculated using <br />
+                limestone.finance
+              </p>
+            }
             style={{ marginLeft: ".18em" }}
           >
             <QuestionIcon size={24} />

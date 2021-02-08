@@ -31,6 +31,7 @@ import Home from "./Home";
 import verto_logo_light from "../../../assets/verto_light.png";
 import verto_logo_dark from "../../../assets/verto_dark.png";
 import axios from "axios";
+import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/PST.module.sass";
 
 export default function PST({ id, name, balance, ticker }: Asset) {
@@ -161,8 +162,8 @@ export default function PST({ id, name, balance, ticker }: Asset) {
 
   return (
     <>
-      <div className={styles.Head}>
-        <div className={styles.Back} onClick={() => goTo(Home)}>
+      <div className={SubPageTopStyles.Head}>
+        <div className={SubPageTopStyles.Back} onClick={() => goTo(Home)}>
           <ArrowLeftIcon />
         </div>
         <h1>{name}</h1>
