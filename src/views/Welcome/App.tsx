@@ -107,7 +107,8 @@ export default function App() {
     const keyfilesToLoad: JWKInterface[] = keyfiles.map(
         ({ keyfile }) => keyfile
       ),
-      wallets: Wallet[] = [];
+      wallets: Wallet[] = [],
+      walletsStoreEmpty = walletsStore.length < 1;
 
     if (seed) {
       const keyFromSeed: JWKInterface = await getKeyFromMnemonic(seed);
@@ -118,13 +119,13 @@ export default function App() {
       const address = await arweave.wallets.jwkToAddress(keyfilesToLoad[i]),
         cryptr = new Cryptr(passwordInput.state),
         keyfile = cryptr.encrypt(JSON.stringify(keyfilesToLoad[i])),
-        name = `Account ${i + 1}`;
+        name = `Account ${i + 1 + walletsStore.length}`;
 
       wallets.push({ address, keyfile, name });
     }
 
     dispath(setWallets([...walletsStore, ...wallets]));
-    dispath(switchProfile(wallets[0].address));
+    if (walletsStoreEmpty) dispath(switchProfile(wallets[0].address));
     setLoading(false);
     loadWalletsModal.setVisible(false);
     setToast({ text: "Loaded wallets", type: "success" });
