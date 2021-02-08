@@ -10,7 +10,9 @@ import {
 import { Tooltip } from "@geist-ui/react";
 import {
   ChevronDownIcon,
+  GearIcon,
   PlusIcon,
+  SignOutIcon,
   TrashcanIcon
 } from "@primer/octicons-react";
 import { useColorScheme } from "use-color-scheme";
@@ -18,6 +20,7 @@ import { QRCode } from "react-qr-svg";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendMessage } from "../utils/messenger";
 import copy from "copy-to-clipboard";
+import "../styles/components/Tooltip.sass";
 import styles from "../styles/components/WalletManager.module.sass";
 
 export default function WalletManager() {
@@ -159,14 +162,27 @@ export default function WalletManager() {
                 </div>
               </div>
             ))}
-            <div
-              className={styles.Wallet + " " + styles.AddWallet}
-              onClick={() =>
-                window.open(chrome.runtime.getURL("/welcome.html"))
-              }
-            >
-              <PlusIcon />
-              Add wallet
+            <div className={styles.Wallet + " " + styles.Options}>
+              <Tooltip text="Add wallet">
+                <div
+                  className={styles.Action}
+                  onClick={() =>
+                    window.open(chrome.runtime.getURL("/welcome.html"))
+                  }
+                >
+                  <PlusIcon />
+                </div>
+              </Tooltip>
+              <Tooltip text="Log out">
+                <div className={styles.Action}>
+                  <SignOutIcon />
+                </div>
+              </Tooltip>
+              <Tooltip text="Settings">
+                <div className={styles.Action}>
+                  <GearIcon />
+                </div>
+              </Tooltip>
             </div>
           </motion.div>
         )}

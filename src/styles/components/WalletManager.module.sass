@@ -84,10 +84,12 @@
       text-align: left
       transition: all .25s ease-in
 
-      &.AddWallet
-        justify-content: center
-        font-size: 1.2em
+      &.Options
+        justify-content: flex-end
+        align-items: flex-end
+        font-size: 1.125em
         border-bottom: 1px solid #eaeaea
+        cursor: default
         padding:
           top: .8em
           bottom: .8em
@@ -95,16 +97,11 @@
         @media (prefers-color-scheme: dark)
           border-color: #333
 
-        svg
-          width: 1em
-          height: 1em
-          margin-right: .33em
-
       @media (prefers-color-scheme: dark)
         background-color: #111
         border-color: #333
 
-      &:hover
+      &:hover:not(.Options)
         background-color: #fcfcfc
 
         @media (prefers-color-scheme: dark)
@@ -139,7 +136,7 @@
           @media (prefers-color-scheme: dark)
             color: #888
 
-      .Remove
+      .Remove, .Action
         width: $removeWidth
         cursor: pointer
         text-align: center
