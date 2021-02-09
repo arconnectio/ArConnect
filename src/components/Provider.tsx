@@ -9,7 +9,8 @@ const lightTheme = {
     success: "#c12127",
     successLight: "#ff0000",
     successDark: "#d30b0b",
-    link: "#c12127"
+    link: "#c12127",
+    selection: "#c12127"
   }
 };
 const darkTheme = {
@@ -24,14 +25,10 @@ const darkTheme = {
     accents_8: "#fafafa",
     background: "#000",
     foreground: "#fff",
-    selection: "#f81ce5",
     secondary: "#888",
     code: "#79ffe1",
     border: "#333",
-    success: "#c12127",
-    successLight: "#ff0000",
-    successDark: "#d30b0b",
-    link: "#c12127"
+    ...lightTheme.palette
   },
   expressiveness: {
     dropdownBoxShadow: "0 0 0 1px #333",
