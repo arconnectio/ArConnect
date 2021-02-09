@@ -16,7 +16,8 @@ chrome.runtime.onInstalled.addListener(() => {
 // listen for messages from the content script
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   const message: MessageFormat = msg,
-    blockedSitesStore = localStorage.getItem("arweave_blockedSites");
+    blockedSitesStore = localStorage.getItem("arweave_blockedSites"),
+    eventsStore = localStorage.getItem("arweave_events");
 
   if (!validateMessage(message, { sender: "api" })) return;
   if (!walletsStored())
@@ -67,6 +68,16 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             sendResponse
           );
       }
+
+      localStorage.setItem(
+        "arweave_events",
+        JSON.stringify({
+          val: [
+            ...(JSON.parse(eventsStore ?? "{}")?.val ?? []),
+            { event: message.type, url: tabURL }
+          ]
+        })
+      );
 
       switch (message.type) {
         // connect to weavemask

@@ -29,10 +29,12 @@ export default function Settings() {
     psts = useSelector((state: RootState) => state.assets),
     currentAddress = useSelector((state: RootState) => state.profile),
     blockedURLs = useSelector((state: RootState) => state.blockedSites),
-    addURLInput = useInput("");
+    addURLInput = useInput(""),
+    [events, setEvents] = useState<{ event: string; url: string }[]>([]);
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
+    loadEvents();
     // eslint-disable-next-line
   }, []);
 
@@ -66,6 +68,12 @@ export default function Settings() {
 
   function blockInputUrl() {
     dispatch(blockURL(addURLInput.state));
+  }
+
+  function loadEvents() {
+    const evs = localStorage.getItem("arweave_events");
+    if (!evs) return;
+    setEvents(JSON.parse(evs).val);
   }
 
   return (
@@ -232,7 +240,34 @@ export default function Settings() {
                 </Button>
               </div>
             </>
-          ))}
+          )) || (
+            <>
+              {events.length > 0 && (
+                <div
+                  className={styles.Setting + " " + styles.SubSetting}
+                  onClick={() => {
+                    localStorage.setItem(
+                      "arweave_events",
+                      JSON.stringify({ val: [] })
+                    );
+                    setEvents([]);
+                  }}
+                >
+                  <h1>Clear events...</h1>
+                </div>
+              )}
+              {(events.length > 0 &&
+                events.map((event, i) => (
+                  <div
+                    className={styles.Setting + " " + styles.SubSetting}
+                    key={i}
+                  >
+                    <h1>{event.event}</h1>
+                    <p>{event.url}</p>
+                  </div>
+                ))) || <p>No events</p>}
+            </>
+          )}
       </div>
     </>
   );
