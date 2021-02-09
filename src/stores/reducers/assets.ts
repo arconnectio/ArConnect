@@ -13,7 +13,7 @@ export interface AssetStateItem {
 }
 
 export interface IAssetsAction {
-  type: "UPDATE_ASSETS" | "USER_SIGNOUT" | "REMOVE_ASSETS";
+  type: "UPDATE_ASSETS" | "USER_SIGNOUT" | "REMOVE_ASSETS" | "READD_ASSETS";
   payload: {
     address: string;
     assets?: Asset[];
@@ -42,6 +42,19 @@ export default function assetsReducer(
             ? assets.map((asset) => ({
                 ...asset,
                 removed: action.payload.id === asset.id ? true : asset.removed
+              }))
+            : assets
+      }));
+
+    case "READD_ASSETS":
+      if (!action.payload.id) break;
+      return state.map(({ address, assets }) => ({
+        address,
+        assets:
+          address === action.payload.address
+            ? assets.map((asset) => ({
+                ...asset,
+                removed: action.payload.id === asset.id ? false : asset.removed
               }))
             : assets
       }));

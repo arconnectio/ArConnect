@@ -74,6 +74,13 @@ export function removeAsset(address: string, id: string): IAssetsAction {
   };
 }
 
+export function readdAsset(address: string, id: string): IAssetsAction {
+  return {
+    type: "READD_ASSETS",
+    payload: { address, id }
+  };
+}
+
 export function signOut() {
   return {
     type: "USER_SIGNOUT",

@@ -11,7 +11,7 @@ import { RootState } from "../../../stores/reducers";
 import Home from "./Home";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
-import { removePermissions } from "../../../stores/actions";
+import { readdAsset, removePermissions } from "../../../stores/actions";
 
 export default function Settings() {
   const [setting, setCurrSetting] = useState<
@@ -19,7 +19,9 @@ export default function Settings() {
     >(),
     permissions = useSelector((state: RootState) => state.permissions),
     [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
-    dispatch = useDispatch();
+    dispatch = useDispatch(),
+    psts = useSelector((state: RootState) => state.assets),
+    currentAddress = useSelector((state: RootState) => state.profile);
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
@@ -43,6 +45,14 @@ export default function Settings() {
   function filterWithPermission() {
     return permissions.filter(
       (permissionGroup) => permissionGroup.permissions.length > 0
+    );
+  }
+
+  function removedPSTs() {
+    return (
+      psts
+        .find(({ address }) => address === currentAddress)
+        ?.assets.filter(({ removed }) => removed) ?? []
     );
   }
 
@@ -155,6 +165,29 @@ export default function Settings() {
                     </div>
                   </div>
                 ))) || <p>No permissions...</p>}
+            </>
+          )) ||
+          (setting === "psts" && (
+            <>
+              {(removedPSTs().length > 0 &&
+                removedPSTs().map((pst, i) => (
+                  <div
+                    className={styles.Setting + " " + styles.SubSetting}
+                    key={i}
+                  >
+                    <h1>
+                      {pst.name} ({pst.ticker})
+                    </h1>
+                    <div
+                      className={styles.Arrow}
+                      onClick={() =>
+                        dispatch(readdAsset(currentAddress, pst.id))
+                      }
+                    >
+                      <XIcon />
+                    </div>
+                  </div>
+                ))) || <p>No removed PSTs</p>}
             </>
           ))}
       </div>
