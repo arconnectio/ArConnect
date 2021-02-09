@@ -121,7 +121,7 @@ const WeaveMaskAPI = {
         window.removeEventListener("message", callback);
         document.body.removeChild(transactionOverlay);
 
-        if (e.data.res && e.data.transaction) resolve(e.data.transaction);
+        if (e.data.res && e.data.transactionID) resolve(e.data.transactionID);
         else reject(e.data.message);
       }
     });
