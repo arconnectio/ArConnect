@@ -5,13 +5,19 @@ import {
   ChevronRightIcon,
   XIcon
 } from "@primer/octicons-react";
+import { Button, Input, Spacer, useInput } from "@geist-ui/react";
 import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
+import {
+  readdAsset,
+  removePermissions,
+  unblockURL,
+  blockURL
+} from "../../../stores/actions";
 import Home from "./Home";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
-import { readdAsset, removePermissions } from "../../../stores/actions";
 
 export default function Settings() {
   const [setting, setCurrSetting] = useState<
@@ -21,7 +27,9 @@ export default function Settings() {
     [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
     dispatch = useDispatch(),
     psts = useSelector((state: RootState) => state.assets),
-    currentAddress = useSelector((state: RootState) => state.profile);
+    currentAddress = useSelector((state: RootState) => state.profile),
+    blockedURLs = useSelector((state: RootState) => state.blockedSites),
+    addURLInput = useInput("");
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
@@ -54,6 +62,10 @@ export default function Settings() {
         .find(({ address }) => address === currentAddress)
         ?.assets.filter(({ removed }) => removed) ?? []
     );
+  }
+
+  function blockInputUrl() {
+    dispatch(blockURL(addURLInput.state));
   }
 
   return (
@@ -188,6 +200,34 @@ export default function Settings() {
                     </div>
                   </div>
                 ))) || <p>No removed PSTs</p>}
+            </>
+          )) ||
+          (setting === "sites" && (
+            <>
+              {blockedURLs.length > 0 &&
+                blockedURLs.map((url, i) => (
+                  <div
+                    className={styles.Setting + " " + styles.SubSetting}
+                    key={i}
+                  >
+                    <h1>{url}</h1>
+                    <div
+                      className={styles.Arrow}
+                      onClick={() => dispatch(unblockURL(url))}
+                    >
+                      <XIcon />
+                    </div>
+                  </div>
+                ))}
+              <div className={styles.OptionContent}>
+                <Input {...addURLInput.bindings} placeholder="Enter url..." />
+                <Button
+                  style={{ width: "100%", marginTop: ".5em" }}
+                  onClick={blockInputUrl}
+                >
+                  Block url
+                </Button>
+              </div>
             </>
           ))}
       </div>

@@ -4,6 +4,7 @@ import { IProfileAction } from "./reducers/profile";
 import { IWalletsAction, Wallet } from "./reducers/wallets";
 
 import { PermissionType } from "weavemask";
+import { IBlockedAction } from "./reducers/blocked_sites";
 
 export function addWallet(wallet: Wallet): IWalletsAction {
   return {
@@ -78,6 +79,20 @@ export function readdAsset(address: string, id: string): IAssetsAction {
   return {
     type: "READD_ASSETS",
     payload: { address, id }
+  };
+}
+
+export function blockURL(url: string): IBlockedAction {
+  return {
+    type: "ADD_SITE",
+    payload: url
+  };
+}
+
+export function unblockURL(url: string): IBlockedAction {
+  return {
+    type: "REMOVE_SITE",
+    payload: url
   };
 }
 
