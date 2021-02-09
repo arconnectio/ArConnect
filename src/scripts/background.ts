@@ -15,7 +15,8 @@ chrome.runtime.onInstalled.addListener(() => {
 
 // listen for messages from the content script
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
-  const message: MessageFormat = msg;
+  const message: MessageFormat = msg,
+    blockedSitesStore = localStorage.getItem("arweave_blockedSites");
 
   if (!validateMessage(message, { sender: "api" })) return;
   if (!walletsStored())
@@ -45,6 +46,27 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         );
 
       const tabURL = currentTabArray[0].url;
+
+      // check if site is blocked
+      if (blockedSitesStore) {
+        const blockedSites: string[] = JSON.parse(blockedSitesStore).val;
+
+        if (
+          blockedSites.includes(getRealURL(tabURL)) ||
+          blockedSites.includes(tabURL)
+        )
+          return sendMessage(
+            {
+              type: `${message.type}_result` as MessageType,
+              ext: "weavemask",
+              res: false,
+              message: "Site is blocked",
+              sender: "background"
+            },
+            undefined,
+            sendResponse
+          );
+      }
 
       switch (message.type) {
         // connect to weavemask

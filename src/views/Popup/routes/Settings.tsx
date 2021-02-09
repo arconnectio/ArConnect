@@ -220,7 +220,10 @@ export default function Settings() {
                   </div>
                 ))}
               <div className={styles.OptionContent}>
-                <Input {...addURLInput.bindings} placeholder="Enter url..." />
+                <Input
+                  {...addURLInput.bindings}
+                  placeholder="Enter url (site.com)..."
+                />
                 <Button
                   style={{ width: "100%", marginTop: ".5em" }}
                   onClick={blockInputUrl}
