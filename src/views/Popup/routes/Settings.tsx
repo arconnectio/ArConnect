@@ -5,7 +5,7 @@ import {
   ChevronRightIcon,
   XIcon
 } from "@primer/octicons-react";
-import { Button, Input, Spacer, useInput } from "@geist-ui/react";
+import { Button, Input, useInput } from "@geist-ui/react";
 import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
