@@ -11,8 +11,8 @@ type MessageSender = "popup" | "background" | "api";
 export type MessageType =
   | "connect"
   | "connect_result"
-  | "create_transaction"
-  | "create_transaction_result"
+  | "sign_transaction"
+  | "sign_transaction_result"
   | "get_active_address"
   | "get_active_address_result"
   | "get_all_addresses"

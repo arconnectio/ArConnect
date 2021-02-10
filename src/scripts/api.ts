@@ -2,13 +2,15 @@ import { sendMessage, validateMessage } from "../utils/messenger";
 import { PermissionType } from "../utils/permissions";
 import { CreateTransactionInterface } from "arweave/web/common";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
+import Transaction from "arweave/node/lib/transaction";
+import Arweave from "arweave";
 
 function createOverlay(text: string) {
   const container = document.createElement("div");
   container.innerHTML = `
     <div style="position: fixed; top: 0; bottom: 0; left: 0; right: 0; z-index: 1000000000000; background-color: rgba(0, 0, 0, .73); font-family: 'Inter', sans-serif;">
       <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff;">
-        <h1 style="text-align: center; margin: 0; font-size: 3em; font-weight: 600; margin-bottom: .35em; line-height: 1em;">WeaveMask</h1>
+        <h1 style="text-align: center; margin: 0; font-size: 3em; font-weight: 600; margin-bottom: .35em; line-height: 1em;">Arweave</h1>
         <p style="text-align: center; font-size: 1.2em; font-weight: 500;">${text}</p>
       </div>
     </div>
@@ -86,22 +88,29 @@ const WeaveMaskAPI = {
       }
     });
   },
-  createTransaction(
-    attributes: Partial<CreateTransactionInterface>,
-    signatureOptions?: SignatureOptions
-  ): Promise<string> {
+  sign(
+    transaction: Transaction,
+    options?: SignatureOptions
+  ): Promise<Transaction> {
     const transactionOverlay = createOverlay(
-      "This page is trying to create a transaction with WeaveMask...<br />Please use the popup to log in and continue."
+      "This page is trying to sign a transaction with Arweave...<br />Please use the popup to log in and continue."
     );
 
     return new Promise((resolve, reject) => {
+      const transactionJSON = transaction.toJSON(),
+        arweave = new Arweave({
+          host: "arweave.net",
+          port: 443,
+          protocol: "https"
+        });
+
       sendMessage(
         {
-          type: "create_transaction",
+          type: "sign_transaction",
           ext: "weavemask",
           sender: "api",
-          attributes,
-          signatureOptions
+          transaction: transactionJSON,
+          signatureOptions: options
         },
         undefined,
         undefined,
@@ -110,19 +119,22 @@ const WeaveMaskAPI = {
       window.addEventListener("message", callback);
       document.body.appendChild(transactionOverlay);
 
-      // @ts-ignore
       function callback(e: MessageEvent<any>) {
         if (
           !validateMessage(e.data, {
-            type: "create_transaction_result"
+            type: "sign_transaction_result"
           })
         )
           return;
         window.removeEventListener("message", callback);
         document.body.removeChild(transactionOverlay);
 
-        if (e.data.res && e.data.transactionID) resolve(e.data.transactionID);
-        else reject(e.data.message);
+        if (e.data.res && e.data.transaction) {
+          const decodeTransaction = arweave.transactions.fromRaw(
+            e.data.transaction
+          );
+          resolve(decodeTransaction);
+        } else reject(e.data.message);
       }
     });
   },

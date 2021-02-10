@@ -11,8 +11,9 @@ import {
 } from "../../utils/permissions";
 import { JWKInterface } from "arweave/web/lib/wallet";
 import Arweave from "arweave";
-import { CreateTransactionInterface } from "arweave/web/common";
+import { Tag } from "arweave/web/lib/transaction";
 import { SignatureOptions } from "arweave/node/lib/crypto/crypto-interface";
+import pkg from "../../../package.json";
 import Cryptr from "cryptr";
 import styles from "../../styles/views/Auth/view.module.sass";
 
@@ -32,13 +33,11 @@ export default function App() {
     [type, setType] = useState<AuthType>(),
     dispatch = useDispatch(),
     [alreadyHasPermissions, setAlreadyHasPermissions] = useState(false),
-    [attributes, setAttributes] = useState<
-      Partial<CreateTransactionInterface>
-    >(),
     profile = useSelector((state: RootState) => state.profile),
     [signingOptions, setSigningOptions] = useState<
       SignatureOptions | undefined
-    >();
+    >(),
+    [transaction, setTransaction] = useState<Partial<RawTransaction>>();
 
   useEffect(() => {
     // get the auth param from the url
@@ -62,8 +61,8 @@ export default function App() {
       permissions?: PermissionType[];
       type?: AuthType;
       url?: string;
-      attributes?: Partial<CreateTransactionInterface>;
       signingOptions?: SignatureOptions;
+      transaction?: RawTransaction;
     } = JSON.parse(decodeURIComponent(authVal));
 
     // if the type does not exist, this is an invalid call
@@ -108,16 +107,15 @@ export default function App() {
 
       // create transaction event
     } else if (
-      decodedAuthParam.type === "create_transaction" &&
-      decodedAuthParam.attributes
+      decodedAuthParam.type === "sign_transaction" &&
+      decodedAuthParam.transaction
     ) {
       // check permissions
-      if (!checkPermissions(["CREATE_TRANSACTION"], url))
+      if (!checkPermissions(["SIGN_TRANSACTION"], url))
         return sendPermissionError();
 
-      // set tx attributes and signing options
-      setAttributes(decodedAuthParam.attributes);
       setSigningOptions(decodedAuthParam.signingOptions);
+      setTransaction(decodedAuthParam.transaction);
 
       // if non of the types matched, this is an invalid auth call
     } else {
@@ -193,7 +191,7 @@ export default function App() {
   // get the type that needs to be returned in the message
   function getReturnType(): MessageType {
     if (type === "connect") return "connect_result";
-    else if (type === "create_transaction") return "create_transaction_result";
+    else if (type === "sign_transaction") return "sign_transaction_result";
     //
     return "connect_result";
   }
@@ -237,40 +235,25 @@ export default function App() {
 
   // actions that are not connect
   async function handleNonPermissionAction(keyfile: JWKInterface) {
-    if (!attributes) {
-      sendMessage({
-        type: getReturnType(),
-        ext: "weavemask",
-        res: false,
-        message: "No attributes object submitted",
-        sender: "popup"
+    if (!transaction) return signingError();
+
+    const arweave = new Arweave({
+        host: "arweave.net",
+        port: 443,
+        protocol: "https"
+      }),
+      decodeTransaction = arweave.transactions.fromRaw({
+        transaction,
+        owner: keyfile.n
       });
-      setLoading(false);
-      window.close();
-      return;
-    }
 
     try {
-      // create a transaction object, and set it to the existing transaction
-      // if it had been submitted for signing
-      const arweave = new Arweave({
-          host: "arweave.net",
-          port: 443,
-          protocol: "https"
-        }),
-        transaction = await arweave.createTransaction(attributes, keyfile);
-
-      transaction.addTag("App-Name", "WeaveMask 0.1.0");
-      await arweave.transactions.sign(transaction, keyfile, signingOptions);
-
-      // smaller transactions
-      if (!transaction.data) {
-        await arweave.transactions.post(transaction);
-      } else {
-        const uploader = await arweave.transactions.getUploader(transaction);
-
-        while (!uploader.isComplete) await uploader.uploadChunk();
-      }
+      decodeTransaction.addTag("App-Name", `WeaveMask ${pkg.version}`);
+      await arweave.transactions.sign(
+        decodeTransaction,
+        keyfile,
+        signingOptions
+      );
 
       sendMessage({
         type: getReturnType(),
@@ -278,16 +261,10 @@ export default function App() {
         res: true,
         message: "Success",
         sender: "popup",
-        transactionID: transaction.id
+        transaction: decodeTransaction.toJSON()
       });
     } catch {
-      sendMessage({
-        type: getReturnType(),
-        ext: "weavemask",
-        res: false,
-        message: "Error creating transaction",
-        sender: "popup"
-      });
+      return signingError();
     }
 
     setLoading(false);
@@ -304,6 +281,19 @@ export default function App() {
         "The site does not have the required permissions for this action",
       sender: "popup"
     });
+  }
+
+  // problem with signing
+  function signingError() {
+    sendMessage({
+      type: getReturnType(),
+      ext: "weavemask",
+      res: false,
+      message: "Error while signing",
+      sender: "popup"
+    });
+    setLoading(false);
+    window.close();
   }
 
   function checkPermissions(permissionsToCheck: PermissionType[], url: string) {
@@ -392,12 +382,26 @@ export default function App() {
             }}
           >
             <Loading style={{ display: "block", margin: "0 auto" }} />
-            {type === "create_transaction" &&
-              "Creating and posting a transaction."}
+            {type === "sign_transaction" && "Signing a transaction."}
           </p>
         )}
     </div>
   );
 }
 
-type AuthType = "connect" | "create_transaction";
+type AuthType = "connect" | "sign_transaction";
+interface RawTransaction {
+  format: number;
+  id: string;
+  last_tx: string;
+  owner: string;
+  tags: Tag[];
+  target: string;
+  quantity: string;
+  data: string;
+  data_size: string;
+  data_root: string;
+  data_tree: any;
+  reward: string;
+  signature: string;
+}
