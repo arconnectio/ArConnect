@@ -2,7 +2,7 @@ import { sendMessage, validateMessage } from "../utils/messenger";
 import { PermissionType } from "../utils/permissions";
 import { CreateTransactionInterface } from "arweave/web/common";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
-import Transaction from "arweave/node/lib/transaction";
+import Transaction from "arweave/web/lib/transaction";
 import Arweave from "arweave";
 
 function createOverlay(text: string) {
@@ -97,19 +97,18 @@ const WeaveMaskAPI = {
     );
 
     return new Promise((resolve, reject) => {
-      const transactionJSON = transaction.toJSON(),
-        arweave = new Arweave({
-          host: "arweave.net",
-          port: 443,
-          protocol: "https"
-        });
+      const arweave = new Arweave({
+        host: "arweave.net",
+        port: 443,
+        protocol: "https"
+      });
 
       sendMessage(
         {
           type: "sign_transaction",
           ext: "weavemask",
           sender: "api",
-          transaction: transactionJSON,
+          transaction,
           signatureOptions: options
         },
         undefined,

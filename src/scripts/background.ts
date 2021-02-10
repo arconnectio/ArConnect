@@ -251,15 +251,16 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
         // create and sign a transaction at the same time
         case "sign_transaction":
+          console.log(message);
           if (!checkPermissions(["SIGN_TRANSACTION"], tabURL))
             return sendPermissionError(sendResponse, "sign_transaction_result");
-          if (!message.attributes)
+          if (!message.transaction)
             return sendMessage(
               {
                 type: "sign_transaction_result",
                 ext: "weavemask",
                 res: false,
-                message: "No attributes submited",
+                message: "No transaction submitted.",
                 sender: "background"
               },
               undefined,
@@ -269,7 +270,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
           createAuthPopup({
             type: "sign_transaction",
             url: tabURL,
-            attributes: message.attributes,
+            transaction: message.transaction,
             signingOptions: message.signatureOptions ?? undefined
           });
           chrome.runtime.onMessage.addListener((msg) => {

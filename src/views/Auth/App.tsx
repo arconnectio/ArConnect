@@ -243,7 +243,7 @@ export default function App() {
         protocol: "https"
       }),
       decodeTransaction = arweave.transactions.fromRaw({
-        transaction,
+        ...transaction,
         owner: keyfile.n
       });
 
@@ -261,7 +261,7 @@ export default function App() {
         res: true,
         message: "Success",
         sender: "popup",
-        transaction: decodeTransaction.toJSON()
+        transaction: decodeTransaction
       });
     } catch {
       return signingError();
