@@ -1,14 +1,16 @@
+@use "../../variables"
+  
 $sidePadding: .7em
 
 .PST
   $topPadding: 2.35em
   position: relative
   padding: $topPadding $sidePadding 1em
-  background-color: #fafafa
+  background-color: variables.$lighter-bg-light
   text-align: center
 
   @media (prefers-color-scheme: dark)
-    background-color: #111
+    background-color: variables.$lighter-bg-dark
 
   .Remove
     position: absolute
@@ -20,14 +22,14 @@ $sidePadding: .7em
     background-color: transparent
     outline: none
     border: none
-    color: #666
+    color: variables.$secondary-text-light
     transition: all .23s ease-in-out
 
     &:hover
       opacity: .76
 
     @media (prefers-color-scheme: dark)
-      color: #888
+      color: variables.$secondary-text-dark
 
   .Balance
     font-size: 2.25em
@@ -42,12 +44,12 @@ $sidePadding: .7em
   .BalanceInAR
     font-size: 1.4em
     line-height: 1em
-    color: #666
+    color: variables.$secondary-text-light
     font-weight: 500
     margin-bottom: $topPadding
 
     @media (prefers-color-scheme: dark)
-      color: #888
+      color: variables.$secondary-text-dark
 
 .TabItemIcon
   width: .7em

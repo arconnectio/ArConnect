@@ -1,3 +1,4 @@
+@use "../../variables"
 @import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap")
   
 .Auth
@@ -21,12 +22,12 @@
   p
     text-align: center
     font-size: 1.05em
-    color: #666
+    color: variables.$secondary-text-light
     font-weight: 500
     margin: .5em 0 1.6em
 
     @media (prefers-color-scheme: dark)
-      color: #888
+      color: variables.$secondary-text-dark
 
   div[class~=with-label]
     width: 100%

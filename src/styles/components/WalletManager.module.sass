@@ -1,3 +1,5 @@
+@use "../variables"
+  
 .CurrentWallet
   position: relative
   padding: .3em 0
@@ -20,7 +22,7 @@
   p
     font-size: .82em
     margin: 0
-    color: #666
+    color: variables.$secondary-text-light
     white-space: nowrap
     overflow: hidden
     text-overflow: ellipsis
@@ -34,7 +36,7 @@
       opacity: .77
 
     @media (prefers-color-scheme: dark)
-      color: #888
+      color: variables.$secondary-text-dark
 
     &.Copied
       color: #666666
@@ -47,7 +49,7 @@
     top: 50%
     right: 1em
     cursor: pointer
-    color: #666
+    color: variables.$secondary-text-light
     transform: translateY(-50%)
     transition: all .23s ease-in-out
 
@@ -55,7 +57,7 @@
       transform: translateY(-50%) rotate(180deg)
 
     @media (prefers-color-scheme: dark)
-      color: #888
+      color: variables.$secondary-text-dark
 
     svg
       width: 1.23em
@@ -67,17 +69,17 @@
     left: 0
     right: 0
     z-index: 1000
-    background-color: #fafafa
+    background-color: variables.$lighter-bg-light
 
     @media (prefers-color-scheme: dark)
-      background-color: #111
+      background-color: variables.$lighter-bg-dark
 
     .Wallet
       $removeWidth: 2.3em
       display: flex
       align-items: center
       justify-content: space-between
-      background-color: #fafafa
+      background-color: variables.$lighter-bg-light
       border-top: 1px solid #eaeaea
       padding: .3em .95em
       cursor: pointer
@@ -98,7 +100,7 @@
           border-color: #333
 
       @media (prefers-color-scheme: dark)
-        background-color: #111
+        background-color: variables.$lighter-bg-dark
         border-color: #333
 
       &:hover:not(.Options)
@@ -127,14 +129,14 @@
         p
           font-size: 1em
           margin: 0
-          color: #666
+          color: variables.$secondary-text-light
           width: auto
 
           &:hover
             opacity: 1
 
           @media (prefers-color-scheme: dark)
-            color: #888
+            color: variables.$secondary-text-dark
 
       .Remove, .Action
         width: $removeWidth

@@ -1,25 +1,27 @@
+@use "../../variables"
+  
 .Settings
   position: relative
-  background-color: #fafafa
+  background-color: variables.$lighter-bg-light
   text-align: center
 
   @media (prefers-color-scheme: dark)
-    background-color: #111
+    background-color: variables.$lighter-bg-dark
 
 .Setting
   position: relative
   display: flex
   align-items: center
   justify-content: space-between
-  border-bottom: 1px solid #e6e6e6
+  border-bottom: 1px solid variables.$border-light
   padding: .9em .7em .7em
   cursor: pointer
-  color: #666
+  color: variables.$secondary-text-light
   transition: all .23s ease-in-out
 
   @media (prefers-color-scheme: dark)
-    border-bottom-color: #333
-    color: #888
+    border-bottom-color: variables.$border-dark
+    color: variables.$secondary-text-dark
 
   &:hover
     background-color: #f5f5f5
@@ -77,11 +79,11 @@
 
     .RemoveOption
       font-size: .8em
-      color: #666
+      color: variables.$secondary-text-light
       cursor: pointer
       
       @media (prefers-color-scheme: dark)
-        color: #888
+        color: variables.$secondary-text-dark
 
   div[class~=with-label]
     width: 100%
