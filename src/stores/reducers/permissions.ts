@@ -1,4 +1,4 @@
-import { PermissionType } from "weavemask";
+import { PermissionType } from "../../utils/permissions";
 
 export interface IPermissionState {
   url: string;

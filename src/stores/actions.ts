@@ -3,7 +3,7 @@ import { IPermissionsAction } from "./reducers/permissions";
 import { IProfileAction } from "./reducers/profile";
 import { IWalletsAction, Wallet } from "./reducers/wallets";
 
-import { PermissionType } from "weavemask";
+import { PermissionType } from "../utils/permissions";
 import { IBlockedAction } from "./reducers/blocked_sites";
 
 export function addWallet(wallet: Wallet): IWalletsAction {

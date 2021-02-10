@@ -1,5 +1,5 @@
 import { sendMessage, validateMessage } from "../utils/messenger";
-import { PermissionType } from "weavemask";
+import { PermissionType } from "../utils/permissions";
 import { CreateTransactionInterface } from "arweave/web/common";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 
@@ -159,5 +159,15 @@ window.addEventListener("message", (e) => {
 
 window.weavemask = WeaveMaskAPI;
 dispatchEvent(new CustomEvent("weaveMaskLoaded", { detail: {} }));
+
+declare global {
+  interface Window {
+    weavemask: typeof WeaveMaskAPI;
+  }
+  interface WindowEventMap {
+    walletSwitch: CustomEvent<{ address: string }>;
+    weaveMaskLoaded: CustomEvent<{}>;
+  }
+}
 
 export {};

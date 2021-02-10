@@ -5,7 +5,10 @@ import { RootState } from "../../stores/reducers";
 import { sendMessage, MessageType } from "../../utils/messenger";
 import { setPermissions } from "../../stores/actions";
 import { getRealURL } from "../../utils/url";
-import { PermissionType, PermissionDescriptions } from "weavemask";
+import {
+  PermissionType,
+  PermissionDescriptions
+} from "../../utils/permissions";
 import { JWKInterface } from "arweave/web/lib/wallet";
 import Arweave from "arweave";
 import { CreateTransactionInterface } from "arweave/web/common";

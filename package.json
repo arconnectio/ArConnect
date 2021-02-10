@@ -24,8 +24,7 @@
     "redux": "^4.0.5",
     "smartweave": "^0.4.25",
     "use-color-scheme": "^1.1.1",
-    "weaveid": "^1.0.26",
-    "weavemask": "^0.0.8"
+    "weaveid": "^1.0.26"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.129",

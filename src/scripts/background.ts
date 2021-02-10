@@ -6,7 +6,7 @@ import {
   validateMessage
 } from "../utils/messenger";
 import { getRealURL } from "../utils/url";
-import { PermissionType } from "weavemask";
+import { PermissionType } from "../utils/permissions";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(() => {
