@@ -119,6 +119,7 @@ const WeaveMaskAPI = {
       window.addEventListener("message", callback);
       document.body.appendChild(transactionOverlay);
 
+      // @ts-ignore
       function callback(e: MessageEvent<any>) {
         if (
           !validateMessage(e.data, {
