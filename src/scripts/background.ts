@@ -251,7 +251,6 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
         // create and sign a transaction at the same time
         case "sign_transaction":
-          console.log(message);
           if (!checkPermissions(["SIGN_TRANSACTION"], tabURL))
             return sendPermissionError(sendResponse, "sign_transaction_result");
           if (!message.transaction)
