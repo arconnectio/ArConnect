@@ -6,11 +6,11 @@ import { useColorScheme } from "use-color-scheme";
 
 const lightTheme = {
   palette: {
-    success: "#c12127",
-    successLight: "#ff0000",
-    successDark: "#d30b0b",
-    link: "#c12127",
-    selection: "#c12127"
+    success: "#AB9DF2",
+    successLight: "#c8bff2",
+    successDark: "#7f6aeb",
+    link: "#AB9DF2",
+    selection: "#AB9DF2"
   }
 };
 const darkTheme = {
