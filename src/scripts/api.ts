@@ -1,6 +1,5 @@
 import { sendMessage, validateMessage } from "../utils/messenger";
 import { PermissionType } from "../utils/permissions";
-import { CreateTransactionInterface } from "arweave/web/common";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import Transaction from "arweave/web/lib/transaction";
 import Arweave from "arweave";
