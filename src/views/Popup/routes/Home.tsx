@@ -196,7 +196,7 @@ export default function Home() {
                   </div>
                   <div>
                     <h1>
-                      {pst.balance} {pst.ticker}
+                      {pst.balance.toLocaleString()} {pst.ticker}
                     </h1>
                     <h2>
                       {pst.balance *

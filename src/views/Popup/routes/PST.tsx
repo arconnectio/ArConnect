@@ -176,7 +176,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
           <TrashcanIcon />
         </button>
         <h1 className={styles.Balance}>
-          {balance} <span>{ticker}</span>
+          {balance.toLocaleString()} <span>{ticker}</span>
         </h1>
         <h2 className={styles.BalanceInAR}>{balance * arPrice} AR</h2>
         <Tabs {...tabs.bindings} className={styles.Tabs}>
