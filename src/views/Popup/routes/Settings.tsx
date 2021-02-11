@@ -5,7 +5,7 @@ import {
   ChevronRightIcon,
   XIcon
 } from "@primer/octicons-react";
-import { Button, Input, useInput } from "@geist-ui/react";
+import { Button, Input, Spacer, useInput } from "@geist-ui/react";
 import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
@@ -14,7 +14,8 @@ import {
   readdAsset,
   removePermissions,
   unblockURL,
-  blockURL
+  blockURL,
+  updateArweaveConfig
 } from "../../../stores/actions";
 import Home from "./Home";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
@@ -22,7 +23,7 @@ import styles from "../../../styles/views/Popup/settings.module.sass";
 
 export default function Settings() {
   const [setting, setCurrSetting] = useState<
-      "events" | "permissions" | "psts" | "sites"
+      "events" | "permissions" | "psts" | "sites" | "arweave"
     >(),
     permissions = useSelector((state: RootState) => state.permissions),
     [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
@@ -31,7 +32,11 @@ export default function Settings() {
     currentAddress = useSelector((state: RootState) => state.profile),
     blockedURLs = useSelector((state: RootState) => state.blockedSites),
     addURLInput = useInput(""),
-    [events, setEvents] = useState<{ event: string; url: string }[]>([]);
+    [events, setEvents] = useState<{ event: string; url: string }[]>([]),
+    arweaveConfig = useSelector((state: RootState) => state.arweave),
+    arweaveHostInput = useInput(arweaveConfig.host),
+    arweavePortInput = useInput(arweaveConfig.port.toString()),
+    arweaveProtocolInput = useInput(arweaveConfig.protocol);
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
@@ -77,6 +82,23 @@ export default function Settings() {
     setEvents(JSON.parse(evs).val);
   }
 
+  function updateConfig() {
+    if (
+      arweaveProtocolInput.state === "" ||
+      arweavePortInput.state === "" ||
+      arweaveHostInput.state === ""
+    )
+      return;
+    dispatch(
+      updateArweaveConfig({
+        host: arweaveHostInput.state,
+        port: Number(arweavePortInput.state),
+        protocol: arweaveProtocolInput.state as "http" | "https"
+      })
+    );
+    setCurrSetting(undefined);
+  }
+
   return (
     <>
       <div className={SubPageTopStyles.Head}>
@@ -94,6 +116,7 @@ export default function Settings() {
             (setting === "permissions" && "Permissions") ||
             (setting === "psts" && "Removed PSTs") ||
             (setting === "sites" && "Blocked sites") ||
+            (setting === "arweave" && "Arweave config") ||
             "Settings"}
         </h1>
       </div>
@@ -143,6 +166,18 @@ export default function Settings() {
               <div>
                 <h1>Blocked sites</h1>
                 <p>Limit access from sites to WeaveMask</p>
+              </div>
+              <div className={styles.Arrow}>
+                <ChevronRightIcon />
+              </div>
+            </div>
+            <div
+              className={styles.Setting}
+              onClick={() => setCurrSetting("arweave")}
+            >
+              <div>
+                <h1>Arweave config</h1>
+                <p>Edit the arweave config variables</p>
               </div>
               <div className={styles.Arrow}>
                 <ChevronRightIcon />
@@ -242,7 +277,8 @@ export default function Settings() {
                 </Button>
               </div>
             </>
-          )) || (
+          )) ||
+          (setting === "events" && (
             <>
               {events.length > 0 && (
                 <div
@@ -269,7 +305,37 @@ export default function Settings() {
                   </div>
                 ))) || <p>No events</p>}
             </>
-          )}
+          )) ||
+          (setting === "arweave" && (
+            <div className={styles.OptionContent}>
+              <Spacer />
+              <Input
+                {...arweaveHostInput.bindings}
+                placeholder="Host..."
+                status={arweaveHostInput.state === "" ? "error" : "default"}
+              />
+              <Spacer />
+              <Input
+                {...arweavePortInput.bindings}
+                placeholder="Port..."
+                type="number"
+                status={arweavePortInput.state === "" ? "error" : "default"}
+              />
+              <Spacer />
+              <Input
+                {...arweaveProtocolInput.bindings}
+                placeholder="Protocol..."
+                status={arweaveProtocolInput.state === "" ? "error" : "default"}
+              />
+              <Spacer />
+              <Button
+                style={{ width: "100%", marginTop: ".5em" }}
+                onClick={updateConfig}
+              >
+                Set config
+              </Button>
+            </div>
+          ))}
       </div>
     </>
   );

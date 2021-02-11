@@ -13,11 +13,8 @@ export default function Send() {
   const targetInput = useInput(""),
     amountInput = useInput("0"),
     messageInput = useInput(""),
-    arweave = new Arweave({
-      host: "arweave.net",
-      port: 443,
-      protocol: "https"
-    }),
+    arweaveConfig = useSelector((state: RootState) => state.arweave),
+    arweave = new Arweave(arweaveConfig),
     [fee, setFee] = useState("0"),
     profile = useSelector((state: RootState) => state.profile),
     [balance, setBalance] = useState("0"),

@@ -5,13 +5,15 @@ import profile from "./reducers/profile";
 import assets from "./reducers/assets";
 import permissions from "./reducers/permissions";
 import blockedSites from "./reducers/blocked_sites";
+import arweave from "./reducers/arweave";
 
 export const plainReducers = {
   wallets,
   profile,
   assets,
   permissions,
-  blockedSites
+  blockedSites,
+  arweave
 };
 const reducers = combineReducers(plainReducers);
 

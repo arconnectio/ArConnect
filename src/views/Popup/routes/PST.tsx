@@ -55,6 +55,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
     [description, setDescription] = useState(""),
     [links, setLinks] = useState<string[]>([]),
     [loadingData, setLoadingData] = useState(false),
+    arweaveConfig = useSelector((state: RootState) => state.arweave),
     wallets = useSelector((state: RootState) => state.wallets);
 
   useEffect(() => {
@@ -124,11 +125,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
 
     if (keyfile) {
       try {
-        const arweave = new Arweave({
-          host: "arweave.net",
-          port: 443,
-          protocol: "https"
-        });
+        const arweave = new Arweave(arweaveConfig);
         await interactWrite(
           // @ts-ignore
           arweave,

@@ -2,9 +2,10 @@ import { Asset, IAssetsAction } from "./reducers/assets";
 import { IPermissionsAction } from "./reducers/permissions";
 import { IProfileAction } from "./reducers/profile";
 import { IWalletsAction, Wallet } from "./reducers/wallets";
+import { IBlockedAction } from "./reducers/blocked_sites";
+import { IArweaveAction, IArweave } from "./reducers/arweave";
 
 import { PermissionType } from "../utils/permissions";
-import { IBlockedAction } from "./reducers/blocked_sites";
 
 export function addWallet(wallet: Wallet): IWalletsAction {
   return {
@@ -93,6 +94,19 @@ export function unblockURL(url: string): IBlockedAction {
   return {
     type: "REMOVE_SITE",
     payload: url
+  };
+}
+
+export function updateArweaveConfig(config: IArweave): IArweaveAction {
+  return {
+    type: "SET_ARWEAVE_CONFIG",
+    payload: config
+  };
+}
+
+export function resetArweaveConfig(): IArweaveAction {
+  return {
+    type: "RESET_ARWEAVE_CONFIG"
   };
 }
 

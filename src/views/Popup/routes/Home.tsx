@@ -30,11 +30,8 @@ import styles from "../../../styles/views/Popup/home.module.sass";
 export default function Home() {
   const [balance, setBalance] = useState<string>(),
     [usdBalance, setUsdBalance] = useState<string>(),
-    arweave = new Arweave({
-      host: "arweave.net",
-      port: 443,
-      protocol: "https"
-    }),
+    arweaveConfig = useSelector((state: RootState) => state.arweave),
+    arweave = new Arweave(arweaveConfig),
     profile = useSelector((state: RootState) => state.profile),
     psts = useSelector((state: RootState) => state.assets).find(
       ({ address }) => address === profile
