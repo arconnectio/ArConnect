@@ -3,6 +3,7 @@ export interface Asset {
   ticker: string;
   name: string;
   balance: number;
+  arBalance: number;
   logo?: string;
   removed: boolean;
 }

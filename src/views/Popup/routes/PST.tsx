@@ -178,7 +178,9 @@ export default function PST({ id, name, balance, ticker }: Asset) {
         <h1 className={styles.Balance}>
           {balance.toLocaleString()} <span>{ticker}</span>
         </h1>
-        <h2 className={styles.BalanceInAR}>{balance * arPrice} AR</h2>
+        <h2 className={styles.BalanceInAR}>
+          {arPrice === 0 ? "??" : balance * arPrice} AR
+        </h2>
         <Tabs {...tabs.bindings} className={styles.Tabs}>
           <Tabs.Item
             label={

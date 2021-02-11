@@ -10,6 +10,8 @@ import {
 import { Tabs, Tooltip, useTheme } from "@geist-ui/react";
 import { setAssets } from "../../../stores/actions";
 import { goTo } from "react-chrome-extension-router";
+import { Asset } from "../../../stores/reducers/assets";
+import { useColorScheme } from "use-color-scheme";
 import axios from "axios";
 import PST from "./PST";
 import WalletManager from "../../../components/WalletManager";
@@ -19,7 +21,6 @@ import limestone from "@limestonefi/api";
 import arweaveLogo from "../../../assets/arweave.png";
 import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
-import { useColorScheme } from "use-color-scheme";
 import styles from "../../../styles/views/Popup/home.module.sass";
 
 export default function Home() {
@@ -46,7 +47,6 @@ export default function Home() {
     [arPrice, setArPrice] = useState(1),
     theme = useTheme(),
     dispatch = useDispatch(),
-    [pstPrices, setPstPrices] = useState<{ id: string; price: number }[]>([]),
     { scheme } = useColorScheme();
 
   useEffect(() => {
@@ -55,11 +55,6 @@ export default function Home() {
     loadTransactions();
     // eslint-disable-next-line
   }, [profile]);
-
-  useEffect(() => {
-    loadPSTPrices();
-    // eslint-disable-next-line
-  }, [psts]);
 
   async function loadBalance() {
     try {
@@ -85,21 +80,23 @@ export default function Home() {
           }: {
             state: { balances: Record<string, number> };
           }) => balances[profile]
-        );
-
-      dispatch(
-        setAssets(
-          profile,
-          pstsWithBalance.map((pst: any) => ({
+        ),
+        verto = new Verto(),
+        pstsLoaded: Asset[] = await Promise.all(
+          pstsWithBalance.map(async (pst: any) => ({
             id: pst.id,
             name: pst.state.name,
             ticker: pst.state.ticker,
             logo: pst.state.settings.communityLogo,
             balance: pst.state.balances[profile] ?? 0,
+            arBalance:
+              ((await verto.latestPrice(pst.id)) ?? 0) *
+              (pst.state.balances[profile] ?? 0),
             removed: psts?.find(({ id }) => id === pst.id)?.removed ?? false
           }))
-        )
-      );
+        );
+
+      dispatch(setAssets(profile, pstsLoaded));
     } catch {}
   }
 
@@ -115,22 +112,6 @@ export default function Home() {
     val = String(val);
     if (val.split(".")[0].length >= 10) return val.split(".")[0];
     return val.slice(0, 10);
-  }
-
-  async function loadPSTPrices() {
-    if (!psts) return;
-    const verto = new Verto();
-
-    for (const pst of psts) {
-      try {
-        const price = (await verto.latestPrice(pst.id)) ?? 0;
-
-        setPstPrices((val) => [
-          ...val.filter(({ id }) => id === pst.id),
-          { id: pst.id, price }
-        ]);
-      } catch {}
-    }
   }
 
   function logo(id: string) {
@@ -199,9 +180,9 @@ export default function Home() {
                       {pst.balance.toLocaleString()} {pst.ticker}
                     </h1>
                     <h2>
-                      {pst.balance *
-                        (pstPrices.find(({ id }) => id === pst.id)?.price ??
-                          0)}{" "}
+                      {pst.balance !== 0 && pst.arBalance === 0
+                        ? "??"
+                        : pst.arBalance.toLocaleString()}{" "}
                       AR
                     </h2>
                   </div>
