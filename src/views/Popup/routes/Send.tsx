@@ -33,7 +33,7 @@ export default function Send() {
   useEffect(() => {
     calculateFee();
     // eslint-disable-next-line
-  }, [targetInput.state, messageInput.state]);
+  }, [targetInput.state, messageInput.state, profile]);
 
   async function loadBalance() {
     try {
