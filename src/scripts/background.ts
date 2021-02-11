@@ -147,7 +147,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               !validateMessage(msg, { sender: "popup", type: "connect_result" })
             )
               return;
-            sendMessage(msg, undefined, sendResponse);
+            return sendMessage(msg, undefined, sendResponse);
           });
 
           break;
@@ -280,7 +280,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               })
             )
               return;
-            sendMessage(msg, undefined, sendResponse);
+            return sendMessage(msg, undefined, sendResponse);
           });
 
           break;
@@ -333,8 +333,10 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         }
       );
 
-      return true;
+      break;
   }
+
+  return true;
 });
 
 // create an authenticator popup

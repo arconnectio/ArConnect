@@ -58,40 +58,23 @@ function override(config, env) {
     popupHtmlPlugin
   );
 
-  const welcomeHtmlPlugin = new HtmlWebpackPlugin({
-    inject: true,
-    chunks: ["welcome"],
-    template: paths.appPublic + "/welcome.html",
-    filename: "welcome.html",
-    minify: isEnvProduction && minifyOpts
-  });
-
-  newConfig.plugins.push(welcomeHtmlPlugin);
-
-  const authHtmlPlugin = new HtmlWebpackPlugin({
-    inject: true,
-    chunks: ["auth"],
-    template: paths.appPublic + "/auth.html",
-    filename: "auth.html",
-    minify: isEnvProduction && minifyOpts
-  });
-
-  newConfig.plugins.push(authHtmlPlugin);
+  newConfig.plugins.push(
+    generateHTMLEntry("welcome", isEnvProduction && minifyOpts),
+    generateHTMLEntry("auth", isEnvProduction && minifyOpts)
+  );
 
   const manifestPlugin = new ManifestPlugin({
-    fileName: "asset-manifest.json"
-  });
+      fileName: "asset-manifest.json"
+    }),
+    miniCssExtractPlugin = new MiniCssExtractPlugin({
+      filename: "static/css/[name].css"
+    });
 
   newConfig.plugins = replacePlugin(
     newConfig.plugins,
     (name) => /ManifestPlugin/i.test(name),
     manifestPlugin
   );
-
-  const miniCssExtractPlugin = new MiniCssExtractPlugin({
-    filename: "static/css/[name].css"
-  });
-
   newConfig.plugins = replacePlugin(
     newConfig.plugins,
     (name) => /MiniCssExtractPlugin/i.test(name),
@@ -118,4 +101,14 @@ function replacePlugin(plugins, nameMatcher, newPlugin) {
         .concat(newPlugin || [])
         .concat(plugins.slice(i + 1))
     : plugins;
+}
+
+function generateHTMLEntry(name, minify) {
+  return new HtmlWebpackPlugin({
+    inject: true,
+    chunks: [name],
+    template: paths.appPublic + `/${name}.html`,
+    filename: `${name}.html`,
+    minify
+  });
 }

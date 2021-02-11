@@ -19,9 +19,9 @@ function createOverlay(text: string) {
 }
 
 const WeaveMaskAPI = {
-  connect(permissions: PermissionType[]): Promise<boolean> {
+  connect(permissions: PermissionType[]): Promise<void> {
     const requestPermissionOverlay = createOverlay(
-      "This page is requesting permission to connect to WeaveMask...<br />Please review them in the popup."
+      "This page is requesting permission to connect to your wallet...<br />Please review them in the popup."
     );
 
     return new Promise((resolve, reject) => {
@@ -40,7 +40,7 @@ const WeaveMaskAPI = {
         window.removeEventListener("message", callback);
         document.body.removeChild(requestPermissionOverlay);
 
-        if (e.data.res) resolve(true);
+        if (e.data.res) resolve();
         else reject(e.data.message);
       }
     });
@@ -162,7 +162,13 @@ const WeaveMaskAPI = {
 
 // listen to wallet switch event and dispatch it
 window.addEventListener("message", (e) => {
-  if (e.data.type !== "switch_wallet_event_forward" || !e.data.address) return;
+  if (
+    !e.data ||
+    !e.data.type ||
+    e.data.type !== "switch_wallet_event_forward" ||
+    !e.data.address
+  )
+    return;
   dispatchEvent(
     new CustomEvent("walletSwitch", { detail: { address: e.data.address } })
   );

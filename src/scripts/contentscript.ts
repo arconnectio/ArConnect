@@ -46,7 +46,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   )
     return;
 
-  sendMessage(message, undefined, undefined, false);
+  return sendMessage(message, undefined, undefined, false);
 });
 
 export {};
