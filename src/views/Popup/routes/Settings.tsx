@@ -9,6 +9,7 @@ import { Button, Input, useInput } from "@geist-ui/react";
 import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
+import { getRealURL } from "../../../utils/url";
 import {
   readdAsset,
   removePermissions,
@@ -165,9 +166,9 @@ export default function Settings() {
                         )) || <ChevronRightIcon />}
                       </div>
                     </div>
-                    <div className={styles.OptionContent}>
-                      {isOpened(permissionGroup.url) &&
-                        permissionGroup.permissions.map((perm, j) => (
+                    {isOpened(permissionGroup.url) && (
+                      <div className={styles.OptionContent}>
+                        {permissionGroup.permissions.map((perm, j) => (
                           <h1 key={j}>
                             {perm}
                             <div
@@ -182,7 +183,8 @@ export default function Settings() {
                             </div>
                           </h1>
                         ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 ))) || <p>No permissions...</p>}
             </>
@@ -263,7 +265,7 @@ export default function Settings() {
                     key={i}
                   >
                     <h1>{event.event}</h1>
-                    <p>{event.url}</p>
+                    <p>{getRealURL(event.url)}</p>
                   </div>
                 ))) || <p>No events</p>}
             </>
