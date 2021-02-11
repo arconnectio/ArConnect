@@ -1,0 +1,22 @@
+@use "../../variables"
+
+.View
+  background-color: variables.$lighter-bg-light
+  padding: .65em .7em
+
+  @media (prefers-color-scheme: dark)
+    background-color: variables.$lighter-bg-dark
+
+  div[class~=with-label]
+    width: 100%
+
+    div
+      width: 100%
+
+  .Amount
+    display: flex
+    align-items: stretch
+    justify-content: space-between
+
+    div[class~=with-label]
+      width: 85%

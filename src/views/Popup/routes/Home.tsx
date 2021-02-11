@@ -18,6 +18,7 @@ import { useColorScheme } from "use-color-scheme";
 import axios from "axios";
 import PST from "./PST";
 import WalletManager from "../../../components/WalletManager";
+import Send from "./Send";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
 import limestone from "@limestonefi/api";
@@ -155,7 +156,7 @@ export default function Home() {
           </Tooltip>
         </h2>
         <div className={styles.Menu}>
-          <div className={styles.Item}>
+          <div className={styles.Item} onClick={() => goTo(Send)}>
             <ArrowSwitchIcon size={24} />
             <span>Send</span>
           </div>
