@@ -111,9 +111,14 @@ export default function Home() {
     } catch {}
   }
 
-  function formatBalance(val: number | string) {
+  function formatBalance(val: number | string, small = false) {
     val = String(val);
-    if (val.split(".")[0].length >= 10) return val.split(".")[0];
+    const full = val.split(".")[0];
+    if (full.length >= 10) return full;
+    if (small) {
+      if (full.length >= 5) return full;
+      else return val.slice(0, 5);
+    }
     return val.slice(0, 10);
   }
 
@@ -254,11 +259,11 @@ export default function Home() {
                 <div className={styles.Cost}>
                   <h1>
                     {tx.amount !== 0 && (tx.type === "in" ? "+" : "-")}
-                    {formatBalance(tx.amount)} AR
+                    {formatBalance(tx.amount, true)} AR
                   </h1>
                   <h2>
                     {tx.amount !== 0 && (tx.type === "in" ? "+" : "-")}
-                    {formatBalance(tx.amount * arPrice)} USD
+                    {formatBalance(tx.amount * arPrice, true)} USD
                   </h2>
                 </div>
               </div>
