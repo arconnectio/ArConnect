@@ -38,7 +38,8 @@ export default function WalletManager() {
     >([]),
     { scheme } = useColorScheme(),
     [copyStatus, setCopyStatus] = useState(false),
-    logoutModal = useModal(false);
+    logoutModal = useModal(false),
+    [showSwitch, setShowSwitch] = useState(false);
 
   useEffect(() => {
     adjustSizes();
@@ -95,122 +96,138 @@ export default function WalletManager() {
       address,
       sender: "popup"
     });
+    setShowSwitch(true);
+    setTimeout(() => setShowSwitch(false), 1700);
   }
 
   return (
-    <div className={styles.CurrentWallet}>
-      <h1 onClick={() => setOpen(!open)}>{currentWalletName()}</h1>
-      <Tooltip
-        text={
-          <>
-            <p style={{ textAlign: "center", margin: "0 0 .35em" }}>
-              Click to copy address
-            </p>
-            <QRCode
-              className={styles.QRCode}
-              value={profile}
-              bgColor={scheme === "dark" ? "#000000" : "#ffffff"}
-              fgColor={scheme === "dark" ? "#ffffff" : "#000000"}
-            />
-          </>
-        }
-        placement="bottom"
-        style={{ width: "100%" }}
-      >
-        <p onClick={copyAddress} className={copyStatus ? styles.Copied : ""}>
-          {profile}
-        </p>
-      </Tooltip>
-      <div
-        className={styles.Icon + " " + (open ? styles.Open : "")}
-        onClick={() => setOpen(!open)}
-      >
-        <ChevronDownIcon />
+    <>
+      <div className={styles.CurrentWallet}>
+        <h1 onClick={() => setOpen(!open)}>{currentWalletName()}</h1>
+        <Tooltip
+          text={
+            <>
+              <p style={{ textAlign: "center", margin: "0 0 .35em" }}>
+                Click to copy address
+              </p>
+              <QRCode
+                className={styles.QRCode}
+                value={profile}
+                bgColor={scheme === "dark" ? "#000000" : "#ffffff"}
+                fgColor={scheme === "dark" ? "#ffffff" : "#000000"}
+              />
+            </>
+          }
+          placement="bottom"
+          style={{ width: "100%" }}
+        >
+          <p onClick={copyAddress} className={copyStatus ? styles.Copied : ""}>
+            {profile}
+          </p>
+        </Tooltip>
+        <div
+          className={styles.Icon + " " + (open ? styles.Open : "")}
+          onClick={() => setOpen(!open)}
+        >
+          <ChevronDownIcon />
+        </div>
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              className={styles.Wallets}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              {wallets.map((wallet, i) => (
+                <div className={styles.Wallet} key={i}>
+                  <div
+                    className={styles.Info}
+                    onClick={() => switchWallet(wallet.address)}
+                  >
+                    <input
+                      type="text"
+                      value={wallet.name}
+                      title="Type to change wallet name"
+                      onChange={(e) => {
+                        dispatch(renameWallet(wallet.address, e.target.value));
+                        adjustSizes();
+                      }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      style={{ width: widthForAddress(wallet.address) }}
+                    />
+                    <p>{wallet.address}</p>
+                  </div>
+                  <div
+                    className={styles.Remove}
+                    onClick={() => deleteWallet(wallet.address)}
+                  >
+                    <TrashcanIcon />
+                  </div>
+                </div>
+              ))}
+              <div className={styles.Wallet + " " + styles.Options}>
+                <Tooltip text="Add wallet">
+                  <div
+                    className={styles.Action}
+                    onClick={() =>
+                      window.open(chrome.runtime.getURL("/welcome.html"))
+                    }
+                  >
+                    <PlusIcon />
+                  </div>
+                </Tooltip>
+                <Tooltip text="Settings">
+                  <div className={styles.Action} onClick={() => goTo(Settings)}>
+                    <GearIcon />
+                  </div>
+                </Tooltip>
+                <Tooltip text="Log out">
+                  <div
+                    className={styles.Action}
+                    onClick={() => logoutModal.setVisible(true)}
+                  >
+                    <SignOutIcon />
+                  </div>
+                </Tooltip>
+              </div>
+            </motion.div>
+          )}
+          <Modal {...logoutModal.bindings}>
+            <Modal.Title>Sign Out</Modal.Title>
+            <Modal.Content>
+              Do you really want to sign out from all wallets? <br />
+              Make sure you have your keyfiles / seedphrases locally!
+            </Modal.Content>
+            <Modal.Action passive onClick={() => logoutModal.setVisible(false)}>
+              Cancel
+            </Modal.Action>
+            <Modal.Action
+              onClick={() => {
+                dispatch(signOut());
+                logoutModal.setVisible(false);
+              }}
+            >
+              Ok
+            </Modal.Action>
+          </Modal>
+        </AnimatePresence>
       </div>
       <AnimatePresence>
-        {open && (
+        {showSwitch && (
           <motion.div
-            className={styles.Wallets}
+            className={styles.SwitchIndicator}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {wallets.map((wallet, i) => (
-              <div className={styles.Wallet} key={i}>
-                <div
-                  className={styles.Info}
-                  onClick={() => switchWallet(wallet.address)}
-                >
-                  <input
-                    type="text"
-                    value={wallet.name}
-                    title="Type to change wallet name"
-                    onChange={(e) => {
-                      dispatch(renameWallet(wallet.address, e.target.value));
-                      adjustSizes();
-                    }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    style={{ width: widthForAddress(wallet.address) }}
-                  />
-                  <p>{wallet.address}</p>
-                </div>
-                <div
-                  className={styles.Remove}
-                  onClick={() => deleteWallet(wallet.address)}
-                >
-                  <TrashcanIcon />
-                </div>
-              </div>
-            ))}
-            <div className={styles.Wallet + " " + styles.Options}>
-              <Tooltip text="Add wallet">
-                <div
-                  className={styles.Action}
-                  onClick={() =>
-                    window.open(chrome.runtime.getURL("/welcome.html"))
-                  }
-                >
-                  <PlusIcon />
-                </div>
-              </Tooltip>
-              <Tooltip text="Settings">
-                <div className={styles.Action} onClick={() => goTo(Settings)}>
-                  <GearIcon />
-                </div>
-              </Tooltip>
-              <Tooltip text="Log out">
-                <div
-                  className={styles.Action}
-                  onClick={() => logoutModal.setVisible(true)}
-                >
-                  <SignOutIcon />
-                </div>
-              </Tooltip>
-            </div>
+            Switched wallet
           </motion.div>
         )}
-        <Modal {...logoutModal.bindings}>
-          <Modal.Title>Sign Out</Modal.Title>
-          <Modal.Content>
-            Do you really want to sign out from all wallets? <br />
-            Make sure you have your keyfiles / seedphrases locally!
-          </Modal.Content>
-          <Modal.Action passive onClick={() => logoutModal.setVisible(false)}>
-            Cancel
-          </Modal.Action>
-          <Modal.Action
-            onClick={() => {
-              dispatch(signOut());
-              logoutModal.setVisible(false);
-            }}
-          >
-            Ok
-          </Modal.Action>
-        </Modal>
       </AnimatePresence>
-    </div>
+    </>
   );
 }
