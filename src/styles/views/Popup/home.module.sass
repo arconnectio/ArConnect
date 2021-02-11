@@ -10,7 +10,7 @@ $sidePaddingTransactions: .7em
 
 .Balance
   text-align: center
-  padding: 3em 0 3.25em
+  padding: 3em 0 1.84em
 
   h1, h2
     margin: 0
@@ -37,6 +37,42 @@ $sidePaddingTransactions: .7em
 
     @media (prefers-color-scheme: dark)
       color: variables.$secondary-text-dark
+
+  .Menu
+    display: flex
+    align-items: center
+    justify-content: center
+    margin:
+      top: 2.5em
+      bottom: .25em
+
+    .Item
+      color: variables.$secondary-text-light
+      text-align: center
+      cursor: pointer
+      font-size: .9em
+      margin: 0 .95em
+      transition: all .23s ease-in-out
+
+      &:hover
+        color: #000
+
+      @media (prefers-color-scheme: dark)
+        color: variables.$secondary-text-dark
+
+        &:hover
+          color: #fff
+
+      svg
+        font-size: 1.4em
+        font-weight: 600
+        width: 1.4em
+        height: 1.4em
+        display: block
+
+      span
+        display: block
+        font-size: .8em
 
 .Tabs
   header

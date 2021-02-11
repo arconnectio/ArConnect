@@ -5,7 +5,10 @@ import {
   QuestionIcon,
   SignOutIcon,
   SignInIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  ArrowSwitchIcon,
+  ArchiveIcon,
+  KebabHorizontalIcon
 } from "@primer/octicons-react";
 import { Tabs, Tooltip, useTheme } from "@geist-ui/react";
 import { setAssets } from "../../../stores/actions";
@@ -146,6 +149,20 @@ export default function Home() {
             <QuestionIcon size={24} />
           </Tooltip>
         </h2>
+        <div className={styles.Menu}>
+          <div className={styles.Item}>
+            <ArrowSwitchIcon size={24} />
+            <span>Send</span>
+          </div>
+          <div className={styles.Item}>
+            <ArchiveIcon size={24} />
+            <span>Archive page</span>
+          </div>
+          <div className={styles.Item}>
+            <KebabHorizontalIcon size={24} />
+            <span>More</span>
+          </div>
+        </div>
       </div>
       <Tabs initialValue="1" className={styles.Tabs}>
         <Tabs.Item label="PSTs" value="1">
