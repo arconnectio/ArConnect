@@ -18,7 +18,7 @@ function createOverlay(text: string) {
   return container;
 }
 
-const WeaveMaskAPI = {
+const WalletAPI = {
   connect(permissions: PermissionType[]): Promise<void> {
     const requestPermissionOverlay = createOverlay(
       "This page is requesting permission to connect to your wallet...<br />Please review them in the popup."
@@ -174,12 +174,12 @@ window.addEventListener("message", (e) => {
   );
 });
 
-window.weavemask = WeaveMaskAPI;
+window.arweaveWallet = WalletAPI;
 dispatchEvent(new CustomEvent("weaveMaskLoaded", { detail: {} }));
 
 declare global {
   interface Window {
-    weavemask: typeof WeaveMaskAPI;
+    arweaveWallet: typeof WalletAPI;
   }
   interface WindowEventMap {
     walletSwitch: CustomEvent<{ address: string }>;
