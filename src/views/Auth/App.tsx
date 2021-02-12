@@ -33,11 +33,7 @@ export default function App() {
     [type, setType] = useState<AuthType>(),
     dispatch = useDispatch(),
     [alreadyHasPermissions, setAlreadyHasPermissions] = useState(false),
-    profile = useSelector((state: RootState) => state.profile),
-    [signingOptions, setSigningOptions] = useState<
-      SignatureOptions | undefined
-    >(),
-    [transaction, setTransaction] = useState<Partial<RawTransaction>>();
+    profile = useSelector((state: RootState) => state.profile);
 
   useEffect(() => {
     // get the auth param from the url
@@ -61,8 +57,6 @@ export default function App() {
       permissions?: PermissionType[];
       type?: AuthType;
       url?: string;
-      signingOptions?: SignatureOptions;
-      transaction?: RawTransaction;
     } = JSON.parse(decodeURIComponent(authVal));
 
     // if the type does not exist, this is an invalid call
@@ -106,16 +100,10 @@ export default function App() {
       }
 
       // create transaction event
-    } else if (
-      decodedAuthParam.type === "sign_transaction" &&
-      decodedAuthParam.transaction
-    ) {
+    } else if (decodedAuthParam.type === "sign_auth") {
       // check permissions
       if (!checkPermissions(["SIGN_TRANSACTION"], url))
         return sendPermissionError();
-
-      setSigningOptions(decodedAuthParam.signingOptions);
-      setTransaction(decodedAuthParam.transaction);
 
       // if non of the types matched, this is an invalid auth call
     } else {
@@ -156,13 +144,23 @@ export default function App() {
           setLoading(false);
           return;
         }
-        const decryptedKeyfile = cryptr.decrypt(keyfileToDecrypt);
+        cryptr.decrypt(keyfileToDecrypt);
         setLoggedIn(true);
 
         // any event that needs authentication, but not the connect event
         if (type !== "connect") {
           if (!currentURL) return urlError();
-          else handleNonPermissionAction(JSON.parse(decryptedKeyfile));
+          else {
+            sendMessage({
+              type: getReturnType(),
+              ext: "weavemask",
+              res: true,
+              message: "Success",
+              sender: "popup",
+              decryptionKey: passwordInput.state
+            });
+            window.close();
+          }
 
           // connect event
         } else {
@@ -191,7 +189,7 @@ export default function App() {
   // get the type that needs to be returned in the message
   function getReturnType(): MessageType {
     if (type === "connect") return "connect_result";
-    else if (type === "sign_transaction") return "sign_transaction_result";
+    else if (type === "sign_auth") return "sign_auth_result";
     //
     return "connect_result";
   }
@@ -233,6 +231,7 @@ export default function App() {
     return PermissionDescriptions[permission];
   }
 
+  /*
   // actions that are not connect
   async function handleNonPermissionAction(keyfile: JWKInterface) {
     if (!transaction) return signingError();
@@ -269,7 +268,7 @@ export default function App() {
 
     setLoading(false);
     window.close();
-  }
+  }*/
 
   // problem with permissions
   function sendPermissionError() {
@@ -317,8 +316,8 @@ export default function App() {
             </p>
           )) || (
             <p>
-              This site wants to create a transaction. Please enter your
-              password to continue.
+              This site wants to sign a transaction. Please enter your password
+              to continue.
             </p>
           )}
           <Input
@@ -382,14 +381,14 @@ export default function App() {
             }}
           >
             <Loading style={{ display: "block", margin: "0 auto" }} />
-            {type === "sign_transaction" && "Signing a transaction."}
+            {type === "sign_auth" && "Signing a transaction."}
           </p>
         )}
     </div>
   );
 }
 
-type AuthType = "connect" | "sign_transaction";
+type AuthType = "connect" | "sign_auth";
 interface RawTransaction {
   format: number;
   id: string;

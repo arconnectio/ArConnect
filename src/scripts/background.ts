@@ -7,6 +7,7 @@ import {
 } from "../utils/messenger";
 import { getRealURL } from "../utils/url";
 import { PermissionType } from "../utils/permissions";
+import { local } from "chrome-storage-promises";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(() => {
@@ -35,7 +36,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
   chrome.tabs.query(
     { active: true, currentWindow: true },
-    (currentTabArray) => {
+    async (currentTabArray) => {
       // check if there is a current tab (selected)
       // this will return false if the current tab
       // is an internal browser tab
@@ -266,22 +267,61 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               sendResponse
             );
 
-          createAuthPopup({
-            type: "sign_transaction",
-            url: tabURL,
-            transaction: message.transaction,
-            signingOptions: message.signatureOptions ?? undefined
-          });
-          chrome.runtime.onMessage.addListener((msg) => {
-            if (
-              !validateMessage(msg, {
-                sender: "popup",
-                type: "sign_transaction_result"
-              })
-            )
-              return;
-            return sendMessage(msg, undefined, sendResponse);
-          });
+          try {
+            const decryptionKeyRes: { [key: string]: any } =
+              typeof chrome !== "undefined"
+                ? await local.get("decryptionKey")
+                : await browser.storage.local.get("decryptionKey");
+            let decryptionKey = decryptionKeyRes?.["decryptionKey"];
+
+            const signTransaction = async () => {
+              console.log(decryptionKey);
+
+              sendMessage(
+                {
+                  type: "sign_transaction_result",
+                  ext: "weavemask",
+                  res: true,
+                  message: "Success",
+                  sender: "background"
+                },
+                undefined,
+                sendResponse
+              );
+            };
+
+            if (!decryptionKey) {
+              createAuthPopup({
+                type: "sign_auth",
+                url: tabURL
+              });
+              chrome.runtime.onMessage.addListener(async (msg) => {
+                if (
+                  !validateMessage(msg, {
+                    sender: "popup",
+                    type: "sign_auth_result"
+                  }) ||
+                  msg.decryptionKey
+                )
+                  return;
+
+                decryptionKey = msg.decryptionKey;
+                await signTransaction();
+              });
+            } else await signTransaction();
+          } catch {
+            sendMessage(
+              {
+                type: "sign_transaction_result",
+                ext: "weavemask",
+                res: false,
+                message: "Error decrypting keyfile",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          }
 
           break;
 

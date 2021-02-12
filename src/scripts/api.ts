@@ -91,10 +91,6 @@ const WalletAPI = {
     transaction: Transaction,
     options?: SignatureOptions
   ): Promise<Transaction> {
-    const transactionOverlay = createOverlay(
-      "This page is trying to sign a transaction with Arweave...<br />Please use the popup to log in and continue."
-    );
-
     return new Promise((resolve, reject) => {
       const arweave = new Arweave({
         host: "arweave.net",
@@ -115,7 +111,6 @@ const WalletAPI = {
         false
       );
       window.addEventListener("message", callback);
-      document.body.appendChild(transactionOverlay);
 
       // @ts-ignore
       function callback(e: MessageEvent<any>) {
@@ -126,7 +121,6 @@ const WalletAPI = {
         )
           return;
         window.removeEventListener("message", callback);
-        document.body.removeChild(transactionOverlay);
 
         if (e.data.res && e.data.transaction) {
           const decodeTransaction = arweave.transactions.fromRaw(
