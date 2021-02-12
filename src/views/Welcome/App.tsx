@@ -285,7 +285,7 @@ export default function App() {
         target="_blank"
         rel="noopener noreferrer"
       >
-        Th<span>8</span>ta
+        th<span>8</span>ta
       </a>
       <Modal {...loadWalletsModal.bindings}>
         <Modal.Title>Load wallet(s)</Modal.Title>
