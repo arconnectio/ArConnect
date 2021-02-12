@@ -4492,6 +4492,11 @@ chownr@^2.0.0:
   resolved "https://registry.yarnpkg.com/chownr/-/chownr-2.0.0.tgz#15bfbe53d2eab4cf70f18a8cd68ebe5b3cb1dece"
   integrity sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==
 
+chrome-storage-promises@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/chrome-storage-promises/-/chrome-storage-promises-1.0.1.tgz#05762b74292dd5daea83d65b826a6214af1e3d50"
+  integrity sha512-gWXb8bh7zWg+OtkSBXFQO7J6J43CunerAVpDh8c0Sg73AB7Y8h1wY6oxHW2VlaRwtasLfGDKksCnrxEzLrKNIA==
+
 chrome-trace-event@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/chrome-trace-event/-/chrome-trace-event-1.0.2.tgz#234090ee97c7d4ad1a2c4beae27505deffc608a4"
@@ -13110,6 +13115,11 @@ web-encoding@^1.0.2, web-encoding@^1.0.5, web-encoding@^1.0.6:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/web-encoding/-/web-encoding-1.0.6.tgz#ec631356ee523b4474ecbcae680440bd1e79416a"
   integrity sha512-26wEnRPEFAc5d5lmH1Q/DuvWEYsRF1D2alX2jlKpdmqv7cj+BbANL7Xlcl9r4s72Eg9kItZa9RWVbBMC9dMv4w==
+
+web-ext-types@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/web-ext-types/-/web-ext-types-3.2.1.tgz#3edc0e3c2e8fe121d7d7e4ca0b7ee0c883cea832"
+  integrity sha512-oQZYDU3W8X867h8Jmt3129kRVKklz70db40Y6OzoTTuzOJpF/dB2KULJUf0txVPyUUXuyzV8GmT3nVvRHoG+Ew==
 
 webidl-conversions@^5.0.0:
   version "5.0.0"
