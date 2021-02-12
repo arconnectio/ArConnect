@@ -8,6 +8,10 @@ import {
 import { getRealURL } from "../utils/url";
 import { PermissionType } from "../utils/permissions";
 import { local } from "chrome-storage-promises";
+import Cryptr from "cryptr";
+import { JWKInterface } from "arweave/node/lib/wallet";
+import Arweave from "arweave";
+import pkg from "../../package.json";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(() => {
@@ -275,7 +279,45 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             let decryptionKey = decryptionKeyRes?.["decryptionKey"];
 
             const signTransaction = async () => {
-              console.log(decryptionKey);
+              const storedKeyfile = localStorage.getItem("arweave_wallets"),
+                storedAddress = localStorage.getItem("arweave_profile");
+
+              if (!storedKeyfile || !storedAddress)
+                return sendMessage(
+                  {
+                    type: "sign_transaction_result",
+                    ext: "weavemask",
+                    res: false,
+                    message: "No wallets added to WeaveMask",
+                    sender: "background"
+                  },
+                  undefined,
+                  sendResponse
+                );
+
+              const keyfileToDecrypt = JSON.parse(storedKeyfile)?.val?.find(
+                  (item: any) => item.address === JSON.parse(storedAddress)?.val
+                )?.keyfile,
+                cryptr = new Cryptr(decryptionKey),
+                keyfile: JWKInterface = JSON.parse(
+                  cryptr.decrypt(keyfileToDecrypt)
+                ),
+                arweave = new Arweave({
+                  host: "arweave.net",
+                  port: 443,
+                  protocol: "https"
+                }),
+                decodeTransaction = arweave.transactions.fromRaw({
+                  ...message.transaction,
+                  owner: keyfile.n
+                });
+
+              decodeTransaction.addTag("App-Name", `WeaveMask ${pkg.version}`);
+              await arweave.transactions.sign(
+                decodeTransaction,
+                keyfile,
+                message.signatureOptions
+              );
 
               sendMessage(
                 {
@@ -283,6 +325,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                   ext: "weavemask",
                   res: true,
                   message: "Success",
+                  transaction: decodeTransaction,
                   sender: "background"
                 },
                 undefined,
@@ -301,7 +344,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                     sender: "popup",
                     type: "sign_auth_result"
                   }) ||
-                  msg.decryptionKey
+                  !msg.decryptionKey
                 )
                   return;
 
@@ -315,7 +358,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 type: "sign_transaction_result",
                 ext: "weavemask",
                 res: false,
-                message: "Error decrypting keyfile",
+                message: "Error signing transaction",
                 sender: "background"
               },
               undefined,

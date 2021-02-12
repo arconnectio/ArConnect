@@ -5,15 +5,11 @@ import { RootState } from "../../stores/reducers";
 import { sendMessage, MessageType } from "../../utils/messenger";
 import { setPermissions } from "../../stores/actions";
 import { getRealURL } from "../../utils/url";
+import { local } from "chrome-storage-promises";
 import {
   PermissionType,
   PermissionDescriptions
 } from "../../utils/permissions";
-import { JWKInterface } from "arweave/web/lib/wallet";
-import Arweave from "arweave";
-import { Tag } from "arweave/web/lib/transaction";
-import { SignatureOptions } from "arweave/node/lib/crypto/crypto-interface";
-import pkg from "../../../package.json";
 import Cryptr from "cryptr";
 import styles from "../../styles/views/Auth/view.module.sass";
 
@@ -145,6 +141,9 @@ export default function App() {
           return;
         }
         cryptr.decrypt(keyfileToDecrypt);
+        if (typeof chrome !== "undefined")
+          local.set({ decryptionKey: passwordInput.state });
+        else browser.storage.local.set({ decryptionKey: passwordInput.state });
         setLoggedIn(true);
 
         // any event that needs authentication, but not the connect event
@@ -231,45 +230,6 @@ export default function App() {
     return PermissionDescriptions[permission];
   }
 
-  /*
-  // actions that are not connect
-  async function handleNonPermissionAction(keyfile: JWKInterface) {
-    if (!transaction) return signingError();
-
-    const arweave = new Arweave({
-        host: "arweave.net",
-        port: 443,
-        protocol: "https"
-      }),
-      decodeTransaction = arweave.transactions.fromRaw({
-        ...transaction,
-        owner: keyfile.n
-      });
-
-    try {
-      decodeTransaction.addTag("App-Name", `WeaveMask ${pkg.version}`);
-      await arweave.transactions.sign(
-        decodeTransaction,
-        keyfile,
-        signingOptions
-      );
-
-      sendMessage({
-        type: getReturnType(),
-        ext: "weavemask",
-        res: true,
-        message: "Success",
-        sender: "popup",
-        transaction: decodeTransaction
-      });
-    } catch {
-      return signingError();
-    }
-
-    setLoading(false);
-    window.close();
-  }*/
-
   // problem with permissions
   function sendPermissionError() {
     sendMessage({
@@ -280,19 +240,6 @@ export default function App() {
         "The site does not have the required permissions for this action",
       sender: "popup"
     });
-  }
-
-  // problem with signing
-  function signingError() {
-    sendMessage({
-      type: getReturnType(),
-      ext: "weavemask",
-      res: false,
-      message: "Error while signing",
-      sender: "popup"
-    });
-    setLoading(false);
-    window.close();
   }
 
   function checkPermissions(permissionsToCheck: PermissionType[], url: string) {
@@ -389,18 +336,3 @@ export default function App() {
 }
 
 type AuthType = "connect" | "sign_auth";
-interface RawTransaction {
-  format: number;
-  id: string;
-  last_tx: string;
-  owner: string;
-  tags: Tag[];
-  target: string;
-  quantity: string;
-  data: string;
-  data_size: string;
-  data_root: string;
-  data_tree: any;
-  reward: string;
-  signature: string;
-}
