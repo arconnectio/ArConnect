@@ -12,6 +12,7 @@ import Cryptr from "cryptr";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import Arweave from "arweave";
 import pkg from "../../package.json";
+import axios from "axios";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(() => {
@@ -273,9 +274,21 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
           try {
             const decryptionKeyRes: { [key: string]: any } =
-              typeof chrome !== "undefined"
-                ? await local.get("decryptionKey")
-                : await browser.storage.local.get("decryptionKey");
+                typeof chrome !== "undefined"
+                  ? await local.get("decryptionKey")
+                  : await browser.storage.local.get("decryptionKey"),
+              price: number = (
+                await axios.get(
+                  `https://arweave.net/price/${
+                    message.transaction?.data?.length ?? 0
+                  }/${message.transaction.target ?? ""}`
+                )
+              ).data,
+              arweave = new Arweave({
+                host: "arweave.net",
+                port: 443,
+                protocol: "https"
+              });
             let decryptionKey = decryptionKeyRes?.["decryptionKey"];
 
             const signTransaction = async () => {
@@ -302,11 +315,6 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 keyfile: JWKInterface = JSON.parse(
                   cryptr.decrypt(keyfileToDecrypt)
                 ),
-                arweave = new Arweave({
-                  host: "arweave.net",
-                  port: 443,
-                  protocol: "https"
-                }),
                 decodeTransaction = arweave.transactions.fromRaw({
                   ...message.transaction,
                   owner: keyfile.n
@@ -333,7 +341,14 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               );
             };
 
-            if (!decryptionKey) {
+            // open popup if decryptionKey is undefined
+            // or if the price is more than 1 AR
+            if (
+              !decryptionKey ||
+              Number(arweave.ar.winstonToAr(price.toString())) +
+                Number(message.transaction.quantity ?? 0) >
+                1
+            ) {
               createAuthPopup({
                 type: "sign_auth",
                 url: tabURL
@@ -344,9 +359,10 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                     sender: "popup",
                     type: "sign_auth_result"
                   }) ||
-                  !msg.decryptionKey
+                  !msg.decryptionKey ||
+                  !msg.res
                 )
-                  return;
+                  throw new Error();
 
                 decryptionKey = msg.decryptionKey;
                 await signTransaction();
