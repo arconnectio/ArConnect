@@ -200,6 +200,7 @@ export default function Send() {
           <>
             <p>Please enter your password to continue:</p>
             <Input {...passwordInput.bindings} placeholder="Password..." />
+            <Spacer />
             <Button
               style={{ width: "100%" }}
               onClick={checkPassword}
