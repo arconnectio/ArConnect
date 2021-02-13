@@ -43,33 +43,6 @@ const darkTheme = {
 export default function Provider({ children }: Props) {
   const { scheme } = useColorScheme();
 
-  /**
-  useEffect(() => {
-    loadInitialReduxState();
-    // eslint-disable-next-line
-  }, []);
-
-  async function loadInitialReduxState() {
-    try {
-      const reducerNames = Object.keys(stores.getState()),
-        asyncStoreData =
-          typeof chrome !== "undefined"
-            ? await local.get(
-                reducerNames.map((reducer) => `arweave_${reducer}`)
-              )
-            : await browser.storage.local.get(
-                reducerNames.map((reducer) => `arweave_${reducer}`)
-              );
-    } catch {}
-  }
-
-  async function saveLocal(state: any) {
-    try {
-      if(typeof chrome !== "undefined") await local.set(state);
-      else browser.storage.local.set(state);
-    } catch {}
-  }**/
-
   return (
     <ReduxProvider store={stores}>
       <GeistProvider theme={scheme === "dark" ? darkTheme : lightTheme}>

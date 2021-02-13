@@ -207,7 +207,7 @@ window.addEventListener("message", (e) => {
 });
 
 window.arweaveWallet = WalletAPI;
-dispatchEvent(new CustomEvent("weaveMaskLoaded", { detail: {} }));
+dispatchEvent(new CustomEvent("arweaveWalletLoaded", { detail: {} }));
 
 declare global {
   interface Window {
@@ -215,7 +215,7 @@ declare global {
   }
   interface WindowEventMap {
     walletSwitch: CustomEvent<{ address: string }>;
-    weaveMaskLoaded: CustomEvent<{}>;
+    arweaveWalletLoaded: CustomEvent<{}>;
   }
 }
 

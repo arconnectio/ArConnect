@@ -1,7 +1,4 @@
 {
-  "name": "weavemask-extension",
-  "version": "0.1.0",
-  "private": true,
   "dependencies": {
     "@geist-ui/react": "^2.1.0-canary.2",
     "@limestonefi/api": "^0.1.2",
@@ -23,6 +20,7 @@
     "react-redux": "^7.2.2",
     "react-scripts": "^4.0.2",
     "redux": "^4.0.5",
+    "redux-async-initial-state": "^0.3.0",
     "smartweave": "^0.4.25",
     "use-color-scheme": "^1.1.1",
     "weaveid": "^1.0.26"

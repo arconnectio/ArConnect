@@ -258,8 +258,8 @@ export default function App() {
           <h1>Sign In</h1>
           {(type === "connect" && (
             <p>
-              This site wants to connect to WeaveMask. Please enter your
-              password to continue.
+              This site wants to connect to your Arweave wallet. Please enter
+              your password to continue.
             </p>
           )) || (
             <p>

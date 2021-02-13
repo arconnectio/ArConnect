@@ -19,7 +19,7 @@
       "128": "logo128.png",
       "256": "logo256.png"
     },
-    "default_title": "WeaveMask",
+    "default_title": "Arweave Wallet",
     "default_popup": "popup.html"
   },
   "web_accessible_resources": [

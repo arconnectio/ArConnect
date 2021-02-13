@@ -129,7 +129,7 @@ export default function App() {
     setLoading(false);
     loadWalletsModal.setVisible(false);
     setToast({ text: "Loaded wallets", type: "success" });
-    window.close();
+    //window.close();
   }
 
   async function weaveIDLogin() {

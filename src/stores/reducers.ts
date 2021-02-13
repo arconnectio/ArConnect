@@ -1,4 +1,6 @@
 import { combineReducers } from "redux";
+// @ts-ignore
+import { outerReducer, innerReducer } from "redux-async-initial-state";
 
 import wallets from "./reducers/wallets";
 import profile from "./reducers/profile";
@@ -15,7 +17,12 @@ export const plainReducers = {
   blockedSites,
   arweave
 };
-const reducers = combineReducers(plainReducers);
+const reducers = outerReducer(
+  combineReducers({
+    ...plainReducers,
+    asyncInitialState: innerReducer
+  })
+);
 
 export default reducers;
 export type RootState = ReturnType<typeof reducers>;
