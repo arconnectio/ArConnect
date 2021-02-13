@@ -11,7 +11,6 @@ import { local } from "chrome-storage-promises";
 import Cryptr from "cryptr";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import Arweave from "arweave";
-import pkg from "../../package.json";
 import axios from "axios";
 
 // open the welcome page
@@ -320,7 +319,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                   owner: keyfile.n
                 });
 
-              decodeTransaction.addTag("App-Name", `WeaveMask ${pkg.version}`);
+              decodeTransaction.addTag("App-Name", "WeaveMask");
               await arweave.transactions.sign(
                 decodeTransaction,
                 keyfile,

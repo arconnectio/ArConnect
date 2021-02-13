@@ -8,7 +8,6 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import Cryptr from "cryptr";
 import Home from "./Home";
 import Arweave from "arweave";
-import pkg from "../../../../package.json";
 import axios from "axios";
 import WalletManager from "../../../components/WalletManager";
 import styles from "../../../styles/views/Popup/send.module.sass";
@@ -115,7 +114,7 @@ export default function Send() {
           keyfile
         );
 
-      transaction.addTag("App-Name", `WeaveMask ${pkg.version}`);
+      transaction.addTag("App-Name", "WeaveMask");
       await arweave.transactions.sign(transaction, keyfile);
 
       const res = await arweave.transactions.post(transaction);
