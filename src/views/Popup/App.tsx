@@ -9,8 +9,8 @@ export default function App() {
   const wallets = useSelector((state: RootState) => state.wallets);
 
   useEffect(() => {
-    /*if (wallets.length === 0)
-      window.open(chrome.runtime.getURL("/welcome.html"));*/
+    if (wallets.length === 0)
+      window.open(chrome.runtime.getURL("/welcome.html"));
   }, [wallets]);
 
   return (

@@ -1,49 +1,19 @@
-import { createStore, compose, applyMiddleware } from "redux";
-import reducers, { plainReducers } from "./reducers";
+import { createStore } from "redux";
+import reducers from "./reducers";
+import { persistStore, persistReducer } from "redux-persist";
 // @ts-ignore
-import { middleware as asyncMiddleware } from "redux-async-initial-state";
-import { local } from "chrome-storage-promises";
+import { localStorage } from "redux-persist-webextension-storage";
 
-async function loadLocal() {
-  try {
-    const reducerNames = Object.keys(plainReducers),
-      asyncStoreData: { [key: string]: any } =
-        typeof chrome !== "undefined"
-          ? await local.get(reducerNames.map((reducer) => `arweave_${reducer}`))
-          : await browser.storage.local.get(
-              reducerNames.map((reducer) => `arweave_${reducer}`)
-            );
-    let store: { [key: string]: any } = {};
+const persistConfig = {
+  key: "root",
+  storage: localStorage
+};
 
-    for (const reducer in asyncStoreData)
-      store[reducer.replace("arweave_", "")] = asyncStoreData[reducer];
+const persistedReducer = persistReducer(persistConfig, reducers);
 
-    return store;
-  } catch {
-    return {};
-  }
+export default function getReduxInstance() {
+  const store = createStore(persistedReducer),
+    persistor = persistStore(store);
+
+  return { store, persistor };
 }
-
-async function saveLocal(state: { [key: string]: any }) {
-  try {
-    let storeWithArweaveKeys: { [key: string]: any } = {};
-    for (const reducer in state)
-      storeWithArweaveKeys[`arweave_${reducer}`] = state[reducer];
-
-    console.log(state);
-
-    console.log(storeWithArweaveKeys);
-
-    if (typeof chrome !== "undefined") await local.set(storeWithArweaveKeys);
-    else browser.storage.local.set(storeWithArweaveKeys);
-  } catch {}
-}
-
-const store = createStore(
-  reducers,
-  compose(applyMiddleware(asyncMiddleware(loadLocal)))
-);
-
-store.subscribe(async () => await saveLocal(store.getState()));
-
-export default store;

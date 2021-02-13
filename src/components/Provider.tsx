@@ -1,9 +1,9 @@
 import React from "react";
 import { CssBaseline, GeistProvider } from "@geist-ui/react";
 import { Provider as ReduxProvider } from "react-redux";
-import stores from "../stores";
+import setupStores from "../stores";
 import { useColorScheme } from "use-color-scheme";
-//import { local } from "chrome-storage-promises";
+import { PersistGate } from "redux-persist/integration/react";
 
 const lightTheme = {
   palette: {
@@ -41,14 +41,17 @@ const darkTheme = {
 };
 
 export default function Provider({ children }: Props) {
-  const { scheme } = useColorScheme();
+  const { scheme } = useColorScheme(),
+    { store, persistor } = setupStores();
 
   return (
-    <ReduxProvider store={stores}>
-      <GeistProvider theme={scheme === "dark" ? darkTheme : lightTheme}>
-        <CssBaseline />
-        {children}
-      </GeistProvider>
+    <ReduxProvider store={store}>
+      <PersistGate persistor={persistor}>
+        <GeistProvider theme={scheme === "dark" ? darkTheme : lightTheme}>
+          <CssBaseline />
+          {children}
+        </GeistProvider>
+      </PersistGate>
     </ReduxProvider>
   );
 }
