@@ -162,8 +162,11 @@ const WalletAPI = {
           const decodeTransaction = arweave.transactions.fromRaw(
             e.data.transaction
           );
-          for (let i = 0; i < 8; i++)
-            setTimeout(() => createCoinWithAnimation(), i * 150);
+
+          if (e.data.arConfetti) {
+            for (let i = 0; i < 8; i++)
+              setTimeout(() => createCoinWithAnimation(), i * 150);
+          }
           resolve(decodeTransaction);
         } else reject(e.data.message);
       }

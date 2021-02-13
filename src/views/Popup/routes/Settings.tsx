@@ -5,7 +5,7 @@ import {
   ChevronRightIcon,
   XIcon
 } from "@primer/octicons-react";
-import { Button, Input, Spacer, useInput } from "@geist-ui/react";
+import { Button, Input, Spacer, Toggle, useInput } from "@geist-ui/react";
 import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
@@ -20,6 +20,7 @@ import {
 import Home from "./Home";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
+import { local } from "chrome-storage-promises";
 
 export default function Settings() {
   const [setting, setCurrSetting] = useState<
@@ -36,11 +37,13 @@ export default function Settings() {
     arweaveConfig = useSelector((state: RootState) => state.arweave),
     arweaveHostInput = useInput(arweaveConfig.host),
     arweavePortInput = useInput(arweaveConfig.port.toString()),
-    arweaveProtocolInput = useInput(arweaveConfig.protocol);
+    arweaveProtocolInput = useInput(arweaveConfig.protocol),
+    [arConfetti, setARConfetti] = useState(false);
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
     loadEvents();
+    loadOtherSettings();
     // eslint-disable-next-line
   }, []);
 
@@ -97,6 +100,16 @@ export default function Settings() {
       })
     );
     setCurrSetting(undefined);
+  }
+
+  async function loadOtherSettings() {
+    try {
+      const arConfettiSetting: { [key: string]: any } =
+        typeof chrome !== "undefined"
+          ? await local.get("setting_confetti")
+          : await browser.storage.local.get("setting_confetti");
+      setARConfetti(arConfettiSetting["setting_confetti"]);
+    } catch {}
   }
 
   return (
@@ -181,6 +194,26 @@ export default function Settings() {
               </div>
               <div className={styles.Arrow}>
                 <ChevronRightIcon />
+              </div>
+            </div>
+            <div className={styles.Setting}>
+              <div>
+                <h1>ARConfetti effect</h1>
+                <p>Show animation on wallet usage</p>
+              </div>
+              <div className={styles.Arrow}>
+                <Toggle
+                  checked={arConfetti}
+                  onChange={() =>
+                    setARConfetti((val) => {
+                      if (typeof chrome !== "undefined")
+                        local.set({ setting_confetti: !val });
+                      else
+                        browser.storage.local.set({ setting_confetti: !val });
+                      return !val;
+                    })
+                  }
+                />
               </div>
             </div>
           </>

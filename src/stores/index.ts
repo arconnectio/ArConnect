@@ -2,11 +2,11 @@ import { createStore } from "redux";
 import reducers from "./reducers";
 import { persistStore, persistReducer } from "redux-persist";
 // @ts-ignore
-import { localStorage } from "redux-persist-webextension-storage";
+import { localStorage as localStorageBrowser } from "redux-persist-webextension-storage";
 
 const persistConfig = {
   key: "root",
-  storage: localStorage
+  storage: localStorageBrowser
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);

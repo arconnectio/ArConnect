@@ -14,29 +14,17 @@ import Arweave from "arweave";
 import axios from "axios";
 
 // open the welcome page
-chrome.runtime.onInstalled.addListener(() => {
-  if (!walletsStored()) window.open(chrome.runtime.getURL("/welcome.html"));
+chrome.runtime.onInstalled.addListener(async () => {
+  if (!(await walletsStored()))
+    window.open(chrome.runtime.getURL("/welcome.html"));
 });
 
 // listen for messages from the content script
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   const message: MessageFormat = msg,
-    blockedSitesStore = localStorage.getItem("arweave_blockedSites"),
     eventsStore = localStorage.getItem("arweave_events");
 
   if (!validateMessage(message, { sender: "api" })) return;
-  if (!walletsStored())
-    return sendMessage(
-      {
-        type: "connect_result",
-        ext: "weavemask",
-        res: false,
-        message: "No wallets added to WeaveMask",
-        sender: "background"
-      },
-      undefined,
-      sendResponse
-    );
 
   chrome.tabs.query(
     { active: true, currentWindow: true },
@@ -51,12 +39,14 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
           `${message.type}_result` as MessageType
         );
 
-      const tabURL = currentTabArray[0].url;
+      const tabURL = currentTabArray[0].url,
+        // @ts-ignore
+        blockedSites = JSON.parse(
+          (await getStoreData())?.["blockedSites"] ?? "[]"
+        );
 
       // check if site is blocked
-      if (blockedSitesStore) {
-        const blockedSites: string[] = JSON.parse(blockedSitesStore).val;
-
+      if (blockedSites) {
         if (
           blockedSites.includes(getRealURL(tabURL)) ||
           blockedSites.includes(tabURL)
@@ -73,6 +63,19 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             sendResponse
           );
       }
+
+      if (!(await walletsStored()))
+        return sendMessage(
+          {
+            type: "connect_result",
+            ext: "weavemask",
+            res: false,
+            message: "No wallets added",
+            sender: "background"
+          },
+          undefined,
+          sendResponse
+        );
 
       localStorage.setItem(
         "arweave_events",
@@ -101,45 +104,33 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               sendResponse
             );
 
-          const permissionsStroage = localStorage.getItem(
-            "arweave_permissions"
-          );
-
           // check requested permissions and existing permissions
-          if (permissionsStroage) {
-            const permissions: IPermissionState[] = JSON.parse(
-                permissionsStroage
-              ).val,
-              existingPermissions = permissions.find(
-                ({ url }) => url === getRealURL(tabURL)
-              )?.permissions;
+          const existingPermissions = await getPermissions(tabURL);
 
-            // the site has a saved permission store
-            if (existingPermissions) {
-              let hasAllPermissions = true;
+          // the site has a saved permission store
+          if (existingPermissions) {
+            let hasAllPermissions = true;
 
-              // if there is one permission that isn't stored in the
-              // permissions store of the url
-              // we set hasAllPermissions to false
-              for (const permission of message.permissions)
-                if (!existingPermissions.includes(permission))
-                  hasAllPermissions = false;
+            // if there is one permission that isn't stored in the
+            // permissions store of the url
+            // we set hasAllPermissions to false
+            for (const permission of message.permissions)
+              if (!existingPermissions.includes(permission))
+                hasAllPermissions = false;
 
-              // if all permissions are already granted we return
-              if (hasAllPermissions)
-                return sendMessage(
-                  {
-                    type: "connect_result",
-                    ext: "weavemask",
-                    res: false,
-                    message:
-                      "All permissions are already allowed for this site",
-                    sender: "background"
-                  },
-                  undefined,
-                  sendResponse
-                );
-            }
+            // if all permissions are already granted we return
+            if (hasAllPermissions)
+              return sendMessage(
+                {
+                  type: "connect_result",
+                  ext: "weavemask",
+                  res: false,
+                  message: "All permissions are already allowed for this site",
+                  sender: "background"
+                },
+                undefined,
+                sendResponse
+              );
           }
 
           createAuthPopup({
@@ -161,7 +152,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         case "get_active_address":
           const currentAddressStore = localStorage.getItem("arweave_profile");
 
-          if (!checkPermissions(["ACCESS_ADDRESS"], tabURL))
+          if (!(await checkPermissions(["ACCESS_ADDRESS"], tabURL)))
             return sendPermissionError(
               sendResponse,
               "get_active_address_result"
@@ -200,7 +191,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         case "get_all_addresses":
           const addressesStore = localStorage.getItem("arweave_wallets");
 
-          if (!checkPermissions(["ACCESS_ALL_ADDRESSES"], tabURL))
+          if (!(await checkPermissions(["ACCESS_ALL_ADDRESSES"], tabURL)))
             return sendPermissionError(
               sendResponse,
               "get_all_addresses_result"
@@ -245,7 +236,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               type: "get_permissions_result",
               ext: "weavemask",
               res: true,
-              permissions: getPermissions(tabURL),
+              permissions: await getPermissions(tabURL),
               sender: "background"
             },
             undefined,
@@ -256,7 +247,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
         // create and sign a transaction at the same time
         case "sign_transaction":
-          if (!checkPermissions(["SIGN_TRANSACTION"], tabURL))
+          if (!(await checkPermissions(["SIGN_TRANSACTION"], tabURL)))
             return sendPermissionError(sendResponse, "sign_transaction_result");
           if (!message.transaction)
             return sendMessage(
@@ -287,28 +278,35 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 host: "arweave.net",
                 port: 443,
                 protocol: "https"
-              });
+              }),
+              arConfettiSetting: { [key: string]: any } =
+                typeof chrome !== "undefined"
+                  ? await local.get("setting_confetti")
+                  : await browser.storage.local.get("setting_confetti");
+
             let decryptionKey = decryptionKeyRes?.["decryptionKey"];
 
             const signTransaction = async () => {
-              const storedKeyfile = localStorage.getItem("arweave_wallets"),
-                storedAddress = localStorage.getItem("arweave_profile");
+              const storedKeyfiles = JSON.parse(
+                  (await getStoreData())?.["wallets"] ?? "[]"
+                ),
+                storedAddress = (await getStoreData())?.["profile"];
 
-              if (!storedKeyfile || !storedAddress)
+              if (storedKeyfiles.length === 0 || !storedAddress)
                 return sendMessage(
                   {
                     type: "sign_transaction_result",
                     ext: "weavemask",
                     res: false,
-                    message: "No wallets added to WeaveMask",
+                    message: "No wallets added",
                     sender: "background"
                   },
                   undefined,
                   sendResponse
                 );
 
-              const keyfileToDecrypt = JSON.parse(storedKeyfile)?.val?.find(
-                  (item: any) => item.address === JSON.parse(storedAddress)?.val
+              const keyfileToDecrypt = storedKeyfiles.find(
+                  (item: any) => item.address === JSON.parse(storedAddress)
                 )?.keyfile,
                 cryptr = new Cryptr(decryptionKey),
                 keyfile: JWKInterface = JSON.parse(
@@ -333,7 +331,8 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                   res: true,
                   message: "Success",
                   transaction: decodeTransaction,
-                  sender: "background"
+                  sender: "background",
+                  arConfetti: arConfettiSetting["setting_confetti"] ?? true
                 },
                 undefined,
                 sendResponse
@@ -399,13 +398,13 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   const message: MessageFormat = msg;
   if (!validateMessage(message, { sender: "popup" })) return;
-  if (!walletsStored()) return;
 
   switch (message.type) {
     case "switch_wallet_event":
       chrome.tabs.query(
         { active: true, currentWindow: true },
-        (currentTabArray) => {
+        async (currentTabArray) => {
+          if (!(await walletsStored())) return;
           if (
             !currentTabArray[0] ||
             !currentTabArray[0].url ||
@@ -414,10 +413,10 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             return;
 
           if (
-            !checkPermissions(
+            !(await checkPermissions(
               ["ACCESS_ALL_ADDRESSES", "ACCESS_ADDRESS"],
               currentTabArray[0].url
-            )
+            ))
           )
             return;
 
@@ -456,21 +455,20 @@ function createAuthPopup(data: any) {
 }
 
 // check if there are any wallets stored
-function walletsStored(): boolean {
-  const wallets = localStorage.getItem("arweave_wallets");
+async function walletsStored(): Promise<boolean> {
+  try {
+    const wallets = JSON.parse((await getStoreData())?.["wallets"] ?? "[]");
 
-  if (
-    !wallets ||
-    !JSON.parse(wallets).val ||
-    JSON.parse(wallets).val.length === 0
-  )
+    if (!wallets || wallets.length === 0) return false;
+    return true;
+  } catch {
     return false;
-  return true;
+  }
 }
 
 // check the given permissions
-function checkPermissions(permissions: PermissionType[], url: string) {
-  const storedPermissions = getPermissions(url);
+async function checkPermissions(permissions: PermissionType[], url: string) {
+  const storedPermissions = await getPermissions(url);
 
   if (storedPermissions.length > 0) {
     for (const permission of permissions)
@@ -481,20 +479,17 @@ function checkPermissions(permissions: PermissionType[], url: string) {
 }
 
 // get permissing for the given url
-function getPermissions(url: string): PermissionType[] {
-  const storedPermissions = localStorage.getItem("arweave_permissions");
+async function getPermissions(url: string): Promise<PermissionType[]> {
+  const storedPermissions = JSON.parse(
+    (await getStoreData())?.["permissions"] ?? "[]"
+  );
   url = getRealURL(url);
 
-  if (storedPermissions) {
-    const parsedPermissions = JSON.parse(storedPermissions).val,
-      sitePermissions: PermissionType[] =
-        parsedPermissions.find((val: IPermissionState) => val.url === url)
-          ?.permissions ?? [];
+  const sitePermissions: PermissionType[] =
+    storedPermissions.find((val: IPermissionState) => val.url === url)
+      ?.permissions ?? [];
 
-    return sitePermissions;
-  }
-
-  return [];
+  return sitePermissions;
 }
 
 // send error if there are no tabs opened
@@ -534,6 +529,16 @@ function sendPermissionError(
     undefined,
     sendResponse
   );
+}
+
+// get store data
+async function getStoreData(): Promise<{ [key: string]: any }> {
+  const data: { [key: string]: any } =
+    typeof chrome !== "undefined"
+      ? await local.get("persist:root")
+      : browser.storage.local.get("persist:root");
+
+  return JSON.parse(data?.["persist:root"] ?? "{}");
 }
 
 export {};
