@@ -129,7 +129,10 @@ export default function App() {
     setLoading(false);
     loadWalletsModal.setVisible(false);
     setToast({ text: "Loaded wallets", type: "success" });
-    window.close();
+    // allow time to save the wallets
+    setTimeout(() => {
+      window.close();
+    }, 600);
   }
 
   async function weaveIDLogin() {

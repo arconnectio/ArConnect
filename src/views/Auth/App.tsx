@@ -203,14 +203,17 @@ export default function App() {
     dispatch(
       setPermissions(currentURL, [...currentPerms, ...requestedPermissions])
     );
-    sendMessage({
-      type: getReturnType(),
-      ext: "weavemask",
-      res: true,
-      message: "Success",
-      sender: "popup"
-    });
-    window.close();
+    // give time for the state to update
+    setTimeout(() => {
+      sendMessage({
+        type: getReturnType(),
+        ext: "weavemask",
+        res: true,
+        message: "Success",
+        sender: "popup"
+      });
+      window.close();
+    }, 500);
   }
 
   // cancel login or permission request

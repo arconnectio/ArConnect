@@ -111,6 +111,8 @@ export function resetArweaveConfig(): IArweaveAction {
 }
 
 export function signOut() {
+  // give time for state update
+  setTimeout(() => window.open(chrome.runtime.getURL("/welcome.html")), 500);
   return {
     type: "USER_SIGNOUT",
     payload: {}

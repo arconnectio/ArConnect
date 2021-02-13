@@ -11,7 +11,8 @@ export default function App() {
   useEffect(() => {
     if (wallets.length === 0)
       window.open(chrome.runtime.getURL("/welcome.html"));
-  }, [wallets]);
+    // eslint-disable-next-line
+  }, []);
 
   return (
     <Router>
