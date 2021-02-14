@@ -114,7 +114,7 @@ export default function Send() {
           keyfile
         );
 
-      transaction.addTag("App-Name", "WeaveMask");
+      transaction.addTag("App-Name", "ArConnect");
       await arweave.transactions.sign(transaction, keyfile);
 
       const res = await arweave.transactions.post(transaction);

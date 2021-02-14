@@ -224,7 +224,7 @@ export default function App() {
           <img src={logo} alt="logo" className={styles.Logo} />
           <h1>
             Welcome to{" "}
-            <span style={{ color: theme.palette.success }}>WeaveMask</span>
+            <span style={{ color: theme.palette.success }}>ArConnect</span>
           </h1>
           <p style={{ color: theme.palette.accents_4 }}>
             Secure wallet management for Arweave

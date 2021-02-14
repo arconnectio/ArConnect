@@ -185,7 +185,7 @@ export default function Settings() {
             >
               <div>
                 <h1>Blocked sites</h1>
-                <p>Limit access from sites to WeaveMask</p>
+                <p>Limit access from sites to ArConnect</p>
               </div>
               <div className={styles.Arrow}>
                 <ChevronRightIcon />

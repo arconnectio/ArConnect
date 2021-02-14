@@ -53,7 +53,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
           return sendMessage(
             {
               type: `${message.type}_result` as MessageType,
-              ext: "weavemask",
+              ext: "arconnect",
               res: false,
               message: "Site is blocked",
               sender: "background"
@@ -67,7 +67,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         return sendMessage(
           {
             type: "connect_result",
-            ext: "weavemask",
+            ext: "arconnect",
             res: false,
             message: "No wallets added",
             sender: "background"
@@ -87,14 +87,14 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
       );
 
       switch (message.type) {
-        // connect to weavemask
+        // connect to arconnect
         case "connect":
           // a permission array must be submitted
           if (!message.permissions)
             return sendMessage(
               {
                 type: "connect_result",
-                ext: "weavemask",
+                ext: "arconnect",
                 res: false,
                 message: "No permissions requested",
                 sender: "background"
@@ -122,7 +122,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               return sendMessage(
                 {
                   type: "connect_result",
-                  ext: "weavemask",
+                  ext: "arconnect",
                   res: false,
                   message: "All permissions are already allowed for this site",
                   sender: "background"
@@ -162,7 +162,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             sendMessage(
               {
                 type: "get_active_address_result",
-                ext: "weavemask",
+                ext: "arconnect",
                 res: true,
                 address: currentAddress,
                 sender: "background"
@@ -174,7 +174,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             sendMessage(
               {
                 type: "get_active_address_result",
-                ext: "weavemask",
+                ext: "arconnect",
                 res: false,
                 message: "Error getting current address",
                 sender: "background"
@@ -186,7 +186,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
           break;
 
-        // get all addresses added to WeaveMask
+        // get all addresses added to ArConnect
         case "get_all_addresses":
           const addressesStore = localStorage.getItem("arweave_wallets");
 
@@ -204,7 +204,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             sendMessage(
               {
                 type: "get_all_addresses_result",
-                ext: "weavemask",
+                ext: "arconnect",
                 res: true,
                 addresses,
                 sender: "background"
@@ -216,7 +216,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             sendMessage(
               {
                 type: "get_all_addresses_result",
-                ext: "weavemask",
+                ext: "arconnect",
                 res: false,
                 message: "Error getting all addresses",
                 sender: "background"
@@ -233,7 +233,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
           sendMessage(
             {
               type: "get_permissions_result",
-              ext: "weavemask",
+              ext: "arconnect",
               res: true,
               permissions: await getPermissions(tabURL),
               sender: "background"
@@ -252,7 +252,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             return sendMessage(
               {
                 type: "sign_transaction_result",
-                ext: "weavemask",
+                ext: "arconnect",
                 res: false,
                 message: "No transaction submitted.",
                 sender: "background"
@@ -293,7 +293,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 return sendMessage(
                   {
                     type: "sign_transaction_result",
-                    ext: "weavemask",
+                    ext: "arconnect",
                     res: false,
                     message: "No wallets added",
                     sender: "background"
@@ -314,7 +314,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                   owner: keyfile.n
                 });
 
-              decodeTransaction.addTag("Signing-Client", "WeaveMask");
+              decodeTransaction.addTag("Signing-Client", "ArConnect");
               await arweave.transactions.sign(
                 decodeTransaction,
                 keyfile,
@@ -350,7 +350,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               sendMessage(
                 {
                   type: "sign_transaction_result",
-                  ext: "weavemask",
+                  ext: "arconnect",
                   res: true,
                   message: "Success",
                   transaction: decodeTransaction,
@@ -402,7 +402,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             sendMessage(
               {
                 type: "sign_transaction_result",
-                ext: "weavemask",
+                ext: "arconnect",
                 res: false,
                 message: "Error signing transaction",
                 sender: "background"
@@ -533,7 +533,7 @@ function sendNoTabError(
   sendMessage(
     {
       type,
-      ext: "weavemask",
+      ext: "arconnect",
       res: false,
       message: "No tabs opened",
       sender: "background"
@@ -552,7 +552,7 @@ function sendPermissionError(
   sendMessage(
     {
       type,
-      ext: "weavemask",
+      ext: "arconnect",
       res: false,
       message:
         "The site does not have the required permissions for this action",

@@ -15,7 +15,7 @@ function addScriptToWindow(path: string) {
     container.insertBefore(script, container.children[0]);
     container.removeChild(script);
   } catch (e) {
-    console.error("Failed to inject WeaveMask api", e);
+    console.error("Failed to inject ArConnect api", e);
   }
 }
 

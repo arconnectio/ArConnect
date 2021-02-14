@@ -62,7 +62,7 @@ const WalletAPI = {
 
     return new Promise((resolve, reject) => {
       sendMessage(
-        { type: "connect", ext: "weavemask", sender: "api", permissions },
+        { type: "connect", ext: "arconnect", sender: "api", permissions },
         undefined,
         undefined,
         false
@@ -84,7 +84,7 @@ const WalletAPI = {
   getActiveAddress(): Promise<string> {
     return new Promise((resolve, reject) => {
       sendMessage(
-        { type: "get_active_address", ext: "weavemask", sender: "api" },
+        { type: "get_active_address", ext: "arconnect", sender: "api" },
         undefined,
         undefined,
         false
@@ -105,7 +105,7 @@ const WalletAPI = {
   getAllAddresses(): Promise<string[]> {
     return new Promise((resolve, reject) => {
       sendMessage(
-        { type: "get_all_addresses", ext: "weavemask", sender: "api" },
+        { type: "get_all_addresses", ext: "arconnect", sender: "api" },
         undefined,
         undefined,
         false
@@ -137,7 +137,7 @@ const WalletAPI = {
       sendMessage(
         {
           type: "sign_transaction",
-          ext: "weavemask",
+          ext: "arconnect",
           sender: "api",
           transaction,
           signatureOptions: options
@@ -175,7 +175,7 @@ const WalletAPI = {
   getPermissions(): Promise<PermissionType[]> {
     return new Promise((resolve, reject) => {
       sendMessage(
-        { type: "get_permissions", ext: "weavemask", sender: "api" },
+        { type: "get_permissions", ext: "arconnect", sender: "api" },
         undefined,
         undefined,
         false

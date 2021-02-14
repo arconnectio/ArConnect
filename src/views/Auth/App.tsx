@@ -61,7 +61,7 @@ export default function App() {
     if (!authVal) {
       sendMessage({
         type: getReturnType(),
-        ext: "weavemask",
+        ext: "arconnect",
         res: false,
         message: "Invalid auth call",
         sender: "popup"
@@ -82,7 +82,7 @@ export default function App() {
     if (!decodedAuthParam.type) {
       sendMessage({
         type: getReturnType(),
-        ext: "weavemask",
+        ext: "arconnect",
         res: false,
         message: "Invalid auth call",
         sender: "popup"
@@ -128,7 +128,7 @@ export default function App() {
     } else {
       sendMessage({
         type: getReturnType(),
-        ext: "weavemask",
+        ext: "arconnect",
         res: false,
         message: "Invalid auth call",
         sender: "popup"
@@ -184,7 +184,7 @@ export default function App() {
           else {
             sendMessage({
               type: getReturnType(),
-              ext: "weavemask",
+              ext: "arconnect",
               res: true,
               message: "Success",
               sender: "popup",
@@ -209,7 +209,7 @@ export default function App() {
   function urlError() {
     sendMessage({
       type: getReturnType(),
-      ext: "weavemask",
+      ext: "arconnect",
       res: false,
       message: "No tab selected",
       sender: "popup"
@@ -239,7 +239,7 @@ export default function App() {
     setTimeout(() => {
       sendMessage({
         type: getReturnType(),
-        ext: "weavemask",
+        ext: "arconnect",
         res: true,
         message: "Success",
         sender: "popup"
@@ -252,7 +252,7 @@ export default function App() {
   function cancel() {
     sendMessage({
       type: getReturnType(),
-      ext: "weavemask",
+      ext: "arconnect",
       res: false,
       message: "User cancelled the login",
       sender: "popup"
@@ -269,7 +269,7 @@ export default function App() {
   function sendPermissionError() {
     sendMessage({
       type: getReturnType(),
-      ext: "weavemask",
+      ext: "arconnect",
       res: false,
       message:
         "The site does not have the required permissions for this action",

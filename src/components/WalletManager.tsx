@@ -90,7 +90,7 @@ export default function WalletManager() {
     setOpen(false);
     sendMessage({
       type: "switch_wallet_event",
-      ext: "weavemask",
+      ext: "arconnect",
       res: true,
       message: "",
       address,

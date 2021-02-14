@@ -10,7 +10,7 @@ export type PermissionType =
  * Permissions and their descriptions
  */
 export const PermissionDescriptions: Record<PermissionType, string> = {
-  ACCESS_ADDRESS: "Access the current address selected in WeaveMask",
-  ACCESS_ALL_ADDRESSES: "Access all addresses added to WeaveMask",
+  ACCESS_ADDRESS: "Access the current address selected in ArConnect",
+  ACCESS_ALL_ADDRESSES: "Access all addresses added to ArConnect",
   SIGN_TRANSACTION: "Sign a transaction"
 };

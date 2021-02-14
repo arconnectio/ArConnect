@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "WeaveMask",
+  "name": "ArConnect",
   "version": "0.1.0",
   "author": "th8ta",
   "description": "Secure wallet management for Arweave",

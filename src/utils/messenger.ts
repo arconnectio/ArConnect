@@ -1,6 +1,6 @@
 export interface MessageFormat {
   type: MessageType;
-  ext: "weavemask";
+  ext: "arconnect";
   res?: boolean;
   message?: string;
   sender: MessageSender;
@@ -44,7 +44,7 @@ export function sendMessage(
 }
 
 // this function validates messages and check if they are from the extension
-// other extensions could interfer with the functionality of WeaveMask
+// other extensions could interfer with the functionality of ArConnect
 // for example with the window.postMessage function
 // this ensures that that does not happen
 export function validateMessage(
@@ -54,7 +54,7 @@ export function validateMessage(
   if (!message) return false;
   if (
     !message.ext ||
-    message.ext !== "weavemask" ||
+    message.ext !== "arconnect" ||
     !message.sender ||
     !message.type
   )
