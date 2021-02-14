@@ -9,6 +9,10 @@ export default function App() {
   const wallets = useSelector((state: RootState) => state.wallets);
 
   useEffect(() => {
+    if (typeof chrome !== "undefined")
+      chrome.browserAction.setBadgeText({ text: "" });
+    else browser.browserAction.setBadgeText({ text: "" });
+
     if (wallets.length === 0)
       window.open(chrome.runtime.getURL("/welcome.html"));
     // eslint-disable-next-line

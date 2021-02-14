@@ -82,7 +82,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         JSON.stringify({
           val: [
             ...(JSON.parse(eventsStore ?? "{}")?.val ?? []),
-            { event: message.type, url: tabURL }
+            { event: message.type, url: tabURL, date: Date.now() }
           ]
         })
       );
@@ -317,12 +317,36 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                   owner: keyfile.n
                 });
 
-              decodeTransaction.addTag("App-Name", "WeaveMask");
+              decodeTransaction.addTag("Signing-Client", "WeaveMask");
               await arweave.transactions.sign(
                 decodeTransaction,
                 keyfile,
                 message.signatureOptions
               );
+
+              if (typeof chrome !== "undefined") {
+                chrome.browserAction.setBadgeText({
+                  text: "1",
+                  tabId: currentTabArray[0].id
+                });
+                chrome.browserAction.setBadgeBackgroundColor({
+                  color: "#ff0000"
+                });
+                setTimeout(() => {
+                  chrome.browserAction.setBadgeText({ text: "" });
+                }, 4000);
+              } else {
+                browser.browserAction.setBadgeText({
+                  text: "1",
+                  tabId: currentTabArray[0].id
+                });
+                browser.browserAction.setBadgeBackgroundColor({
+                  color: "#ff0000"
+                });
+                setTimeout(() => {
+                  browser.browserAction.setBadgeText({ text: "" });
+                }, 4000);
+              }
 
               sendMessage(
                 {

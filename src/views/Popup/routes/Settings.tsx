@@ -33,7 +33,9 @@ export default function Settings() {
     currentAddress = useSelector((state: RootState) => state.profile),
     blockedURLs = useSelector((state: RootState) => state.blockedSites),
     addURLInput = useInput(""),
-    [events, setEvents] = useState<{ event: string; url: string }[]>([]),
+    [events, setEvents] = useState<
+      { event: string; url: string; date: number }[]
+    >([]),
     arweaveConfig = useSelector((state: RootState) => state.arweave),
     arweaveHostInput = useInput(arweaveConfig.host),
     arweavePortInput = useInput(arweaveConfig.port.toString()),
