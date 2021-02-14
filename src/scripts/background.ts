@@ -41,9 +41,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
       const tabURL = currentTabArray[0].url,
         // @ts-ignore
-        blockedSites = JSON.parse(
-          (await getStoreData())?.["blockedSites"] ?? "[]"
-        );
+        blockedSites = (await getStoreData())?.["blockedSites"];
 
       // check if site is blocked
       if (blockedSites) {
@@ -287,12 +285,10 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             let decryptionKey = decryptionKeyRes?.["decryptionKey"];
 
             const signTransaction = async () => {
-              const storedKeyfiles = JSON.parse(
-                  (await getStoreData())?.["wallets"] ?? "[]"
-                ),
+              const storedKeyfiles = (await getStoreData())?.["wallets"],
                 storedAddress = (await getStoreData())?.["profile"];
 
-              if (storedKeyfiles.length === 0 || !storedAddress)
+              if (!storedKeyfiles || !storedAddress)
                 return sendMessage(
                   {
                     type: "sign_transaction_result",
@@ -306,7 +302,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 );
 
               const keyfileToDecrypt = storedKeyfiles.find(
-                  (item: any) => item.address === JSON.parse(storedAddress)
+                  (item: any) => item.address === storedAddress
                 )?.keyfile,
                 cryptr = new Cryptr(decryptionKey),
                 keyfile: JWKInterface = JSON.parse(
@@ -481,7 +477,7 @@ function createAuthPopup(data: any) {
 // check if there are any wallets stored
 async function walletsStored(): Promise<boolean> {
   try {
-    const wallets = JSON.parse((await getStoreData())?.["wallets"] ?? "[]");
+    const wallets = (await getStoreData())?.["wallets"];
 
     if (!wallets || wallets.length === 0) return false;
     return true;
@@ -504,10 +500,10 @@ async function checkPermissions(permissions: PermissionType[], url: string) {
 
 // get permissing for the given url
 async function getPermissions(url: string): Promise<PermissionType[]> {
-  const storedPermissions = JSON.parse(
-    (await getStoreData())?.["permissions"] ?? "[]"
-  );
+  const storedPermissions = (await getStoreData())?.["permissions"];
   url = getRealURL(url);
+
+  if (!storedPermissions) return [];
 
   const sitePermissions: PermissionType[] =
     storedPermissions.find((val: IPermissionState) => val.url === url)
@@ -558,11 +554,17 @@ function sendPermissionError(
 // get store data
 async function getStoreData(): Promise<{ [key: string]: any }> {
   const data: { [key: string]: any } =
-    typeof chrome !== "undefined"
-      ? await local.get("persist:root")
-      : browser.storage.local.get("persist:root");
+      typeof chrome !== "undefined"
+        ? await local.get("persist:root")
+        : browser.storage.local.get("persist:root"),
+    parseRoot: { [key: string]: any } = JSON.parse(
+      data?.["persist:root"] ?? "{}"
+    );
 
-  return JSON.parse(data?.["persist:root"] ?? "{}");
+  let parsedData: { [key: string]: any } = {};
+  for (const key in parseRoot) parsedData[key] = JSON.parse(parseRoot[key]);
+
+  return parsedData;
 }
 
 export {};
