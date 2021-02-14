@@ -170,7 +170,11 @@ export default function Send() {
                   height: "2.65em",
                   lineHeight: "unset"
                 }}
-                onClick={() => amountInput.setState(balance)}
+                onClick={() =>
+                  amountInput.setState(
+                    (Number(balance) - Number(fee)).toString()
+                  )
+                }
               >
                 Max
               </Button>

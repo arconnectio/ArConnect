@@ -157,14 +157,18 @@ export default function Home() {
             <ArrowSwitchIcon size={24} />
             <span>Send</span>
           </div>
-          <div className={styles.Item}>
-            <ArchiveIcon size={24} />
-            <span>Archive page</span>
-          </div>
-          <div className={styles.Item}>
-            <KebabHorizontalIcon size={24} />
-            <span>More</span>
-          </div>
+          <Tooltip text="Not available yet">
+            <div className={styles.Item + " " + styles.Unavailable}>
+              <ArchiveIcon size={24} />
+              <span>Archive page</span>
+            </div>
+          </Tooltip>
+          <Tooltip text="Not available yet">
+            <div className={styles.Item + " " + styles.Unavailable}>
+              <KebabHorizontalIcon size={24} />
+              <span>More</span>
+            </div>
+          </Tooltip>
         </div>
       </div>
       <Tabs initialValue="1" className={styles.Tabs}>

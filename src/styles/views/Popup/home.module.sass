@@ -54,13 +54,16 @@ $sidePaddingTransactions: .7em
       margin: 0 .95em
       transition: all .23s ease-in-out
 
-      &:hover
+      &.Unavailable
+        cursor: default
+
+      &:hover:not(.Unavailable)
         color: #000
 
       @media (prefers-color-scheme: dark)
         color: variables.$secondary-text-dark
 
-        &:hover
+        &:hover:not(.Unavailable)
           color: #fff
 
       svg
