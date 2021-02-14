@@ -108,7 +108,12 @@ export default function Settings() {
         typeof chrome !== "undefined"
           ? await local.get("setting_confetti")
           : await browser.storage.local.get("setting_confetti");
-      setARConfetti(arConfettiSetting["setting_confetti"]);
+      if (arConfettiSetting["setting_confetti"]) {
+        if (typeof chrome !== "undefined")
+          local.set({ setting_confetti: true });
+        else browser.storage.local.set({ setting_confetti: true });
+      }
+      setARConfetti(arConfettiSetting["setting_confetti"] ?? true);
     } catch {}
   }
 
