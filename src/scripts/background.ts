@@ -12,6 +12,7 @@ import Cryptr from "cryptr";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import Arweave from "arweave";
 import axios from "axios";
+import { Allowance } from "../stores/reducers/allowances";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(async () => {
@@ -320,6 +321,8 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 message.signatureOptions
               );
 
+              await updateSpent(getRealURL(tabURL), price);
+
               if (typeof chrome !== "undefined") {
                 chrome.browserAction.setBadgeText({
                   text: "1",
@@ -359,14 +362,22 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               );
             };
 
+            const allowances: Allowance[] =
+                (await getStoreData())?.["allowances"] ?? [],
+              allowanceLimitForURL = allowances.find(
+                ({ url }) => url === getRealURL(tabURL)
+              );
+            let openAllowance =
+              allowanceLimitForURL &&
+              allowanceLimitForURL.enabled &&
+              Number(
+                arweave.ar.arToWinston(allowanceLimitForURL.limit.toString())
+              ) <
+                price + (await getSpentForURL(getRealURL(tabURL)));
+
             // open popup if decryptionKey is undefined
-            // or if the price is more than 1 AR
-            if (
-              !decryptionKey ||
-              Number(arweave.ar.winstonToAr(price.toString())) +
-                Number(message.transaction.quantity ?? 0) >
-                1
-            ) {
+            // or if the spending limit is reached
+            if (!decryptionKey || openAllowance) {
               createAuthPopup({
                 type: "sign_auth",
                 url: tabURL
@@ -565,6 +576,37 @@ async function getStoreData(): Promise<{ [key: string]: any }> {
   for (const key in parseRoot) parsedData[key] = JSON.parse(parseRoot[key]);
 
   return parsedData;
+}
+
+async function getSpentForURL(url: string) {
+  const data: { [key: string]: any } =
+      typeof chrome !== "undefined"
+        ? await local.get("spent")
+        : await browser.storage.local.get("spent"),
+    currentSpent: { url: string; spent: number }[] = data?.["spent"] ?? [];
+
+  return currentSpent.find((val) => val.url === url)?.spent ?? 0;
+}
+
+async function updateSpent(url: string, add: number) {
+  const data: { [key: string]: any } =
+      typeof chrome !== "undefined"
+        ? await local.get("spent")
+        : await browser.storage.local.get("spent"),
+    currentSpent: { url: string; spent: number }[] = data?.["spent"] ?? [];
+
+  const update = currentSpent.map((val) => {
+    const spentNum = val.url === url ? val.spent + add : val.spent;
+    return { ...val, spent: spentNum };
+  });
+  if (!update.find((val) => val.url === url))
+    update.push({
+      url,
+      spent: add
+    });
+
+  if (typeof chrome !== "undefined") local.set({ spent: update });
+  else browser.storage.local.set({ spent: update });
 }
 
 export {};
