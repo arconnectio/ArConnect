@@ -380,7 +380,8 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             if (!decryptionKey || openAllowance) {
               createAuthPopup({
                 type: "sign_auth",
-                url: tabURL
+                url: tabURL,
+                spendingLimitReached: openAllowance
               });
               chrome.runtime.onMessage.addListener(async (msg) => {
                 if (

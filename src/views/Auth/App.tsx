@@ -7,7 +7,8 @@ import {
   Loading,
   Checkbox,
   Modal,
-  useModal
+  useModal,
+  Note
 } from "@geist-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
@@ -49,7 +50,8 @@ export default function App() {
     allowanceModal = useModal(false),
     allowanceAmount = useInput("0"),
     allowances = useSelector((state: RootState) => state.allowances),
-    [currentAllowance, setCurrentAllowance] = useState<Allowance>();
+    [currentAllowance, setCurrentAllowance] = useState<Allowance>(),
+    [spendingLimitReached, setSpendingLimitReached] = useState<boolean>();
 
   useEffect(() => {
     // get the auth param from the url
@@ -73,6 +75,7 @@ export default function App() {
       permissions?: PermissionType[];
       type?: AuthType;
       url?: string;
+      spendingLimitReached?: boolean;
     } = JSON.parse(decodeURIComponent(authVal));
 
     // if the type does not exist, this is an invalid call
@@ -135,6 +138,7 @@ export default function App() {
     }
 
     loadAllowance(url);
+    setSpendingLimitReached(decodedAuthParam.spendingLimitReached);
 
     // send cancel event if the popup is closed by the user
     window.addEventListener("beforeunload", cancel);
@@ -297,6 +301,20 @@ export default function App() {
   return (
     <>
       <div className={styles.Auth}>
+        {spendingLimitReached && (
+          <Note
+            type="warning"
+            style={{
+              position: "fixed",
+              top: "2em",
+              left: ".7em",
+              right: ".7em"
+            }}
+          >
+            You have reached your spending limit of {currentAllowance?.limit}{" "}
+            for this site. Please update it or cancel.
+          </Note>
+        )}
         {(!loggedIn && (
           <>
             <h1>Sign In</h1>
