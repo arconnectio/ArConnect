@@ -6,6 +6,7 @@ import { IBlockedAction } from "./reducers/blocked_sites";
 import { IArweaveAction, IArweave } from "./reducers/arweave";
 
 import { PermissionType } from "../utils/permissions";
+import { IAllowancesAction } from "./reducers/allowances";
 
 export function addWallet(wallet: Wallet): IWalletsAction {
   return {
@@ -107,6 +108,37 @@ export function updateArweaveConfig(config: IArweave): IArweaveAction {
 export function resetArweaveConfig(): IArweaveAction {
   return {
     type: "RESET_ARWEAVE_CONFIG"
+  };
+}
+
+export function addAllowance(
+  url: string,
+  enabled: boolean,
+  limit: number
+): IAllowancesAction {
+  return {
+    type: "ADD_ALLOWANCE",
+    payload: { url, enabled, limit }
+  };
+}
+
+export function toggleAllowance(
+  url: string,
+  enabled: boolean
+): IAllowancesAction {
+  return {
+    type: "TOGGLE_ALLOWANCE",
+    payload: { url, enabled }
+  };
+}
+
+export function setAllowanceLimit(
+  url: string,
+  limit: number
+): IAllowancesAction {
+  return {
+    type: "SET_LIMIT",
+    payload: { url, limit }
   };
 }
 

@@ -35,6 +35,36 @@
     div
       width: 100%
 
+  .Allowance
+    display: flex
+    align-items: center
+    
+    .Check.Checked
+      svg
+        path:first-child
+          fill: #AB9DF2 !important
+    
+    .AllowanceAction
+      display: flex
+      align-items: center
+      justify-content: space-between
+      font-size: 1.07em
+      width: 100%
+      width: -webkit-fill-available
+      cursor: pointer
+
+      p
+        font-size: 1em
+        margin: 0
+          left: .4em
+
+      svg
+        font-size: .75em
+        color: variables.$secondary-text-light
+        
+        @media (prefers-color-scheme: dark)
+          color: variables.$secondary-text-dark
+
   .th8ta
     margin: 0
     font-family: 'Ubuntu', sans-serif

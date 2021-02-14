@@ -1,11 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { Button, Input, Spacer, useInput, Loading } from "@geist-ui/react";
+import {
+  Button,
+  Input,
+  Spacer,
+  useInput,
+  Loading,
+  Checkbox,
+  Modal,
+  useModal
+} from "@geist-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
 import { sendMessage, MessageType } from "../../utils/messenger";
-import { setPermissions } from "../../stores/actions";
+import {
+  addAllowance,
+  setAllowanceLimit,
+  setPermissions,
+  toggleAllowance
+} from "../../stores/actions";
 import { getRealURL } from "../../utils/url";
 import { local } from "chrome-storage-promises";
+import { ChevronRightIcon } from "@primer/octicons-react";
+import { Allowance } from "../../stores/reducers/allowances";
 import {
   PermissionType,
   PermissionDescriptions
@@ -29,7 +45,11 @@ export default function App() {
     [type, setType] = useState<AuthType>(),
     dispatch = useDispatch(),
     [alreadyHasPermissions, setAlreadyHasPermissions] = useState(false),
-    profile = useSelector((state: RootState) => state.profile);
+    profile = useSelector((state: RootState) => state.profile),
+    allowanceModal = useModal(false),
+    allowanceAmount = useInput("0"),
+    allowances = useSelector((state: RootState) => state.allowances),
+    [currentAllowance, setCurrentAllowance] = useState<Allowance>();
 
   useEffect(() => {
     // get the auth param from the url
@@ -114,6 +134,8 @@ export default function App() {
       return;
     }
 
+    loadAllowance(url);
+
     // send cancel event if the popup is closed by the user
     window.addEventListener("beforeunload", cancel);
 
@@ -122,6 +144,12 @@ export default function App() {
     };
     // eslint-disable-next-line
   }, []);
+
+  useEffect(() => {
+    if (!currentAllowance) return;
+    else loadAllowance(currentAllowance.url);
+    // eslint-disable-next-line
+  }, [currentAllowance]);
 
   // decrypt current wallet
   async function login() {
@@ -254,87 +282,150 @@ export default function App() {
     return true;
   }
 
+  function loadAllowance(currUrl: string) {
+    const curr = allowances.find(({ url }) => url === currUrl);
+    if (!curr) {
+      dispatch(addAllowance(currUrl, true, 0.1));
+      setCurrentAllowance({ url: currUrl, enabled: true, limit: 0.1 });
+      allowanceAmount.setState("0.1");
+    } else {
+      setCurrentAllowance(curr);
+      allowanceAmount.setState(curr.limit.toString());
+    }
+  }
+
   return (
-    <div className={styles.Auth}>
-      {(!loggedIn && (
-        <>
-          <h1>Sign In</h1>
-          {(type === "connect" && (
-            <p>
-              This site wants to connect to your Arweave wallet. Please enter
-              your password to continue.
-            </p>
-          )) || (
-            <p>
-              This site wants to sign a transaction. Please enter your password
-              to continue.
-            </p>
-          )}
-          <Input
-            {...passwordInput.bindings}
-            status={passwordStatus}
-            placeholder="Password..."
-            type="password"
-            onKeyPress={(e) => {
-              if (e.key === "Enter") login();
-            }}
-          />
-          <Spacer />
-          <Button
-            style={{ width: "100%" }}
-            onClick={login}
-            loading={loading}
-            type="success"
-          >
-            Log In
-          </Button>
-          <Spacer />
-          <Button style={{ width: "100%" }} onClick={cancel}>
-            Cancel
-          </Button>
-          <h2 className={styles.th8ta}>
-            th<span>8</span>ta
-          </h2>
-        </>
-      )) ||
-        (type === "connect" && (
+    <>
+      <div className={styles.Auth}>
+        {(!loggedIn && (
           <>
-            <h1>Permissions</h1>
-            {(alreadyHasPermissions && (
-              <p>This site wants to access more permissions:</p>
-            )) || <p>Please allow these permissions for this site</p>}
-            {(requestedPermissions.length > 0 && (
-              <ul>
-                {requestedPermissions.map((permission, i) => (
-                  <li key={i}>{getPermissionDescription(permission)}</li>
-                ))}
-              </ul>
-            )) || <p>No permissions requested.</p>}
+            <h1>Sign In</h1>
+            {(type === "connect" && (
+              <p>
+                This site wants to connect to your Arweave wallet. Please enter
+                your password to continue.
+              </p>
+            )) || (
+              <p>
+                This site wants to sign a transaction. Please enter your
+                password to continue.
+              </p>
+            )}
+            <Input
+              {...passwordInput.bindings}
+              status={passwordStatus}
+              placeholder="Password..."
+              type="password"
+              onKeyPress={(e) => {
+                if (e.key === "Enter") login();
+              }}
+            />
             <Spacer />
-            <Button style={{ width: "100%" }} onClick={accept} type="success">
-              Accept
+            <div className={styles.Allowance}>
+              <div className={styles.Check + " " + styles.Checked}>
+                <Checkbox
+                  checked={currentAllowance?.enabled}
+                  size="medium"
+                  onChange={(e) => {
+                    if (!currentURL) return e.preventDefault();
+                    dispatch(toggleAllowance(currentURL, e.target.checked));
+                  }}
+                />
+              </div>
+              <div
+                className={styles.AllowanceAction}
+                onClick={() => allowanceModal.setVisible(true)}
+              >
+                <p>Use allowance limit</p>
+                <ChevronRightIcon />
+              </div>
+            </div>
+            <Spacer />
+            <Button
+              style={{ width: "100%" }}
+              onClick={login}
+              loading={loading}
+              type="success"
+            >
+              Log In
             </Button>
             <Spacer />
             <Button style={{ width: "100%" }} onClick={cancel}>
               Cancel
             </Button>
+            <h2 className={styles.th8ta}>
+              th<span>8</span>ta
+            </h2>
           </>
-        )) || (
-          <p
-            style={{
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              textAlign: "center",
-              width: "75%"
-            }}
-          >
-            <Loading style={{ display: "block", margin: "0 auto" }} />
-            {type === "sign_auth" && "Signing a transaction."}
+        )) ||
+          (type === "connect" && (
+            <>
+              <h1>Permissions</h1>
+              {(alreadyHasPermissions && (
+                <p>This site wants to access more permissions:</p>
+              )) || <p>Please allow these permissions for this site</p>}
+              {(requestedPermissions.length > 0 && (
+                <ul>
+                  {requestedPermissions.map((permission, i) => (
+                    <li key={i}>{getPermissionDescription(permission)}</li>
+                  ))}
+                </ul>
+              )) || <p>No permissions requested.</p>}
+              <Spacer />
+              <Button style={{ width: "100%" }} onClick={accept} type="success">
+                Accept
+              </Button>
+              <Spacer />
+              <Button style={{ width: "100%" }} onClick={cancel}>
+                Cancel
+              </Button>
+            </>
+          )) || (
+            <p
+              style={{
+                position: "fixed",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                textAlign: "center",
+                width: "75%"
+              }}
+            >
+              <Loading style={{ display: "block", margin: "0 auto" }} />
+              {type === "sign_auth" && "Signing a transaction."}
+            </p>
+          )}
+      </div>
+      <Modal {...allowanceModal.bindings}>
+        <Modal.Title>Allowance limit</Modal.Title>
+        <Modal.Content>
+          <p>
+            Warn me again to set a new allowance once the app has sent more than{" "}
+            {allowanceAmount.state} AR
           </p>
-        )}
-    </div>
+          <Input
+            {...allowanceAmount.bindings}
+            type="number"
+            placeholder="Signing limit"
+            labelRight="AR"
+          />
+        </Modal.Content>
+        <Modal.Action passive onClick={() => allowanceModal.setVisible(false)}>
+          Cancel
+        </Modal.Action>
+        <Modal.Action
+          onClick={() => {
+            if (!currentURL) return;
+            dispatch(
+              setAllowanceLimit(currentURL, Number(allowanceAmount.state))
+            );
+            allowanceModal.setVisible(false);
+          }}
+        >
+          Ok
+        </Modal.Action>
+      </Modal>
+    </>
   );
 }
 
