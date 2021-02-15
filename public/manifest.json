@@ -6,7 +6,7 @@
   "description": "Secure wallet management for Arweave",
   "permissions": ["activeTab", "tabs", "storage"],
   "background": {
-    "scripts": ["static/js/background.js"]
+    "scripts": ["build/scripts/background.js"]
   },
   "icons": {
     "64": "logo64.png",
@@ -25,13 +25,12 @@
   "web_accessible_resources": [
     "welcome.html",
     "auth.html",
-    "static/js/api.js",
-    "static/js/utils/messenger.js"
+    "build/scripts/injected.js"
   ],
   "content_scripts": [
     {
       "matches": ["file://*/*", "http://*/*", "https://*/*"],
-      "js": ["static/js/contentscript.js"],
+      "js": ["build/scripts/content.js"],
       "run_at": "document_end"
     }
   ]

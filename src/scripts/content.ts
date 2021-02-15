@@ -27,7 +27,7 @@ interFont.href =
 document.head.appendChild(interFont);
 
 // inject the api
-addScriptToWindow(chrome.extension.getURL("/static/js/api.js"));
+addScriptToWindow(chrome.extension.getURL("build/scripts/injected.js"));
 
 // forward messages from the api to the background script
 window.addEventListener("message", (e) => {
