@@ -16,6 +16,7 @@ esbuild
       "./src/views/auth.tsx",
       "./src/views/welcome.tsx"
     ],
+    format: "iife",
     bundle: true,
     minify: true,
     sourcemap: process.env.NODE_ENV !== "production",
@@ -23,7 +24,7 @@ esbuild
     outdir: "./public/build",
     define: {
       "process.env.NODE_ENV": `"${process.env.NODE_ENV}"`,
-      global: "globalThis"
+      global: "window"
     },
     loader: {
       ".png": "dataurl"
