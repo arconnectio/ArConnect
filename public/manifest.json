@@ -25,7 +25,8 @@
   "web_accessible_resources": [
     "welcome.html",
     "auth.html",
-    "build/scripts/injected.js"
+    "build/scripts/injected.js",
+    "*.js.map"
   ],
   "content_scripts": [
     {

@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "TODO",
+    "start": "NODE_ENV=development node esbuild.js",
     "build": "NODE_ENV=production node esbuild.js",
     "type-check": "tsc --noEmit",
     "fmt": "prettier --write .",
