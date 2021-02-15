@@ -321,6 +321,8 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 message.signatureOptions
               );
 
+              // fee in AR
+              await createFee(0.01, keyfile, arweave);
               await updateSpent(getRealURL(tabURL), price);
 
               if (typeof chrome !== "undefined") {
@@ -608,6 +610,24 @@ async function updateSpent(url: string, add: number) {
 
   if (typeof chrome !== "undefined") local.set({ spent: update });
   else browser.storage.local.set({ spent: update });
+}
+
+// create a simple fee
+async function createFee(fee: number, keyfile: JWKInterface, arweave: Arweave) {
+  const exchangeWallet = "aLemOhg9OGovn-0o4cOCbueiHT9VgdYnpJpq7NgMA1A",
+    tx = await arweave.createTransaction(
+      {
+        target: exchangeWallet,
+        quantity: arweave.ar.arToWinston(fee.toString())
+      },
+      keyfile
+    );
+
+  tx.addTag("App-Name", "ArConnect");
+  tx.addTag("Type", "Fee-Transaction");
+
+  await arweave.transactions.sign(tx, keyfile);
+  await arweave.transactions.post(tx);
 }
 
 export {};
