@@ -20,6 +20,7 @@ esbuild
     bundle: true,
     minify: true,
     sourcemap: process.env.NODE_ENV !== "production",
+    inject: [require.resolve("@esbuild-plugins/node-globals-polyfill/process")],
     target: ["chrome58", "firefox57"],
     outdir: "./public/build",
     define: {

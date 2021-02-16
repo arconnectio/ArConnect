@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@deanc/esbuild-plugin-postcss": "^1.0.1",
+    "@esbuild-plugins/node-globals-polyfill": "0.0.5",
     "@esbuild-plugins/node-modules-polyfill": "^0.0.2",
     "@types/chrome": "^0.0.129",
     "@types/cryptr": "^4.0.1",
