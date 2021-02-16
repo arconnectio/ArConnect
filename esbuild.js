@@ -1,7 +1,7 @@
 const esbuild = require("esbuild"),
   autoprefixer = require("autoprefixer"),
   sassPlugin = require("esbuild-plugin-sass"),
-  postCssPlugin = require("@deanc/esbuild-plugin-postcss"),
+  postCssPlugin = require("./plugins/postcss") /* require("@deanc/esbuild-plugin-postcss") */,
   {
     NodeModulesPolyfillPlugin
   } = require("@esbuild-plugins/node-modules-polyfill");
