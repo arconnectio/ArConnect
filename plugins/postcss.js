@@ -1,5 +1,6 @@
 // Forked from https://github.com/deanc/esbuild-plugin-postcss/blob/main/index.js to allow .sass extensions
 const fs = require("fs-extra");
+const postcssSass = require("@csstools/postcss-sass");
 const postcss = require("postcss");
 const util = require("util");
 const tmp = require("tmp");
@@ -14,9 +15,10 @@ module.exports = (options = { plugins: [] }) => ({
   setup: function (build) {
     const { rootDir = options.rootDir || process.cwd() } = options;
     const tmpDirPath = tmp.dirSync().name;
+
     build.onResolve(
       // Fix regexp to allow sass
-      { filter: /.\.((sa|c)ss)$/, namespace: "file" },
+      { filter: /.\.(sass)$/, namespace: "file" },
       async (args) => {
         const sourceFullPath = path.resolve(args.resolveDir, args.path);
         const sourceExt = path.extname(sourceFullPath);
@@ -30,7 +32,8 @@ module.exports = (options = { plugins: [] }) => ({
 
         const css = await readFile(sourceFullPath);
 
-        const result = postcss(options.plugins).process(css, {
+        const result = postcss([postcssSass()]).process(css, {
+          syntax: "postcss-sass",
           from: sourceFullPath,
           to: tmpFilePath
         });

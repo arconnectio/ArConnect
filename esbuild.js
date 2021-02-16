@@ -32,7 +32,7 @@ esbuild
     },
     plugins: [
       NodeModulesPolyfillPlugin(),
-      sassPlugin(),
+      //sassPlugin(),
       postCssPlugin({
         plugins: [autoprefixer],
         modules: true
