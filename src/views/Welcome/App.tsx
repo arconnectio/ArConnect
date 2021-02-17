@@ -19,7 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Wallet } from "../../stores/reducers/wallets";
 import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
-import Cryptr from "cryptr";
+import Cryptr from "../../utils/crypto";
 import Arweave from "arweave";
 import weaveid_logo from "../../assets/weaveid.png";
 import logo from "../../assets/logo.png";
@@ -118,7 +118,9 @@ export default function App() {
     for (let i = 0; i < keyfilesToLoad.length; i++) {
       const address = await arweave.wallets.jwkToAddress(keyfilesToLoad[i]),
         cryptr = new Cryptr(passwordInput.state),
-        keyfile = cryptr.encrypt(JSON.stringify(keyfilesToLoad[i])),
+        keyfile = JSON.stringify(
+          await cryptr.encrypt(JSON.stringify(keyfilesToLoad[i]))
+        ),
         name = `Account ${i + 1 + walletsStore.length}`;
 
       wallets.push({ address, keyfile, name });
@@ -146,7 +148,9 @@ export default function App() {
       keyfile: JWKInterface = await getKeyFromMnemonic(mnemonic),
       address = await arweave.wallets.jwkToAddress(keyfile),
       cryptr = new Cryptr(passwordInput.state),
-      encryptedKeyfile = cryptr.encrypt(JSON.stringify(keyfile));
+      encryptedKeyfile = JSON.stringify(
+        await cryptr.encrypt(JSON.stringify(keyfile))
+      );
 
     setSeed(mnemonic);
     setSeedKeyfile({ address, keyfile });
@@ -206,7 +210,7 @@ export default function App() {
       try {
         const cryptr = new Cryptr(passwordInput.state);
 
-        cryptr.decrypt(walletsStore[0].keyfile);
+        cryptr.decrypt(JSON.parse(walletsStore[0].keyfile));
         setPasswordGiven(true);
         setToast({ text: "Logged in", type: "success" });
       } catch {

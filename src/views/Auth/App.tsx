@@ -27,7 +27,7 @@ import {
   PermissionType,
   PermissionDescriptions
 } from "../../utils/permissions";
-import Cryptr from "cryptr";
+import Cryptr from "../../utils/crypto";
 import styles from "../../styles/views/Auth/view.module.sass";
 
 export default function App() {
@@ -172,7 +172,7 @@ export default function App() {
           setLoading(false);
           return;
         }
-        cryptr.decrypt(keyfileToDecrypt);
+        cryptr.decrypt(JSON.parse(keyfileToDecrypt));
         if (typeof chrome !== "undefined")
           local.set({ decryptionKey: passwordInput.state });
         else browser.storage.local.set({ decryptionKey: passwordInput.state });

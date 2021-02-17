@@ -3,51 +3,102 @@
 export interface EncryptionResult {
   data: ArrayBuffer;
   iv: Uint8Array;
+  key: ArrayBuffer;
 }
 
-export async function encrypt(
-  data: string | Uint8Array,
-  key: Uint8Array
-): Promise<EncryptionResult> {
-  if (typeof data == "string") {
-    const encoder = new TextEncoder();
-    data = encoder.encode(data);
+class Crypto {
+  secret: string;
+  constructor(secret: string) {
+    this.secret = secret;
   }
 
-  let encoded_key = await crypto.subtle.importKey(
-    "raw",
-    key.buffer,
-    "AES-GCM",
-    false,
-    ["encrypt", "decrypt"]
-  );
-  let iv = window.crypto.getRandomValues(new Uint8Array(12));
-  let result = await window.crypto.subtle.encrypt(
-    {
-      name: "AES-GCM",
-      iv
-    },
-    encoded_key,
-    data
-  );
+  async genKey(salt: Uint8Array): Promise<ArrayBuffer> {
+    var encoder = new TextEncoder();
+    var passphraseKey = encoder.encode();
+    let key = await crypto.subtle.importKey(
+      "raw",
+      passphraseKey,
+      { name: "PBKDF2" },
+      false,
+      ["deriveBits", "deriveKey"]
+    );
+    let webkey = await crypto.subtle.deriveKey(
+      { name: "PBKDF2", salt, iterations: 1000, hash: "SHA-256" },
+      key,
 
-  return {
-    data: result,
-    iv
-  };
+      // Note: for this demo we don't actually need a cipher suite,
+      // but the api requires that it must be specified.
+      // For AES the length required to be 128 or 256 bits (not bytes)
+      { name: "AES-CBC", length: 256 },
+
+      // Whether or not the key is extractable (less secure) or not (more secure)
+      // when false, the key can only be passed as a web crypto object, not inspected
+      true,
+
+      // this web crypto object will only be allowed for these functions
+      ["encrypt", "decrypt"]
+    );
+
+    return await crypto.subtle.exportKey("raw", webkey);
+  }
+
+  async encrypt(data: Uint8Array | string): Promise<EncryptionResult> {
+    if (typeof data == "string") {
+      data = new TextEncoder().encode(data);
+    }
+    var saltBuffer = crypto.getRandomValues(new Uint8Array(8));
+    let iv = window.crypto.getRandomValues(new Uint8Array(12));
+
+    const pkkey = await this.genKey(saltBuffer);
+
+    let encoded_key = await crypto.subtle.importKey(
+      "raw",
+      pkkey,
+      "AES-GCM",
+      false,
+      ["encrypt", "decrypt"]
+    );
+    let key = await crypto.subtle.exportKey("raw", encoded_key);
+    let result = await window.crypto.subtle.encrypt(
+      {
+        name: "AES-GCM",
+        iv
+      },
+      encoded_key,
+      data
+    );
+
+    return {
+      data: result,
+      iv,
+      key
+    };
+  }
+
+  async decrypt(encrypted: EncryptionResult): Promise<ArrayBuffer> {
+    const { iv, data, key } = encrypted;
+    let imported_key = await crypto.subtle.importKey(
+      "raw",
+      key,
+      "AES-GCM",
+      false,
+      ["encrypt", "decrypt"]
+    );
+    return window.crypto.subtle.decrypt(
+      {
+        name: "AES-GCM",
+        iv
+      },
+      imported_key,
+      data
+    );
+  }
+
+  async decryptString(encrypted: EncryptionResult): Promise<string> {
+    let decryptedBuff = await this.decrypt(encrypted);
+
+    return new TextDecoder().decode(decryptedBuff);
+  }
 }
 
-export async function decrypt(
-  encrypted: EncryptionResult,
-  key: CryptoKey
-): Promise<ArrayBuffer> {
-  const { iv, data } = encrypted;
-  return window.crypto.subtle.decrypt(
-    {
-      name: "AES-GCM",
-      iv
-    },
-    key,
-    data
-  );
-}
+export default Crypto;
