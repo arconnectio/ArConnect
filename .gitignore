@@ -6,3 +6,6 @@
 *.env
 *.local
 *.log
+
+# Build artifacts
+arconnect.zip

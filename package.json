@@ -2,6 +2,7 @@
   "scripts": {
     "start": "NODE_ENV=development node esbuild.js",
     "build": "NODE_ENV=production node esbuild.js",
+    "pack:firefox": "cd public && zip -r ../arconnect.zip *",
     "type-check": "tsc --noEmit",
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check ."
