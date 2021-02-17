@@ -1879,6 +1879,14 @@
   resolved "https://registry.yarnpkg.com/@emotion/memoize/-/memoize-0.7.4.tgz#19bf0f5af19149111c40d98bb0cf82119f5d9eeb"
   integrity sha512-Ja/Vfqe3HpuzRsG1oBtWTHk2PGZ7GR+2Vz5iYGelAw8dx32K0y7PjVuxK6z1nMpZOqAFsRUPCkK1YjJ56qJlgw==
 
+"@esbuild-plugins/node-globals-polyfill@0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@esbuild-plugins/node-globals-polyfill/-/node-globals-polyfill-0.0.5.tgz#3a9ab355befd394af77c5a4966d4706b9bedf415"
+  integrity sha512-Xz66k/M8ZtkHghnuuGYrJt4E/68O0d/acYX5rU0PzDB1znLwZkm9m5dho27il63C2MIit1uNCpdBn2VfTw9/uQ==
+  dependencies:
+    debug "^4.3.1"
+    rollup-plugin-node-polyfills "^0.2.1"
+
 "@esbuild-plugins/node-modules-polyfill@^0.0.2":
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/@esbuild-plugins/node-modules-polyfill/-/node-modules-polyfill-0.0.2.tgz#1a3f956cff4b4833ff1a0f8b955de1250c7f4bf6"
@@ -5026,11 +5034,6 @@ crypto-random-string@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/crypto-random-string/-/crypto-random-string-1.0.0.tgz#a230f64f568310e1498009940790ec99545bca7e"
   integrity sha1-ojD2T1aDEOFJgAmUB5DsmVRbyn4=
-
-cryptr@^6.0.2:
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/cryptr/-/cryptr-6.0.2.tgz#3f9e97f825ffb93f425eb24068efbb6a652bf947"
-  integrity sha512-1TRHI4bmuLIB8WgkH9eeYXzhEg1T4tonO4vVaMBKKde8Dre51J68nAgTVXTwMYXAf7+mV2gBCkm/9wksjSb2sA==
 
 css-blank-pseudo@^0.1.4:
   version "0.1.4"
@@ -10588,7 +10591,7 @@ postcss@^8.1.0:
     source-map "^0.6.1"
     vfile-location "^3.2.0"
 
-postcss@^8.2.4:
+postcss@^8.2.4, postcss@^8.2.6:
   version "8.2.6"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.2.6.tgz#5d69a974543b45f87e464bc4c3e392a97d6be9fe"
   integrity sha512-xpB8qYxgPuly166AGlpRjUdEYtmOWx2iCwGmrv4vqZL9YPVviDVPZPRXxnXr6xPZOdxQ9lp3ZBFCRgWJ7LE3Sg==
@@ -11467,7 +11470,7 @@ rollup-plugin-inject@^3.0.0:
     magic-string "^0.25.3"
     rollup-pluginutils "^2.8.1"
 
-rollup-plugin-node-polyfills@0.2.1:
+rollup-plugin-node-polyfills@0.2.1, rollup-plugin-node-polyfills@^0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/rollup-plugin-node-polyfills/-/rollup-plugin-node-polyfills-0.2.1.tgz#53092a2744837164d5b8a28812ba5f3ff61109fd"
   integrity sha512-4kCrKPTJ6sK4/gLL/U5QzVT8cxJcofO0OU74tnB19F40cmuAKSzH5/siithxlofFEjwvw1YAhPmbvGNA6jEroA==
