@@ -13,6 +13,8 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import Arweave from "arweave";
 import axios from "axios";
 import { Allowance } from "../stores/reducers/allowances";
+import { run } from "ar-gql";
+import limestone from "@limestonefi/api";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(async () => {
@@ -318,9 +320,11 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 keyfile,
                 message.signatureOptions
               );
+              decodeTransaction.reward = (
+                Number(decodeTransaction.reward ?? 0) +
+                Number(await getFeeAmount(storedAddress, arweave))
+              ).toString();
 
-              // fee in AR
-              await createFee(keyfile, arweave);
               await updateSpent(getRealURL(tabURL), price);
 
               if (typeof chrome !== "undefined") {
@@ -611,21 +615,34 @@ async function updateSpent(url: string, add: number) {
 }
 
 // create a simple fee
-async function createFee(keyfile: JWKInterface, arweave: Arweave) {
-  const exchangeWallet = "aLemOhg9OGovn-0o4cOCbueiHT9VgdYnpJpq7NgMA1A",
-    tx = await arweave.createTransaction(
-      {
-        target: exchangeWallet,
-        quantity: arweave.ar.arToWinston(/*fee.toString()*/ "0")
-      },
-      keyfile
-    );
+async function getFeeAmount(address: string, arweave: Arweave) {
+  const res = await run(
+      `
+      query($address: String!) {
+        transactions(
+          owners: [$address]
+          tags: [
+            { name: "Signing-Client", values: "ArConnect" }
+          ]
+          first: 11
+        ) {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    `,
+      { address }
+    ),
+    arPrice = await limestone.getPrice("AR");
 
-  tx.addTag("App-Name", "ArConnect");
-  tx.addTag("Type", "Fee-Transaction");
+  if (res.data.transactions.edges.length) {
+    const usd = res.data.transactions.edges.length > 10 ? 0.01 : 0.03;
 
-  await arweave.transactions.sign(tx, keyfile);
-  await arweave.transactions.post(tx);
+    return arweave.ar.arToWinston((arPrice.price * usd).toString());
+  } else return arweave.ar.arToWinston((arPrice.price * 0.01).toString());
 }
 
 export {};
