@@ -19,7 +19,7 @@ class Crypto {
       "raw",
       passphraseKey,
       { name: "PBKDF2" },
-      false,
+      true,
       ["deriveBits", "deriveKey"]
     );
     let webkey = await crypto.subtle.deriveKey(
@@ -30,9 +30,6 @@ class Crypto {
       // but the api requires that it must be specified.
       // For AES the length required to be 128 or 256 bits (not bytes)
       { name: "AES-CBC", length: 256 },
-
-      // Whether or not the key is extractable (less secure) or not (more secure)
-      // when false, the key can only be passed as a web crypto object, not inspected
       true,
 
       // this web crypto object will only be allowed for these functions
@@ -55,7 +52,7 @@ class Crypto {
       "raw",
       pkkey,
       "AES-GCM",
-      false,
+      true,
       ["encrypt", "decrypt"]
     );
     let key = await crypto.subtle.exportKey("raw", encoded_key);
@@ -81,7 +78,7 @@ class Crypto {
       "raw",
       key,
       "AES-GCM",
-      false,
+      true,
       ["encrypt", "decrypt"]
     );
     return window.crypto.subtle.decrypt(
