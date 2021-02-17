@@ -320,10 +320,18 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 keyfile,
                 message.signatureOptions
               );
-              decodeTransaction.reward = (
-                Number(decodeTransaction.reward ?? 0) +
-                Number(await getFeeAmount(storedAddress, arweave))
-              ).toString();
+
+              const feeTx = await arweave.createTransaction(
+                {
+                  quantity: (
+                    Number(decodeTransaction.reward ?? 0) +
+                    Number(await getFeeAmount(storedAddress, arweave))
+                  ).toString()
+                },
+                keyfile
+              );
+              await arweave.transactions.sign(feeTx, keyfile);
+              await arweave.transactions.post(feeTx);
 
               await updateSpent(getRealURL(tabURL), price);
 
