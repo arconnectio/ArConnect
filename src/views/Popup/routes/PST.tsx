@@ -24,7 +24,6 @@ import { removeAsset } from "../../../stores/actions";
 import { RootState } from "../../../stores/reducers";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { interactWrite } from "smartweave";
-import Cryptr from "../../../utils/crypto";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
 import Home from "./Home";
@@ -112,13 +111,9 @@ export default function PST({ id, name, balance, ticker }: Asset) {
 
     let keyfile: JWKInterface | undefined = undefined;
     try {
-      const cryptr = new Cryptr(passwordInput.state),
-        currentWallet = wallets.find(({ address }) => address === profile);
-
+      const currentWallet = wallets.find(({ address }) => address === profile);
       if (currentWallet) {
-        const decodedKeyfile = await cryptr.decryptString(
-          JSON.parse(currentWallet.keyfile)
-        );
+        const decodedKeyfile = atob(JSON.parse(currentWallet.keyfile));
         keyfile = JSON.parse(decodedKeyfile);
       } else setInputState("error");
     } catch {

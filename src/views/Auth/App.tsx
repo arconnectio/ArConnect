@@ -27,7 +27,6 @@ import {
   PermissionType,
   PermissionDescriptions
 } from "../../utils/permissions";
-import Cryptr from "../../utils/crypto";
 import styles from "../../styles/views/Auth/view.module.sass";
 
 export default function App() {
@@ -163,16 +162,16 @@ export default function App() {
     setTimeout(() => {
       // try to login by decrypting
       try {
-        const cryptr = new Cryptr(passwordInput.state),
-          keyfileToDecrypt = wallets.find(({ address }) => address === profile)
-            ?.keyfile;
-
+        const keyfileToDecrypt = wallets.find(
+          ({ address }) => address === profile
+        )?.keyfile;
+        console.log(keyfileToDecrypt);
         if (!keyfileToDecrypt) {
           setPasswordStatus("error");
           setLoading(false);
           return;
         }
-        cryptr.decrypt(JSON.parse(keyfileToDecrypt));
+        atob(keyfileToDecrypt);
         if (typeof chrome !== "undefined")
           local.set({ decryptionKey: passwordInput.state });
         else browser.storage.local.set({ decryptionKey: passwordInput.state });

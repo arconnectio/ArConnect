@@ -8,7 +8,6 @@ import {
 import { getRealURL } from "../utils/url";
 import { PermissionType } from "../utils/permissions";
 import { local } from "chrome-storage-promises";
-import Cryptr from "../utils/crypto";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import Arweave from "arweave";
 import axios from "axios";
@@ -305,10 +304,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               const keyfileToDecrypt = storedKeyfiles.find(
                   (item: any) => item.address === storedAddress
                 )?.keyfile,
-                cryptr = new Cryptr(decryptionKey),
-                keyfile: JWKInterface = JSON.parse(
-                  await cryptr.decryptString(keyfileToDecrypt)
-                ),
+                keyfile: JWKInterface = JSON.parse(btoa(keyfileToDecrypt)),
                 decodeTransaction = arweave.transactions.fromRaw({
                   ...message.transaction,
                   owner: keyfile.n

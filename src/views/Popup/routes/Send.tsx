@@ -5,7 +5,6 @@ import { Button, Input, Spacer, useInput, useToasts } from "@geist-ui/react";
 import { goTo } from "react-chrome-extension-router";
 import { local } from "chrome-storage-promises";
 import { JWKInterface } from "arweave/node/lib/wallet";
-import Cryptr from "../../../utils/crypto";
 import Home from "./Home";
 import Arweave from "arweave";
 import axios from "axios";
@@ -76,8 +75,7 @@ export default function Send() {
     if (!currentWallet) return;
     setTimeout(() => {
       try {
-        const cryptr = new Cryptr(passwordInput.state);
-        cryptr.decrypt(JSON.parse(currentWallet));
+        atob(JSON.parse(currentWallet));
         setDecryptKey(passwordInput.state);
         if (typeof chrome !== "undefined")
           local.set({ decryptionKey: passwordInput.state });
@@ -100,10 +98,7 @@ export default function Send() {
       return setToast({ text: "No decrypt key", type: "error" });
 
     try {
-      const cryptr = new Cryptr(decryptKey),
-        keyfile: JWKInterface = JSON.parse(
-          await cryptr.decryptString(JSON.parse(currentWallet))
-        ),
+      const keyfile: JWKInterface = JSON.parse(atob(JSON.parse(currentWallet))),
         transaction = await arweave.createTransaction(
           {
             target: targetInput.state,
