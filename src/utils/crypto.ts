@@ -19,7 +19,7 @@ class Crypto {
       "raw",
       passphraseKey,
       { name: "PBKDF2" },
-      true,
+      false,
       ["deriveBits", "deriveKey"]
     );
     let webkey = await crypto.subtle.deriveKey(
