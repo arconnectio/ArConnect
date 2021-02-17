@@ -149,15 +149,13 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
         // get the active/selected address
         case "get_active_address":
-          const currentAddressStore = localStorage.getItem("arweave_profile");
-
           if (!(await checkPermissions(["ACCESS_ADDRESS"], tabURL)))
             return sendPermissionError(
               sendResponse,
               "get_active_address_result"
             );
-          if (currentAddressStore) {
-            const currentAddress = JSON.parse(currentAddressStore).val;
+          try {
+            const currentAddress = (await getStoreData())["profile"];
 
             sendMessage(
               {
@@ -170,7 +168,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               undefined,
               sendResponse
             );
-          } else {
+          } catch {
             sendMessage(
               {
                 type: "get_active_address_result",
@@ -618,7 +616,7 @@ async function createFee(keyfile: JWKInterface, arweave: Arweave) {
     tx = await arweave.createTransaction(
       {
         target: exchangeWallet,
-        quantity: arweave.ar.arToWinston(fee.toString())
+        quantity: arweave.ar.arToWinston(/*fee.toString()*/ "0")
       },
       keyfile
     );
