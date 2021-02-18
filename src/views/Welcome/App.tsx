@@ -421,6 +421,10 @@ export default function App() {
               transactions
             </li>
           </ul>
+          <p>
+            We charge the same fee, regardless of the transaction data
+            size/quantity.
+          </p>
         </Modal.Content>
         <Modal.Action onClick={() => feeModal.setVisible(false)}>
           Ok
