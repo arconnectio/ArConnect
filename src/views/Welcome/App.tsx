@@ -396,7 +396,7 @@ export default function App() {
         <Modal.Action onClick={() => window.close()}>Ok</Modal.Action>
       </Modal>
       <Modal {...feeModal.bindings}>
-        <Modal.Title>Fees</Modal.Title>
+        <Modal.Title>Tips</Modal.Title>
         <Modal.Content>
           <p style={{ textAlign: "justify" }}>
             We at{" "}
@@ -407,15 +407,15 @@ export default function App() {
             >
               th8ta
             </a>{" "}
-            are working hard to bring you the most secure and highest quality
-            applications. In order to ensure the development of our services, we
-            take the least amount of fee possible from transactions signed with
-            ArConnect and the fee is sent to a random <Code>VRT</Code> token
-            holder.
+            are working hard to bring you the best experiences on the permaweb.
+            Because of this, we take a small tip whenever a 3rd-party
+            application utilizes ArConnect. This tip goes to a randomly-selected{" "}
+            <Code>VRT</Code> token holder:
           </p>
           <ul>
             <li>
-              <Code>$0.03</Code> USD-equivalent of AR for first 10 transactions
+              <Code>$0.03</Code> USD-equivalent of AR for the first 10
+              transactions
             </li>
             <li>
               <Code>$0.01</Code> USD-equivalent of AR for all subsequent
@@ -423,8 +423,9 @@ export default function App() {
             </li>
           </ul>
           <p>
-            We charge the same fee, regardless of the transaction data
-            size/quantity.
+            Note: We do <b>not</b> charge fees on transfers made inside of the
+            extension and the fee does <b>not</b> change based on the size of
+            the transaction.
           </p>
         </Modal.Content>
         <Modal.Action onClick={() => feeModal.setVisible(false)}>
