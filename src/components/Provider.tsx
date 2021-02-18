@@ -11,7 +11,8 @@ const lightTheme = {
     successLight: "#c8bff2",
     successDark: "#7f6aeb",
     link: "#AB9DF2",
-    selection: "#AB9DF2"
+    selection: "#AB9DF2",
+    code: "#F81CE5"
   }
 };
 const darkTheme = {
@@ -27,7 +28,6 @@ const darkTheme = {
     background: "#000",
     foreground: "#fff",
     secondary: "#888",
-    code: "#79ffe1",
     border: "#333",
     ...lightTheme.palette
   },

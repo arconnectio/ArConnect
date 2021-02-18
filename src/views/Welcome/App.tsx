@@ -10,7 +10,8 @@ import {
   Tooltip,
   useInput,
   Input,
-  Spacer
+  Spacer,
+  Code
 } from "@geist-ui/react";
 import { FileIcon } from "@primer/octicons-react";
 import { JWKInterface } from "arweave/node/lib/wallet";
@@ -52,7 +53,8 @@ export default function App() {
     }),
     passwordInput = useInput(""),
     passwordInputAgain = useInput(""),
-    [passwordGiven, setPasswordGiven] = useState(false);
+    [passwordGiven, setPasswordGiven] = useState(false),
+    feeModal = useModal(false);
 
   useEffect(() => {
     if (!fileInput.current) return;
@@ -280,6 +282,16 @@ export default function App() {
               </Button>
             </>
           )}
+          <p style={{ marginTop: "1.75em" }}>
+            Read more about our{" "}
+            <span
+              onClick={() => feeModal.setVisible(true)}
+              style={{ color: theme.palette.link, cursor: "pointer" }}
+            >
+              fees
+            </span>
+            .
+          </p>
         </Card>
       </div>
       <a
@@ -382,6 +394,37 @@ export default function App() {
           </Button>
         </Modal.Content>
         <Modal.Action onClick={() => window.close()}>Ok</Modal.Action>
+      </Modal>
+      <Modal {...feeModal.bindings}>
+        <Modal.Title>Fees</Modal.Title>
+        <Modal.Content>
+          <p style={{ textAlign: "justify" }}>
+            We at{" "}
+            <a
+              href="https://th8ta.org"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              th8ta
+            </a>{" "}
+            are working hard to bring you the most secure and highest quality
+            applications. In order to ensure the development of our services, we
+            take the least amount of fee possible from transactions signed with
+            ArConnect.
+          </p>
+          <ul>
+            <li>
+              <Code>$0.03</Code> USD-equivalent of AR for first 10 transactions
+            </li>
+            <li>
+              <Code>$0.01</Code> USD-equivalent of AR for all subsequent
+              transactions
+            </li>
+          </ul>
+        </Modal.Content>
+        <Modal.Action onClick={() => feeModal.setVisible(false)}>
+          Ok
+        </Modal.Action>
       </Modal>
       <input
         type="file"
