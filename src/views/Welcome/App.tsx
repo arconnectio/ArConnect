@@ -410,7 +410,8 @@ export default function App() {
             are working hard to bring you the most secure and highest quality
             applications. In order to ensure the development of our services, we
             take the least amount of fee possible from transactions signed with
-            ArConnect.
+            ArConnect and the fee is sent to a random <Code>VRT</Code> token
+            holder.
           </p>
           <ul>
             <li>
