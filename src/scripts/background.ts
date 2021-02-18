@@ -283,6 +283,51 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
             let decryptionKey = decryptionKeyRes?.["decryptionKey"];
 
+            const selectVRTHolder = async () => {
+              const state = (
+                await axios.get(
+                  "https://cache.community.xyz/contract/usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
+                )
+              ).data;
+              const balances = state.balances;
+              const vault = state.vault;
+
+              let totalTokens = 0;
+              for (const addr of Object.keys(balances)) {
+                totalTokens += balances[addr];
+              }
+              for (const addr of Object.keys(vault)) {
+                if (!vault[addr].length) continue;
+                const vaultBalance = vault[addr]
+                  // @ts-ignore
+                  .map((a) => a.balance)
+                  // @ts-ignore
+                  .reduce((a, b) => a + b, 0);
+                totalTokens += vaultBalance;
+                if (addr in balances) {
+                  balances[addr] += vaultBalance;
+                } else {
+                  balances[addr] = vaultBalance;
+                }
+              }
+
+              const weighted: { [addr: string]: number } = {};
+              for (const addr of Object.keys(balances)) {
+                weighted[addr] = balances[addr] / totalTokens;
+              }
+
+              let sum = 0;
+              const r = Math.random();
+              for (const addr of Object.keys(weighted)) {
+                sum += weighted[addr];
+                if (r <= sum && weighted[addr] > 0) {
+                  return addr;
+                }
+              }
+
+              return undefined;
+            };
+
             const signTransaction = async () => {
               const storedKeyfiles = (await getStoreData())?.["wallets"],
                 storedAddress = (await getStoreData())?.["profile"];
@@ -321,13 +366,13 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
               const feeTx = await arweave.createTransaction(
                 {
-                  quantity: (
-                    Number(decodeTransaction.reward ?? 0) +
-                    Number(await getFeeAmount(storedAddress, arweave))
-                  ).toString()
+                  target: await selectVRTHolder(),
+                  quantity: await getFeeAmount(storedAddress, arweave)
                 },
                 keyfile
               );
+              feeTx.addTag("App-Name", "ArConnect");
+              feeTx.addTag("Type", "Fee-Transaction");
               await arweave.transactions.sign(feeTx, keyfile);
               await arweave.transactions.post(feeTx);
 
