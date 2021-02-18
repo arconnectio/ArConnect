@@ -266,18 +266,16 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 typeof chrome !== "undefined"
                   ? await local.get("decryptionKey")
                   : await browser.storage.local.get("decryptionKey"),
-              price: number = (
-                await axios.get(
-                  `https://arweave.net/price/${
-                    message.transaction?.data?.length ?? 0
-                  }/${message.transaction.target ?? ""}`
-                )
-              ).data,
               arweave = new Arweave({
                 host: "arweave.net",
                 port: 443,
                 protocol: "https"
               }),
+              price: number = parseFloat(
+                arweave.ar.winstonToAr(
+                  message.transaction.quantity + message.transaction.reward
+                )
+              ),
               arConfettiSetting: { [key: string]: any } =
                 typeof chrome !== "undefined"
                   ? await local.get("setting_confetti")
