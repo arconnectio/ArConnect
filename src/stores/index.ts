@@ -1,7 +1,6 @@
 import { createStore } from "redux";
 import reducers from "./reducers";
 import { persistStore, persistReducer } from "redux-persist";
-// @ts-ignore
 import { localStorage as localStorageBrowser } from "redux-persist-webextension-storage";
 
 const persistConfig = {
