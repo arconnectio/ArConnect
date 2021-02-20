@@ -5880,10 +5880,10 @@ es6-weak-map@~0.1.4:
     es6-iterator "~0.1.3"
     es6-symbol "~2.0.1"
 
-esbuild-plugin-postcss2@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/esbuild-plugin-postcss2/-/esbuild-plugin-postcss2-0.0.3.tgz#aa970a5b1bb5123d2e7d9f9324a14873164f24b7"
-  integrity sha512-Bb45mCHGwVklDkJJ7eLTglDm/Hf2MQDpU3jIASyZy2hOPi2N+qIy2v6HqnygSQIiZFryl/hWuPakjboJZZkGXQ==
+esbuild-plugin-postcss2@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/esbuild-plugin-postcss2/-/esbuild-plugin-postcss2-0.0.5.tgz#39cd3b0a99cee86b7e9be0ce3467ee46fc3a4ff7"
+  integrity sha512-bppxZchuloHBu+AITtaIyA7NeKIUOEPIIOHd91IbhYODjqqGoOO2aughZ51TPTjFJIWd93AH7UYVnBjpLv+x5w==
   dependencies:
     autoprefixer "^10.2.4"
     fs-extra "^9.1.0"

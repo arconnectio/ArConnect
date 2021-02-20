@@ -10,6 +10,7 @@ import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
 import { getRealURL } from "../../../utils/url";
+import { local } from "chrome-storage-promises";
 import {
   readdAsset,
   removePermissions,
@@ -20,7 +21,6 @@ import {
 import Home from "./Home";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
-import { local } from "chrome-storage-promises";
 
 export default function Settings() {
   const [setting, setCurrSetting] = useState<
