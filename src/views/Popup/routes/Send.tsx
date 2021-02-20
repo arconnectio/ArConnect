@@ -199,7 +199,11 @@ export default function Send() {
         )) || (
           <>
             <p>Please enter your password to continue:</p>
-            <Input {...passwordInput.bindings} placeholder="Password..." />
+            <Input
+              {...passwordInput.bindings}
+              placeholder="Password..."
+              type="password"
+            />
             <Spacer />
             <Button
               style={{ width: "100%" }}
