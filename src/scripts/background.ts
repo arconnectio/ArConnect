@@ -12,6 +12,8 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import Arweave from "arweave";
 import axios from "axios";
 import { Allowance } from "../stores/reducers/allowances";
+import { run } from "ar-gql";
+import limestone from "@limestonefi/api";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(async () => {
@@ -148,15 +150,13 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
         // get the active/selected address
         case "get_active_address":
-          const currentAddressStore = localStorage.getItem("arweave_profile");
-
           if (!(await checkPermissions(["ACCESS_ADDRESS"], tabURL)))
             return sendPermissionError(
               sendResponse,
               "get_active_address_result"
             );
-          if (currentAddressStore) {
-            const currentAddress = JSON.parse(currentAddressStore).val;
+          try {
+            const currentAddress = (await getStoreData())["profile"];
 
             sendMessage(
               {
@@ -169,7 +169,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               undefined,
               sendResponse
             );
-          } else {
+          } catch {
             sendMessage(
               {
                 type: "get_active_address_result",
@@ -265,24 +265,67 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 typeof chrome !== "undefined"
                   ? await local.get("decryptionKey")
                   : await browser.storage.local.get("decryptionKey"),
-              price: number = (
-                await axios.get(
-                  `https://arweave.net/price/${
-                    message.transaction?.data?.length ?? 0
-                  }/${message.transaction.target ?? ""}`
-                )
-              ).data,
               arweave = new Arweave({
                 host: "arweave.net",
                 port: 443,
                 protocol: "https"
               }),
+              price: number = parseFloat(
+                arweave.ar.winstonToAr(
+                  message.transaction.quantity + message.transaction.reward
+                )
+              ),
               arConfettiSetting: { [key: string]: any } =
                 typeof chrome !== "undefined"
                   ? await local.get("setting_confetti")
                   : await browser.storage.local.get("setting_confetti");
 
             let decryptionKey = decryptionKeyRes?.["decryptionKey"];
+
+            const selectVRTHolder = async () => {
+              const state = (
+                await axios.get(
+                  "https://cache.community.xyz/contract/usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
+                )
+              ).data;
+              const balances = state.balances;
+              const vault = state.vault;
+
+              let totalTokens = 0;
+              for (const addr of Object.keys(balances)) {
+                totalTokens += balances[addr];
+              }
+              for (const addr of Object.keys(vault)) {
+                if (!vault[addr].length) continue;
+                const vaultBalance = vault[addr]
+                  // @ts-ignore
+                  .map((a) => a.balance)
+                  // @ts-ignore
+                  .reduce((a, b) => a + b, 0);
+                totalTokens += vaultBalance;
+                if (addr in balances) {
+                  balances[addr] += vaultBalance;
+                } else {
+                  balances[addr] = vaultBalance;
+                }
+              }
+
+              const weighted: { [addr: string]: number } = {};
+              for (const addr of Object.keys(balances)) {
+                weighted[addr] = balances[addr] / totalTokens;
+              }
+
+              let sum = 0;
+              const r = Math.random();
+              for (const addr of Object.keys(weighted)) {
+                sum += weighted[addr];
+                if (r <= sum && weighted[addr] > 0) {
+                  return addr;
+                }
+              }
+
+              return undefined;
+            };
 
             const signTransaction = async () => {
               const storedKeyfiles = (await getStoreData())?.["wallets"],
@@ -316,6 +359,18 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 keyfile,
                 message.signatureOptions
               );
+
+              const feeTx = await arweave.createTransaction(
+                {
+                  target: await selectVRTHolder(),
+                  quantity: await getFeeAmount(storedAddress, arweave)
+                },
+                keyfile
+              );
+              feeTx.addTag("App-Name", "ArConnect");
+              feeTx.addTag("Type", "Fee-Transaction");
+              await arweave.transactions.sign(feeTx, keyfile);
+              await arweave.transactions.post(feeTx);
 
               await updateSpent(getRealURL(tabURL), price);
 
@@ -604,6 +659,37 @@ async function updateSpent(url: string, add: number) {
 
   if (typeof chrome !== "undefined") local.set({ spent: update });
   else browser.storage.local.set({ spent: update });
+}
+
+// create a simple fee
+async function getFeeAmount(address: string, arweave: Arweave) {
+  const res = await run(
+      `
+      query($address: String!) {
+        transactions(
+          owners: [$address]
+          tags: [
+            { name: "Signing-Client", values: "ArConnect" }
+          ]
+          first: 11
+        ) {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    `,
+      { address }
+    ),
+    arPrice = await limestone.getPrice("AR");
+
+  if (res.data.transactions.edges.length) {
+    const usd = res.data.transactions.edges.length > 10 ? 0.01 : 0.03;
+
+    return arweave.ar.arToWinston((arPrice.price * usd).toString());
+  } else return arweave.ar.arToWinston((arPrice.price * 0.01).toString());
 }
 
 export {};

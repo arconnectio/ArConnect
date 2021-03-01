@@ -10,7 +10,8 @@ import {
   Tooltip,
   useInput,
   Input,
-  Spacer
+  Spacer,
+  Code
 } from "@geist-ui/react";
 import { FileIcon } from "@primer/octicons-react";
 import { JWKInterface } from "arweave/node/lib/wallet";
@@ -51,7 +52,8 @@ export default function App() {
     }),
     passwordInput = useInput(""),
     passwordInputAgain = useInput(""),
-    [passwordGiven, setPasswordGiven] = useState(false);
+    [passwordGiven, setPasswordGiven] = useState(false),
+    feeModal = useModal(false);
 
   useEffect(() => {
     if (!fileInput.current) return;
@@ -275,6 +277,16 @@ export default function App() {
               </Button>
             </>
           )}
+          <p style={{ marginTop: "1.75em" }}>
+            Read more about our{" "}
+            <span
+              onClick={() => feeModal.setVisible(true)}
+              style={{ color: theme.palette.link, cursor: "pointer" }}
+            >
+              fees
+            </span>
+            .
+          </p>
         </Card>
       </div>
       <a
@@ -377,6 +389,43 @@ export default function App() {
           </Button>
         </Modal.Content>
         <Modal.Action onClick={() => window.close()}>Ok</Modal.Action>
+      </Modal>
+      <Modal {...feeModal.bindings}>
+        <Modal.Title>Tips</Modal.Title>
+        <Modal.Content>
+          <p style={{ textAlign: "justify" }}>
+            We at{" "}
+            <a
+              href="https://th8ta.org"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              th8ta
+            </a>{" "}
+            are working hard to bring you the best experiences on the permaweb.
+            Because of this, we take a small tip whenever a 3rd-party
+            application utilizes ArConnect. This tip goes to a randomly-selected{" "}
+            <Code>VRT</Code> token holder:
+          </p>
+          <ul>
+            <li>
+              <Code>$0.03</Code> USD-equivalent of AR for the first 10
+              transactions
+            </li>
+            <li>
+              <Code>$0.01</Code> USD-equivalent of AR for all subsequent
+              transactions
+            </li>
+          </ul>
+          <p>
+            Note: We do <b>not</b> charge fees on transfers made inside of the
+            extension and the fee does <b>not</b> change based on the size of
+            the transaction.
+          </p>
+        </Modal.Content>
+        <Modal.Action onClick={() => feeModal.setVisible(false)}>
+          Ok
+        </Modal.Action>
       </Modal>
       <input
         type="file"
