@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
 import { Button, Input, Spacer, useInput, useToasts } from "@geist-ui/react";
 import { goTo } from "react-chrome-extension-router";
-import { local } from "chrome-storage-promises";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import Home from "./Home";
 import Arweave from "arweave";
@@ -15,7 +14,6 @@ export default function Send() {
   const targetInput = useInput(""),
     amountInput = useInput("0"),
     messageInput = useInput(""),
-    passwordInput = useInput(""),
     arweaveConfig = useSelector((state: RootState) => state.arweave),
     arweave = new Arweave(arweaveConfig),
     [fee, setFee] = useState("0"),
@@ -26,12 +24,10 @@ export default function Send() {
     [balance, setBalance] = useState("0"),
     [submitted, setSubmitted] = useState(false),
     [loading, setLoading] = useState(false),
-    [, setToast] = useToasts(),
-    [decryptKey, setDecryptKey] = useState("");
+    [, setToast] = useToasts();
 
   useEffect(() => {
     loadBalance();
-    loadDecryptKey();
     // eslint-disable-next-line
   }, []);
 
@@ -60,45 +56,19 @@ export default function Send() {
     } catch {}
   }
 
-  async function loadDecryptKey() {
-    const decryptKeyStored: { [key: string]: any } =
-        typeof chrome !== "undefined"
-          ? await local.get("decryptionKey")
-          : await browser.storage.local.get("decryptionKey"),
-      decryptKeyIs = decryptKeyStored?.["decryptionKey"];
-
-    setDecryptKey(decryptKeyIs ?? "");
-  }
-
-  function checkPassword() {
-    setLoading(true);
-    if (!currentWallet) return;
-    setTimeout(() => {
-      try {
-        atob(JSON.parse(currentWallet));
-        setDecryptKey(passwordInput.state);
-        if (typeof chrome !== "undefined")
-          local.set({ decryptionKey: passwordInput.state });
-        else browser.storage.local.set({ decryptionKey: passwordInput.state });
-      } catch {}
-      setLoading(false);
-    }, 80);
-  }
-
   async function send() {
     setSubmitted(true);
     if (
       targetInput.state === "" ||
       amountInput.state === "" ||
-      Number(amountInput.state) > Number(balance)
+      Number(amountInput.state) > Number(balance) ||
+      currentWallet === undefined
     )
       return;
     setLoading(true);
-    if (!currentWallet || !decryptKey)
-      return setToast({ text: "No decrypt key", type: "error" });
 
     try {
-      const keyfile: JWKInterface = JSON.parse(atob(JSON.parse(currentWallet))),
+      const keyfile: JWKInterface = JSON.parse(atob(currentWallet)),
         transaction = await arweave.createTransaction(
           {
             target: targetInput.state,
@@ -134,86 +104,58 @@ export default function Send() {
     <>
       <WalletManager />
       <div className={styles.View}>
-        {(decryptKey !== "" && (
-          <>
-            <Input
-              {...targetInput.bindings}
-              placeholder="Send to address..."
-              status={
-                submitted && targetInput.state === "" ? "error" : "default"
-              }
-            />
-            <Spacer />
-            <div className={styles.Amount}>
-              <Input
-                {...amountInput.bindings}
-                placeholder="Amount"
-                labelRight="AR"
-                type="number"
-                min="0"
-                status={
-                  submitted &&
-                  (amountInput.state === "" ||
-                    Number(amountInput.state) > Number(balance))
-                    ? "error"
-                    : "default"
-                }
-              />
-              <Button
-                style={{
-                  paddingLeft: ".5em",
-                  paddingRight: ".5em",
-                  minWidth: "unset",
-                  height: "2.65em",
-                  lineHeight: "unset"
-                }}
-                onClick={() =>
-                  amountInput.setState(
-                    (Number(balance) - Number(fee)).toString()
-                  )
-                }
-              >
-                Max
-              </Button>
-            </div>
-            <Spacer />
-            <Input
-              {...messageInput.bindings}
-              placeholder="Message (optional)"
-            />
-            <p>Fee: {fee} AR</p>
-            <p>Total: {Number(fee) + Number(amountInput.state)} AR</p>
-            <Button
-              style={{ width: "100%" }}
-              type="success"
-              onClick={send}
-              loading={loading}
-            >
-              Send AR
-            </Button>
-            <Spacer />
-            <Button style={{ width: "100%" }} onClick={() => goTo(Home)}>
-              Cancel
-            </Button>
-          </>
-        )) || (
-          <>
-            <p>Please enter your password to continue:</p>
-            <Input
-              {...passwordInput.bindings}
-              placeholder="Password..."
-              type="password"
-            />
-            <Spacer />
-            <Button
-              style={{ width: "100%" }}
-              onClick={checkPassword}
-              loading={loading}
-            >
-              Continue
-            </Button>
-          </>
-        )}
+        <Input
+          {...targetInput.bindings}
+          placeholder="Send to address..."
+          status={submitted && targetInput.state === "" ? "error" : "default"}
+        />
+        <Spacer />
+        <div className={styles.Amount}>
+          <Input
+            {...amountInput.bindings}
+            placeholder="Amount"
+            labelRight="AR"
+            type="number"
+            min="0"
+            status={
+              submitted &&
+              (amountInput.state === "" ||
+                Number(amountInput.state) > Number(balance))
+                ? "error"
+                : "default"
+            }
+          />
+          <Button
+            style={{
+              paddingLeft: ".5em",
+              paddingRight: ".5em",
+              minWidth: "unset",
+              height: "2.65em",
+              lineHeight: "unset"
+            }}
+            onClick={() =>
+              amountInput.setState((Number(balance) - Number(fee)).toString())
+            }
+          >
+            Max
+          </Button>
+        </div>
+        <Spacer />
+        <Input {...messageInput.bindings} placeholder="Message (optional)" />
+        <p>Fee: {fee} AR</p>
+        <p>Total: {Number(fee) + Number(amountInput.state)} AR</p>
+        <Button
+          style={{ width: "100%" }}
+          type="success"
+          onClick={send}
+          loading={loading}
+        >
+          Send AR
+        </Button>
+        <Spacer />
+        <Button style={{ width: "100%" }} onClick={() => goTo(Home)}>
+          Cancel
+        </Button>
       </div>
     </>
   );
