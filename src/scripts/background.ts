@@ -683,13 +683,14 @@ async function getFeeAmount(address: string, arweave: Arweave) {
     `,
       { address }
     ),
-    arPrice = await limestone.getPrice("AR");
+    arPrice = await limestone.getPrice("AR"),
+    usdPrice = 1 / arPrice.price; // 1 USD how much AR
 
   if (res.data.transactions.edges.length) {
     const usd = res.data.transactions.edges.length > 10 ? 0.01 : 0.03;
 
-    return arweave.ar.arToWinston((arPrice.price * usd).toString());
-  } else return arweave.ar.arToWinston((arPrice.price * 0.01).toString());
+    return arweave.ar.arToWinston((usdPrice * usd).toString());
+  } else return arweave.ar.arToWinston((usdPrice * 0.01).toString());
 }
 
 export {};
