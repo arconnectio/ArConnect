@@ -20,11 +20,10 @@ esbuild
     minify: true,
     sourcemap: process.env.NODE_ENV !== "production",
     watch: process.env.NODE_ENV !== "production",
-    inject: [require.resolve("@esbuild-plugins/node-globals-polyfill/process")],
+    inject: ["./src/utils/process.js"],
     target: ["chrome58", "firefox57"],
     outdir: "./public/build",
     define: {
-      "process.env.NODE_ENV": `"${process.env.NODE_ENV}"`,
       global: "window"
     },
     loader: {
