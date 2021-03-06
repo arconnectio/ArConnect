@@ -45,6 +45,8 @@ window.addEventListener("walletSwitch", (e) => {
 });
 ```
 
+Requires the `ACCESS_ADDRESS` and the `ACCESS_ALL_ADDRESSES` [permissions](#permissions).
+
 ## Other supported functions
 
 ArConnect supports much more with it's powerful API. These features are not integrated into arweave-js right now, but please let us know if you would like to see them added or not. You can access all of these using the global `window.arweaveWallet` object (`window.arweaveWallet.getActiveAddress()`, etc.).
@@ -63,7 +65,7 @@ Get the currently used wallet's address in the extension.
 
 - `returns`: A wallet address
 
-Requires the `ACCESS_ADDRESS` permission.
+Requires the `ACCESS_ADDRESS` [permission](#permissions).
 
 ### `getAllAddresses(): Promise<string[]>`
 
@@ -71,7 +73,7 @@ Get all addresses added to the ArConnect extension
 
 - `returns`: A list of the added wallets' addresses.
 
-Requires the `ACCESS_ALL_ADDRESSES` permission.
+Requires the `ACCESS_ALL_ADDRESSES` [permission](#permissions).
 
 ### `sign(transaction, options?)`
 
@@ -82,7 +84,7 @@ Sign a transaction. Raw version of what is used in the `arweave-js` [API](#api).
   <br />
 - `returns`: Signed transaction instance
 
-Requires the `SIGN_TRANSACTION` permission.
+Requires the `SIGN_TRANSACTION` [permission](#permissions).
 
 ### `getPermissions()`
 
