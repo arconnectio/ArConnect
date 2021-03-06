@@ -67,7 +67,9 @@ export default function Home() {
       setArPrice(arPrice);
       setBalance(arBalance);
       setUsdBalance(String(usdBal));
-    } catch {}
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async function loadPSTs() {
