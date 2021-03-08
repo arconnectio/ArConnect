@@ -192,6 +192,60 @@ const WalletAPI = {
         else reject(e.data.message);
       }
     });
+  },
+  encrypt(data: string, algorithm: string, hash: string): Promise<Uint8Array> {
+    return new Promise((resolve, reject) => {
+      sendMessage(
+        {
+          type: "encrypt",
+          ext: "arconnect",
+          sender: "api",
+          data,
+          algorithm,
+          hash
+        },
+        undefined,
+        undefined,
+        false
+      );
+      window.addEventListener("message", callback);
+
+      // @ts-ignore
+      function callback(e: MessageEvent<any>) {
+        if (!validateMessage(e.data, { type: "encrypt_result" })) return;
+        window.removeEventListener("message", callback);
+
+        if (e.data.res) resolve(e.data.res);
+        else reject(e.data.message);
+      }
+    });
+  },
+  decrypt(data: Uint8Array, algorithm: string, hash: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      sendMessage(
+        {
+          type: "decrypt",
+          ext: "arconnect",
+          sender: "api",
+          data,
+          algorithm,
+          hash
+        },
+        undefined,
+        undefined,
+        false
+      );
+      window.addEventListener("message", callback);
+
+      // @ts-ignore
+      function callback(e: MessageEvent<any>) {
+        if (!validateMessage(e.data, { type: "decrypt_result" })) return;
+        window.removeEventListener("message", callback);
+
+        if (e.data.res) resolve(e.data.res);
+        else reject(e.data.message);
+      }
+    });
   }
 };
 
