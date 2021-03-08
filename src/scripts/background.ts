@@ -151,7 +151,41 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
         // disconnect from arconnect
         case "disconnect":
-          break;
+          const store = await getStoreData();
+          console.log(store);
+
+          if (typeof chrome !== "undefined") {
+            local.set({
+              "persist:root": {
+                ...store,
+                permissions: [
+                  ...store.permissions,
+                  { url: tabURL, permissions: [] }
+                ]
+              }
+            });
+          } else {
+            browser.storage.local.set({
+              "persist:root": {
+                ...store,
+                permissions: [
+                  ...store.permissions,
+                  { url: tabURL, permissions: [] }
+                ]
+              }
+            });
+          }
+
+          return sendMessage(
+            {
+              type: "disconnect_result",
+              ext: "arconnect",
+              res: true,
+              sender: "background"
+            },
+            undefined,
+            sendResponse
+          );
 
         // get the active/selected address
         case "get_active_address":
