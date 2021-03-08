@@ -193,7 +193,14 @@ const WalletAPI = {
       }
     });
   },
-  encrypt(data: string, algorithm: string, hash: string): Promise<Uint8Array> {
+  encrypt(
+    data: string,
+    options: {
+      algorithm: string;
+      hash: string;
+      salt?: string;
+    }
+  ): Promise<Uint8Array> {
     return new Promise((resolve, reject) => {
       sendMessage(
         {
@@ -201,8 +208,7 @@ const WalletAPI = {
           ext: "arconnect",
           sender: "api",
           data,
-          algorithm,
-          hash
+          options
         },
         undefined,
         undefined,
@@ -220,7 +226,14 @@ const WalletAPI = {
       }
     });
   },
-  decrypt(data: Uint8Array, algorithm: string, hash: string): Promise<string> {
+  decrypt(
+    data: Uint8Array,
+    options: {
+      algorithm: string;
+      hash: string;
+      salt?: string;
+    }
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       sendMessage(
         {
@@ -228,8 +241,7 @@ const WalletAPI = {
           ext: "arconnect",
           sender: "api",
           data,
-          algorithm,
-          hash
+          options
         },
         undefined,
         undefined,
