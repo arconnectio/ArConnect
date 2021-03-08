@@ -149,6 +149,10 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
           break;
 
+        // disconnect from arconnect
+        case "disconnect":
+          break;
+
         // get the active/selected address
         case "get_active_address":
           if (!(await checkPermissions(["ACCESS_ADDRESS"], tabURL)))
