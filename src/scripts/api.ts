@@ -221,7 +221,7 @@ const WalletAPI = {
         if (!validateMessage(e.data, { type: "encrypt_result" })) return;
         window.removeEventListener("message", callback);
 
-        if (e.data.res) resolve(e.data.res);
+        if (e.data.res && e.data.data) resolve(e.data.data);
         else reject(e.data.message);
       }
     });
@@ -254,7 +254,7 @@ const WalletAPI = {
         if (!validateMessage(e.data, { type: "decrypt_result" })) return;
         window.removeEventListener("message", callback);
 
-        if (e.data.res) resolve(e.data.res);
+        if (e.data.res && e.data.data) resolve(e.data.data);
         else reject(e.data.message);
       }
     });
