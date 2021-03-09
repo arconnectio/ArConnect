@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
-import { Button, Input, Spacer, useInput, useToasts } from "@geist-ui/react";
+import {
+  Button,
+  Input,
+  Spacer,
+  useInput,
+  useToasts,
+  Tooltip
+} from "@geist-ui/react";
 import { goTo } from "react-chrome-extension-router";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import Home from "./Home";
@@ -9,6 +16,7 @@ import Arweave from "arweave";
 import axios from "axios";
 import WalletManager from "../../../components/WalletManager";
 import styles from "../../../styles/views/Popup/send.module.sass";
+import { QuestionIcon } from "@primer/octicons-react";
 
 export default function Send() {
   const targetInput = useInput(""),
@@ -142,7 +150,20 @@ export default function Send() {
         </div>
         <Spacer />
         <Input {...messageInput.bindings} placeholder="Message (optional)" />
-        <p>Fee: {fee} AR</p>
+        <p className={styles.FeeDisplay}>
+          Arweave fee: {fee} AR
+          <Tooltip
+            text={
+              <p style={{ textAlign: "center", margin: "0" }}>
+                Fee charged by the <br />
+                Arweave network
+              </p>
+            }
+            style={{ marginLeft: ".18em" }}
+          >
+            <QuestionIcon size={24} />
+          </Tooltip>
+        </p>
         <p>Total: {Number(fee) + Number(amountInput.state)} AR</p>
         <Button
           style={{ width: "100%" }}
