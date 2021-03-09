@@ -45,11 +45,8 @@ export default function App() {
       address: string;
       keyfile: JWKInterface;
     }>(),
-    arweave = new Arweave({
-      host: "arweave.net",
-      port: 443,
-      protocol: "https"
-    }),
+    arweaveConfig = useSelector((state: RootState) => state.arweave),
+    arweave = new Arweave(arweaveConfig),
     passwordInput = useInput(""),
     passwordInputAgain = useInput(""),
     [passwordGiven, setPasswordGiven] = useState(false),
