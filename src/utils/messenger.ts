@@ -11,6 +11,8 @@ type MessageSender = "popup" | "background" | "api";
 export type MessageType =
   | "connect"
   | "connect_result"
+  | "disconnect"
+  | "disconnect_result"
   | "sign_transaction"
   | "sign_transaction_result"
   | "sign_auth"
