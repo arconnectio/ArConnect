@@ -152,31 +152,14 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         // disconnect from arconnect
         case "disconnect":
           const store = await getStoreData();
-          console.log(store);
 
-          if (typeof chrome !== "undefined") {
-            local.set({
-              "persist:root": {
-                ...store,
-                permissions: [
-                  ...store.permissions,
-                  { url: tabURL, permissions: [] }
-                ]
-              }
-            });
-          } else {
-            browser.storage.local.set({
-              "persist:root": {
-                ...store,
-                permissions: [
-                  ...store.permissions,
-                  { url: tabURL, permissions: [] }
-                ]
-              }
-            });
-          }
-
-          return sendMessage(
+          await setStoreData({
+            permissions: store.permissions.filter(
+              (sitePerms: IPermissionState) =>
+                sitePerms.url !== getRealURL(tabURL)
+            )
+          });
+          sendMessage(
             {
               type: "disconnect_result",
               ext: "arconnect",
@@ -186,6 +169,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             undefined,
             sendResponse
           );
+          break;
 
         // get the active/selected address
         case "get_active_address":
@@ -468,6 +452,9 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               ) <
                 price + (await getSpentForURL(getRealURL(tabURL)));
 
+            // TODO: update allowances to have their own REDUX stores
+            // @martonlederer
+
             // open popup if decryptionKey is undefined
             // or if the spending limit is reached
             if (!decryptionKey || openAllowance) {
@@ -656,20 +643,39 @@ function sendPermissionError(
   );
 }
 
+type StoreData = { [reducer: string]: any };
+
 // get store data
-async function getStoreData(): Promise<{ [key: string]: any }> {
+async function getStoreData(): Promise<StoreData> {
   const data: { [key: string]: any } =
       typeof chrome !== "undefined"
         ? await local.get("persist:root")
         : browser.storage.local.get("persist:root"),
-    parseRoot: { [key: string]: any } = JSON.parse(
-      data?.["persist:root"] ?? "{}"
-    );
+    parseRoot: StoreData = JSON.parse(data?.["persist:root"] ?? "{}");
 
-  let parsedData: { [key: string]: any } = {};
+  let parsedData: StoreData = {};
   for (const key in parseRoot) parsedData[key] = JSON.parse(parseRoot[key]);
 
   return parsedData;
+}
+
+/**
+ * set store data
+ *
+ * @param updatedData An object with the reducer name as a key
+ */
+async function setStoreData(updatedData: StoreData) {
+  const data = { ...(await getStoreData()), ...updatedData };
+  // store data, but with stringified values
+  let encodedData: StoreData = {};
+
+  for (const reducer in data)
+    encodedData[reducer] = JSON.stringify(data[reducer]);
+
+  if (typeof chrome !== "undefined")
+    local.set({ "persist:root": JSON.stringify(encodedData) });
+  else
+    browser.storage.local.set({ "persist:root": JSON.stringify(encodedData) });
 }
 
 async function getSpentForURL(url: string) {
