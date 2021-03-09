@@ -81,6 +81,26 @@ const WalletAPI = {
       }
     });
   },
+  disconnect(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      sendMessage(
+        { type: "disconnect", ext: "arconnect", sender: "api" },
+        undefined,
+        undefined,
+        false
+      );
+      window.addEventListener("message", callback);
+
+      // @ts-ignore
+      function callback(e: MessageEvent<any>) {
+        if (!validateMessage(e.data, { type: "disconnect_result" })) return;
+        window.removeEventListener("message", callback);
+
+        if (e.data.res) resolve();
+        else reject(e.data.message);
+      }
+    });
+  },
   getActiveAddress(): Promise<string> {
     return new Promise((resolve, reject) => {
       sendMessage(
