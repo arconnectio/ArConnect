@@ -59,6 +59,10 @@ Connect to ArConnect and request permissions. See the available permissions [her
 
 - `permissions`: An array of [permissions](#permissions)
 
+### `disconnect()`
+
+Disconnect from ArConnect. Removes all permissions from your site.
+
 ### `getActiveAddress()`
 
 Get the currently used wallet's address in the extension.
