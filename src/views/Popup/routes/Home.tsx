@@ -166,9 +166,13 @@ export default function Home() {
             </div>
           </Tooltip>
           <Tooltip text="Not available yet">
-            <div className={styles.Item + " " + styles.Unavailable}>
-              <KebabHorizontalIcon size={24} />
-              <span>More</span>
+            <div
+              className={
+                styles.Item + " " + styles.SwapItem + " " + styles.Unavailable
+              }
+            >
+              <ArrowSwitchIcon size={24} />
+              <span>Swap</span>
             </div>
           </Tooltip>
         </div>
