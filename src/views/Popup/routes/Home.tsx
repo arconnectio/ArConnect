@@ -59,17 +59,17 @@ export default function Home() {
 
   async function loadBalance() {
     try {
-      const arPrice = (await limestone.getPrice("AR")).price,
-        balance = await arweave.wallets.getBalance(profile),
-        arBalance = arweave.ar.winstonToAr(balance),
-        usdBal = arPrice * Number(arBalance);
+      const balance = await arweave.wallets.getBalance(profile),
+        arBalance = arweave.ar.winstonToAr(balance);
 
-      setArPrice(arPrice);
       setBalance(arBalance);
+
+      const arP = (await limestone.getPrice("AR")).price,
+        usdBal = arP * Number(arBalance);
+
+      setArPrice(arP);
       setUsdBalance(String(usdBal));
-    } catch (e) {
-      console.log(e);
-    }
+    } catch {}
   }
 
   async function loadPSTs() {
