@@ -328,11 +328,10 @@ export default function App() {
                 password to continue.
               </p>
             )}
-            <Input
+            <Input.Password
               {...passwordInput.bindings}
               status={passwordStatus}
               placeholder="Password..."
-              type="password"
               onKeyPress={(e) => {
                 if (e.key === "Enter") login();
               }}
