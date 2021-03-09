@@ -21,7 +21,6 @@ import { Wallet } from "../../stores/reducers/wallets";
 import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
 import Arweave from "arweave";
-import weaveid_logo from "../../assets/weaveid.png";
 import logo from "../../assets/logo.png";
 import styles from "../../styles/views/Welcome/view.module.sass";
 
@@ -130,10 +129,6 @@ export default function App() {
     setTimeout(() => {
       window.close();
     }, 600);
-  }
-
-  async function weaveIDLogin() {
-    setToast({ text: "WeaveID is not yet implemented.", type: "error" });
   }
 
   async function createWallet() {
@@ -313,15 +308,6 @@ export default function App() {
             onChange={(e) => setSeed(e.target.value)}
             className={styles.Seed}
           ></Textarea>
-          <span className={styles.OR}>OR</span>
-          <Button
-            type="secondary"
-            className={styles.WeaveIDButton}
-            onClick={weaveIDLogin}
-          >
-            <img src={weaveid_logo} alt="weaveid-logo" />
-            WeaveID
-          </Button>
           <span className={styles.OR}>OR</span>
           {keyfiles.map(
             (file, i) =>
