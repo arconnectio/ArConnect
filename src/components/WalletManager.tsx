@@ -164,38 +164,37 @@ export default function WalletManager() {
                     className={styles.Info}
                     onClick={() => switchWallet(wallet.address)}
                   >
-                    <input
-                      type="text"
-                      value={wallet.name}
-                      title="Type to change wallet name"
-                      onChange={(e) => {
-                        dispatch(renameWallet(wallet.address, e.target.value));
-                        adjustSizes();
-                      }}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                      style={{ width: widthForAddress(wallet.address) }}
-                    />
-                    {verifiedAddresses.includes(wallet.address) && (
-                      <Tooltip
-                        text={
-                          <p style={{ textAlign: "center", margin: "0" }}>
-                            Verified on <br />
-                            ArVerify
-                          </p>
-                        }
-                        className={styles.VerifiedIcon}
-                        style={{
-                          left: `calc(${widthForAddress(
-                            wallet.address
-                          )} + .03em)`
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <input
+                        type="text"
+                        value={wallet.name}
+                        title="Type to change wallet name"
+                        onChange={(e) => {
+                          dispatch(
+                            renameWallet(wallet.address, e.target.value)
+                          );
+                          adjustSizes();
                         }}
-                      >
-                        <VerifiedIcon />
-                      </Tooltip>
-                    )}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        style={{ width: widthForAddress(wallet.address) }}
+                      />
+                      {verifiedAddresses.includes(wallet.address) && (
+                        <Tooltip
+                          text={
+                            <p style={{ textAlign: "center", margin: "0" }}>
+                              Verified on <br />
+                              ArVerify
+                            </p>
+                          }
+                          className={styles.VerifiedIcon}
+                        >
+                          <VerifiedIcon />
+                        </Tooltip>
+                      )}
+                    </div>
                     <p>{wallet.address}</p>
                   </div>
                   <div
