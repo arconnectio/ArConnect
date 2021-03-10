@@ -131,9 +131,17 @@
           font-size: 1.65em
           font-weight: 600
           max-width: 100%
+          border-bottom: 1px solid transparent
+          transition: all .3s ease-in-out
 
           @media (prefers-color-scheme: dark)
             color: #fff
+
+          &:hover
+            border-bottom-color: rgba(#000, .5)
+
+            @media (prefers-color-scheme: dark)
+              border-bottom-color: rgba(#fff, .5)
 
         p
           font-size: 1em

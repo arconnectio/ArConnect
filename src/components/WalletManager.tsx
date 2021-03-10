@@ -128,7 +128,11 @@ export default function WalletManager() {
           {currentWalletName()}
           {verifiedAddresses.includes(profile) && <VerifiedIcon />}
         </h1>
-        <p onClick={copyAddress} className={copyStatus ? styles.Copied : ""}>
+        <p
+          onClick={copyAddress}
+          className={copyStatus ? styles.Copied : ""}
+          title="Click to copy"
+        >
           {profile}
         </p>
         <div
