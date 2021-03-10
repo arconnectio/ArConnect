@@ -297,6 +297,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                   message.transaction.quantity + message.transaction.reward
                 )
               ),
+              // TODO: transfer this to a REDUX store
               arConfettiSetting: { [key: string]: any } =
                 typeof chrome !== "undefined"
                   ? await local.get("setting_confetti")
