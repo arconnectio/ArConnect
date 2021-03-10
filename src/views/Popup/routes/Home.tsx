@@ -64,7 +64,9 @@ export default function Home() {
       setBalance(arBalance);
 
       const arP = (await limestone.getPrice("AR")).price,
-        usdBal = arP * Number(arBalance);
+        usdBal = parseFloat(
+          (arP * Number(arBalance)).toFixed(2)
+        ).toLocaleString();
 
       setArPrice(arP);
       setUsdBalance(String(usdBal));
