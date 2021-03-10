@@ -40,7 +40,6 @@
     "@esbuild-plugins/node-globals-polyfill": "0.0.5",
     "@esbuild-plugins/node-modules-polyfill": "^0.0.2",
     "@types/chrome": "^0.0.129",
-    "@types/cryptr": "^4.0.1",
     "@types/exchange-rates-api": "^1.0.0",
     "@types/limestonefi__api": "^0.1.0",
     "@types/node": "^12.0.0",
