@@ -26,11 +26,12 @@ import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
 import { local } from "chrome-storage-promises";
-import { convert } from "exchange-rates-api";
+import { exchangeRates } from "exchange-rates-api";
 
 export default function Home() {
   const [balance, setBalance] = useState<string>(),
     [fiatBalance, setFiatBalance] = useState<string>(),
+    [exchangeRate, setExchangeRate] = useState(1),
     [symbol, setSymbol] = useState<string>(),
     [currency, setCurrency] = useState<string>(),
     arweaveConfig = useSelector((state: RootState) => state.arweave),
@@ -90,8 +91,13 @@ export default function Home() {
         setSymbol("£");
       }
 
+      const exchangeRate = Number(
+        await exchangeRates().latest().symbols(currency).base("USD").fetch()
+      );
+      setExchangeRate(exchangeRate);
+
       const fiatBal = parseFloat(
-        (await convert(usdBal, "USD", currency, "latest")).toFixed(2)
+        (usdBal * exchangeRate).toFixed(2)
       ).toLocaleString();
 
       setArPrice(arP);
@@ -299,7 +305,14 @@ export default function Home() {
                   </h1>
                   <h2>
                     {tx.amount !== 0 && (tx.type === "in" ? "+" : "-")}
-                    {formatBalance(tx.amount * arPrice, true)} USD
+                    {symbol}
+                    {formatBalance(
+                      parseFloat(
+                        (tx.amount * arPrice * exchangeRate).toFixed(2)
+                      ).toLocaleString(),
+                      true
+                    )}{" "}
+                    {currency}
                   </h2>
                 </div>
               </div>
