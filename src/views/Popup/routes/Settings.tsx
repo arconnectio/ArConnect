@@ -320,6 +320,13 @@ export default function Settings() {
                   GBP
                   <Radio.Description>Pound Sterling</Radio.Description>
                 </Radio>
+                <style>{`
+                  .point:before {
+                    left: 0px !important;
+                    top: 0px !important;
+                    background-color: #AB9DF2 !important;
+                  }
+                `}</style>
               </Radio.Group>
             </div>
           )) ||
