@@ -109,6 +109,7 @@
           background-color: #030303
 
       .Info
+        position: relative
         width: calc(100% - #{$removeWidth})
 
         input
@@ -136,6 +137,19 @@
 
           @media (prefers-color-scheme: dark)
             color: variables.$secondary-text-dark
+
+        .VerifiedIcon
+          position: absolute
+          top: .2em
+          color: #000
+
+          @media (prefers-color-scheme: dark)
+            color: #fff
+
+          svg
+            font-size: 1em
+            width: 1em
+            height: 1em
 
       .Remove, .Action
         width: $removeWidth

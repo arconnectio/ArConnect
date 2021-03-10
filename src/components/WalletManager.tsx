@@ -13,13 +13,15 @@ import {
   GearIcon,
   PlusIcon,
   SignOutIcon,
-  TrashcanIcon
+  TrashcanIcon,
+  VerifiedIcon
 } from "@primer/octicons-react";
 import { useColorScheme } from "use-color-scheme";
 import { QRCode } from "react-qr-svg";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendMessage } from "../utils/messenger";
 import { goTo } from "react-chrome-extension-router";
+import { getVerification } from "arverify";
 import Settings from "../views/Popup/routes/Settings";
 import copy from "copy-to-clipboard";
 import "../styles/components/Tooltip.sass";
@@ -39,12 +41,29 @@ export default function WalletManager() {
     { scheme } = useColorScheme(),
     [copyStatus, setCopyStatus] = useState(false),
     logoutModal = useModal(false),
-    [showSwitch, setShowSwitch] = useState(false);
+    [showSwitch, setShowSwitch] = useState(false),
+    [verifiedAddresses, setVerifiedAddresses] = useState<string[]>([]);
 
   useEffect(() => {
     adjustSizes();
     // eslint-disable-next-line
   }, []);
+
+  useEffect(() => {
+    loadVerifiedAddresses();
+    // eslint-disable-next-line
+  }, [wallets]);
+
+  async function loadVerifiedAddresses() {
+    const loaded: string[] = [];
+
+    for (const { address } of wallets)
+      try {
+        if ((await getVerification(address)).verified) loaded.push(address);
+      } catch {}
+
+    setVerifiedAddresses(loaded);
+  }
 
   function adjustSizes() {
     for (const { address, name } of wallets)
@@ -159,6 +178,24 @@ export default function WalletManager() {
                       }}
                       style={{ width: widthForAddress(wallet.address) }}
                     />
+                    {verifiedAddresses.includes(wallet.address) && (
+                      <Tooltip
+                        text={
+                          <p style={{ textAlign: "center", margin: "0" }}>
+                            Verified on <br />
+                            ArVerify
+                          </p>
+                        }
+                        className={styles.VerifiedIcon}
+                        style={{
+                          left: `calc(${widthForAddress(
+                            wallet.address
+                          )} + .03em)`
+                        }}
+                      >
+                        <VerifiedIcon />
+                      </Tooltip>
+                    )}
                     <p>{wallet.address}</p>
                   </div>
                   <div

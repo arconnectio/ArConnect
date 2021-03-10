@@ -7,8 +7,7 @@ import {
   SignInIcon,
   ChevronRightIcon,
   ArrowSwitchIcon,
-  ArchiveIcon,
-  KebabHorizontalIcon
+  ArchiveIcon
 } from "@primer/octicons-react";
 import { Tabs, Tooltip, useTheme } from "@geist-ui/react";
 import { setAssets } from "../../../stores/actions";
