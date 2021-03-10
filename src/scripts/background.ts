@@ -396,30 +396,6 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
               await updateSpent(getRealURL(tabURL), price);
 
-              if (typeof chrome !== "undefined") {
-                chrome.browserAction.setBadgeText({
-                  text: "1",
-                  tabId: currentTabArray[0].id
-                });
-                chrome.browserAction.setBadgeBackgroundColor({
-                  color: "#ff0000"
-                });
-                setTimeout(() => {
-                  chrome.browserAction.setBadgeText({ text: "" });
-                }, 4000);
-              } else {
-                browser.browserAction.setBadgeText({
-                  text: "1",
-                  tabId: currentTabArray[0].id
-                });
-                browser.browserAction.setBadgeBackgroundColor({
-                  color: "#ff0000"
-                });
-                setTimeout(() => {
-                  browser.browserAction.setBadgeText({ text: "" });
-                }, 4000);
-              }
-
               sendMessage(
                 {
                   type: "sign_transaction_result",
