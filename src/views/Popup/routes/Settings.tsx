@@ -5,7 +5,14 @@ import {
   ChevronRightIcon,
   XIcon
 } from "@primer/octicons-react";
-import { Button, Input, Spacer, Toggle, useInput } from "@geist-ui/react";
+import {
+  Button,
+  Input,
+  Radio,
+  Spacer,
+  Toggle,
+  useInput
+} from "@geist-ui/react";
 import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
@@ -24,7 +31,7 @@ import styles from "../../../styles/views/Popup/settings.module.sass";
 
 export default function Settings() {
   const [setting, setCurrSetting] = useState<
-      "events" | "permissions" | "psts" | "sites" | "arweave"
+      "events" | "permissions" | "currency" | "psts" | "sites" | "arweave"
     >(),
     permissions = useSelector((state: RootState) => state.permissions),
     [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
@@ -40,6 +47,7 @@ export default function Settings() {
     arweaveHostInput = useInput(arweaveConfig.host),
     arweavePortInput = useInput(arweaveConfig.port.toString()),
     arweaveProtocolInput = useInput(arweaveConfig.protocol),
+    [currency, setCurrency] = useState("USD"),
     [arConfetti, setARConfetti] = useState(false);
 
   useEffect(() => {
@@ -106,6 +114,14 @@ export default function Settings() {
 
   async function loadOtherSettings() {
     try {
+      const currencySetting: { [key: string]: any } =
+        typeof chrome !== "undefined"
+          ? await local.get("setting_currency")
+          : await browser.storage.local.get("setting_currency");
+      setCurrency(currencySetting["setting_currency"] ?? "USD");
+    } catch {}
+
+    try {
       const arConfettiSetting: { [key: string]: any } =
         typeof chrome !== "undefined"
           ? await local.get("setting_confetti")
@@ -134,6 +150,7 @@ export default function Settings() {
         <h1>
           {(setting === "events" && "Events") ||
             (setting === "permissions" && "Permissions") ||
+            (setting === "currency" && "Currency") ||
             (setting === "psts" && "Removed PSTs") ||
             (setting === "sites" && "Blocked sites") ||
             (setting === "arweave" && "Arweave config") ||
@@ -162,6 +179,18 @@ export default function Settings() {
               <div>
                 <h1>Permissions</h1>
                 <p>Manage site permissions</p>
+              </div>
+              <div className={styles.Arrow}>
+                <ChevronRightIcon />
+              </div>
+            </div>
+            <div
+              className={styles.Setting}
+              onClick={() => setCurrSetting("currency")}
+            >
+              <div>
+                <h1>Currency</h1>
+                <p>Set your local currency</p>
               </div>
               <div className={styles.Arrow}>
                 <ChevronRightIcon />
@@ -262,6 +291,36 @@ export default function Settings() {
                     )}
                   </div>
                 ))) || <p>No permissions...</p>}
+            </>
+          )) ||
+          (setting === "currency" && (
+            <>
+              <Radio.Group
+                value={currency}
+                onChange={(val) => {
+                  if (typeof chrome !== "undefined")
+                    local.set({ setting_currency: val.toString() });
+                  else
+                    browser.storage.local.set({
+                      setting_currency: val.toString()
+                    });
+
+                  setCurrency(val.toString());
+                }}
+              >
+                <Radio value="USD">
+                  USD
+                  <Radio.Description>United States Dollar</Radio.Description>
+                </Radio>
+                <Radio value="EUR">
+                  EUR
+                  <Radio.Description>Euro</Radio.Description>
+                </Radio>
+                <Radio value="GBP">
+                  GBP
+                  <Radio.Description>Pound Sterling</Radio.Description>
+                </Radio>
+              </Radio.Group>
             </>
           )) ||
           (setting === "psts" && (

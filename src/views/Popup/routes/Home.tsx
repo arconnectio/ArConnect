@@ -25,10 +25,14 @@ import arweaveLogo from "../../../assets/arweave.png";
 import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
+import { local } from "chrome-storage-promises";
+import { convert } from "exchange-rates-api";
 
 export default function Home() {
   const [balance, setBalance] = useState<string>(),
-    [usdBalance, setUsdBalance] = useState<string>(),
+    [fiatBalance, setFiatBalance] = useState<string>(),
+    [symbol, setSymbol] = useState<string>(),
+    [currency, setCurrency] = useState<string>(),
     arweaveConfig = useSelector((state: RootState) => state.arweave),
     arweave = new Arweave(arweaveConfig),
     profile = useSelector((state: RootState) => state.profile),
@@ -64,12 +68,34 @@ export default function Home() {
       setBalance(arBalance);
 
       const arP = (await limestone.getPrice("AR")).price,
-        usdBal = parseFloat(
-          (arP * Number(arBalance)).toFixed(2)
-        ).toLocaleString();
+        usdBal = arP * Number(arBalance);
+
+      let currency;
+      try {
+        const currencySetting: { [key: string]: any } =
+          typeof chrome !== "undefined"
+            ? await local.get("setting_currency")
+            : await browser.storage.local.get("setting_currency");
+        currency = currencySetting["setting_currency"] ?? "USD";
+      } catch {}
+
+      setCurrency(currency);
+      if (currency === "USD") {
+        setSymbol("$");
+      }
+      if (currency === "EUR") {
+        setSymbol("€");
+      }
+      if (currency === "GBP") {
+        setSymbol("£");
+      }
+
+      const fiatBal = parseFloat(
+        (await convert(usdBal, "USD", currency, "latest")).toFixed(2)
+      ).toLocaleString();
 
       setArPrice(arP);
-      setUsdBalance(String(usdBal));
+      setFiatBalance(fiatBal);
     } catch {}
   }
 
@@ -142,7 +168,8 @@ export default function Home() {
           <span>AR</span>
         </h1>
         <h2>
-          ${formatBalance(usdBalance ?? "0".repeat(10))} USD
+          {symbol ?? "?"}
+          {formatBalance(fiatBalance ?? "0".repeat(10))} {currency ?? "???"}
           <Tooltip
             text={
               <p style={{ textAlign: "center", margin: "0" }}>
