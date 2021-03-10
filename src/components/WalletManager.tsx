@@ -122,7 +122,10 @@ export default function WalletManager() {
   return (
     <>
       <div className={styles.CurrentWallet}>
-        <h1 onClick={() => setOpen(!open)}>{currentWalletName()}</h1>
+        <h1 onClick={() => setOpen(!open)}>
+          {currentWalletName()}
+          {verifiedAddresses.includes(profile) && <VerifiedIcon />}
+        </h1>
         <Tooltip
           text={
             <>
