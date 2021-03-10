@@ -24,6 +24,8 @@ import { removeAsset } from "../../../stores/actions";
 import { RootState } from "../../../stores/reducers";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { interactWrite } from "smartweave";
+import { Line } from "react-chartjs-2";
+import { GraphDataConfig, GraphOptions } from "../../../utils/graph";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
 import Home from "./Home";
@@ -34,7 +36,10 @@ import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass"
 import styles from "../../../styles/views/Popup/PST.module.sass";
 
 export default function PST({ id, name, balance, ticker }: Asset) {
-  const [arPrice, setArPrice] = useState(0),
+  const [price, setPrices] = useState<{ prices: number[]; dates: string[] }>({
+      prices: [],
+      dates: []
+    }),
     { scheme } = useColorScheme(),
     tabs = useTabs("1"),
     transferInput = useInput(""),
@@ -69,8 +74,10 @@ export default function PST({ id, name, balance, ticker }: Asset) {
   }, [tabs, id]);
 
   async function loadArPrice() {
-    const verto = new Verto();
-    setArPrice((await verto.latestPrice(id)) ?? 0);
+    const verto = new Verto(),
+      prices = await verto.price(id);
+
+    if (prices) setPrices(prices);
   }
 
   async function loadData() {
@@ -173,7 +180,10 @@ export default function PST({ id, name, balance, ticker }: Asset) {
           {balance.toLocaleString()} <span>{ticker}</span>
         </h1>
         <h2 className={styles.BalanceInAR}>
-          {arPrice === 0 ? "??" : balance * arPrice} AR
+          {price.prices.length === 0
+            ? "??"
+            : balance * price.prices[price.prices.length - 1]}{" "}
+          AR
         </h2>
         <Tabs {...tabs.bindings} className={styles.Tabs}>
           <Tabs.Item
@@ -189,6 +199,25 @@ export default function PST({ id, name, balance, ticker }: Asset) {
               {(loadingData && <Loading />) ||
                 ((description || (links && links.length > 0)) && (
                   <>
+                    {price.prices.length > 0 && price.dates.length > 0 && (
+                      <div className={styles.Graph}>
+                        <Line
+                          data={{
+                            labels: price.dates,
+                            datasets: [
+                              {
+                                label: "AR",
+                                data: price.prices.map((val) => val),
+                                ...GraphDataConfig
+                              }
+                            ]
+                          }}
+                          options={GraphOptions({
+                            tooltipText: ({ value }) => `${value} AR`
+                          })}
+                        />
+                      </div>
+                    )}
                     <p>{description}</p>
                     <ul>
                       {links.map((link, i) => (

@@ -14,6 +14,8 @@ import { setAssets } from "../../../stores/actions";
 import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
 import { useColorScheme } from "use-color-scheme";
+import { local } from "chrome-storage-promises";
+import { exchangeRates } from "exchange-rates-api";
 import axios from "axios";
 import PST from "./PST";
 import WalletManager from "../../../components/WalletManager";
@@ -25,8 +27,6 @@ import arweaveLogo from "../../../assets/arweave.png";
 import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
-import { local } from "chrome-storage-promises";
-import { exchangeRates } from "exchange-rates-api";
 
 export default function Home() {
   const [balance, setBalance] = useState<string>(),
