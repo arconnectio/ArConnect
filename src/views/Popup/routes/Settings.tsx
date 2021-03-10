@@ -294,7 +294,7 @@ export default function Settings() {
             </>
           )) ||
           (setting === "currency" && (
-            <>
+            <div className={styles.OptionContent}>
               <Radio.Group
                 value={currency}
                 onChange={(val) => {
@@ -321,7 +321,7 @@ export default function Settings() {
                   <Radio.Description>Pound Sterling</Radio.Description>
                 </Radio>
               </Radio.Group>
-            </>
+            </div>
           )) ||
           (setting === "psts" && (
             <>
