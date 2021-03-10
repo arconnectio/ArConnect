@@ -42,7 +42,8 @@ export default function WalletManager() {
     [copyStatus, setCopyStatus] = useState(false),
     logoutModal = useModal(false),
     [showSwitch, setShowSwitch] = useState(false),
-    [verifiedAddresses, setVerifiedAddresses] = useState<string[]>([]);
+    [verifiedAddresses, setVerifiedAddresses] = useState<string[]>([]),
+    [showQRCode, setShowQRCode] = useState(false);
 
   useEffect(() => {
     adjustSizes();
@@ -102,6 +103,7 @@ export default function WalletManager() {
     copy(profile);
     setCopyStatus(true);
     setTimeout(() => setCopyStatus(false), 280);
+    setShowQRCode(true);
   }
 
   function switchWallet(address: string) {
@@ -126,27 +128,9 @@ export default function WalletManager() {
           {currentWalletName()}
           {verifiedAddresses.includes(profile) && <VerifiedIcon />}
         </h1>
-        <Tooltip
-          text={
-            <>
-              <p style={{ textAlign: "center", margin: "0 0 .35em" }}>
-                Click to copy address
-              </p>
-              <QRCode
-                className={styles.QRCode}
-                value={profile}
-                bgColor={scheme === "dark" ? "#000000" : "#ffffff"}
-                fgColor={scheme === "dark" ? "#ffffff" : "#000000"}
-              />
-            </>
-          }
-          placement="bottom"
-          style={{ width: "100%" }}
-        >
-          <p onClick={copyAddress} className={copyStatus ? styles.Copied : ""}>
-            {profile}
-          </p>
-        </Tooltip>
+        <p onClick={copyAddress} className={copyStatus ? styles.Copied : ""}>
+          {profile}
+        </p>
         <div
           className={styles.Icon + " " + (open ? styles.Open : "")}
           onClick={() => setOpen(!open)}
@@ -264,6 +248,28 @@ export default function WalletManager() {
             exit={{ opacity: 0 }}
           >
             Switched wallet
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showQRCode && (
+          <motion.div
+            className={styles.QROverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.23, ease: "easeInOut" }}
+            onClick={() => setShowQRCode(false)}
+          >
+            <div className={styles.wrapper}>
+              <QRCode
+                className={styles.QRCode}
+                value={profile}
+                bgColor={scheme === "dark" ? "#000000" : "#ffffff"}
+                fgColor={scheme === "dark" ? "#ffffff" : "#000000"}
+              />
+              <p>Copied address</p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
