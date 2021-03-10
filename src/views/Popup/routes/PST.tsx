@@ -36,10 +36,7 @@ import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass"
 import styles from "../../../styles/views/Popup/PST.module.sass";
 
 export default function PST({ id, name, balance, ticker }: Asset) {
-  const [price, setPrices] = useState<{ prices: number[]; dates: string[] }>({
-      prices: [],
-      dates: []
-    }),
+  const [price, setPrices] = useState<{ prices: number[]; dates: string[] }>(),
     { scheme } = useColorScheme(),
     tabs = useTabs("1"),
     transferInput = useInput(""),
@@ -180,7 +177,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
           {balance.toLocaleString()} <span>{ticker}</span>
         </h1>
         <h2 className={styles.BalanceInAR}>
-          {price.prices.length === 0
+          {!price || price.prices.length === 0
             ? "??"
             : balance * price.prices[price.prices.length - 1]}{" "}
           AR
@@ -196,28 +193,30 @@ export default function PST({ id, name, balance, ticker }: Asset) {
             value="1"
           >
             <div className={styles.About}>
-              {(loadingData && <Loading />) ||
+              {((loadingData || !price) && <Loading />) ||
                 ((description || (links && links.length > 0)) && (
                   <>
-                    {price.prices.length > 0 && price.dates.length > 0 && (
-                      <div className={styles.Graph}>
-                        <Line
-                          data={{
-                            labels: price.dates,
-                            datasets: [
-                              {
-                                label: "AR",
-                                data: price.prices.map((val) => val),
-                                ...GraphDataConfig
-                              }
-                            ]
-                          }}
-                          options={GraphOptions({
-                            tooltipText: ({ value }) => `${value} AR`
-                          })}
-                        />
-                      </div>
-                    )}
+                    {price &&
+                      price.prices.length > 0 &&
+                      price.dates.length > 0 && (
+                        <div className={styles.Graph}>
+                          <Line
+                            data={{
+                              labels: price.dates,
+                              datasets: [
+                                {
+                                  label: "AR",
+                                  data: price.prices.map((val) => val),
+                                  ...GraphDataConfig
+                                }
+                              ]
+                            }}
+                            options={GraphOptions({
+                              tooltipText: ({ value }) => `${value} AR`
+                            })}
+                          />
+                        </div>
+                      )}
                     <p>{description}</p>
                     <ul>
                       {links.map((link, i) => (
