@@ -403,7 +403,8 @@ export default function Settings() {
                     </p>
                   </div>
                   <p style={{ marginBottom: ".2em", marginTop: ".25em" }}>
-                    Spent: {arweave.ar.winstonToAr(allowance.spent.toString())}{" "}
+                    Spent:{" "}
+                    {arweave.ar.winstonToAr((allowance.spent ?? 0).toString())}{" "}
                     AR
                   </p>
                   <p style={{ display: "flex", alignItems: "center" }}>
