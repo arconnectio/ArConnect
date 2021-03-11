@@ -9,12 +9,13 @@ import { getRealURL } from "../utils/url";
 import { PermissionType } from "../utils/permissions";
 import { local } from "chrome-storage-promises";
 import { JWKInterface } from "arweave/node/lib/wallet";
-import Arweave from "arweave";
-import axios from "axios";
 import { Allowance } from "../stores/reducers/allowances";
 import { run } from "ar-gql";
-import limestone from "@limestonefi/api";
 import { RootState } from "../stores/reducers";
+import { ArConnectEvent } from "../views/Popup/routes/Settings";
+import limestone from "@limestonefi/api";
+import Arweave from "arweave";
+import axios from "axios";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(async () => {
@@ -25,7 +26,8 @@ chrome.runtime.onInstalled.addListener(async () => {
 // listen for messages from the content script
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   const message: MessageFormat = msg,
-    eventsStore = localStorage.getItem("arweave_events");
+    eventsStore = localStorage.getItem("arweave_events"),
+    events: ArConnectEvent[] = eventsStore ? JSON.parse(eventsStore)?.val : [];
 
   if (!validateMessage(message, { sender: "api" })) return;
 
@@ -82,7 +84,8 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         "arweave_events",
         JSON.stringify({
           val: [
-            ...(JSON.parse(eventsStore ?? "{}")?.val ?? []),
+            // max 100 events
+            ...events.filter((_, i) => i < 98),
             { event: message.type, url: tabURL, date: Date.now() }
           ]
         })

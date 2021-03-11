@@ -19,6 +19,7 @@ import { RootState } from "../../../stores/reducers";
 import { getRealURL } from "../../../utils/url";
 import { Currency } from "../../../stores/reducers/settings";
 import { Threshold } from "arverify";
+import { MessageType } from "../../../utils/messenger";
 import {
   readdAsset,
   removePermissions,
@@ -48,9 +49,7 @@ export default function Settings() {
     currentAddress = useSelector((state: RootState) => state.profile),
     blockedURLs = useSelector((state: RootState) => state.blockedSites),
     addURLInput = useInput(""),
-    [events, setEvents] = useState<
-      { event: string; url: string; date: number }[]
-    >([]),
+    [events, setEvents] = useState<ArConnectEvent[]>([]),
     arweaveConfig = useSelector((state: RootState) => state.arweave),
     otherSettings = useSelector((state: RootState) => state.settings),
     arweaveHostInput = useInput(arweaveConfig.host),
@@ -98,7 +97,9 @@ export default function Settings() {
   function loadEvents() {
     const evs = localStorage.getItem("arweave_events");
     if (!evs) return;
-    setEvents(JSON.parse(evs).val);
+    setEvents(
+      (JSON.parse(evs).val as ArConnectEvent[]).sort((a, b) => b.date - a.date)
+    );
   }
 
   function updateConfig() {
@@ -388,10 +389,24 @@ export default function Settings() {
               {(events.length > 0 &&
                 events.map((event, i) => (
                   <div
-                    className={styles.Setting + " " + styles.SubSetting}
+                    className={
+                      styles.Setting +
+                      " " +
+                      styles.SubSetting +
+                      " " +
+                      styles.EventItem
+                    }
                     key={i}
                   >
-                    <h1>{event.event}</h1>
+                    <h1>
+                      {event.event}
+                      <span className={styles.EventDate}>
+                        {new Intl.DateTimeFormat(navigator.language, {
+                          timeStyle: "medium",
+                          dateStyle: "short"
+                        }).format(event.date)}
+                      </span>
+                    </h1>
                     <p>{getRealURL(event.url)}</p>
                   </div>
                 ))) || <p>No events</p>}
@@ -471,4 +486,10 @@ export default function Settings() {
       </div>
     </>
   );
+}
+
+export interface ArConnectEvent {
+  event: MessageType;
+  url: string;
+  date: number;
 }
