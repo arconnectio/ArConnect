@@ -293,6 +293,7 @@ export default function Settings() {
                 onChange={(val) =>
                   dispatch(updateSettings({ currency: val as Currency }))
                 }
+                className={styles.Radio}
               >
                 <Radio value="USD">
                   USD
@@ -306,13 +307,6 @@ export default function Settings() {
                   GBP
                   <Radio.Description>Pound Sterling</Radio.Description>
                 </Radio>
-                <style>{`
-                  .point:before {
-                    left: 0px !important;
-                    top: 0px !important;
-                    background-color: #AB9DF2 !important;
-                  }
-                `}</style>
               </Radio.Group>
             </div>
           )) ||
@@ -452,6 +446,7 @@ export default function Settings() {
                     updateSettings({ arVerifyTreshold: val as Threshold })
                   )
                 }
+                className={styles.Radio}
               >
                 <Radio value={Threshold.LOW}>
                   Low
@@ -473,13 +468,6 @@ export default function Settings() {
                     {Threshold.ULTRA * 100}%
                   </Radio.Description>
                 </Radio>
-                <style>{`
-                  .point:before {
-                    left: 0px !important;
-                    top: 0px !important;
-                    background-color: #AB9DF2 !important;
-                  }
-                `}</style>
               </Radio.Group>
             </div>
           ))}

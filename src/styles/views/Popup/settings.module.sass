@@ -104,3 +104,21 @@
 
     @media (prefers-color-scheme: dark)
       color: variables.$secondary-text-dark
+
+.Radio
+  span
+    text-align: left
+    margin-left: .8em
+
+    &[class~=point]
+      margin:
+        right: 1em
+        left: 0
+
+      &::before
+        left: 0
+        top: 0
+        background-color: #AB9DF2
+
+    &[class~=name]
+      margin-left: 0
