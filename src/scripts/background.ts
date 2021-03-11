@@ -91,6 +91,8 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         })
       );
 
+      const wallets = (await getStoreData())?.["wallets"];
+
       switch (message.type) {
         // connect to arconnect
         case "connect":
@@ -213,18 +215,14 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
         // get all addresses added to ArConnect
         case "get_all_addresses":
-          const addressesStore = localStorage.getItem("arweave_wallets");
-
           if (!(await checkPermissions(["ACCESS_ALL_ADDRESSES"], tabURL)))
             return sendPermissionError(
               sendResponse,
               "get_all_addresses_result"
             );
-          if (addressesStore) {
-            const allAddresses = JSON.parse(addressesStore).val,
-              addresses = allAddresses.map(
-                ({ address }: { address: string }) => address
-              );
+
+          if (wallets) {
+            const addresses = wallets.map((wallet) => wallet.address);
 
             sendMessage(
               {
@@ -255,10 +253,9 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
         // get names of wallets added to ArConnect
         case "get_wallet_names":
-          const wallets = (await getStoreData())?.["wallets"];
-
           if (!(await checkPermissions(["ACCESS_ALL_ADDRESSES"], tabURL)))
             return sendPermissionError(sendResponse, "get_wallet_names_result");
+
           if (wallets) {
             let names: { [addr: string]: string } = {};
             for (const wallet of wallets) {
