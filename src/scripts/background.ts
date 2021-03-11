@@ -253,6 +253,45 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
           break;
 
+        // get names of wallets added to ArConnect
+        case "get_wallet_names":
+          const wallets = (await getStoreData())?.["wallets"];
+
+          if (!(await checkPermissions(["ACCESS_ALL_ADDRESSES"], tabURL)))
+            return sendPermissionError(sendResponse, "get_wallet_names_result");
+          if (wallets) {
+            let names: { [addr: string]: string } = {};
+            for (const wallet of wallets) {
+              names[wallet.address] = wallet.name;
+            }
+
+            sendMessage(
+              {
+                type: "get_wallet_names_result",
+                ext: "arconnect",
+                res: true,
+                names,
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          } else {
+            sendMessage(
+              {
+                type: "get_wallet_names_result",
+                ext: "arconnect",
+                res: false,
+                message: "Error getting wallet names.",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          }
+
+          break;
+
         // return permissions for the current url
         case "get_permissions":
           sendMessage(

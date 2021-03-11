@@ -143,6 +143,27 @@ const WalletAPI = {
       }
     });
   },
+  getWalletNames(): Promise<{ [addr: string]: string }> {
+    return new Promise((resolve, reject) => {
+      sendMessage(
+        { type: "get_wallet_names", ext: "arconnect", sender: "api" },
+        undefined,
+        undefined,
+        false
+      );
+      window.addEventListener("message", callback);
+
+      // @ts-ignore
+      function callback(e: MessageEvent<any>) {
+        if (!validateMessage(e.data, { type: "get_wallet_names_result" }))
+          return;
+        window.removeEventListener("message", callback);
+
+        if (e.data.names) resolve(e.data.names);
+        else reject(e.data.message);
+      }
+    });
+  },
   sign(
     transaction: Transaction,
     options?: SignatureOptions
