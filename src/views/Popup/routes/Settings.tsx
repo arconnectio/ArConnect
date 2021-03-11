@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import {
   ArrowLeftIcon,
+  CheckIcon,
   ChevronDownIcon,
   ChevronRightIcon,
+  PencilIcon,
   XIcon
 } from "@primer/octicons-react";
 import {
@@ -26,9 +28,13 @@ import {
   unblockURL,
   blockURL,
   updateArweaveConfig,
-  updateSettings
+  updateSettings,
+  toggleAllowance,
+  setAllowanceLimit,
+  removeAllowance
 } from "../../../stores/actions";
 import Home from "./Home";
+import Arweave from "arweave";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
 
@@ -56,13 +62,21 @@ export default function Settings() {
     allowances = useSelector((state: RootState) => state.allowances),
     arweaveHostInput = useInput(arweaveConfig.host),
     arweavePortInput = useInput(arweaveConfig.port.toString()),
-    arweaveProtocolInput = useInput(arweaveConfig.protocol);
+    arweaveProtocolInput = useInput(arweaveConfig.protocol),
+    [arweave, setArweave] = useState<Arweave>(new Arweave(arweaveConfig)),
+    [editingAllowance, setEditingAllowance] = useState<{
+      id: number;
+      val: number;
+    }>();
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
     loadEvents();
     // eslint-disable-next-line
   }, []);
+
+  // update instance on config changes
+  useEffect(() => setArweave(new Arweave(arweaveConfig)), [arweaveConfig]);
 
   function open(url: string) {
     setOpened((val) => [
@@ -285,11 +299,19 @@ export default function Settings() {
                             {perm}
                             <div
                               className={styles.RemoveOption}
-                              onClick={() =>
+                              onClick={() => {
                                 dispatch(
                                   removePermissions(permissionGroup.url, [perm])
+                                );
+                                if (
+                                  permissionGroup.permissions.filter(
+                                    (val) => val !== perm
+                                  ).length === 0
                                 )
-                              }
+                                  dispatch(
+                                    removeAllowance(permissionGroup.url)
+                                  );
+                              }}
                             >
                               <XIcon />
                             </div>
@@ -352,17 +374,76 @@ export default function Settings() {
             <>
               {allowances.map((allowance, i) => (
                 <div
-                  className={styles.Setting + " " + styles.SubSetting}
+                  className={
+                    styles.Setting +
+                    " " +
+                    styles.NoFlex +
+                    " " +
+                    styles.SubSetting
+                  }
                   key={i}
                 >
-                  <h1>{allowance.url}</h1>
-                  <p>
-                    <Toggle
-                      checked={allowance.enabled}
-                      onChange={() => {
-                        /** TODO */
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between"
+                    }}
+                  >
+                    <h1>{allowance.url}</h1>
+                    <p>
+                      <Toggle
+                        checked={allowance.enabled}
+                        onChange={() =>
+                          dispatch(
+                            toggleAllowance(allowance.url, !allowance.enabled)
+                          )
+                        }
+                      />
+                    </p>
+                  </div>
+                  <p style={{ marginBottom: ".2em", marginTop: ".25em" }}>
+                    Spent: {arweave.ar.winstonToAr(allowance.spent.toString())}{" "}
+                    AR
+                  </p>
+                  <p style={{ display: "flex", alignItems: "center" }}>
+                    Limit:{" "}
+                    {(editingAllowance && editingAllowance.id === i && (
+                      <input
+                        className={styles.ClearInput}
+                        type="number"
+                        value={editingAllowance.val}
+                        autoFocus
+                        onChange={(e) =>
+                          setEditingAllowance({
+                            id: i,
+                            val: Number(e.target.value)
+                          })
+                        }
+                      />
+                    )) ||
+                      allowance.limit}{" "}
+                    AR
+                    <span
+                      className={styles.EditAllowance}
+                      onClick={() => {
+                        if (!editingAllowance)
+                          setEditingAllowance({ id: i, val: allowance.limit });
+                        else {
+                          setEditingAllowance(undefined);
+                          dispatch(
+                            setAllowanceLimit(
+                              allowance.url,
+                              editingAllowance.val
+                            )
+                          );
+                        }
                       }}
-                    />
+                    >
+                      {(editingAllowance && editingAllowance.id === i && (
+                        <CheckIcon />
+                      )) || <PencilIcon />}
+                    </span>
                   </p>
                 </div>
               ))}

@@ -6,7 +6,7 @@ export interface Allowance {
 }
 
 export interface IAllowancesAction {
-  type: "TOGGLE_ALLOWANCE" | "SET_LIMIT" | "ADD_ALLOWANCE";
+  type: "TOGGLE_ALLOWANCE" | "SET_LIMIT" | "ADD_ALLOWANCE" | "REMOVE_ALLOWANCE";
   payload: Partial<Allowance>;
 }
 
@@ -44,6 +44,10 @@ export default function allowancesReducer(
             ? action.payload.enabled
             : val.enabled) ?? true
       }));
+
+    case "REMOVE_ALLOWANCE":
+      if (!action.payload.url) break;
+      return state.filter((val) => val.url !== action.payload.url);
   }
 
   return state;

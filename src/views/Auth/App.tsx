@@ -289,7 +289,12 @@ export default function App() {
     const curr = allowances.find(({ url }) => url === currUrl);
     if (!curr) {
       dispatch(addAllowance(currUrl, true, 0.1));
-      setCurrentAllowance({ url: currUrl, enabled: true, limit: 0.1 });
+      setCurrentAllowance({
+        url: currUrl,
+        enabled: true,
+        limit: 0.1,
+        spent: 0
+      });
       allowanceAmount.setState("0.1");
     } else {
       setCurrentAllowance(curr);

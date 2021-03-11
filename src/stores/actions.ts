@@ -123,6 +123,13 @@ export function addAllowance(
   };
 }
 
+export function removeAllowance(url: string): IAllowancesAction {
+  return {
+    type: "REMOVE_ALLOWANCE",
+    payload: { url }
+  };
+}
+
 export function toggleAllowance(
   url: string,
   enabled: boolean
