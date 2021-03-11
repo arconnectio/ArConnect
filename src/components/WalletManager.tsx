@@ -21,7 +21,6 @@ import { QRCode } from "react-qr-svg";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendMessage } from "../utils/messenger";
 import { goTo } from "react-chrome-extension-router";
-import { local } from "chrome-storage-promises";
 import { getVerification, Threshold } from "arverify";
 import Settings from "../views/Popup/routes/Settings";
 import copy from "copy-to-clipboard";
@@ -44,7 +43,8 @@ export default function WalletManager() {
     logoutModal = useModal(false),
     [showSwitch, setShowSwitch] = useState(false),
     [verifiedAddresses, setVerifiedAddresses] = useState<string[]>([]),
-    [showQRCode, setShowQRCode] = useState(false);
+    [showQRCode, setShowQRCode] = useState(false),
+    { arVerifyTreshold } = useSelector((state: RootState) => state.settings);
 
   useEffect(() => {
     adjustSizes();
@@ -61,20 +61,9 @@ export default function WalletManager() {
 
     for (const { address } of wallets)
       try {
-        const arverifySetting: { [key: string]: any } =
-          typeof chrome !== "undefined"
-            ? await local.get("setting_arverify")
-            : await browser.storage.local.get("setting_arverify");
-
         if (
-          (
-            await getVerification(
-              address,
-              parseFloat(
-                arverifySetting["setting_arverify"] ?? Threshold.MEDIUM
-              )
-            )
-          ).verified
+          (await getVerification(address, arVerifyTreshold ?? Threshold.MEDIUM))
+            .verified
         )
           loaded.push(address);
       } catch {}

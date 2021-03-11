@@ -14,6 +14,7 @@ import axios from "axios";
 import { Allowance } from "../stores/reducers/allowances";
 import { run } from "ar-gql";
 import limestone from "@limestonefi/api";
+import { RootState } from "../stores/reducers";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(async () => {
@@ -296,11 +297,10 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               price: number = parseFloat(
                 message.transaction.quantity + message.transaction.reward
               ),
-              // TODO: transfer this to a REDUX store
-              arConfettiSetting: { [key: string]: any } =
-                typeof chrome !== "undefined"
-                  ? await local.get("setting_confetti")
-                  : await browser.storage.local.get("setting_confetti");
+              arConfettiSetting = (await getStoreData())?.["settings"]
+                ?.arConfetti;
+
+            console.log(arConfettiSetting);
 
             let decryptionKey = decryptionKeyRes?.["decryptionKey"];
 
@@ -356,10 +356,17 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               );
 
             const signTransaction = async () => {
-              const storedKeyfiles = (await getStoreData())?.["wallets"],
-                storedAddress = (await getStoreData())?.["profile"];
+              const storedKeyfiles = (await getStoreData())?.["wallets"] ?? [],
+                storedAddress = (await getStoreData())?.["profile"],
+                keyfileToDecrypt = storedKeyfiles.find(
+                  (item: any) => item.address === storedAddress
+                )?.keyfile;
 
-              if (!storedKeyfiles || !storedAddress)
+              if (
+                storedKeyfiles.length === 0 ||
+                !storedAddress ||
+                !keyfileToDecrypt
+              )
                 return sendMessage(
                   {
                     type: "sign_transaction_result",
@@ -372,10 +379,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                   sendResponse
                 );
 
-              const keyfileToDecrypt = storedKeyfiles.find(
-                  (item: any) => item.address === storedAddress
-                )?.keyfile,
-                keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt)),
+              const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt)),
                 decodeTransaction = arweave.transactions.fromRaw({
                   ...message.transaction,
                   owner: keyfile.n
@@ -416,7 +420,8 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                   message: "Success",
                   transaction: decodeTransaction,
                   sender: "background",
-                  arConfetti: arConfettiSetting["setting_confetti"] ?? true
+                  arConfetti:
+                    arConfettiSetting === undefined ? true : arConfettiSetting
                 },
                 undefined,
                 sendResponse
@@ -617,7 +622,7 @@ function sendPermissionError(
   );
 }
 
-type StoreData = { [reducer: string]: any };
+type StoreData = Partial<RootState>;
 
 // get store data
 async function getStoreData(): Promise<StoreData> {
@@ -628,6 +633,7 @@ async function getStoreData(): Promise<StoreData> {
     parseRoot: StoreData = JSON.parse(data?.["persist:root"] ?? "{}");
 
   let parsedData: StoreData = {};
+  // @ts-ignore
   for (const key in parseRoot) parsedData[key] = JSON.parse(parseRoot[key]);
 
   return parsedData;
@@ -641,10 +647,12 @@ async function getStoreData(): Promise<StoreData> {
 async function setStoreData(updatedData: StoreData) {
   const data = { ...(await getStoreData()), ...updatedData };
   // store data, but with stringified values
-  let encodedData: StoreData = {};
+  let encodedData: { [key: string]: string } = {};
 
-  for (const reducer in data)
+  for (const reducer in data) {
+    // @ts-ignore
     encodedData[reducer] = JSON.stringify(data[reducer]);
+  }
 
   if (typeof chrome !== "undefined")
     local.set({ "persist:root": JSON.stringify(encodedData) });

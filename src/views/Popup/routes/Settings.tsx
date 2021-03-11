@@ -17,18 +17,19 @@ import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
 import { getRealURL } from "../../../utils/url";
-import { local } from "chrome-storage-promises";
+import { Currency } from "../../../stores/reducers/settings";
+import { Threshold } from "arverify";
 import {
   readdAsset,
   removePermissions,
   unblockURL,
   blockURL,
-  updateArweaveConfig
+  updateArweaveConfig,
+  updateSettings
 } from "../../../stores/actions";
 import Home from "./Home";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
-import { Threshold } from "arverify";
 
 export default function Settings() {
   const [setting, setCurrSetting] = useState<
@@ -51,17 +52,14 @@ export default function Settings() {
       { event: string; url: string; date: number }[]
     >([]),
     arweaveConfig = useSelector((state: RootState) => state.arweave),
+    otherSettings = useSelector((state: RootState) => state.settings),
     arweaveHostInput = useInput(arweaveConfig.host),
     arweavePortInput = useInput(arweaveConfig.port.toString()),
-    arweaveProtocolInput = useInput(arweaveConfig.protocol),
-    [currency, setCurrency] = useState("USD"),
-    [threshold, setThreshold] = useState(Threshold.MEDIUM),
-    [arConfetti, setARConfetti] = useState(false);
+    arweaveProtocolInput = useInput(arweaveConfig.protocol);
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
     loadEvents();
-    loadOtherSettings();
     // eslint-disable-next-line
   }, []);
 
@@ -118,39 +116,6 @@ export default function Settings() {
       })
     );
     setCurrSetting(undefined);
-  }
-
-  async function loadOtherSettings() {
-    try {
-      const currencySetting: { [key: string]: any } =
-        typeof chrome !== "undefined"
-          ? await local.get("setting_currency")
-          : await browser.storage.local.get("setting_currency");
-      setCurrency(currencySetting["setting_currency"] ?? "USD");
-    } catch {}
-
-    try {
-      const arverifySetting: { [key: string]: any } =
-        typeof chrome !== "undefined"
-          ? await local.get("setting_arverify")
-          : await browser.storage.local.get("setting_arverify");
-      setThreshold(
-        parseFloat(arverifySetting["setting_arverify"] ?? Threshold.MEDIUM)
-      );
-    } catch {}
-
-    try {
-      const arConfettiSetting: { [key: string]: any } =
-        typeof chrome !== "undefined"
-          ? await local.get("setting_confetti")
-          : await browser.storage.local.get("setting_confetti");
-      if (arConfettiSetting["setting_confetti"]) {
-        if (typeof chrome !== "undefined")
-          local.set({ setting_confetti: true });
-        else browser.storage.local.set({ setting_confetti: true });
-      }
-      setARConfetti(arConfettiSetting["setting_confetti"] ?? true);
-    } catch {}
   }
 
   return (
@@ -270,15 +235,11 @@ export default function Settings() {
               </div>
               <div className={styles.Arrow}>
                 <Toggle
-                  checked={arConfetti}
+                  checked={otherSettings.arConfetti}
                   onChange={() =>
-                    setARConfetti((val) => {
-                      if (typeof chrome !== "undefined")
-                        local.set({ setting_confetti: !val });
-                      else
-                        browser.storage.local.set({ setting_confetti: !val });
-                      return !val;
-                    })
+                    dispatch(
+                      updateSettings({ arConfetti: !otherSettings.arConfetti })
+                    )
                   }
                 />
               </div>
@@ -327,17 +288,10 @@ export default function Settings() {
           (setting === "currency" && (
             <div className={styles.OptionContent}>
               <Radio.Group
-                value={currency}
-                onChange={(val) => {
-                  if (typeof chrome !== "undefined")
-                    local.set({ setting_currency: val.toString() });
-                  else
-                    browser.storage.local.set({
-                      setting_currency: val.toString()
-                    });
-
-                  setCurrency(val.toString());
-                }}
+                value={otherSettings.currency}
+                onChange={(val) =>
+                  dispatch(updateSettings({ currency: val as Currency }))
+                }
               >
                 <Radio value="USD">
                   USD
@@ -475,18 +429,14 @@ export default function Settings() {
           )) ||
           (setting === "arverify" && (
             <div className={styles.OptionContent}>
+              <h1>Treshold</h1>
               <Radio.Group
-                value={threshold}
-                onChange={(val) => {
-                  if (typeof chrome !== "undefined")
-                    local.set({ setting_arverify: val.toString() });
-                  else
-                    browser.storage.local.set({
-                      setting_arverify: val.toString()
-                    });
-
-                  setThreshold(Number(val));
-                }}
+                value={otherSettings.arVerifyTreshold}
+                onChange={(val) =>
+                  dispatch(
+                    updateSettings({ arVerifyTreshold: val as Threshold })
+                  )
+                }
               >
                 <Radio value={Threshold.LOW}>
                   Low

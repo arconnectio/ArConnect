@@ -7,6 +7,7 @@ import { IArweaveAction, IArweave } from "./reducers/arweave";
 
 import { PermissionType } from "../utils/permissions";
 import { IAllowancesAction } from "./reducers/allowances";
+import { ISettings, ISettingsAction } from "./reducers/settings";
 
 export function addWallet(wallet: Wallet): IWalletsAction {
   return {
@@ -139,6 +140,15 @@ export function setAllowanceLimit(
   return {
     type: "SET_LIMIT",
     payload: { url, limit }
+  };
+}
+
+export function updateSettings(
+  settingsToUpdate: Partial<ISettings>
+): ISettingsAction {
+  return {
+    type: "UPDATE_SETTINGS",
+    payload: settingsToUpdate
   };
 }
 
