@@ -28,10 +28,17 @@ import {
 import Home from "./Home";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
+import { Threshold } from "arverify";
 
 export default function Settings() {
   const [setting, setCurrSetting] = useState<
-      "events" | "permissions" | "currency" | "psts" | "sites" | "arweave"
+      | "events"
+      | "permissions"
+      | "currency"
+      | "psts"
+      | "sites"
+      | "arweave"
+      | "arverify"
     >(),
     permissions = useSelector((state: RootState) => state.permissions),
     [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
@@ -48,6 +55,7 @@ export default function Settings() {
     arweavePortInput = useInput(arweaveConfig.port.toString()),
     arweaveProtocolInput = useInput(arweaveConfig.protocol),
     [currency, setCurrency] = useState("USD"),
+    [threshold, setThreshold] = useState(Threshold.MEDIUM),
     [arConfetti, setARConfetti] = useState(false);
 
   useEffect(() => {
@@ -122,6 +130,16 @@ export default function Settings() {
     } catch {}
 
     try {
+      const arverifySetting: { [key: string]: any } =
+        typeof chrome !== "undefined"
+          ? await local.get("setting_arverify")
+          : await browser.storage.local.get("setting_arverify");
+      setThreshold(
+        parseFloat(arverifySetting["setting_arverify"] ?? Threshold.MEDIUM)
+      );
+    } catch {}
+
+    try {
       const arConfettiSetting: { [key: string]: any } =
         typeof chrome !== "undefined"
           ? await local.get("setting_confetti")
@@ -152,8 +170,9 @@ export default function Settings() {
             (setting === "permissions" && "Permissions") ||
             (setting === "currency" && "Currency") ||
             (setting === "psts" && "Removed PSTs") ||
-            (setting === "sites" && "Blocked sites") ||
-            (setting === "arweave" && "Arweave config") ||
+            (setting === "sites" && "Blocked Sites") ||
+            (setting === "arweave" && "Arweave Config") ||
+            (setting === "arverify" && "ArVerify Config") ||
             "Settings"}
         </h1>
       </div>
@@ -213,7 +232,7 @@ export default function Settings() {
               onClick={() => setCurrSetting("sites")}
             >
               <div>
-                <h1>Blocked sites</h1>
+                <h1>Blocked Sites</h1>
                 <p>Limit access from sites to ArConnect</p>
               </div>
               <div className={styles.Arrow}>
@@ -225,8 +244,20 @@ export default function Settings() {
               onClick={() => setCurrSetting("arweave")}
             >
               <div>
-                <h1>Arweave config</h1>
+                <h1>Arweave Config</h1>
                 <p>Edit the arweave config variables</p>
+              </div>
+              <div className={styles.Arrow}>
+                <ChevronRightIcon />
+              </div>
+            </div>
+            <div
+              className={styles.Setting}
+              onClick={() => setCurrSetting("arverify")}
+            >
+              <div>
+                <h1>ArVerify Config</h1>
+                <p>Set the verification threshold used</p>
               </div>
               <div className={styles.Arrow}>
                 <ChevronRightIcon />
@@ -320,6 +351,13 @@ export default function Settings() {
                   GBP
                   <Radio.Description>Pound Sterling</Radio.Description>
                 </Radio>
+                <style>{`
+                  .point:before {
+                    left: 0px !important;
+                    top: 0px !important;
+                    background-color: #AB9DF2 !important;
+                  }
+                `}</style>
               </Radio.Group>
             </div>
           )) ||
@@ -433,6 +471,51 @@ export default function Settings() {
               >
                 Set config
               </Button>
+            </div>
+          )) ||
+          (setting === "arverify" && (
+            <div className={styles.OptionContent}>
+              <Radio.Group
+                value={threshold}
+                onChange={(val) => {
+                  if (typeof chrome !== "undefined")
+                    local.set({ setting_arverify: val.toString() });
+                  else
+                    browser.storage.local.set({
+                      setting_arverify: val.toString()
+                    });
+
+                  setThreshold(Number(val));
+                }}
+              >
+                <Radio value={Threshold.LOW}>
+                  Low
+                  <Radio.Description>{Threshold.LOW * 100}%</Radio.Description>
+                </Radio>
+                <Radio value={Threshold.MEDIUM}>
+                  Medium
+                  <Radio.Description>
+                    {Threshold.MEDIUM * 100}%
+                  </Radio.Description>
+                </Radio>
+                <Radio value={Threshold.HIGH}>
+                  High
+                  <Radio.Description>{Threshold.HIGH * 100}%</Radio.Description>
+                </Radio>
+                <Radio value={Threshold.ULTRA}>
+                  Ultra
+                  <Radio.Description>
+                    {Threshold.ULTRA * 100}%
+                  </Radio.Description>
+                </Radio>
+                <style>{`
+                  .point:before {
+                    left: 0px !important;
+                    top: 0px !important;
+                    background-color: #AB9DF2 !important;
+                  }
+                `}</style>
+              </Radio.Group>
             </div>
           ))}
       </div>
