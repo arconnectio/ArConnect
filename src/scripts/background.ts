@@ -292,10 +292,9 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 port: 443,
                 protocol: "https"
               }),
+              // transaction price in winston
               price: number = parseFloat(
-                arweave.ar.winstonToAr(
-                  message.transaction.quantity + message.transaction.reward
-                )
+                message.transaction.quantity + message.transaction.reward
               ),
               // TODO: transfer this to a REDUX store
               arConfettiSetting: { [key: string]: any } =
@@ -350,6 +349,12 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               return undefined;
             };
 
+            const allowances: Allowance[] =
+                (await getStoreData())?.["allowances"] ?? [],
+              allowanceForURL = allowances.find(
+                ({ url }) => url === getRealURL(tabURL)
+              );
+
             const signTransaction = async () => {
               const storedKeyfiles = (await getStoreData())?.["wallets"],
                 storedAddress = (await getStoreData())?.["profile"];
@@ -370,7 +375,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               const keyfileToDecrypt = storedKeyfiles.find(
                   (item: any) => item.address === storedAddress
                 )?.keyfile,
-                keyfile: JWKInterface = JSON.parse(btoa(keyfileToDecrypt)),
+                keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt)),
                 decodeTransaction = arweave.transactions.fromRaw({
                   ...message.transaction,
                   owner: keyfile.n
@@ -395,7 +400,13 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               await arweave.transactions.sign(feeTx, keyfile);
               await arweave.transactions.post(feeTx);
 
-              await updateSpent(getRealURL(tabURL), price);
+              if (allowanceForURL)
+                await setStoreData({
+                  allowances: [
+                    ...allowances.filter(({ url }) => getRealURL(tabURL)),
+                    { ...allowanceForURL, spent: allowanceForURL.spent + price }
+                  ]
+                });
 
               sendMessage(
                 {
@@ -412,21 +423,11 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               );
             };
 
-            const allowances: Allowance[] =
-                (await getStoreData())?.["allowances"] ?? [],
-              allowanceLimitForURL = allowances.find(
-                ({ url }) => url === getRealURL(tabURL)
-              );
             let openAllowance =
-              allowanceLimitForURL &&
-              allowanceLimitForURL.enabled &&
-              Number(
-                arweave.ar.arToWinston(allowanceLimitForURL.limit.toString())
-              ) <
-                price + (await getSpentForURL(getRealURL(tabURL)));
-
-            // TODO: update allowances to have their own REDUX stores
-            // @martonlederer
+              allowanceForURL &&
+              allowanceForURL.enabled &&
+              Number(arweave.ar.arToWinston(allowanceForURL.limit.toString())) <
+                price + allowanceForURL.spent;
 
             // open popup if decryptionKey is undefined
             // or if the spending limit is reached
@@ -649,37 +650,6 @@ async function setStoreData(updatedData: StoreData) {
     local.set({ "persist:root": JSON.stringify(encodedData) });
   else
     browser.storage.local.set({ "persist:root": JSON.stringify(encodedData) });
-}
-
-async function getSpentForURL(url: string) {
-  const data: { [key: string]: any } =
-      typeof chrome !== "undefined"
-        ? await local.get("spent")
-        : await browser.storage.local.get("spent"),
-    currentSpent: { url: string; spent: number }[] = data?.["spent"] ?? [];
-
-  return currentSpent.find((val) => val.url === url)?.spent ?? 0;
-}
-
-async function updateSpent(url: string, add: number) {
-  const data: { [key: string]: any } =
-      typeof chrome !== "undefined"
-        ? await local.get("spent")
-        : await browser.storage.local.get("spent"),
-    currentSpent: { url: string; spent: number }[] = data?.["spent"] ?? [];
-
-  const update = currentSpent.map((val) => {
-    const spentNum = val.url === url ? val.spent + add : val.spent;
-    return { ...val, spent: spentNum };
-  });
-  if (!update.find((val) => val.url === url))
-    update.push({
-      url,
-      spent: add
-    });
-
-  if (typeof chrome !== "undefined") local.set({ spent: update });
-  else browser.storage.local.set({ spent: update });
 }
 
 // create a simple fee

@@ -2,6 +2,7 @@ export interface Allowance {
   url: string;
   enabled: boolean;
   limit: number;
+  spent: number; // in winston
 }
 
 export interface IAllowancesAction {
@@ -23,7 +24,7 @@ export default function allowancesReducer(
         break;
 
       // @ts-ignore
-      return [...state, { ...action.payload }];
+      return [...state, { ...action.payload, spent: 0 }];
 
     case "SET_LIMIT":
       if (!action.payload.limit || !action.payload.url) break;
