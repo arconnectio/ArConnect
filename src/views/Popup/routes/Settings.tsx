@@ -41,6 +41,7 @@ export default function Settings() {
       | "sites"
       | "arweave"
       | "arverify"
+      | "allowances"
     >(),
     permissions = useSelector((state: RootState) => state.permissions),
     [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
@@ -52,6 +53,7 @@ export default function Settings() {
     [events, setEvents] = useState<ArConnectEvent[]>([]),
     arweaveConfig = useSelector((state: RootState) => state.arweave),
     otherSettings = useSelector((state: RootState) => state.settings),
+    allowances = useSelector((state: RootState) => state.allowances),
     arweaveHostInput = useInput(arweaveConfig.host),
     arweavePortInput = useInput(arweaveConfig.port.toString()),
     arweaveProtocolInput = useInput(arweaveConfig.protocol);
@@ -139,6 +141,7 @@ export default function Settings() {
             (setting === "sites" && "Blocked Sites") ||
             (setting === "arweave" && "Arweave Config") ||
             (setting === "arverify" && "ArVerify Config") ||
+            (setting === "allowances" && "Allowances") ||
             "Settings"}
         </h1>
       </div>
@@ -164,6 +167,18 @@ export default function Settings() {
               <div>
                 <h1>Permissions</h1>
                 <p>Manage site permissions</p>
+              </div>
+              <div className={styles.Arrow}>
+                <ChevronRightIcon />
+              </div>
+            </div>
+            <div
+              className={styles.Setting}
+              onClick={() => setCurrSetting("allowances")}
+            >
+              <div>
+                <h1>Allowances</h1>
+                <p>Manage spending limits</p>
               </div>
               <div className={styles.Arrow}>
                 <ChevronRightIcon />
@@ -331,6 +346,26 @@ export default function Settings() {
                     </div>
                   </div>
                 ))) || <p>No removed PSTs</p>}
+            </>
+          )) ||
+          (setting === "allowances" && (
+            <>
+              {allowances.map((allowance, i) => (
+                <div
+                  className={styles.Setting + " " + styles.SubSetting}
+                  key={i}
+                >
+                  <h1>{allowance.url}</h1>
+                  <p>
+                    <Toggle
+                      checked={allowance.enabled}
+                      onChange={() => {
+                        /** TODO */
+                      }}
+                    />
+                  </p>
+                </div>
+              ))}
             </>
           )) ||
           (setting === "sites" && (
