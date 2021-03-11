@@ -154,7 +154,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
           const store = await getStoreData();
 
           await setStoreData({
-            permissions: store.permissions.filter(
+            permissions: (store.permissions ?? []).filter(
               (sitePerms: IPermissionState) =>
                 sitePerms.url !== getRealURL(tabURL)
             )
