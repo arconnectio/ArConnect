@@ -429,7 +429,7 @@ export default function Settings() {
           )) ||
           (setting === "arverify" && (
             <div className={styles.OptionContent}>
-              <h1>Treshold</h1>
+              <h1>Threshold:</h1>
               <Radio.Group
                 value={otherSettings.arVerifyTreshold}
                 onChange={(val) =>
