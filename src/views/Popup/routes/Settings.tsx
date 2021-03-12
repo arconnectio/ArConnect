@@ -513,6 +513,7 @@ export default function Settings() {
                       {event.event}
                       <span className={styles.EventDate}>
                         {new Intl.DateTimeFormat(navigator.language, {
+                          // @ts-ignore
                           timeStyle: "medium",
                           dateStyle: "short"
                         }).format(event.date)}
