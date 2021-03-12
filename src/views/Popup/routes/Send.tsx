@@ -232,10 +232,10 @@ export default function Send() {
         <p className={styles.InputInfo}>
           <span>
             {"~" + getSymbol(currency)}
-            {arPriceFiat * Number(amountInput.state)}
+            {(arPriceFiat * Number(amountInput.state)).toFixed(2)}
             {" " + currency}
           </span>
-          <span>1 AR = {getSymbol(currency) + arPriceFiat.toString()}</span>
+          <span>1 AR = {getSymbol(currency) + arPriceFiat.toFixed(2)}</span>
         </p>
         <Spacer y={0.45} />
         <Input {...messageInput.bindings} placeholder="Message (optional)" />
