@@ -11,12 +11,13 @@ import {
 } from "@geist-ui/react";
 import { goTo } from "react-chrome-extension-router";
 import { JWKInterface } from "arweave/node/lib/wallet";
+import { QuestionIcon } from "@primer/octicons-react";
+import { arToFiat, getSymbol } from "../../../utils/currency";
 import Home from "./Home";
 import Arweave from "arweave";
 import axios from "axios";
 import WalletManager from "../../../components/WalletManager";
 import styles from "../../../styles/views/Popup/send.module.sass";
-import { QuestionIcon } from "@primer/octicons-react";
 
 export default function Send() {
   const targetInput = useInput(""),
@@ -32,7 +33,9 @@ export default function Send() {
     [balance, setBalance] = useState("0"),
     [submitted, setSubmitted] = useState(false),
     [loading, setLoading] = useState(false),
-    [, setToast] = useToasts();
+    [, setToast] = useToasts(),
+    { currency } = useSelector((state: RootState) => state.settings),
+    [arPriceFiat, setArPriceFiat] = useState(1);
 
   useEffect(() => {
     loadBalance();
@@ -43,6 +46,15 @@ export default function Send() {
     calculateFee();
     // eslint-disable-next-line
   }, [targetInput.state, messageInput.state, profile]);
+
+  useEffect(() => {
+    calculateArPriceInCurrency();
+    // eslint-disable-next-line
+  }, [currency]);
+
+  async function calculateArPriceInCurrency() {
+    setArPriceFiat(await arToFiat(1, currency));
+  }
 
   async function loadBalance() {
     try {
@@ -148,7 +160,16 @@ export default function Send() {
             Max
           </Button>
         </div>
-        <Spacer />
+        <Spacer y={0.19} />
+        <p className={styles.InputInfo}>
+          <span>
+            {"~" + getSymbol(currency)}
+            {arPriceFiat * Number(amountInput.state)}
+            {" " + currency}
+          </span>
+          <span>1 AR = {getSymbol(currency) + arPriceFiat.toString()}</span>
+        </p>
+        <Spacer y={0.45} />
         <Input {...messageInput.bindings} placeholder="Message (optional)" />
         <p className={styles.FeeDisplay}>
           Arweave fee: {fee} AR
