@@ -518,6 +518,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               sendResponse
             );
 
+          // TODO: remove this
           console.log(message);
 
           try {

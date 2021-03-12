@@ -90,6 +90,38 @@ Sign a transaction. Raw version of what is used in the `arweave-js` [API](#api).
 
 Requires the `SIGN_TRANSACTION` [permission](#permissions).
 
+### `encrypt(data, options): Promise<Uint8Array>`
+
+Encrypt a string, using the user's wallet.
+
+- `data`: String to encrypt
+- `options`: Encrypt [options](#encryption-options)
+  <br />
+- `returns`: Encrypted string
+
+Requires the `ENCRYPT` [permission](#permissions).
+
+#### Encryption options
+
+```ts
+{
+  algorithm: string; // encryption algorithm
+  hash: string; // encryption hash
+  salt?: string; // optional salt
+}
+```
+
+### `decrypt(data, options): Promise<string>`
+
+Decrypt a string [encrypted](#encryptdata-options-promiseuint8array) with the user's wallet.
+
+- `data`: `Uint8Array` data to decrypt to a string
+- `options`: Decrypt [options](#encryption-options)
+  <br />
+- `returns`: Decrypted string
+
+Requires the `DECRYPT` [permission](#permissions).
+
 ### `getPermissions()`
 
 Get the [permissions](#permissions) allowed for you site by the user.
@@ -110,6 +142,11 @@ The permissions:
 
 - `CREATE_TRANSACTION`:
   Create a new transaction
+
+- `ENCRYPT`:
+  Encrypt data using the user's keyfile
+- `DECRYPT`:
+  Decrypt data using the user's keyfile
 
 ## License
 
