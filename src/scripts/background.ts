@@ -116,7 +116,8 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
           );
       }
 
-      if (!(await walletsStored()))
+      if (!(await walletsStored())) {
+        window.open(chrome.runtime.getURL("/welcome.html"));
         return sendMessage(
           {
             type: "connect_result",
@@ -128,6 +129,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
           undefined,
           sendResponse
         );
+      }
 
       localStorage.setItem(
         "arweave_events",
@@ -454,7 +456,8 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 storedKeyfiles.length === 0 ||
                 !storedAddress ||
                 !keyfileToDecrypt
-              )
+              ) {
+                window.open(chrome.runtime.getURL("/welcome.html"));
                 return sendMessage(
                   {
                     type: "sign_transaction_result",
@@ -466,6 +469,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                   undefined,
                   sendResponse
                 );
+              }
 
               const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt)),
                 decodeTransaction = arweave.transactions.fromRaw({
