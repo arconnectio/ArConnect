@@ -145,6 +145,7 @@ The permissions:
 
 - `ENCRYPT`:
   Encrypt data using the user's keyfile
+
 - `DECRYPT`:
   Decrypt data using the user's keyfile
 
