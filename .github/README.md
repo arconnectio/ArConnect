@@ -55,7 +55,7 @@ All of these functions are asynchronous, so you will need to `await` them.
 
 ### `connect(permissions)`
 
-Connect to ArConnect and request permissions. See the available permissions [here](#permissions).
+Connect to ArConnect and request permissions. This function can always be called again if you want to request more permissions for your site. See the available permissions [here](#permissions).
 
 - `permissions`: An array of [permissions](#permissions)
 
