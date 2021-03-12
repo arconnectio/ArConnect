@@ -27,17 +27,47 @@ chrome.runtime.onInstalled.addListener(async () => {
     title: "Copy current address",
     contexts: ["browser_action"],
     async onclick() {
-      const input = document.createElement("input"),
-        profile = (await getStoreData())?.profile;
+      try {
+        const input = document.createElement("input"),
+          profile = (await getStoreData())?.profile;
 
-      if (!profile || profile === "") return;
+        if (!profile || profile === "") return;
 
-      input.value = profile;
+        input.value = profile;
 
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand("Copy");
-      document.body.removeChild(input);
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("Copy");
+        document.body.removeChild(input);
+      } catch {}
+    }
+  });
+  chrome.contextMenus.create({
+    title: "Disconnect from current site",
+    contexts: ["browser_action", "page"],
+    async onclick(_, tab) {
+      try {
+        const store = await getStoreData(),
+          url = tab.url,
+          id = tab.id;
+
+        if (
+          !url ||
+          !id ||
+          !store?.permissions?.find((val) => val.url === getRealURL(url))
+        )
+          return;
+        await setStoreData({
+          permissions: (store.permissions ?? []).filter(
+            (sitePerms: IPermissionState) => sitePerms.url !== getRealURL(url)
+          )
+        });
+
+        // reload tab
+        chrome.tabs.executeScript(id, {
+          code: "window.location.reload()"
+        });
+      } catch {}
     }
   });
 });
