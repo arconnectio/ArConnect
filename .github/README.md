@@ -111,6 +111,10 @@ The permissions:
 - `CREATE_TRANSACTION`:
   Create a new transaction
 
+## Contributing
+
+Please read the [Contributing guide](./CONTRIBUTING.md).
+
 ## License
 
 Licensed under the [MIT](./../LICENSE) license.
