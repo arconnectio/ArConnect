@@ -21,6 +21,25 @@ import axios from "axios";
 chrome.runtime.onInstalled.addListener(async () => {
   if (!(await walletsStored()))
     window.open(chrome.runtime.getURL("/welcome.html"));
+
+  chrome.contextMenus.removeAll();
+  chrome.contextMenus.create({
+    title: "Copy current address",
+    contexts: ["browser_action"],
+    async onclick() {
+      const input = document.createElement("input"),
+        profile = (await getStoreData())?.profile;
+
+      if (!profile || profile === "") return;
+
+      input.value = profile;
+
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("Copy");
+      document.body.removeChild(input);
+    }
+  });
 });
 
 // listen for messages from the content script
@@ -446,7 +465,9 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               if (allowanceForURL)
                 await setStoreData({
                   allowances: [
-                    ...allowances.filter(({ url }) => getRealURL(tabURL)),
+                    ...allowances.filter(
+                      ({ url }) => url !== getRealURL(tabURL)
+                    ),
                     { ...allowanceForURL, spent: allowanceForURL.spent + price }
                   ]
                 });
