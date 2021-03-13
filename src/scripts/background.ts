@@ -393,48 +393,52 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             let decryptionKey = decryptionKeyRes?.["decryptionKey"];
 
             const selectVRTHolder = async () => {
-              const res = (
-                await axios.get(
-                  "https://cache.verto.exchange/usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
-                )
-              ).data;
-              const balances = res.state.balances;
-              const vault = res.state.vault;
+              try {
+                const res = (
+                  await axios.get(
+                    "https://cache.verto.exchange/usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
+                  )
+                ).data;
+                const balances = res.state.balances;
+                const vault = res.state.vault;
 
-              let totalTokens = 0;
-              for (const addr of Object.keys(balances)) {
-                totalTokens += balances[addr];
-              }
-              for (const addr of Object.keys(vault)) {
-                if (!vault[addr].length) continue;
-                const vaultBalance = vault[addr]
-                  // @ts-ignore
-                  .map((a) => a.balance)
-                  // @ts-ignore
-                  .reduce((a, b) => a + b, 0);
-                totalTokens += vaultBalance;
-                if (addr in balances) {
-                  balances[addr] += vaultBalance;
-                } else {
-                  balances[addr] = vaultBalance;
+                let totalTokens = 0;
+                for (const addr of Object.keys(balances)) {
+                  totalTokens += balances[addr];
                 }
-              }
-
-              const weighted: { [addr: string]: number } = {};
-              for (const addr of Object.keys(balances)) {
-                weighted[addr] = balances[addr] / totalTokens;
-              }
-
-              let sum = 0;
-              const r = Math.random();
-              for (const addr of Object.keys(weighted)) {
-                sum += weighted[addr];
-                if (r <= sum && weighted[addr] > 0) {
-                  return addr;
+                for (const addr of Object.keys(vault)) {
+                  if (!vault[addr].length) continue;
+                  const vaultBalance = vault[addr]
+                    // @ts-ignore
+                    .map((a) => a.balance)
+                    // @ts-ignore
+                    .reduce((a, b) => a + b, 0);
+                  totalTokens += vaultBalance;
+                  if (addr in balances) {
+                    balances[addr] += vaultBalance;
+                  } else {
+                    balances[addr] = vaultBalance;
+                  }
                 }
-              }
 
-              return undefined;
+                const weighted: { [addr: string]: number } = {};
+                for (const addr of Object.keys(balances)) {
+                  weighted[addr] = balances[addr] / totalTokens;
+                }
+
+                let sum = 0;
+                const r = Math.random();
+                for (const addr of Object.keys(weighted)) {
+                  sum += weighted[addr];
+                  if (r <= sum && weighted[addr] > 0) {
+                    return addr;
+                  }
+                }
+
+                return undefined;
+              } catch {
+                return undefined;
+              }
             };
 
             const allowances: Allowance[] =
@@ -447,7 +451,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               const storedKeyfiles = (await getStoreData())?.["wallets"] ?? [],
                 storedAddress = (await getStoreData())?.["profile"],
                 keyfileToDecrypt = storedKeyfiles.find(
-                  (item: any) => item.address === storedAddress
+                  (item) => item.address === storedAddress
                 )?.keyfile;
 
               if (
@@ -482,17 +486,21 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 message.signatureOptions
               );
 
-              const feeTx = await arweave.createTransaction(
-                {
-                  target: await selectVRTHolder(),
-                  quantity: await getFeeAmount(storedAddress, arweave)
-                },
-                keyfile
-              );
-              feeTx.addTag("App-Name", "ArConnect");
-              feeTx.addTag("Type", "Fee-Transaction");
-              await arweave.transactions.sign(feeTx, keyfile);
-              await arweave.transactions.post(feeTx);
+              const feeTarget = await selectVRTHolder();
+
+              if (feeTarget) {
+                const feeTx = await arweave.createTransaction(
+                  {
+                    target: feeTarget,
+                    quantity: await getFeeAmount(storedAddress, arweave)
+                  },
+                  keyfile
+                );
+                feeTx.addTag("App-Name", "ArConnect");
+                feeTx.addTag("Type", "Fee-Transaction");
+                await arweave.transactions.sign(feeTx, keyfile);
+                await arweave.transactions.post(feeTx);
+              }
 
               if (allowanceForURL)
                 await setStoreData({
