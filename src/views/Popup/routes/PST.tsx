@@ -99,15 +99,23 @@ export default function PST({ id, name, balance, ticker }: Asset) {
     setLoadingData(true);
     try {
       const { data } = await axios.get(
-          "https://community.xyz/caching/communities"
+          "https://cache.verto.exchange/communities"
         ),
         community = data.find((psc: any) => psc.id === id);
 
       if (!community) return;
-      setDescription(community.state.settings?.communityDescription ?? "");
+      setDescription(
+        community.state.settings?.find(
+          (entry: any) => entry[0] === "communityDescription"
+        )[1] ?? ""
+      );
       setLinks([
-        community.state.settings?.communityAppUrl,
-        ...community.state.settings?.communityDiscussionLinks
+        community.state.settings?.find(
+          (entry: any) => entry[0] === "communityAppUrl"
+        )[1],
+        ...community.state.settings?.find(
+          (entry: any) => entry[0] === "communityDiscussionLinks"
+        )[1]
       ]);
     } catch {}
     setLoadingData(false);

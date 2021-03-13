@@ -84,7 +84,7 @@ export default function Home() {
   async function loadPSTs() {
     try {
       const { data } = await axios.get(
-          "https://community.xyz/caching/communities"
+          "https://cache.verto.exchange/communities"
         ),
         pstsWithBalance = data.filter(
           ({
@@ -99,7 +99,9 @@ export default function Home() {
             id: pst.id,
             name: pst.state.name,
             ticker: pst.state.ticker,
-            logo: pst.state.settings.communityLogo,
+            logo: pst.state.settings.find(
+              (entry: any) => entry[0] === "communityLogo"
+            )[1],
             balance: pst.state.balances[profile] ?? 0,
             arBalance:
               ((await verto.latestPrice(pst.id)) ?? 0) *
