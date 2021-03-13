@@ -14,19 +14,10 @@
       width: 100%
 
   .Amount
-    display: flex
-    align-items: stretch
-    justify-content: space-between
-
-    div[class~=with-label]
-      width: 85%
-
+    +variables.flexInput
+    
     &.Target
-      align-items: center
-      margin-bottom: .33em
-
-      div[class~=with-label]
-        width: 92%
+      +variables.flexInput(true)
 
   .FeeDisplay
     display: flex
