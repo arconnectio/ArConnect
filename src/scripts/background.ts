@@ -613,9 +613,12 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
             const encrypt = async () => {
               const storedKeyfiles = (await getStoreData())?.["wallets"],
-                storedAddress = (await getStoreData())?.["profile"];
+                storedAddress = (await getStoreData())?.["profile"],
+                keyfileToDecrypt = storedKeyfiles?.find(
+                  (item) => item.address === storedAddress
+                )?.keyfile;
 
-              if (!storedKeyfiles || !storedAddress)
+              if (!storedKeyfiles || !storedAddress || !keyfileToDecrypt)
                 return sendMessage(
                   {
                     type: "encrypt_result",
@@ -628,11 +631,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                   sendResponse
                 );
 
-              const keyfileToDecrypt = storedKeyfiles.find(
-                  (item: any) => item.address === storedAddress
-                )?.keyfile,
-                keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt));
-
+              const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt));
               const obj = {
                 kty: "RSA",
                 e: "AQAB",
@@ -770,9 +769,12 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
             const decrypt = async () => {
               const storedKeyfiles = (await getStoreData())?.["wallets"],
-                storedAddress = (await getStoreData())?.["profile"];
+                storedAddress = (await getStoreData())?.["profile"],
+                keyfileToDecrypt = storedKeyfiles?.find(
+                  (item) => item.address === storedAddress
+                )?.keyfile;
 
-              if (!storedKeyfiles || !storedAddress) {
+              if (!storedKeyfiles || !storedAddress || !keyfileToDecrypt) {
                 return sendMessage(
                   {
                     type: "decrypt_result",
@@ -786,10 +788,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 );
               }
 
-              const keyfileToDecrypt = storedKeyfiles.find(
-                  (item: any) => item.address === storedAddress
-                )?.keyfile,
-                keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt));
+              const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt));
 
               const obj = {
                 ...keyfile,
