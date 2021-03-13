@@ -14,15 +14,13 @@ import { setAssets } from "../../../stores/actions";
 import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
 import { useColorScheme } from "use-color-scheme";
-import { local } from "chrome-storage-promises";
-import { exchangeRates } from "exchange-rates-api";
+import { arToFiat, getSymbol } from "../../../utils/currency";
 import axios from "axios";
 import PST from "./PST";
 import WalletManager from "../../../components/WalletManager";
 import Send from "./Send";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
-import limestone from "@limestonefi/api";
 import arweaveLogo from "../../../assets/arweave.png";
 import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
@@ -31,9 +29,6 @@ import styles from "../../../styles/views/Popup/home.module.sass";
 export default function Home() {
   const [balance, setBalance] = useState<string>(),
     [fiatBalance, setFiatBalance] = useState<string>(),
-    [exchangeRate, setExchangeRate] = useState(1),
-    [symbol, setSymbol] = useState<string>(),
-    [currency, setCurrency] = useState<string>(),
     arweaveConfig = useSelector((state: RootState) => state.arweave),
     arweave = new Arweave(arweaveConfig),
     profile = useSelector((state: RootState) => state.profile),
@@ -49,10 +44,11 @@ export default function Home() {
         timestamp: number;
       }[]
     >([]),
-    [arPrice, setArPrice] = useState(1),
     theme = useTheme(),
     dispatch = useDispatch(),
-    { scheme } = useColorScheme();
+    { scheme } = useColorScheme(),
+    { currency } = useSelector((state: RootState) => state.settings),
+    [arPriceInCurrency, setArPriceInCurrency] = useState(1);
 
   useEffect(() => {
     loadBalance();
@@ -61,6 +57,15 @@ export default function Home() {
     // eslint-disable-next-line
   }, [profile]);
 
+  useEffect(() => {
+    calculateArPriceInCurrency();
+    // eslint-disable-next-line
+  }, [currency]);
+
+  async function calculateArPriceInCurrency() {
+    setArPriceInCurrency(await arToFiat(1, currency));
+  }
+
   async function loadBalance() {
     try {
       const balance = await arweave.wallets.getBalance(profile),
@@ -68,39 +73,10 @@ export default function Home() {
 
       setBalance(arBalance);
 
-      const arP = (await limestone.getPrice("AR")).price,
-        usdBal = arP * Number(arBalance);
-
-      let currency;
-      try {
-        const currencySetting: { [key: string]: any } =
-          typeof chrome !== "undefined"
-            ? await local.get("setting_currency")
-            : await browser.storage.local.get("setting_currency");
-        currency = currencySetting["setting_currency"] ?? "USD";
-      } catch {}
-
-      setCurrency(currency);
-      if (currency === "USD") {
-        setSymbol("$");
-      }
-      if (currency === "EUR") {
-        setSymbol("€");
-      }
-      if (currency === "GBP") {
-        setSymbol("£");
-      }
-
-      const exchangeRate = Number(
-        await exchangeRates().latest().symbols(currency).base("USD").fetch()
-      );
-      setExchangeRate(exchangeRate);
-
       const fiatBal = parseFloat(
-        (usdBal * exchangeRate).toFixed(2)
+        (await arToFiat(Number(arBalance), currency)).toFixed(2)
       ).toLocaleString();
 
-      setArPrice(arP);
       setFiatBalance(fiatBal);
     } catch {}
   }
@@ -174,7 +150,7 @@ export default function Home() {
           <span>AR</span>
         </h1>
         <h2>
-          {symbol ?? "?"}
+          {getSymbol(currency)}
           {formatBalance(fiatBalance ?? "0".repeat(10))} {currency ?? "???"}
           <Tooltip
             text={
@@ -305,10 +281,10 @@ export default function Home() {
                   </h1>
                   <h2>
                     {tx.amount !== 0 && (tx.type === "in" ? "+" : "-")}
-                    {symbol}
+                    {getSymbol(currency)}
                     {formatBalance(
                       parseFloat(
-                        (tx.amount * arPrice * exchangeRate).toFixed(2)
+                        (tx.amount * arPriceInCurrency).toFixed(2)
                       ).toLocaleString(),
                       true
                     )}{" "}

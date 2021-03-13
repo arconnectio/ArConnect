@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import {
   ArrowLeftIcon,
+  CheckIcon,
   ChevronDownIcon,
   ChevronRightIcon,
+  PencilIcon,
   XIcon
 } from "@primer/octicons-react";
 import {
@@ -17,21 +19,35 @@ import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
 import { getRealURL } from "../../../utils/url";
-import { local } from "chrome-storage-promises";
+import { Currency } from "../../../stores/reducers/settings";
+import { Threshold } from "arverify";
+import { MessageType } from "../../../utils/messenger";
 import {
   readdAsset,
   removePermissions,
   unblockURL,
   blockURL,
-  updateArweaveConfig
+  updateArweaveConfig,
+  updateSettings,
+  toggleAllowance,
+  setAllowanceLimit,
+  removeAllowance
 } from "../../../stores/actions";
 import Home from "./Home";
+import Arweave from "arweave";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
 
 export default function Settings() {
   const [setting, setCurrSetting] = useState<
-      "events" | "permissions" | "currency" | "psts" | "sites" | "arweave"
+      | "events"
+      | "permissions"
+      | "currency"
+      | "psts"
+      | "sites"
+      | "arweave"
+      | "arverify"
+      | "allowances"
     >(),
     permissions = useSelector((state: RootState) => state.permissions),
     [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
@@ -40,22 +56,27 @@ export default function Settings() {
     currentAddress = useSelector((state: RootState) => state.profile),
     blockedURLs = useSelector((state: RootState) => state.blockedSites),
     addURLInput = useInput(""),
-    [events, setEvents] = useState<
-      { event: string; url: string; date: number }[]
-    >([]),
+    [events, setEvents] = useState<ArConnectEvent[]>([]),
     arweaveConfig = useSelector((state: RootState) => state.arweave),
+    otherSettings = useSelector((state: RootState) => state.settings),
+    allowances = useSelector((state: RootState) => state.allowances),
     arweaveHostInput = useInput(arweaveConfig.host),
     arweavePortInput = useInput(arweaveConfig.port.toString()),
     arweaveProtocolInput = useInput(arweaveConfig.protocol),
-    [currency, setCurrency] = useState("USD"),
-    [arConfetti, setARConfetti] = useState(false);
+    [arweave, setArweave] = useState<Arweave>(new Arweave(arweaveConfig)),
+    [editingAllowance, setEditingAllowance] = useState<{
+      id: number;
+      val: number;
+    }>();
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
     loadEvents();
-    loadOtherSettings();
     // eslint-disable-next-line
   }, []);
+
+  // update instance on config changes
+  useEffect(() => setArweave(new Arweave(arweaveConfig)), [arweaveConfig]);
 
   function open(url: string) {
     setOpened((val) => [
@@ -92,7 +113,9 @@ export default function Settings() {
   function loadEvents() {
     const evs = localStorage.getItem("arweave_events");
     if (!evs) return;
-    setEvents(JSON.parse(evs).val);
+    setEvents(
+      (JSON.parse(evs).val as ArConnectEvent[]).sort((a, b) => b.date - a.date)
+    );
   }
 
   function updateConfig() {
@@ -112,29 +135,6 @@ export default function Settings() {
     setCurrSetting(undefined);
   }
 
-  async function loadOtherSettings() {
-    try {
-      const currencySetting: { [key: string]: any } =
-        typeof chrome !== "undefined"
-          ? await local.get("setting_currency")
-          : await browser.storage.local.get("setting_currency");
-      setCurrency(currencySetting["setting_currency"] ?? "USD");
-    } catch {}
-
-    try {
-      const arConfettiSetting: { [key: string]: any } =
-        typeof chrome !== "undefined"
-          ? await local.get("setting_confetti")
-          : await browser.storage.local.get("setting_confetti");
-      if (arConfettiSetting["setting_confetti"]) {
-        if (typeof chrome !== "undefined")
-          local.set({ setting_confetti: true });
-        else browser.storage.local.set({ setting_confetti: true });
-      }
-      setARConfetti(arConfettiSetting["setting_confetti"] ?? true);
-    } catch {}
-  }
-
   return (
     <>
       <div className={SubPageTopStyles.Head}>
@@ -152,8 +152,10 @@ export default function Settings() {
             (setting === "permissions" && "Permissions") ||
             (setting === "currency" && "Currency") ||
             (setting === "psts" && "Removed PSTs") ||
-            (setting === "sites" && "Blocked sites") ||
-            (setting === "arweave" && "Arweave config") ||
+            (setting === "sites" && "Blocked Sites") ||
+            (setting === "arweave" && "Arweave Config") ||
+            (setting === "arverify" && "ArVerify Config") ||
+            (setting === "allowances" && "Allowances") ||
             "Settings"}
         </h1>
       </div>
@@ -179,6 +181,18 @@ export default function Settings() {
               <div>
                 <h1>Permissions</h1>
                 <p>Manage site permissions</p>
+              </div>
+              <div className={styles.Arrow}>
+                <ChevronRightIcon />
+              </div>
+            </div>
+            <div
+              className={styles.Setting}
+              onClick={() => setCurrSetting("allowances")}
+            >
+              <div>
+                <h1>Allowances</h1>
+                <p>Manage spending limits</p>
               </div>
               <div className={styles.Arrow}>
                 <ChevronRightIcon />
@@ -213,7 +227,7 @@ export default function Settings() {
               onClick={() => setCurrSetting("sites")}
             >
               <div>
-                <h1>Blocked sites</h1>
+                <h1>Blocked Sites</h1>
                 <p>Limit access from sites to ArConnect</p>
               </div>
               <div className={styles.Arrow}>
@@ -225,8 +239,20 @@ export default function Settings() {
               onClick={() => setCurrSetting("arweave")}
             >
               <div>
-                <h1>Arweave config</h1>
+                <h1>Arweave Config</h1>
                 <p>Edit the arweave config variables</p>
+              </div>
+              <div className={styles.Arrow}>
+                <ChevronRightIcon />
+              </div>
+            </div>
+            <div
+              className={styles.Setting}
+              onClick={() => setCurrSetting("arverify")}
+            >
+              <div>
+                <h1>ArVerify Config</h1>
+                <p>Set the verification threshold used</p>
               </div>
               <div className={styles.Arrow}>
                 <ChevronRightIcon />
@@ -239,15 +265,11 @@ export default function Settings() {
               </div>
               <div className={styles.Arrow}>
                 <Toggle
-                  checked={arConfetti}
+                  checked={otherSettings.arConfetti}
                   onChange={() =>
-                    setARConfetti((val) => {
-                      if (typeof chrome !== "undefined")
-                        local.set({ setting_confetti: !val });
-                      else
-                        browser.storage.local.set({ setting_confetti: !val });
-                      return !val;
-                    })
+                    dispatch(
+                      updateSettings({ arConfetti: !otherSettings.arConfetti })
+                    )
                   }
                 />
               </div>
@@ -277,11 +299,19 @@ export default function Settings() {
                             {perm}
                             <div
                               className={styles.RemoveOption}
-                              onClick={() =>
+                              onClick={() => {
                                 dispatch(
                                   removePermissions(permissionGroup.url, [perm])
+                                );
+                                if (
+                                  permissionGroup.permissions.filter(
+                                    (val) => val !== perm
+                                  ).length === 0
                                 )
-                              }
+                                  dispatch(
+                                    removeAllowance(permissionGroup.url)
+                                  );
+                              }}
                             >
                               <XIcon />
                             </div>
@@ -296,17 +326,11 @@ export default function Settings() {
           (setting === "currency" && (
             <div className={styles.OptionContent}>
               <Radio.Group
-                value={currency}
-                onChange={(val) => {
-                  if (typeof chrome !== "undefined")
-                    local.set({ setting_currency: val.toString() });
-                  else
-                    browser.storage.local.set({
-                      setting_currency: val.toString()
-                    });
-
-                  setCurrency(val.toString());
-                }}
+                value={otherSettings.currency}
+                onChange={(val) =>
+                  dispatch(updateSettings({ currency: val as Currency }))
+                }
+                className={styles.Radio}
               >
                 <Radio value="USD">
                   USD
@@ -344,6 +368,86 @@ export default function Settings() {
                     </div>
                   </div>
                 ))) || <p>No removed PSTs</p>}
+            </>
+          )) ||
+          (setting === "allowances" && (
+            <>
+              {allowances.map((allowance, i) => (
+                <div
+                  className={
+                    styles.Setting +
+                    " " +
+                    styles.NoFlex +
+                    " " +
+                    styles.SubSetting
+                  }
+                  key={i}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between"
+                    }}
+                  >
+                    <h1>{allowance.url}</h1>
+                    <p>
+                      <Toggle
+                        checked={allowance.enabled}
+                        onChange={() =>
+                          dispatch(
+                            toggleAllowance(allowance.url, !allowance.enabled)
+                          )
+                        }
+                      />
+                    </p>
+                  </div>
+                  <p style={{ marginBottom: ".2em", marginTop: ".25em" }}>
+                    Spent:{" "}
+                    {arweave.ar.winstonToAr((allowance.spent ?? 0).toString())}{" "}
+                    AR
+                  </p>
+                  <p style={{ display: "flex", alignItems: "center" }}>
+                    Limit:{" "}
+                    {(editingAllowance && editingAllowance.id === i && (
+                      <input
+                        className={styles.ClearInput}
+                        type="number"
+                        value={editingAllowance.val}
+                        autoFocus
+                        onChange={(e) =>
+                          setEditingAllowance({
+                            id: i,
+                            val: Number(e.target.value)
+                          })
+                        }
+                      />
+                    )) ||
+                      allowance.limit}{" "}
+                    AR
+                    <span
+                      className={styles.EditAllowance}
+                      onClick={() => {
+                        if (!editingAllowance)
+                          setEditingAllowance({ id: i, val: allowance.limit });
+                        else {
+                          setEditingAllowance(undefined);
+                          dispatch(
+                            setAllowanceLimit(
+                              allowance.url,
+                              editingAllowance.val
+                            )
+                          );
+                        }
+                      }}
+                    >
+                      {(editingAllowance && editingAllowance.id === i && (
+                        <CheckIcon />
+                      )) || <PencilIcon />}
+                    </span>
+                  </p>
+                </div>
+              ))}
             </>
           )) ||
           (setting === "sites" && (
@@ -396,10 +500,25 @@ export default function Settings() {
               {(events.length > 0 &&
                 events.map((event, i) => (
                   <div
-                    className={styles.Setting + " " + styles.SubSetting}
+                    className={
+                      styles.Setting +
+                      " " +
+                      styles.SubSetting +
+                      " " +
+                      styles.EventItem
+                    }
                     key={i}
                   >
-                    <h1>{event.event}</h1>
+                    <h1>
+                      {event.event}
+                      <span className={styles.EventDate}>
+                        {new Intl.DateTimeFormat(navigator.language, {
+                          // @ts-ignore
+                          timeStyle: "medium",
+                          dateStyle: "short"
+                        }).format(event.date)}
+                      </span>
+                    </h1>
                     <p>{getRealURL(event.url)}</p>
                   </div>
                 ))) || <p>No events</p>}
@@ -434,8 +553,49 @@ export default function Settings() {
                 Set config
               </Button>
             </div>
+          )) ||
+          (setting === "arverify" && (
+            <div className={styles.OptionContent}>
+              <h1>Threshold:</h1>
+              <Radio.Group
+                value={otherSettings.arVerifyTreshold}
+                onChange={(val) =>
+                  dispatch(
+                    updateSettings({ arVerifyTreshold: val as Threshold })
+                  )
+                }
+                className={styles.Radio}
+              >
+                <Radio value={Threshold.LOW}>
+                  Low
+                  <Radio.Description>{Threshold.LOW * 100}%</Radio.Description>
+                </Radio>
+                <Radio value={Threshold.MEDIUM}>
+                  Medium
+                  <Radio.Description>
+                    {Threshold.MEDIUM * 100}%
+                  </Radio.Description>
+                </Radio>
+                <Radio value={Threshold.HIGH}>
+                  High
+                  <Radio.Description>{Threshold.HIGH * 100}%</Radio.Description>
+                </Radio>
+                <Radio value={Threshold.ULTRA}>
+                  Ultra
+                  <Radio.Description>
+                    {Threshold.ULTRA * 100}%
+                  </Radio.Description>
+                </Radio>
+              </Radio.Group>
+            </div>
           ))}
       </div>
     </>
   );
+}
+
+export interface ArConnectEvent {
+  event: MessageType;
+  url: string;
+  date: number;
 }

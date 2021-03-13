@@ -29,6 +29,8 @@ export type MessageType =
   | "get_active_address_result"
   | "get_all_addresses"
   | "get_all_addresses_result"
+  | "get_wallet_names"
+  | "get_wallet_names_result"
   | "get_permissions"
   | "get_permissions_result"
   | "switch_wallet_event"

@@ -21,7 +21,7 @@ import { QRCode } from "react-qr-svg";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendMessage } from "../utils/messenger";
 import { goTo } from "react-chrome-extension-router";
-import { getVerification } from "arverify";
+import { getVerification, Threshold } from "arverify";
 import Settings from "../views/Popup/routes/Settings";
 import copy from "copy-to-clipboard";
 import "../styles/components/Tooltip.sass";
@@ -42,7 +42,9 @@ export default function WalletManager() {
     [copyStatus, setCopyStatus] = useState(false),
     logoutModal = useModal(false),
     [showSwitch, setShowSwitch] = useState(false),
-    [verifiedAddresses, setVerifiedAddresses] = useState<string[]>([]);
+    [verifiedAddresses, setVerifiedAddresses] = useState<string[]>([]),
+    [showQRCode, setShowQRCode] = useState(false),
+    { arVerifyTreshold } = useSelector((state: RootState) => state.settings);
 
   useEffect(() => {
     adjustSizes();
@@ -59,7 +61,11 @@ export default function WalletManager() {
 
     for (const { address } of wallets)
       try {
-        if ((await getVerification(address)).verified) loaded.push(address);
+        if (
+          (await getVerification(address, arVerifyTreshold ?? Threshold.MEDIUM))
+            .verified
+        )
+          loaded.push(address);
       } catch {}
 
     setVerifiedAddresses(loaded);
@@ -102,6 +108,7 @@ export default function WalletManager() {
     copy(profile);
     setCopyStatus(true);
     setTimeout(() => setCopyStatus(false), 280);
+    setShowQRCode(true);
   }
 
   function switchWallet(address: string) {
@@ -126,27 +133,13 @@ export default function WalletManager() {
           {currentWalletName()}
           {verifiedAddresses.includes(profile) && <VerifiedIcon />}
         </h1>
-        <Tooltip
-          text={
-            <>
-              <p style={{ textAlign: "center", margin: "0 0 .35em" }}>
-                Click to copy address
-              </p>
-              <QRCode
-                className={styles.QRCode}
-                value={profile}
-                bgColor={scheme === "dark" ? "#000000" : "#ffffff"}
-                fgColor={scheme === "dark" ? "#ffffff" : "#000000"}
-              />
-            </>
-          }
-          placement="bottom"
-          style={{ width: "100%" }}
+        <p
+          onClick={copyAddress}
+          className={copyStatus ? styles.Copied : ""}
+          title="Click to copy"
         >
-          <p onClick={copyAddress} className={copyStatus ? styles.Copied : ""}>
-            {profile}
-          </p>
-        </Tooltip>
+          {profile}
+        </p>
         <div
           className={styles.Icon + " " + (open ? styles.Open : "")}
           onClick={() => setOpen(!open)}
@@ -264,6 +257,28 @@ export default function WalletManager() {
             exit={{ opacity: 0 }}
           >
             Switched wallet
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showQRCode && (
+          <motion.div
+            className={styles.QROverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.23, ease: "easeInOut" }}
+            onClick={() => setShowQRCode(false)}
+          >
+            <div className={styles.wrapper}>
+              <QRCode
+                className={styles.QRCode}
+                value={profile}
+                bgColor={scheme === "dark" ? "#000000" : "#ffffff"}
+                fgColor={scheme === "dark" ? "#ffffff" : "#000000"}
+              />
+              <p>Copied address</p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

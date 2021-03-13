@@ -3,7 +3,8 @@ import {
   ArrowLeftIcon,
   ArrowSwitchIcon,
   TrashcanIcon,
-  InfoIcon
+  InfoIcon,
+  VerifiedIcon
 } from "@primer/octicons-react";
 import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
@@ -16,7 +17,10 @@ import {
   Spacer,
   useModal,
   Modal,
-  Loading
+  Loading,
+  Progress,
+  useTheme,
+  Tooltip
 } from "@geist-ui/react";
 import { useColorScheme } from "use-color-scheme";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,6 +30,8 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import { interactWrite } from "smartweave";
 import { Line } from "react-chartjs-2";
 import { GraphDataConfig, GraphOptions } from "../../../utils/graph";
+import { AnimatePresence, motion } from "framer-motion";
+import { getVerification, Threshold } from "arverify";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
 import Home from "./Home";
@@ -57,7 +63,14 @@ export default function PST({ id, name, balance, ticker }: Asset) {
     [links, setLinks] = useState<string[]>([]),
     [loadingData, setLoadingData] = useState(false),
     arweaveConfig = useSelector((state: RootState) => state.arweave),
-    wallets = useSelector((state: RootState) => state.wallets);
+    wallets = useSelector((state: RootState) => state.wallets),
+    geistTheme = useTheme(),
+    [verified, setVerified] = useState<{
+      verified: boolean;
+      icon: string;
+      percentage: number;
+    }>(),
+    { arVerifyTreshold } = useSelector((state: RootState) => state.settings);
 
   useEffect(() => {
     loadArPrice();
@@ -69,6 +82,11 @@ export default function PST({ id, name, balance, ticker }: Asset) {
     if (tabs.state === "3")
       window.open(`https://verto.exchange/token?id=${id}`);
   }, [tabs, id]);
+
+  useEffect(() => {
+    checkVerification();
+    // eslint-disable-next-line
+  }, [addressInput.state]);
 
   async function loadArPrice() {
     const verto = new Verto(),
@@ -156,6 +174,20 @@ export default function PST({ id, name, balance, ticker }: Asset) {
     dispatch(removeAsset(profile, id));
     removeModal.setVisible(false);
     goTo(Home);
+  }
+
+  async function checkVerification() {
+    if (addressInput.state === "") return setVerified(undefined);
+
+    try {
+      const verification = await getVerification(
+        addressInput.state,
+        arVerifyTreshold ?? Threshold.MEDIUM
+      );
+      setVerified(verification);
+    } catch {
+      setVerified(undefined);
+    }
   }
 
   return (
@@ -268,11 +300,51 @@ export default function PST({ id, name, balance, ticker }: Asset) {
                     max={balance}
                   />
                   <Spacer />
-                  <Input
-                    {...addressInput.bindings}
-                    status={addressInputState}
-                    placeholder="Transfer address..."
-                  />
+                  <div
+                    className={
+                      verified && verified.verified ? styles.Address : ""
+                    }
+                  >
+                    <Input
+                      {...addressInput.bindings}
+                      status={addressInputState}
+                      placeholder="Transfer address..."
+                    />
+                    {verified && verified.verified && (
+                      <Tooltip
+                        text={
+                          <p style={{ margin: 0, textAlign: "center" }}>
+                            Verified on <br />
+                            ArVerify
+                          </p>
+                        }
+                        placement="topEnd"
+                      >
+                        <VerifiedIcon />
+                      </Tooltip>
+                    )}
+                  </div>
+                  <AnimatePresence>
+                    {verified && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <p style={{ margin: 0, marginBottom: ".21em" }}>
+                          Trust score: {verified.percentage?.toFixed(2) ?? 0}%
+                        </p>
+                        <Progress
+                          value={verified.percentage}
+                          colors={{
+                            30: geistTheme.palette.error,
+                            80: geistTheme.palette.warning,
+                            100: "#99C507"
+                          }}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                   <Spacer />
                   <Button style={{ width: "100%" }} onClick={forwardToPassword}>
                     Transfer

@@ -14,12 +14,10 @@
       width: 100%
 
   .Amount
-    display: flex
-    align-items: stretch
-    justify-content: space-between
-
-    div[class~=with-label]
-      width: 85%
+    +variables.flexInput
+    
+    &.Target
+      +variables.flexInput(true)
 
   .FeeDisplay
     display: flex
@@ -35,3 +33,13 @@
         width: .67em
         height: .67em
         transform: translateY(-50%)
+
+.InputInfo
+  margin: 0
+  font-size: .83em
+  display: flex
+  justify-content: space-between
+  color: variables.$secondary-text-light
+
+  @media (prefers-color-scheme: dark)
+    color: variables.$secondary-text-dark

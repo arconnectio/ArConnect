@@ -7,16 +7,21 @@ import {
   Spacer,
   useInput,
   useToasts,
-  Tooltip
+  Tooltip,
+  Progress,
+  useTheme
 } from "@geist-ui/react";
 import { goTo } from "react-chrome-extension-router";
 import { JWKInterface } from "arweave/node/lib/wallet";
+import { QuestionIcon, VerifiedIcon } from "@primer/octicons-react";
+import { arToFiat, getSymbol } from "../../../utils/currency";
+import { Threshold, getVerification } from "arverify";
 import Home from "./Home";
 import Arweave from "arweave";
 import axios from "axios";
 import WalletManager from "../../../components/WalletManager";
 import styles from "../../../styles/views/Popup/send.module.sass";
-import { QuestionIcon } from "@primer/octicons-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function Send() {
   const targetInput = useInput(""),
@@ -32,7 +37,16 @@ export default function Send() {
     [balance, setBalance] = useState("0"),
     [submitted, setSubmitted] = useState(false),
     [loading, setLoading] = useState(false),
-    [, setToast] = useToasts();
+    [, setToast] = useToasts(),
+    { currency } = useSelector((state: RootState) => state.settings),
+    [arPriceFiat, setArPriceFiat] = useState(1),
+    [verified, setVerified] = useState<{
+      verified: boolean;
+      icon: string;
+      percentage: number;
+    }>(),
+    { arVerifyTreshold } = useSelector((state: RootState) => state.settings),
+    geistTheme = useTheme();
 
   useEffect(() => {
     loadBalance();
@@ -41,8 +55,18 @@ export default function Send() {
 
   useEffect(() => {
     calculateFee();
+    checkVerification();
     // eslint-disable-next-line
   }, [targetInput.state, messageInput.state, profile]);
+
+  useEffect(() => {
+    calculateArPriceInCurrency();
+    // eslint-disable-next-line
+  }, [currency]);
+
+  async function calculateArPriceInCurrency() {
+    setArPriceFiat(await arToFiat(1, currency));
+  }
 
   async function loadBalance() {
     try {
@@ -108,16 +132,72 @@ export default function Send() {
     setLoading(false);
   }
 
+  async function checkVerification() {
+    if (targetInput.state === "") return setVerified(undefined);
+
+    try {
+      const verification = await getVerification(
+        targetInput.state,
+        arVerifyTreshold ?? Threshold.MEDIUM
+      );
+      setVerified(verification);
+    } catch {
+      setVerified(undefined);
+    }
+  }
+
   return (
     <>
       <WalletManager />
       <div className={styles.View}>
-        <Input
-          {...targetInput.bindings}
-          placeholder="Send to address..."
-          status={submitted && targetInput.state === "" ? "error" : "default"}
-        />
-        <Spacer />
+        <div
+          className={
+            verified && verified.verified
+              ? styles.Amount + " " + styles.Target
+              : ""
+          }
+        >
+          <Input
+            {...targetInput.bindings}
+            placeholder="Send to address..."
+            status={submitted && targetInput.state === "" ? "error" : "default"}
+          />
+          {verified && verified.verified && (
+            <Tooltip
+              text={
+                <p style={{ margin: 0, textAlign: "center" }}>
+                  Verified on <br />
+                  ArVerify
+                </p>
+              }
+              placement="bottomEnd"
+            >
+              <VerifiedIcon />
+            </Tooltip>
+          )}
+        </div>
+        <AnimatePresence>
+          {verified && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <p style={{ margin: 0, marginBottom: ".21em" }}>
+                Trust score: {verified.percentage?.toFixed(2) ?? 0}%
+              </p>
+              <Progress
+                value={verified.percentage}
+                colors={{
+                  30: geistTheme.palette.error,
+                  80: geistTheme.palette.warning,
+                  100: "#99C507"
+                }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <Spacer y={verified ? 0.55 : 1} />
         <div className={styles.Amount}>
           <Input
             {...amountInput.bindings}
@@ -148,7 +228,16 @@ export default function Send() {
             Max
           </Button>
         </div>
-        <Spacer />
+        <Spacer y={0.19} />
+        <p className={styles.InputInfo}>
+          <span>
+            {"~" + getSymbol(currency)}
+            {(arPriceFiat * Number(amountInput.state)).toFixed(2)}
+            {" " + currency}
+          </span>
+          <span>1 AR = {getSymbol(currency) + arPriceFiat.toFixed(2)}</span>
+        </p>
+        <Spacer y={0.45} />
         <Input {...messageInput.bindings} placeholder="Message (optional)" />
         <p className={styles.FeeDisplay}>
           Arweave fee: {fee} AR
