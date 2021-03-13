@@ -756,8 +756,9 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                   ext: "arconnect",
                   res: true,
                   message: "Success",
-                  // TODO(@johnletey): Salt
-                  data: arweave.utils.bufferToString(res),
+                  data: arweave.utils
+                    .bufferToString(res)
+                    .split(message.options.salt)[0],
                   sender: "background"
                 },
                 undefined,
