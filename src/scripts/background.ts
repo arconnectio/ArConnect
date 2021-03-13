@@ -762,7 +762,8 @@ async function getFeeAmount(address: string, arweave: Arweave) {
         transactions(
           owners: [$address]
           tags: [
-            { name: "Signing-Client", values: "ArConnect" }
+            { name: "App-Name", values: "ArConnect" }
+            { name: "Type", values: "Fee-Transaction" }
           ]
           first: 11
         ) {
@@ -780,7 +781,7 @@ async function getFeeAmount(address: string, arweave: Arweave) {
     usdPrice = 1 / arPrice.price; // 1 USD how much AR
 
   if (res.data.transactions.edges.length) {
-    const usd = res.data.transactions.edges.length > 10 ? 0.01 : 0.03;
+    const usd = res.data.transactions.edges.length >= 10 ? 0.01 : 0.03;
 
     return arweave.ar.arToWinston((usdPrice * usd).toString());
   } else return arweave.ar.arToWinston((usdPrice * 0.01).toString());
