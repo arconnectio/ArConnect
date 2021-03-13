@@ -3,7 +3,8 @@ import {
   ArrowLeftIcon,
   ArrowSwitchIcon,
   TrashcanIcon,
-  InfoIcon
+  InfoIcon,
+  VerifiedIcon
 } from "@primer/octicons-react";
 import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
@@ -16,7 +17,10 @@ import {
   Spacer,
   useModal,
   Modal,
-  Loading
+  Loading,
+  Progress,
+  useTheme,
+  Tooltip
 } from "@geist-ui/react";
 import { useColorScheme } from "use-color-scheme";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,7 +28,10 @@ import { removeAsset } from "../../../stores/actions";
 import { RootState } from "../../../stores/reducers";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { interactWrite } from "smartweave";
-import Cryptr from "cryptr";
+import { Line } from "react-chartjs-2";
+import { GraphDataConfig, GraphOptions } from "../../../utils/graph";
+import { AnimatePresence, motion } from "framer-motion";
+import { getVerification, Threshold } from "arverify";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
 import Home from "./Home";
@@ -35,7 +42,7 @@ import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass"
 import styles from "../../../styles/views/Popup/PST.module.sass";
 
 export default function PST({ id, name, balance, ticker }: Asset) {
-  const [arPrice, setArPrice] = useState(0),
+  const [price, setPrices] = useState<{ prices: number[]; dates: string[] }>(),
     { scheme } = useColorScheme(),
     tabs = useTabs("1"),
     transferInput = useInput(""),
@@ -56,7 +63,14 @@ export default function PST({ id, name, balance, ticker }: Asset) {
     [links, setLinks] = useState<string[]>([]),
     [loadingData, setLoadingData] = useState(false),
     arweaveConfig = useSelector((state: RootState) => state.arweave),
-    wallets = useSelector((state: RootState) => state.wallets);
+    wallets = useSelector((state: RootState) => state.wallets),
+    geistTheme = useTheme(),
+    [verified, setVerified] = useState<{
+      verified: boolean;
+      icon: string;
+      percentage: number;
+    }>(),
+    { arVerifyTreshold } = useSelector((state: RootState) => state.settings);
 
   useEffect(() => {
     loadArPrice();
@@ -69,9 +83,16 @@ export default function PST({ id, name, balance, ticker }: Asset) {
       window.open(`https://verto.exchange/token?id=${id}`);
   }, [tabs, id]);
 
+  useEffect(() => {
+    checkVerification();
+    // eslint-disable-next-line
+  }, [addressInput.state]);
+
   async function loadArPrice() {
-    const verto = new Verto();
-    setArPrice((await verto.latestPrice(id)) ?? 0);
+    const verto = new Verto(),
+      prices = await verto.price(id);
+
+    if (prices) setPrices(prices);
   }
 
   async function loadData() {
@@ -112,11 +133,9 @@ export default function PST({ id, name, balance, ticker }: Asset) {
 
     let keyfile: JWKInterface | undefined = undefined;
     try {
-      const cryptr = new Cryptr(passwordInput.state),
-        currentWallet = wallets.find(({ address }) => address === profile);
-
+      const currentWallet = wallets.find(({ address }) => address === profile);
       if (currentWallet) {
-        const decodedKeyfile = cryptr.decrypt(currentWallet.keyfile);
+        const decodedKeyfile = atob(JSON.parse(currentWallet.keyfile));
         keyfile = JSON.parse(decodedKeyfile);
       } else setInputState("error");
     } catch {
@@ -157,6 +176,20 @@ export default function PST({ id, name, balance, ticker }: Asset) {
     goTo(Home);
   }
 
+  async function checkVerification() {
+    if (addressInput.state === "") return setVerified(undefined);
+
+    try {
+      const verification = await getVerification(
+        addressInput.state,
+        arVerifyTreshold ?? Threshold.MEDIUM
+      );
+      setVerified(verification);
+    } catch {
+      setVerified(undefined);
+    }
+  }
+
   return (
     <>
       <div className={SubPageTopStyles.Head}>
@@ -176,7 +209,10 @@ export default function PST({ id, name, balance, ticker }: Asset) {
           {balance.toLocaleString()} <span>{ticker}</span>
         </h1>
         <h2 className={styles.BalanceInAR}>
-          {arPrice === 0 ? "??" : balance * arPrice} AR
+          {!price || price.prices.length === 0
+            ? "??"
+            : balance * price.prices[price.prices.length - 1]}{" "}
+          AR
         </h2>
         <Tabs {...tabs.bindings} className={styles.Tabs}>
           <Tabs.Item
@@ -189,9 +225,30 @@ export default function PST({ id, name, balance, ticker }: Asset) {
             value="1"
           >
             <div className={styles.About}>
-              {(loadingData && <Loading />) ||
+              {((loadingData || !price) && <Loading />) ||
                 ((description || (links && links.length > 0)) && (
                   <>
+                    {price &&
+                      price.prices.length > 0 &&
+                      price.dates.length > 0 && (
+                        <div className={styles.Graph}>
+                          <Line
+                            data={{
+                              labels: price.dates,
+                              datasets: [
+                                {
+                                  label: "AR",
+                                  data: price.prices.map((val) => val),
+                                  ...GraphDataConfig
+                                }
+                              ]
+                            }}
+                            options={GraphOptions({
+                              tooltipText: ({ value }) => `${value} AR`
+                            })}
+                          />
+                        </div>
+                      )}
                     <p>{description}</p>
                     <ul>
                       {links.map((link, i) => (
@@ -243,11 +300,51 @@ export default function PST({ id, name, balance, ticker }: Asset) {
                     max={balance}
                   />
                   <Spacer />
-                  <Input
-                    {...addressInput.bindings}
-                    status={addressInputState}
-                    placeholder="Transfer address..."
-                  />
+                  <div
+                    className={
+                      verified && verified.verified ? styles.Address : ""
+                    }
+                  >
+                    <Input
+                      {...addressInput.bindings}
+                      status={addressInputState}
+                      placeholder="Transfer address..."
+                    />
+                    {verified && verified.verified && (
+                      <Tooltip
+                        text={
+                          <p style={{ margin: 0, textAlign: "center" }}>
+                            Verified on <br />
+                            ArVerify
+                          </p>
+                        }
+                        placement="topEnd"
+                      >
+                        <VerifiedIcon />
+                      </Tooltip>
+                    )}
+                  </div>
+                  <AnimatePresence>
+                    {verified && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <p style={{ margin: 0, marginBottom: ".21em" }}>
+                          Trust score: {verified.percentage?.toFixed(2) ?? 0}%
+                        </p>
+                        <Progress
+                          value={verified.percentage}
+                          colors={{
+                            30: geistTheme.palette.error,
+                            80: geistTheme.palette.warning,
+                            100: "#99C507"
+                          }}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                   <Spacer />
                   <Button style={{ width: "100%" }} onClick={forwardToPassword}>
                     Transfer

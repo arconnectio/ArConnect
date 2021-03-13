@@ -68,8 +68,14 @@ $sidePadding: .7em
   &.About
     padding: 0 1.25em
 
+    .Graph
+      position: relative
+
   div[class~=with-label]
     width: 100%
 
     div
       width: 100%
+
+  .Address
+    +variables.flexInput(true)

@@ -33,12 +33,7 @@ export default function walletsReducer(
       return state.filter(({ address }) => address !== action.payload.address);
 
     case "RENAME_WALLET":
-      if (
-        !action.payload.address ||
-        !action.payload.name ||
-        action.payload.name === ""
-      )
-        break;
+      if (!action.payload.address || action.payload.name === undefined) break;
       return state.map((wallet) =>
         wallet.address === action.payload.address
           ? { ...wallet, name: action.payload.name ?? "" }

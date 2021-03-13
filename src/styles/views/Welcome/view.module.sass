@@ -14,7 +14,7 @@
     transform: translate(-50%, -50%)
 
     @media screen and (max-width: variables.$smaller-screens)
-      width: 43% !important
+      width: 53% !important
 
     h1
       font-size: 2.5em
@@ -25,6 +25,9 @@
         text-transform: uppercase
         font-weight: 600
         display: inline-block
+
+      @media screen and (max-width: variables.$smaller-screens)
+        font-size: 2.265em
 
     .Actions
       margin-top: 1em
@@ -97,15 +100,6 @@
     right: 0
     left: unset
 
-.WeaveIDButton
-  width: 100% !important
-  align-items: center
-  margin-top: 1em
-
-  img
-    height: 1.8em
-    margin-right: .5em
-
 .th8ta
   position: absolute
   bottom: 2em
@@ -117,6 +111,9 @@
   text-decoration: none
   color: #000
   transform: translateX(-50%)
+  
+  @media screen and (max-width: variables.$smaller-screens)
+    bottom: .2em
 
   @media (prefers-color-scheme: dark)
     color: #fff

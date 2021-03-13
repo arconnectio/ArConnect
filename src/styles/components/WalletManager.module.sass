@@ -1,4 +1,8 @@
 @use "../variables"
+
+=walletName
+  font-size: 1.65em
+  font-weight: 600
   
 .CurrentWallet
   position: relative
@@ -17,6 +21,15 @@
     margin: 0
       bottom: .11em
     cursor: pointer
+    display: flex
+    align-items: center
+    justify-content: center
+
+    svg
+      font-size: .55em
+      width: 1em
+      height: 1em
+      margin-left: .5em
 
   p
     font-size: .82em
@@ -109,21 +122,29 @@
           background-color: #030303
 
       .Info
+        position: relative
         width: calc(100% - #{$removeWidth})
 
         input
+          +walletName
           background-color: transparent
           border: none
           outline: none
           color: #000
           padding: 0
           margin: 0
-          font-size: 1.65em
-          font-weight: 600
           max-width: 100%
+          border-bottom: 1px solid transparent
+          transition: border-bottom-color .3s ease-in-out
 
           @media (prefers-color-scheme: dark)
             color: #fff
+
+          &:hover
+            border-bottom-color: rgba(#000, .5)
+
+            @media (prefers-color-scheme: dark)
+              border-bottom-color: rgba(#fff, .5)
 
         p
           font-size: 1em
@@ -136,6 +157,20 @@
 
           @media (prefers-color-scheme: dark)
             color: variables.$secondary-text-dark
+
+        .VerifiedIcon
+          color: #000
+          margin-left: .3em
+          display: flex
+          align-items: center
+
+          @media (prefers-color-scheme: dark)
+            color: #fff
+
+          svg
+            font-size: 1em
+            width: 1em
+            height: 1em
 
       .Remove, .Action
         width: $removeWidth
@@ -154,12 +189,6 @@
           width: 1.23em
           height: 1.23em
 
-.QRCode
-  width: 195px
-  height: 195px
-  display: block
-  margin: 0 auto
-
 .SwitchIndicator
   position: fixed
   bottom: 1.5em
@@ -176,3 +205,41 @@
   @media (prefers-color-scheme: dark)
     background-color: rgba(255, 255, 255, .56)
     color: #000
+
+.QROverlay
+  position: fixed
+  top: 0
+  left: 0
+  right: 0
+  bottom: 0
+  background-color: rgba(#000, .8)
+  z-index: 100000
+
+  .wrapper
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+
+    p
+      font-size: 1em
+      text-align: center
+
+    .QRCode
+      width: 195px
+      height: 195px
+      display: block
+      margin: 0 auto
+      box-shadow: 0px 0px 14px 14px rgb(0, 0, 0, .93)
+
+// same style as the wallet name inputs'
+// this element is required to get the 
+// required width of each wallet name
+// input accurately
+.ImitateWalletName
+  display: block
+  position: fixed
+  top: -100%
+  left: -100%
+  opacity: 0
+  +walletName

@@ -7,21 +7,20 @@ import {
   SignInIcon,
   ChevronRightIcon,
   ArrowSwitchIcon,
-  ArchiveIcon,
-  KebabHorizontalIcon
+  ArchiveIcon
 } from "@primer/octicons-react";
 import { Tabs, Tooltip, useTheme } from "@geist-ui/react";
 import { setAssets } from "../../../stores/actions";
 import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
 import { useColorScheme } from "use-color-scheme";
+import { arToFiat, getSymbol } from "../../../utils/currency";
 import axios from "axios";
 import PST from "./PST";
 import WalletManager from "../../../components/WalletManager";
 import Send from "./Send";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
-import limestone from "@limestonefi/api";
 import arweaveLogo from "../../../assets/arweave.png";
 import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
@@ -29,7 +28,7 @@ import styles from "../../../styles/views/Popup/home.module.sass";
 
 export default function Home() {
   const [balance, setBalance] = useState<string>(),
-    [usdBalance, setUsdBalance] = useState<string>(),
+    [fiatBalance, setFiatBalance] = useState<string>(),
     arweaveConfig = useSelector((state: RootState) => state.arweave),
     arweave = new Arweave(arweaveConfig),
     profile = useSelector((state: RootState) => state.profile),
@@ -45,10 +44,11 @@ export default function Home() {
         timestamp: number;
       }[]
     >([]),
-    [arPrice, setArPrice] = useState(1),
     theme = useTheme(),
     dispatch = useDispatch(),
-    { scheme } = useColorScheme();
+    { scheme } = useColorScheme(),
+    { currency } = useSelector((state: RootState) => state.settings),
+    [arPriceInCurrency, setArPriceInCurrency] = useState(1);
 
   useEffect(() => {
     loadBalance();
@@ -57,16 +57,27 @@ export default function Home() {
     // eslint-disable-next-line
   }, [profile]);
 
+  useEffect(() => {
+    calculateArPriceInCurrency();
+    // eslint-disable-next-line
+  }, [currency]);
+
+  async function calculateArPriceInCurrency() {
+    setArPriceInCurrency(await arToFiat(1, currency));
+  }
+
   async function loadBalance() {
     try {
-      const arPrice = (await limestone.getPrice("AR")).price,
-        balance = await arweave.wallets.getBalance(profile),
-        arBalance = arweave.ar.winstonToAr(balance),
-        usdBal = arPrice * Number(arBalance);
+      const balance = await arweave.wallets.getBalance(profile),
+        arBalance = arweave.ar.winstonToAr(balance);
 
-      setArPrice(arPrice);
       setBalance(arBalance);
-      setUsdBalance(String(usdBal));
+
+      const fiatBal = parseFloat(
+        (await arToFiat(Number(arBalance), currency)).toFixed(2)
+      ).toLocaleString();
+
+      setFiatBalance(fiatBal);
     } catch {}
   }
 
@@ -139,7 +150,8 @@ export default function Home() {
           <span>AR</span>
         </h1>
         <h2>
-          ${formatBalance(usdBalance ?? "0".repeat(10))} USD
+          {getSymbol(currency)}
+          {formatBalance(fiatBalance ?? "0".repeat(10))} {currency ?? "???"}
           <Tooltip
             text={
               <p style={{ textAlign: "center", margin: "0" }}>
@@ -164,9 +176,13 @@ export default function Home() {
             </div>
           </Tooltip>
           <Tooltip text="Not available yet">
-            <div className={styles.Item + " " + styles.Unavailable}>
-              <KebabHorizontalIcon size={24} />
-              <span>More</span>
+            <div
+              className={
+                styles.Item + " " + styles.SwapItem + " " + styles.Unavailable
+              }
+            >
+              <ArrowSwitchIcon size={24} />
+              <span>Swap</span>
             </div>
           </Tooltip>
         </div>
@@ -265,7 +281,14 @@ export default function Home() {
                   </h1>
                   <h2>
                     {tx.amount !== 0 && (tx.type === "in" ? "+" : "-")}
-                    {formatBalance(tx.amount * arPrice, true)} USD
+                    {getSymbol(currency)}
+                    {formatBalance(
+                      parseFloat(
+                        (tx.amount * arPriceInCurrency).toFixed(2)
+                      ).toLocaleString(),
+                      true
+                    )}{" "}
+                    {currency}
                   </h2>
                 </div>
               </div>

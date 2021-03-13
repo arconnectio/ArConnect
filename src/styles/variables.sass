@@ -11,3 +11,18 @@ $secondary-text-dark: #888
 /** Border colors **/
 $border-light: #e6e6e6
 $border-dark: #333
+
+=flexInput($smallerPair: false)
+  display: flex
+  align-items: stretch
+  justify-content: space-between
+
+  div[class~=with-label]
+    width: 85%
+
+  @if $smallerPair
+    align-items: center
+    margin-bottom: .33em
+
+    div[class~=with-label]
+      width: 92%

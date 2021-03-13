@@ -13,13 +13,15 @@ import {
   GearIcon,
   PlusIcon,
   SignOutIcon,
-  TrashcanIcon
+  TrashcanIcon,
+  VerifiedIcon
 } from "@primer/octicons-react";
 import { useColorScheme } from "use-color-scheme";
 import { QRCode } from "react-qr-svg";
 import { motion, AnimatePresence } from "framer-motion";
 import { sendMessage } from "../utils/messenger";
 import { goTo } from "react-chrome-extension-router";
+import { getVerification, Threshold } from "arverify";
 import Settings from "../views/Popup/routes/Settings";
 import copy from "copy-to-clipboard";
 import "../styles/components/Tooltip.sass";
@@ -30,34 +32,46 @@ export default function WalletManager() {
     wallets = useSelector((state: RootState) => state.wallets),
     dispatch = useDispatch(),
     [open, setOpen] = useState(false),
-    [inputSizes, setInputSizes] = useState<
-      {
-        address: string;
-        width: number;
-      }[]
-    >([]),
     { scheme } = useColorScheme(),
     [copyStatus, setCopyStatus] = useState(false),
     logoutModal = useModal(false),
-    [showSwitch, setShowSwitch] = useState(false);
+    [showSwitch, setShowSwitch] = useState(false),
+    [verifiedAddresses, setVerifiedAddresses] = useState<string[]>([]),
+    [showQRCode, setShowQRCode] = useState(false),
+    { arVerifyTreshold } = useSelector((state: RootState) => state.settings),
+    [walletNameSizes, setWalletNameSizes] = useState<{
+      [address: string]: number;
+    }>({});
 
   useEffect(() => {
-    adjustSizes();
+    loadVerifiedAddresses();
     // eslint-disable-next-line
-  }, []);
+  }, [wallets]);
 
-  function adjustSizes() {
-    for (const { address, name } of wallets)
-      setInputSizes((val) => [
-        ...val.filter((val2) => val2.address !== address),
-        { address, width: name.length * 15 + 6 }
-      ]);
-  }
+  // fixup empty names
+  useEffect(() => {
+    if (open) return;
+    for (const [i, wallet] of wallets.entries()) {
+      if (wallet.name === "") {
+        dispatch(renameWallet(wallet.address, `Account ${i + 1}`));
+      }
+    }
+    // eslint-disable-next-line
+  }, [open, wallets]);
 
-  function widthForAddress(addr: string) {
-    return `${
-      inputSizes.find(({ address }) => address === addr)?.width ?? "1"
-    }px`;
+  async function loadVerifiedAddresses() {
+    const loaded: string[] = [];
+
+    for (const { address } of wallets)
+      try {
+        if (
+          (await getVerification(address, arVerifyTreshold ?? Threshold.MEDIUM))
+            .verified
+        )
+          loaded.push(address);
+      } catch {}
+
+    setVerifiedAddresses(loaded);
   }
 
   function deleteWallet(addr: string) {
@@ -83,6 +97,7 @@ export default function WalletManager() {
     copy(profile);
     setCopyStatus(true);
     setTimeout(() => setCopyStatus(false), 280);
+    setShowQRCode(true);
   }
 
   function switchWallet(address: string) {
@@ -103,28 +118,17 @@ export default function WalletManager() {
   return (
     <>
       <div className={styles.CurrentWallet}>
-        <h1 onClick={() => setOpen(!open)}>{currentWalletName()}</h1>
-        <Tooltip
-          text={
-            <>
-              <p style={{ textAlign: "center", margin: "0 0 .35em" }}>
-                Click to copy address
-              </p>
-              <QRCode
-                className={styles.QRCode}
-                value={profile}
-                bgColor={scheme === "dark" ? "#000000" : "#ffffff"}
-                fgColor={scheme === "dark" ? "#ffffff" : "#000000"}
-              />
-            </>
-          }
-          placement="bottom"
-          style={{ width: "100%" }}
+        <h1 onClick={() => setOpen(!open)}>
+          {currentWalletName() || "• • •"}
+          {verifiedAddresses.includes(profile) && <VerifiedIcon />}
+        </h1>
+        <p
+          onClick={copyAddress}
+          className={copyStatus ? styles.Copied : ""}
+          title="Click to copy"
         >
-          <p onClick={copyAddress} className={copyStatus ? styles.Copied : ""}>
-            {profile}
-          </p>
-        </Tooltip>
+          {profile}
+        </p>
         <div
           className={styles.Icon + " " + (open ? styles.Open : "")}
           onClick={() => setOpen(!open)}
@@ -145,20 +149,36 @@ export default function WalletManager() {
                     className={styles.Info}
                     onClick={() => switchWallet(wallet.address)}
                   >
-                    <input
-                      type="text"
-                      value={wallet.name}
-                      title="Type to change wallet name"
-                      onChange={(e) => {
-                        dispatch(renameWallet(wallet.address, e.target.value));
-                        adjustSizes();
-                      }}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                      style={{ width: widthForAddress(wallet.address) }}
-                    />
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <input
+                        type="text"
+                        value={wallet.name}
+                        title="Type to change wallet name"
+                        onChange={(e) =>
+                          dispatch(renameWallet(wallet.address, e.target.value))
+                        }
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        style={{
+                          width: `${walletNameSizes[wallet.address] ?? 0}px`
+                        }}
+                      />
+                      {verifiedAddresses.includes(wallet.address) && (
+                        <Tooltip
+                          text={
+                            <p style={{ textAlign: "center", margin: "0" }}>
+                              Verified on <br />
+                              ArVerify
+                            </p>
+                          }
+                          className={styles.VerifiedIcon}
+                        >
+                          <VerifiedIcon />
+                        </Tooltip>
+                      )}
+                    </div>
                     <p>{wallet.address}</p>
                   </div>
                   <div
@@ -228,6 +248,44 @@ export default function WalletManager() {
           </motion.div>
         )}
       </AnimatePresence>
+      <AnimatePresence>
+        {showQRCode && (
+          <motion.div
+            className={styles.QROverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.23, ease: "easeInOut" }}
+            onClick={() => setShowQRCode(false)}
+          >
+            <div className={styles.wrapper}>
+              <QRCode
+                className={styles.QRCode}
+                value={profile}
+                bgColor={scheme === "dark" ? "#000000" : "#ffffff"}
+                fgColor={scheme === "dark" ? "#ffffff" : "#000000"}
+              />
+              <p>Copied address</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {wallets.map(({ name, address }, i) => (
+        <span
+          className={styles.ImitateWalletName}
+          key={i}
+          ref={(el) => {
+            if (!el || el.clientWidth === 0) return;
+            if (walletNameSizes[address] === el.clientWidth) return;
+            setWalletNameSizes((val) => ({
+              ...val,
+              [address]: el.clientWidth
+            }));
+          }}
+        >
+          {name}
+        </span>
+      ))}
     </>
   );
 }

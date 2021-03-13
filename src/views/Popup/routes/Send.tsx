@@ -1,22 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
-import { Button, Input, Spacer, useInput, useToasts } from "@geist-ui/react";
+import {
+  Button,
+  Input,
+  Spacer,
+  useInput,
+  useToasts,
+  Tooltip,
+  Progress,
+  useTheme
+} from "@geist-ui/react";
 import { goTo } from "react-chrome-extension-router";
-import { local } from "chrome-storage-promises";
 import { JWKInterface } from "arweave/node/lib/wallet";
-import Cryptr from "cryptr";
+import { QuestionIcon, VerifiedIcon } from "@primer/octicons-react";
+import { arToFiat, getSymbol } from "../../../utils/currency";
+import { Threshold, getVerification } from "arverify";
 import Home from "./Home";
 import Arweave from "arweave";
 import axios from "axios";
 import WalletManager from "../../../components/WalletManager";
 import styles from "../../../styles/views/Popup/send.module.sass";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function Send() {
   const targetInput = useInput(""),
     amountInput = useInput("0"),
     messageInput = useInput(""),
-    passwordInput = useInput(""),
     arweaveConfig = useSelector((state: RootState) => state.arweave),
     arweave = new Arweave(arweaveConfig),
     [fee, setFee] = useState("0"),
@@ -28,18 +38,35 @@ export default function Send() {
     [submitted, setSubmitted] = useState(false),
     [loading, setLoading] = useState(false),
     [, setToast] = useToasts(),
-    [decryptKey, setDecryptKey] = useState("");
+    { currency } = useSelector((state: RootState) => state.settings),
+    [arPriceFiat, setArPriceFiat] = useState(1),
+    [verified, setVerified] = useState<{
+      verified: boolean;
+      icon: string;
+      percentage: number;
+    }>(),
+    { arVerifyTreshold } = useSelector((state: RootState) => state.settings),
+    geistTheme = useTheme();
 
   useEffect(() => {
     loadBalance();
-    loadDecryptKey();
     // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
     calculateFee();
+    checkVerification();
     // eslint-disable-next-line
   }, [targetInput.state, messageInput.state, profile]);
+
+  useEffect(() => {
+    calculateArPriceInCurrency();
+    // eslint-disable-next-line
+  }, [currency]);
+
+  async function calculateArPriceInCurrency() {
+    setArPriceFiat(await arToFiat(1, currency));
+  }
 
   async function loadBalance() {
     try {
@@ -61,47 +88,19 @@ export default function Send() {
     } catch {}
   }
 
-  async function loadDecryptKey() {
-    const decryptKeyStored: { [key: string]: any } =
-        typeof chrome !== "undefined"
-          ? await local.get("decryptionKey")
-          : await browser.storage.local.get("decryptionKey"),
-      decryptKeyIs = decryptKeyStored?.["decryptionKey"];
-
-    setDecryptKey(decryptKeyIs ?? "");
-  }
-
-  function checkPassword() {
-    setLoading(true);
-    if (!currentWallet) return;
-    setTimeout(() => {
-      try {
-        const cryptr = new Cryptr(passwordInput.state);
-        cryptr.decrypt(currentWallet);
-        setDecryptKey(passwordInput.state);
-        if (typeof chrome !== "undefined")
-          local.set({ decryptionKey: passwordInput.state });
-        else browser.storage.local.set({ decryptionKey: passwordInput.state });
-      } catch {}
-      setLoading(false);
-    }, 80);
-  }
-
   async function send() {
     setSubmitted(true);
     if (
       targetInput.state === "" ||
       amountInput.state === "" ||
-      Number(amountInput.state) > Number(balance)
+      Number(amountInput.state) > Number(balance) ||
+      currentWallet === undefined
     )
       return;
     setLoading(true);
-    if (!currentWallet || !decryptKey)
-      return setToast({ text: "No decrypt key", type: "error" });
 
     try {
-      const cryptr = new Cryptr(decryptKey),
-        keyfile: JWKInterface = JSON.parse(cryptr.decrypt(currentWallet)),
+      const keyfile: JWKInterface = JSON.parse(atob(currentWallet)),
         transaction = await arweave.createTransaction(
           {
             target: targetInput.state,
@@ -133,86 +132,140 @@ export default function Send() {
     setLoading(false);
   }
 
+  async function checkVerification() {
+    if (targetInput.state === "") return setVerified(undefined);
+
+    try {
+      const verification = await getVerification(
+        targetInput.state,
+        arVerifyTreshold ?? Threshold.MEDIUM
+      );
+      setVerified(verification);
+    } catch {
+      setVerified(undefined);
+    }
+  }
+
   return (
     <>
       <WalletManager />
       <div className={styles.View}>
-        {(decryptKey !== "" && (
-          <>
-            <Input
-              {...targetInput.bindings}
-              placeholder="Send to address..."
-              status={
-                submitted && targetInput.state === "" ? "error" : "default"
+        <div
+          className={
+            verified && verified.verified
+              ? styles.Amount + " " + styles.Target
+              : ""
+          }
+        >
+          <Input
+            {...targetInput.bindings}
+            placeholder="Send to address..."
+            status={submitted && targetInput.state === "" ? "error" : "default"}
+          />
+          {verified && verified.verified && (
+            <Tooltip
+              text={
+                <p style={{ margin: 0, textAlign: "center" }}>
+                  Verified on <br />
+                  ArVerify
+                </p>
               }
-            />
-            <Spacer />
-            <div className={styles.Amount}>
-              <Input
-                {...amountInput.bindings}
-                placeholder="Amount"
-                labelRight="AR"
-                type="number"
-                min="0"
-                status={
-                  submitted &&
-                  (amountInput.state === "" ||
-                    Number(amountInput.state) > Number(balance))
-                    ? "error"
-                    : "default"
-                }
-              />
-              <Button
-                style={{
-                  paddingLeft: ".5em",
-                  paddingRight: ".5em",
-                  minWidth: "unset",
-                  height: "2.65em",
-                  lineHeight: "unset"
+              placement="bottomEnd"
+            >
+              <VerifiedIcon />
+            </Tooltip>
+          )}
+        </div>
+        <AnimatePresence>
+          {verified && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <p style={{ margin: 0, marginBottom: ".21em" }}>
+                Trust score: {verified.percentage?.toFixed(2) ?? 0}%
+              </p>
+              <Progress
+                value={verified.percentage}
+                colors={{
+                  30: geistTheme.palette.error,
+                  80: geistTheme.palette.warning,
+                  100: "#99C507"
                 }}
-                onClick={() =>
-                  amountInput.setState(
-                    (Number(balance) - Number(fee)).toString()
-                  )
-                }
-              >
-                Max
-              </Button>
-            </div>
-            <Spacer />
-            <Input
-              {...messageInput.bindings}
-              placeholder="Message (optional)"
-            />
-            <p>Fee: {fee} AR</p>
-            <p>Total: {Number(fee) + Number(amountInput.state)} AR</p>
-            <Button
-              style={{ width: "100%" }}
-              type="success"
-              onClick={send}
-              loading={loading}
-            >
-              Send AR
-            </Button>
-            <Spacer />
-            <Button style={{ width: "100%" }} onClick={() => goTo(Home)}>
-              Cancel
-            </Button>
-          </>
-        )) || (
-          <>
-            <p>Please enter your password to continue:</p>
-            <Input {...passwordInput.bindings} placeholder="Password..." />
-            <Spacer />
-            <Button
-              style={{ width: "100%" }}
-              onClick={checkPassword}
-              loading={loading}
-            >
-              Continue
-            </Button>
-          </>
-        )}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <Spacer y={verified ? 0.55 : 1} />
+        <div className={styles.Amount}>
+          <Input
+            {...amountInput.bindings}
+            placeholder="Amount"
+            labelRight="AR"
+            type="number"
+            min="0"
+            status={
+              submitted &&
+              (amountInput.state === "" ||
+                Number(amountInput.state) > Number(balance))
+                ? "error"
+                : "default"
+            }
+          />
+          <Button
+            style={{
+              paddingLeft: ".5em",
+              paddingRight: ".5em",
+              minWidth: "unset",
+              height: "2.65em",
+              lineHeight: "unset"
+            }}
+            onClick={() =>
+              amountInput.setState((Number(balance) - Number(fee)).toString())
+            }
+          >
+            Max
+          </Button>
+        </div>
+        <Spacer y={0.19} />
+        <p className={styles.InputInfo}>
+          <span>
+            {"~" + getSymbol(currency)}
+            {(arPriceFiat * Number(amountInput.state)).toFixed(2)}
+            {" " + currency}
+          </span>
+          <span>1 AR = {getSymbol(currency) + arPriceFiat.toFixed(2)}</span>
+        </p>
+        <Spacer y={0.45} />
+        <Input {...messageInput.bindings} placeholder="Message (optional)" />
+        <p className={styles.FeeDisplay}>
+          Arweave fee: {fee} AR
+          <Tooltip
+            text={
+              <p style={{ textAlign: "center", margin: "0" }}>
+                Fee charged by the <br />
+                Arweave network
+              </p>
+            }
+            style={{ marginLeft: ".18em" }}
+          >
+            <QuestionIcon size={24} />
+          </Tooltip>
+        </p>
+        <p>Total: {Number(fee) + Number(amountInput.state)} AR</p>
+        <Button
+          style={{ width: "100%" }}
+          type="success"
+          onClick={send}
+          loading={loading}
+        >
+          Send AR
+        </Button>
+        <Spacer />
+        <Button style={{ width: "100%" }} onClick={() => goTo(Home)}>
+          Cancel
+        </Button>
       </div>
     </>
   );

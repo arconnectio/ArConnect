@@ -9,7 +9,7 @@ function createOverlay(text: string) {
   container.innerHTML = `
     <div style="position: fixed; top: 0; bottom: 0; left: 0; right: 0; z-index: 1000000000000; background-color: rgba(0, 0, 0, .73); font-family: 'Inter', sans-serif;">
       <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff;">
-        <h1 style="text-align: center; margin: 0; font-size: 3em; font-weight: 600; margin-bottom: .35em; line-height: 1em;">Arweave</h1>
+        <h1 style="text-align: center; margin: 0; font-size: 3em; font-weight: 600; margin-bottom: .35em; line-height: 1em;">ArConnect</h1>
         <p style="text-align: center; font-size: 1.2em; font-weight: 500;">${text}</p>
       </div>
     </div>
@@ -81,6 +81,26 @@ const WalletAPI = {
       }
     });
   },
+  disconnect(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      sendMessage(
+        { type: "disconnect", ext: "arconnect", sender: "api" },
+        undefined,
+        undefined,
+        false
+      );
+      window.addEventListener("message", callback);
+
+      // @ts-ignore
+      function callback(e: MessageEvent<any>) {
+        if (!validateMessage(e.data, { type: "disconnect_result" })) return;
+        window.removeEventListener("message", callback);
+
+        if (e.data.res) resolve();
+        else reject(e.data.message);
+      }
+    });
+  },
   getActiveAddress(): Promise<string> {
     return new Promise((resolve, reject) => {
       sendMessage(
@@ -119,6 +139,27 @@ const WalletAPI = {
         window.removeEventListener("message", callback);
 
         if (e.data.addresses) resolve(e.data.addresses);
+        else reject(e.data.message);
+      }
+    });
+  },
+  getWalletNames(): Promise<{ [addr: string]: string }> {
+    return new Promise((resolve, reject) => {
+      sendMessage(
+        { type: "get_wallet_names", ext: "arconnect", sender: "api" },
+        undefined,
+        undefined,
+        false
+      );
+      window.addEventListener("message", callback);
+
+      // @ts-ignore
+      function callback(e: MessageEvent<any>) {
+        if (!validateMessage(e.data, { type: "get_wallet_names_result" }))
+          return;
+        window.removeEventListener("message", callback);
+
+        if (e.data.names) resolve(e.data.names);
         else reject(e.data.message);
       }
     });
@@ -189,6 +230,73 @@ const WalletAPI = {
         window.removeEventListener("message", callback);
 
         if (e.data.permissions) resolve(e.data.permissions);
+        else reject(e.data.message);
+      }
+    });
+  },
+  encrypt(
+    data: string,
+    options: {
+      algorithm: string;
+      hash: string;
+      salt?: string;
+    }
+  ): Promise<Uint8Array> {
+    return new Promise((resolve, reject) => {
+      sendMessage(
+        {
+          type: "encrypt",
+          ext: "arconnect",
+          sender: "api",
+          data,
+          options
+        },
+        undefined,
+        undefined,
+        false
+      );
+      window.addEventListener("message", callback);
+
+      // @ts-ignore
+      function callback(e: MessageEvent<any>) {
+        if (!validateMessage(e.data, { type: "encrypt_result" })) return;
+        window.removeEventListener("message", callback);
+
+        if (e.data.res && e.data.data)
+          resolve(new Uint8Array(Object.values(e.data.data)));
+        else reject(e.data.message);
+      }
+    });
+  },
+  decrypt(
+    data: Uint8Array,
+    options: {
+      algorithm: string;
+      hash: string;
+      salt?: string;
+    }
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      sendMessage(
+        {
+          type: "decrypt",
+          ext: "arconnect",
+          sender: "api",
+          data,
+          options
+        },
+        undefined,
+        undefined,
+        false
+      );
+      window.addEventListener("message", callback);
+
+      // @ts-ignore
+      function callback(e: MessageEvent<any>) {
+        if (!validateMessage(e.data, { type: "decrypt_result" })) return;
+        window.removeEventListener("message", callback);
+
+        if (e.data.res && e.data.data) resolve(e.data.data);
         else reject(e.data.message);
       }
     });

@@ -8,24 +8,75 @@ import {
 import { getRealURL } from "../utils/url";
 import { PermissionType } from "../utils/permissions";
 import { local } from "chrome-storage-promises";
-import Cryptr from "cryptr";
 import { JWKInterface } from "arweave/node/lib/wallet";
-import Arweave from "arweave";
-import axios from "axios";
 import { Allowance } from "../stores/reducers/allowances";
 import { run } from "ar-gql";
+import { RootState } from "../stores/reducers";
+import { ArConnectEvent } from "../views/Popup/routes/Settings";
 import limestone from "@limestonefi/api";
+import Arweave from "arweave";
+import axios from "axios";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(async () => {
   if (!(await walletsStored()))
     window.open(chrome.runtime.getURL("/welcome.html"));
+
+  chrome.contextMenus.removeAll();
+  chrome.contextMenus.create({
+    title: "Copy current address",
+    contexts: ["browser_action"],
+    async onclick() {
+      try {
+        const input = document.createElement("input"),
+          profile = (await getStoreData())?.profile;
+
+        if (!profile || profile === "") return;
+
+        input.value = profile;
+
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("Copy");
+        document.body.removeChild(input);
+      } catch {}
+    }
+  });
+  chrome.contextMenus.create({
+    title: "Disconnect from current site",
+    contexts: ["browser_action", "page"],
+    async onclick(_, tab) {
+      try {
+        const store = await getStoreData(),
+          url = tab.url,
+          id = tab.id;
+
+        if (
+          !url ||
+          !id ||
+          !store?.permissions?.find((val) => val.url === getRealURL(url))
+        )
+          return;
+        await setStoreData({
+          permissions: (store.permissions ?? []).filter(
+            (sitePerms: IPermissionState) => sitePerms.url !== getRealURL(url)
+          )
+        });
+
+        // reload tab
+        chrome.tabs.executeScript(id, {
+          code: "window.location.reload()"
+        });
+      } catch {}
+    }
+  });
 });
 
 // listen for messages from the content script
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   const message: MessageFormat = msg,
-    eventsStore = localStorage.getItem("arweave_events");
+    eventsStore = localStorage.getItem("arweave_events"),
+    events: ArConnectEvent[] = eventsStore ? JSON.parse(eventsStore)?.val : [];
 
   if (!validateMessage(message, { sender: "api" })) return;
 
@@ -65,7 +116,8 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
           );
       }
 
-      if (!(await walletsStored()))
+      if (!(await walletsStored())) {
+        window.open(chrome.runtime.getURL("/welcome.html"));
         return sendMessage(
           {
             type: "connect_result",
@@ -77,16 +129,20 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
           undefined,
           sendResponse
         );
+      }
 
       localStorage.setItem(
         "arweave_events",
         JSON.stringify({
           val: [
-            ...(JSON.parse(eventsStore ?? "{}")?.val ?? []),
+            // max 100 events
+            ...events.filter((_, i) => i < 98),
             { event: message.type, url: tabURL, date: Date.now() }
           ]
         })
       );
+
+      const wallets = (await getStoreData())?.["wallets"];
 
       switch (message.type) {
         // connect to arconnect
@@ -149,6 +205,28 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
           break;
 
+        // disconnect from arconnect
+        case "disconnect":
+          const store = await getStoreData();
+
+          await setStoreData({
+            permissions: (store.permissions ?? []).filter(
+              (sitePerms: IPermissionState) =>
+                sitePerms.url !== getRealURL(tabURL)
+            )
+          });
+          sendMessage(
+            {
+              type: "disconnect_result",
+              ext: "arconnect",
+              res: true,
+              sender: "background"
+            },
+            undefined,
+            sendResponse
+          );
+          break;
+
         // get the active/selected address
         case "get_active_address":
           if (!(await checkPermissions(["ACCESS_ADDRESS"], tabURL)))
@@ -188,18 +266,14 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
         // get all addresses added to ArConnect
         case "get_all_addresses":
-          const addressesStore = localStorage.getItem("arweave_wallets");
-
           if (!(await checkPermissions(["ACCESS_ALL_ADDRESSES"], tabURL)))
             return sendPermissionError(
               sendResponse,
               "get_all_addresses_result"
             );
-          if (addressesStore) {
-            const allAddresses = JSON.parse(addressesStore).val,
-              addresses = allAddresses.map(
-                ({ address }: { address: string }) => address
-              );
+
+          if (wallets) {
+            const addresses = wallets.map((wallet) => wallet.address);
 
             sendMessage(
               {
@@ -219,6 +293,44 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 ext: "arconnect",
                 res: false,
                 message: "Error getting all addresses",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          }
+
+          break;
+
+        // get names of wallets added to ArConnect
+        case "get_wallet_names":
+          if (!(await checkPermissions(["ACCESS_ALL_ADDRESSES"], tabURL)))
+            return sendPermissionError(sendResponse, "get_wallet_names_result");
+
+          if (wallets) {
+            let names: { [addr: string]: string } = {};
+            for (const wallet of wallets) {
+              names[wallet.address] = wallet.name;
+            }
+
+            sendMessage(
+              {
+                type: "get_wallet_names_result",
+                ext: "arconnect",
+                res: true,
+                names,
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          } else {
+            sendMessage(
+              {
+                type: "get_wallet_names_result",
+                ext: "arconnect",
+                res: false,
+                message: "Error getting wallet names.",
                 sender: "background"
               },
               undefined,
@@ -271,68 +383,83 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 port: 443,
                 protocol: "https"
               }),
+              // transaction price in winston
               price: number = parseFloat(
-                arweave.ar.winstonToAr(
-                  message.transaction.quantity + message.transaction.reward
-                )
+                message.transaction.quantity + message.transaction.reward
               ),
-              arConfettiSetting: { [key: string]: any } =
-                typeof chrome !== "undefined"
-                  ? await local.get("setting_confetti")
-                  : await browser.storage.local.get("setting_confetti");
+              arConfettiSetting = (await getStoreData())?.["settings"]
+                ?.arConfetti;
 
             let decryptionKey = decryptionKeyRes?.["decryptionKey"];
 
             const selectVRTHolder = async () => {
-              const state = (
-                await axios.get(
-                  "https://cache.community.xyz/contract/usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
-                )
-              ).data;
-              const balances = state.balances;
-              const vault = state.vault;
+              try {
+                const res = (
+                  await axios.get(
+                    "https://cache.verto.exchange/usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
+                  )
+                ).data;
+                const balances = res.state.balances;
+                const vault = res.state.vault;
 
-              let totalTokens = 0;
-              for (const addr of Object.keys(balances)) {
-                totalTokens += balances[addr];
-              }
-              for (const addr of Object.keys(vault)) {
-                if (!vault[addr].length) continue;
-                const vaultBalance = vault[addr]
-                  // @ts-ignore
-                  .map((a) => a.balance)
-                  // @ts-ignore
-                  .reduce((a, b) => a + b, 0);
-                totalTokens += vaultBalance;
-                if (addr in balances) {
-                  balances[addr] += vaultBalance;
-                } else {
-                  balances[addr] = vaultBalance;
+                let totalTokens = 0;
+                for (const addr of Object.keys(balances)) {
+                  totalTokens += balances[addr];
                 }
-              }
-
-              const weighted: { [addr: string]: number } = {};
-              for (const addr of Object.keys(balances)) {
-                weighted[addr] = balances[addr] / totalTokens;
-              }
-
-              let sum = 0;
-              const r = Math.random();
-              for (const addr of Object.keys(weighted)) {
-                sum += weighted[addr];
-                if (r <= sum && weighted[addr] > 0) {
-                  return addr;
+                for (const addr of Object.keys(vault)) {
+                  if (!vault[addr].length) continue;
+                  const vaultBalance = vault[addr]
+                    // @ts-ignore
+                    .map((a) => a.balance)
+                    // @ts-ignore
+                    .reduce((a, b) => a + b, 0);
+                  totalTokens += vaultBalance;
+                  if (addr in balances) {
+                    balances[addr] += vaultBalance;
+                  } else {
+                    balances[addr] = vaultBalance;
+                  }
                 }
-              }
 
-              return undefined;
+                const weighted: { [addr: string]: number } = {};
+                for (const addr of Object.keys(balances)) {
+                  weighted[addr] = balances[addr] / totalTokens;
+                }
+
+                let sum = 0;
+                const r = Math.random();
+                for (const addr of Object.keys(weighted)) {
+                  sum += weighted[addr];
+                  if (r <= sum && weighted[addr] > 0) {
+                    return addr;
+                  }
+                }
+
+                return undefined;
+              } catch {
+                return undefined;
+              }
             };
 
-            const signTransaction = async () => {
-              const storedKeyfiles = (await getStoreData())?.["wallets"],
-                storedAddress = (await getStoreData())?.["profile"];
+            const allowances: Allowance[] =
+                (await getStoreData())?.["allowances"] ?? [],
+              allowanceForURL = allowances.find(
+                ({ url }) => url === getRealURL(tabURL)
+              );
 
-              if (!storedKeyfiles || !storedAddress)
+            const signTransaction = async () => {
+              const storedKeyfiles = (await getStoreData())?.["wallets"] ?? [],
+                storedAddress = (await getStoreData())?.["profile"],
+                keyfileToDecrypt = storedKeyfiles.find(
+                  (item) => item.address === storedAddress
+                )?.keyfile;
+
+              if (
+                storedKeyfiles.length === 0 ||
+                !storedAddress ||
+                !keyfileToDecrypt
+              ) {
+                window.open(chrome.runtime.getURL("/welcome.html"));
                 return sendMessage(
                   {
                     type: "sign_transaction_result",
@@ -344,14 +471,9 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                   undefined,
                   sendResponse
                 );
+              }
 
-              const keyfileToDecrypt = storedKeyfiles.find(
-                  (item: any) => item.address === storedAddress
-                )?.keyfile,
-                cryptr = new Cryptr(decryptionKey),
-                keyfile: JWKInterface = JSON.parse(
-                  cryptr.decrypt(keyfileToDecrypt)
-                ),
+              const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt)),
                 decodeTransaction = arweave.transactions.fromRaw({
                   ...message.transaction,
                   owner: keyfile.n
@@ -364,43 +486,31 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 message.signatureOptions
               );
 
-              const feeTx = await arweave.createTransaction(
-                {
-                  target: await selectVRTHolder(),
-                  quantity: await getFeeAmount(storedAddress, arweave)
-                },
-                keyfile
-              );
-              feeTx.addTag("App-Name", "ArConnect");
-              feeTx.addTag("Type", "Fee-Transaction");
-              await arweave.transactions.sign(feeTx, keyfile);
-              await arweave.transactions.post(feeTx);
+              const feeTarget = await selectVRTHolder();
 
-              await updateSpent(getRealURL(tabURL), price);
-
-              if (typeof chrome !== "undefined") {
-                chrome.browserAction.setBadgeText({
-                  text: "1",
-                  tabId: currentTabArray[0].id
-                });
-                chrome.browserAction.setBadgeBackgroundColor({
-                  color: "#ff0000"
-                });
-                setTimeout(() => {
-                  chrome.browserAction.setBadgeText({ text: "" });
-                }, 4000);
-              } else {
-                browser.browserAction.setBadgeText({
-                  text: "1",
-                  tabId: currentTabArray[0].id
-                });
-                browser.browserAction.setBadgeBackgroundColor({
-                  color: "#ff0000"
-                });
-                setTimeout(() => {
-                  browser.browserAction.setBadgeText({ text: "" });
-                }, 4000);
+              if (feeTarget) {
+                const feeTx = await arweave.createTransaction(
+                  {
+                    target: feeTarget,
+                    quantity: await getFeeAmount(storedAddress, arweave)
+                  },
+                  keyfile
+                );
+                feeTx.addTag("App-Name", "ArConnect");
+                feeTx.addTag("Type", "Fee-Transaction");
+                await arweave.transactions.sign(feeTx, keyfile);
+                await arweave.transactions.post(feeTx);
               }
+
+              if (allowanceForURL)
+                await setStoreData({
+                  allowances: [
+                    ...allowances.filter(
+                      ({ url }) => url !== getRealURL(tabURL)
+                    ),
+                    { ...allowanceForURL, spent: allowanceForURL.spent + price }
+                  ]
+                });
 
               sendMessage(
                 {
@@ -410,25 +520,19 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                   message: "Success",
                   transaction: decodeTransaction,
                   sender: "background",
-                  arConfetti: arConfettiSetting["setting_confetti"] ?? true
+                  arConfetti:
+                    arConfettiSetting === undefined ? true : arConfettiSetting
                 },
                 undefined,
                 sendResponse
               );
             };
 
-            const allowances: Allowance[] =
-                (await getStoreData())?.["allowances"] ?? [],
-              allowanceLimitForURL = allowances.find(
-                ({ url }) => url === getRealURL(tabURL)
-              );
             let openAllowance =
-              allowanceLimitForURL &&
-              allowanceLimitForURL.enabled &&
-              Number(
-                arweave.ar.arToWinston(allowanceLimitForURL.limit.toString())
-              ) <
-                price + (await getSpentForURL(getRealURL(tabURL)));
+              allowanceForURL &&
+              allowanceForURL.enabled &&
+              Number(arweave.ar.arToWinston(allowanceForURL.limit.toString())) <
+                price + allowanceForURL.spent;
 
             // open popup if decryptionKey is undefined
             // or if the spending limit is reached
@@ -460,6 +564,315 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 ext: "arconnect",
                 res: false,
                 message: "Error signing transaction",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          }
+
+          break;
+
+        case "encrypt":
+          if (!(await checkPermissions(["ENCRYPT"], tabURL)))
+            return sendPermissionError(sendResponse, "encrypt_result");
+          if (!message.data)
+            return sendMessage(
+              {
+                type: "encrypt_result",
+                ext: "arconnect",
+                res: false,
+                message: "No data submitted.",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          if (!message.options)
+            return sendMessage(
+              {
+                type: "encrypt_result",
+                ext: "arconnect",
+                res: false,
+                message: "No options submitted.",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+
+          try {
+            const decryptionKeyRes: { [key: string]: any } =
+                typeof chrome !== "undefined"
+                  ? await local.get("decryptionKey")
+                  : await browser.storage.local.get("decryptionKey"),
+              arweave = new Arweave({
+                host: "arweave.net",
+                port: 443,
+                protocol: "https"
+              });
+
+            let decryptionKey = decryptionKeyRes?.["decryptionKey"];
+
+            const encrypt = async () => {
+              const storedKeyfiles = (await getStoreData())?.["wallets"],
+                storedAddress = (await getStoreData())?.["profile"],
+                keyfileToDecrypt = storedKeyfiles?.find(
+                  (item) => item.address === storedAddress
+                )?.keyfile;
+
+              if (!storedKeyfiles || !storedAddress || !keyfileToDecrypt)
+                return sendMessage(
+                  {
+                    type: "encrypt_result",
+                    ext: "arconnect",
+                    res: false,
+                    message: "No wallets added",
+                    sender: "background"
+                  },
+                  undefined,
+                  sendResponse
+                );
+
+              const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt));
+              const obj = {
+                kty: "RSA",
+                e: "AQAB",
+                n: keyfile.n,
+                alg: "RSA-OAEP-256",
+                ext: true
+              };
+              const key = await crypto.subtle.importKey(
+                "jwk",
+                obj,
+                {
+                  name: message.options.algorithm,
+                  hash: {
+                    name: message.options.hash
+                  }
+                },
+                false,
+                ["encrypt"]
+              );
+
+              const dataBuf = new TextEncoder().encode(
+                message.data + (message.options.salt || "")
+              );
+
+              const array = new Uint8Array(256);
+              crypto.getRandomValues(array);
+              const keyBuf = array;
+
+              const encryptedData = await arweave.crypto.encrypt(
+                dataBuf,
+                keyBuf
+              );
+              const encryptedKey = await crypto.subtle.encrypt(
+                { name: message.options.algorithm },
+                key,
+                keyBuf
+              );
+
+              const res = arweave.utils.concatBuffers([
+                encryptedKey,
+                encryptedData
+              ]);
+
+              sendMessage(
+                {
+                  type: "encrypt_result",
+                  ext: "arconnect",
+                  res: true,
+                  message: "Success",
+                  data: res,
+                  sender: "background"
+                },
+                undefined,
+                sendResponse
+              );
+            };
+
+            // open popup if decryptionKey is undefined
+            if (!decryptionKey) {
+              createAuthPopup({
+                type: "encrypt_auth",
+                url: tabURL
+              });
+              chrome.runtime.onMessage.addListener(async (msg) => {
+                if (
+                  !validateMessage(msg, {
+                    sender: "popup",
+                    type: "encrypt_auth_result"
+                  }) ||
+                  !msg.decryptionKey ||
+                  !msg.res
+                )
+                  throw new Error();
+
+                decryptionKey = msg.decryptionKey;
+                await encrypt();
+              });
+            } else await encrypt();
+          } catch {
+            sendMessage(
+              {
+                type: "encrypt_result",
+                ext: "arconnect",
+                res: false,
+                message: "Error encrypting data",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          }
+
+          break;
+
+        case "decrypt":
+          if (!(await checkPermissions(["DECRYPT"], tabURL)))
+            return sendPermissionError(sendResponse, "decrypt_result");
+          if (!message.data)
+            return sendMessage(
+              {
+                type: "decrypt_result",
+                ext: "arconnect",
+                res: false,
+                message: "No data submitted.",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          if (!message.options)
+            return sendMessage(
+              {
+                type: "decrypt_result",
+                ext: "arconnect",
+                res: false,
+                message: "No options submitted.",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+
+          try {
+            const decryptionKeyRes: { [key: string]: any } =
+                typeof chrome !== "undefined"
+                  ? await local.get("decryptionKey")
+                  : await browser.storage.local.get("decryptionKey"),
+              arweave = new Arweave({
+                host: "arweave.net",
+                port: 443,
+                protocol: "https"
+              });
+
+            let decryptionKey = decryptionKeyRes?.["decryptionKey"];
+
+            const decrypt = async () => {
+              const storedKeyfiles = (await getStoreData())?.["wallets"],
+                storedAddress = (await getStoreData())?.["profile"],
+                keyfileToDecrypt = storedKeyfiles?.find(
+                  (item) => item.address === storedAddress
+                )?.keyfile;
+
+              if (!storedKeyfiles || !storedAddress || !keyfileToDecrypt) {
+                return sendMessage(
+                  {
+                    type: "decrypt_result",
+                    ext: "arconnect",
+                    res: false,
+                    message: "No wallets added",
+                    sender: "background"
+                  },
+                  undefined,
+                  sendResponse
+                );
+              }
+
+              const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt));
+
+              const obj = {
+                ...keyfile,
+                alg: "RSA-OAEP-256",
+                ext: true
+              };
+              const key = await crypto.subtle.importKey(
+                "jwk",
+                obj,
+                {
+                  name: message.options.algorithm,
+                  hash: {
+                    name: message.options.hash
+                  }
+                },
+                false,
+                ["decrypt"]
+              );
+
+              const encryptedKey = new Uint8Array(
+                new Uint8Array(Object.values(message.data)).slice(0, 512)
+              );
+              const encryptedData = new Uint8Array(
+                new Uint8Array(Object.values(message.data)).slice(512)
+              );
+
+              const symmetricKey = await crypto.subtle.decrypt(
+                { name: message.options.algorithm },
+                key,
+                encryptedKey
+              );
+
+              const res = await arweave.crypto.decrypt(
+                encryptedData,
+                new Uint8Array(symmetricKey)
+              );
+
+              sendMessage(
+                {
+                  type: "decrypt_result",
+                  ext: "arconnect",
+                  res: true,
+                  message: "Success",
+                  data: arweave.utils
+                    .bufferToString(res)
+                    .split(message.options.salt)[0],
+                  sender: "background"
+                },
+                undefined,
+                sendResponse
+              );
+            };
+
+            // open popup if decryptionKey is undefined
+            if (!decryptionKey) {
+              createAuthPopup({
+                type: "decrypt_auth",
+                url: tabURL
+              });
+              chrome.runtime.onMessage.addListener(async (msg) => {
+                if (
+                  !validateMessage(msg, {
+                    sender: "popup",
+                    type: "decrypt_auth_result"
+                  }) ||
+                  !msg.decryptionKey ||
+                  !msg.res
+                )
+                  throw new Error();
+
+                decryptionKey = msg.decryptionKey;
+                await decrypt();
+              });
+            } else await decrypt();
+          } catch {
+            sendMessage(
+              {
+                type: "decrypt_result",
+                ext: "arconnect",
+                res: false,
+                message: "Error decrypting data",
                 sender: "background"
               },
               undefined,
@@ -618,51 +1031,42 @@ function sendPermissionError(
   );
 }
 
+type StoreData = Partial<RootState>;
+
 // get store data
-async function getStoreData(): Promise<{ [key: string]: any }> {
+async function getStoreData(): Promise<StoreData> {
   const data: { [key: string]: any } =
       typeof chrome !== "undefined"
         ? await local.get("persist:root")
         : browser.storage.local.get("persist:root"),
-    parseRoot: { [key: string]: any } = JSON.parse(
-      data?.["persist:root"] ?? "{}"
-    );
+    parseRoot: StoreData = JSON.parse(data?.["persist:root"] ?? "{}");
 
-  let parsedData: { [key: string]: any } = {};
+  let parsedData: StoreData = {};
+  // @ts-ignore
   for (const key in parseRoot) parsedData[key] = JSON.parse(parseRoot[key]);
 
   return parsedData;
 }
 
-async function getSpentForURL(url: string) {
-  const data: { [key: string]: any } =
-      typeof chrome !== "undefined"
-        ? await local.get("spent")
-        : await browser.storage.local.get("spent"),
-    currentSpent: { url: string; spent: number }[] = data?.["spent"] ?? [];
+/**
+ * set store data
+ *
+ * @param updatedData An object with the reducer name as a key
+ */
+async function setStoreData(updatedData: StoreData) {
+  const data = { ...(await getStoreData()), ...updatedData };
+  // store data, but with stringified values
+  let encodedData: { [key: string]: string } = {};
 
-  return currentSpent.find((val) => val.url === url)?.spent ?? 0;
-}
+  for (const reducer in data) {
+    // @ts-ignore
+    encodedData[reducer] = JSON.stringify(data[reducer]);
+  }
 
-async function updateSpent(url: string, add: number) {
-  const data: { [key: string]: any } =
-      typeof chrome !== "undefined"
-        ? await local.get("spent")
-        : await browser.storage.local.get("spent"),
-    currentSpent: { url: string; spent: number }[] = data?.["spent"] ?? [];
-
-  const update = currentSpent.map((val) => {
-    const spentNum = val.url === url ? val.spent + add : val.spent;
-    return { ...val, spent: spentNum };
-  });
-  if (!update.find((val) => val.url === url))
-    update.push({
-      url,
-      spent: add
-    });
-
-  if (typeof chrome !== "undefined") local.set({ spent: update });
-  else browser.storage.local.set({ spent: update });
+  if (typeof chrome !== "undefined")
+    local.set({ "persist:root": JSON.stringify(encodedData) });
+  else
+    browser.storage.local.set({ "persist:root": JSON.stringify(encodedData) });
 }
 
 // create a simple fee
@@ -673,7 +1077,8 @@ async function getFeeAmount(address: string, arweave: Arweave) {
         transactions(
           owners: [$address]
           tags: [
-            { name: "Signing-Client", values: "ArConnect" }
+            { name: "App-Name", values: "ArConnect" }
+            { name: "Type", values: "Fee-Transaction" }
           ]
           first: 11
         ) {
@@ -691,7 +1096,7 @@ async function getFeeAmount(address: string, arweave: Arweave) {
     usdPrice = 1 / arPrice.price; // 1 USD how much AR
 
   if (res.data.transactions.edges.length) {
-    const usd = res.data.transactions.edges.length > 10 ? 0.01 : 0.03;
+    const usd = res.data.transactions.edges.length >= 10 ? 0.01 : 0.03;
 
     return arweave.ar.arToWinston((usdPrice * usd).toString());
   } else return arweave.ar.arToWinston((usdPrice * 0.01).toString());

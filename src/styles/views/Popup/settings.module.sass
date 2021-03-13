@@ -10,14 +10,16 @@
 
 .Setting
   position: relative
-  display: flex
-  align-items: center
-  justify-content: space-between
   border-bottom: 1px solid variables.$border-light
   padding: .9em .7em .7em
   cursor: pointer
   color: variables.$secondary-text-light
   transition: all .23s ease-in-out
+
+  &:not(.NoFlex)
+    display: flex
+    align-items: center
+    justify-content: space-between
 
   @media (prefers-color-scheme: dark)
     border-bottom-color: variables.$border-dark
@@ -51,6 +53,14 @@
     text-align: left
     line-height: 1em
 
+    input
+      font-size: 1em
+      font-weight: 500
+      line-height: 1em
+      width: 3.5em
+      margin-left: .2em
+      height: 1em
+
   .Arrow
     font-size: 1.55em
     display: flex
@@ -62,6 +72,20 @@
       white-space: nowrap
       overflow: hidden
       text-overflow: ellipsis
+
+  .EditAllowance
+    font-size: .77em
+    margin-left: .36em
+    cursor: pointer
+    transition: all .23s ease-in-out
+
+    &:hover
+      opacity: .78
+
+    svg
+      font-size: 1em
+      width: 1em
+      height: 1em
 
 .OptionContent
   padding: .33em 1em
@@ -90,3 +114,42 @@
 
     div
       width: 100%
+
+.EventItem
+  padding:
+    top: .64em
+    bottom: .44em
+
+  .EventDate
+    display: block
+    font-size: .55em
+    font-weight: 500
+    color: variables.$secondary-text-light
+
+    @media (prefers-color-scheme: dark)
+      color: variables.$secondary-text-dark
+
+.Radio
+  span
+    text-align: left
+    margin-left: .8em
+
+    &[class~=point]
+      margin:
+        right: 1em
+        left: 0
+
+      &::before
+        left: 0
+        top: 0
+        background-color: #AB9DF2
+
+    &[class~=name]
+      margin-left: 0
+
+.ClearInput
+  background-color: transparent
+  border: none
+  outline: none
+  padding: 0
+  margin: 0

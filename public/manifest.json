@@ -1,12 +1,12 @@
 {
   "manifest_version": 2,
   "name": "ArConnect",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "th8ta",
   "description": "Secure wallet management for Arweave",
-  "permissions": ["activeTab", "tabs", "storage"],
+  "permissions": ["activeTab", "tabs", "storage", "contextMenus"],
   "background": {
-    "scripts": ["static/js/background.js"]
+    "scripts": ["build/scripts/background.js"]
   },
   "icons": {
     "64": "logo64.png",
@@ -25,13 +25,13 @@
   "web_accessible_resources": [
     "welcome.html",
     "auth.html",
-    "static/js/api.js",
-    "static/js/utils/messenger.js"
+    "build/scripts/injected.js",
+    "*.js.map"
   ],
   "content_scripts": [
     {
       "matches": ["file://*/*", "http://*/*", "https://*/*"],
-      "js": ["static/js/contentscript.js"],
+      "js": ["build/scripts/content.js"],
       "run_at": "document_end"
     }
   ]

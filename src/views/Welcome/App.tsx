@@ -20,9 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Wallet } from "../../stores/reducers/wallets";
 import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
-import Cryptr from "cryptr";
 import Arweave from "arweave";
-import weaveid_logo from "../../assets/weaveid.png";
 import logo from "../../assets/logo.png";
 import styles from "../../styles/views/Welcome/view.module.sass";
 
@@ -46,11 +44,8 @@ export default function App() {
       address: string;
       keyfile: JWKInterface;
     }>(),
-    arweave = new Arweave({
-      host: "arweave.net",
-      port: 443,
-      protocol: "https"
-    }),
+    arweaveConfig = useSelector((state: RootState) => state.arweave),
+    arweave = new Arweave(arweaveConfig),
     passwordInput = useInput(""),
     passwordInputAgain = useInput(""),
     [passwordGiven, setPasswordGiven] = useState(false),
@@ -119,8 +114,7 @@ export default function App() {
 
     for (let i = 0; i < keyfilesToLoad.length; i++) {
       const address = await arweave.wallets.jwkToAddress(keyfilesToLoad[i]),
-        cryptr = new Cryptr(passwordInput.state),
-        keyfile = cryptr.encrypt(JSON.stringify(keyfilesToLoad[i])),
+        keyfile = btoa(JSON.stringify(keyfilesToLoad[i])),
         name = `Account ${i + 1 + walletsStore.length}`;
 
       wallets.push({ address, keyfile, name });
@@ -137,18 +131,13 @@ export default function App() {
     }, 600);
   }
 
-  async function weaveIDLogin() {
-    setToast({ text: "WeaveID is not yet implemented.", type: "error" });
-  }
-
   async function createWallet() {
     setLoading(true);
 
     const mnemonic = await generateMnemonic(),
       keyfile: JWKInterface = await getKeyFromMnemonic(mnemonic),
       address = await arweave.wallets.jwkToAddress(keyfile),
-      cryptr = new Cryptr(passwordInput.state),
-      encryptedKeyfile = cryptr.encrypt(JSON.stringify(keyfile));
+      encryptedKeyfile = btoa(JSON.stringify(keyfile));
 
     setSeed(mnemonic);
     setSeedKeyfile({ address, keyfile });
@@ -206,9 +195,7 @@ export default function App() {
     // freezes the program, and the loading does not start
     setTimeout(() => {
       try {
-        const cryptr = new Cryptr(passwordInput.state);
-
-        cryptr.decrypt(walletsStore[0].keyfile);
+        atob(walletsStore[0].keyfile);
         setPasswordGiven(true);
         setToast({ text: "Logged in", type: "success" });
       } catch {
@@ -321,15 +308,6 @@ export default function App() {
             onChange={(e) => setSeed(e.target.value)}
             className={styles.Seed}
           ></Textarea>
-          <span className={styles.OR}>OR</span>
-          <Button
-            type="secondary"
-            className={styles.WeaveIDButton}
-            onClick={weaveIDLogin}
-          >
-            <img src={weaveid_logo} alt="weaveid-logo" />
-            WeaveID
-          </Button>
           <span className={styles.OR}>OR</span>
           {keyfiles.map(
             (file, i) =>

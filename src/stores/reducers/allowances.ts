@@ -2,10 +2,16 @@ export interface Allowance {
   url: string;
   enabled: boolean;
   limit: number;
+  spent: number; // in winston
 }
 
 export interface IAllowancesAction {
-  type: "TOGGLE_ALLOWANCE" | "SET_LIMIT" | "ADD_ALLOWANCE";
+  type:
+    | "TOGGLE_ALLOWANCE"
+    | "SET_LIMIT"
+    | "ADD_ALLOWANCE"
+    | "REMOVE_ALLOWANCE"
+    | "RESET_ALLOWANCE";
   payload: Partial<Allowance>;
 }
 
@@ -23,7 +29,7 @@ export default function allowancesReducer(
         break;
 
       // @ts-ignore
-      return [...state, { ...action.payload }];
+      return [...state, { ...action.payload, spent: 0 }];
 
     case "SET_LIMIT":
       if (!action.payload.limit || !action.payload.url) break;
@@ -32,6 +38,13 @@ export default function allowancesReducer(
         limit:
           (action.payload.url === val.url ? action.payload.limit : val.limit) ??
           0.1
+      }));
+
+    case "RESET_ALLOWANCE":
+      if (!action.payload.url) break;
+      return state.map((val) => ({
+        ...val,
+        spent: action.payload.url === val.url ? 0 : val.spent
       }));
 
     case "TOGGLE_ALLOWANCE":
@@ -43,6 +56,10 @@ export default function allowancesReducer(
             ? action.payload.enabled
             : val.enabled) ?? true
       }));
+
+    case "REMOVE_ALLOWANCE":
+      if (!action.payload.url) break;
+      return state.filter((val) => val.url !== action.payload.url);
   }
 
   return state;
