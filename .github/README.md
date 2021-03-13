@@ -79,6 +79,14 @@ Get all addresses added to the ArConnect extension
 
 Requires the `ACCESS_ALL_ADDRESSES` [permission](#permissions).
 
+### `getWalletNames(): Promise<{ [addr: string]: string }>`
+
+Get wallet names for addresses.
+
+- `returns`: An object with addresses and wallet names
+
+Requires the `ACCESS_ALL_ADDRESSES` [permission](#permissions).
+
 ### `sign(transaction, options?)`
 
 Sign a transaction. Raw version of what is used in the `arweave-js` [API](#api).
