@@ -567,6 +567,319 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
           break;
 
+        case "encrypt":
+          if (!(await checkPermissions(["ENCRYPT"], tabURL)))
+            return sendPermissionError(sendResponse, "encrypt_result");
+          if (!message.data)
+            return sendMessage(
+              {
+                type: "encrypt_result",
+                ext: "arconnect",
+                res: false,
+                message: "No data submitted.",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          if (!message.options)
+            return sendMessage(
+              {
+                type: "encrypt_result",
+                ext: "arconnect",
+                res: false,
+                message: "No options submitted.",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+
+          // TODO: remove this
+          console.log(message);
+
+          try {
+            const decryptionKeyRes: { [key: string]: any } =
+                typeof chrome !== "undefined"
+                  ? await local.get("decryptionKey")
+                  : await browser.storage.local.get("decryptionKey"),
+              arweave = new Arweave({
+                host: "arweave.net",
+                port: 443,
+                protocol: "https"
+              });
+
+            let decryptionKey = decryptionKeyRes?.["decryptionKey"];
+
+            const encrypt = async () => {
+              const storedKeyfiles = (await getStoreData())?.["wallets"],
+                storedAddress = (await getStoreData())?.["profile"];
+
+              if (!storedKeyfiles || !storedAddress)
+                return sendMessage(
+                  {
+                    type: "encrypt_result",
+                    ext: "arconnect",
+                    res: false,
+                    message: "No wallets added",
+                    sender: "background"
+                  },
+                  undefined,
+                  sendResponse
+                );
+
+              const keyfileToDecrypt = storedKeyfiles.find(
+                  (item: any) => item.address === storedAddress
+                )?.keyfile,
+                keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt));
+
+              const obj = {
+                kty: "RSA",
+                e: "AQAB",
+                n: keyfile.n,
+                alg: "RSA-OAEP-256",
+                ext: true
+              };
+              const key = await crypto.subtle.importKey(
+                "jwk",
+                obj,
+                {
+                  name: message.options.algorithm,
+                  hash: {
+                    name: message.options.hash
+                  }
+                },
+                false,
+                ["encrypt"]
+              );
+
+              const dataBuf = new TextEncoder().encode(
+                message.data + (message.options.salt || "")
+              );
+
+              const array = new Uint8Array(256);
+              crypto.getRandomValues(array);
+              const keyBuf = array;
+
+              const encryptedData = await arweave.crypto.encrypt(
+                dataBuf,
+                keyBuf
+              );
+              const encryptedKey = await crypto.subtle.encrypt(
+                { name: message.options.algorithm },
+                key,
+                keyBuf
+              );
+
+              const res = arweave.utils.concatBuffers([
+                encryptedKey,
+                encryptedData
+              ]);
+
+              sendMessage(
+                {
+                  type: "encrypt_result",
+                  ext: "arconnect",
+                  res: true,
+                  message: "Success",
+                  data: res,
+                  sender: "background"
+                },
+                undefined,
+                sendResponse
+              );
+            };
+
+            // open popup if decryptionKey is undefined
+            if (!decryptionKey) {
+              createAuthPopup({
+                type: "encrypt_auth",
+                url: tabURL
+              });
+              chrome.runtime.onMessage.addListener(async (msg) => {
+                if (
+                  !validateMessage(msg, {
+                    sender: "popup",
+                    type: "encrypt_auth_result"
+                  }) ||
+                  !msg.decryptionKey ||
+                  !msg.res
+                )
+                  throw new Error();
+
+                decryptionKey = msg.decryptionKey;
+                await encrypt();
+              });
+            } else await encrypt();
+          } catch {
+            sendMessage(
+              {
+                type: "encrypt_result",
+                ext: "arconnect",
+                res: false,
+                message: "Error encrypting data",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          }
+
+          break;
+
+        case "decrypt":
+          if (!(await checkPermissions(["DECRYPT"], tabURL)))
+            return sendPermissionError(sendResponse, "decrypt_result");
+          if (!message.data)
+            return sendMessage(
+              {
+                type: "decrypt_result",
+                ext: "arconnect",
+                res: false,
+                message: "No data submitted.",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          if (!message.options)
+            return sendMessage(
+              {
+                type: "decrypt_result",
+                ext: "arconnect",
+                res: false,
+                message: "No options submitted.",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+
+          try {
+            const decryptionKeyRes: { [key: string]: any } =
+                typeof chrome !== "undefined"
+                  ? await local.get("decryptionKey")
+                  : await browser.storage.local.get("decryptionKey"),
+              arweave = new Arweave({
+                host: "arweave.net",
+                port: 443,
+                protocol: "https"
+              });
+
+            let decryptionKey = decryptionKeyRes?.["decryptionKey"];
+
+            const decrypt = async () => {
+              const storedKeyfiles = (await getStoreData())?.["wallets"],
+                storedAddress = (await getStoreData())?.["profile"];
+
+              if (!storedKeyfiles || !storedAddress) {
+                return sendMessage(
+                  {
+                    type: "decrypt_result",
+                    ext: "arconnect",
+                    res: false,
+                    message: "No wallets added",
+                    sender: "background"
+                  },
+                  undefined,
+                  sendResponse
+                );
+              }
+
+              const keyfileToDecrypt = storedKeyfiles.find(
+                  (item: any) => item.address === storedAddress
+                )?.keyfile,
+                keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt));
+
+              const obj = {
+                ...keyfile,
+                alg: "RSA-OAEP-256",
+                ext: true
+              };
+              const key = await crypto.subtle.importKey(
+                "jwk",
+                obj,
+                {
+                  name: message.options.algorithm,
+                  hash: {
+                    name: message.options.hash
+                  }
+                },
+                false,
+                ["decrypt"]
+              );
+
+              const encryptedKey = new Uint8Array(
+                new Uint8Array(Object.values(message.data)).slice(0, 512)
+              );
+              const encryptedData = new Uint8Array(
+                new Uint8Array(Object.values(message.data)).slice(512)
+              );
+
+              const symmetricKey = await crypto.subtle.decrypt(
+                { name: message.options.algorithm },
+                key,
+                encryptedKey
+              );
+
+              const res = await arweave.crypto.decrypt(
+                encryptedData,
+                new Uint8Array(symmetricKey)
+              );
+
+              sendMessage(
+                {
+                  type: "decrypt_result",
+                  ext: "arconnect",
+                  res: true,
+                  message: "Success",
+                  data: arweave.utils
+                    .bufferToString(res)
+                    .split(message.options.salt)[0],
+                  sender: "background"
+                },
+                undefined,
+                sendResponse
+              );
+            };
+
+            // open popup if decryptionKey is undefined
+            if (!decryptionKey) {
+              createAuthPopup({
+                type: "decrypt_auth",
+                url: tabURL
+              });
+              chrome.runtime.onMessage.addListener(async (msg) => {
+                if (
+                  !validateMessage(msg, {
+                    sender: "popup",
+                    type: "decrypt_auth_result"
+                  }) ||
+                  !msg.decryptionKey ||
+                  !msg.res
+                )
+                  throw new Error();
+
+                decryptionKey = msg.decryptionKey;
+                await decrypt();
+              });
+            } else await decrypt();
+          } catch {
+            sendMessage(
+              {
+                type: "decrypt_result",
+                ext: "arconnect",
+                res: false,
+                message: "Error decrypting data",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          }
+
+          break;
+
         default:
           break;
       }

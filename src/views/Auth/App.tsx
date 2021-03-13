@@ -123,6 +123,16 @@ export default function App() {
       if (!checkPermissions(["SIGN_TRANSACTION"], url))
         return sendPermissionError();
 
+      // encrypt data event
+    } else if (decodedAuthParam.type === "encrypt_auth") {
+      // check permissions
+      if (!checkPermissions(["ENCRYPT"], url)) return sendPermissionError();
+
+      // decrypt data event
+    } else if (decodedAuthParam.type === "decrypt_auth") {
+      // check permissions
+      if (!checkPermissions(["DECRYPT"], url)) return sendPermissionError();
+
       // if non of the types matched, this is an invalid auth call
     } else {
       sendMessage({
@@ -220,6 +230,8 @@ export default function App() {
   function getReturnType(): MessageType {
     if (type === "connect") return "connect_result";
     else if (type === "sign_auth") return "sign_auth_result";
+    else if (type === "encrypt_auth") return "encrypt_auth_result";
+    else if (type === "decrypt_auth") return "encrypt_auth_result";
     //
     return "connect_result";
   }
@@ -327,12 +339,25 @@ export default function App() {
                 This site wants to connect to your Arweave wallet. Please enter
                 your password to continue.
               </p>
-            )) || (
-              <p>
-                This site wants to sign a transaction. Please enter your
-                password to continue.
-              </p>
-            )}
+            )) ||
+              (type === "sign_auth" && (
+                <p>
+                  This site wants to sign a transaction. Please enter your
+                  password to continue.
+                </p>
+              )) ||
+              (type === "encrypt_auth" && (
+                <p>
+                  This site wants to encrypt some data. Please enter your
+                  password to continue.
+                </p>
+              )) ||
+              (type === "decrypt_auth" && (
+                <p>
+                  This site wants to decrypt some data. Please enter your
+                  password to continue.
+                </p>
+              ))}
             <Input.Password
               {...passwordInput.bindings}
               status={passwordStatus}
@@ -414,6 +439,8 @@ export default function App() {
             >
               <Loading style={{ display: "block", margin: "0 auto" }} />
               {type === "sign_auth" && "Signing a transaction."}
+              {type === "encrypt_auth" && "Encrypting some data."}
+              {type === "decrypt_auth" && "Decrypting some data."}
             </p>
           )}
       </div>
@@ -450,4 +477,4 @@ export default function App() {
   );
 }
 
-type AuthType = "connect" | "sign_auth";
+type AuthType = "connect" | "sign_auth" | "encrypt_auth" | "decrypt_auth";

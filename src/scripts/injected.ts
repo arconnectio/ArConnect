@@ -233,6 +233,73 @@ const WalletAPI = {
         else reject(e.data.message);
       }
     });
+  },
+  encrypt(
+    data: string,
+    options: {
+      algorithm: string;
+      hash: string;
+      salt?: string;
+    }
+  ): Promise<Uint8Array> {
+    return new Promise((resolve, reject) => {
+      sendMessage(
+        {
+          type: "encrypt",
+          ext: "arconnect",
+          sender: "api",
+          data,
+          options
+        },
+        undefined,
+        undefined,
+        false
+      );
+      window.addEventListener("message", callback);
+
+      // @ts-ignore
+      function callback(e: MessageEvent<any>) {
+        if (!validateMessage(e.data, { type: "encrypt_result" })) return;
+        window.removeEventListener("message", callback);
+
+        if (e.data.res && e.data.data)
+          resolve(new Uint8Array(Object.values(e.data.data)));
+        else reject(e.data.message);
+      }
+    });
+  },
+  decrypt(
+    data: Uint8Array,
+    options: {
+      algorithm: string;
+      hash: string;
+      salt?: string;
+    }
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      sendMessage(
+        {
+          type: "decrypt",
+          ext: "arconnect",
+          sender: "api",
+          data,
+          options
+        },
+        undefined,
+        undefined,
+        false
+      );
+      window.addEventListener("message", callback);
+
+      // @ts-ignore
+      function callback(e: MessageEvent<any>) {
+        if (!validateMessage(e.data, { type: "decrypt_result" })) return;
+        window.removeEventListener("message", callback);
+
+        if (e.data.res && e.data.data) resolve(e.data.data);
+        else reject(e.data.message);
+      }
+    });
   }
 };
 
