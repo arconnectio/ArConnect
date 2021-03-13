@@ -119,7 +119,7 @@ export default function WalletManager() {
     <>
       <div className={styles.CurrentWallet}>
         <h1 onClick={() => setOpen(!open)}>
-          {currentWalletName()}
+          {currentWalletName() || "• • •"}
           {verifiedAddresses.includes(profile) && <VerifiedIcon />}
         </h1>
         <p
