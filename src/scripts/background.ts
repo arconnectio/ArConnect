@@ -390,8 +390,6 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               arConfettiSetting = (await getStoreData())?.["settings"]
                 ?.arConfetti;
 
-            console.log(arConfettiSetting);
-
             let decryptionKey = decryptionKeyRes?.["decryptionKey"];
 
             const selectVRTHolder = async () => {
@@ -594,9 +592,6 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               undefined,
               sendResponse
             );
-
-          // TODO: remove this
-          console.log(message);
 
           try {
             const decryptionKeyRes: { [key: string]: any } =
