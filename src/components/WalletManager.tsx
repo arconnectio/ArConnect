@@ -32,24 +32,16 @@ export default function WalletManager() {
     wallets = useSelector((state: RootState) => state.wallets),
     dispatch = useDispatch(),
     [open, setOpen] = useState(false),
-    [inputSizes, setInputSizes] = useState<
-      {
-        address: string;
-        width: number;
-      }[]
-    >([]),
     { scheme } = useColorScheme(),
     [copyStatus, setCopyStatus] = useState(false),
     logoutModal = useModal(false),
     [showSwitch, setShowSwitch] = useState(false),
     [verifiedAddresses, setVerifiedAddresses] = useState<string[]>([]),
     [showQRCode, setShowQRCode] = useState(false),
-    { arVerifyTreshold } = useSelector((state: RootState) => state.settings);
-
-  useEffect(() => {
-    adjustSizes();
-    // eslint-disable-next-line
-  }, []);
+    { arVerifyTreshold } = useSelector((state: RootState) => state.settings),
+    [walletNameSizes, setWalletNameSizes] = useState<{
+      [address: string]: number;
+    }>({});
 
   useEffect(() => {
     loadVerifiedAddresses();
@@ -69,20 +61,6 @@ export default function WalletManager() {
       } catch {}
 
     setVerifiedAddresses(loaded);
-  }
-
-  function adjustSizes() {
-    for (const { address, name } of wallets)
-      setInputSizes((val) => [
-        ...val.filter((val2) => val2.address !== address),
-        { address, width: name.length * 15 + 6 }
-      ]);
-  }
-
-  function widthForAddress(addr: string) {
-    return `${
-      inputSizes.find(({ address }) => address === addr)?.width ?? "1"
-    }px`;
   }
 
   function deleteWallet(addr: string) {
@@ -165,17 +143,16 @@ export default function WalletManager() {
                         type="text"
                         value={wallet.name}
                         title="Type to change wallet name"
-                        onChange={(e) => {
-                          dispatch(
-                            renameWallet(wallet.address, e.target.value)
-                          );
-                          adjustSizes();
-                        }}
+                        onChange={(e) =>
+                          dispatch(renameWallet(wallet.address, e.target.value))
+                        }
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
                         }}
-                        style={{ width: widthForAddress(wallet.address) }}
+                        style={{
+                          width: `${walletNameSizes[wallet.address] ?? 0}px`
+                        }}
                       />
                       {verifiedAddresses.includes(wallet.address) && (
                         <Tooltip
@@ -282,6 +259,22 @@ export default function WalletManager() {
           </motion.div>
         )}
       </AnimatePresence>
+      {wallets.map(({ name, address }, i) => (
+        <span
+          className={styles.ImitateWalletName}
+          key={i}
+          ref={(el) => {
+            if (!el || el.clientWidth === 0) return;
+            if (walletNameSizes[address] === el.clientWidth) return;
+            setWalletNameSizes((val) => ({
+              ...val,
+              [address]: el.clientWidth
+            }));
+          }}
+        >
+          {name}
+        </span>
+      ))}
     </>
   );
 }
