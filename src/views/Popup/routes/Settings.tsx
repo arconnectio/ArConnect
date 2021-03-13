@@ -31,7 +31,8 @@ import {
   updateSettings,
   toggleAllowance,
   setAllowanceLimit,
-  removeAllowance
+  removeAllowance,
+  resetAllowanceSpent
 } from "../../../stores/actions";
 import Home from "./Home";
 import Arweave from "arweave";
@@ -406,6 +407,19 @@ export default function Settings() {
                     Spent:{" "}
                     {arweave.ar.winstonToAr((allowance.spent ?? 0).toString())}{" "}
                     AR
+                    {allowance.spent !== 0 && (
+                      <span
+                        style={{
+                          textDecoration: "underline",
+                          marginLeft: ".6em"
+                        }}
+                        onClick={() =>
+                          dispatch(resetAllowanceSpent(allowance.url))
+                        }
+                      >
+                        Reset
+                      </span>
+                    )}
                   </p>
                   <p style={{ display: "flex", alignItems: "center" }}>
                     Limit:{" "}

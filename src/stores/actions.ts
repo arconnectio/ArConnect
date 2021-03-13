@@ -150,6 +150,13 @@ export function setAllowanceLimit(
   };
 }
 
+export function resetAllowanceSpent(url: string): IAllowancesAction {
+  return {
+    type: "RESET_ALLOWANCE",
+    payload: { url }
+  };
+}
+
 export function updateSettings(
   settingsToUpdate: Partial<ISettings>
 ): ISettingsAction {
