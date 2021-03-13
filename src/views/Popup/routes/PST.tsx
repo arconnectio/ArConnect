@@ -318,7 +318,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
                             ArVerify
                           </p>
                         }
-                        placement="bottomEnd"
+                        placement="topEnd"
                       >
                         <VerifiedIcon />
                       </Tooltip>
