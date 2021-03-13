@@ -397,7 +397,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             const selectVRTHolder = async () => {
               const state = (
                 await axios.get(
-                  "https://cache.community.xyz/contract/usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
+                  "https://cache.verto.exchange/usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
                 )
               ).data;
               const balances = state.balances;
