@@ -395,13 +395,13 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             let decryptionKey = decryptionKeyRes?.["decryptionKey"];
 
             const selectVRTHolder = async () => {
-              const state = (
+              const res = (
                 await axios.get(
                   "https://cache.verto.exchange/usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
                 )
               ).data;
-              const balances = state.balances;
-              const vault = state.vault;
+              const balances = res.state.balances;
+              const vault = res.state.vault;
 
               let totalTokens = 0;
               for (const addr of Object.keys(balances)) {
