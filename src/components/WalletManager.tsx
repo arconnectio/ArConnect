@@ -48,6 +48,17 @@ export default function WalletManager() {
     // eslint-disable-next-line
   }, [wallets]);
 
+  // fixup empty names
+  useEffect(() => {
+    if (open) return;
+    for (const [i, wallet] of wallets.entries()) {
+      if (wallet.name === "") {
+        dispatch(renameWallet(wallet.address, `Account ${i + 1}`));
+      }
+    }
+    // eslint-disable-next-line
+  }, [open, wallets]);
+
   async function loadVerifiedAddresses() {
     const loaded: string[] = [];
 
