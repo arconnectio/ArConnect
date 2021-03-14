@@ -98,22 +98,19 @@ export default function PST({ id, name, balance, ticker }: Asset) {
   async function loadData() {
     setLoadingData(true);
     try {
-      const { data } = await axios.get(
-          "https://cache.verto.exchange/communities"
-        ),
-        community = data.find((psc: any) => psc.id === id);
+      const { data } = await axios.get(`https://cache.verto.exchange/${id}`);
 
-      if (!community) return;
+      if (!data) return;
       setDescription(
-        community.state.settings?.find(
+        data.state.settings?.find(
           (entry: any) => entry[0] === "communityDescription"
         )[1] ?? ""
       );
       setLinks([
-        community.state.settings?.find(
+        data.state.settings?.find(
           (entry: any) => entry[0] === "communityAppUrl"
         )[1],
-        ...community.state.settings?.find(
+        ...data.state.settings?.find(
           (entry: any) => entry[0] === "communityDiscussionLinks"
         )[1]
       ]);
