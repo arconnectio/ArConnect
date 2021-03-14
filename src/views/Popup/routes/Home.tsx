@@ -9,7 +9,7 @@ import {
   ArrowSwitchIcon,
   ArchiveIcon
 } from "@primer/octicons-react";
-import { Tabs, Tooltip, useTheme } from "@geist-ui/react";
+import { Loading, Spacer, Tabs, Tooltip, useTheme } from "@geist-ui/react";
 import { setAssets } from "../../../stores/actions";
 import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
@@ -48,7 +48,8 @@ export default function Home() {
     dispatch = useDispatch(),
     { scheme } = useColorScheme(),
     { currency } = useSelector((state: RootState) => state.settings),
-    [arPriceInCurrency, setArPriceInCurrency] = useState(1);
+    [arPriceInCurrency, setArPriceInCurrency] = useState(1),
+    [loading, setLoading] = useState({ psts: true, txs: true });
 
   useEffect(() => {
     loadBalance();
@@ -82,6 +83,7 @@ export default function Home() {
   }
 
   async function loadPSTs() {
+    setLoading((val) => ({ ...val, psts: true }));
     try {
       const { data } = await axios.get(
           "https://cache.verto.exchange/communities"
@@ -112,14 +114,17 @@ export default function Home() {
 
       dispatch(setAssets(profile, pstsLoaded));
     } catch {}
+    setLoading((val) => ({ ...val, psts: false }));
   }
 
   async function loadTransactions() {
     const verto = new Verto();
+    setLoading((val) => ({ ...val, txs: true }));
 
     try {
       setTransactions(await verto.getTransactions(profile));
     } catch {}
+    setLoading((val) => ({ ...val, txs: false }));
   }
 
   function formatBalance(val: number | string, small = false) {
@@ -232,7 +237,14 @@ export default function Home() {
                     <ChevronRightIcon />
                   </div>
                 </div>
-              ))) || <p className={styles.EmptyIndicatorText}>No PSTs</p>}
+              ))) ||
+            (loading.psts && (
+              <>
+                <Spacer y={0.5} />
+                <Loading />
+                <Spacer y={1.25} />
+              </>
+            )) || <p className={styles.EmptyIndicatorText}>No PSTs</p>}
         </Tabs.Item>
         <Tabs.Item label="Transactions" value="2">
           {(transactions.length > 0 &&
@@ -294,7 +306,14 @@ export default function Home() {
                   </h2>
                 </div>
               </div>
-            ))) || <p className={styles.EmptyIndicatorText}>No transactions</p>}
+            ))) ||
+            (loading.txs && (
+              <>
+                <Spacer y={0.5} />
+                <Loading />
+                <Spacer y={1.25} />
+              </>
+            )) || <p className={styles.EmptyIndicatorText}>No transactions</p>}
           {transactions.length > 0 && (
             <div
               className={styles.Transaction + " " + styles.ViewMore}
