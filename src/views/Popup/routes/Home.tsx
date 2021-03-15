@@ -97,20 +97,23 @@ export default function Home() {
         ),
         verto = new Verto(),
         pstsLoaded: Asset[] = await Promise.all(
-          pstsWithBalance.map(async (pst: any) => ({
-            id: pst.id,
-            name: pst.state.name,
-            ticker: pst.state.ticker,
-            logo:
-              pst.state.settings.find(
-                (entry: any) => entry[0] === "communityLogo"
-              )[1] ?? undefined,
-            balance: pst.state.balances[profile] ?? 0,
-            arBalance:
-              ((await verto.latestPrice(pst.id)) ?? 0) *
-              (pst.state.balances[profile] ?? 0),
-            removed: psts?.find(({ id }) => id === pst.id)?.removed ?? false
-          }))
+          pstsWithBalance.map(async (pst: any) => {
+            const logoSetting = pst.state.settings.find(
+              (entry: any) => entry[0] === "communityLogo"
+            );
+
+            return {
+              id: pst.id,
+              name: pst.state.name,
+              ticker: pst.state.ticker,
+              logo: logoSetting ? logoSetting[1] : undefined,
+              balance: pst.state.balances[profile] ?? 0,
+              arBalance:
+                ((await verto.latestPrice(pst.id)) ?? 0) *
+                (pst.state.balances[profile] ?? 0),
+              removed: psts?.find(({ id }) => id === pst.id)?.removed ?? false
+            };
+          })
         );
 
       dispatch(setAssets(profile, pstsLoaded));
