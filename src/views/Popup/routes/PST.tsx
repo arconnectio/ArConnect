@@ -20,7 +20,8 @@ import {
   Loading,
   Progress,
   useTheme,
-  Tooltip
+  Tooltip,
+  useToasts
 } from "@geist-ui/react";
 import { useColorScheme } from "use-color-scheme";
 import { useDispatch, useSelector } from "react-redux";
@@ -47,7 +48,6 @@ export default function PST({ id, name, balance, ticker }: Asset) {
     tabs = useTabs("1"),
     transferInput = useInput(""),
     addressInput = useInput(""),
-    passwordInput = useInput(""),
     [inputState, setInputState] = useState<
       "default" | "secondary" | "success" | "warning" | "error"
     >(),
@@ -58,7 +58,6 @@ export default function PST({ id, name, balance, ticker }: Asset) {
     dispatch = useDispatch(),
     profile = useSelector((state: RootState) => state.profile),
     removeModal = useModal(false),
-    [showPasswordInput, setShowPasswordInput] = useState(false),
     [description, setDescription] = useState(""),
     [links, setLinks] = useState<string[]>([]),
     [loadingData, setLoadingData] = useState(false),
@@ -70,6 +69,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
       icon: string;
       percentage: number;
     }>(),
+    [, setToast] = useToasts(),
     { arVerifyTreshold } = useSelector((state: RootState) => state.settings);
 
   useEffect(() => {
@@ -118,7 +118,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
     setLoadingData(false);
   }
 
-  function forwardToPassword() {
+  async function transfer() {
     if (
       transferInput.state === "" ||
       Number(transferInput.state) <= 0 ||
@@ -127,24 +127,15 @@ export default function PST({ id, name, balance, ticker }: Asset) {
       return setInputState("error");
     if (addressInput.state === "") return setAddressInputState("error");
 
-    setShowPasswordInput(true);
-    setInputState("default");
-    setAddressInputState("default");
-  }
-
-  async function transfer() {
     setLoading(true);
-    if (passwordInput.state === "") return setInputState("error");
 
     let keyfile: JWKInterface | undefined = undefined;
     try {
       const currentWallet = wallets.find(({ address }) => address === profile);
-      if (currentWallet) {
-        const decodedKeyfile = atob(JSON.parse(currentWallet.keyfile));
-        keyfile = JSON.parse(decodedKeyfile);
-      } else setInputState("error");
+      if (currentWallet) keyfile = JSON.parse(atob(currentWallet.keyfile));
+      else throw new Error("No wallet found");
     } catch {
-      setInputState("error");
+      return setToast({ type: "error", text: "Could not decrypt keyfile" });
     }
 
     if (keyfile) {
@@ -166,13 +157,17 @@ export default function PST({ id, name, balance, ticker }: Asset) {
           ],
           addressInput.state.toString()
         );
-      } catch {}
+        setToast({ type: "success", text: "The transfer is now processing" });
+      } catch {
+        setLoading(false);
+        return setToast({ type: "error", text: "Error durring transfer" });
+      }
     }
     setLoading(false);
-    setShowPasswordInput(false);
     transferInput.setState("");
     addressInput.setState("");
-    passwordInput.setState("");
+    setInputState("default");
+    setAddressInputState("default");
   }
 
   function removePst() {
@@ -293,86 +288,67 @@ export default function PST({ id, name, balance, ticker }: Asset) {
           >
             <div className={styles.Transfer}>
               <Spacer />
-              {(!showPasswordInput && (
-                <>
-                  <Input
-                    {...transferInput.bindings}
-                    placeholder="Transfer amount..."
-                    type="number"
-                    status={inputState}
-                    labelRight={ticker}
-                    min="0"
-                    max={balance}
-                  />
-                  <Spacer />
-                  <div
-                    className={
-                      verified && verified.verified ? styles.Address : ""
+              <Input
+                {...transferInput.bindings}
+                placeholder="Transfer amount..."
+                type="number"
+                status={inputState}
+                labelRight={ticker}
+                min="0"
+                max={balance}
+              />
+              <Spacer />
+              <div
+                className={verified && verified.verified ? styles.Address : ""}
+              >
+                <Input
+                  {...addressInput.bindings}
+                  status={addressInputState}
+                  placeholder="Transfer address..."
+                />
+                {verified && verified.verified && (
+                  <Tooltip
+                    text={
+                      <p style={{ margin: 0, textAlign: "center" }}>
+                        Verified on <br />
+                        ArVerify
+                      </p>
                     }
+                    placement="topEnd"
                   >
-                    <Input
-                      {...addressInput.bindings}
-                      status={addressInputState}
-                      placeholder="Transfer address..."
+                    <VerifiedIcon />
+                  </Tooltip>
+                )}
+              </div>
+              <AnimatePresence>
+                {verified && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <p style={{ margin: 0, marginBottom: ".21em" }}>
+                      Trust score: {verified.percentage?.toFixed(2) ?? 0}%
+                    </p>
+                    <Progress
+                      value={verified.percentage}
+                      colors={{
+                        30: geistTheme.palette.error,
+                        80: geistTheme.palette.warning,
+                        100: "#99C507"
+                      }}
                     />
-                    {verified && verified.verified && (
-                      <Tooltip
-                        text={
-                          <p style={{ margin: 0, textAlign: "center" }}>
-                            Verified on <br />
-                            ArVerify
-                          </p>
-                        }
-                        placement="topEnd"
-                      >
-                        <VerifiedIcon />
-                      </Tooltip>
-                    )}
-                  </div>
-                  <AnimatePresence>
-                    {verified && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                      >
-                        <p style={{ margin: 0, marginBottom: ".21em" }}>
-                          Trust score: {verified.percentage?.toFixed(2) ?? 0}%
-                        </p>
-                        <Progress
-                          value={verified.percentage}
-                          colors={{
-                            30: geistTheme.palette.error,
-                            80: geistTheme.palette.warning,
-                            100: "#99C507"
-                          }}
-                        />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                  <Spacer />
-                  <Button style={{ width: "100%" }} onClick={forwardToPassword}>
-                    Transfer
-                  </Button>
-                </>
-              )) || (
-                <>
-                  <Input
-                    {...passwordInput.bindings}
-                    placeholder="Password..."
-                    status={inputState}
-                    type="password"
-                  />
-                  <Spacer />
-                  <Button
-                    style={{ width: "100%" }}
-                    onClick={transfer}
-                    loading={loading}
-                  >
-                    Transfer
-                  </Button>
-                </>
-              )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <Spacer />
+              <Button
+                style={{ width: "100%" }}
+                onClick={transfer}
+                loading={loading}
+              >
+                Transfer
+              </Button>
             </div>
           </Tabs.Item>
           <Tabs.Item
