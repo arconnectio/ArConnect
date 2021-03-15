@@ -101,9 +101,10 @@ export default function Home() {
             id: pst.id,
             name: pst.state.name,
             ticker: pst.state.ticker,
-            logo: pst.state.settings.find(
-              (entry: any) => entry[0] === "communityLogo"
-            )[1],
+            logo:
+              pst.state.settings.find(
+                (entry: any) => entry[0] === "communityLogo"
+              )[1] ?? undefined,
             balance: pst.state.balances[profile] ?? 0,
             arBalance:
               ((await verto.latestPrice(pst.id)) ?? 0) *
