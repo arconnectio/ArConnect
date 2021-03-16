@@ -211,7 +211,9 @@ export default function PST({ id, name, balance, ticker }: Asset) {
         <h2 className={styles.BalanceInAR}>
           {!price || price.prices.length === 0
             ? "??"
-            : balance * price.prices[price.prices.length - 1]}{" "}
+            : parseFloat(
+                (balance * price.prices[price.prices.length - 1]).toFixed(4)
+              )}{" "}
           AR
         </h2>
         <Tabs {...tabs.bindings} className={styles.Tabs}>
@@ -238,7 +240,9 @@ export default function PST({ id, name, balance, ticker }: Asset) {
                               datasets: [
                                 {
                                   label: "AR",
-                                  data: price.prices.map((val) => val),
+                                  data: price.prices.map((val) =>
+                                    parseFloat(val.toFixed(4))
+                                  ),
                                   ...GraphDataConfig
                                 }
                               ]
