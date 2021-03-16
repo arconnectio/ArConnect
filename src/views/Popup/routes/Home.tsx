@@ -204,6 +204,7 @@ export default function Home() {
             psts.filter(({ removed }) => !removed).length > 0 &&
             psts
               .filter(({ removed }) => !removed)
+              .sort((a, b) => b.balance - a.balance)
               .map((pst, i) => (
                 <div
                   className={styles.PST}
