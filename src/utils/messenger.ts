@@ -33,6 +33,8 @@ export type MessageType =
   | "get_wallet_names_result"
   | "get_permissions"
   | "get_permissions_result"
+  | "add_token"
+  | "add_token_result"
   | "switch_wallet_event"
   | "switch_wallet_event_forward";
 

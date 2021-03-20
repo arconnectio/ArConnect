@@ -16,6 +16,7 @@ import { ArConnectEvent } from "../views/Popup/routes/Settings";
 import limestone from "@limestonefi/api";
 import Arweave from "arweave";
 import axios from "axios";
+import Verto from "@verto/lib";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(async () => {
@@ -143,6 +144,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
       );
 
       const wallets = (await getStoreData())?.["wallets"];
+      const store = await getStoreData();
 
       switch (message.type) {
         // connect to arconnect
@@ -207,8 +209,6 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
         // disconnect from arconnect
         case "disconnect":
-          const store = await getStoreData();
-
           await setStoreData({
             permissions: (store.permissions ?? []).filter(
               (sitePerms: IPermissionState) =>
@@ -354,6 +354,59 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             sendResponse
           );
 
+          break;
+
+        // add a custom token
+        case "add_token":
+          const { data: res } = await axios.get(
+            `https://cache.verto.exchange/${message.id}`
+          );
+          const state = res.state;
+
+          const price = await new Verto().latestPrice(message.id);
+
+          const logoSetting = state.settings?.find(
+            (entry: any) => entry[0] === "communityLogo"
+          );
+
+          const address = (await getStoreData())["profile"]!;
+
+          await setStoreData({
+            assets: [
+              ...(store.assets || []).map((entry) => {
+                if (entry.address === address) {
+                  return {
+                    address,
+                    assets: [
+                      ...entry.assets,
+                      {
+                        id: message.id,
+                        ticker: state.ticker,
+                        name: state.name,
+                        balance: state.balances[address] ?? 0,
+                        arBalance:
+                          (price ?? 0) * (state.balances[address] ?? 0),
+                        logo: logoSetting ? logoSetting[1] : undefined,
+                        removed: false
+                      }
+                    ]
+                  };
+                } else {
+                  return entry;
+                }
+              })
+            ]
+          });
+          sendMessage(
+            {
+              type: "add_token_result",
+              ext: "arconnect",
+              res: true,
+              sender: "background"
+            },
+            undefined,
+            sendResponse
+          );
           break;
 
         // create and sign a transaction at the same time

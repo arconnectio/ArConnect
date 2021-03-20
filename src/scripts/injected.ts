@@ -164,6 +164,26 @@ const WalletAPI = {
       }
     });
   },
+  addToken(id: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      sendMessage(
+        { type: "add_token", ext: "arconnect", sender: "api", id },
+        undefined,
+        undefined,
+        false
+      );
+      window.addEventListener("message", callback);
+
+      // @ts-ignore
+      function callback(e: MessageEvent<any>) {
+        if (!validateMessage(e.data, { type: "add_token_result" })) return;
+        window.removeEventListener("message", callback);
+
+        if (e.data.res) resolve();
+        else reject(e.data.message);
+      }
+    });
+  },
   sign(
     transaction: Transaction,
     options?: SignatureOptions
