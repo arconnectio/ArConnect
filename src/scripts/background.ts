@@ -358,6 +358,25 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
         // add a custom token
         case "add_token":
+          const address = (await getStoreData())["profile"]!;
+          const assets = store.assets?.find(
+            (entry) => entry.address === address
+          )?.assets;
+
+          if (assets && assets.find((element) => element.id === message.id)) {
+            sendMessage(
+              {
+                type: "add_token_result",
+                ext: "arconnect",
+                res: false,
+                message: "Token is already added",
+                sender: "background"
+              },
+              undefined,
+              sendResponse
+            );
+          }
+
           const { data: res } = await axios.get(
             `https://cache.verto.exchange/${message.id}`
           );
@@ -368,8 +387,6 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
           const logoSetting = state.settings?.find(
             (entry: any) => entry[0] === "communityLogo"
           );
-
-          const address = (await getStoreData())["profile"]!;
 
           await setStoreData({
             assets: [
