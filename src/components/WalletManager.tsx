@@ -7,7 +7,7 @@ import {
   signOut,
   switchProfile
 } from "../stores/actions";
-import { Modal, Tooltip, useModal } from "@geist-ui/react";
+import { Modal, Tooltip, useModal, useToasts } from "@geist-ui/react";
 import {
   ChevronDownIcon,
   GearIcon,
@@ -41,7 +41,8 @@ export default function WalletManager() {
     { arVerifyTreshold } = useSelector((state: RootState) => state.settings),
     [walletNameSizes, setWalletNameSizes] = useState<{
       [address: string]: number;
-    }>({});
+    }>({}),
+    [, setToast] = useToasts();
 
   useEffect(() => {
     loadVerifiedAddresses();
@@ -95,6 +96,7 @@ export default function WalletManager() {
 
   function copyAddress() {
     copy(profile);
+    setToast({ text: "Copied address to clipboard", type: "success" });
     setCopyStatus(true);
     setTimeout(() => setCopyStatus(false), 280);
     setShowQRCode(true);
