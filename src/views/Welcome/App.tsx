@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Wallet } from "../../stores/reducers/wallets";
 import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
+import { Buffer } from "buffer";
 import Arweave from "arweave";
 import logo from "../../assets/logo.png";
 import styles from "../../styles/views/Welcome/view.module.sass";
@@ -148,10 +149,11 @@ export default function App() {
         {
           keyfile: encryptedKeyfile,
           address,
-          name: `Account ${walletsStore.length}`
+          name: `Account ${walletsStore.length !== 0 ? walletsStore.length : 1}`
         }
       ])
     );
+    dispath(switchProfile(address));
     setLoading(false);
   }
 
