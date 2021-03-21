@@ -292,16 +292,6 @@ export default function PST({ id, name, balance, ticker }: Asset) {
           >
             <div className={styles.Transfer}>
               <Spacer />
-              <Input
-                {...transferInput.bindings}
-                placeholder="Transfer amount..."
-                type="number"
-                status={inputState}
-                labelRight={ticker}
-                min="0"
-                max={balance}
-              />
-              <Spacer />
               <div
                 className={verified && verified.verified ? styles.Address : ""}
               >
@@ -345,6 +335,16 @@ export default function PST({ id, name, balance, ticker }: Asset) {
                   </motion.div>
                 )}
               </AnimatePresence>
+              <Spacer />
+              <Input
+                {...transferInput.bindings}
+                placeholder="Transfer amount..."
+                type="number"
+                status={inputState}
+                labelRight={ticker}
+                min="0"
+                max={balance}
+              />
               <Spacer />
               <Button
                 style={{ width: "100%" }}
