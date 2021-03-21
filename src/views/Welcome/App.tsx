@@ -149,7 +149,7 @@ export default function App() {
         {
           keyfile: encryptedKeyfile,
           address,
-          name: `Account ${walletsStore.length !== 0 ? walletsStore.length : 1}`
+          name: `Account ${walletsStore.length + 1}`
         }
       ])
     );
