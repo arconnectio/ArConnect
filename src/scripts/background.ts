@@ -358,62 +358,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
         // add a custom token
         case "add_token":
-          const address = (await getStoreData())["profile"]!;
-          const assets = store.assets?.find(
-            (entry) => entry.address === address
-          )?.assets;
-
-          if (assets && assets.find((element) => element.id === message.id)) {
-            sendMessage(
-              {
-                type: "add_token_result",
-                ext: "arconnect",
-                res: false,
-                message: "Token is already added",
-                sender: "background"
-              },
-              undefined,
-              sendResponse
-            );
-          }
-
-          const { data: res } = await axios.get(
-            `https://cache.verto.exchange/${message.id}`
-          );
-          const state = res.state;
-
-          const price = await new Verto().latestPrice(message.id);
-
-          const logoSetting = state.settings?.find(
-            (entry: any) => entry[0] === "communityLogo"
-          );
-
-          await setStoreData({
-            assets: [
-              ...(store.assets || []).map((entry) => {
-                if (entry.address === address) {
-                  return {
-                    address,
-                    assets: [
-                      ...entry.assets,
-                      {
-                        id: message.id,
-                        ticker: state.ticker,
-                        name: state.name,
-                        balance: state.balances[address] ?? 0,
-                        arBalance:
-                          (price ?? 0) * (state.balances[address] ?? 0),
-                        logo: logoSetting ? logoSetting[1] : undefined,
-                        removed: false
-                      }
-                    ]
-                  };
-                } else {
-                  return entry;
-                }
-              })
-            ]
-          });
+          await axios.post(`https://cache.verto.exchange/fetch/${message.id}`);
           sendMessage(
             {
               type: "add_token_result",
