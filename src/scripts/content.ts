@@ -35,9 +35,24 @@ window.addEventListener("message", (e) => {
   sendMessage(e.data, (res) => sendMessage(res, undefined, undefined, false));
 });
 
-// wallet switch event
+// wallet switch event and archive page
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   const message: MessageFormat = msg;
+
+  console.log(document.documentElement.innerHTML);
+
+  if (validateMessage(message, { sender: "popup", type: "archive_page" }))
+    return sendMessage(
+      {
+        type: "archive_page_content",
+        ext: "arconnect",
+        sender: "content",
+        data: document.documentElement.innerHTML
+      },
+      undefined,
+      sendResponse
+    );
+
   if (
     !validateMessage(message, {
       sender: "popup",

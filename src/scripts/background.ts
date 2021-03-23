@@ -907,13 +907,14 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 });
 
 // listen for messages from the popup
-// right now the only message from there
-// is for the wallet switch event
+// and forward them to the content script
+// of the active tab
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   const message: MessageFormat = msg;
   if (!validateMessage(message, { sender: "popup" })) return;
 
   switch (message.type) {
+    case "archive_page":
     case "switch_wallet_event":
       chrome.tabs.query(
         { active: true, currentWindow: true },
@@ -930,13 +931,22 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             !(await checkPermissions(
               ["ACCESS_ALL_ADDRESSES", "ACCESS_ADDRESS"],
               currentTabArray[0].url
-            ))
+            )) &&
+            message.type === "switch_wallet_event_forward"
           )
             return;
 
           sendMessage(
-            { ...message, type: "switch_wallet_event_forward" },
-            undefined,
+            {
+              ...message,
+              type:
+                message.type === "archive_page"
+                  ? message.type
+                  : "switch_wallet_event_forward"
+            },
+            message.type === "archive_page"
+              ? (res) => sendMessage(res, sendResponse)
+              : undefined,
             undefined,
             true,
             currentTabArray[0].id
