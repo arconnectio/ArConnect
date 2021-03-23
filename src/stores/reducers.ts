@@ -8,6 +8,7 @@ import blockedSites from "./reducers/blocked_sites";
 import arweave from "./reducers/arweave";
 import allowances from "./reducers/allowances";
 import settings from "./reducers/settings";
+import balances from "./reducers/balances";
 
 export const plainReducers = {
   wallets,
@@ -17,7 +18,8 @@ export const plainReducers = {
   blockedSites,
   arweave,
   allowances,
-  settings
+  settings,
+  balances
 };
 const reducers = combineReducers(plainReducers);
 

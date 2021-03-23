@@ -16,7 +16,6 @@ import { ArConnectEvent } from "../views/Popup/routes/Settings";
 import limestone from "@limestonefi/api";
 import Arweave from "arweave";
 import axios from "axios";
-import Verto from "@verto/lib";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(async () => {
