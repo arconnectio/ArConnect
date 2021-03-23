@@ -227,32 +227,38 @@ export default function PST({ id, name, balance, ticker }: Asset) {
             value="1"
           >
             <div className={styles.About}>
-              {((loadingData || !price) && <Loading />) ||
+              <AnimatePresence>
+                {price && price.prices.length > 0 && price.dates.length > 0 && (
+                  <motion.div
+                    className={styles.Graph}
+                    initial={{ opacity: 0, transform: "scaleY(0)" }}
+                    animate={{ opacity: 1, transform: "scaleY(1)" }}
+                    exit={{ opacity: 0, transform: "scaleY(0)" }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Line
+                      data={{
+                        labels: price.dates,
+                        datasets: [
+                          {
+                            label: "AR",
+                            data: price.prices.map((val) =>
+                              parseFloat(val.toFixed(4))
+                            ),
+                            ...GraphDataConfig
+                          }
+                        ]
+                      }}
+                      options={GraphOptions({
+                        tooltipText: ({ value }) => `${value} AR`
+                      })}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              {(loadingData && <Loading />) ||
                 ((description || (links && links.length > 0)) && (
                   <>
-                    {price &&
-                      price.prices.length > 0 &&
-                      price.dates.length > 0 && (
-                        <div className={styles.Graph}>
-                          <Line
-                            data={{
-                              labels: price.dates,
-                              datasets: [
-                                {
-                                  label: "AR",
-                                  data: price.prices.map((val) =>
-                                    parseFloat(val.toFixed(4))
-                                  ),
-                                  ...GraphDataConfig
-                                }
-                              ]
-                            }}
-                            options={GraphOptions({
-                              tooltipText: ({ value }) => `${value} AR`
-                            })}
-                          />
-                        </div>
-                      )}
                     <p>{description}</p>
                     <ul>
                       {links.map((link, i) => (
