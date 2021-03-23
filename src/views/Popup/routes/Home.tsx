@@ -164,7 +164,7 @@ export default function Home() {
         </h1>
         <h2>
           {getSymbol(currency)}
-          {formatBalance(balance()?.fiatBalance)} {currency ?? "???"}
+          {balance()?.fiatBalance.toLocaleString()} {currency ?? "???"}
           <Tooltip
             text={
               <p style={{ textAlign: "center", margin: "0" }}>
