@@ -16,6 +16,7 @@ import { Asset } from "../../../stores/reducers/assets";
 import { useColorScheme } from "use-color-scheme";
 import { arToFiat, getSymbol } from "../../../utils/currency";
 import { sendMessage, validateMessage } from "../../../utils/messenger";
+import { local } from "chrome-storage-promises";
 import axios from "axios";
 import PST from "./PST";
 import WalletManager from "../../../components/WalletManager";
@@ -26,7 +27,6 @@ import arweaveLogo from "../../../assets/arweave.png";
 import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
-import { local } from "chrome-storage-promises";
 
 export default function Home() {
   const arweaveConfig = useSelector((state: RootState) => state.arweave),
