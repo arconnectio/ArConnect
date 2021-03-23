@@ -122,7 +122,7 @@ export default function Home() {
   }
 
   function formatBalance(val: number | string = 0, small = false) {
-    if (Number(val) === 0) return "0".repeat(10);
+    if (Number(val) === 0 && !small) return "0".repeat(10);
     val = String(val);
     const full = val.split(".")[0];
     if (full.length >= 10) return full;
