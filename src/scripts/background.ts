@@ -945,7 +945,12 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                   : "switch_wallet_event_forward"
             },
             message.type === "archive_page"
-              ? (res) => sendMessage(res, sendResponse)
+              ? (res) =>
+                  sendMessage(
+                    { ...res, url: currentTabArray[0].url },
+                    undefined,
+                    sendResponse
+                  )
               : undefined,
             undefined,
             true,

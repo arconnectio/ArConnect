@@ -26,6 +26,7 @@ import arweaveLogo from "../../../assets/arweave.png";
 import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
+import { local } from "chrome-storage-promises";
 
 export default function Home() {
   const arweaveConfig = useSelector((state: RootState) => state.arweave),
@@ -162,7 +163,7 @@ export default function Home() {
         ext: "arconnect",
         sender: "popup"
       },
-      (res) => {
+      async (res) => {
         if (
           !validateMessage(res, {
             sender: "content",
@@ -170,10 +171,25 @@ export default function Home() {
           })
         )
           return;
-        console.log(res.data);
+
+        if (typeof chrome !== "undefined")
+          await local.set({
+            lastArchive: {
+              url: res.url,
+              content: res.data
+            }
+          });
+        else
+          await browser.storage.local.set({
+            lastArchive: {
+              url: res.url,
+              content: res.data
+            }
+          });
+
+        chrome.tabs.create({ url: chrome.extension.getURL("/archive.html") });
       }
     );
-    //chrome.tabs.create({ url: chrome.extension.getURL("/archive.html") });
   }
 
   return (

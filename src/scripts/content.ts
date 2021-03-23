@@ -39,8 +39,6 @@ window.addEventListener("message", (e) => {
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   const message: MessageFormat = msg;
 
-  console.log(document.documentElement.innerHTML);
-
   if (validateMessage(message, { sender: "popup", type: "archive_page" }))
     return sendMessage(
       {
