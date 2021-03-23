@@ -85,9 +85,16 @@ export default function Home() {
       const { data } = await axios.get(
           `https://cache.verto.exchange/balance/${profile}`
         ),
+        pstsWithBalance = data.filter(
+          ({
+            state: { balances }
+          }: {
+            state: { balances: Record<string, number> };
+          }) => balances[profile]
+        ),
         verto = new Verto(),
         pstsLoaded: Asset[] = await Promise.all(
-          data.map(async (pst: any) => {
+          pstsWithBalance.map(async (pst: any) => {
             const logoSetting = pst.state.settings?.find(
               (entry: any) => entry[0] === "communityLogo"
             );
