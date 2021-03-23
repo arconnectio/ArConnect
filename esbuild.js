@@ -13,7 +13,8 @@ esbuild
       "./src/scripts/injected.ts",
       "./src/views/popup.tsx",
       "./src/views/auth.tsx",
-      "./src/views/welcome.tsx"
+      "./src/views/welcome.tsx",
+      "./src/views/archive.tsx"
     ],
     format: "iife",
     bundle: true,

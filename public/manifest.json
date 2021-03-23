@@ -24,6 +24,7 @@
   },
   "web_accessible_resources": [
     "welcome.html",
+    "archive.html",
     "auth.html",
     "build/scripts/injected.js",
     "*.js.map"
