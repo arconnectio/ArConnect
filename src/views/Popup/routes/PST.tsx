@@ -211,7 +211,9 @@ export default function PST({ id, name, balance, ticker }: Asset) {
         <h2 className={styles.BalanceInAR}>
           {!price || price.prices.length === 0
             ? "??"
-            : balance * price.prices[price.prices.length - 1]}{" "}
+            : parseFloat(
+                (balance * price.prices[price.prices.length - 1]).toFixed(4)
+              )}{" "}
           AR
         </h2>
         <Tabs {...tabs.bindings} className={styles.Tabs}>
@@ -225,30 +227,38 @@ export default function PST({ id, name, balance, ticker }: Asset) {
             value="1"
           >
             <div className={styles.About}>
-              {((loadingData || !price) && <Loading />) ||
+              <AnimatePresence>
+                {price && price.prices.length > 0 && price.dates.length > 0 && (
+                  <motion.div
+                    className={styles.Graph}
+                    initial={{ opacity: 0, transform: "scaleY(0)" }}
+                    animate={{ opacity: 1, transform: "scaleY(1)" }}
+                    exit={{ opacity: 0, transform: "scaleY(0)" }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Line
+                      data={{
+                        labels: price.dates,
+                        datasets: [
+                          {
+                            label: "AR",
+                            data: price.prices.map((val) =>
+                              parseFloat(val.toFixed(4))
+                            ),
+                            ...GraphDataConfig
+                          }
+                        ]
+                      }}
+                      options={GraphOptions({
+                        tooltipText: ({ value }) => `${value} AR`
+                      })}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              {(loadingData && <Loading />) ||
                 ((description || (links && links.length > 0)) && (
                   <>
-                    {price &&
-                      price.prices.length > 0 &&
-                      price.dates.length > 0 && (
-                        <div className={styles.Graph}>
-                          <Line
-                            data={{
-                              labels: price.dates,
-                              datasets: [
-                                {
-                                  label: "AR",
-                                  data: price.prices.map((val) => val),
-                                  ...GraphDataConfig
-                                }
-                              ]
-                            }}
-                            options={GraphOptions({
-                              tooltipText: ({ value }) => `${value} AR`
-                            })}
-                          />
-                        </div>
-                      )}
                     <p>{description}</p>
                     <ul>
                       {links.map((link, i) => (
@@ -287,16 +297,6 @@ export default function PST({ id, name, balance, ticker }: Asset) {
             value="2"
           >
             <div className={styles.Transfer}>
-              <Spacer />
-              <Input
-                {...transferInput.bindings}
-                placeholder="Transfer amount..."
-                type="number"
-                status={inputState}
-                labelRight={ticker}
-                min="0"
-                max={balance}
-              />
               <Spacer />
               <div
                 className={verified && verified.verified ? styles.Address : ""}
@@ -341,6 +341,16 @@ export default function PST({ id, name, balance, ticker }: Asset) {
                   </motion.div>
                 )}
               </AnimatePresence>
+              <Spacer />
+              <Input
+                {...transferInput.bindings}
+                placeholder="Transfer amount..."
+                type="number"
+                status={inputState}
+                labelRight={ticker}
+                min="0"
+                max={balance}
+              />
               <Spacer />
               <Button
                 style={{ width: "100%" }}

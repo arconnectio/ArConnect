@@ -175,7 +175,6 @@ export default function App() {
         const keyfileToDecrypt = wallets.find(
           ({ address }) => address === profile
         )?.keyfile;
-        console.log(keyfileToDecrypt);
         if (!keyfileToDecrypt) {
           setPasswordStatus("error");
           setLoading(false);

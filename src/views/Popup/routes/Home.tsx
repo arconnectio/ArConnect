@@ -10,7 +10,7 @@ import {
   ArchiveIcon
 } from "@primer/octicons-react";
 import { Loading, Spacer, Tabs, Tooltip, useTheme } from "@geist-ui/react";
-import { setAssets } from "../../../stores/actions";
+import { setAssets, setBalance } from "../../../stores/actions";
 import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
 import { useColorScheme } from "use-color-scheme";
@@ -27,9 +27,8 @@ import verto_dark_logo from "../../../assets/verto_dark.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
 
 export default function Home() {
-  const [balance, setBalance] = useState<string>(),
-    [fiatBalance, setFiatBalance] = useState<string>(),
-    arweaveConfig = useSelector((state: RootState) => state.arweave),
+  const arweaveConfig = useSelector((state: RootState) => state.arweave),
+    storedBalances = useSelector((state: RootState) => state.balances),
     arweave = new Arweave(arweaveConfig),
     profile = useSelector((state: RootState) => state.profile),
     psts = useSelector((state: RootState) => state.assets).find(
@@ -60,6 +59,7 @@ export default function Home() {
 
   useEffect(() => {
     calculateArPriceInCurrency();
+    loadBalance();
     // eslint-disable-next-line
   }, [currency]);
 
@@ -69,16 +69,13 @@ export default function Home() {
 
   async function loadBalance() {
     try {
-      const balance = await arweave.wallets.getBalance(profile),
-        arBalance = arweave.ar.winstonToAr(balance);
+      const bal = await arweave.wallets.getBalance(profile),
+        arBalance = parseFloat(arweave.ar.winstonToAr(bal)),
+        fiatBalance = parseFloat(
+          (await arToFiat(arBalance, currency)).toFixed(2)
+        );
 
-      setBalance(arBalance);
-
-      const fiatBal = parseFloat(
-        (await arToFiat(Number(arBalance), currency)).toFixed(2)
-      ).toLocaleString();
-
-      setFiatBalance(fiatBal);
+      dispatch(setBalance({ address: profile, arBalance, fiatBalance }));
     } catch {}
   }
 
@@ -86,7 +83,7 @@ export default function Home() {
     setLoading((val) => ({ ...val, psts: true }));
     try {
       const { data } = await axios.get(
-          "https://cache.verto.exchange/communities"
+          `https://cache.verto.exchange/balance/${profile}`
         ),
         pstsWithBalance = data.filter(
           ({
@@ -98,7 +95,7 @@ export default function Home() {
         verto = new Verto(),
         pstsLoaded: Asset[] = await Promise.all(
           pstsWithBalance.map(async (pst: any) => {
-            const logoSetting = pst.state.settings.find(
+            const logoSetting = pst.state.settings?.find(
               (entry: any) => entry[0] === "communityLogo"
             );
 
@@ -131,7 +128,8 @@ export default function Home() {
     setLoading((val) => ({ ...val, txs: false }));
   }
 
-  function formatBalance(val: number | string, small = false) {
+  function formatBalance(val: number | string = 0, small = false) {
+    if (Number(val) === 0 && !small) return "0".repeat(10);
     val = String(val);
     const full = val.split(".")[0];
     if (full.length >= 10) return full;
@@ -152,17 +150,21 @@ export default function Home() {
     } else return `https://arweave.net/${pst.logo}`;
   }
 
+  function balance() {
+    return storedBalances.find((balance) => balance.address === profile);
+  }
+
   return (
     <div className={styles.Home}>
       <WalletManager />
       <div className={styles.Balance}>
         <h1>
-          {formatBalance(balance ?? "0".repeat(10))}
+          {formatBalance(balance()?.arBalance)}
           <span>AR</span>
         </h1>
         <h2>
           {getSymbol(currency)}
-          {formatBalance(fiatBalance ?? "0".repeat(10))} {currency ?? "???"}
+          {balance()?.fiatBalance.toLocaleString()} {currency ?? "???"}
           <Tooltip
             text={
               <p style={{ textAlign: "center", margin: "0" }}>
@@ -201,7 +203,8 @@ export default function Home() {
       <Tabs initialValue="1" className={styles.Tabs}>
         <Tabs.Item label="PSTs" value="1">
           {(psts &&
-            psts.filter(({ removed }) => !removed).length > 0 &&
+            psts.filter(({ removed, balance }) => !removed && balance > 0)
+              .length > 0 &&
             psts
               .filter(({ removed }) => !removed)
               .sort((a, b) => b.balance - a.balance)

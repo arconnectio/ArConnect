@@ -148,10 +148,11 @@ export default function App() {
         {
           keyfile: encryptedKeyfile,
           address,
-          name: `Account ${walletsStore.length}`
+          name: `Account ${walletsStore.length + 1}`
         }
       ])
     );
+    dispath(switchProfile(address));
     setLoading(false);
   }
 

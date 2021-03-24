@@ -143,6 +143,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
       );
 
       const wallets = (await getStoreData())?.["wallets"];
+      const store = await getStoreData();
 
       switch (message.type) {
         // connect to arconnect
@@ -207,8 +208,6 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
         // disconnect from arconnect
         case "disconnect":
-          const store = await getStoreData();
-
           await setStoreData({
             permissions: (store.permissions ?? []).filter(
               (sitePerms: IPermissionState) =>
@@ -354,6 +353,21 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             sendResponse
           );
 
+          break;
+
+        // add a custom token
+        case "add_token":
+          await axios.post(`https://cache.verto.exchange/fetch/${message.id}`);
+          sendMessage(
+            {
+              type: "add_token_result",
+              ext: "arconnect",
+              res: true,
+              sender: "background"
+            },
+            undefined,
+            sendResponse
+          );
           break;
 
         // create and sign a transaction at the same time

@@ -2515,10 +2515,10 @@
     "@typescript-eslint/types" "4.15.1"
     eslint-visitor-keys "^2.0.0"
 
-"@verto/lib@^0.9.12":
-  version "0.9.12"
-  resolved "https://registry.yarnpkg.com/@verto/lib/-/lib-0.9.12.tgz#a5aba3dc4ca249b5a7f0503059a386d279b0ac40"
-  integrity sha512-Tk53Mwn+9rYH6u/hP5H4bBqhLJaOQ6dC6t2sSj75VfxN+PIomxltyay8yIMna2KxuKPsYBMEeAX68Ku5+CRzoA==
+"@verto/lib@^0.10.4":
+  version "0.10.4"
+  resolved "https://registry.yarnpkg.com/@verto/lib/-/lib-0.10.4.tgz#6c8ad522505e6fc381fe8ba708751c2f831cd6af"
+  integrity sha512-ITPRc6BxBCI59ZAd1qqvzg7iTmTPINB6RWKIhntMDSfUawSj5+U74qoM9KAQEo4ZO6kV64MOQL52cAMQAuETrA==
   dependencies:
     ar-gql "^0.0.6"
     arweave "^1.10.11"
@@ -3028,20 +3028,20 @@ arweave@^1.10.11, arweave@^1.9.1:
     base64-js "^1.3.1"
     bignumber.js "^9.0.1"
 
-arweave@^1.10.2:
-  version "1.10.5"
-  resolved "https://registry.yarnpkg.com/arweave/-/arweave-1.10.5.tgz#2f80e7a5d13e13c77d609d20ffad40f58e13d386"
-  integrity sha512-F2A9mkqY0lu/y19WEpcmXjiIRO6Sh7OvOfmCGT9Y7c8hs1VYMhzSWaDYhAzd4y3VT1AQUAcD8xFzmX3gC9gA7Q==
+arweave@^1.10.13:
+  version "1.10.13"
+  resolved "https://registry.yarnpkg.com/arweave/-/arweave-1.10.13.tgz#88205154524b30a22b18f011f7241b2ddc22413c"
+  integrity sha512-FfM9CAF5msAk/12d87KDKu+00/ZriEf/S3ei2FTPMKCOdOb++SwLx7F3kAKO74obAgIGzL8X4Y0D/aV8oNNJDA==
   dependencies:
     asn1.js "^5.4.1"
     axios "^0.21.1"
     base64-js "^1.3.1"
     bignumber.js "^9.0.1"
 
-arweave@^1.10.6:
-  version "1.10.6"
-  resolved "https://registry.yarnpkg.com/arweave/-/arweave-1.10.6.tgz#7e710212139120430807d2a0d9f9389d2032d873"
-  integrity sha512-xkRHvTnCduK3HKlmCHGpMmHG1SSzJc0as9ogPw7bcYSzP0/DTkarTQkLIDi3AG2lV7IQQx4LrcqFP/rGa10v4Q==
+arweave@^1.10.2:
+  version "1.10.5"
+  resolved "https://registry.yarnpkg.com/arweave/-/arweave-1.10.5.tgz#2f80e7a5d13e13c77d609d20ffad40f58e13d386"
+  integrity sha512-F2A9mkqY0lu/y19WEpcmXjiIRO6Sh7OvOfmCGT9Y7c8hs1VYMhzSWaDYhAzd4y3VT1AQUAcD8xFzmX3gC9gA7Q==
   dependencies:
     asn1.js "^5.4.1"
     axios "^0.21.1"
@@ -3657,6 +3657,14 @@ buffer@^5.2.1, buffer@^5.4.3:
   dependencies:
     base64-js "^1.3.1"
     ieee754 "^1.1.13"
+
+buffer@^6.0.3:
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/buffer/-/buffer-6.0.3.tgz#2ace578459cc8fbe2a70aaa8f52ee63b6a74c6c6"
+  integrity sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==
+  dependencies:
+    base64-js "^1.3.1"
+    ieee754 "^1.2.1"
 
 builtin-modules@^3.1.0:
   version "3.2.0"
@@ -6763,7 +6771,7 @@ identity-obj-proxy@3.0.0:
   dependencies:
     harmony-reflect "^1.4.6"
 
-ieee754@^1.1.13, ieee754@^1.1.4:
+ieee754@^1.1.13, ieee754@^1.1.4, ieee754@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.2.1.tgz#8eb7a10a63fff25d15a57b001586d177d1b0d352"
   integrity sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==

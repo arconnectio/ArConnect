@@ -16,12 +16,12 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import { QuestionIcon, VerifiedIcon } from "@primer/octicons-react";
 import { arToFiat, getSymbol } from "../../../utils/currency";
 import { Threshold, getVerification } from "arverify";
+import { AnimatePresence, motion } from "framer-motion";
 import Home from "./Home";
 import Arweave from "arweave";
 import axios from "axios";
 import WalletManager from "../../../components/WalletManager";
 import styles from "../../../styles/views/Popup/send.module.sass";
-import { AnimatePresence, motion } from "framer-motion";
 
 export default function Send() {
   const targetInput = useInput(""),

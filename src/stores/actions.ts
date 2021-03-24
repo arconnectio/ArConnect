@@ -8,6 +8,7 @@ import { IArweaveAction, IArweave } from "./reducers/arweave";
 import { PermissionType } from "../utils/permissions";
 import { IAllowancesAction } from "./reducers/allowances";
 import { ISettings, ISettingsAction } from "./reducers/settings";
+import { IBalanceAction, Balance } from "./reducers/balances";
 
 export function addWallet(wallet: Wallet): IWalletsAction {
   return {
@@ -172,5 +173,12 @@ export function signOut() {
   return {
     type: "USER_SIGNOUT",
     payload: {}
+  };
+}
+
+export function setBalance(balance: Balance): IBalanceAction {
+  return {
+    type: "UPDATE_BALANCE",
+    payload: { balance }
   };
 }
