@@ -84,10 +84,11 @@ export default function App() {
     baseEl.setAttribute("href", archiveData.url);
     archiveDocument.head.appendChild(baseEl);
 
-    archiveDocument.head.appendChild(
+    archiveDocument.head.insertBefore(
       archiveDocument.createComment(
         `Archived with ArConnect ${manifest.version}`
-      )
+      ),
+      archiveDocument.head.childNodes[0]
     );
 
     // fetch styles
