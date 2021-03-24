@@ -33,8 +33,15 @@
     margin: 0
 
 .Preview
+  position: relative
   min-height: unset !important
   padding-bottom: 4em
+
+  .Fetching
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
 
   iframe
     width: 100%

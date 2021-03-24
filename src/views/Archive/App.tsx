@@ -1,7 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Page, Toggle, Tooltip } from "@geist-ui/react";
+import {
+  Button,
+  Page,
+  Spinner,
+  Toggle,
+  Tooltip,
+  useToasts
+} from "@geist-ui/react";
 import { local } from "chrome-storage-promises";
 import { useColorScheme } from "use-color-scheme";
+import manifest from "../../../public/manifest.json";
 import axios from "axios";
 import ardriveLogoLight from "../../assets/ardrive_light.png";
 import ardriveLogoDark from "../../assets/ardrive_dark.png";
@@ -15,12 +23,28 @@ export default function App() {
     }),
     [previewHeight, setPreviewHeight] = useState(0),
     previewItem = useRef<HTMLIFrameElement>(),
-    { scheme } = useColorScheme();
+    { scheme } = useColorScheme(),
+    [previewHTML, setPreviewHTML] = useState(""),
+    [, setToast] = useToasts(),
+    [fetching, setFetching] = useState(false);
 
   useEffect(() => {
     loadData();
     // eslint-disable-next-line
   }, [safeMode]);
+
+  useEffect(() => {
+    if (archiveData.url === "" || archiveData.content === "") return;
+    render().then(() =>
+      // wait a bit for it to actually load
+      setTimeout(() => {
+        const archivePageHeight =
+          previewItem.current?.contentWindow?.document.body.scrollHeight;
+        if (archivePageHeight) setPreviewHeight(archivePageHeight);
+      }, 100)
+    );
+    // eslint-disable-next-line
+  }, [archiveData]);
 
   async function loadData() {
     try {
@@ -36,16 +60,140 @@ export default function App() {
           content: (await axios.get(lastData.lastArchive.url)).data.toString()
         });
       else setArchiveData(lastData.lastArchive);
-
-      // wait a bit for it to actually load
-      setTimeout(() => {
-        const archivePageHeight =
-          previewItem.current?.contentWindow?.document.body.scrollHeight;
-        if (archivePageHeight) setPreviewHeight(archivePageHeight);
-      }, 100);
     } catch {
       window.close();
     }
+  }
+
+  async function render(embed = true): Promise<void> {
+    setFetching(true);
+    if (!embed)
+      setToast({
+        text: "Page size is larger, trying with embedded images disabled",
+        type: "warning"
+      });
+
+    const parser = new DOMParser(),
+      archiveDocument = parser.parseFromString(
+        archiveData.content,
+        "text/html"
+      ),
+      baseEl = document.createElement("base");
+
+    // rebase for assets
+    baseEl.setAttribute("href", archiveData.url);
+    archiveDocument.head.appendChild(baseEl);
+
+    archiveDocument.head.appendChild(
+      archiveDocument.createComment(
+        `Archived with ArConnect ${manifest.version}`
+      )
+    );
+
+    // fetch styles
+    const fetchAssets: Promise<any>[] = [],
+      styles: {
+        style: string;
+        href: string;
+        fullPath: string;
+      }[] = [],
+      stylesheets = archiveDocument.querySelectorAll(
+        `link[rel="stylesheet"],link[rel="preload"][as="style"]`
+      ),
+      imgs = archiveDocument.querySelectorAll("img"),
+      images: {
+        src: string;
+        content: string;
+        type: string;
+      }[] = [];
+
+    stylesheets.forEach((style) => {
+      const relativeLink = style.getAttribute("href") as string,
+        link = new URL(relativeLink, archiveData.url);
+
+      fetchAssets.push(
+        axios
+          .get(link.href)
+          .then(({ data }) =>
+            styles.push({
+              style: data,
+              href: relativeLink,
+              fullPath: link.href
+            })
+          )
+          .catch(() =>
+            setToast({
+              text: "A stylesheet could not be fetched",
+              type: "error"
+            })
+          )
+      );
+    });
+    imgs.forEach((img) => {
+      if (embed) {
+        img.removeAttribute("sizes");
+        img.removeAttribute("srcset");
+        img.removeAttribute("data-src");
+      }
+
+      const src = img.getAttribute("src") || "",
+        link = new URL(src, archiveData.url);
+
+      if (!embed) return img.setAttribute("src", link.href);
+      fetchAssets.push(
+        axios
+          .get(link.href, { responseType: "arraybuffer" })
+          .then(({ data, headers }) =>
+            images.push({
+              src: link.href,
+              content: Buffer.from(data, "binary").toString("base64"),
+              type: headers["content-type"]
+            })
+          )
+          .catch(() =>
+            setToast({ text: "An image could not be fetched", type: "error" })
+          )
+      );
+    });
+    archiveDocument.querySelectorAll("iframe").forEach((el) => el.remove());
+    archiveDocument
+      .querySelectorAll("script,noscript")
+      .forEach((el) => el.remove());
+
+    await Promise.all(fetchAssets);
+
+    stylesheets.forEach((link) => {
+      const styleEl = archiveDocument.createElement("style"),
+        fetchedStyle = styles.find(
+          ({ href }) => href === link.getAttribute("href")
+        );
+
+      styleEl.textContent = `/** ArConnect resource: ${fetchedStyle?.fullPath} **/\n`;
+      styleEl.textContent += fetchedStyle?.style || "";
+      link.replaceWith(styleEl);
+    });
+    if (embed)
+      imgs.forEach((img) => {
+        const originalSrc = new URL(
+            img.getAttribute("src") || "",
+            archiveData.url
+          ),
+          fetchedSrc = images.find(({ src }) => src === originalSrc.href);
+
+        if (!fetchedSrc) return;
+        img.setAttribute(
+          "src",
+          `data:${fetchedSrc.type};base64,${fetchedSrc.content}`
+        );
+      });
+
+    const html = archiveDocument.documentElement.innerHTML;
+
+    // if greater than 5MB then inline without embedded assets
+    if (new TextEncoder().encode(html).length > 3145728)
+      return await render(false);
+    setPreviewHTML(html);
+    setFetching(false);
   }
 
   return (
@@ -75,9 +223,10 @@ export default function App() {
         </Tooltip>
       </div>
       <Page size="large" className={styles.Preview}>
+        {fetching && <Spinner className={styles.Fetching} size="large" />}
         <iframe
           title={archiveData.url}
-          srcDoc={archiveData.content}
+          srcDoc={previewHTML}
           ref={previewItem as any}
           style={{ height: `${previewHeight}px` }}
           onLoad={() =>
@@ -101,8 +250,26 @@ export default function App() {
             ArDrive
           </a>
           .
+          <br />
+          Credits to the{" "}
+          <a
+            href="https://github.com/ArweaveTeam"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ArweaveTeam
+          </a>{" "}
+          for the original code.
         </p>
-        <Button type="success">Archive</Button>
+        <Button
+          type="success"
+          loading={fetching}
+          onClick={() => {
+            if (fetching) return;
+          }}
+        >
+          Archive
+        </Button>
       </div>
     </>
   );
