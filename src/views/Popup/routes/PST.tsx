@@ -33,6 +33,7 @@ import { Line } from "react-chartjs-2";
 import { GraphDataConfig, GraphOptions } from "../../../utils/graph";
 import { AnimatePresence, motion } from "framer-motion";
 import { getVerification, Threshold } from "arverify";
+import manifest from "../../../../public/manifest.json";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
 import Home from "./Home";
@@ -153,7 +154,9 @@ export default function PST({ id, name, balance, ticker }: Asset) {
           },
           [
             { name: "Exchange", value: "Verto" },
-            { name: "Type", value: "Transfer" }
+            { name: "Type", value: "Transfer" },
+            { name: "Client", value: "ArConnect" },
+            { name: "Client-Version", value: manifest.version }
           ],
           addressInput.state.toString()
         );
