@@ -28,7 +28,8 @@ esbuild
       global: "window"
     },
     loader: {
-      ".png": "dataurl"
+      ".png": "dataurl",
+      ".svg": "dataurl"
     },
     plugins: [
       NodeModulesPolyfillPlugin(),

@@ -1,18 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Button,
+  Modal,
   Page,
   Spinner,
   Toggle,
   Tooltip,
+  useModal,
   useToasts
 } from "@geist-ui/react";
 import { local } from "chrome-storage-promises";
 import { useColorScheme } from "use-color-scheme";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
-import ardriveLogoLight from "../../assets/ardrive_light.png";
-import ardriveLogoDark from "../../assets/ardrive_dark.png";
+import ardriveLogoLight from "../../assets/ardrive_light.svg";
+import ardriveLogoDark from "../../assets/ardrive_dark.svg";
 import styles from "../../styles/views/Archive/view.module.sass";
 
 export default function App() {
@@ -26,7 +28,8 @@ export default function App() {
     { scheme } = useColorScheme(),
     [previewHTML, setPreviewHTML] = useState(""),
     [, setToast] = useToasts(),
-    [fetching, setFetching] = useState(false);
+    [fetching, setFetching] = useState(false),
+    archiveModal = useModal();
 
   useEffect(() => {
     loadData();
@@ -197,6 +200,8 @@ export default function App() {
     setFetching(false);
   }
 
+  async function archive() {}
+
   return (
     <>
       <div className={styles.Head}>
@@ -267,11 +272,20 @@ export default function App() {
           loading={fetching}
           onClick={() => {
             if (fetching) return;
+            archiveModal.setVisible(true);
           }}
         >
           Archive
         </Button>
       </div>
+      <Modal {...archiveModal.bindings}>
+        <Modal.Title>Archive site</Modal.Title>
+        <Modal.Content></Modal.Content>
+        <Modal.Action passive onClick={() => archiveModal.setVisible(false)}>
+          Cancel
+        </Modal.Action>
+        <Modal.Action onClick={archive}>Submit</Modal.Action>
+      </Modal>
     </>
   );
 }
