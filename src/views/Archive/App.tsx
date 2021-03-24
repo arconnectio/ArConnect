@@ -11,6 +11,9 @@ import {
 } from "@geist-ui/react";
 import { local } from "chrome-storage-promises";
 import { useColorScheme } from "use-color-scheme";
+import { run } from "ar-gql";
+import { useSelector } from "react-redux";
+import { RootState } from "../../stores/reducers";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
 import ardriveLogoLight from "../../assets/ardrive_light.svg";
@@ -29,10 +32,13 @@ export default function App() {
     [previewHTML, setPreviewHTML] = useState(""),
     [, setToast] = useToasts(),
     [fetching, setFetching] = useState(false),
-    archiveModal = useModal();
+    archiveModal = useModal(),
+    profile = useSelector((state: RootState) => state.profile),
+    [drives, setDrives] = useState<string[]>();
 
   useEffect(() => {
     loadData();
+    loadArDriveDrives();
     // eslint-disable-next-line
   }, [safeMode]);
 
@@ -198,6 +204,41 @@ export default function App() {
       return await render(false);
     setPreviewHTML(html);
     setFetching(false);
+  }
+
+  async function loadArDriveDrives() {
+    const drivesQuery = await run(
+      `
+      query ($addr: String!) {
+        transactions(
+          first: 100
+          owners: [$addr]
+          tags: [
+            { name: "App-Name", values: "ArDrive" }
+            { name: "Entity-Type", values: "drive" }
+          ]
+        ) {
+          edges {
+            node {
+              id
+              tags {
+                name
+                value
+              }
+            }
+          }
+        }
+      }
+    `,
+      { addr: profile }
+    );
+
+    setDrives(
+      drivesQuery.data.transactions.edges.map(
+        ({ node: { tags } }) =>
+          tags.find((tag) => tag.name === "Drive-Id")?.name ?? ""
+      )
+    );
   }
 
   async function archive() {}
