@@ -68,15 +68,13 @@ export default function Home() {
   }
 
   async function loadBalance() {
-    try {
-      const bal = await arweave.wallets.getBalance(profile),
-        arBalance = parseFloat(arweave.ar.winstonToAr(bal)),
-        fiatBalance = parseFloat(
-          (await arToFiat(arBalance, currency)).toFixed(2)
-        );
+    const bal = await arweave.wallets.getBalance(profile),
+      arBalance = parseFloat(arweave.ar.winstonToAr(bal)),
+      fiatBalance = parseFloat(
+        (await arToFiat(arBalance, currency)).toFixed(2)
+      );
 
-      dispatch(setBalance({ address: profile, arBalance, fiatBalance }));
-    } catch {}
+    dispatch(setBalance({ address: profile, arBalance, fiatBalance }));
   }
 
   async function loadPSTs() {
