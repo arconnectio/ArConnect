@@ -98,7 +98,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
   async function loadData() {
     setLoadingData(true);
     try {
-      const { data } = await axios.get(`https://cache.verto.exchange/${id}`);
+      const { data } = await axios.get(`https://v2.cache.verto.exchange/${id}`);
 
       if (!data) return;
       setDescription(

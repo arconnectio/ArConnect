@@ -357,7 +357,9 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
         // add a custom token
         case "add_token":
-          await axios.post(`https://cache.verto.exchange/fetch/${message.id}`);
+          await axios.post(
+            `https://v2.cache.verto.exchange/fetch/${message.id}`
+          );
           sendMessage(
             {
               type: "add_token_result",
@@ -410,7 +412,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               try {
                 const res = (
                   await axios.get(
-                    "https://cache.verto.exchange/usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
+                    "https://v2.cache.verto.exchange/usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
                   )
                 ).data;
                 const balances = res.state.balances;
