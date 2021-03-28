@@ -86,7 +86,6 @@ export default function Home() {
         verto = new Verto(),
         pstsLoaded: Asset[] = await Promise.all(
           data.map(async (pst: any) => {
-            console.log(pst);
             return {
               ...pst,
               arBalance:
