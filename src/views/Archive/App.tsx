@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Button,
+  Loading,
   Modal,
   Page,
   Spinner,
@@ -34,7 +35,14 @@ export default function App() {
     [fetching, setFetching] = useState(false),
     archiveModal = useModal(),
     profile = useSelector((state: RootState) => state.profile),
-    [drives, setDrives] = useState<string[]>();
+    [drives, setDrives] = useState<
+      {
+        name: string;
+        rootFolderID: string;
+        id: string;
+        isPrivate: boolean;
+      }[]
+    >();
 
   useEffect(() => {
     loadData();
@@ -207,36 +215,51 @@ export default function App() {
   }
 
   async function loadArDriveDrives() {
-    const drivesQuery = await run(
-      `
-      query ($addr: String!) {
-        transactions(
-          first: 100
-          owners: [$addr]
-          tags: [
-            { name: "App-Name", values: "ArDrive" }
-            { name: "Entity-Type", values: "drive" }
-          ]
-        ) {
-          edges {
-            node {
-              id
-              tags {
-                name
-                value
+    const res = (
+      await run(
+        `
+        query ($addr: String!) {
+          transactions(
+            first: 100
+            owners: [$addr]
+            tags: [
+              { name: "App-Name", values: ["ArDrive", "ArDrive-Web"] }
+              { name: "Entity-Type", values: "drive" }
+            ]
+          ) {
+            edges {
+              node {
+                id
+                tags {
+                  name
+                  value
+                }
               }
             }
           }
-        }
-      }
-    `,
-      { addr: profile }
-    );
+        }      
+      `,
+        { addr: profile }
+      )
+    ).data.transactions.edges.map(({ node: { id, tags } }) => ({
+      txid: id,
+      id: tags.find(({ name }) => name === "Drive-Id")?.value ?? "",
+      isPrivate:
+        tags.find(({ name }) => name === "Drive-Privacy")?.value === "true"
+    }));
 
     setDrives(
-      drivesQuery.data.transactions.edges.map(
-        ({ node: { tags } }) =>
-          tags.find((tag) => tag.name === "Drive-Id")?.name ?? ""
+      await Promise.all(
+        res.map(async ({ txid, id, isPrivate }) => {
+          const { data } = await axios.get(`https://arweave.net/${txid}`);
+
+          return {
+            id,
+            isPrivate,
+            name: data.name,
+            rootFolderID: data.rootFolderId
+          };
+        })
       )
     );
   }
@@ -321,7 +344,12 @@ export default function App() {
       </div>
       <Modal {...archiveModal.bindings}>
         <Modal.Title>Archive site</Modal.Title>
-        <Modal.Content></Modal.Content>
+        <Modal.Content>
+          <h2>Please select a drive</h2>
+          {(drives && drives.map((drive) => <p>{drive.name}</p>)) || (
+            <Loading />
+          )}
+        </Modal.Content>
         <Modal.Action passive onClick={() => archiveModal.setVisible(false)}>
           Cancel
         </Modal.Action>
