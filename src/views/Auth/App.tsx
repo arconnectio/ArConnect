@@ -50,7 +50,8 @@ export default function App() {
     allowanceAmount = useInput("0"),
     allowances = useSelector((state: RootState) => state.allowances),
     [currentAllowance, setCurrentAllowance] = useState<Allowance>(),
-    [spendingLimitReached, setSpendingLimitReached] = useState<boolean>();
+    [spendingLimitReached, setSpendingLimitReached] = useState<boolean>(),
+    [updateAllowance, setUpdateAllowance] = useState<number>(); // update allowance?
 
   useEffect(() => {
     // get the auth param from the url
@@ -185,6 +186,9 @@ export default function App() {
           local.set({ decryptionKey: passwordInput.state });
         else browser.storage.local.set({ decryptionKey: passwordInput.state });
         setLoggedIn(true);
+
+        if (updateAllowance && currentURL)
+          dispatch(setAllowanceLimit(currentURL, updateAllowance));
 
         // any event that needs authentication, but not the connect event
         if (type !== "connect") {
@@ -463,9 +467,7 @@ export default function App() {
         <Modal.Action
           onClick={() => {
             if (!currentURL) return;
-            dispatch(
-              setAllowanceLimit(currentURL, Number(allowanceAmount.state))
-            );
+            setUpdateAllowance(Number(allowanceAmount.state));
             allowanceModal.setVisible(false);
           }}
         >
