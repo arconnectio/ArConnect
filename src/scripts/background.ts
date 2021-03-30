@@ -398,14 +398,9 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 protocol: "https"
               }),
               // transaction price in winston
-              price = parseFloat(
-                arweave.ar.winstonToAr(
-                  (
-                    parseFloat(message.transaction.quantity) +
-                    parseFloat(message.transaction.reward)
-                  ).toString()
-                )
-              ),
+              price =
+                parseFloat(message.transaction.quantity) +
+                parseFloat(message.transaction.reward),
               arConfettiSetting = (await getStoreData())?.["settings"]
                 ?.arConfetti;
 
@@ -553,7 +548,10 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             let openAllowance =
               allowanceForURL &&
               allowanceForURL.enabled &&
-              allowanceForURL.limit < allowanceForURL.spent + price;
+              parseFloat(
+                arweave.ar.arToWinston(allowanceForURL.limit.toString())
+              ) <
+                allowanceForURL.spent + price;
 
             // open popup if decryptionKey is undefined
             // or if the spending limit is reached
