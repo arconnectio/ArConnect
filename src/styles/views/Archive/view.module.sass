@@ -1,3 +1,5 @@
+@use "../../variables"
+  
 .Head, .ActionBar
   display: flex
   align-items: center
@@ -47,3 +49,58 @@
     width: 100%
     border: none
     box-shadow: 0 13px 27px -5px rgb(50 50 93 / 25%), 0 8px 16px -8px rgb(0 0 0 / 30%), 0 -6px 16px -6px rgb(0 0 0 / 3%)
+
+.Modal
+  h2
+    font-size: 1.25em
+
+  .Drive
+    $sidePadding: 1.2em
+    position: relative
+    display: flex
+    align-items: center
+    cursor: pointer
+    padding: .8em $sidePadding
+    margin: .5em 0
+    font-size: 1.15em
+    border-radius: 6px
+    border: 1px dashed #eaeaea
+    transition: all .22s ease-in-out
+
+    @media (prefers-color-scheme: dark)
+      border-color: #333
+
+    &.SelectedDrive
+      border-style: solid
+      border-color: #000
+
+      @media (prefers-color-scheme: dark)
+        border-color: #fff
+
+    &.DisabledDrive
+      cursor: not-allowed
+      opacity: .7
+
+    .RootFolder
+      font-size: .63em
+      color: variables.$secondary-text-light
+      align-self: flex-end
+      line-height: 1.75em
+
+      @media (prefers-color-scheme: dark)
+        color: variables.$secondary-text-dark
+
+    svg
+      font-size: 1em
+      width: 1em
+      height: 1em
+      margin-right: .47em
+
+      &:last-child
+        position: absolute
+        right: calc(#{$sidePadding} + 1px)
+        top: 50%
+        transform: translateY(-50%)
+
+        @media (prefers-color-scheme: dark)
+          color: variables.$secondary-text-dark

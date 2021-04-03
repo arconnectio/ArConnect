@@ -4,6 +4,7 @@ import {
   Loading,
   Modal,
   Page,
+  Spacer,
   Spinner,
   Toggle,
   Tooltip,
@@ -15,6 +16,7 @@ import { useColorScheme } from "use-color-scheme";
 import { run } from "ar-gql";
 import { useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
+import { FileDirectoryIcon, LockIcon } from "@primer/octicons-react";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
 import ardriveLogoLight from "../../assets/ardrive_light.svg";
@@ -39,10 +41,13 @@ export default function App() {
       {
         name: string;
         rootFolderID: string;
+        rootFolderName: string;
         id: string;
         isPrivate: boolean;
       }[]
-    >();
+    >(),
+    [selectedDrive, setSelectedDrive] = useState<string>(),
+    [title, setTitle] = useState("");
 
   useEffect(() => {
     loadData();
@@ -212,6 +217,7 @@ export default function App() {
       return await render(false);
     setPreviewHTML(html);
     setFetching(false);
+    setTitle(archiveDocument.title);
   }
 
   async function loadArDriveDrives() {
@@ -245,23 +251,64 @@ export default function App() {
       txid: id,
       id: tags.find(({ name }) => name === "Drive-Id")?.value ?? "",
       isPrivate:
-        tags.find(({ name }) => name === "Drive-Privacy")?.value === "true"
+        tags.find(({ name }) => name === "Drive-Privacy")?.value === "true",
+      arFsVersion: tags.find(({ name }) => name === "ArFS")?.value ?? ""
     }));
 
     setDrives(
       await Promise.all(
-        res.map(async ({ txid, id, isPrivate }) => {
-          const { data } = await axios.get(`https://arweave.net/${txid}`);
+        res.map(async ({ txid, id, isPrivate, arFsVersion }) => {
+          const { data } = await axios.get(`https://arweave.net/${txid}`),
+            rootFolderName = await getRootFolderName({
+              arFs: arFsVersion,
+              driveID: id,
+              folderID: data.rootFolderId
+            });
 
           return {
             id,
             isPrivate,
             name: data.name,
-            rootFolderID: data.rootFolderId
+            rootFolderID: data.rootFolderId,
+            rootFolderName
           };
         })
       )
     );
+  }
+
+  async function getRootFolderName(props: {
+    arFs: string;
+    driveID: string;
+    folderID: string;
+  }): Promise<string> {
+    const rootFolderNameQuery = await run(
+        `
+        query ($arFs: [String!]!, $driveID: [String!]!, $folderID: [String!]!) {
+          transactions(
+            first: 1
+            sort: HEIGHT_ASC
+            tags: [
+              { name: "ArFS", values: $arFs }
+              { name: "Drive-Id", values: $driveID }
+              { name: "Folder-Id", values: $folderID }
+            ]
+          ) {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      `,
+        props
+      ),
+      { data } = await axios.get(
+        `https://arweave.net/${rootFolderNameQuery.data.transactions.edges[0].node.id}`
+      );
+
+    return data.name;
   }
 
   async function archive() {}
@@ -295,7 +342,7 @@ export default function App() {
       <Page size="large" className={styles.Preview}>
         {fetching && <Spinner className={styles.Fetching} size="large" />}
         <iframe
-          title={archiveData.url}
+          title={title}
           srcDoc={previewHTML}
           ref={previewItem as any}
           style={{ height: `${previewHeight}px` }}
@@ -344,16 +391,48 @@ export default function App() {
       </div>
       <Modal {...archiveModal.bindings}>
         <Modal.Title>Archive site</Modal.Title>
-        <Modal.Content>
+        <Modal.Content className={styles.Modal}>
           <h2>Please select a drive</h2>
-          {(drives && drives.map((drive) => <p>{drive.name}</p>)) || (
-            <Loading />
-          )}
+          {(drives &&
+            drives.map((drive, i) => (
+              <div
+                className={
+                  styles.Drive +
+                  " " +
+                  (drive.isPrivate ? styles.DisabledDrive : "") +
+                  " " +
+                  (selectedDrive === drive.id ? styles.SelectedDrive : "")
+                }
+                key={i}
+                onClick={() => setSelectedDrive(drive.id)}
+              >
+                <FileDirectoryIcon />
+                {drive.name}
+                <span className={styles.RootFolder}>
+                  /{drive.rootFolderName}
+                </span>
+                {drive.isPrivate && <LockIcon size={24} />}
+              </div>
+            ))) || <Loading />}
+          <Spacer y={1} />
+          <h2>Notice</h2>
+          <p>
+            This will archive the site seen in this preview on Arweave using an
+            ArDrive public drive. You can later see the generated file there.
+          </p>
+          <h3>From</h3>
+          <p>{profile}</p>
+          <h3>Page title</h3>
+          <p>{title}</p>
+          <h3>Page URL</h3>
+          <p>{archiveData.url}</p>
         </Modal.Content>
         <Modal.Action passive onClick={() => archiveModal.setVisible(false)}>
           Cancel
         </Modal.Action>
-        <Modal.Action onClick={archive}>Submit</Modal.Action>
+        <Modal.Action onClick={archive} disabled={!selectedDrive}>
+          Submit
+        </Modal.Action>
       </Modal>
     </>
   );
