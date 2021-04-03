@@ -7,9 +7,10 @@ import {
   signOut,
   switchProfile
 } from "../stores/actions";
-import { Modal, Tooltip, useModal, useToasts } from "@geist-ui/react";
+import { Modal, Spacer, Tooltip, useModal, useToasts } from "@geist-ui/react";
 import {
   ChevronDownIcon,
+  CopyIcon,
   GearIcon,
   PlusIcon,
   SignOutIcon,
@@ -94,14 +95,6 @@ export default function WalletManager() {
     else return "Wallet";
   }
 
-  function copyAddress() {
-    copy(profile);
-    setToast({ text: "Copied address to clipboard", type: "success" });
-    setCopyStatus(true);
-    setTimeout(() => setCopyStatus(false), 280);
-    setShowQRCode(true);
-  }
-
   function switchWallet(address: string) {
     dispatch(switchProfile(address));
     setOpen(false);
@@ -117,6 +110,14 @@ export default function WalletManager() {
     setTimeout(() => setShowSwitch(false), 1700);
   }
 
+  function formatAddress(address: string) {
+    return (
+      address.substring(0, 13) +
+      "..." +
+      address.substring(address.length - 13, address.length)
+    );
+  }
+
   return (
     <>
       <div className={styles.CurrentWallet}>
@@ -124,12 +125,110 @@ export default function WalletManager() {
           {currentWalletName() || "• • •"}
           {verifiedAddresses.includes(profile) && <VerifiedIcon />}
         </h1>
-        <p
-          onClick={copyAddress}
-          className={copyStatus ? styles.Copied : ""}
-          title="Click to copy"
-        >
-          {profile}
+        <p className={styles.Address}>
+          {formatAddress(profile)}
+          <button
+            style={{ marginLeft: ".85em" }}
+            onClick={() => {
+              copy(profile);
+              setToast({
+                text: "Copied address to clipboard",
+                type: "success"
+              });
+            }}
+          >
+            <CopyIcon />
+          </button>
+          <button onClick={() => setShowQRCode(true)}>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                x="13.5"
+                y="2.5"
+                width="8"
+                height="8"
+                rx="0.5"
+                stroke="currentColor"
+              />
+              <rect
+                x="2.5"
+                y="2.5"
+                width="8"
+                height="8"
+                rx="0.5"
+                stroke="currentColor"
+              />
+              <rect
+                x="2.5"
+                y="13.5"
+                width="8"
+                height="8"
+                rx="0.5"
+                stroke="currentColor"
+              />
+              <rect
+                x="13"
+                y="18.5"
+                width="3.5"
+                height="3.5"
+                rx="1"
+                fill="currentColor"
+              />
+              <rect
+                x="18.5"
+                y="18.5"
+                width="3.5"
+                height="3.5"
+                rx="1"
+                fill="currentColor"
+              />
+              <rect
+                x="18.5"
+                y="13"
+                width="3.5"
+                height="3.5"
+                rx="1"
+                fill="currentColor"
+              />
+              <rect
+                x="13"
+                y="13"
+                width="3.5"
+                height="3.5"
+                rx="1"
+                fill="currentColor"
+              />
+              <rect
+                x="5"
+                y="16"
+                width="3"
+                height="3"
+                rx="0.5"
+                fill="currentColor"
+              />
+              <rect
+                x="16"
+                y="5"
+                width="3"
+                height="3"
+                rx="0.5"
+                fill="currentColor"
+              />
+              <rect
+                x="5"
+                y="5"
+                width="3"
+                height="3"
+                rx="0.5"
+                fill="currentColor"
+              />
+            </svg>
+          </button>
         </p>
         <div
           className={styles.Icon + " " + (open ? styles.Open : "")}
@@ -181,7 +280,7 @@ export default function WalletManager() {
                         </Tooltip>
                       )}
                     </div>
-                    <p>{wallet.address}</p>
+                    <p>{formatAddress(wallet.address)}</p>
                   </div>
                   <div
                     className={styles.Remove}
@@ -267,7 +366,7 @@ export default function WalletManager() {
                 bgColor={scheme === "dark" ? "#000000" : "#ffffff"}
                 fgColor={scheme === "dark" ? "#ffffff" : "#000000"}
               />
-              <p>Copied address</p>
+              <p>{profile}</p>
             </div>
           </motion.div>
         )}
