@@ -19,6 +19,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
 import { FileDirectoryIcon, LockIcon } from "@primer/octicons-react";
 import { formatAddress } from "../../utils/address";
+import { JWKInterface } from "arweave/web/lib/wallet";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
 import prettyBytes from "pretty-bytes";
@@ -57,7 +58,8 @@ export default function App() {
     [title, setTitle] = useState(""),
     [archiving, setArchiving] = useState(false),
     [fee, setFee] = useState("0"),
-    [usedAddress, setUsedAddress] = useState(profile);
+    [usedAddress, setUsedAddress] = useState(profile),
+    [timestamp, setTimestamp] = useState<number>(new Date().getTime());
 
   useEffect(() => {
     loadData();
@@ -93,6 +95,7 @@ export default function App() {
           content: (await axios.get(lastData.lastArchive.url)).data.toString()
         });
       else setArchiveData(lastData.lastArchive);
+      setTimestamp(new Date().getTime());
     } catch {
       window.close();
     }
@@ -332,6 +335,52 @@ export default function App() {
 
   async function archive() {
     setArchiving(true);
+
+    const encryptedJWK = wallets.find(({ address }) => address === usedAddress)
+      ?.keyfile;
+
+    if (!encryptedJWK) {
+      setToast({
+        text: "Error finding encrypted keyfile for address",
+        type: "error"
+      });
+      return setArchiving(false);
+    }
+
+    if (!selectedDrive) {
+      setToast({ text: "Please select a drive", type: "error" });
+      return setArchiving(false);
+    }
+
+    try {
+      const useJWK: JWKInterface = JSON.parse(atob(encryptedJWK)),
+        archiveTx = await arweave.createTransaction(
+          {
+            reward: fee,
+            data: previewHTML
+          },
+          useJWK
+        );
+
+      archiveTx.addTag("Content-Type", "text/html");
+      archiveTx.addTag("User-Agent", `ArConnect/${manifest.version}`);
+      archiveTx.addTag("page:url", archiveData.url);
+      archiveTx.addTag("page:title", title);
+      archiveTx.addTag("page:timestamp", timestamp.toString());
+      archiveTx.addTag("App-Name", "ArConnect");
+      archiveTx.addTag("App-Version", manifest.version);
+
+      await arweave.transactions.sign(archiveTx, useJWK);
+
+      setToast({ text: "Archived site", type: "success" });
+    } catch {
+      setToast({
+        text: "There was an error while creating the transaction",
+        type: "error"
+      });
+    }
+
+    setArchiving(false);
   }
 
   return (
