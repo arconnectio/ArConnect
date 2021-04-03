@@ -153,3 +153,57 @@
   outline: none
   padding: 0
   margin: 0
+
+.About
+  position: relative
+  min-height: 225px
+  text-align: left
+
+  h1
+    display: block
+    font-size: 2em
+    margin-bottom: 0
+
+    sup
+      font-size: .65em
+      margin-left: .22em
+      color: variables.$secondary-text-light
+
+      @media (prefers-color-scheme: dark)
+        color: variables.$secondary-text-dark
+
+  p
+    margin: 0
+
+  .Branding
+    margin:
+      top: 2.25em
+      bottom: 1em
+    text-align: center
+
+    .Links
+      display: flex
+      align-items: center
+      justify-content: center
+
+      p
+        margin: 0 .5em
+
+    p
+      cursor: pointer
+
+      &.Th8ta
+        font-family: 'Ubuntu', sans-serif
+        font-size: 1.8em
+        font-weight: 700
+        margin: 0
+        text-decoration: none
+        color: #000
+
+        @media (prefers-color-scheme: dark)
+          color: #fff
+
+        span
+          background: linear-gradient(142.25deg, #fc9867 23.99%, #ab9df2 73.9%)
+          -webkit-background-clip: text
+          -webkit-text-fill-color: transparent

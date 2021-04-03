@@ -9,11 +9,13 @@ import {
 } from "@primer/octicons-react";
 import {
   Button,
+  Code,
   Input,
   Radio,
   Spacer,
   Toggle,
-  useInput
+  useInput,
+  useTheme
 } from "@geist-ui/react";
 import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -36,6 +38,7 @@ import {
 } from "../../../stores/actions";
 import Home from "./Home";
 import Arweave from "arweave";
+import manifest from "../../../../public/manifest.json";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
 
@@ -49,6 +52,7 @@ export default function Settings() {
       | "arweave"
       | "arverify"
       | "allowances"
+      | "about"
     >(),
     permissions = useSelector((state: RootState) => state.permissions),
     [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
@@ -68,7 +72,8 @@ export default function Settings() {
     [editingAllowance, setEditingAllowance] = useState<{
       id: number;
       val: number;
-    }>();
+    }>(),
+    theme = useTheme();
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
@@ -157,6 +162,7 @@ export default function Settings() {
             (setting === "arweave" && "Arweave Config") ||
             (setting === "arverify" && "ArVerify Config") ||
             (setting === "allowances" && "Allowances") ||
+            (setting === "about" && "About ArConnect") ||
             "Settings"}
         </h1>
       </div>
@@ -273,6 +279,18 @@ export default function Settings() {
                     )
                   }
                 />
+              </div>
+            </div>
+            <div
+              className={styles.Setting}
+              onClick={() => setCurrSetting("about")}
+            >
+              <div>
+                <h1>About</h1>
+                <p>Information about ArConnect</p>
+              </div>
+              <div className={styles.Arrow}>
+                <ChevronRightIcon />
               </div>
             </div>
           </>
@@ -601,6 +619,54 @@ export default function Settings() {
                   </Radio.Description>
                 </Radio>
               </Radio.Group>
+            </div>
+          )) ||
+          (setting === "about" && (
+            <div className={styles.OptionContent + " " + styles.About}>
+              <h1>
+                {manifest.name}
+                <sup>{manifest.version}</sup>
+              </h1>
+              <p>{manifest.description}</p>
+              <Spacer y={1} />
+              <p>
+                Used permissions:
+                <ul>
+                  {manifest.permissions.map((permission, i) => (
+                    <li key={i}>
+                      <Code>{permission}</Code>
+                    </li>
+                  ))}
+                </ul>
+              </p>
+              <div className={styles.Branding}>
+                <div className={styles.Links}>
+                  <p
+                    onClick={() => window.open("https://arconnect.io/faq")}
+                    style={{ color: theme.palette.success }}
+                  >
+                    FAQ
+                  </p>
+                  <p
+                    onClick={() => window.open("https://arconnect.io")}
+                    style={{ color: theme.palette.success }}
+                  >
+                    arconnect.io
+                  </p>
+                  <p
+                    onClick={() => window.open("https://arconnect.io/docs")}
+                    style={{ color: theme.palette.success }}
+                  >
+                    Docs
+                  </p>
+                </div>
+                <p
+                  onClick={() => window.open("https://th8ta.org")}
+                  className={styles.Th8ta}
+                >
+                  th<span>8</span>ta
+                </p>
+              </div>
             </div>
           ))}
       </div>
