@@ -63,9 +63,13 @@ export default function App() {
 
   useEffect(() => {
     loadData();
-    loadArDriveDrives();
     // eslint-disable-next-line
   }, [safeMode]);
+
+  useEffect(() => {
+    loadArDriveDrives();
+    // eslint-disable-next-line
+  }, [usedAddress]);
 
   useEffect(() => {
     if (archiveData.url === "" || archiveData.content === "") return;
@@ -235,6 +239,8 @@ export default function App() {
   }
 
   async function loadArDriveDrives() {
+    setDrives(undefined);
+
     const res = (
       await run(
         `
@@ -259,7 +265,7 @@ export default function App() {
           }
         }      
       `,
-        { addr: profile }
+        { addr: usedAddress }
       )
     ).data.transactions.edges.map(({ node: { id, tags } }) => ({
       txid: id,
@@ -464,6 +470,7 @@ export default function App() {
         <Modal.Content className={styles.Modal}>
           <h2>Please select a drive</h2>
           {(drives &&
+            drives.length !== 0 &&
             drives.map((drive, i) => (
               <div
                 className={
@@ -483,7 +490,20 @@ export default function App() {
                 </span>
                 {drive.isPrivate && <LockIcon size={24} />}
               </div>
-            ))) || <Loading />}
+            ))) ||
+            (drives && drives.length === 0 && (
+              <p>
+                No drives for this address. Create one at{" "}
+                <a
+                  href="https://app.ardrive.io/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  ArDrive
+                </a>
+                !
+              </p>
+            )) || <Loading />}
           <Spacer y={1} />
           <h2>Notice</h2>
           <p>
