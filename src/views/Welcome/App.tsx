@@ -127,7 +127,9 @@ export default function App() {
     setToast({ text: "Loaded wallets", type: "success" });
     // allow time to save the wallets
     setTimeout(() => {
-      window.close();
+      loadWalletsModal.setVisible(false);
+      setKeyfiles([]);
+      if (fileInput.current) fileInput.current.value = "";
     }, 600);
   }
 
@@ -372,7 +374,9 @@ export default function App() {
             Download
           </Button>
         </Modal.Content>
-        <Modal.Action onClick={() => window.close()}>Ok</Modal.Action>
+        <Modal.Action onClick={() => seedModal.setVisible(false)}>
+          Ok
+        </Modal.Action>
       </Modal>
       <Modal {...feeModal.bindings}>
         <Modal.Title>Tips</Modal.Title>
