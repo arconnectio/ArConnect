@@ -4,6 +4,7 @@ import {
   Loading,
   Modal,
   Page,
+  Progress,
   Select,
   Spacer,
   Spinner,
@@ -20,6 +21,7 @@ import { RootState } from "../../stores/reducers";
 import { FileDirectoryIcon, LockIcon } from "@primer/octicons-react";
 import { formatAddress } from "../../utils/address";
 import { JWKInterface } from "arweave/web/lib/wallet";
+import { motion, AnimatePresence } from "framer-motion";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
 import prettyBytes from "pretty-bytes";
@@ -59,7 +61,11 @@ export default function App() {
     [archiving, setArchiving] = useState(false),
     [fee, setFee] = useState("0"),
     [usedAddress, setUsedAddress] = useState(profile),
-    [timestamp, setTimestamp] = useState<number>(new Date().getTime());
+    [timestamp, setTimestamp] = useState<number>(new Date().getTime()),
+    [uploadStatus, setUploadStatus] = useState<{
+      percentage: number;
+      text: string;
+    }>();
 
   useEffect(() => {
     loadData();
@@ -105,6 +111,7 @@ export default function App() {
     }
   }
 
+  // scrap site data
   async function render(embed = true): Promise<void> {
     setFetching(true);
     if (!embed)
@@ -238,6 +245,7 @@ export default function App() {
     setTitle(archiveDocument.title);
   }
 
+  // load all ardrive drives
   async function loadArDriveDrives() {
     setDrives(undefined);
     setSelectedDrive(undefined);
@@ -298,6 +306,7 @@ export default function App() {
     );
   }
 
+  // get root folder for ArDrive drive
   async function getRootFolderName(props: {
     arFs: string;
     driveID: string;
@@ -343,6 +352,7 @@ export default function App() {
   async function archive() {
     setArchiving(true);
 
+    // find the current wallet (selected in the modal)
     const encryptedJWK = wallets.find(({ address }) => address === usedAddress)
       ?.keyfile;
 
@@ -359,35 +369,114 @@ export default function App() {
       return setArchiving(false);
     }
 
+    const useJWK: JWKInterface = JSON.parse(atob(encryptedJWK));
+    let dataTxId: string;
+
+    // create data transaction
     try {
-      const useJWK: JWKInterface = JSON.parse(atob(encryptedJWK)),
-        archiveTx = await arweave.createTransaction(
-          {
-            reward: fee,
-            data: previewHTML
-          },
-          useJWK
-        );
+      const archiveTx = await arweave.createTransaction(
+        {
+          reward: fee,
+          data: previewHTML
+        },
+        useJWK
+      );
 
       archiveTx.addTag("Content-Type", "text/html");
       archiveTx.addTag("User-Agent", `ArConnect/${manifest.version}`);
       archiveTx.addTag("page:url", archiveData.url);
       archiveTx.addTag("page:title", title);
       archiveTx.addTag("page:timestamp", timestamp.toString());
-      archiveTx.addTag("App-Name", "ArConnect");
-      archiveTx.addTag("App-Version", manifest.version);
+      archiveTx.addTag("App-Name", "ArDrive-Web");
+      archiveTx.addTag("App-Version", "0.1.0");
 
       await arweave.transactions.sign(archiveTx, useJWK);
+
+      const uploader = await arweave.transactions.getUploader(archiveTx);
+
+      while (!uploader.isComplete) {
+        await uploader.uploadChunk();
+        setUploadStatus({
+          percentage: uploader.pctComplete,
+          text: `Archiving site ${uploader.uploadedChunks}/${uploader.totalChunks}`
+        });
+      }
+
+      dataTxId = archiveTx.id;
+    } catch {
+      setToast({
+        text: "There was an error while uploading the site",
+        type: "error"
+      });
+      setUploadStatus(undefined);
+      return setArchiving(false);
+    }
+
+    const driveToSave = drives?.find(({ id }) => id === selectedDrive);
+
+    // check if the selected drive exists
+    if (!driveToSave) {
+      setToast({
+        text:
+          "Site was archived, but there was an error with the selected drive",
+        type: "error"
+      });
+      setUploadStatus(undefined);
+      return setArchiving(false);
+    }
+
+    // link to an ardrive file location with an ardrive metadata transaction
+    try {
+      const metadataTx = await arweave.createTransaction(
+        {
+          data: JSON.stringify({
+            name: `arconnect-archive-${title
+              .toLowerCase()
+              .replace(/[/\\?%*:|"<>]/g, "_")}.html`,
+            size: new TextEncoder().encode(previewHTML).length,
+            lastModifiedDate: timestamp,
+            dataTxId,
+            dataContentType: "text/html"
+          })
+        },
+        useJWK
+      );
+
+      metadataTx.addTag("App-Name", "ArDrive-Web");
+      metadataTx.addTag("App-Version", "0.1.0");
+      metadataTx.addTag("Content-Type", "application/json");
+      metadataTx.addTag("ArFS", "0.11"); // TODO
+      metadataTx.addTag("Entity-Type", "file");
+      metadataTx.addTag("Drive-Id", driveToSave.id);
+      metadataTx.addTag("Unix-Time", timestamp.toString());
+      // TODO
+      metadataTx.addTag("File-Id", fileToUpload.fileId);
+      metadataTx.addTag("Parent-Folder-Id", driveToSave.rootFolderID);
+      metadataTx.addTag("ArDrive-Client", `ArConnect/${manifest.version}`);
+
+      await arweave.transactions.sign(metadataTx, useJWK);
+
+      const uploader = await arweave.transactions.getUploader(metadataTx);
+
+      while (!uploader.isComplete) {
+        await uploader.uploadChunk();
+        setUploadStatus({
+          percentage: uploader.pctComplete,
+          text: `Linking with ArDrive ${uploader.uploadedChunks}/${uploader.totalChunks}`
+        });
+      }
 
       setToast({ text: "Archived site", type: "success" });
     } catch {
       setToast({
-        text: "There was an error while creating the transaction",
+        text: "There was an error while creating the ArDrive transaction",
         type: "error"
       });
     }
 
     setArchiving(false);
+    setUploadStatus(undefined);
+    setSelectedDrive(undefined);
   }
 
   return (
@@ -553,6 +642,19 @@ export default function App() {
               <p>{fee} AR</p>
             </div>
           </div>
+          <AnimatePresence>
+            {uploadStatus && (
+              <motion.div
+                initial={{ opacity: 0, scaleY: 0.35 }}
+                animate={{ opacity: 1, scaleY: 1 }}
+                exit={{ opacity: 0, scaleY: 0.35 }}
+                transition={{ duration: 0.23, ease: "easeInOut" }}
+              >
+                <p>{uploadStatus.text}</p>
+                <Progress value={uploadStatus.percentage} />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </Modal.Content>
         <Modal.Action passive onClick={() => archiveModal.setVisible(false)}>
           Cancel
