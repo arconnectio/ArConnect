@@ -34,7 +34,6 @@ export default function WalletManager() {
     dispatch = useDispatch(),
     [open, setOpen] = useState(false),
     { scheme } = useColorScheme(),
-    [copyStatus, setCopyStatus] = useState(false),
     logoutModal = useModal(false),
     [showSwitch, setShowSwitch] = useState(false),
     [verifiedAddresses, setVerifiedAddresses] = useState<string[]>([]),
