@@ -240,6 +240,7 @@ export default function App() {
 
   async function loadArDriveDrives() {
     setDrives(undefined);
+    setSelectedDrive(undefined);
 
     const res = (
       await run(
@@ -481,6 +482,11 @@ export default function App() {
                   (selectedDrive === drive.id ? styles.SelectedDrive : "")
                 }
                 key={i}
+                title={
+                  drive.isPrivate
+                    ? "You cannot save to a private drive for now..."
+                    : undefined
+                }
                 onClick={() => setSelectedDrive(drive.id)}
               >
                 <FileDirectoryIcon />
