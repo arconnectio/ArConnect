@@ -399,9 +399,9 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 protocol: "https"
               }),
               // transaction price in winston
-              price: number = parseFloat(
-                message.transaction.quantity + message.transaction.reward
-              ),
+              price =
+                parseFloat(message.transaction.quantity) +
+                parseFloat(message.transaction.reward),
               arConfettiSetting = (await getStoreData())?.["settings"]
                 ?.arConfetti;
 
@@ -528,7 +528,10 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                     ...allowances.filter(
                       ({ url }) => url !== getRealURL(tabURL)
                     ),
-                    { ...allowanceForURL, spent: allowanceForURL.spent + price }
+                    {
+                      ...allowanceForURL,
+                      spent: allowanceForURL.spent + price
+                    }
                   ]
                 });
 
@@ -551,8 +554,10 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
             let openAllowance =
               allowanceForURL &&
               allowanceForURL.enabled &&
-              Number(arweave.ar.arToWinston(allowanceForURL.limit.toString())) <
-                price + allowanceForURL.spent;
+              parseFloat(
+                arweave.ar.arToWinston(allowanceForURL.limit.toString())
+              ) <
+                allowanceForURL.spent + price;
 
             // open popup if decryptionKey is undefined
             // or if the spending limit is reached
