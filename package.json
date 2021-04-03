@@ -24,6 +24,7 @@
     "exchange-rates-api": "^1.0.2",
     "extensionizer": "^1.0.1",
     "framer-motion": "^3.3.0-beta.22",
+    "pretty-bytes": "^5.6.0",
     "react": "^17.0.1",
     "react-chartjs-2": "^2.11.1",
     "react-chrome-extension-router": "^1.2.0",

@@ -4,6 +4,7 @@ import {
   Loading,
   Modal,
   Page,
+  Select,
   Spacer,
   Spinner,
   Toggle,
@@ -17,8 +18,11 @@ import { run } from "ar-gql";
 import { useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
 import { FileDirectoryIcon, LockIcon } from "@primer/octicons-react";
+import { formatAddress } from "../../utils/address";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
+import prettyBytes from "pretty-bytes";
+import Arweave from "arweave";
 import ardriveLogoLight from "../../assets/ardrive_light.svg";
 import ardriveLogoDark from "../../assets/ardrive_dark.svg";
 import styles from "../../styles/views/Archive/view.module.sass";
@@ -37,6 +41,9 @@ export default function App() {
     [fetching, setFetching] = useState(false),
     archiveModal = useModal(),
     profile = useSelector((state: RootState) => state.profile),
+    arweaveConfig = useSelector((state: RootState) => state.arweave),
+    wallets = useSelector((state: RootState) => state.wallets),
+    arweave = new Arweave(arweaveConfig),
     [drives, setDrives] = useState<
       {
         name: string;
@@ -47,7 +54,10 @@ export default function App() {
       }[]
     >(),
     [selectedDrive, setSelectedDrive] = useState<string>(),
-    [title, setTitle] = useState("");
+    [title, setTitle] = useState(""),
+    [archiving, setArchiving] = useState(false),
+    [fee, setFee] = useState("0"),
+    [usedAddress, setUsedAddress] = useState(profile);
 
   useEffect(() => {
     loadData();
@@ -65,6 +75,7 @@ export default function App() {
         if (archivePageHeight) setPreviewHeight(archivePageHeight);
       }, 100)
     );
+    calculateFee();
     // eslint-disable-next-line
   }, [archiveData]);
 
@@ -311,7 +322,17 @@ export default function App() {
     return data.name;
   }
 
-  async function archive() {}
+  async function calculateFee() {
+    try {
+      const messageSize = new TextEncoder().encode(previewHTML).length,
+        { data } = await axios.get(`https://arweave.net/price/${messageSize}`);
+      setFee(arweave.ar.winstonToAr(data));
+    } catch {}
+  }
+
+  async function archive() {
+    setArchiving(true);
+  }
 
   return (
     <>
@@ -420,17 +441,52 @@ export default function App() {
             This will archive the site seen in this preview on Arweave using an
             ArDrive public drive. You can later see the generated file there.
           </p>
-          <h3>From</h3>
-          <p>{profile}</p>
-          <h3>Page title</h3>
+          <p>
+            <b>
+              Please make sure there is not personal information present, as
+              this data will be archived permanently.
+            </b>
+          </p>
+          <h2>From</h2>
+          <Select
+            value={usedAddress}
+            onChange={(val) => setUsedAddress(val as string)}
+            style={{ width: "100%" }}
+          >
+            {wallets.map((wallet, i) => (
+              <Select.Option key={i} value={wallet.address}>
+                {formatAddress(wallet.address)}
+              </Select.Option>
+            ))}
+          </Select>
+          <Spacer y={1} />
+          <h2>Page title</h2>
           <p>{title}</p>
-          <h3>Page URL</h3>
-          <p>{archiveData.url}</p>
+          <h2>Page URL</h2>
+          <p>
+            <a href={archiveData.url} target="_blank" rel="noopener noreferrer">
+              {archiveData.url}
+            </a>
+          </p>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <div style={{ width: "50%" }}>
+              <h2>Page size</h2>
+              <p>{prettyBytes(new TextEncoder().encode(previewHTML).length)}</p>
+            </div>
+            <div>
+              <h2>Fee</h2>
+              <p>{fee} AR</p>
+            </div>
+          </div>
         </Modal.Content>
         <Modal.Action passive onClick={() => archiveModal.setVisible(false)}>
           Cancel
         </Modal.Action>
-        <Modal.Action onClick={archive} disabled={!selectedDrive}>
+        <Modal.Action
+          onClick={archive}
+          disabled={!selectedDrive}
+          loading={archiving}
+        >
           Submit
         </Modal.Action>
       </Modal>
