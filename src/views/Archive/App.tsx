@@ -22,6 +22,7 @@ import { FileDirectoryIcon, LockIcon } from "@primer/octicons-react";
 import { formatAddress } from "../../utils/address";
 import { JWKInterface } from "arweave/web/lib/wallet";
 import { motion, AnimatePresence } from "framer-motion";
+import { v4 as uuidv4 } from "uuid";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
 import prettyBytes from "pretty-bytes";
@@ -238,8 +239,7 @@ export default function App() {
     const html = archiveDocument.documentElement.innerHTML;
 
     // if greater than 5MB then inline without embedded assets
-    if (new TextEncoder().encode(html).length > 3145728)
-      return await render(false);
+    if (getSizeBytes(html) > 3145728) return await render(false);
     setPreviewHTML(html);
     setFetching(false);
     setTitle(archiveDocument.title);
@@ -343,10 +343,14 @@ export default function App() {
 
   async function calculateFee() {
     try {
-      const messageSize = new TextEncoder().encode(previewHTML).length,
+      const messageSize = getSizeBytes(previewHTML),
         { data } = await axios.get(`https://arweave.net/price/${messageSize}`);
       setFee(arweave.ar.winstonToAr(data));
     } catch {}
+  }
+
+  function getSizeBytes(data: string) {
+    return new TextEncoder().encode(data).length;
   }
 
   async function archive() {
@@ -433,7 +437,7 @@ export default function App() {
             name: `arconnect-archive-${title
               .toLowerCase()
               .replace(/[/\\?%*:|"<>]/g, "_")}.html`,
-            size: new TextEncoder().encode(previewHTML).length,
+            size: getSizeBytes(previewHTML),
             lastModifiedDate: timestamp,
             dataTxId,
             dataContentType: "text/html"
@@ -445,12 +449,11 @@ export default function App() {
       metadataTx.addTag("App-Name", "ArDrive-Web");
       metadataTx.addTag("App-Version", "0.1.0");
       metadataTx.addTag("Content-Type", "application/json");
-      metadataTx.addTag("ArFS", "0.11"); // TODO
+      metadataTx.addTag("ArFS", "0.11");
       metadataTx.addTag("Entity-Type", "file");
       metadataTx.addTag("Drive-Id", driveToSave.id);
       metadataTx.addTag("Unix-Time", timestamp.toString());
-      // TODO
-      metadataTx.addTag("File-Id", fileToUpload.fileId);
+      metadataTx.addTag("File-Id", uuidv4());
       metadataTx.addTag("Parent-Folder-Id", driveToSave.rootFolderID);
       metadataTx.addTag("ArDrive-Client", `ArConnect/${manifest.version}`);
 
@@ -635,7 +638,7 @@ export default function App() {
           <div style={{ display: "flex", alignItems: "center" }}>
             <div style={{ width: "50%" }}>
               <h2>Page size</h2>
-              <p>{prettyBytes(new TextEncoder().encode(previewHTML).length)}</p>
+              <p>{prettyBytes(getSizeBytes(previewHTML))}</p>
             </div>
             <div>
               <h2>Fee</h2>
