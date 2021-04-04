@@ -21,7 +21,7 @@ import {
   walletsStored
 } from "../utils/background";
 import Arweave from "arweave";
-import { encrypt } from "../background/api/encryption";
+import { decrypt, encrypt } from "../background/api/encryption";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(async () => {
@@ -262,30 +262,17 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         case "decrypt":
           if (!(await checkPermissions(["DECRYPT"], tabURL)))
             return sendPermissionError(sendResponse, "decrypt_result");
-          if (!message.data)
-            return sendMessage(
-              {
-                type: "decrypt_result",
-                ext: "arconnect",
-                res: false,
-                message: "No data submitted.",
-                sender: "background"
-              },
-              undefined,
-              sendResponse
-            );
-          if (!message.options)
-            return sendMessage(
-              {
-                type: "decrypt_result",
-                ext: "arconnect",
-                res: false,
-                message: "No options submitted.",
-                sender: "background"
-              },
-              undefined,
-              sendResponse
-            );
+
+          sendMessage(
+            {
+              type: "decrypt_result",
+              ext: "arconnect",
+              sender: "background",
+              ...(await decrypt(message))
+            },
+            undefined,
+            sendResponse
+          );
 
           try {
             const decryptionKeyRes: { [key: string]: any } =

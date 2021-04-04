@@ -1,8 +1,7 @@
-import { local } from "chrome-storage-promises";
-import { MessageFormat, validateMessage } from "../../utils/messenger";
-import Arweave from "arweave";
-import { createAuthPopup, getStoreData } from "../../utils/background";
+import { MessageFormat } from "../../utils/messenger";
+import { getDecryptionKey, getStoreData } from "../../utils/background";
 import { JWKInterface } from "arweave/node/lib/wallet";
+import Arweave from "arweave";
 
 // encrypt data using the user's keyfile
 export const encrypt = (message: MessageFormat, tabURL: string) =>
@@ -20,47 +19,47 @@ export const encrypt = (message: MessageFormat, tabURL: string) =>
       });
 
     try {
-      const decryptionKeyRes: { [key: string]: any } =
-        typeof chrome !== "undefined"
-          ? await local.get("decryptionKey")
-          : await browser.storage.local.get("decryptionKey");
-      let decryptionKey = decryptionKeyRes?.["decryptionKey"];
+      await getDecryptionKey(message.type, tabURL);
 
-      // open popup if decryptionKey is undefined
-      if (!decryptionKey) {
-        createAuthPopup({
-          type: "encrypt_auth",
-          url: tabURL
-        });
-        chrome.runtime.onMessage.addListener(async (msg) => {
-          if (
-            !validateMessage(msg, {
-              sender: "popup",
-              type: "encrypt_auth_result"
-            }) ||
-            !msg.decryptionKey ||
-            !msg.res
-          )
-            throw new Error();
-
-          decryptionKey = msg.decryptionKey;
-
-          return resolve({
-            res: true,
-            data: await doEncrypt(message),
-            message: "Success"
-          });
-        });
-      } else
-        resolve({
-          res: true,
-          data: await doEncrypt(message),
-          message: "Success"
-        });
+      resolve({
+        res: true,
+        data: await doEncrypt(message),
+        message: "Success"
+      });
     } catch {
       resolve({
         res: false,
         message: "Error encrypting data"
+      });
+    }
+  });
+
+export const decrypt = (message: MessageFormat, tabURL: string) =>
+  new Promise<Partial<MessageFormat>>(async (resolve, _) => {
+    if (!message.data)
+      return resolve({
+        res: false,
+        message: "No data submitted"
+      });
+
+    if (!message.options)
+      return resolve({
+        res: false,
+        message: "No options submitted"
+      });
+
+    try {
+      await getDecryptionKey(message.type, tabURL);
+
+      resolve({
+        res: true,
+        data: await doDecrypt(message), // TODO
+        message: "Success"
+      });
+    } catch {
+      resolve({
+        res: false,
+        message: "Error decrypting data"
       });
     }
   });

@@ -1,4 +1,4 @@
-import { MessageType, sendMessage } from "../utils/messenger";
+import { MessageType, sendMessage, validateMessage } from "../utils/messenger";
 import { RootState } from "../stores/reducers";
 import { IPermissionState } from "../stores/reducers/permissions";
 import { PermissionType } from "./permissions";
@@ -186,3 +186,38 @@ export async function walletsStored(): Promise<boolean> {
     return false;
   }
 }
+
+// get decryption key or open a popup
+// to enter it
+export const getDecryptionKey = (action: MessageType, tabURL: string) =>
+  new Promise<string>(async (resolve, reject) => {
+    try {
+      const decryptionKeyRes: { [key: string]: any } =
+          typeof chrome !== "undefined"
+            ? await local.get("decryptionKey")
+            : await browser.storage.local.get("decryptionKey"),
+        decryptionKey = decryptionKeyRes?.["decryptionKey"];
+
+      if (decryptionKey) return resolve(decryptionKey);
+
+      createAuthPopup({
+        type: "encrypt_auth",
+        url: tabURL
+      });
+      chrome.runtime.onMessage.addListener(async (msg) => {
+        if (
+          !validateMessage(msg, {
+            sender: "popup",
+            type: action
+          }) ||
+          !msg.decryptionKey ||
+          !msg.res
+        )
+          throw new Error();
+
+        return resolve(msg.decryptionKey);
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
