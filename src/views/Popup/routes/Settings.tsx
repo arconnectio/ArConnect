@@ -176,15 +176,28 @@ export default function Settings() {
       if (!res)
         return setToast({ text: "Old password is wrong", type: "error" });
 
+      if (passwords.old.state === passwords.new.state)
+        return setToast({
+          text: "You are already using this password",
+          type: "error"
+        });
+
       await setPassword(passwords.new.state);
       setToast({ text: "Updated password", type: "success" });
-
-      passwords.new.reset();
-      passwords.newAgain.reset();
-      passwords.old.reset();
+      clearInputs();
     } catch {
       setToast({ text: "Error while updating password", type: "error" });
     }
+  }
+
+  function clearInputs() {
+    passwords.new.reset();
+    passwords.newAgain.reset();
+    passwords.old.reset();
+    addURLInput.reset();
+    arweaveHostInput.reset();
+    arweavePortInput.reset();
+    arweaveProtocolInput.reset();
   }
 
   return (
@@ -193,8 +206,10 @@ export default function Settings() {
         <div
           className={SubPageTopStyles.Back}
           onClick={() => {
-            if (setting) setCurrSetting(undefined);
-            else goTo(Home);
+            if (setting) {
+              setCurrSetting(undefined);
+              clearInputs();
+            } else goTo(Home);
           }}
         >
           <ArrowLeftIcon />
@@ -739,22 +754,28 @@ export default function Settings() {
           (setting === "password" && (
             <div className={styles.OptionContent}>
               <Spacer />
-              <Input
+              <Input.Password
                 {...passwords.new.bindings}
                 placeholder="New password..."
-                type="password"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") updatePassword();
+                }}
               />
               <Spacer />
-              <Input
+              <Input.Password
                 {...passwords.newAgain.bindings}
                 placeholder="New password again..."
-                type="password"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") updatePassword();
+                }}
               />
               <Spacer />
-              <Input
+              <Input.Password
                 {...passwords.old.bindings}
                 placeholder="Old password..."
-                type="password"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") updatePassword();
+                }}
               />
               <Spacer />
               <Button
