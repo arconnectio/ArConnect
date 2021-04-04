@@ -298,48 +298,56 @@ export default function Settings() {
           (setting === "permissions" && (
             <>
               {(filterWithPermission().length > 0 &&
-                filterWithPermission().map((permissionGroup, i) => (
-                  <div key={i}>
-                    <div
-                      className={styles.Setting + " " + styles.SubSetting}
-                      onClick={() => open(permissionGroup.url)}
-                    >
-                      <h1>{permissionGroup.url}</h1>
-                      <div className={styles.Arrow}>
-                        {(isOpened(permissionGroup.url) && (
-                          <ChevronDownIcon />
-                        )) || <ChevronRightIcon />}
+                filterWithPermission()
+                  .sort((a, b) => {
+                    if (a.url < b.url) return -1;
+                    if (a.url > b.url) return 1;
+                    return 0;
+                  })
+                  .map((permissionGroup, i) => (
+                    <div key={i}>
+                      <div
+                        className={styles.Setting + " " + styles.SubSetting}
+                        onClick={() => open(permissionGroup.url)}
+                      >
+                        <h1>{permissionGroup.url}</h1>
+                        <div className={styles.Arrow}>
+                          {(isOpened(permissionGroup.url) && (
+                            <ChevronDownIcon />
+                          )) || <ChevronRightIcon />}
+                        </div>
                       </div>
-                    </div>
-                    {isOpened(permissionGroup.url) && (
-                      <div className={styles.OptionContent}>
-                        {permissionGroup.permissions.map((perm, j) => (
-                          <h1 key={j}>
-                            {perm}
-                            <div
-                              className={styles.RemoveOption}
-                              onClick={() => {
-                                dispatch(
-                                  removePermissions(permissionGroup.url, [perm])
-                                );
-                                if (
-                                  permissionGroup.permissions.filter(
-                                    (val) => val !== perm
-                                  ).length === 0
-                                )
+                      {isOpened(permissionGroup.url) && (
+                        <div className={styles.OptionContent}>
+                          {permissionGroup.permissions.map((perm, j) => (
+                            <h1 key={j}>
+                              {perm}
+                              <div
+                                className={styles.RemoveOption}
+                                onClick={() => {
                                   dispatch(
-                                    removeAllowance(permissionGroup.url)
+                                    removePermissions(permissionGroup.url, [
+                                      perm
+                                    ])
                                   );
-                              }}
-                            >
-                              <XIcon />
-                            </div>
-                          </h1>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))) || <p>No permissions...</p>}
+                                  if (
+                                    permissionGroup.permissions.filter(
+                                      (val) => val !== perm
+                                    ).length === 0
+                                  )
+                                    dispatch(
+                                      removeAllowance(permissionGroup.url)
+                                    );
+                                }}
+                              >
+                                <XIcon />
+                              </div>
+                            </h1>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))) || <p>No permissions...</p>}
             </>
           )) ||
           (setting === "currency" && (
