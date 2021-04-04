@@ -17,60 +17,24 @@ import manifest from "../../public/manifest.json";
 import limestone from "@limestonefi/api";
 import Arweave from "arweave";
 import axios from "axios";
+import { createContextMenus } from "../background/context_menus";
+import {
+  checkPermissions,
+  getPermissions,
+  sendNoTabError,
+  sendPermissionError,
+  walletsStored
+} from "../utils/background";
+import { connect, disconnect } from "../background/api/connection";
+import { activeAddress, allAddresses } from "../background/api/address";
+import { addToken, walletNames } from "../background/api/utility";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(async () => {
   if (!(await walletsStored()))
     window.open(chrome.runtime.getURL("/welcome.html"));
 
-  chrome.contextMenus.removeAll();
-  chrome.contextMenus.create({
-    title: "Copy current address",
-    contexts: ["browser_action"],
-    async onclick() {
-      try {
-        const input = document.createElement("input"),
-          profile = (await getStoreData())?.profile;
-
-        if (!profile || profile === "") return;
-
-        input.value = profile;
-
-        document.body.appendChild(input);
-        input.select();
-        document.execCommand("Copy");
-        document.body.removeChild(input);
-      } catch {}
-    }
-  });
-  chrome.contextMenus.create({
-    title: "Disconnect from current site",
-    contexts: ["browser_action", "page"],
-    async onclick(_, tab) {
-      try {
-        const store = await getStoreData(),
-          url = tab.url,
-          id = tab.id;
-
-        if (
-          !url ||
-          !id ||
-          !store?.permissions?.find((val) => val.url === getRealURL(url))
-        )
-          return;
-        await setStoreData({
-          permissions: (store.permissions ?? []).filter(
-            (sitePerms: IPermissionState) => sitePerms.url !== getRealURL(url)
-          )
-        });
-
-        // reload tab
-        chrome.tabs.executeScript(id, {
-          code: "window.location.reload()"
-        });
-      } catch {}
-    }
-  });
+  createContextMenus();
 });
 
 // listen for messages from the content script
@@ -143,84 +107,30 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         })
       );
 
-      const wallets = (await getStoreData())?.["wallets"];
-      const store = await getStoreData();
-
       switch (message.type) {
         // connect to arconnect
         case "connect":
-          // a permission array must be submitted
-          if (!message.permissions)
-            return sendMessage(
-              {
-                type: "connect_result",
-                ext: "arconnect",
-                res: false,
-                message: "No permissions requested",
-                sender: "background"
-              },
-              undefined,
-              sendResponse
-            );
-
-          // check requested permissions and existing permissions
-          const existingPermissions = await getPermissions(tabURL);
-
-          // the site has a saved permission store
-          if (existingPermissions) {
-            let hasAllPermissions = true;
-
-            // if there is one permission that isn't stored in the
-            // permissions store of the url
-            // we set hasAllPermissions to false
-            for (const permission of message.permissions)
-              if (!existingPermissions.includes(permission))
-                hasAllPermissions = false;
-
-            // if all permissions are already granted we return
-            if (hasAllPermissions)
-              return sendMessage(
-                {
-                  type: "connect_result",
-                  ext: "arconnect",
-                  res: false,
-                  message: "All permissions are already allowed for this site",
-                  sender: "background"
-                },
-                undefined,
-                sendResponse
-              );
-          }
-
-          createAuthPopup({
-            permissions: message.permissions,
-            type: "connect",
-            url: tabURL
-          });
-          chrome.runtime.onMessage.addListener((msg) => {
-            if (
-              !validateMessage(msg, { sender: "popup", type: "connect_result" })
-            )
-              return;
-            return sendMessage(msg, undefined, sendResponse);
-          });
+          sendMessage(
+            {
+              type: "connect_result",
+              ext: "arconnect",
+              sender: "background",
+              ...(await connect(message, tabURL))
+            },
+            undefined,
+            sendResponse
+          );
 
           break;
 
         // disconnect from arconnect
         case "disconnect":
-          await setStoreData({
-            permissions: (store.permissions ?? []).filter(
-              (sitePerms: IPermissionState) =>
-                sitePerms.url !== getRealURL(tabURL)
-            )
-          });
           sendMessage(
             {
               type: "disconnect_result",
               ext: "arconnect",
-              res: true,
-              sender: "background"
+              sender: "background",
+              ...(await disconnect(tabURL))
             },
             undefined,
             sendResponse
@@ -234,33 +144,17 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               sendResponse,
               "get_active_address_result"
             );
-          try {
-            const currentAddress = (await getStoreData())["profile"];
 
-            sendMessage(
-              {
-                type: "get_active_address_result",
-                ext: "arconnect",
-                res: true,
-                address: currentAddress,
-                sender: "background"
-              },
-              undefined,
-              sendResponse
-            );
-          } catch {
-            sendMessage(
-              {
-                type: "get_active_address_result",
-                ext: "arconnect",
-                res: false,
-                message: "Error getting current address",
-                sender: "background"
-              },
-              undefined,
-              sendResponse
-            );
-          }
+          sendMessage(
+            {
+              type: "get_active_address_result",
+              ext: "arconnect",
+              sender: "background",
+              ...(await activeAddress())
+            },
+            undefined,
+            sendResponse
+          );
 
           break;
 
@@ -272,33 +166,16 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               "get_all_addresses_result"
             );
 
-          if (wallets) {
-            const addresses = wallets.map((wallet) => wallet.address);
-
-            sendMessage(
-              {
-                type: "get_all_addresses_result",
-                ext: "arconnect",
-                res: true,
-                addresses,
-                sender: "background"
-              },
-              undefined,
-              sendResponse
-            );
-          } else {
-            sendMessage(
-              {
-                type: "get_all_addresses_result",
-                ext: "arconnect",
-                res: false,
-                message: "Error getting all addresses",
-                sender: "background"
-              },
-              undefined,
-              sendResponse
-            );
-          }
+          sendMessage(
+            {
+              type: "get_all_addresses_result",
+              ext: "arconnect",
+              sender: "background",
+              ...(await allAddresses())
+            },
+            undefined,
+            sendResponse
+          );
 
           break;
 
@@ -307,36 +184,16 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
           if (!(await checkPermissions(["ACCESS_ALL_ADDRESSES"], tabURL)))
             return sendPermissionError(sendResponse, "get_wallet_names_result");
 
-          if (wallets) {
-            let names: { [addr: string]: string } = {};
-            for (const wallet of wallets) {
-              names[wallet.address] = wallet.name;
-            }
-
-            sendMessage(
-              {
-                type: "get_wallet_names_result",
-                ext: "arconnect",
-                res: true,
-                names,
-                sender: "background"
-              },
-              undefined,
-              sendResponse
-            );
-          } else {
-            sendMessage(
-              {
-                type: "get_wallet_names_result",
-                ext: "arconnect",
-                res: false,
-                message: "Error getting wallet names.",
-                sender: "background"
-              },
-              undefined,
-              sendResponse
-            );
-          }
+          sendMessage(
+            {
+              type: "get_wallet_names_result",
+              ext: "arconnect",
+              sender: "background",
+              ...(await walletNames())
+            },
+            undefined,
+            sendResponse
+          );
 
           break;
 
@@ -358,17 +215,17 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
         // add a custom token
         case "add_token":
-          await axios.post(`https://cache.verto.exchange/fetch/${message.id}`);
           sendMessage(
             {
               type: "add_token_result",
               ext: "arconnect",
-              res: true,
-              sender: "background"
+              sender: "background",
+              ...(await addToken())
             },
             undefined,
             sendResponse
           );
+
           break;
 
         // create and sign a transaction at the same time
@@ -964,171 +821,5 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
   return true;
 });
-
-// create an authenticator popup
-// data: the data sent to the popup
-// encoded
-function createAuthPopup(data: any) {
-  chrome.windows.create(
-    {
-      url: `${chrome.extension.getURL("auth.html")}?auth=${encodeURIComponent(
-        JSON.stringify(data)
-      )}`,
-      focused: true,
-      type: "popup",
-      width: 385,
-      height: 635
-    },
-    (window) => {}
-  );
-}
-
-// check if there are any wallets stored
-async function walletsStored(): Promise<boolean> {
-  try {
-    const wallets = (await getStoreData())?.["wallets"];
-
-    if (!wallets || wallets.length === 0) return false;
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// check the given permissions
-async function checkPermissions(permissions: PermissionType[], url: string) {
-  const storedPermissions = await getPermissions(url);
-
-  if (storedPermissions.length > 0) {
-    for (const permission of permissions)
-      if (!storedPermissions.includes(permission)) return false;
-
-    return true;
-  } else return false;
-}
-
-// get permissing for the given url
-async function getPermissions(url: string): Promise<PermissionType[]> {
-  const storedPermissions = (await getStoreData())?.["permissions"];
-  url = getRealURL(url);
-
-  if (!storedPermissions) return [];
-
-  const sitePermissions: PermissionType[] =
-    storedPermissions.find((val: IPermissionState) => val.url === url)
-      ?.permissions ?? [];
-
-  return sitePermissions;
-}
-
-// send error if there are no tabs opened
-// or if they are not accessible
-function sendNoTabError(
-  sendResponse: (response?: any) => void,
-  type: MessageType
-) {
-  sendMessage(
-    {
-      type,
-      ext: "arconnect",
-      res: false,
-      message: "No tabs opened",
-      sender: "background"
-    },
-    undefined,
-    sendResponse
-  );
-}
-
-// send error if the site does not have permission
-// to execute a type of action
-function sendPermissionError(
-  sendResponse: (response?: any) => void,
-  type: MessageType
-) {
-  sendMessage(
-    {
-      type,
-      ext: "arconnect",
-      res: false,
-      message:
-        "The site does not have the required permissions for this action",
-      sender: "background"
-    },
-    undefined,
-    sendResponse
-  );
-}
-
-type StoreData = Partial<RootState>;
-
-// get store data
-async function getStoreData(): Promise<StoreData> {
-  const data: { [key: string]: any } =
-      typeof chrome !== "undefined"
-        ? await local.get("persist:root")
-        : browser.storage.local.get("persist:root"),
-    parseRoot: StoreData = JSON.parse(data?.["persist:root"] ?? "{}");
-
-  let parsedData: StoreData = {};
-  // @ts-ignore
-  for (const key in parseRoot) parsedData[key] = JSON.parse(parseRoot[key]);
-
-  return parsedData;
-}
-
-/**
- * set store data
- *
- * @param updatedData An object with the reducer name as a key
- */
-async function setStoreData(updatedData: StoreData) {
-  const data = { ...(await getStoreData()), ...updatedData };
-  // store data, but with stringified values
-  let encodedData: { [key: string]: string } = {};
-
-  for (const reducer in data) {
-    // @ts-ignore
-    encodedData[reducer] = JSON.stringify(data[reducer]);
-  }
-
-  if (typeof chrome !== "undefined")
-    local.set({ "persist:root": JSON.stringify(encodedData) });
-  else
-    browser.storage.local.set({ "persist:root": JSON.stringify(encodedData) });
-}
-
-// create a simple fee
-async function getFeeAmount(address: string, arweave: Arweave) {
-  const res = await run(
-      `
-      query($address: String!) {
-        transactions(
-          owners: [$address]
-          tags: [
-            { name: "App-Name", values: "ArConnect" }
-            { name: "Type", values: "Fee-Transaction" }
-          ]
-          first: 11
-        ) {
-          edges {
-            node {
-              id
-            }
-          }
-        }
-      }
-    `,
-      { address }
-    ),
-    arPrice = await limestone.getPrice("AR"),
-    usdPrice = 1 / arPrice.price; // 1 USD how much AR
-
-  if (res.data.transactions.edges.length) {
-    const usd = res.data.transactions.edges.length >= 10 ? 0.01 : 0.03;
-
-    return arweave.ar.arToWinston((usdPrice * usd).toString());
-  } else return arweave.ar.arToWinston((usdPrice * 0.01).toString());
-}
 
 export {};
