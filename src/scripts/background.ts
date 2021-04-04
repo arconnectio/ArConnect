@@ -13,6 +13,7 @@ import { Allowance } from "../stores/reducers/allowances";
 import { run } from "ar-gql";
 import { RootState } from "../stores/reducers";
 import { ArConnectEvent } from "../views/Popup/routes/Settings";
+import manifest from "../../public/manifest.json";
 import limestone from "@limestonefi/api";
 import Arweave from "arweave";
 import axios from "axios";
@@ -494,6 +495,11 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 });
 
               decodeTransaction.addTag("Signing-Client", "ArConnect");
+              decodeTransaction.addTag(
+                "Signing-Client-Version",
+                manifest.version
+              );
+
               await arweave.transactions.sign(
                 decodeTransaction,
                 keyfile,
@@ -510,8 +516,12 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
                   },
                   keyfile
                 );
+
                 feeTx.addTag("App-Name", "ArConnect");
+                feeTx.addTag("App-Version", manifest.version);
                 feeTx.addTag("Type", "Fee-Transaction");
+                feeTx.addTag("Linked-Transaction", decodeTransaction.id);
+
                 await arweave.transactions.sign(feeTx, keyfile);
                 await arweave.transactions.post(feeTx);
               }
