@@ -1,6 +1,4 @@
 import { getRealURL } from "../utils/url";
-import { local } from "chrome-storage-promises";
-import { JWKInterface } from "arweave/node/lib/wallet";
 import { ArConnectEvent } from "../views/Popup/routes/Settings";
 import { createContextMenus } from "../background/context_menus";
 import { connect, disconnect } from "../background/api/connection";
@@ -20,7 +18,6 @@ import {
   sendPermissionError,
   walletsStored
 } from "../utils/background";
-import Arweave from "arweave";
 import { decrypt, encrypt } from "../background/api/encryption";
 
 // open the welcome page
