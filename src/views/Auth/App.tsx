@@ -50,7 +50,10 @@ export default function App() {
     allowances = useSelector((state: RootState) => state.allowances),
     [currentAllowance, setCurrentAllowance] = useState<Allowance>(),
     [spendingLimitReached, setSpendingLimitReached] = useState<boolean>(),
-    [updateAllowance, setUpdateAllowance] = useState<number>(); // update allowance?
+    [updateAllowance, setUpdateAllowance] = useState<number>(),
+    [allowedPermissions, setAllowedPermissions] = useState<PermissionType[]>(
+      []
+    );
 
   useEffect(() => {
     // get the auth param from the url
@@ -100,21 +103,26 @@ export default function App() {
     if (decodedAuthParam.type === "connect" && decodedAuthParam.permissions) {
       // get the existing permissions
       const existingPermissions = permissions.find(
-        (permGroup) => permGroup.url === url
-      );
+          (permGroup) => permGroup.url === url
+        ),
+        currentPerms: PermissionType[] = existingPermissions?.permissions ?? [],
+        currentPermsFiltered = currentPerms.filter((perm) =>
+          decodedAuthParam.permissions
+            ? !decodedAuthParam.permissions.includes(perm)
+            : true
+        );
 
       // set the requested permissions to all requested
-      setRequestedPermissions(decodedAuthParam.permissions);
+      setRequestedPermissions(
+        currentPermsFiltered.concat(decodedAuthParam.permissions)
+      );
+      setAllowedPermissions(
+        currentPermsFiltered.concat(decodedAuthParam.permissions)
+      );
 
-      // filter the requested permissions: only display/ask for permissions
-      // that the url does not have yet
       if (existingPermissions && existingPermissions.permissions.length > 0) {
         setAlreadyHasPermissions(true);
-        setRequestedPermissions(
-          decodedAuthParam.permissions.filter(
-            (perm) => !existingPermissions.permissions.includes(perm)
-          )
-        );
+        setAllowedPermissions(currentPerms);
       }
 
       // create transaction event
@@ -231,11 +239,8 @@ export default function App() {
     if (!loggedIn) return;
     if (!currentURL) return urlError();
 
-    const currentPerms: PermissionType[] =
-      permissions.find(({ url }) => url === currentURL)?.permissions ?? [];
-    dispatch(
-      setPermissions(currentURL, [...currentPerms, ...requestedPermissions])
-    );
+    dispatch(setPermissions(currentURL, allowedPermissions));
+
     // give time for the state to update
     setTimeout(() => {
       sendMessage({
@@ -403,7 +408,26 @@ export default function App() {
               {(requestedPermissions.length > 0 && (
                 <ul>
                   {requestedPermissions.map((permission, i) => (
-                    <li key={i}>{getPermissionDescription(permission)}</li>
+                    <li key={i} className={styles.Check + " " + styles.Checked}>
+                      <Checkbox
+                        checked={
+                          !!allowedPermissions.find((val) => val === permission)
+                        }
+                        size="medium"
+                        onChange={() => {
+                          if (allowedPermissions.includes(permission))
+                            setAllowedPermissions((val) =>
+                              val.filter((perm) => perm !== permission)
+                            );
+                          else
+                            setAllowedPermissions((val) => [
+                              ...val,
+                              permission
+                            ]);
+                        }}
+                      />
+                      {getPermissionDescription(permission)}
+                    </li>
                   ))}
                 </ul>
               )) || <p>No permissions requested.</p>}
