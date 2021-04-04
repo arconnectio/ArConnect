@@ -1,23 +1,18 @@
-import { IPermissionState } from "../stores/reducers/permissions";
+import { getRealURL } from "../utils/url";
+import { local } from "chrome-storage-promises";
+import { JWKInterface } from "arweave/node/lib/wallet";
+import { ArConnectEvent } from "../views/Popup/routes/Settings";
+import { createContextMenus } from "../background/context_menus";
+import { connect, disconnect } from "../background/api/connection";
+import { activeAddress, allAddresses } from "../background/api/address";
+import { addToken, walletNames } from "../background/api/utility";
+import { signTransaction } from "../background/api/transaction";
 import {
   MessageFormat,
   MessageType,
   sendMessage,
   validateMessage
 } from "../utils/messenger";
-import { getRealURL } from "../utils/url";
-import { PermissionType } from "../utils/permissions";
-import { local } from "chrome-storage-promises";
-import { JWKInterface } from "arweave/node/lib/wallet";
-import { Allowance } from "../stores/reducers/allowances";
-import { run } from "ar-gql";
-import { RootState } from "../stores/reducers";
-import { ArConnectEvent } from "../views/Popup/routes/Settings";
-import manifest from "../../public/manifest.json";
-import limestone from "@limestonefi/api";
-import Arweave from "arweave";
-import axios from "axios";
-import { createContextMenus } from "../background/context_menus";
 import {
   checkPermissions,
   getPermissions,
@@ -25,9 +20,7 @@ import {
   sendPermissionError,
   walletsStored
 } from "../utils/background";
-import { connect, disconnect } from "../background/api/connection";
-import { activeAddress, allAddresses } from "../background/api/address";
-import { addToken, walletNames } from "../background/api/utility";
+import Arweave from "arweave";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(async () => {
@@ -81,6 +74,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
           );
       }
 
+      // if no wallets are stored, return and open the login page
       if (!(await walletsStored())) {
         window.open(chrome.runtime.getURL("/welcome.html"));
         return sendMessage(
@@ -96,6 +90,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         );
       }
 
+      // update events
       localStorage.setItem(
         "arweave_events",
         JSON.stringify({
@@ -228,234 +223,21 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 
           break;
 
-        // create and sign a transaction at the same time
+        // sign a transaction
         case "sign_transaction":
           if (!(await checkPermissions(["SIGN_TRANSACTION"], tabURL)))
             return sendPermissionError(sendResponse, "sign_transaction_result");
-          if (!message.transaction)
-            return sendMessage(
-              {
-                type: "sign_transaction_result",
-                ext: "arconnect",
-                res: false,
-                message: "No transaction submitted.",
-                sender: "background"
-              },
-              undefined,
-              sendResponse
-            );
 
-          try {
-            const decryptionKeyRes: { [key: string]: any } =
-                typeof chrome !== "undefined"
-                  ? await local.get("decryptionKey")
-                  : await browser.storage.local.get("decryptionKey"),
-              arweave = new Arweave({
-                host: "arweave.net",
-                port: 443,
-                protocol: "https"
-              }),
-              // transaction price in winston
-              price =
-                parseFloat(message.transaction.quantity) +
-                parseFloat(message.transaction.reward),
-              arConfettiSetting = (await getStoreData())?.["settings"]
-                ?.arConfetti;
-
-            let decryptionKey = decryptionKeyRes?.["decryptionKey"];
-
-            const selectVRTHolder = async () => {
-              try {
-                const res = (
-                  await axios.get(
-                    "https://cache.verto.exchange/usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
-                  )
-                ).data;
-                const balances = res.state.balances;
-                const vault = res.state.vault;
-
-                let totalTokens = 0;
-                for (const addr of Object.keys(balances)) {
-                  totalTokens += balances[addr];
-                }
-                for (const addr of Object.keys(vault)) {
-                  if (!vault[addr].length) continue;
-                  const vaultBalance = vault[addr]
-                    // @ts-ignore
-                    .map((a) => a.balance)
-                    // @ts-ignore
-                    .reduce((a, b) => a + b, 0);
-                  totalTokens += vaultBalance;
-                  if (addr in balances) {
-                    balances[addr] += vaultBalance;
-                  } else {
-                    balances[addr] = vaultBalance;
-                  }
-                }
-
-                const weighted: { [addr: string]: number } = {};
-                for (const addr of Object.keys(balances)) {
-                  weighted[addr] = balances[addr] / totalTokens;
-                }
-
-                let sum = 0;
-                const r = Math.random();
-                for (const addr of Object.keys(weighted)) {
-                  sum += weighted[addr];
-                  if (r <= sum && weighted[addr] > 0) {
-                    return addr;
-                  }
-                }
-
-                return undefined;
-              } catch {
-                return undefined;
-              }
-            };
-
-            const allowances: Allowance[] =
-                (await getStoreData())?.["allowances"] ?? [],
-              allowanceForURL = allowances.find(
-                ({ url }) => url === getRealURL(tabURL)
-              );
-
-            const signTransaction = async () => {
-              const storedKeyfiles = (await getStoreData())?.["wallets"] ?? [],
-                storedAddress = (await getStoreData())?.["profile"],
-                keyfileToDecrypt = storedKeyfiles.find(
-                  (item) => item.address === storedAddress
-                )?.keyfile;
-
-              if (
-                storedKeyfiles.length === 0 ||
-                !storedAddress ||
-                !keyfileToDecrypt
-              ) {
-                window.open(chrome.runtime.getURL("/welcome.html"));
-                return sendMessage(
-                  {
-                    type: "sign_transaction_result",
-                    ext: "arconnect",
-                    res: false,
-                    message: "No wallets added",
-                    sender: "background"
-                  },
-                  undefined,
-                  sendResponse
-                );
-              }
-
-              const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt)),
-                decodeTransaction = arweave.transactions.fromRaw({
-                  ...message.transaction,
-                  owner: keyfile.n
-                });
-
-              decodeTransaction.addTag("Signing-Client", "ArConnect");
-              decodeTransaction.addTag(
-                "Signing-Client-Version",
-                manifest.version
-              );
-
-              await arweave.transactions.sign(
-                decodeTransaction,
-                keyfile,
-                message.signatureOptions
-              );
-
-              const feeTarget = await selectVRTHolder();
-
-              if (feeTarget) {
-                const feeTx = await arweave.createTransaction(
-                  {
-                    target: feeTarget,
-                    quantity: await getFeeAmount(storedAddress, arweave)
-                  },
-                  keyfile
-                );
-
-                feeTx.addTag("App-Name", "ArConnect");
-                feeTx.addTag("App-Version", manifest.version);
-                feeTx.addTag("Type", "Fee-Transaction");
-                feeTx.addTag("Linked-Transaction", decodeTransaction.id);
-
-                await arweave.transactions.sign(feeTx, keyfile);
-                await arweave.transactions.post(feeTx);
-              }
-
-              if (allowanceForURL)
-                await setStoreData({
-                  allowances: [
-                    ...allowances.filter(
-                      ({ url }) => url !== getRealURL(tabURL)
-                    ),
-                    {
-                      ...allowanceForURL,
-                      spent: allowanceForURL.spent + price
-                    }
-                  ]
-                });
-
-              sendMessage(
-                {
-                  type: "sign_transaction_result",
-                  ext: "arconnect",
-                  res: true,
-                  message: "Success",
-                  transaction: decodeTransaction,
-                  sender: "background",
-                  arConfetti:
-                    arConfettiSetting === undefined ? true : arConfettiSetting
-                },
-                undefined,
-                sendResponse
-              );
-            };
-
-            let openAllowance =
-              allowanceForURL &&
-              allowanceForURL.enabled &&
-              parseFloat(
-                arweave.ar.arToWinston(allowanceForURL.limit.toString())
-              ) <
-                allowanceForURL.spent + price;
-
-            // open popup if decryptionKey is undefined
-            // or if the spending limit is reached
-            if (!decryptionKey || openAllowance) {
-              createAuthPopup({
-                type: "sign_auth",
-                url: tabURL,
-                spendingLimitReached: openAllowance
-              });
-              chrome.runtime.onMessage.addListener(async (msg) => {
-                if (
-                  !validateMessage(msg, {
-                    sender: "popup",
-                    type: "sign_auth_result"
-                  }) ||
-                  !msg.decryptionKey ||
-                  !msg.res
-                )
-                  throw new Error();
-
-                decryptionKey = msg.decryptionKey;
-                await signTransaction();
-              });
-            } else await signTransaction();
-          } catch {
-            sendMessage(
-              {
-                type: "sign_transaction_result",
-                ext: "arconnect",
-                res: false,
-                message: "Error signing transaction",
-                sender: "background"
-              },
-              undefined,
-              sendResponse
-            );
-          }
+          sendMessage(
+            {
+              type: "sign_transaction_result",
+              ext: "arconnect",
+              sender: "background",
+              ...(await signTransaction(message, tabURL))
+            },
+            undefined,
+            sendResponse
+          );
 
           break;
 

@@ -20,7 +20,7 @@ export const connect = (message: MessageFormat, tabURL: string) =>
   new Promise<Partial<MessageFormat>>(async (resolve, _) => {
     // a permission array must be submitted
     if (!message.permissions)
-      resolve({
+      return resolve({
         res: false,
         message: "No permissions requested"
       });
@@ -42,7 +42,7 @@ export const connect = (message: MessageFormat, tabURL: string) =>
       // if all permissions are already granted we return
       // TODO: maybe return permissions here?
       if (hasAllPermissions)
-        resolve({
+        return resolve({
           res: false,
           message: "All permissions are already allowed for this site"
         });
