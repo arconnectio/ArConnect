@@ -1,5 +1,5 @@
 import { MessageFormat } from "../../utils/messenger";
-import { getDecryptionKey, getStoreData } from "../../utils/background";
+import { authenticateUser, getStoreData } from "../../utils/background";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import Arweave from "arweave";
 
@@ -19,7 +19,7 @@ export const encrypt = (message: MessageFormat, tabURL: string) =>
       });
 
     try {
-      await getDecryptionKey(message.type, tabURL);
+      await authenticateUser(message.type, tabURL);
 
       resolve({
         res: true,
@@ -49,7 +49,7 @@ export const decrypt = (message: MessageFormat, tabURL: string) =>
       });
 
     try {
-      await getDecryptionKey(message.type, tabURL);
+      await authenticateUser(message.type, tabURL);
 
       resolve({
         res: true,

@@ -23,6 +23,7 @@ import { getRealURL } from "../../utils/url";
 import { local } from "chrome-storage-promises";
 import { ChevronRightIcon } from "@primer/octicons-react";
 import { Allowance } from "../../stores/reducers/allowances";
+import { checkPassword } from "../../utils/auth";
 import {
   PermissionType,
   PermissionDescriptions
@@ -34,7 +35,6 @@ export default function App() {
     [passwordStatus, setPasswordStatus] = useState<
       "default" | "secondary" | "success" | "warning" | "error"
     >(),
-    wallets = useSelector((state: RootState) => state.wallets),
     [loading, setLoading] = useState(false),
     [loggedIn, setLoggedIn] = useState(false),
     permissions = useSelector((state: RootState) => state.permissions),
@@ -45,7 +45,6 @@ export default function App() {
     [type, setType] = useState<AuthType>(),
     dispatch = useDispatch(),
     [alreadyHasPermissions, setAlreadyHasPermissions] = useState(false),
-    profile = useSelector((state: RootState) => state.profile),
     allowanceModal = useModal(false),
     allowanceAmount = useInput("0"),
     allowances = useSelector((state: RootState) => state.allowances),
@@ -165,56 +164,44 @@ export default function App() {
     // eslint-disable-next-line
   }, [currentAllowance]);
 
-  // decrypt current wallet
+  // check password
   async function login() {
     setLoading(true);
-    // we need to wait a bit, because the decrypting
-    // freezes the program, and the loading does not start
-    setTimeout(() => {
-      // try to login by decrypting
-      try {
-        const keyfileToDecrypt = wallets.find(
-          ({ address }) => address === profile
-        )?.keyfile;
-        if (!keyfileToDecrypt) {
-          setPasswordStatus("error");
-          setLoading(false);
-          return;
+
+    // try to login by decrypting
+    try {
+      if (!(await checkPassword(passwordInput.state))) throw new Error();
+
+      if (typeof chrome !== "undefined") local.set({ decryptionKey: true });
+      else browser.storage.local.set({ decryptionKey: true });
+      setLoggedIn(true);
+
+      if (updateAllowance && currentURL)
+        dispatch(setAllowanceLimit(currentURL, updateAllowance));
+
+      // any event that needs authentication, but not the connect event
+      if (type !== "connect") {
+        if (!currentURL) return urlError();
+        else {
+          sendMessage({
+            type: getReturnType(),
+            ext: "arconnect",
+            res: true,
+            message: "Success",
+            sender: "popup"
+          });
+          window.close();
         }
-        atob(keyfileToDecrypt);
-        if (typeof chrome !== "undefined")
-          local.set({ decryptionKey: passwordInput.state });
-        else browser.storage.local.set({ decryptionKey: passwordInput.state });
+
+        // connect event
+      } else {
         setLoggedIn(true);
-
-        if (updateAllowance && currentURL)
-          dispatch(setAllowanceLimit(currentURL, updateAllowance));
-
-        // any event that needs authentication, but not the connect event
-        if (type !== "connect") {
-          if (!currentURL) return urlError();
-          else {
-            sendMessage({
-              type: getReturnType(),
-              ext: "arconnect",
-              res: true,
-              message: "Success",
-              sender: "popup",
-              decryptionKey: passwordInput.state
-            });
-            window.close();
-          }
-
-          // connect event
-        } else {
-          setLoggedIn(true);
-          setLoading(false);
-        }
-      } catch {
-        setPasswordStatus("error");
         setLoading(false);
       }
-    }, 70);
+    } catch {
+      setPasswordStatus("error");
+      setLoading(false);
+    }
   }
 
   // invalid url sent

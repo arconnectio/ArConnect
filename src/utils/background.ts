@@ -189,8 +189,8 @@ export async function walletsStored(): Promise<boolean> {
 
 // get decryption key or open a popup
 // to enter it
-export const getDecryptionKey = (action: MessageType, tabURL: string) =>
-  new Promise<string>(async (resolve, reject) => {
+export const authenticateUser = (action: MessageType, tabURL: string) =>
+  new Promise<void>(async (resolve, reject) => {
     try {
       const decryptionKeyRes: { [key: string]: any } =
           typeof chrome !== "undefined"
@@ -198,7 +198,7 @@ export const getDecryptionKey = (action: MessageType, tabURL: string) =>
             : await browser.storage.local.get("decryptionKey"),
         decryptionKey = decryptionKeyRes?.["decryptionKey"];
 
-      if (decryptionKey) return resolve(decryptionKey);
+      if (decryptionKey) return resolve();
 
       createAuthPopup({
         type: action,
@@ -215,7 +215,7 @@ export const getDecryptionKey = (action: MessageType, tabURL: string) =>
         )
           throw new Error();
 
-        return resolve(msg.decryptionKey);
+        return resolve();
       });
     } catch (e) {
       reject(e);
