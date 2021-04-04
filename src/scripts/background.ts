@@ -213,7 +213,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               type: "add_token_result",
               ext: "arconnect",
               sender: "background",
-              ...(await addToken())
+              ...(await addToken(message))
             },
             undefined,
             sendResponse

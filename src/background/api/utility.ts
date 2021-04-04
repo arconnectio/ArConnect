@@ -35,7 +35,7 @@ export const walletNames = () =>
   });
 
 // list a token on Verto (Cache)
-export const addToken = () =>
+export const addToken = (message: MessageFormat) =>
   new Promise<Partial<MessageFormat>>(async (resolve, _) => {
     try {
       await axios.post(`https://cache.verto.exchange/fetch/${message.id}`);
