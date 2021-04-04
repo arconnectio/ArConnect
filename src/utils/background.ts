@@ -201,14 +201,14 @@ export const getDecryptionKey = (action: MessageType, tabURL: string) =>
       if (decryptionKey) return resolve(decryptionKey);
 
       createAuthPopup({
-        type: "encrypt_auth",
+        type: action,
         url: tabURL
       });
       chrome.runtime.onMessage.addListener(async (msg) => {
         if (
           !validateMessage(msg, {
             sender: "popup",
-            type: action
+            type: `${action}_result` as MessageType
           }) ||
           !msg.decryptionKey ||
           !msg.res

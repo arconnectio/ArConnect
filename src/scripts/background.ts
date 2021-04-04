@@ -14,6 +14,7 @@ import {
 import {
   checkPermissions,
   getPermissions,
+  getStoreData,
   sendNoTabError,
   sendPermissionError,
   walletsStored
@@ -50,7 +51,6 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         );
 
       const tabURL = currentTabArray[0].url,
-        // @ts-ignore
         blockedSites = (await getStoreData())?.["blockedSites"];
 
       // check if site is blocked
