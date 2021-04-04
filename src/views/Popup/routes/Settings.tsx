@@ -15,7 +15,8 @@ import {
   Spacer,
   Toggle,
   useInput,
-  useTheme
+  useTheme,
+  useToasts
 } from "@geist-ui/react";
 import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,6 +25,7 @@ import { getRealURL } from "../../../utils/url";
 import { Currency } from "../../../stores/reducers/settings";
 import { Threshold } from "arverify";
 import { MessageType } from "../../../utils/messenger";
+import { checkPassword, setPassword } from "../../../utils/auth";
 import {
   readdAsset,
   removePermissions,
@@ -53,6 +55,7 @@ export default function Settings() {
       | "arverify"
       | "allowances"
       | "about"
+      | "password"
     >(),
     permissions = useSelector((state: RootState) => state.permissions),
     [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
@@ -73,7 +76,13 @@ export default function Settings() {
       id: number;
       val: number;
     }>(),
-    theme = useTheme();
+    theme = useTheme(),
+    passwords = {
+      new: useInput(""),
+      newAgain: useInput(""),
+      old: useInput("")
+    },
+    [, setToast] = useToasts();
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
@@ -141,6 +150,43 @@ export default function Settings() {
     setCurrSetting(undefined);
   }
 
+  async function updatePassword() {
+    if (
+      passwords.new.state === "" ||
+      passwords.newAgain.state === "" ||
+      passwords.old.state === ""
+    ) {
+      setToast({ text: "Please fill all password fields", type: "error" });
+      return;
+    }
+    if (passwords.new.state !== passwords.newAgain.state) {
+      setToast({
+        text: "The two new passwords are not the same",
+        type: "error"
+      });
+      return;
+    }
+    if (passwords.new.state.length < 5) {
+      setToast({ text: "Weak password", type: "error" });
+      return;
+    }
+
+    try {
+      const res = await checkPassword(passwords.old.state);
+      if (!res)
+        return setToast({ text: "Old password is wrong", type: "error" });
+
+      await setPassword(passwords.new.state);
+      setToast({ text: "Updated password", type: "success" });
+
+      passwords.new.reset();
+      passwords.newAgain.reset();
+      passwords.old.reset();
+    } catch {
+      setToast({ text: "Error while updating password", type: "error" });
+    }
+  }
+
   return (
     <>
       <div className={SubPageTopStyles.Head}>
@@ -156,6 +202,7 @@ export default function Settings() {
         <h1>
           {(setting === "events" && "Events") ||
             (setting === "permissions" && "Permissions") ||
+            (setting === "password" && "Password") ||
             (setting === "currency" && "Currency") ||
             (setting === "psts" && "Removed PSTs") ||
             (setting === "sites" && "Blocked Sites") ||
@@ -188,6 +235,18 @@ export default function Settings() {
               <div>
                 <h1>Permissions</h1>
                 <p>Manage site permissions</p>
+              </div>
+              <div className={styles.Arrow}>
+                <ChevronRightIcon />
+              </div>
+            </div>
+            <div
+              className={styles.Setting}
+              onClick={() => setCurrSetting("password")}
+            >
+              <div>
+                <h1>Password</h1>
+                <p>Update your password</p>
               </div>
               <div className={styles.Arrow}>
                 <ChevronRightIcon />
@@ -675,6 +734,35 @@ export default function Settings() {
                   th<span>8</span>ta
                 </p>
               </div>
+            </div>
+          )) ||
+          (setting === "password" && (
+            <div className={styles.OptionContent}>
+              <Spacer />
+              <Input
+                {...passwords.new.bindings}
+                placeholder="New password..."
+                type="password"
+              />
+              <Spacer />
+              <Input
+                {...passwords.newAgain.bindings}
+                placeholder="New password again..."
+                type="password"
+              />
+              <Spacer />
+              <Input
+                {...passwords.old.bindings}
+                placeholder="Old password..."
+                type="password"
+              />
+              <Spacer />
+              <Button
+                style={{ width: "100%", marginTop: ".5em" }}
+                onClick={updatePassword}
+              >
+                Change password
+              </Button>
             </div>
           ))}
       </div>
