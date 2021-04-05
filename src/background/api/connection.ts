@@ -7,6 +7,7 @@ import {
 } from "../../utils/background";
 import { MessageFormat, validateMessage } from "../../utils/messenger";
 import { getRealURL } from "../../utils/url";
+import { updateIcon } from "../icon";
 
 /**
  * APIs for a Web 2 like login system, but
@@ -16,7 +17,11 @@ import { getRealURL } from "../../utils/url";
 // create a new connection between
 // ArConnect and the site that
 // requested it
-export const connect = (message: MessageFormat, tabURL: string) =>
+export const connect = (
+  message: MessageFormat,
+  tabURL: string,
+  faviconUrl?: string
+) =>
   new Promise<Partial<MessageFormat>>(async (resolve, _) => {
     // a permission array must be submitted
     if (!message.permissions)
@@ -40,13 +45,13 @@ export const connect = (message: MessageFormat, tabURL: string) =>
           hasAllPermissions = false;
 
       // if all permissions are already granted we return
-      // TODO: maybe return permissions here?
       if (hasAllPermissions)
         return resolve({
           res: false,
           message: "All permissions are already allowed for this site"
         });
     }
+    message.appInfo.logo = faviconUrl || message.appInfo?.logo;
 
     createAuthPopup({
       permissions: message.permissions,
@@ -54,9 +59,11 @@ export const connect = (message: MessageFormat, tabURL: string) =>
       type: "connect",
       url: tabURL
     });
-    chrome.runtime.onMessage.addListener((msg) => {
-      if (validateMessage(msg, { sender: "popup", type: "connect_result" }))
-        resolve(msg);
+    chrome.runtime.onMessage.addListener(async (msg) => {
+      if (!validateMessage(msg, { sender: "popup", type: "connect_result" }))
+        return;
+      await updateIcon();
+      resolve(msg);
     });
   });
 

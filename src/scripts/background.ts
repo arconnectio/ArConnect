@@ -1,6 +1,5 @@
 import { getRealURL } from "../utils/url";
 import { ArConnectEvent } from "../views/Popup/routes/Settings";
-import { createContextMenus } from "../background/context_menus";
 import { connect, disconnect } from "../background/api/connection";
 import { activeAddress, allAddresses } from "../background/api/address";
 import { addToken, walletNames } from "../background/api/utility";
@@ -20,6 +19,7 @@ import {
   walletsStored
 } from "../utils/background";
 import { decrypt, encrypt, signature } from "../background/api/encryption";
+import { handleTabUpdate } from "../background/tab_update";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(async () => {
@@ -27,7 +27,10 @@ chrome.runtime.onInstalled.addListener(async () => {
     window.open(chrome.runtime.getURL("/welcome.html"));
 });
 
-createContextMenus();
+// create listeners for the icon utilities
+// and context menu item updates
+chrome.tabs.onActivated.addListener(handleTabUpdate);
+chrome.tabs.onUpdated.addListener(handleTabUpdate);
 
 // listen for messages from the content script
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
@@ -51,6 +54,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
         );
 
       const tabURL = currentTabArray[0].url,
+        faviconUrl = currentTabArray[0].favIconUrl,
         blockedSites = (await getStoreData())?.["blockedSites"];
 
       // check if site is blocked
@@ -108,7 +112,7 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               type: "connect_result",
               ext: "arconnect",
               sender: "background",
-              ...(await connect(message, tabURL))
+              ...(await connect(message, tabURL, faviconUrl))
             },
             undefined,
             sendResponse
