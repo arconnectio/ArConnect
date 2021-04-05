@@ -18,3 +18,17 @@ export const PermissionDescriptions: Record<PermissionType, string> = {
   ENCRYPT: "Encrypt data using the user's keyfile",
   DECRYPT: "Decrypt data using the user's keyfile"
 };
+
+/**
+ * Returns if an array of permissions is the same as an another
+ *
+ * @param a The array to check all elements of against "b"
+ * @param b The array to compare to
+ *
+ * @returns boolean
+ */
+export function comparePermissions(a: PermissionType[], b: PermissionType[]) {
+  for (const perm of a) if (!b.includes(perm)) return false;
+
+  return true;
+}

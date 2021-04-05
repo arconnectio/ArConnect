@@ -1,5 +1,5 @@
 import { sendMessage, validateMessage } from "../utils/messenger";
-import { PermissionType } from "../utils/permissions";
+import { comparePermissions, PermissionType } from "../utils/permissions";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { getRealURL } from "../utils/url";
 import Transaction from "arweave/web/lib/transaction";
@@ -76,7 +76,12 @@ const WalletAPI = {
           ? document.title
           : getRealURL(window.location.href);
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      const existingPermissions = await this.getPermissions();
+
+      if (comparePermissions(permissions, existingPermissions))
+        return resolve();
+
       sendMessage(
         {
           type: "connect",
