@@ -7,7 +7,7 @@ import {
   signOut,
   switchProfile
 } from "../stores/actions";
-import { Modal, Spacer, Tooltip, useModal, useToasts } from "@geist-ui/react";
+import { Modal, Tooltip, useModal, useToasts } from "@geist-ui/react";
 import {
   ChevronDownIcon,
   CopyIcon,
