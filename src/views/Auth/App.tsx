@@ -9,7 +9,8 @@ import {
   Modal,
   useModal,
   Note,
-  useTheme
+  useTheme,
+  useToasts
 } from "@geist-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
@@ -56,7 +57,9 @@ export default function App() {
       []
     ),
     [appInfo, setAppInfo] = useState<IAppInfo>({}),
-    theme = useTheme();
+    theme = useTheme(),
+    [, setToast] = useToasts(),
+    [quickAdd, setQuickAdd] = useState(true);
 
   useEffect(() => {
     // get the auth param from the url
@@ -330,6 +333,28 @@ export default function App() {
           >
             You have reached your spending limit of {currentAllowance?.limit}{" "}
             for {appInfo.name ?? "this site"}. Please update it or cancel.
+            {quickAdd && (
+              <>
+                <br />
+                <span
+                  style={{ textDecoration: "underline", cursor: "pointer" }}
+                  onClick={() => {
+                    const updateTo = (currentAllowance?.limit ?? 0) + 0.1;
+
+                    setUpdateAllowance(updateTo);
+                    allowanceAmount.setState(updateTo.toString());
+                    setQuickAdd(false);
+                    setToast({
+                      text:
+                        "The added allowance will be applied after you enter you password",
+                      type: "success"
+                    });
+                  }}
+                >
+                  Quick add 0.1 AR
+                </span>
+              </>
+            )}
           </Note>
         )}
         {(!loggedIn && (
@@ -482,7 +507,7 @@ export default function App() {
       </div>
       <Modal {...allowanceModal.bindings}>
         <Modal.Title>Allowance limit</Modal.Title>
-        <Modal.Content>
+        <Modal.Content className={styles.AllowanceModal}>
           <p>
             Warn me again to set a new allowance once the app has sent more than{" "}
             {allowanceAmount.state} AR
