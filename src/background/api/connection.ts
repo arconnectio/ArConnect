@@ -50,6 +50,7 @@ export const connect = (message: MessageFormat, tabURL: string) =>
 
     createAuthPopup({
       permissions: message.permissions,
+      appInfo: message.appInfo,
       type: "connect",
       url: tabURL
     });

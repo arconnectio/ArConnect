@@ -1,6 +1,7 @@
 import { sendMessage, validateMessage } from "../utils/messenger";
 import { PermissionType } from "../utils/permissions";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
+import { getRealURL } from "../utils/url";
 import Transaction from "arweave/web/lib/transaction";
 import Arweave from "arweave";
 
@@ -55,14 +56,35 @@ function createCoinWithAnimation() {
 }
 
 const WalletAPI = {
-  connect(permissions: PermissionType[]): Promise<void> {
+  connect(
+    permissions: PermissionType[],
+    appInfo: { name?: string; logo?: string } = {}
+  ): Promise<void> {
     const requestPermissionOverlay = createOverlay(
       "This page is requesting permission to connect to your wallet...<br />Please review them in the popup."
     );
 
+    if (!appInfo.logo)
+      appInfo.logo =
+        document.head
+          .querySelector(`link[rel="shortcut icon"]`)
+          ?.getAttribute("href") ?? undefined;
+
+    if (!appInfo.name)
+      appInfo.name =
+        document.title.length < 11
+          ? document.title
+          : getRealURL(window.location.href);
+
     return new Promise((resolve, reject) => {
       sendMessage(
-        { type: "connect", ext: "arconnect", sender: "api", permissions },
+        {
+          type: "connect",
+          ext: "arconnect",
+          sender: "api",
+          permissions,
+          appInfo
+        },
         undefined,
         undefined,
         false

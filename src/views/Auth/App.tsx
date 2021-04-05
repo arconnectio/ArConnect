@@ -8,7 +8,8 @@ import {
   Checkbox,
   Modal,
   useModal,
-  Note
+  Note,
+  useTheme
 } from "@geist-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
@@ -53,7 +54,9 @@ export default function App() {
     [updateAllowance, setUpdateAllowance] = useState<number>(),
     [allowedPermissions, setAllowedPermissions] = useState<PermissionType[]>(
       []
-    );
+    ),
+    [appInfo, setAppInfo] = useState<IAppInfo>({}),
+    theme = useTheme();
 
   useEffect(() => {
     // get the auth param from the url
@@ -75,10 +78,13 @@ export default function App() {
     // decode the auth param from the authVal
     const decodedAuthParam: {
       permissions?: PermissionType[];
+      appInfo?: IAppInfo;
       type?: AuthType;
       url?: string;
       spendingLimitReached?: boolean;
     } = JSON.parse(decodeURIComponent(authVal));
+
+    if (decodedAuthParam.appInfo) setAppInfo(decodedAuthParam.appInfo);
 
     // if the type does not exist, this is an invalid call
     if (!decodedAuthParam.type) {
@@ -323,7 +329,7 @@ export default function App() {
             }}
           >
             You have reached your spending limit of {currentAllowance?.limit}{" "}
-            for this site. Please update it or cancel.
+            for {appInfo.name ?? "this site"}. Please update it or cancel.
           </Note>
         )}
         {(!loggedIn && (
@@ -331,8 +337,14 @@ export default function App() {
             <h1>Sign In</h1>
             {(type === "connect" && (
               <p>
-                This site wants to connect to your Arweave wallet. Please enter
-                your password to continue.
+                {(appInfo.name && (
+                  <span style={{ color: theme.palette.success }}>
+                    {appInfo.name}
+                  </span>
+                )) ||
+                  "This site"}{" "}
+                wants to connect to your Arweave wallet. Please enter your
+                password to continue.
               </p>
             )) ||
               (type === "sign_auth" && (
@@ -439,6 +451,16 @@ export default function App() {
               <Button style={{ width: "100%" }} onClick={cancel}>
                 Cancel
               </Button>
+              <div className={styles.AppInfo}>
+                {appInfo.logo && (
+                  <img
+                    src={appInfo.logo}
+                    alt={appInfo.name ?? ""}
+                    draggable={false}
+                  />
+                )}
+                {appInfo.name ?? ""}
+              </div>
             </>
           )) || (
             <p
@@ -490,3 +512,7 @@ export default function App() {
 }
 
 type AuthType = "connect" | "sign_auth" | "encrypt_auth" | "decrypt_auth";
+interface IAppInfo {
+  name?: string;
+  logo?: string;
+}

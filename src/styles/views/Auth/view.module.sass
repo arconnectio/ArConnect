@@ -79,3 +79,20 @@
   svg
     path:first-child
       fill: #AB9DF2 !important
+
+.AppInfo
+  display: flex
+  align-items: center
+  justify-content: center
+  margin-top: 3em
+  text-align: center
+  font-size: 1em
+  color: variables.$secondary-text-light
+        
+  @media (prefers-color-scheme: dark)
+    color: variables.$secondary-text-dark
+
+  img
+    height: 1.5em
+    margin-right: .35em
+    user-select: none
