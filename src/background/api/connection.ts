@@ -76,6 +76,7 @@ export const disconnect = (tabURL: string) =>
           (sitePerms: IPermissionState) => sitePerms.url !== getRealURL(tabURL)
         )
       });
+      updateIcon(false);
       resolve({ res: true });
     } catch {
       resolve({ res: false, message: "Could not disconnect" });
