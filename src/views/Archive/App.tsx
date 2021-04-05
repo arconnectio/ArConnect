@@ -258,7 +258,7 @@ export default function App() {
             first: 100
             owners: [$addr]
             tags: [
-              { name: "App-Name", values: ["ArDrive", "ArDrive-Web"] }
+              { name: "App-Name", values: ["ArDrive-Desktop", "ArDrive-Web"] }
               { name: "Entity-Type", values: "drive" }
             ]
           ) {
