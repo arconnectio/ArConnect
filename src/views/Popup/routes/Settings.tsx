@@ -21,10 +21,11 @@ import {
 import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
-import { getRealURL } from "../../../utils/url";
+import { getRealURL, shortenURL } from "../../../utils/url";
 import { Currency } from "../../../stores/reducers/settings";
 import { Threshold } from "arverify";
 import { MessageType } from "../../../utils/messenger";
+import { updateIcon } from "../../../background/icon";
 import { checkPassword, setPassword } from "../../../utils/auth";
 import {
   readdAsset,
@@ -384,7 +385,9 @@ export default function Settings() {
                         className={styles.Setting + " " + styles.SubSetting}
                         onClick={() => open(permissionGroup.url)}
                       >
-                        <h1>{permissionGroup.url}</h1>
+                        <h1 title={permissionGroup.url}>
+                          {shortenURL(permissionGroup.url)}
+                        </h1>
                         <div className={styles.Arrow}>
                           {(isOpened(permissionGroup.url) && (
                             <ChevronDownIcon />
@@ -408,10 +411,12 @@ export default function Settings() {
                                     permissionGroup.permissions.filter(
                                       (val) => val !== perm
                                     ).length === 0
-                                  )
+                                  ) {
                                     dispatch(
                                       removeAllowance(permissionGroup.url)
                                     );
+                                    updateIcon(false);
+                                  }
                                 }}
                               >
                                 <XIcon />
@@ -491,7 +496,7 @@ export default function Settings() {
                       justifyContent: "space-between"
                     }}
                   >
-                    <h1>{allowance.url}</h1>
+                    <h1 title={allowance.url}>{shortenURL(allowance.url)}</h1>
                     <p>
                       <Toggle
                         checked={allowance.enabled}
@@ -633,7 +638,9 @@ export default function Settings() {
                         }).format(event.date)}
                       </span>
                     </h1>
-                    <p>{getRealURL(event.url)}</p>
+                    <p title={getRealURL(event.url)}>
+                      {shortenURL(getRealURL(event.url))}
+                    </p>
                   </div>
                 ))) || <p>No events</p>}
             </>

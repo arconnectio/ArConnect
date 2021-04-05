@@ -21,7 +21,7 @@ import {
   setPermissions,
   toggleAllowance
 } from "../../stores/actions";
-import { getRealURL } from "../../utils/url";
+import { getRealURL, shortenURL } from "../../utils/url";
 import { local } from "chrome-storage-promises";
 import { ChevronRightIcon } from "@primer/octicons-react";
 import { Allowance } from "../../stores/reducers/allowances";
@@ -332,7 +332,17 @@ export default function App() {
             }}
           >
             You have reached your spending limit of {currentAllowance?.limit}{" "}
-            for {appInfo.name ?? "this site"}. Please update it or cancel.
+            for
+            {(appInfo.name && (
+              <span style={{ color: theme.palette.success }}>
+                {(appInfo.name &&
+                  ((appInfo.name.includes(".") && shortenURL(appInfo.name)) ||
+                    appInfo.name)) ||
+                  ""}
+              </span>
+            )) ||
+              "This site"}{" "}
+            . Please update it or cancel.
             {quickAdd && (
               <>
                 <br />
@@ -364,7 +374,11 @@ export default function App() {
               <p>
                 {(appInfo.name && (
                   <span style={{ color: theme.palette.success }}>
-                    {appInfo.name}
+                    {(appInfo.name &&
+                      ((appInfo.name.includes(".") &&
+                        shortenURL(appInfo.name)) ||
+                        appInfo.name)) ||
+                      ""}
                   </span>
                 )) ||
                   "This site"}{" "}
@@ -484,7 +498,10 @@ export default function App() {
                     draggable={false}
                   />
                 )}
-                {appInfo.name ?? ""}
+                {(appInfo.name &&
+                  ((appInfo.name.includes(".") && shortenURL(appInfo.name)) ||
+                    appInfo.name)) ||
+                  ""}
               </div>
             </>
           )) || (
