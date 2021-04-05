@@ -19,7 +19,7 @@ import {
   sendPermissionError,
   walletsStored
 } from "../utils/background";
-import { decrypt, encrypt } from "../background/api/encryption";
+import { decrypt, encrypt, signature } from "../background/api/encryption";
 
 // open the welcome page
 chrome.runtime.onInstalled.addListener(async () => {
@@ -266,6 +266,23 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
               ext: "arconnect",
               sender: "background",
               ...(await decrypt(message, tabURL))
+            },
+            undefined,
+            sendResponse
+          );
+
+          break;
+
+        case "signature":
+          if (!(await checkPermissions(["SIGNATURE"], tabURL)))
+            return sendPermissionError(sendResponse, "signature_result");
+
+          sendMessage(
+            {
+              type: "signature_result",
+              ext: "arconnect",
+              sender: "background",
+              ...(await signature(message, tabURL))
             },
             undefined,
             sendResponse

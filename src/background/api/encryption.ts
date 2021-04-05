@@ -2,6 +2,8 @@ import { MessageFormat } from "../../utils/messenger";
 import { authenticateUser, getStoreData } from "../../utils/background";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import Arweave from "arweave";
+import { createSign } from "crypto";
+import jwkToPem, { JWK } from "jwk-to-pem";
 
 // encrypt data using the user's keyfile
 export const encrypt = (message: MessageFormat, tabURL: string) =>
@@ -60,6 +62,36 @@ export const decrypt = (message: MessageFormat, tabURL: string) =>
       resolve({
         res: false,
         message: "Error decrypting data"
+      });
+    }
+  });
+
+export const signature = (message: MessageFormat, tabURL: string) =>
+  new Promise<Partial<MessageFormat>>(async (resolve, _) => {
+    if (!message.data)
+      return resolve({
+        res: false,
+        message: "No data submitted"
+      });
+
+    if (!message.options)
+      return resolve({
+        res: false,
+        message: "No options submitted"
+      });
+
+    try {
+      await authenticateUser(message.type, tabURL);
+
+      resolve({
+        res: true,
+        data: await doSignature(message),
+        message: "Success"
+      });
+    } catch {
+      resolve({
+        res: false,
+        message: "Error signing data"
       });
     }
   });
@@ -175,4 +207,29 @@ async function doDecrypt(message: MessageFormat) {
   );
 
   return arweave.utils.bufferToString(res).split(message.options.salt)[0];
+}
+
+async function doSignature(message: MessageFormat) {
+  const storeData = await getStoreData(),
+    storedKeyfiles = storeData?.["wallets"],
+    storedAddress = storeData?.["profile"],
+    keyfileToDecrypt = storedKeyfiles?.find(
+      (item) => item.address === storedAddress
+    )?.keyfile;
+
+  if (!storedKeyfiles || !storedAddress || !keyfileToDecrypt)
+    throw new Error("No wallets added");
+
+  const keyfile: JWK = JSON.parse(atob(keyfileToDecrypt));
+
+  const res = createSign(message.options.algorithm);
+  res.update(message.data);
+
+  const pem: string = jwkToPem(keyfile, { private: true });
+  const signature = res.sign({
+    key: pem,
+    ...message.options.signing
+  });
+
+  return signature;
 }
