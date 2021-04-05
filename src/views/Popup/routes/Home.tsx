@@ -61,22 +61,29 @@ export default function Home() {
     calculateArPriceInCurrency();
     loadBalance();
     // eslint-disable-next-line
-  }, [currency]);
+  }, [currency, profile]);
 
   async function calculateArPriceInCurrency() {
     setArPriceInCurrency(await arToFiat(1, currency));
   }
 
   async function loadBalance() {
-    try {
-      const bal = await arweave.wallets.getBalance(profile),
-        arBalance = parseFloat(arweave.ar.winstonToAr(bal)),
-        fiatBalance = parseFloat(
-          (await arToFiat(arBalance, currency)).toFixed(2)
-        );
+    let arBalance = balance()?.arBalance ?? 0,
+      fiatBalance = balance()?.fiatBalance ?? 0;
 
-      dispatch(setBalance({ address: profile, arBalance, fiatBalance }));
+    try {
+      arBalance = parseFloat(
+        arweave.ar.winstonToAr(await arweave.wallets.getBalance(profile))
+      );
     } catch {}
+
+    try {
+      fiatBalance = parseFloat(
+        (await arToFiat(arBalance, currency)).toFixed(2)
+      );
+    } catch {}
+
+    dispatch(setBalance({ address: profile, arBalance, fiatBalance }));
   }
 
   async function loadPSTs() {
