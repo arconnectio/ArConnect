@@ -25,9 +25,9 @@ import { decrypt, encrypt, signature } from "../background/api/encryption";
 chrome.runtime.onInstalled.addListener(async () => {
   if (!(await walletsStored()))
     window.open(chrome.runtime.getURL("/welcome.html"));
-
-  createContextMenus();
 });
+
+createContextMenus();
 
 // listen for messages from the content script
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
