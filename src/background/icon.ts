@@ -1,14 +1,15 @@
-import manifest from "../../public/manifest.json";
-
 export function updateIcon(hasPerms: boolean) {
-  let defaultIcons: { [index: number]: string } = {};
+  const offlineLogos = {
+    64: "icons/offline/logo64.png",
+    128: "icons/offline/logo128.png",
+    256: "icons/offline/logo256.png"
+  };
+  const onlineLogos = {
+    64: "icons/online/logo64.png",
+    128: "icons/online/logo128.png",
+    256: "icons/online/logo256.png"
+  };
 
-  // remap with numbers
-  for (const iconSize in manifest.icons) {
-    // @ts-ignore
-    defaultIcons[parseFloat(iconSize)] = manifest.icons[iconSize];
-  }
-
-  //if(permissionsForSite.length > 0) chrome.browserAction.setIcon({ path: "" });
-  //else chrome.browserAction.setIcon({ path: defaultIcons });
+  // set logos if connected / if not connected
+  chrome.browserAction.setIcon({ path: hasPerms ? onlineLogos : offlineLogos });
 }

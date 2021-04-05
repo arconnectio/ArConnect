@@ -62,7 +62,7 @@ export const connect = (
     chrome.runtime.onMessage.addListener(async (msg) => {
       if (!validateMessage(msg, { sender: "popup", type: "connect_result" }))
         return;
-      await updateIcon();
+      updateIcon(true);
       resolve(msg);
     });
   });
