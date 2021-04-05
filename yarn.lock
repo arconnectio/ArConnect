@@ -2244,6 +2244,11 @@
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
 
+"@types/jwk-to-pem@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/jwk-to-pem/-/jwk-to-pem-2.0.0.tgz#770ad9cc70134d47283b3c815a064a06f802d065"
+  integrity sha512-m7ZnE+iJodvhu9XNkMc/1CNkIg7432d/YSB8Qo/4TbD86rZ1GgkB4MVTNqIZG5RCtL0H4iVxiMT2OGTQDZEfHg==
+
 "@types/limestonefi__api@^0.1.0":
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@types/limestonefi__api/-/limestonefi__api-0.1.0.tgz#4dac7831ac13177d18295b385aa43a05b3a980b4"
@@ -3058,7 +3063,7 @@ asap@~2.0.6:
   resolved "https://registry.yarnpkg.com/asap/-/asap-2.0.6.tgz#e50347611d7e690943208bbdafebcbc2fb866d46"
   integrity sha1-5QNHYR1+aQlDIIu9r+vLwvuGbUY=
 
-asn1.js@^5.0.1, asn1.js@^5.2.0, asn1.js@^5.4.1:
+asn1.js@^5.0.1, asn1.js@^5.2.0, asn1.js@^5.3.0, asn1.js@^5.4.1:
   version "5.4.1"
   resolved "https://registry.yarnpkg.com/asn1.js/-/asn1.js-5.4.1.tgz#11a980b84ebb91781ce35b0fdc2ee294e3783f07"
   integrity sha512-+I//4cYPccV8LdmBLiX8CYvf9Sp3vQsrqu2QNXRcrbiWvcx/UdlFiqUJJzxRQxgsZmvhXhn4cSKeSmoFjVdupA==
@@ -5115,7 +5120,7 @@ elliptic@6.5.3, elliptic@^6.5.2:
     minimalistic-assert "^1.0.0"
     minimalistic-crypto-utils "^1.0.0"
 
-elliptic@^6.5.3:
+elliptic@^6.5.3, elliptic@^6.5.4:
   version "6.5.4"
   resolved "https://registry.yarnpkg.com/elliptic/-/elliptic-6.5.4.tgz#da37cebd31e79a1367e941b592ed1fbebd58abbb"
   integrity sha512-iLhC6ULemrljPZb+QutR5TQGB+pdW6KGD5RSegS+8sorOZT+rdQFbsQFJgvN3eRqNALqJer4oQ16YvJHlU8hzQ==
@@ -7995,6 +8000,15 @@ jsprim@^1.2.2:
   dependencies:
     array-includes "^3.1.2"
     object.assign "^4.1.2"
+
+jwk-to-pem@^2.0.5:
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/jwk-to-pem/-/jwk-to-pem-2.0.5.tgz#151310bcfbcf731adc5ad9f379cbc8b395742906"
+  integrity sha512-L90jwellhO8jRKYwbssU9ifaMVqajzj3fpRjDKcsDzrslU9syRbFqfkXtT4B89HYAap+xsxNcxgBSB09ig+a7A==
+  dependencies:
+    asn1.js "^5.3.0"
+    elliptic "^6.5.4"
+    safe-buffer "^5.0.1"
 
 keypair@^1.0.1:
   version "1.0.2"

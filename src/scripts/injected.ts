@@ -298,6 +298,38 @@ const WalletAPI = {
         else reject(e.data.message);
       }
     });
+  },
+  signature(
+    data: Uint8Array,
+    options: {
+      algorithm: string;
+      signing: any;
+    }
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      sendMessage(
+        {
+          type: "signature",
+          ext: "arconnect",
+          sender: "api",
+          data,
+          options
+        },
+        undefined,
+        undefined,
+        false
+      );
+      window.addEventListener("message", callback);
+
+      // @ts-ignore
+      function callback(e: MessageEvent<any>) {
+        if (!validateMessage(e.data, { type: "signature_result" })) return;
+        window.removeEventListener("message", callback);
+
+        if (e.data.res && e.data.data) resolve(e.data.data);
+        else reject(e.data.message);
+      }
+    });
   }
 };
 
