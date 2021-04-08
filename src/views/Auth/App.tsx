@@ -22,10 +22,10 @@ import {
   toggleAllowance
 } from "../../stores/actions";
 import { getRealURL, shortenURL } from "../../utils/url";
-import { local } from "chrome-storage-promises";
 import { ChevronRightIcon } from "@primer/octicons-react";
 import { Allowance } from "../../stores/reducers/allowances";
 import { checkPassword } from "../../utils/auth";
+import { browser } from "webextension-polyfill-ts";
 import {
   PermissionType,
   PermissionDescriptions
@@ -189,8 +189,7 @@ export default function App() {
     try {
       if (!(await checkPassword(passwordInput.state))) throw new Error();
 
-      if (typeof chrome !== "undefined") local.set({ decryptionKey: true });
-      else browser.storage.local.set({ decryptionKey: true });
+      await browser.storage.local.set({ decryptionKey: true });
       setLoggedIn(true);
 
       if (updateAllowance && currentURL)

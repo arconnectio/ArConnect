@@ -10,6 +10,8 @@ import { IAllowancesAction } from "./reducers/allowances";
 import { ISettings, ISettingsAction } from "./reducers/settings";
 import { IBalanceAction, Balance } from "./reducers/balances";
 
+import { browser } from "webextension-polyfill-ts";
+
 export function addWallet(wallet: Wallet): IWalletsAction {
   return {
     type: "ADD_WALLET",
@@ -169,7 +171,7 @@ export function updateSettings(
 
 export function signOut() {
   // give time for state update
-  setTimeout(() => window.open(chrome.runtime.getURL("/welcome.html")), 500);
+  setTimeout(() => window.open(browser.runtime.getURL("/welcome.html")), 500);
   return {
     type: "USER_SIGNOUT",
     payload: {}

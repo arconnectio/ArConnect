@@ -23,6 +23,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { sendMessage } from "../utils/messenger";
 import { goTo } from "react-chrome-extension-router";
 import { getVerification, Threshold } from "arverify";
+import { browser } from "webextension-polyfill-ts";
 import Settings from "../views/Popup/routes/Settings";
 import copy from "copy-to-clipboard";
 import "../styles/components/Tooltip.sass";
@@ -294,7 +295,7 @@ export default function WalletManager() {
                   <div
                     className={styles.Action}
                     onClick={() =>
-                      window.open(chrome.runtime.getURL("/welcome.html"))
+                      window.open(browser.runtime.getURL("/welcome.html"))
                     }
                   >
                     <PlusIcon />

@@ -1,5 +1,4 @@
 import { JWKInterface } from "arweave/web/lib/wallet";
-import { local } from "chrome-storage-promises";
 import { Allowance } from "../../stores/reducers/allowances";
 import {
   createAuthPopup,
@@ -9,6 +8,7 @@ import {
 } from "../../utils/background";
 import { MessageFormat, validateMessage } from "../../utils/messenger";
 import { getRealURL } from "../../utils/url";
+import { browser } from "webextension-polyfill-ts";
 import Arweave from "arweave";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
@@ -24,11 +24,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
       });
 
     try {
-      const decryptionKeyRes: { [key: string]: any } =
-          typeof chrome !== "undefined"
-            ? await local.get("decryptionKey")
-            : await browser.storage.local.get("decryptionKey"),
-        arweave = new Arweave({
+      const arweave = new Arweave({
           host: "arweave.net",
           port: 443,
           protocol: "https"
@@ -55,7 +51,8 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
           parseFloat(arweave.ar.arToWinston(allowanceForURL.limit.toString())) <
             allowanceForURL.spent + price;
 
-      let decryptionKey = decryptionKeyRes?.["decryptionKey"];
+      let decryptionKey = (await browser.storage.local.get("decryptionKey"))
+        ?.decryptionKey;
 
       const sign = async () => {
         const storedKeyfiles = storeData?.["wallets"] ?? [],
@@ -69,7 +66,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
           !storedAddress ||
           !keyfileToDecrypt
         ) {
-          window.open(chrome.runtime.getURL("/welcome.html"));
+          window.open(browser.runtime.getURL("/welcome.html"));
           return {
             res: false,
             message: "No wallets added"
@@ -138,7 +135,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
           url: tabURL,
           spendingLimitReached: openAllowance
         });
-        chrome.runtime.onMessage.addListener(async (msg) => {
+        browser.runtime.onMessage.addListener(async (msg) => {
           if (
             !validateMessage(msg, {
               sender: "popup",

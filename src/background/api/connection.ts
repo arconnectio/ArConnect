@@ -6,6 +6,7 @@ import {
   setStoreData
 } from "../../utils/background";
 import { MessageFormat, validateMessage } from "../../utils/messenger";
+import { browser } from "webextension-polyfill-ts";
 import { getRealURL } from "../../utils/url";
 import { updateIcon } from "../icon";
 
@@ -59,7 +60,7 @@ export const connect = (
       type: "connect",
       url: tabURL
     });
-    chrome.runtime.onMessage.addListener(async (msg) => {
+    browser.runtime.onMessage.addListener(async (msg) => {
       if (!validateMessage(msg, { sender: "popup", type: "connect_result" }))
         return;
       updateIcon(true);

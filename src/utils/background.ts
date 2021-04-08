@@ -3,7 +3,7 @@ import { RootState } from "../stores/reducers";
 import { IPermissionState } from "../stores/reducers/permissions";
 import { PermissionType } from "./permissions";
 import { getRealURL } from "./url";
-import { local } from "chrome-storage-promises";
+import { browser } from "webextension-polyfill-ts";
 import { run } from "ar-gql";
 import limestone from "@limestonefi/api";
 import Arweave from "arweave";
@@ -11,20 +11,16 @@ import Arweave from "arweave";
 // create an authenticator popup
 // data: the data sent to the popup
 // encoded
-export function createAuthPopup(data: any) {
-  chrome.windows.create(
-    {
-      url: `${chrome.extension.getURL("auth.html")}?auth=${encodeURIComponent(
-        JSON.stringify(data)
-      )}`,
-      focused: true,
-      type: "popup",
-      width: 385,
-      height: 635
-    },
-    (window) => {}
-  );
-}
+export const createAuthPopup = (data: any) =>
+  browser.windows.create({
+    url: `${browser.extension.getURL("auth.html")}?auth=${encodeURIComponent(
+      JSON.stringify(data)
+    )}`,
+    focused: true,
+    type: "popup",
+    width: 385,
+    height: 635
+  });
 
 /** Permission utilities */
 
@@ -59,27 +55,9 @@ export async function getPermissions(url: string): Promise<PermissionType[]> {
 
 /** Errors */
 
-// send error if there are no tabs opened
-// or if they are not accessible
-export function sendNoTabError(
-  sendResponse: (response?: any) => void,
-  type: MessageType
-) {
-  sendMessage(
-    {
-      type,
-      ext: "arconnect",
-      res: false,
-      message: "No tabs opened",
-      sender: "background"
-    },
-    undefined,
-    sendResponse
-  );
-}
-
 // send error if the site does not have permission
 // to execute a type of action
+// TODO: remove, depricated
 export function sendPermissionError(
   sendResponse: (response?: any) => void,
   type: MessageType
@@ -108,11 +86,10 @@ export type StoreData = Partial<RootState>;
  * @returns StoreData
  */
 export async function getStoreData(): Promise<StoreData> {
-  const data: { [key: string]: any } =
-      typeof chrome !== "undefined"
-        ? await local.get("persist:root")
-        : browser.storage.local.get("persist:root"),
-    parseRoot: StoreData = JSON.parse(data?.["persist:root"] ?? "{}");
+  const data = (await browser.storage.local.get("persist:root"))?.[
+      "persist:root"
+    ],
+    parseRoot: StoreData = JSON.parse(data ?? "{}");
 
   let parsedData: StoreData = {};
   // @ts-ignore
@@ -136,10 +113,9 @@ export async function setStoreData(updatedData: StoreData) {
     encodedData[reducer] = JSON.stringify(data[reducer]);
   }
 
-  if (typeof chrome !== "undefined")
-    local.set({ "persist:root": JSON.stringify(encodedData) });
-  else
-    browser.storage.local.set({ "persist:root": JSON.stringify(encodedData) });
+  await browser.storage.local.set({
+    "persist:root": JSON.stringify(encodedData)
+  });
 }
 
 // create a simple fee
@@ -192,19 +168,15 @@ export async function walletsStored(): Promise<boolean> {
 export const authenticateUser = (action: MessageType, tabURL: string) =>
   new Promise<void>(async (resolve, reject) => {
     try {
-      const decryptionKeyRes: { [key: string]: any } =
-          typeof chrome !== "undefined"
-            ? await local.get("decryptionKey")
-            : await browser.storage.local.get("decryptionKey"),
-        decryptionKey = decryptionKeyRes?.["decryptionKey"];
-
+      const decryptionKey = (await browser.storage.local.get("decryptionKey"))
+        ?.decryptionKey;
       if (decryptionKey) return resolve();
 
       createAuthPopup({
         type: action,
         url: tabURL
       });
-      chrome.runtime.onMessage.addListener(async (msg) => {
+      browser.runtime.onMessage.addListener(async (msg) => {
         if (
           !validateMessage(msg, {
             sender: "popup",
@@ -213,11 +185,16 @@ export const authenticateUser = (action: MessageType, tabURL: string) =>
           !msg.decryptionKey ||
           !msg.res
         )
-          throw new Error();
-
-        return resolve();
+          reject();
+        else resolve();
       });
     } catch (e) {
       reject(e);
     }
   });
+
+export async function getActiveTab() {
+  const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+  if (!tabs[0]) throw new Error("No tabs opened");
+  else return tabs[0];
+}

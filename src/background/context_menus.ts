@@ -1,16 +1,17 @@
 import { IPermissionState } from "../stores/reducers/permissions";
 import { getStoreData, setStoreData, walletsStored } from "../utils/background";
 import { getRealURL } from "../utils/url";
+import { browser } from "webextension-polyfill-ts";
 
 // create context menus
 // (right click actions)
 export async function createContextMenus(hasPerms: boolean) {
-  chrome.contextMenus.removeAll();
+  browser.contextMenus.removeAll();
 
   // if any wallets are added, create
   // a "copy current address" context menu
   if (await walletsStored()) {
-    chrome.contextMenus.create({
+    browser.contextMenus.create({
       title: "Copy current address",
       contexts: ["browser_action"],
       async onclick() {
@@ -35,7 +36,7 @@ export async function createContextMenus(hasPerms: boolean) {
   // display the disconnect
   // context menu
   if (hasPerms) {
-    chrome.contextMenus.create({
+    browser.contextMenus.create({
       title: "Disconnect from current site",
       contexts: ["browser_action", "page"],
       async onclick(_, tab) {
@@ -57,7 +58,7 @@ export async function createContextMenus(hasPerms: boolean) {
           });
 
           // reload tab
-          chrome.tabs.executeScript(id, {
+          browser.tabs.executeScript(id, {
             code: "window.location.reload()"
           });
         } catch {}

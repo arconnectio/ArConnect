@@ -1,3 +1,5 @@
+import { browser } from "webextension-polyfill-ts";
+
 export function updateIcon(hasPerms: boolean) {
   const offlineLogos = {
     64: "icons/offline/logo64.png",
@@ -11,5 +13,7 @@ export function updateIcon(hasPerms: boolean) {
   };
 
   // set logos if connected / if not connected
-  chrome.browserAction.setIcon({ path: hasPerms ? onlineLogos : offlineLogos });
+  browser.browserAction.setIcon({
+    path: hasPerms ? onlineLogos : offlineLogos
+  });
 }

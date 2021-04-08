@@ -3,6 +3,7 @@ import {
   validateMessage,
   MessageFormat
 } from "../utils/messenger";
+import { browser } from "webextension-polyfill-ts";
 
 function addScriptToWindow(path: string) {
   try {
@@ -27,16 +28,22 @@ interFont.href =
 document.head.appendChild(interFont);
 
 // inject the api
-addScriptToWindow(chrome.extension.getURL("build/scripts/injected.js"));
+addScriptToWindow(browser.extension.getURL("build/scripts/injected.js"));
 
 // forward messages from the api to the background script
-window.addEventListener("message", (e) => {
+window.addEventListener("message", async (e) => {
   if (!validateMessage(e.data, {}) || !e.data.type) return;
-  sendMessage(e.data, (res) => sendMessage(res, undefined, undefined, false));
+  //sendMessage(e.data, (res) => sendMessage(res, undefined, undefined, false));
+  sendMessage(
+    await browser.runtime.sendMessage(e.data),
+    undefined,
+    undefined,
+    false
+  );
 });
 
 // wallet switch event
-chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
+browser.runtime.onMessage.addListener((msg) => {
   const message: MessageFormat = msg;
   if (
     !validateMessage(message, {
