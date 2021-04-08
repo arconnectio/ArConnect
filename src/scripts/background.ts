@@ -7,7 +7,6 @@ import { signTransaction } from "../background/api/transaction";
 import {
   MessageFormat,
   MessageType,
-  sendMessage,
   validateMessage
 } from "../utils/messenger";
 import {
@@ -273,18 +272,15 @@ browser.runtime.onMessage.addListener(async (msg) => {
       if (
         !(await checkPermissions(
           ["ACCESS_ALL_ADDRESSES", "ACCESS_ADDRESS"],
-          activeTab.url
+          activeTab.url as string
         ))
       )
         return;
 
-      sendMessage(
-        { ...message, type: "switch_wallet_event_forward" },
-        undefined,
-        undefined,
-        true,
-        activeTab.id
-      );
+      browser.tabs.sendMessage(activeTab.id as number, {
+        ...message,
+        type: "switch_wallet_event_forward"
+      });
 
       break;
   }

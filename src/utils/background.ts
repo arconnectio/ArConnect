@@ -1,4 +1,4 @@
-import { MessageType, sendMessage, validateMessage } from "../utils/messenger";
+import { MessageType, validateMessage } from "../utils/messenger";
 import { RootState } from "../stores/reducers";
 import { IPermissionState } from "../stores/reducers/permissions";
 import { PermissionType } from "./permissions";
@@ -51,29 +51,6 @@ export async function getPermissions(url: string): Promise<PermissionType[]> {
       ?.permissions ?? [];
 
   return sitePermissions;
-}
-
-/** Errors */
-
-// send error if the site does not have permission
-// to execute a type of action
-// TODO: remove, depricated
-export function sendPermissionError(
-  sendResponse: (response?: any) => void,
-  type: MessageType
-) {
-  sendMessage(
-    {
-      type,
-      ext: "arconnect",
-      res: false,
-      message:
-        "The site does not have the required permissions for this action",
-      sender: "background"
-    },
-    undefined,
-    sendResponse
-  );
 }
 
 /** Store data related functions */

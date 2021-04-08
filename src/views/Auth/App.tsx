@@ -14,7 +14,7 @@ import {
 } from "@geist-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
-import { sendMessage, MessageType } from "../../utils/messenger";
+import { MessageType } from "../../utils/messenger";
 import {
   addAllowance,
   setAllowanceLimit,
@@ -67,7 +67,7 @@ export default function App() {
 
     // invalid auth
     if (!authVal) {
-      sendMessage({
+      browser.runtime.sendMessage({
         type: getReturnType(),
         ext: "arconnect",
         res: false,
@@ -91,7 +91,7 @@ export default function App() {
 
     // if the type does not exist, this is an invalid call
     if (!decodedAuthParam.type) {
-      sendMessage({
+      browser.runtime.sendMessage({
         type: getReturnType(),
         ext: "arconnect",
         res: false,
@@ -152,7 +152,7 @@ export default function App() {
 
       // if non of the types matched, this is an invalid auth call
     } else {
-      sendMessage({
+      browser.runtime.sendMessage({
         type: getReturnType(),
         ext: "arconnect",
         res: false,
@@ -199,7 +199,7 @@ export default function App() {
       if (type !== "connect") {
         if (!currentURL) return urlError();
         else {
-          sendMessage({
+          browser.runtime.sendMessage({
             type: getReturnType(),
             ext: "arconnect",
             res: true,
@@ -222,7 +222,7 @@ export default function App() {
 
   // invalid url sent
   function urlError() {
-    sendMessage({
+    browser.runtime.sendMessage({
       type: getReturnType(),
       ext: "arconnect",
       res: false,
@@ -251,7 +251,7 @@ export default function App() {
 
     // give time for the state to update
     setTimeout(() => {
-      sendMessage({
+      browser.runtime.sendMessage({
         type: getReturnType(),
         ext: "arconnect",
         res: true,
@@ -264,7 +264,7 @@ export default function App() {
 
   // cancel login or permission request
   function cancel() {
-    sendMessage({
+    browser.runtime.sendMessage({
       type: getReturnType(),
       ext: "arconnect",
       res: false,
@@ -281,7 +281,7 @@ export default function App() {
 
   // problem with permissions
   function sendPermissionError() {
-    sendMessage({
+    browser.runtime.sendMessage({
       type: getReturnType(),
       ext: "arconnect",
       res: false,

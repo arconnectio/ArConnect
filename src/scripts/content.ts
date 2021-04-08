@@ -1,8 +1,4 @@
-import {
-  sendMessage,
-  validateMessage,
-  MessageFormat
-} from "../utils/messenger";
+import { validateMessage, MessageFormat } from "../utils/messenger";
 import { browser } from "webextension-polyfill-ts";
 
 function addScriptToWindow(path: string) {
@@ -33,12 +29,9 @@ addScriptToWindow(browser.extension.getURL("build/scripts/injected.js"));
 // forward messages from the api to the background script
 window.addEventListener("message", async (e) => {
   if (!validateMessage(e.data, {}) || !e.data.type) return;
-  //sendMessage(e.data, (res) => sendMessage(res, undefined, undefined, false));
-  sendMessage(
+  window.postMessage(
     await browser.runtime.sendMessage(e.data),
-    undefined,
-    undefined,
-    false
+    window.location.origin
   );
 });
 
@@ -53,7 +46,7 @@ browser.runtime.onMessage.addListener((msg) => {
   )
     return;
 
-  return sendMessage(message, undefined, undefined, false);
+  window.postMessage(message, window.location.origin);
 });
 
 export {};

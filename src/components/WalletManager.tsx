@@ -20,7 +20,6 @@ import {
 import { useColorScheme } from "use-color-scheme";
 import { QRCode } from "react-qr-svg";
 import { motion, AnimatePresence } from "framer-motion";
-import { sendMessage } from "../utils/messenger";
 import { goTo } from "react-chrome-extension-router";
 import { getVerification, Threshold } from "arverify";
 import { browser } from "webextension-polyfill-ts";
@@ -98,7 +97,7 @@ export default function WalletManager() {
   function switchWallet(address: string) {
     dispatch(switchProfile(address));
     setOpen(false);
-    sendMessage({
+    browser.runtime.sendMessage({
       type: "switch_wallet_event",
       ext: "arconnect",
       res: true,

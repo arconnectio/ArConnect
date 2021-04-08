@@ -1,4 +1,4 @@
-import { sendMessage, validateMessage } from "../utils/messenger";
+import { validateMessage } from "../utils/messenger";
 import { comparePermissions, PermissionType } from "../utils/permissions";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { getRealURL } from "../utils/url";
@@ -33,7 +33,7 @@ const WalletAPI = {
       if (comparePermissions(permissions, existingPermissions))
         return resolve();
 
-      sendMessage(
+      window.postMessage(
         {
           type: "connect",
           ext: "arconnect",
@@ -41,9 +41,7 @@ const WalletAPI = {
           permissions,
           appInfo
         },
-        undefined,
-        undefined,
-        false
+        window.location.origin
       );
       window.addEventListener("message", callback);
       document.body.appendChild(requestPermissionOverlay);
@@ -61,11 +59,9 @@ const WalletAPI = {
   },
   disconnect(): Promise<void> {
     return new Promise((resolve, reject) => {
-      sendMessage(
+      window.postMessage(
         { type: "disconnect", ext: "arconnect", sender: "api" },
-        undefined,
-        undefined,
-        false
+        window.location.origin
       );
       window.addEventListener("message", callback);
 
@@ -81,11 +77,9 @@ const WalletAPI = {
   },
   getActiveAddress(): Promise<string> {
     return new Promise((resolve, reject) => {
-      sendMessage(
+      window.postMessage(
         { type: "get_active_address", ext: "arconnect", sender: "api" },
-        undefined,
-        undefined,
-        false
+        window.location.origin
       );
       window.addEventListener("message", callback);
 
@@ -102,11 +96,9 @@ const WalletAPI = {
   },
   getAllAddresses(): Promise<string[]> {
     return new Promise((resolve, reject) => {
-      sendMessage(
+      window.postMessage(
         { type: "get_all_addresses", ext: "arconnect", sender: "api" },
-        undefined,
-        undefined,
-        false
+        window.location.origin
       );
       window.addEventListener("message", callback);
 
@@ -123,11 +115,9 @@ const WalletAPI = {
   },
   getWalletNames(): Promise<{ [addr: string]: string }> {
     return new Promise((resolve, reject) => {
-      sendMessage(
+      window.postMessage(
         { type: "get_wallet_names", ext: "arconnect", sender: "api" },
-        undefined,
-        undefined,
-        false
+        window.location.origin
       );
       window.addEventListener("message", callback);
 
@@ -144,11 +134,9 @@ const WalletAPI = {
   },
   addToken(id: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      sendMessage(
+      window.postMessage(
         { type: "add_token", ext: "arconnect", sender: "api", id },
-        undefined,
-        undefined,
-        false
+        window.location.origin
       );
       window.addEventListener("message", callback);
 
@@ -173,7 +161,7 @@ const WalletAPI = {
         protocol: "https"
       });
 
-      sendMessage(
+      window.postMessage(
         {
           type: "sign_transaction",
           ext: "arconnect",
@@ -181,9 +169,7 @@ const WalletAPI = {
           transaction,
           signatureOptions: options
         },
-        undefined,
-        undefined,
-        false
+        window.location.origin
       );
       window.addEventListener("message", callback);
 
@@ -213,11 +199,9 @@ const WalletAPI = {
   },
   getPermissions(): Promise<PermissionType[]> {
     return new Promise((resolve, reject) => {
-      sendMessage(
+      window.postMessage(
         { type: "get_permissions", ext: "arconnect", sender: "api" },
-        undefined,
-        undefined,
-        false
+        window.location.origin
       );
       window.addEventListener("message", callback);
 
@@ -241,7 +225,7 @@ const WalletAPI = {
     }
   ): Promise<Uint8Array> {
     return new Promise((resolve, reject) => {
-      sendMessage(
+      window.postMessage(
         {
           type: "encrypt",
           ext: "arconnect",
@@ -249,9 +233,7 @@ const WalletAPI = {
           data,
           options
         },
-        undefined,
-        undefined,
-        false
+        window.location.origin
       );
       window.addEventListener("message", callback);
 
@@ -275,7 +257,7 @@ const WalletAPI = {
     }
   ): Promise<string> {
     return new Promise((resolve, reject) => {
-      sendMessage(
+      window.postMessage(
         {
           type: "decrypt",
           ext: "arconnect",
@@ -283,9 +265,7 @@ const WalletAPI = {
           data,
           options
         },
-        undefined,
-        undefined,
-        false
+        window.location.origin
       );
       window.addEventListener("message", callback);
 
@@ -307,7 +287,7 @@ const WalletAPI = {
     }
   ): Promise<string> {
     return new Promise((resolve, reject) => {
-      sendMessage(
+      window.postMessage(
         {
           type: "signature",
           ext: "arconnect",
@@ -315,9 +295,7 @@ const WalletAPI = {
           data,
           options
         },
-        undefined,
-        undefined,
-        false
+        window.location.origin
       );
       window.addEventListener("message", callback);
 
