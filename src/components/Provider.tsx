@@ -1,9 +1,9 @@
 import React from "react";
 import { CssBaseline, GeistProvider } from "@geist-ui/react";
 import { Provider as ReduxProvider } from "react-redux";
-import setupStores from "../stores";
 import { useColorScheme } from "use-color-scheme";
 import { PersistGate } from "redux-persist/integration/react";
+import setupStores from "../stores";
 
 const lightTheme = {
   palette: {

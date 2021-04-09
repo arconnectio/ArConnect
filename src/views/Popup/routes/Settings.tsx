@@ -9,19 +9,24 @@ import {
 } from "@primer/octicons-react";
 import {
   Button,
+  Code,
   Input,
   Radio,
   Spacer,
   Toggle,
-  useInput
+  useInput,
+  useTheme,
+  useToasts
 } from "@geist-ui/react";
 import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
-import { getRealURL } from "../../../utils/url";
+import { getRealURL, shortenURL } from "../../../utils/url";
 import { Currency } from "../../../stores/reducers/settings";
 import { Threshold } from "arverify";
 import { MessageType } from "../../../utils/messenger";
+import { updateIcon } from "../../../background/icon";
+import { checkPassword, setPassword } from "../../../utils/auth";
 import {
   readdAsset,
   removePermissions,
@@ -36,6 +41,7 @@ import {
 } from "../../../stores/actions";
 import Home from "./Home";
 import Arweave from "arweave";
+import manifest from "../../../../public/manifest.json";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
 
@@ -49,6 +55,8 @@ export default function Settings() {
       | "arweave"
       | "arverify"
       | "allowances"
+      | "about"
+      | "password"
     >(),
     permissions = useSelector((state: RootState) => state.permissions),
     [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
@@ -68,7 +76,14 @@ export default function Settings() {
     [editingAllowance, setEditingAllowance] = useState<{
       id: number;
       val: number;
-    }>();
+    }>(),
+    theme = useTheme(),
+    passwords = {
+      new: useInput(""),
+      newAgain: useInput(""),
+      old: useInput("")
+    },
+    [, setToast] = useToasts();
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
@@ -136,14 +151,66 @@ export default function Settings() {
     setCurrSetting(undefined);
   }
 
+  async function updatePassword() {
+    if (
+      passwords.new.state === "" ||
+      passwords.newAgain.state === "" ||
+      passwords.old.state === ""
+    ) {
+      setToast({ text: "Please fill all password fields", type: "error" });
+      return;
+    }
+    if (passwords.new.state !== passwords.newAgain.state) {
+      setToast({
+        text: "The two new passwords are not the same",
+        type: "error"
+      });
+      return;
+    }
+    if (passwords.new.state.length < 5) {
+      setToast({ text: "Weak password", type: "error" });
+      return;
+    }
+
+    try {
+      const res = await checkPassword(passwords.old.state);
+      if (!res)
+        return setToast({ text: "Old password is wrong", type: "error" });
+
+      if (passwords.old.state === passwords.new.state)
+        return setToast({
+          text: "You are already using this password",
+          type: "error"
+        });
+
+      await setPassword(passwords.new.state);
+      setToast({ text: "Updated password", type: "success" });
+      clearInputs();
+    } catch {
+      setToast({ text: "Error while updating password", type: "error" });
+    }
+  }
+
+  function clearInputs() {
+    passwords.new.reset();
+    passwords.newAgain.reset();
+    passwords.old.reset();
+    addURLInput.reset();
+    arweaveHostInput.reset();
+    arweavePortInput.reset();
+    arweaveProtocolInput.reset();
+  }
+
   return (
     <>
       <div className={SubPageTopStyles.Head}>
         <div
           className={SubPageTopStyles.Back}
           onClick={() => {
-            if (setting) setCurrSetting(undefined);
-            else goTo(Home);
+            if (setting) {
+              setCurrSetting(undefined);
+              clearInputs();
+            } else goTo(Home);
           }}
         >
           <ArrowLeftIcon />
@@ -151,12 +218,14 @@ export default function Settings() {
         <h1>
           {(setting === "events" && "Events") ||
             (setting === "permissions" && "Permissions") ||
+            (setting === "password" && "Password") ||
             (setting === "currency" && "Currency") ||
             (setting === "psts" && "Removed PSTs") ||
             (setting === "sites" && "Blocked Sites") ||
             (setting === "arweave" && "Arweave Config") ||
             (setting === "arverify" && "ArVerify Config") ||
             (setting === "allowances" && "Allowances") ||
+            (setting === "about" && "About ArConnect") ||
             "Settings"}
         </h1>
       </div>
@@ -182,6 +251,18 @@ export default function Settings() {
               <div>
                 <h1>Permissions</h1>
                 <p>Manage site permissions</p>
+              </div>
+              <div className={styles.Arrow}>
+                <ChevronRightIcon />
+              </div>
+            </div>
+            <div
+              className={styles.Setting}
+              onClick={() => setCurrSetting("password")}
+            >
+              <div>
+                <h1>Password</h1>
+                <p>Update your password</p>
               </div>
               <div className={styles.Arrow}>
                 <ChevronRightIcon />
@@ -275,53 +356,77 @@ export default function Settings() {
                 />
               </div>
             </div>
+            <div
+              className={styles.Setting}
+              onClick={() => setCurrSetting("about")}
+            >
+              <div>
+                <h1>About</h1>
+                <p>Information about ArConnect</p>
+              </div>
+              <div className={styles.Arrow}>
+                <ChevronRightIcon />
+              </div>
+            </div>
           </>
         )) ||
           (setting === "permissions" && (
             <>
               {(filterWithPermission().length > 0 &&
-                filterWithPermission().map((permissionGroup, i) => (
-                  <div key={i}>
-                    <div
-                      className={styles.Setting + " " + styles.SubSetting}
-                      onClick={() => open(permissionGroup.url)}
-                    >
-                      <h1>{permissionGroup.url}</h1>
-                      <div className={styles.Arrow}>
-                        {(isOpened(permissionGroup.url) && (
-                          <ChevronDownIcon />
-                        )) || <ChevronRightIcon />}
+                filterWithPermission()
+                  .sort((a, b) => {
+                    if (a.url < b.url) return -1;
+                    if (a.url > b.url) return 1;
+                    return 0;
+                  })
+                  .map((permissionGroup, i) => (
+                    <div key={i}>
+                      <div
+                        className={styles.Setting + " " + styles.SubSetting}
+                        onClick={() => open(permissionGroup.url)}
+                      >
+                        <h1 title={permissionGroup.url}>
+                          {shortenURL(permissionGroup.url)}
+                        </h1>
+                        <div className={styles.Arrow}>
+                          {(isOpened(permissionGroup.url) && (
+                            <ChevronDownIcon />
+                          )) || <ChevronRightIcon />}
+                        </div>
                       </div>
-                    </div>
-                    {isOpened(permissionGroup.url) && (
-                      <div className={styles.OptionContent}>
-                        {permissionGroup.permissions.map((perm, j) => (
-                          <h1 key={j}>
-                            {perm}
-                            <div
-                              className={styles.RemoveOption}
-                              onClick={() => {
-                                dispatch(
-                                  removePermissions(permissionGroup.url, [perm])
-                                );
-                                if (
-                                  permissionGroup.permissions.filter(
-                                    (val) => val !== perm
-                                  ).length === 0
-                                )
+                      {isOpened(permissionGroup.url) && (
+                        <div className={styles.OptionContent}>
+                          {permissionGroup.permissions.map((perm, j) => (
+                            <h1 key={j}>
+                              {perm}
+                              <div
+                                className={styles.RemoveOption}
+                                onClick={() => {
                                   dispatch(
-                                    removeAllowance(permissionGroup.url)
+                                    removePermissions(permissionGroup.url, [
+                                      perm
+                                    ])
                                   );
-                              }}
-                            >
-                              <XIcon />
-                            </div>
-                          </h1>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))) || <p>No permissions...</p>}
+                                  if (
+                                    permissionGroup.permissions.filter(
+                                      (val) => val !== perm
+                                    ).length === 0
+                                  ) {
+                                    dispatch(
+                                      removeAllowance(permissionGroup.url)
+                                    );
+                                    updateIcon(false);
+                                  }
+                                }}
+                              >
+                                <XIcon />
+                              </div>
+                            </h1>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))) || <p>No permissions...</p>}
             </>
           )) ||
           (setting === "currency" && (
@@ -391,7 +496,7 @@ export default function Settings() {
                       justifyContent: "space-between"
                     }}
                   >
-                    <h1>{allowance.url}</h1>
+                    <h1 title={allowance.url}>{shortenURL(allowance.url)}</h1>
                     <p>
                       <Toggle
                         checked={allowance.enabled}
@@ -533,7 +638,9 @@ export default function Settings() {
                         }).format(event.date)}
                       </span>
                     </h1>
-                    <p>{getRealURL(event.url)}</p>
+                    <p title={getRealURL(event.url)}>
+                      {shortenURL(getRealURL(event.url))}
+                    </p>
                   </div>
                 ))) || <p>No events</p>}
             </>
@@ -601,6 +708,89 @@ export default function Settings() {
                   </Radio.Description>
                 </Radio>
               </Radio.Group>
+            </div>
+          )) ||
+          (setting === "about" && (
+            <div className={styles.OptionContent + " " + styles.About}>
+              <h1>
+                {manifest.name}
+                <sup>{manifest.version}</sup>
+              </h1>
+              <p>{manifest.description}</p>
+              <Spacer y={1} />
+              <p>
+                Used permissions:
+                <ul>
+                  {manifest.permissions.map((permission, i) => (
+                    <li key={i}>
+                      <Code>{permission}</Code>
+                    </li>
+                  ))}
+                </ul>
+              </p>
+              <div className={styles.Branding}>
+                <div className={styles.Links}>
+                  <p
+                    onClick={() => window.open("https://arconnect.io/faq")}
+                    style={{ color: theme.palette.success }}
+                  >
+                    FAQ
+                  </p>
+                  <p
+                    onClick={() => window.open("https://arconnect.io")}
+                    style={{ color: theme.palette.success }}
+                  >
+                    arconnect.io
+                  </p>
+                  <p
+                    onClick={() => window.open("https://arconnect.io/docs")}
+                    style={{ color: theme.palette.success }}
+                  >
+                    Docs
+                  </p>
+                </div>
+                <p
+                  onClick={() => window.open("https://th8ta.org")}
+                  className={styles.Th8ta}
+                >
+                  th<span>8</span>ta
+                </p>
+              </div>
+            </div>
+          )) ||
+          (setting === "password" && (
+            <div className={styles.OptionContent}>
+              <Spacer />
+              <Input.Password
+                {...passwords.new.bindings}
+                placeholder="New password..."
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") updatePassword();
+                }}
+              />
+              <Spacer />
+              <Input.Password
+                {...passwords.newAgain.bindings}
+                placeholder="New password again..."
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") updatePassword();
+                }}
+              />
+              <Spacer />
+              <Input.Password
+                {...passwords.old.bindings}
+                placeholder="Old password..."
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") updatePassword();
+                }}
+              />
+              <Spacer />
+              <Button
+                style={{ width: "100%", marginTop: ".5em" }}
+                onClick={updatePassword}
+              >
+                Change password
+              </Button>
             </div>
           ))}
       </div>

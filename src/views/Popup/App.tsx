@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Router } from "react-chrome-extension-router";
 import { useSelector } from "react-redux";
+import { browser } from "webextension-polyfill-ts";
 import { RootState } from "../../stores/reducers";
 
 import Home from "./routes/Home";
@@ -9,12 +10,8 @@ export default function App() {
   const wallets = useSelector((state: RootState) => state.wallets);
 
   useEffect(() => {
-    if (typeof chrome !== "undefined")
-      chrome.browserAction.setBadgeText({ text: "" });
-    else browser.browserAction.setBadgeText({ text: "" });
-
     if (wallets.length === 0)
-      window.open(chrome.runtime.getURL("/welcome.html"));
+      window.open(browser.runtime.getURL("/welcome.html"));
     // eslint-disable-next-line
   }, []);
 

@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Wallet } from "../../stores/reducers/wallets";
 import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
+import { checkPassword as checkPw, setPassword } from "../../utils/auth";
 import Arweave from "arweave";
 import logo from "../../assets/logo.png";
 import styles from "../../styles/views/Welcome/view.module.sass";
@@ -127,7 +128,9 @@ export default function App() {
     setToast({ text: "Loaded wallets", type: "success" });
     // allow time to save the wallets
     setTimeout(() => {
-      window.close();
+      loadWalletsModal.setVisible(false);
+      setKeyfiles([]);
+      if (fileInput.current) fileInput.current.value = "";
     }, 600);
   }
 
@@ -174,7 +177,7 @@ export default function App() {
     document.body.removeChild(el);
   }
 
-  function createPassword() {
+  async function createPassword() {
     if (passwordInput.state === "" || passwordInputAgain.state === "") {
       setToast({ text: "Please fill both password fields", type: "error" });
       return;
@@ -187,24 +190,23 @@ export default function App() {
       setToast({ text: "Weak password", type: "error" });
       return;
     }
+
+    await setPassword(passwordInput.state);
     setPasswordGiven(true);
   }
 
-  function checkPassword() {
+  async function checkPassword() {
     setLoading(true);
-    // we need to wait a bit, because the decrypting
-    // freezes the program, and the loading does not start
-    setTimeout(() => {
-      try {
-        atob(walletsStore[0].keyfile);
-        setPasswordGiven(true);
-        setToast({ text: "Logged in", type: "success" });
-      } catch {
-        setToast({ text: "Wrong password", type: "error" });
-      } finally {
-        setLoading(false);
-      }
-    }, 100);
+    try {
+      const res = await checkPw(passwordInput.state);
+      if (!res) throw new Error();
+
+      setPasswordGiven(true);
+      setToast({ text: "Logged in", type: "success" });
+    } catch {
+      setToast({ text: "Wrong password", type: "error" });
+    }
+    setLoading(false);
   }
 
   return (
@@ -372,7 +374,9 @@ export default function App() {
             Download
           </Button>
         </Modal.Content>
-        <Modal.Action onClick={() => window.close()}>Ok</Modal.Action>
+        <Modal.Action onClick={() => seedModal.setVisible(false)}>
+          Ok
+        </Modal.Action>
       </Modal>
       <Modal {...feeModal.bindings}>
         <Modal.Title>Tips</Modal.Title>

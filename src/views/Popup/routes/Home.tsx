@@ -61,18 +61,27 @@ export default function Home() {
     calculateArPriceInCurrency();
     loadBalance();
     // eslint-disable-next-line
-  }, [currency]);
+  }, [currency, profile]);
 
   async function calculateArPriceInCurrency() {
     setArPriceInCurrency(await arToFiat(1, currency));
   }
 
   async function loadBalance() {
-    const bal = await arweave.wallets.getBalance(profile),
-      arBalance = parseFloat(arweave.ar.winstonToAr(bal)),
+    let arBalance = balance()?.arBalance ?? 0,
+      fiatBalance = balance()?.fiatBalance ?? 0;
+
+    try {
+      arBalance = parseFloat(
+        arweave.ar.winstonToAr(await arweave.wallets.getBalance(profile))
+      );
+    } catch {}
+
+    try {
       fiatBalance = parseFloat(
         (await arToFiat(arBalance, currency)).toFixed(2)
       );
+    } catch {}
 
     dispatch(setBalance({ address: profile, arBalance, fiatBalance }));
   }
@@ -81,31 +90,16 @@ export default function Home() {
     setLoading((val) => ({ ...val, psts: true }));
     try {
       const { data } = await axios.get(
-          `https://cache.verto.exchange/balance/${profile}`
-        ),
-        pstsWithBalance = data.filter(
-          ({
-            state: { balances }
-          }: {
-            state: { balances: Record<string, number> };
-          }) => balances[profile]
+          `https://v2.cache.verto.exchange/user/${profile}/balances`
         ),
         verto = new Verto(),
         pstsLoaded: Asset[] = await Promise.all(
-          pstsWithBalance.map(async (pst: any) => {
-            const logoSetting = pst.state.settings?.find(
-              (entry: any) => entry[0] === "communityLogo"
-            );
-
+          data.map(async (pst: any) => {
+            console.log(pst);
             return {
-              id: pst.id,
-              name: pst.state.name,
-              ticker: pst.state.ticker,
-              logo: logoSetting ? logoSetting[1] : undefined,
-              balance: pst.state.balances[profile] ?? 0,
+              ...pst,
               arBalance:
-                ((await verto.latestPrice(pst.id)) ?? 0) *
-                (pst.state.balances[profile] ?? 0),
+                ((await verto.latestPrice(pst.id)) ?? 0) * (pst.balance ?? 0),
               removed: psts?.find(({ id }) => id === pst.id)?.removed ?? false
             };
           })

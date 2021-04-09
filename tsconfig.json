@@ -15,8 +15,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react",
-    "downlevelIteration": true,
-    "typeRoots": ["node_modules/@types", "node_modules/web-ext-types"]
+    "downlevelIteration": true
   },
   "include": ["src"]
 }
