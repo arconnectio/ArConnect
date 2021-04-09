@@ -1,4 +1,3 @@
-import { validateMessage } from "../utils/messenger";
 import { comparePermissions, PermissionType } from "../utils/permissions";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { getRealURL } from "../utils/url";
