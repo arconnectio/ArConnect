@@ -1,3 +1,4 @@
+import { MessageFormat, validateMessage, MessageType } from "./messenger";
 import arweaveLogo from "../assets/arweave.png";
 
 /**
@@ -57,3 +58,23 @@ export function createCoinWithAnimation() {
     arCoin.style.opacity = `${visibility / 100}`;
   }, 100);
 }
+
+export const callAPI = (message: MessageFormat) =>
+  new Promise<void | any>((resolve, reject) => {
+    window.postMessage(message, window.location.origin);
+    window.addEventListener("message", callback);
+
+    // @ts-ignore
+    function callback(e: MessageEvent<any>) {
+      if (
+        !validateMessage(e.data, {
+          type: `${message.type}_result` as MessageType
+        })
+      )
+        return;
+      window.removeEventListener("message", callback);
+
+      if (e.data?.res === false) reject();
+      else resolve(e.data);
+    }
+  });

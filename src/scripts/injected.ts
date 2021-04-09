@@ -2,15 +2,19 @@ import { validateMessage } from "../utils/messenger";
 import { comparePermissions, PermissionType } from "../utils/permissions";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { getRealURL } from "../utils/url";
-import { createOverlay, createCoinWithAnimation } from "../utils/injected";
+import {
+  createOverlay,
+  createCoinWithAnimation,
+  callAPI
+} from "../utils/injected";
 import Transaction from "arweave/web/lib/transaction";
 import Arweave from "arweave";
 
 const WalletAPI = {
-  connect(
+  async connect(
     permissions: PermissionType[],
     appInfo: { name?: string; logo?: string } = {}
-  ): Promise<void> {
+  ) {
     const requestPermissionOverlay = createOverlay(
       "This page is requesting permission to connect to your wallet...<br />Please review them in the popup."
     );
@@ -27,128 +31,94 @@ const WalletAPI = {
           ? document.title
           : getRealURL(window.location.href);
 
-    return new Promise(async (resolve, reject) => {
+    try {
       const existingPermissions = await this.getPermissions();
 
-      if (comparePermissions(permissions, existingPermissions))
-        return resolve();
+      if (comparePermissions(permissions, existingPermissions)) return;
 
-      window.postMessage(
-        {
-          type: "connect",
-          ext: "arconnect",
-          sender: "api",
-          permissions,
-          appInfo
-        },
-        window.location.origin
-      );
-      window.addEventListener("message", callback);
       document.body.appendChild(requestPermissionOverlay);
-
-      // @ts-ignore
-      function callback(e: MessageEvent<any>) {
-        if (!validateMessage(e.data, { type: "connect_result" })) return;
-        window.removeEventListener("message", callback);
+      await callAPI({
+        type: "connect",
+        ext: "arconnect",
+        sender: "api",
+        permissions,
+        appInfo
+      });
+      document.body.removeChild(requestPermissionOverlay);
+    } catch (e) {
+      if (document.body.contains(requestPermissionOverlay))
         document.body.removeChild(requestPermissionOverlay);
 
-        if (e.data.res) resolve();
-        else reject(e.data.message);
-      }
-    });
+      throw new Error(e);
+    }
   },
-  disconnect(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      window.postMessage(
-        { type: "disconnect", ext: "arconnect", sender: "api" },
-        window.location.origin
-      );
-      window.addEventListener("message", callback);
+  async disconnect() {
+    try {
+      const data = await callAPI({
+        type: "disconnect",
+        ext: "arconnect",
+        sender: "api"
+      });
 
-      // @ts-ignore
-      function callback(e: MessageEvent<any>) {
-        if (!validateMessage(e.data, { type: "disconnect_result" })) return;
-        window.removeEventListener("message", callback);
-
-        if (e.data.res) resolve();
-        else reject(e.data.message);
-      }
-    });
+      if (!data.res) throw new Error(data.message);
+    } catch (e) {
+      throw new Error(e);
+    }
   },
-  getActiveAddress(): Promise<string> {
-    return new Promise((resolve, reject) => {
-      window.postMessage(
-        { type: "get_active_address", ext: "arconnect", sender: "api" },
-        window.location.origin
-      );
-      window.addEventListener("message", callback);
+  async getActiveAddress() {
+    try {
+      const data = await callAPI({
+        type: "get_active_address",
+        ext: "arconnect",
+        sender: "api"
+      });
+      if (!data.res) throw new Error(data.message);
 
-      // @ts-ignore
-      function callback(e: MessageEvent<any>) {
-        if (!validateMessage(e.data, { type: "get_active_address_result" }))
-          return;
-        window.removeEventListener("message", callback);
-
-        if (e.data.address) resolve(e.data.address);
-        else reject(e.data.message);
-      }
-    });
+      return data.address as string;
+    } catch (e) {
+      throw new Error(e);
+    }
   },
-  getAllAddresses(): Promise<string[]> {
-    return new Promise((resolve, reject) => {
-      window.postMessage(
-        { type: "get_all_addresses", ext: "arconnect", sender: "api" },
-        window.location.origin
-      );
-      window.addEventListener("message", callback);
+  async getAllAddresses() {
+    try {
+      const data = await callAPI({
+        type: "get_all_addresses",
+        ext: "arconnect",
+        sender: "api"
+      });
+      if (!data.res) throw new Error(data.message);
 
-      // @ts-ignore
-      function callback(e: MessageEvent<any>) {
-        if (!validateMessage(e.data, { type: "get_all_addresses_result" }))
-          return;
-        window.removeEventListener("message", callback);
-
-        if (e.data.addresses) resolve(e.data.addresses);
-        else reject(e.data.message);
-      }
-    });
+      return data.addresses as string[];
+    } catch (e) {
+      throw new Error(e);
+    }
   },
-  getWalletNames(): Promise<{ [addr: string]: string }> {
-    return new Promise((resolve, reject) => {
-      window.postMessage(
-        { type: "get_wallet_names", ext: "arconnect", sender: "api" },
-        window.location.origin
-      );
-      window.addEventListener("message", callback);
+  async getWalletNames(): Promise<{ [addr: string]: string }> {
+    try {
+      const data = await callAPI({
+        type: "get_wallet_names",
+        ext: "arconnect",
+        sender: "api"
+      });
+      if (!data.res) throw new Error(data.message);
 
-      // @ts-ignore
-      function callback(e: MessageEvent<any>) {
-        if (!validateMessage(e.data, { type: "get_wallet_names_result" }))
-          return;
-        window.removeEventListener("message", callback);
-
-        if (e.data.names) resolve(e.data.names);
-        else reject(e.data.message);
-      }
-    });
+      return data.names;
+    } catch (e) {
+      throw new Error(e);
+    }
   },
-  addToken(id: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      window.postMessage(
-        { type: "add_token", ext: "arconnect", sender: "api", id },
-        window.location.origin
-      );
-      window.addEventListener("message", callback);
-
-      // @ts-ignore
-      function callback(e: MessageEvent<any>) {
-        if (!validateMessage(e.data, { type: "add_token_result" })) return;
-        window.removeEventListener("message", callback);
-
-        if (e.data.res) resolve();
-        else reject(e.data.message);
-      }
-    });
+  async addToken(id: string): Promise<void> {
+    try {
+      const data = await callAPI({
+        type: "add_token",
+        ext: "arconnect",
+        sender: "api",
+        id
+      });
+      if (!data.res) throw new Error(data.message);
+    } catch (e) {
+      throw new Error(e);
+    }
   },
   sign(
     transaction: Transaction,
