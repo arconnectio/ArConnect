@@ -23,7 +23,7 @@ import { browser } from "webextension-polyfill-ts";
 // open the welcome page
 browser.runtime.onInstalled.addListener(async () => {
   if (!(await walletsStored()))
-    window.open(browser.runtime.getURL("/welcome.html"));
+    browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
 });
 
 // create listeners for the icon utilities

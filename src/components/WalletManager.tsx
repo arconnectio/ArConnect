@@ -294,7 +294,9 @@ export default function WalletManager() {
                   <div
                     className={styles.Action}
                     onClick={() =>
-                      window.open(browser.runtime.getURL("/welcome.html"))
+                      browser.tabs.create({
+                        url: browser.runtime.getURL("/welcome.html")
+                      })
                     }
                   >
                     <PlusIcon />
