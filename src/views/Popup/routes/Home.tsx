@@ -90,7 +90,7 @@ export default function Home() {
     setLoading((val) => ({ ...val, psts: true }));
     try {
       const { data } = await axios.get(
-          `https://v2.cache.verto.exchange/balance/${profile}`
+          `https://v2.cache.verto.exchange/user/${profile}/balances`
         ),
         verto = new Verto(),
         pstsLoaded: Asset[] = await Promise.all(
