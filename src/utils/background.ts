@@ -7,6 +7,7 @@ import { browser } from "webextension-polyfill-ts";
 import { run } from "ar-gql";
 import limestone from "@limestonefi/api";
 import Arweave from "arweave";
+import axios from "axios";
 
 // create an authenticator popup
 // data: the data sent to the popup
@@ -98,7 +99,7 @@ export async function setStoreData(updatedData: StoreData) {
 // create a simple fee
 export async function getFeeAmount(address: string, arweave: Arweave) {
   const res = await run(
-      `
+    `
       query($address: String!) {
         transactions(
           owners: [$address]
@@ -116,10 +117,22 @@ export async function getFeeAmount(address: string, arweave: Arweave) {
         }
       }
     `,
-      { address }
-    ),
-    arPrice = await limestone.getPrice("AR"),
-    usdPrice = 1 / arPrice.price; // 1 USD how much AR
+    { address }
+  );
+
+  let arPrice = 0;
+
+  try {
+    const res = await limestone.getPrice("AR");
+    arPrice = res.price;
+  } catch {
+    const { data: res } = await axios.get(
+      "https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=usd"
+    );
+    arPrice = res.arweave.usd;
+  }
+
+  const usdPrice = 1 / arPrice; // 1 USD how much AR
 
   if (res.data.transactions.edges.length) {
     const usd = res.data.transactions.edges.length >= 10 ? 0.01 : 0.03;

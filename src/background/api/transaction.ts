@@ -147,9 +147,9 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
             throw new Error();
 
           decryptionKey = msg.decryptionKey;
-          await sign();
+          resolve(await sign());
         });
-      } else await sign();
+      } else resolve(await sign());
     } catch {
       resolve({
         res: false,
@@ -162,7 +162,7 @@ async function selectVRTHolder() {
   try {
     const res = (
       await axios.get(
-        "https://cache.verto.exchange/usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
+        "https://v2.cache.verto.exchange/usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
       )
     ).data;
     const balances = res.state.balances;
