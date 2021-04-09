@@ -26,13 +26,28 @@ document.head.appendChild(interFont);
 // inject the api
 addScriptToWindow(browser.extension.getURL("build/scripts/injected.js"));
 
+const connection = browser.runtime.connect(browser.runtime.id, {
+  name: "backgroundConnection"
+});
+
 // forward messages from the api to the background script
 window.addEventListener("message", async (e) => {
   if (!validateMessage(e.data, {}) || !e.data.type) return;
-  window.postMessage(
-    await browser.runtime.sendMessage(e.data),
-    window.location.origin
-  );
+  const listener = (res: any) => {
+    if (
+      !res.ext ||
+      res.ext !== "arconnect" ||
+      !res.type ||
+      res.type !== `${e.data.type}_result`
+    )
+      return;
+
+    window.postMessage(res, window.location.origin);
+    connection.onMessage.removeListener(listener);
+  };
+
+  connection.postMessage(e.data);
+  connection.onMessage.addListener(listener);
 });
 
 // wallet switch event

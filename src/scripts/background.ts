@@ -31,16 +31,24 @@ browser.runtime.onInstalled.addListener(async () => {
 browser.tabs.onActivated.addListener(handleTabUpdate);
 browser.tabs.onUpdated.addListener(handleTabUpdate);
 
+browser.runtime.onConnect.addListener((connection) => {
+  if (connection.name !== "backgroundConnection") return;
+  connection.onMessage.addListener(async (msg) => {
+    if (!validateMessage(msg, { sender: "api" })) return;
+
+    const res = await handleApiCalls(msg);
+    connection.postMessage(res);
+  });
+});
+
 // listen for messages from the content script
-browser.runtime.onMessage.addListener(async (msg) => {
-  const message: MessageFormat = msg,
-    eventsStore = localStorage.getItem("arweave_events"),
+const handleApiCalls = async (
+  message: MessageFormat
+): Promise<MessageFormat> => {
+  const eventsStore = localStorage.getItem("arweave_events"),
     events: ArConnectEvent[] = eventsStore ? JSON.parse(eventsStore)?.val : [],
-    activeTab = await getActiveTab();
-
-  if (!validateMessage(message, { sender: "api" })) return;
-
-  const tabURL = activeTab.url as string,
+    activeTab = await getActiveTab(),
+    tabURL = activeTab.url as string,
     faviconUrl = activeTab.favIconUrl,
     blockedSites = (await getStoreData())?.["blockedSites"];
 
@@ -254,7 +262,15 @@ browser.runtime.onMessage.addListener(async (msg) => {
     default:
       break;
   }
-});
+
+  return {
+    type: `${message.type}_result` as MessageType,
+    ext: "arconnect",
+    res: false,
+    message: "Unknown error",
+    sender: "background"
+  };
+};
 
 // listen for messages from the popup
 // right now the only message from there
