@@ -1,8 +1,5 @@
-import {
-  sendMessage,
-  validateMessage,
-  MessageFormat
-} from "../utils/messenger";
+import { validateMessage, MessageFormat } from "../utils/messenger";
+import { browser } from "webextension-polyfill-ts";
 
 function addScriptToWindow(path: string) {
   try {
@@ -27,39 +24,49 @@ interFont.href =
 document.head.appendChild(interFont);
 
 // inject the api
-addScriptToWindow(chrome.extension.getURL("build/scripts/injected.js"));
+addScriptToWindow(browser.extension.getURL("build/scripts/injected.js"));
 
-// forward messages from the api to the background script
-window.addEventListener("message", (e) => {
-  if (!validateMessage(e.data, {}) || !e.data.type) return;
-  sendMessage(e.data, (res) => sendMessage(res, undefined, undefined, false));
+const connection = browser.runtime.connect(browser.runtime.id, {
+  name: "backgroundConnection"
 });
 
-// wallet switch event and archive page
-chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
-  const message: MessageFormat = msg;
+// forward messages from the api to the background script
+window.addEventListener("message", async (e) => {
+  if (!validateMessage(e.data, {}) || !e.data.type) return;
+  const listener = (res: any) => {
+    if (
+      !res.ext ||
+      res.ext !== "arconnect" ||
+      !res.type ||
+      res.type !== `${e.data.type}_result`
+    )
+      return;
 
+    window.postMessage(res, window.location.origin);
+    connection.onMessage.removeListener(listener);
+  };
+
+  connection.postMessage(e.data);
+  connection.onMessage.addListener(listener);
+});
+
+// wallet switch event
+browser.runtime.onMessage.addListener(async (message: MessageFormat) => {
   if (validateMessage(message, { sender: "popup", type: "archive_page" }))
-    return sendMessage(
-      {
-        type: "archive_page_content",
-        ext: "arconnect",
-        sender: "content",
-        data: document.documentElement.innerHTML
-      },
-      undefined,
-      sendResponse
-    );
+    return {
+      type: "archive_page_content",
+      ext: "arconnect",
+      sender: "content",
+      data: document.documentElement.innerHTML
+    };
 
   if (
-    !validateMessage(message, {
+    validateMessage(message, {
       sender: "popup",
       type: "switch_wallet_event_forward"
     })
   )
-    return;
-
-  return sendMessage(message, undefined, undefined, false);
+    window.postMessage(message, window.location.origin);
 });
 
 export {};

@@ -8,25 +8,32 @@ import {
   Checkbox,
   Modal,
   useModal,
-  Note
+  Note,
+  useTheme,
+  useToasts,
+  Select
 } from "@geist-ui/react";
 import { useDispatch, useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
 import { RootState } from "../../stores/reducers";
-import { sendMessage, MessageType } from "../../utils/messenger";
+import { MessageType } from "../../utils/messenger";
 import {
   addAllowance,
   setAllowanceLimit,
   setPermissions,
+  switchProfile,
   toggleAllowance
 } from "../../stores/actions";
-import { getRealURL } from "../../utils/url";
-import { local } from "chrome-storage-promises";
+import { getRealURL, shortenURL, formatAddress } from "../../utils/url";
 import { ChevronRightIcon } from "@primer/octicons-react";
 import { Allowance } from "../../stores/reducers/allowances";
+import { checkPassword } from "../../utils/auth";
+import { browser } from "webextension-polyfill-ts";
 import {
   PermissionType,
   PermissionDescriptions
 } from "../../utils/permissions";
+import toastStyles from "../../styles/components/SmallToast.module.sass";
 import styles from "../../styles/views/Auth/view.module.sass";
 
 export default function App() {
@@ -34,7 +41,6 @@ export default function App() {
     [passwordStatus, setPasswordStatus] = useState<
       "default" | "secondary" | "success" | "warning" | "error"
     >(),
-    wallets = useSelector((state: RootState) => state.wallets),
     [loading, setLoading] = useState(false),
     [loggedIn, setLoggedIn] = useState(false),
     permissions = useSelector((state: RootState) => state.permissions),
@@ -45,13 +51,22 @@ export default function App() {
     [type, setType] = useState<AuthType>(),
     dispatch = useDispatch(),
     [alreadyHasPermissions, setAlreadyHasPermissions] = useState(false),
-    profile = useSelector((state: RootState) => state.profile),
     allowanceModal = useModal(false),
     allowanceAmount = useInput("0"),
     allowances = useSelector((state: RootState) => state.allowances),
     [currentAllowance, setCurrentAllowance] = useState<Allowance>(),
     [spendingLimitReached, setSpendingLimitReached] = useState<boolean>(),
-    [updateAllowance, setUpdateAllowance] = useState<number>(); // update allowance?
+    [updateAllowance, setUpdateAllowance] = useState<number>(),
+    [allowedPermissions, setAllowedPermissions] = useState<PermissionType[]>(
+      []
+    ),
+    [appInfo, setAppInfo] = useState<IAppInfo>({}),
+    theme = useTheme(),
+    [, setToast] = useToasts(),
+    [quickAdd, setQuickAdd] = useState(true),
+    proflie = useSelector((state: RootState) => state.profile),
+    wallets = useSelector((state: RootState) => state.wallets),
+    [showSwitch, setShowSwitch] = useState(false);
 
   useEffect(() => {
     // get the auth param from the url
@@ -59,7 +74,7 @@ export default function App() {
 
     // invalid auth
     if (!authVal) {
-      sendMessage({
+      browser.runtime.sendMessage({
         type: getReturnType(),
         ext: "arconnect",
         res: false,
@@ -73,14 +88,17 @@ export default function App() {
     // decode the auth param from the authVal
     const decodedAuthParam: {
       permissions?: PermissionType[];
+      appInfo?: IAppInfo;
       type?: AuthType;
       url?: string;
       spendingLimitReached?: boolean;
     } = JSON.parse(decodeURIComponent(authVal));
 
+    if (decodedAuthParam.appInfo) setAppInfo(decodedAuthParam.appInfo);
+
     // if the type does not exist, this is an invalid call
     if (!decodedAuthParam.type) {
-      sendMessage({
+      browser.runtime.sendMessage({
         type: getReturnType(),
         ext: "arconnect",
         res: false,
@@ -101,21 +119,26 @@ export default function App() {
     if (decodedAuthParam.type === "connect" && decodedAuthParam.permissions) {
       // get the existing permissions
       const existingPermissions = permissions.find(
-        (permGroup) => permGroup.url === url
-      );
+          (permGroup) => permGroup.url === url
+        ),
+        currentPerms: PermissionType[] = existingPermissions?.permissions ?? [],
+        currentPermsFiltered = currentPerms.filter((perm) =>
+          decodedAuthParam.permissions
+            ? !decodedAuthParam.permissions.includes(perm)
+            : true
+        );
 
       // set the requested permissions to all requested
-      setRequestedPermissions(decodedAuthParam.permissions);
+      setRequestedPermissions(
+        currentPermsFiltered.concat(decodedAuthParam.permissions)
+      );
+      setAllowedPermissions(
+        currentPermsFiltered.concat(decodedAuthParam.permissions)
+      );
 
-      // filter the requested permissions: only display/ask for permissions
-      // that the url does not have yet
       if (existingPermissions && existingPermissions.permissions.length > 0) {
         setAlreadyHasPermissions(true);
-        setRequestedPermissions(
-          decodedAuthParam.permissions.filter(
-            (perm) => !existingPermissions.permissions.includes(perm)
-          )
-        );
+        setAllowedPermissions(currentPerms);
       }
 
       // create transaction event
@@ -136,7 +159,7 @@ export default function App() {
 
       // if non of the types matched, this is an invalid auth call
     } else {
-      sendMessage({
+      browser.runtime.sendMessage({
         type: getReturnType(),
         ext: "arconnect",
         res: false,
@@ -165,61 +188,48 @@ export default function App() {
     // eslint-disable-next-line
   }, [currentAllowance]);
 
-  // decrypt current wallet
+  // check password
   async function login() {
     setLoading(true);
-    // we need to wait a bit, because the decrypting
-    // freezes the program, and the loading does not start
-    setTimeout(() => {
-      // try to login by decrypting
-      try {
-        const keyfileToDecrypt = wallets.find(
-          ({ address }) => address === profile
-        )?.keyfile;
-        if (!keyfileToDecrypt) {
-          setPasswordStatus("error");
-          setLoading(false);
-          return;
+
+    // try to login by decrypting
+    try {
+      if (!(await checkPassword(passwordInput.state))) throw new Error();
+
+      await browser.storage.local.set({ decryptionKey: true });
+      setLoggedIn(true);
+
+      if (updateAllowance && currentURL)
+        dispatch(setAllowanceLimit(currentURL, updateAllowance));
+
+      // any event that needs authentication, but not the connect event
+      if (type !== "connect") {
+        if (!currentURL) return urlError();
+        else {
+          browser.runtime.sendMessage({
+            type: getReturnType(),
+            ext: "arconnect",
+            res: true,
+            message: "Success",
+            sender: "popup"
+          });
+          window.close();
         }
-        atob(keyfileToDecrypt);
-        if (typeof chrome !== "undefined")
-          local.set({ decryptionKey: passwordInput.state });
-        else browser.storage.local.set({ decryptionKey: passwordInput.state });
+
+        // connect event
+      } else {
         setLoggedIn(true);
-
-        if (updateAllowance && currentURL)
-          dispatch(setAllowanceLimit(currentURL, updateAllowance));
-
-        // any event that needs authentication, but not the connect event
-        if (type !== "connect") {
-          if (!currentURL) return urlError();
-          else {
-            sendMessage({
-              type: getReturnType(),
-              ext: "arconnect",
-              res: true,
-              message: "Success",
-              sender: "popup",
-              decryptionKey: passwordInput.state
-            });
-            window.close();
-          }
-
-          // connect event
-        } else {
-          setLoggedIn(true);
-          setLoading(false);
-        }
-      } catch {
-        setPasswordStatus("error");
         setLoading(false);
       }
-    }, 70);
+    } catch {
+      setPasswordStatus("error");
+      setLoading(false);
+    }
   }
 
   // invalid url sent
   function urlError() {
-    sendMessage({
+    browser.runtime.sendMessage({
       type: getReturnType(),
       ext: "arconnect",
       res: false,
@@ -244,14 +254,11 @@ export default function App() {
     if (!loggedIn) return;
     if (!currentURL) return urlError();
 
-    const currentPerms: PermissionType[] =
-      permissions.find(({ url }) => url === currentURL)?.permissions ?? [];
-    dispatch(
-      setPermissions(currentURL, [...currentPerms, ...requestedPermissions])
-    );
+    dispatch(setPermissions(currentURL, allowedPermissions));
+
     // give time for the state to update
     setTimeout(() => {
-      sendMessage({
+      browser.runtime.sendMessage({
         type: getReturnType(),
         ext: "arconnect",
         res: true,
@@ -264,7 +271,7 @@ export default function App() {
 
   // cancel login or permission request
   function cancel() {
-    sendMessage({
+    browser.runtime.sendMessage({
       type: getReturnType(),
       ext: "arconnect",
       res: false,
@@ -281,7 +288,7 @@ export default function App() {
 
   // problem with permissions
   function sendPermissionError() {
-    sendMessage({
+    browser.runtime.sendMessage({
       type: getReturnType(),
       ext: "arconnect",
       res: false,
@@ -317,6 +324,20 @@ export default function App() {
     }
   }
 
+  function switchWallet(address: string) {
+    dispatch(switchProfile(address));
+    browser.runtime.sendMessage({
+      type: "switch_wallet_event",
+      ext: "arconnect",
+      res: true,
+      message: "",
+      address,
+      sender: "popup"
+    });
+    setShowSwitch(true);
+    setTimeout(() => setShowSwitch(false), 1700);
+  }
+
   return (
     <>
       <div className={styles.Auth}>
@@ -331,7 +352,39 @@ export default function App() {
             }}
           >
             You have reached your spending limit of {currentAllowance?.limit}{" "}
-            for this site. Please update it or cancel.
+            for
+            {(appInfo.name && (
+              <span style={{ color: theme.palette.success }}>
+                {(appInfo.name &&
+                  ((appInfo.name.includes(".") && shortenURL(appInfo.name)) ||
+                    appInfo.name)) ||
+                  ""}
+              </span>
+            )) ||
+              "This site"}{" "}
+            . Please update it or cancel.
+            {quickAdd && (
+              <>
+                <br />
+                <span
+                  style={{ textDecoration: "underline", cursor: "pointer" }}
+                  onClick={() => {
+                    const updateTo = (currentAllowance?.limit ?? 0) + 0.1;
+
+                    setUpdateAllowance(updateTo);
+                    allowanceAmount.setState(updateTo.toString());
+                    setQuickAdd(false);
+                    setToast({
+                      text:
+                        "The added allowance will be applied after you enter you password",
+                      type: "success"
+                    });
+                  }}
+                >
+                  Quick add 0.1 AR
+                </span>
+              </>
+            )}
           </Note>
         )}
         {(!loggedIn && (
@@ -339,8 +392,18 @@ export default function App() {
             <h1>Sign In</h1>
             {(type === "connect" && (
               <p>
-                This site wants to connect to your Arweave wallet. Please enter
-                your password to continue.
+                {(appInfo.name && (
+                  <span style={{ color: theme.palette.success }}>
+                    {(appInfo.name &&
+                      ((appInfo.name.includes(".") &&
+                        shortenURL(appInfo.name)) ||
+                        appInfo.name)) ||
+                      ""}
+                  </span>
+                )) ||
+                  "This site"}{" "}
+                wants to connect to your Arweave wallet. Please enter your
+                password to continue.
               </p>
             )) ||
               (type === "sign_auth" && (
@@ -361,6 +424,24 @@ export default function App() {
                   password to continue.
                 </p>
               ))}
+            {type === "connect" && (
+              <>
+                <p className={styles.SelectLabel}>Select wallet</p>
+                <Select
+                  placeholder="Select wallet"
+                  value={proflie}
+                  className={styles.SelectWallet}
+                  onChange={(val) => switchWallet(val as string)}
+                >
+                  {wallets.map((wallet, i) => (
+                    <Select.Option value={wallet.address} key={i}>
+                      {formatAddress(wallet.address)}
+                    </Select.Option>
+                  ))}
+                </Select>
+                <Spacer y={0.67} />
+              </>
+            )}
             <Input.Password
               {...passwordInput.bindings}
               status={passwordStatus}
@@ -398,7 +479,7 @@ export default function App() {
             >
               Log In
             </Button>
-            <Spacer />
+            <Spacer y={0.73} />
             <Button style={{ width: "100%" }} onClick={cancel}>
               Cancel
             </Button>
@@ -416,7 +497,26 @@ export default function App() {
               {(requestedPermissions.length > 0 && (
                 <ul>
                   {requestedPermissions.map((permission, i) => (
-                    <li key={i}>{getPermissionDescription(permission)}</li>
+                    <li key={i} className={styles.Check + " " + styles.Checked}>
+                      <Checkbox
+                        checked={
+                          !!allowedPermissions.find((val) => val === permission)
+                        }
+                        size="medium"
+                        onChange={() => {
+                          if (allowedPermissions.includes(permission))
+                            setAllowedPermissions((val) =>
+                              val.filter((perm) => perm !== permission)
+                            );
+                          else
+                            setAllowedPermissions((val) => [
+                              ...val,
+                              permission
+                            ]);
+                        }}
+                      />
+                      {getPermissionDescription(permission)}
+                    </li>
                   ))}
                 </ul>
               )) || <p>No permissions requested.</p>}
@@ -428,6 +528,19 @@ export default function App() {
               <Button style={{ width: "100%" }} onClick={cancel}>
                 Cancel
               </Button>
+              <div className={styles.AppInfo}>
+                {appInfo.logo && (
+                  <img
+                    src={appInfo.logo}
+                    alt={appInfo.name ?? ""}
+                    draggable={false}
+                  />
+                )}
+                {(appInfo.name &&
+                  ((appInfo.name.includes(".") && shortenURL(appInfo.name)) ||
+                    appInfo.name)) ||
+                  ""}
+              </div>
             </>
           )) || (
             <p
@@ -447,9 +560,21 @@ export default function App() {
             </p>
           )}
       </div>
+      <AnimatePresence>
+        {showSwitch && (
+          <motion.div
+            className={toastStyles.SmallToast}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            Switched wallet
+          </motion.div>
+        )}
+      </AnimatePresence>
       <Modal {...allowanceModal.bindings}>
         <Modal.Title>Allowance limit</Modal.Title>
-        <Modal.Content>
+        <Modal.Content className={styles.AllowanceModal}>
           <p>
             Warn me again to set a new allowance once the app has sent more than{" "}
             {allowanceAmount.state} AR
@@ -479,3 +604,7 @@ export default function App() {
 }
 
 type AuthType = "connect" | "sign_auth" | "encrypt_auth" | "decrypt_auth";
+interface IAppInfo {
+  name?: string;
+  logo?: string;
+}

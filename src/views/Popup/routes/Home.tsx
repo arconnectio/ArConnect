@@ -15,8 +15,8 @@ import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
 import { useColorScheme } from "use-color-scheme";
 import { arToFiat, getSymbol } from "../../../utils/currency";
-import { sendMessage, validateMessage } from "../../../utils/messenger";
-import { local } from "chrome-storage-promises";
+import { validateMessage } from "../../../utils/messenger";
+import { browser } from "webextension-polyfill-ts";
 import axios from "axios";
 import PST from "./PST";
 import WalletManager from "../../../components/WalletManager";
@@ -63,53 +63,44 @@ export default function Home() {
     calculateArPriceInCurrency();
     loadBalance();
     // eslint-disable-next-line
-  }, [currency]);
+  }, [currency, profile]);
 
   async function calculateArPriceInCurrency() {
     setArPriceInCurrency(await arToFiat(1, currency));
   }
 
   async function loadBalance() {
-    try {
-      const bal = await arweave.wallets.getBalance(profile),
-        arBalance = parseFloat(arweave.ar.winstonToAr(bal)),
-        fiatBalance = parseFloat(
-          (await arToFiat(arBalance, currency)).toFixed(2)
-        );
+    let arBalance = balance()?.arBalance ?? 0,
+      fiatBalance = balance()?.fiatBalance ?? 0;
 
-      dispatch(setBalance({ address: profile, arBalance, fiatBalance }));
+    try {
+      arBalance = parseFloat(
+        arweave.ar.winstonToAr(await arweave.wallets.getBalance(profile))
+      );
     } catch {}
+
+    try {
+      fiatBalance = parseFloat(
+        (await arToFiat(arBalance, currency)).toFixed(2)
+      );
+    } catch {}
+
+    dispatch(setBalance({ address: profile, arBalance, fiatBalance }));
   }
 
   async function loadPSTs() {
     setLoading((val) => ({ ...val, psts: true }));
     try {
       const { data } = await axios.get(
-          `https://cache.verto.exchange/balance/${profile}`
-        ),
-        pstsWithBalance = data.filter(
-          ({
-            state: { balances }
-          }: {
-            state: { balances: Record<string, number> };
-          }) => balances[profile]
+          `https://v2.cache.verto.exchange/user/${profile}/balances`
         ),
         verto = new Verto(),
         pstsLoaded: Asset[] = await Promise.all(
-          pstsWithBalance.map(async (pst: any) => {
-            const logoSetting = pst.state.settings?.find(
-              (entry: any) => entry[0] === "communityLogo"
-            );
-
+          data.map(async (pst: any) => {
             return {
-              id: pst.id,
-              name: pst.state.name,
-              ticker: pst.state.ticker,
-              logo: logoSetting ? logoSetting[1] : undefined,
-              balance: pst.state.balances[profile] ?? 0,
+              ...pst,
               arBalance:
-                ((await verto.latestPrice(pst.id)) ?? 0) *
-                (pst.state.balances[profile] ?? 0),
+                ((await verto.latestPrice(pst.id)) ?? 0) * (pst.balance ?? 0),
               removed: psts?.find(({ id }) => id === pst.id)?.removed ?? false
             };
           })
@@ -156,40 +147,29 @@ export default function Home() {
     return storedBalances.find((balance) => balance.address === profile);
   }
 
-  function archive() {
-    sendMessage(
-      {
-        type: "archive_page",
-        ext: "arconnect",
-        sender: "popup"
-      },
-      async (res) => {
-        if (
-          !validateMessage(res, {
-            sender: "content",
-            type: "archive_page_content"
-          })
-        )
-          return;
+  async function archive() {
+    const res = await browser.runtime.sendMessage({
+      type: "archive_page",
+      ext: "arconnect",
+      sender: "popup"
+    });
 
-        if (typeof chrome !== "undefined")
-          await local.set({
-            lastArchive: {
-              url: res.url,
-              content: res.data
-            }
-          });
-        else
-          await browser.storage.local.set({
-            lastArchive: {
-              url: res.url,
-              content: res.data
-            }
-          });
+    if (
+      !validateMessage(res, {
+        sender: "content",
+        type: "archive_page_content"
+      })
+    )
+      return;
 
-        chrome.tabs.create({ url: chrome.extension.getURL("/archive.html") });
+    await browser.storage.local.set({
+      lastArchive: {
+        url: res.url,
+        content: res.data
       }
-    );
+    });
+
+    browser.tabs.create({ url: browser.extension.getURL("/archive.html") });
   }
 
   return (

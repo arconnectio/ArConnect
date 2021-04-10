@@ -13,16 +13,16 @@ import {
   useModal,
   useToasts
 } from "@geist-ui/react";
-import { local } from "chrome-storage-promises";
 import { useColorScheme } from "use-color-scheme";
 import { run } from "ar-gql";
 import { useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
 import { FileDirectoryIcon, LockIcon } from "@primer/octicons-react";
-import { formatAddress } from "../../utils/address";
+import { formatAddress } from "../../utils/url";
 import { JWKInterface } from "arweave/web/lib/wallet";
 import { motion, AnimatePresence } from "framer-motion";
 import { v4 as uuidv4 } from "uuid";
+import { browser } from "webextension-polyfill-ts";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
 import prettyBytes from "pretty-bytes";
@@ -94,10 +94,7 @@ export default function App() {
 
   async function loadData() {
     try {
-      const lastData: { [key: string]: any } =
-        typeof chrome !== "undefined"
-          ? await local.get("lastArchive")
-          : await browser.storage.local.get("lastArchive");
+      const lastData = await browser.storage.local.get("lastArchive");
 
       if (!lastData || !lastData.lastArchive) return window.close();
       if (safeMode)

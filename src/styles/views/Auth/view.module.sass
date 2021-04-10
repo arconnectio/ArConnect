@@ -29,6 +29,13 @@
     @media (prefers-color-scheme: dark)
       color: variables.$secondary-text-dark
 
+    &.SelectLabel
+      font-size: .93em
+      font-weight: 400
+      text-align: left
+      margin: 0
+        bottom: .1em
+
   div[class~=with-label]
     width: 100%
 
@@ -38,11 +45,6 @@
   .Allowance
     display: flex
     align-items: center
-    
-    .Check.Checked
-      svg
-        path:first-child
-          fill: #AB9DF2 !important
     
     .AllowanceAction
       display: flex
@@ -79,3 +81,38 @@
       background: linear-gradient(142.25deg, #fc9867 23.99%, #ab9df2 73.9%)
       -webkit-background-clip: text
       -webkit-text-fill-color: transparent
+
+.Check.Checked
+  svg
+    path:first-child
+      fill: #AB9DF2 !important
+
+.AppInfo
+  display: flex
+  align-items: center
+  justify-content: center
+  margin-top: 3em
+  text-align: center
+  font-size: 1em
+  color: variables.$secondary-text-light
+        
+  @media (prefers-color-scheme: dark)
+    color: variables.$secondary-text-dark
+
+  img
+    height: 1.5em
+    margin-right: .35em
+    user-select: none
+
+.AllowanceModal
+  [class~=with-label]
+    width: 100% !important
+
+  [class~=input-container]
+    width: 100% !important
+
+  p
+    text-align: center
+
+.SelectWallet
+  max-width: unset !important

@@ -7,7 +7,7 @@ import {
   signOut,
   switchProfile
 } from "../stores/actions";
-import { Modal, Spacer, Tooltip, useModal, useToasts } from "@geist-ui/react";
+import { Modal, Tooltip, useModal, useToasts } from "@geist-ui/react";
 import {
   ChevronDownIcon,
   CopyIcon,
@@ -20,13 +20,14 @@ import {
 import { useColorScheme } from "use-color-scheme";
 import { QRCode } from "react-qr-svg";
 import { motion, AnimatePresence } from "framer-motion";
-import { sendMessage } from "../utils/messenger";
 import { goTo } from "react-chrome-extension-router";
 import { getVerification, Threshold } from "arverify";
-import { formatAddress } from "../utils/address";
+import { browser } from "webextension-polyfill-ts";
+import { formatAddress } from "../utils/url";
 import Settings from "../views/Popup/routes/Settings";
 import copy from "copy-to-clipboard";
 import "../styles/components/Tooltip.sass";
+import toastStyles from "../styles/components/SmallToast.module.sass";
 import styles from "../styles/components/WalletManager.module.sass";
 
 export default function WalletManager() {
@@ -98,7 +99,7 @@ export default function WalletManager() {
   function switchWallet(address: string) {
     dispatch(switchProfile(address));
     setOpen(false);
-    sendMessage({
+    browser.runtime.sendMessage({
       type: "switch_wallet_event",
       ext: "arconnect",
       res: true,
@@ -287,7 +288,9 @@ export default function WalletManager() {
                   <div
                     className={styles.Action}
                     onClick={() =>
-                      window.open(chrome.runtime.getURL("/welcome.html"))
+                      browser.tabs.create({
+                        url: browser.runtime.getURL("/welcome.html")
+                      })
                     }
                   >
                     <PlusIcon />
@@ -332,7 +335,7 @@ export default function WalletManager() {
       <AnimatePresence>
         {showSwitch && (
           <motion.div
-            className={styles.SwitchIndicator}
+            className={toastStyles.SmallToast}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
