@@ -420,7 +420,7 @@ export default function App() {
                     </Select.Option>
                   ))}
                 </Select>
-                <Spacer y={1} />
+                <Spacer y={0.67} />
               </>
             )}
             <Input.Password
@@ -460,7 +460,7 @@ export default function App() {
             >
               Log In
             </Button>
-            <Spacer />
+            <Spacer y={0.73} />
             <Button style={{ width: "100%" }} onClick={cancel}>
               Cancel
             </Button>
