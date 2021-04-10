@@ -23,6 +23,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { goTo } from "react-chrome-extension-router";
 import { getVerification, Threshold } from "arverify";
 import { browser } from "webextension-polyfill-ts";
+import { formatAddress } from "../utils/url";
 import Settings from "../views/Popup/routes/Settings";
 import copy from "copy-to-clipboard";
 import "../styles/components/Tooltip.sass";
@@ -107,14 +108,6 @@ export default function WalletManager() {
     });
     setShowSwitch(true);
     setTimeout(() => setShowSwitch(false), 1700);
-  }
-
-  function formatAddress(address: string) {
-    return (
-      address.substring(0, 13) +
-      "..." +
-      address.substring(address.length - 13, address.length)
-    );
   }
 
   return (

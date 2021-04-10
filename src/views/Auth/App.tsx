@@ -10,7 +10,8 @@ import {
   useModal,
   Note,
   useTheme,
-  useToasts
+  useToasts,
+  Select
 } from "@geist-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
@@ -21,7 +22,7 @@ import {
   setPermissions,
   toggleAllowance
 } from "../../stores/actions";
-import { getRealURL, shortenURL } from "../../utils/url";
+import { getRealURL, shortenURL, formatAddress } from "../../utils/url";
 import { ChevronRightIcon } from "@primer/octicons-react";
 import { Allowance } from "../../stores/reducers/allowances";
 import { checkPassword } from "../../utils/auth";
@@ -59,7 +60,9 @@ export default function App() {
     [appInfo, setAppInfo] = useState<IAppInfo>({}),
     theme = useTheme(),
     [, setToast] = useToasts(),
-    [quickAdd, setQuickAdd] = useState(true);
+    [quickAdd, setQuickAdd] = useState(true),
+    proflie = useSelector((state: RootState) => state.profile),
+    wallets = useSelector((state: RootState) => state.wallets);
 
   useEffect(() => {
     // get the auth param from the url
@@ -403,6 +406,23 @@ export default function App() {
                   password to continue.
                 </p>
               ))}
+            {type === "connect" && (
+              <>
+                <p className={styles.SelectLabel}>Select wallet</p>
+                <Select
+                  placeholder="Select wallet"
+                  value={proflie}
+                  className={styles.SelectWallet}
+                >
+                  {wallets.map((wallet, i) => (
+                    <Select.Option value={wallet.address} key={i}>
+                      {formatAddress(wallet.address)}
+                    </Select.Option>
+                  ))}
+                </Select>
+                <Spacer y={1} />
+              </>
+            )}
             <Input.Password
               {...passwordInput.bindings}
               status={passwordStatus}

@@ -9,3 +9,11 @@ export function shortenURL(url: string) {
     url.substring(0, 8) + "..." + url.substring(url.length - 8, url.length)
   );
 }
+
+export function formatAddress(address: string) {
+  return (
+    address.substring(0, 13) +
+    "..." +
+    address.substring(address.length - 13, address.length)
+  );
+}
