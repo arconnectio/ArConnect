@@ -275,16 +275,21 @@ const handleApiCalls = async (
 // listen for messages from the popup
 // right now the only message from there
 // is for the wallet switch event
-browser.runtime.onMessage.addListener(async (msg) => {
-  const message: MessageFormat = msg,
-    activeTab = await getActiveTab();
+browser.runtime.onMessage.addListener(async (message: MessageFormat) => {
+  const activeTab = await getActiveTab();
 
   if (!validateMessage(message, { sender: "popup" })) return;
+  if (!(await walletsStored())) return;
 
   switch (message.type) {
-    case "switch_wallet_event":
-      if (!(await walletsStored())) return;
+    case "archive_page":
+      const response: MessageFormat = await browser.tabs.sendMessage(
+        activeTab.id as number,
+        message
+      );
+      return { ...response, url: activeTab.url };
 
+    case "switch_wallet_event":
       if (
         !(await checkPermissions(
           ["ACCESS_ALL_ADDRESSES", "ACCESS_ADDRESS"],

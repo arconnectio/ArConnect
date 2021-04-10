@@ -17,6 +17,7 @@ import { QuestionIcon, VerifiedIcon } from "@primer/octicons-react";
 import { arToFiat, getSymbol } from "../../../utils/currency";
 import { Threshold, getVerification } from "arverify";
 import { AnimatePresence, motion } from "framer-motion";
+import manifest from "../../../../public/manifest.json";
 import Home from "./Home";
 import Arweave from "arweave";
 import axios from "axios";
@@ -114,6 +115,7 @@ export default function Send() {
         );
 
       transaction.addTag("App-Name", "ArConnect");
+      transaction.addTag("App-Version", manifest.version);
       await arweave.transactions.sign(transaction, keyfile);
 
       const res = await arweave.transactions.post(transaction);

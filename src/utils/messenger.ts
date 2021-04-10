@@ -7,7 +7,7 @@ export interface MessageFormat {
   [key: string]: any;
 }
 
-type MessageSender = "popup" | "background" | "api";
+type MessageSender = "popup" | "background" | "api" | "content";
 export type MessageType =
   | "connect"
   | "connect_result"
@@ -40,7 +40,9 @@ export type MessageType =
   | "add_token"
   | "add_token_result"
   | "switch_wallet_event"
-  | "switch_wallet_event_forward";
+  | "switch_wallet_event_forward"
+  | "archive_page"
+  | "archive_page_content";
 
 // this function validates messages and check if they are from the extension
 // other extensions could interfer with the functionality of ArConnect

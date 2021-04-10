@@ -13,7 +13,8 @@ esbuild
       "./src/scripts/injected.ts",
       "./src/views/popup.tsx",
       "./src/views/auth.tsx",
-      "./src/views/welcome.tsx"
+      "./src/views/welcome.tsx",
+      "./src/views/archive.tsx"
     ],
     format: "iife",
     bundle: true,
@@ -27,7 +28,8 @@ esbuild
       global: "window"
     },
     loader: {
-      ".png": "dataurl"
+      ".png": "dataurl",
+      ".svg": "dataurl"
     },
     plugins: [
       NodeModulesPolyfillPlugin(),

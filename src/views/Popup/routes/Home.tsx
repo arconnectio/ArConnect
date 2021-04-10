@@ -15,6 +15,8 @@ import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
 import { useColorScheme } from "use-color-scheme";
 import { arToFiat, getSymbol } from "../../../utils/currency";
+import { validateMessage } from "../../../utils/messenger";
+import { browser } from "webextension-polyfill-ts";
 import axios from "axios";
 import PST from "./PST";
 import WalletManager from "../../../components/WalletManager";
@@ -145,6 +147,31 @@ export default function Home() {
     return storedBalances.find((balance) => balance.address === profile);
   }
 
+  async function archive() {
+    const res = await browser.runtime.sendMessage({
+      type: "archive_page",
+      ext: "arconnect",
+      sender: "popup"
+    });
+
+    if (
+      !validateMessage(res, {
+        sender: "content",
+        type: "archive_page_content"
+      })
+    )
+      return;
+
+    await browser.storage.local.set({
+      lastArchive: {
+        url: res.url,
+        content: res.data
+      }
+    });
+
+    browser.tabs.create({ url: browser.extension.getURL("/archive.html") });
+  }
+
   return (
     <div className={styles.Home}>
       <WalletManager />
@@ -173,12 +200,10 @@ export default function Home() {
             <ArrowSwitchIcon size={24} />
             <span>Send</span>
           </div>
-          <Tooltip text="Not available yet">
-            <div className={styles.Item + " " + styles.Unavailable}>
-              <ArchiveIcon size={24} />
-              <span>Archive page</span>
-            </div>
-          </Tooltip>
+          <div className={styles.Item} onClick={archive}>
+            <ArchiveIcon size={24} />
+            <span>Archive page</span>
+          </div>
           <Tooltip text="Not available yet">
             <div
               className={
