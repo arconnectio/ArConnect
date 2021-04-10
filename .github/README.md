@@ -167,6 +167,10 @@ The permissions:
 - `DECRYPT`:
   Decrypt data using the user's keyfile
 
+## Build project (Chrome, Firefox, Brave)
+
+You can find the build guide [here](./CONTRIBUTING.md#building-the-project)
+
 ## Contributing
 
 Please read the [Contributing guide](./CONTRIBUTING.md).
