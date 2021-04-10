@@ -27,6 +27,7 @@ import { formatAddress } from "../utils/url";
 import Settings from "../views/Popup/routes/Settings";
 import copy from "copy-to-clipboard";
 import "../styles/components/Tooltip.sass";
+import toastStyles from "../styles/components/SmallToast.module.sass";
 import styles from "../styles/components/WalletManager.module.sass";
 
 export default function WalletManager() {
@@ -334,7 +335,7 @@ export default function WalletManager() {
       <AnimatePresence>
         {showSwitch && (
           <motion.div
-            className={styles.SwitchIndicator}
+            className={toastStyles.SmallToast}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
