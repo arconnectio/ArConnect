@@ -439,7 +439,8 @@ export default function App() {
           data: JSON.stringify({
             name: `arconnect-archive-${title
               .toLowerCase()
-              .replace(/[/\\?%*:|"<>]/g, "_")}.html`,
+              .replace(/[/\\?%*:|"<>]/g, "_")
+              .replaceAll(" ", "_")}.html`,
             size: getSizeBytes(previewHTML),
             lastModifiedDate: timestamp,
             dataTxId,
