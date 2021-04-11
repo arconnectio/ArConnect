@@ -19,11 +19,13 @@ import {
 import { decrypt, encrypt, signature } from "../background/api/encryption";
 import { handleTabUpdate } from "../background/tab_update";
 import { browser } from "webextension-polyfill-ts";
+import { fixupPasswords } from "../utils/auth";
 
 // open the welcome page
 browser.runtime.onInstalled.addListener(async () => {
   if (!(await walletsStored()))
     window.open(browser.runtime.getURL("/welcome.html"));
+  else await fixupPasswords();
 });
 
 // create listeners for the icon utilities
