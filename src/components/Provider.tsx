@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { CssBaseline, GeistProvider } from "@geist-ui/react";
 import { Provider as ReduxProvider } from "react-redux";
 import { useColorScheme } from "use-color-scheme";
 import { PersistGate } from "redux-persist/integration/react";
+import { fixupPasswords } from "../utils/auth";
 import setupStores from "../stores";
 
 const lightTheme = {
@@ -43,6 +44,10 @@ const darkTheme = {
 export default function Provider({ children }: Props) {
   const { scheme } = useColorScheme(),
     { store, persistor } = setupStores();
+
+  useEffect(() => {
+    fixupPasswords();
+  }, []);
 
   return (
     <ReduxProvider store={store}>

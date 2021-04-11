@@ -94,15 +94,12 @@ export default function Home() {
         ),
         verto = new Verto(),
         pstsLoaded: Asset[] = await Promise.all(
-          data.map(async (pst: any) => {
-            console.log(pst);
-            return {
-              ...pst,
-              arBalance:
-                ((await verto.latestPrice(pst.id)) ?? 0) * (pst.balance ?? 0),
-              removed: psts?.find(({ id }) => id === pst.id)?.removed ?? false
-            };
-          })
+          data.map(async (pst: any) => ({
+            ...pst,
+            arBalance:
+              ((await verto.latestPrice(pst.id)) ?? 0) * (pst.balance ?? 0),
+            removed: psts?.find(({ id }) => id === pst.id)?.removed ?? false
+          }))
         );
 
       dispatch(setAssets(profile, pstsLoaded));
