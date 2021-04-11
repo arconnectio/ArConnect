@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Button,
+  Input,
   Loading,
   Modal,
   Page,
@@ -10,6 +11,7 @@ import {
   Spinner,
   Toggle,
   Tooltip,
+  useInput,
   useModal,
   useToasts
 } from "@geist-ui/react";
@@ -19,6 +21,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
 import { FileDirectoryIcon, LockIcon } from "@primer/octicons-react";
 import { formatAddress } from "../../utils/url";
+import { checkPassword } from "../../utils/auth";
 import { JWKInterface } from "arweave/web/lib/wallet";
 import { motion, AnimatePresence } from "framer-motion";
 import { v4 as uuidv4 } from "uuid";
@@ -66,7 +69,8 @@ export default function App() {
     [uploadStatus, setUploadStatus] = useState<{
       percentage: number;
       text: string;
-    }>();
+    }>(),
+    passwordInput = useInput("");
 
   useEffect(() => {
     loadData();
@@ -351,6 +355,9 @@ export default function App() {
   }
 
   async function archive() {
+    if (!(await checkPassword(passwordInput.state)))
+      return setToast({ text: "Invalid password", type: "error" });
+
     setArchiving(true);
 
     // find the current wallet (selected in the modal)
@@ -377,7 +384,6 @@ export default function App() {
     try {
       const archiveTx = await arweave.createTransaction(
         {
-          reward: fee,
           data: previewHTML
         },
         useJWK
@@ -477,6 +483,7 @@ export default function App() {
     setArchiving(false);
     setUploadStatus(undefined);
     setSelectedDrive(undefined);
+    archiveModal.setVisible(false);
   }
 
   return (
@@ -652,16 +659,23 @@ export default function App() {
               >
                 <p>{uploadStatus.text}</p>
                 <Progress value={uploadStatus.percentage} />
+                <Spacer y={1} />
               </motion.div>
             )}
           </AnimatePresence>
+          <h2>Password</h2>
+          <Input.Password
+            placeholder="Enter your password..."
+            {...passwordInput.bindings}
+            width="100%"
+          />
         </Modal.Content>
         <Modal.Action passive onClick={() => archiveModal.setVisible(false)}>
           Cancel
         </Modal.Action>
         <Modal.Action
           onClick={archive}
-          disabled={!selectedDrive}
+          disabled={!selectedDrive || passwordInput.state === ""}
           loading={archiving}
         >
           Submit
