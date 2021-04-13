@@ -202,10 +202,17 @@ export default function Home() {
           type: "page"
         }
       });
-      browser.tabs.create({ url: browser.extension.getURL("/archive.html") });
     } else {
-      // TODO pdf
+      await browser.storage.local.set({
+        lastArchive: {
+          url: currentTab.url,
+          content: "",
+          type: "pdf"
+        }
+      });
     }
+
+    browser.tabs.create({ url: browser.extension.getURL("/archive.html") });
   }
 
   return (

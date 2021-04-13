@@ -41,9 +41,14 @@ import styles from "../../styles/views/Archive/view.module.sass";
 
 export default function App() {
   const [safeMode, setSafeMode] = useState(true),
-    [archiveData, setArchiveData] = useState({
+    [archiveData, setArchiveData] = useState<{
+      url: string;
+      content: string;
+      type: "page" | "pdf";
+    }>({
       url: "",
-      content: ""
+      content: "",
+      type: "page"
     }),
     [previewHeight, setPreviewHeight] = useState(0),
     previewItem = useRef<HTMLIFrameElement>(),
@@ -92,15 +97,18 @@ export default function App() {
   }, [usedAddress]);
 
   useEffect(() => {
-    if (archiveData.url === "" || archiveData.content === "") return;
-    render().then(() =>
-      // wait a bit for it to actually load
-      setTimeout(() => {
-        const archivePageHeight =
-          previewItem.current?.contentWindow?.document.body.scrollHeight;
-        if (archivePageHeight) setPreviewHeight(archivePageHeight);
-      }, 100)
-    );
+    if (archiveData.url === "") return;
+    if (archiveData.content !== "" && archiveData.type !== "pdf") {
+      render().then(() =>
+        // wait a bit for it to actually load
+        setTimeout(() => {
+          const archivePageHeight =
+            previewItem.current?.contentWindow?.document.body.scrollHeight;
+          if (archivePageHeight) setPreviewHeight(archivePageHeight);
+        }, 100)
+      );
+    } else if (archiveData.type === "pdf") loadPdfContent();
+
     calculateFee();
     // eslint-disable-next-line
   }, [archiveData]);
@@ -110,16 +118,37 @@ export default function App() {
       const lastData = await browser.storage.local.get("lastArchive");
 
       if (!lastData || !lastData.lastArchive) return window.close();
-      if (safeMode)
+      if (safeMode && lastData.type !== "pdf")
         setArchiveData({
           url: lastData.lastArchive.url,
-          content: (await axios.get(lastData.lastArchive.url)).data.toString()
+          content: (await axios.get(lastData.lastArchive.url)).data.toString(),
+          type: lastData.lastArchive.type
         });
       else setArchiveData(lastData.lastArchive);
       setTimestamp(new Date().getTime());
+
+      if (lastData.lastArchive.type === "pdf") {
+        const urlSplits: string[] = lastData.lastArchive.url.split("/");
+        setTitle(urlSplits[urlSplits.length - 1]);
+      }
     } catch {
       window.close();
     }
+  }
+
+  async function loadPdfContent(): Promise<string> {
+    setFetching(true);
+    let data = "";
+
+    try {
+      const { data } = await axios.get(archiveData.url);
+      setPreviewHTML(data);
+    } catch {
+      setToast({ text: "Error fetching PDF", type: "error" });
+    }
+
+    setFetching(false);
+    return data;
   }
 
   // scrap site data
@@ -365,6 +394,8 @@ export default function App() {
 
     setArchiving(true);
 
+    if (archiveData.type === "pdf") await loadPdfContent();
+
     // find the current wallet (selected in the modal)
     const encryptedJWK = wallets.find(({ address }) => address === usedAddress)
       ?.keyfile;
@@ -391,7 +422,8 @@ export default function App() {
         url: archiveData.url,
         title,
         content: previewHTML,
-        contentType: "text/html",
+        contentType:
+          archiveData.type === "page" ? "text/html" : "application/pdf",
         timestamp,
         keyfile: useJWK
       });
@@ -439,7 +471,8 @@ export default function App() {
       const metadataTx = await createMetadataTransaction(arweave, {
         filename,
         content: previewHTML,
-        contentType: "text/html",
+        contentType:
+          archiveData.type === "page" ? "text/html" : "application/pdf",
         timestamp,
         dataTxId,
         driveInfo: {
@@ -460,7 +493,7 @@ export default function App() {
       }
 
       setToast({
-        text: "Archived site. It will appear in the selected drive soon.",
+        text: `Archived ${archiveData.type}. It will appear in the selected drive soon.`,
         type: "success"
       });
     } catch {
@@ -474,6 +507,10 @@ export default function App() {
     setUploadStatus(undefined);
     setSelectedDrive(undefined);
     archiveModal.setVisible(false);
+  }
+
+  function upperCaseFirst(val: string) {
+    return val[0].toUpperCase() + val.substring(1);
   }
 
   // create a new public ArDrive drive
@@ -498,15 +535,21 @@ export default function App() {
         <Tooltip
           text={
             <p style={{ textAlign: "center", margin: 0 }}>
-              This removes tracking and sensitive information
+              {archiveData.type === "pdf"
+                ? "Not available for pdfs"
+                : "This removes tracking and sensitive information"}
             </p>
           }
           placement="bottomEnd"
         >
-          <div className={styles.SafeMode}>
+          <div
+            className={styles.SafeMode}
+            style={{ opacity: archiveData.type === "pdf" ? 0.5 : 1 }}
+          >
             Safe mode
             <Toggle
               checked={safeMode}
+              disabled={archiveData.type === "pdf"}
               initialChecked
               onChange={(val) => setSafeMode(val.target.checked)}
             />
@@ -515,24 +558,43 @@ export default function App() {
       </div>
       <Page size="large" className={styles.Preview}>
         {fetching && <Spinner className={styles.Fetching} size="large" />}
-        <iframe
-          title={title}
-          srcDoc={previewHTML}
-          ref={previewItem as any}
-          style={{ height: `${previewHeight}px` }}
-          onLoad={() =>
-            setPreviewHeight(
-              previewItem.current?.contentWindow?.document.body.scrollHeight ??
-                0
-            )
-          }
-          // @ts-ignore
-          sandbox
-        ></iframe>
+        {(archiveData.type === "page" && (
+          <iframe
+            title={title}
+            srcDoc={previewHTML}
+            ref={previewItem as any}
+            style={{ height: `${previewHeight}px` }}
+            onLoad={() =>
+              setPreviewHeight(
+                previewItem.current?.contentWindow?.document.body
+                  .scrollHeight ?? 0
+              )
+            }
+            // @ts-ignore
+            sandbox
+          ></iframe>
+        )) || (
+          <div style={{ height: "75vh", position: "relative" }}>
+            <h1
+              style={{
+                margin: 0,
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                textAlign: "center"
+              }}
+            >
+              No preview available for pdfs
+            </h1>
+          </div>
+        )}
       </Page>
       <div className={styles.ActionBar}>
         <p>
-          This will archive the site seen in this preview on Arweave using{" "}
+          This will archive the{" "}
+          {(archiveData.type === "page" && "site") || "pdf file"} seen in this
+          preview on Arweave using{" "}
           <a
             href="https://ardrive.io"
             target="_blank"
@@ -657,8 +719,10 @@ export default function App() {
           <Spacer y={1} />
           <h2>Notice</h2>
           <p>
-            This will archive the site seen in this preview on Arweave using an
-            ArDrive public drive. You can later see the generated file there.
+            This will archive the{" "}
+            {(archiveData.type === "page" && "site") || "pdf file"} in this
+            preview on Arweave using an ArDrive public drive. You can later see
+            the generated file there.
           </p>
           <p>
             <b>
@@ -679,9 +743,9 @@ export default function App() {
             ))}
           </Select>
           <Spacer y={1} />
-          <h2>Page title</h2>
+          <h2>{upperCaseFirst(archiveData.type)} title</h2>
           <p>{title}</p>
-          <h2>Page URL</h2>
+          <h2>{upperCaseFirst(archiveData.type)} URL</h2>
           <p>
             <a href={archiveData.url} target="_blank" rel="noopener noreferrer">
               {archiveData.url}
@@ -689,7 +753,7 @@ export default function App() {
           </p>
           <div style={{ display: "flex", alignItems: "center" }}>
             <div style={{ width: "50%" }}>
-              <h2>Page size</h2>
+              <h2>{upperCaseFirst(archiveData.type)} size</h2>
               <p>{prettyBytes(getSizeBytes(previewHTML))}</p>
             </div>
             <div>
