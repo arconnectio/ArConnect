@@ -171,7 +171,10 @@ export function updateSettings(
 
 export function signOut() {
   // give time for state update
-  setTimeout(() => window.open(browser.runtime.getURL("/welcome.html")), 500);
+  setTimeout(
+    () => browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") }),
+    500
+  );
   return {
     type: "USER_SIGNOUT",
     payload: {}

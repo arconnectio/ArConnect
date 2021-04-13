@@ -10,18 +10,21 @@ import {
   useModal,
   Note,
   useTheme,
-  useToasts
+  useToasts,
+  Select
 } from "@geist-ui/react";
 import { useDispatch, useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
 import { RootState } from "../../stores/reducers";
 import { MessageType } from "../../utils/messenger";
 import {
   addAllowance,
   setAllowanceLimit,
   setPermissions,
+  switchProfile,
   toggleAllowance
 } from "../../stores/actions";
-import { getRealURL, shortenURL } from "../../utils/url";
+import { getRealURL, shortenURL, formatAddress } from "../../utils/url";
 import { ChevronRightIcon } from "@primer/octicons-react";
 import { Allowance } from "../../stores/reducers/allowances";
 import { checkPassword } from "../../utils/auth";
@@ -30,6 +33,7 @@ import {
   PermissionType,
   PermissionDescriptions
 } from "../../utils/permissions";
+import toastStyles from "../../styles/components/SmallToast.module.sass";
 import styles from "../../styles/views/Auth/view.module.sass";
 
 export default function App() {
@@ -59,7 +63,10 @@ export default function App() {
     [appInfo, setAppInfo] = useState<IAppInfo>({}),
     theme = useTheme(),
     [, setToast] = useToasts(),
-    [quickAdd, setQuickAdd] = useState(true);
+    [quickAdd, setQuickAdd] = useState(true),
+    proflie = useSelector((state: RootState) => state.profile),
+    wallets = useSelector((state: RootState) => state.wallets),
+    [showSwitch, setShowSwitch] = useState(false);
 
   useEffect(() => {
     // get the auth param from the url
@@ -317,6 +324,20 @@ export default function App() {
     }
   }
 
+  function switchWallet(address: string) {
+    dispatch(switchProfile(address));
+    browser.runtime.sendMessage({
+      type: "switch_wallet_event",
+      ext: "arconnect",
+      res: true,
+      message: "",
+      address,
+      sender: "popup"
+    });
+    setShowSwitch(true);
+    setTimeout(() => setShowSwitch(false), 1700);
+  }
+
   return (
     <>
       <div className={styles.Auth}>
@@ -403,6 +424,24 @@ export default function App() {
                   password to continue.
                 </p>
               ))}
+            {type === "connect" && (
+              <>
+                <p className={styles.SelectLabel}>Select wallet</p>
+                <Select
+                  placeholder="Select wallet"
+                  value={proflie}
+                  className={styles.SelectWallet}
+                  onChange={(val) => switchWallet(val as string)}
+                >
+                  {wallets.map((wallet, i) => (
+                    <Select.Option value={wallet.address} key={i}>
+                      {formatAddress(wallet.address)}
+                    </Select.Option>
+                  ))}
+                </Select>
+                <Spacer y={0.67} />
+              </>
+            )}
             <Input.Password
               {...passwordInput.bindings}
               status={passwordStatus}
@@ -440,7 +479,7 @@ export default function App() {
             >
               Log In
             </Button>
-            <Spacer />
+            <Spacer y={0.73} />
             <Button style={{ width: "100%" }} onClick={cancel}>
               Cancel
             </Button>
@@ -521,6 +560,18 @@ export default function App() {
             </p>
           )}
       </div>
+      <AnimatePresence>
+        {showSwitch && (
+          <motion.div
+            className={toastStyles.SmallToast}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            Switched wallet
+          </motion.div>
+        )}
+      </AnimatePresence>
       <Modal {...allowanceModal.bindings}>
         <Modal.Title>Allowance limit</Modal.Title>
         <Modal.Content className={styles.AllowanceModal}>

@@ -24,7 +24,7 @@ import { fixupPasswords } from "../utils/auth";
 // open the welcome page
 browser.runtime.onInstalled.addListener(async () => {
   if (!(await walletsStored()))
-    window.open(browser.runtime.getURL("/welcome.html"));
+    browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
   else await fixupPasswords();
 });
 
@@ -71,7 +71,7 @@ const handleApiCalls = async (
 
   // if no wallets are stored, return and open the login page
   if (!(await walletsStored())) {
-    window.open(browser.runtime.getURL("/welcome.html"));
+    browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
     return {
       type: "connect_result",
       ext: "arconnect",

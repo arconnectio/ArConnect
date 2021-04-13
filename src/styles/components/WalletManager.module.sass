@@ -207,23 +207,6 @@
           width: 1.23em
           height: 1.23em
 
-.SwitchIndicator
-  position: fixed
-  bottom: 1.5em
-  left: 50%
-  background-color: rgba(0, 0, 0, .56)
-  color: #fff
-  font-size: .8em
-  font-weight: 400
-  padding: .66em .74em
-  border-radius: 1.45em
-  z-index: 10000
-  transform: translateX(-50%)
-
-  @media (prefers-color-scheme: dark)
-    background-color: rgba(255, 255, 255, .56)
-    color: #000
-
 .QROverlay
   position: fixed
   top: 0
@@ -244,15 +227,22 @@
       max-width: 90%
       overflow-wrap: break-word
       text-align: center
+      color: #fff
       margin: 0 auto
         top: 1em
+
+      @media (prefers-color-scheme: dark)
+        color: #fff
 
     .QRCode
       width: 195px
       height: 195px
       display: block
       margin: 0 auto
-      box-shadow: 0px 0px 14px 14px rgb(0, 0, 0, .93)
+      box-shadow: 0px 0px 14px 1px rgb(0, 0, 0, .93)
+
+      @media (prefers-color-scheme: dark)
+        box-shadow: 0px 0px 14px 14px rgb(0, 0, 0, .93)
 
 // same style as the wallet name inputs'
 // this element is required to get the 
