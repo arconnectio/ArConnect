@@ -13,13 +13,14 @@ import {
   Tooltip,
   useInput,
   useModal,
+  useTheme,
   useToasts
 } from "@geist-ui/react";
 import { useColorScheme } from "use-color-scheme";
 import { run } from "ar-gql";
 import { useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
-import { FileDirectoryIcon, LockIcon } from "@primer/octicons-react";
+import { FileDirectoryIcon, LockIcon, PlusIcon } from "@primer/octicons-react";
 import { formatAddress } from "../../utils/url";
 import { checkPassword } from "../../utils/auth";
 import { JWKInterface } from "arweave/web/lib/wallet";
@@ -70,7 +71,11 @@ export default function App() {
       percentage: number;
       text: string;
     }>(),
-    passwordInput = useInput("");
+    passwordInput = useInput(""),
+    driveNameModal = useModal(),
+    driveNameInput = useInput("ArConnect Archives"),
+    [creatingDrive, setCreatingDrive] = useState(false),
+    theme = useTheme();
 
   useEffect(() => {
     loadData();
@@ -473,7 +478,10 @@ export default function App() {
         });
       }
 
-      setToast({ text: "Archived site", type: "success" });
+      setToast({
+        text: "Archived site. It will appear in the selected drive soon.",
+        type: "success"
+      });
     } catch {
       setToast({
         text: "There was an error while creating the ArDrive transaction",
@@ -485,6 +493,17 @@ export default function App() {
     setUploadStatus(undefined);
     setSelectedDrive(undefined);
     archiveModal.setVisible(false);
+  }
+
+  // create a new public ArDrive drive
+  async function createDrive() {
+    setCreatingDrive(true);
+
+    try {
+      driveNameModal.setVisible(false);
+    } catch {}
+
+    setCreatingDrive(false);
   }
 
   return (
@@ -563,50 +582,97 @@ export default function App() {
           Archive
         </Button>
       </div>
+      <Modal {...driveNameModal.bindings}>
+        <Modal.Title>Create a Drive</Modal.Title>
+        <Modal.Content className={styles.Modal}>
+          <p style={{ textAlign: "center" }}>
+            You don't have a public{" "}
+            <a
+              href="https://ardrive.io"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ArDrive
+            </a>{" "}
+            drive yet. Please create one.
+          </p>
+          <h2>Drive name</h2>
+          <Input
+            placeholder="Enter drive name..."
+            {...driveNameInput.bindings}
+            width="100%"
+          />
+        </Modal.Content>
+        <Modal.Action passive onClick={() => driveNameModal.setVisible(false)}>
+          Cancel
+        </Modal.Action>
+        <Modal.Action
+          onClick={createDrive}
+          disabled={driveNameInput.state === ""}
+          loading={creatingDrive}
+        >
+          Create
+        </Modal.Action>
+      </Modal>
       <Modal {...archiveModal.bindings}>
         <Modal.Title>Archive site</Modal.Title>
         <Modal.Content className={styles.Modal}>
           <h2>Please select a drive</h2>
           {(drives &&
-            drives.length !== 0 &&
-            drives.map((drive, i) => (
-              <div
-                className={
-                  styles.Drive +
-                  " " +
-                  (drive.isPrivate ? styles.DisabledDrive : "") +
-                  " " +
-                  (selectedDrive === drive.id ? styles.SelectedDrive : "")
-                }
-                key={i}
-                title={
-                  drive.isPrivate
-                    ? "You cannot save to a private drive for now..."
-                    : undefined
-                }
-                onClick={() => setSelectedDrive(drive.id)}
-              >
-                <FileDirectoryIcon />
-                {drive.name}
-                <span className={styles.RootFolder}>
-                  /{drive.rootFolderName}
-                </span>
-                {drive.isPrivate && <LockIcon size={24} />}
-              </div>
-            ))) ||
-            (drives && drives.length === 0 && (
-              <p>
-                No drives for this address. Create one at{" "}
-                <a
-                  href="https://app.ardrive.io/"
-                  target="_blank"
-                  rel="noopener noreferrer"
+            ((drives.length !== 0 && (
+              <>
+                {drives.map((drive, i) => (
+                  <div
+                    className={
+                      styles.Drive +
+                      " " +
+                      (drive.isPrivate ? styles.DisabledDrive : "") +
+                      " " +
+                      (selectedDrive === drive.id ? styles.SelectedDrive : "")
+                    }
+                    key={i}
+                    title={
+                      drive.isPrivate
+                        ? "You cannot save to a private drive for now..."
+                        : undefined
+                    }
+                    onClick={() => setSelectedDrive(drive.id)}
+                  >
+                    <FileDirectoryIcon />
+                    {drive.name}
+                    <span className={styles.RootFolder}>
+                      /{drive.rootFolderName}
+                    </span>
+                    {drive.isPrivate && <LockIcon size={24} />}
+                  </div>
+                ))}
+                <div
+                  className={styles.Drive}
+                  onClick={() => {
+                    driveNameModal.setVisible(true);
+                    archiveModal.setVisible(false);
+                  }}
+                  style={{ justifyContent: "center" }}
                 >
-                  ArDrive
-                </a>
-                !
+                  <PlusIcon />
+                  <span>Create new</span>
+                </div>
+              </>
+            )) || (
+              <p>
+                No drives for this address. Please create one{" "}
+                <span
+                  style={{ color: theme.palette.success, cursor: "pointer" }}
+                  onClick={() => {
+                    driveNameModal.setVisible(true);
+                    archiveModal.setVisible(false);
+                  }}
+                >
+                  here
+                </span>
+                .
               </p>
-            )) || <Loading />}
+            ))) || <Loading />}
           <Spacer y={1} />
           <h2>Notice</h2>
           <p>
