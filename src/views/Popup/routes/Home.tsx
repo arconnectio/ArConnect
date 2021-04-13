@@ -102,14 +102,12 @@ export default function Home() {
         ),
         verto = new Verto(),
         pstsLoaded: Asset[] = await Promise.all(
-          data.map(async (pst: any) => {
-            return {
-              ...pst,
-              arBalance:
-                ((await verto.latestPrice(pst.id)) ?? 0) * (pst.balance ?? 0),
-              removed: psts?.find(({ id }) => id === pst.id)?.removed ?? false
-            };
-          })
+          data.map(async (pst: any) => ({
+            ...pst,
+            arBalance:
+              ((await verto.latestPrice(pst.id)) ?? 0) * (pst.balance ?? 0),
+            removed: psts?.find(({ id }) => id === pst.id)?.removed ?? false
+          }))
         );
 
       dispatch(setAssets(profile, pstsLoaded));
@@ -324,7 +322,9 @@ export default function Home() {
                 className={styles.Transaction}
                 key={i}
                 onClick={() =>
-                  window.open(`https://viewblock.io/arweave/tx/${tx.id}`)
+                  browser.tabs.create({
+                    url: `https://viewblock.io/arweave/tx/${tx.id}`
+                  })
                 }
               >
                 <div className={styles.Details}>
@@ -389,7 +389,9 @@ export default function Home() {
             <div
               className={styles.Transaction + " " + styles.ViewMore}
               onClick={() =>
-                window.open(`https://viewblock.io/arweave/address/${profile}`)
+                browser.tabs.create({
+                  url: `https://viewblock.io/arweave/address/${profile}`
+                })
               }
             >
               View more...

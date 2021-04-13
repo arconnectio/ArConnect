@@ -66,7 +66,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
           !storedAddress ||
           !keyfileToDecrypt
         ) {
-          window.open(browser.runtime.getURL("/welcome.html"));
+          browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
           return {
             res: false,
             message: "No wallets added"
