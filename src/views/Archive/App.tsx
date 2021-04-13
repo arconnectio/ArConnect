@@ -16,6 +16,11 @@ import {
   useTheme,
   useToasts
 } from "@geist-ui/react";
+import {
+  getSizeBytes,
+  createArchiveTransaction,
+  createMetadataTransaction
+} from "../../utils/archive";
 import { useColorScheme } from "use-color-scheme";
 import { run } from "ar-gql";
 import { useSelector } from "react-redux";
@@ -25,7 +30,6 @@ import { formatAddress } from "../../utils/url";
 import { checkPassword } from "../../utils/auth";
 import { JWKInterface } from "arweave/web/lib/wallet";
 import { motion, AnimatePresence } from "framer-motion";
-import { v4 as uuidv4 } from "uuid";
 import { browser } from "webextension-polyfill-ts";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
@@ -355,10 +359,6 @@ export default function App() {
     } catch {}
   }
 
-  function getSizeBytes(data: string) {
-    return new TextEncoder().encode(data).length;
-  }
-
   async function archive() {
     if (!(await checkPassword(passwordInput.state)))
       return setToast({ text: "Invalid password", type: "error" });
@@ -387,22 +387,14 @@ export default function App() {
 
     // create data transaction
     try {
-      const archiveTx = await arweave.createTransaction(
-        {
-          data: previewHTML
-        },
-        useJWK
-      );
-
-      archiveTx.addTag("Content-Type", "text/html");
-      archiveTx.addTag("User-Agent", `ArConnect/${manifest.version}`);
-      archiveTx.addTag("page:url", archiveData.url);
-      archiveTx.addTag("page:title", title);
-      archiveTx.addTag("page:timestamp", timestamp.toString());
-      archiveTx.addTag("App-Name", "ArDrive-Web");
-      archiveTx.addTag("App-Version", "0.1.0");
-
-      await arweave.transactions.sign(archiveTx, useJWK);
+      const archiveTx = await createArchiveTransaction(arweave, {
+        url: archiveData.url,
+        title,
+        content: previewHTML,
+        contentType: "text/html",
+        timestamp,
+        keyfile: useJWK
+      });
 
       const uploader = await arweave.transactions.getUploader(archiveTx);
 
@@ -439,34 +431,23 @@ export default function App() {
 
     // link to an ardrive file location with an ardrive metadata transaction
     try {
-      const metadataTx = await arweave.createTransaction(
-        {
-          data: JSON.stringify({
-            name: `arconnect-archive-${title
-              .toLowerCase()
-              .replace(/[/\\?%*:|"<>]/g, "_")
-              .replaceAll(" ", "_")}.html`,
-            size: getSizeBytes(previewHTML),
-            lastModifiedDate: timestamp,
-            dataTxId,
-            dataContentType: "text/html"
-          })
+      const filename = `arconnect-archive-${title
+        .toLowerCase()
+        .replace(/[/\\?%*:|"<>]/g, "_")
+        .replaceAll(" ", "_")}.html`;
+
+      const metadataTx = await createMetadataTransaction(arweave, {
+        filename,
+        content: previewHTML,
+        contentType: "text/html",
+        timestamp,
+        dataTxId,
+        driveInfo: {
+          id: driveToSave.name,
+          rootFolderId: driveToSave.rootFolderID
         },
-        useJWK
-      );
-
-      metadataTx.addTag("App-Name", "ArDrive-Web");
-      metadataTx.addTag("App-Version", "0.1.0");
-      metadataTx.addTag("Content-Type", "application/json");
-      metadataTx.addTag("ArFS", "0.11");
-      metadataTx.addTag("Entity-Type", "file");
-      metadataTx.addTag("Drive-Id", driveToSave.id);
-      metadataTx.addTag("Unix-Time", timestamp.toString());
-      metadataTx.addTag("File-Id", uuidv4());
-      metadataTx.addTag("Parent-Folder-Id", driveToSave.rootFolderID);
-      metadataTx.addTag("ArDrive-Client", `ArConnect/${manifest.version}`);
-
-      await arweave.transactions.sign(metadataTx, useJWK);
+        keyfile: useJWK
+      });
 
       const uploader = await arweave.transactions.getUploader(metadataTx);
 
@@ -725,7 +706,7 @@ export default function App() {
                 transition={{ duration: 0.23, ease: "easeInOut" }}
               >
                 <p>{uploadStatus.text}</p>
-                <Progress value={uploadStatus.percentage} />
+                <Progress value={uploadStatus.percentage} type="success" />
                 <Spacer y={1} />
               </motion.div>
             )}

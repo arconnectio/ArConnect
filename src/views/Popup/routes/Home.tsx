@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { PropsWithChildren, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
 import {
@@ -17,6 +17,8 @@ import { useColorScheme } from "use-color-scheme";
 import { arToFiat, getSymbol } from "../../../utils/currency";
 import { validateMessage } from "../../../utils/messenger";
 import { browser } from "webextension-polyfill-ts";
+import { getActiveTab } from "../../../utils/background";
+import mime from "mime-types";
 import axios from "axios";
 import PST from "./PST";
 import WalletManager from "../../../components/WalletManager";
@@ -50,12 +52,16 @@ export default function Home() {
     { scheme } = useColorScheme(),
     { currency } = useSelector((state: RootState) => state.settings),
     [arPriceInCurrency, setArPriceInCurrency] = useState(1),
-    [loading, setLoading] = useState({ psts: true, txs: true });
+    [loading, setLoading] = useState({ psts: true, txs: true }),
+    [currentTabContentType, setCurrentTabContentType] = useState<
+      "page" | "pdf" | undefined
+    >("page");
 
   useEffect(() => {
     loadBalance();
     loadPSTs();
     loadTransactions();
+    loadContentType();
     // eslint-disable-next-line
   }, [profile]);
 
@@ -147,29 +153,61 @@ export default function Home() {
     return storedBalances.find((balance) => balance.address === profile);
   }
 
-  async function archive() {
-    const res = await browser.runtime.sendMessage({
-      type: "archive_page",
-      ext: "arconnect",
-      sender: "popup"
-    });
+  async function loadContentType() {
+    const currentTab = await getActiveTab();
 
     if (
-      !validateMessage(res, {
-        sender: "content",
-        type: "archive_page_content"
-      })
+      !currentTab.url ||
+      (new URL(currentTab.url).protocol !== "http:" &&
+        new URL(currentTab.url).protocol !== "https:")
     )
-      return;
+      return setCurrentTabContentType(undefined);
 
-    await browser.storage.local.set({
-      lastArchive: {
-        url: res.url,
-        content: res.data
-      }
-    });
+    try {
+      const data = await axios.get(currentTab.url);
+      if (
+        mime
+          .extension(data.headers["content-type"])
+          .toString()
+          .toLowerCase() === "pdf"
+      )
+        setCurrentTabContentType("pdf");
+      else setCurrentTabContentType("page");
+    } catch {
+      setCurrentTabContentType(undefined);
+    }
+  }
 
-    browser.tabs.create({ url: browser.extension.getURL("/archive.html") });
+  async function archive() {
+    const currentTab = await getActiveTab();
+
+    if (!currentTabContentType || !currentTab.url) return;
+    if (currentTabContentType === "page") {
+      const res = await browser.runtime.sendMessage({
+        type: "archive_page",
+        ext: "arconnect",
+        sender: "popup"
+      });
+
+      if (
+        !validateMessage(res, {
+          sender: "content",
+          type: "archive_page_content"
+        })
+      )
+        return;
+
+      await browser.storage.local.set({
+        lastArchive: {
+          url: res.url,
+          content: res.data,
+          type: "page"
+        }
+      });
+      browser.tabs.create({ url: browser.extension.getURL("/archive.html") });
+    } else {
+      // TODO pdf
+    }
   }
 
   return (
@@ -200,10 +238,19 @@ export default function Home() {
             <ArrowSwitchIcon size={24} />
             <span>Send</span>
           </div>
-          <div className={styles.Item} onClick={archive}>
-            <ArchiveIcon size={24} />
-            <span>Archive page</span>
-          </div>
+          <ArchiveWrapper supported={currentTabContentType !== undefined}>
+            <div
+              className={
+                styles.Item +
+                " " +
+                (!currentTabContentType ? styles.Unavailable : "")
+              }
+              onClick={archive}
+            >
+              <ArchiveIcon size={24} />
+              <span>Archive {currentTabContentType ?? "page"}</span>
+            </div>
+          </ArchiveWrapper>
           <Tooltip text="Not available yet">
             <div
               className={
@@ -351,5 +398,18 @@ export default function Home() {
         </Tabs.Item>
       </Tabs>
     </div>
+  );
+}
+
+function ArchiveWrapper({
+  children,
+  supported
+}: PropsWithChildren<{ supported: boolean }>) {
+  return (
+    (supported && <>{children}</>) || (
+      <Tooltip text={<p style={{ margin: 0 }}>Content-type unsupported</p>}>
+        {children}
+      </Tooltip>
+    )
   );
 }
