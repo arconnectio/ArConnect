@@ -33,6 +33,7 @@ import { Line } from "react-chartjs-2";
 import { GraphDataConfig, GraphOptions } from "../../../utils/graph";
 import { AnimatePresence, motion } from "framer-motion";
 import { getVerification, Threshold } from "arverify";
+import { browser } from "webextension-polyfill-ts";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
 import Home from "./Home";
@@ -80,7 +81,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
 
   useEffect(() => {
     if (tabs.state === "3")
-      window.open(`https://verto.exchange/token?id=${id}`);
+      browser.tabs.create({ url: `https://verto.exchange/token?id=${id}` });
   }, [tabs, id]);
 
   useEffect(() => {
@@ -263,7 +264,10 @@ export default function PST({ id, name, balance, ticker }: Asset) {
                     <ul>
                       {links.map((link, i) => (
                         <li key={i}>
-                          <a href={link} onClick={() => window.open(link)}>
+                          <a
+                            href={link}
+                            onClick={() => browser.tabs.create({ url: link })}
+                          >
                             {link
                               .replace(/(https|http):\/\//, "")
                               .replace(/\/$/, "")}
@@ -274,7 +278,9 @@ export default function PST({ id, name, balance, ticker }: Asset) {
                         <a
                           href={`https://community.xyz/#${id}`}
                           onClick={() =>
-                            window.open(`https://community.xyz/#${id}`)
+                            browser.tabs.create({
+                              url: `https://community.xyz/#${id}`
+                            })
                           }
                         >
                           community.xyz/{name.toLowerCase()}

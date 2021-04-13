@@ -15,6 +15,7 @@ import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
 import { useColorScheme } from "use-color-scheme";
 import { arToFiat, getSymbol } from "../../../utils/currency";
+import { browser } from "webextension-polyfill-ts";
 import axios from "axios";
 import PST from "./PST";
 import WalletManager from "../../../components/WalletManager";
@@ -250,7 +251,9 @@ export default function Home() {
                 className={styles.Transaction}
                 key={i}
                 onClick={() =>
-                  window.open(`https://viewblock.io/arweave/tx/${tx.id}`)
+                  browser.tabs.create({
+                    url: `https://viewblock.io/arweave/tx/${tx.id}`
+                  })
                 }
               >
                 <div className={styles.Details}>
@@ -315,7 +318,9 @@ export default function Home() {
             <div
               className={styles.Transaction + " " + styles.ViewMore}
               onClick={() =>
-                window.open(`https://viewblock.io/arweave/address/${profile}`)
+                browser.tabs.create({
+                  url: `https://viewblock.io/arweave/address/${profile}`
+                })
               }
             >
               View more...

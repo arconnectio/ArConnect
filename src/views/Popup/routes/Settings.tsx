@@ -27,6 +27,7 @@ import { Threshold } from "arverify";
 import { MessageType } from "../../../utils/messenger";
 import { updateIcon } from "../../../background/icon";
 import { checkPassword, setPassword } from "../../../utils/auth";
+import { browser } from "webextension-polyfill-ts";
 import {
   readdAsset,
   removePermissions,
@@ -731,26 +732,34 @@ export default function Settings() {
               <div className={styles.Branding}>
                 <div className={styles.Links}>
                   <p
-                    onClick={() => window.open("https://arconnect.io/faq")}
+                    onClick={() =>
+                      browser.tabs.create({ url: "https://arconnect.io/faq" })
+                    }
                     style={{ color: theme.palette.success }}
                   >
                     FAQ
                   </p>
                   <p
-                    onClick={() => window.open("https://arconnect.io")}
+                    onClick={() =>
+                      browser.tabs.create({ url: "https://arconnect.io" })
+                    }
                     style={{ color: theme.palette.success }}
                   >
                     arconnect.io
                   </p>
                   <p
-                    onClick={() => window.open("https://arconnect.io/docs")}
+                    onClick={() =>
+                      browser.tabs.create({ url: "https://arconnect.io/docs" })
+                    }
                     style={{ color: theme.palette.success }}
                   >
                     Docs
                   </p>
                 </div>
                 <p
-                  onClick={() => window.open("https://th8ta.org")}
+                  onClick={() =>
+                    browser.tabs.create({ url: "https://th8ta.org" })
+                  }
                   className={styles.Th8ta}
                 >
                   th<span>8</span>ta
