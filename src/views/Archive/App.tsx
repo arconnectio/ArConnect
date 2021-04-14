@@ -148,6 +148,10 @@ export default function App() {
     }
 
     setFetching(false);
+
+    // open modal for pdfs immediately
+    archiveModal.setVisible(true);
+
     return data;
   }
 
@@ -494,7 +498,8 @@ export default function App() {
 
       setToast({
         text: `Archived ${archiveData.type}. It should appear in the selected drive shortly.`,
-        type: "success"
+        type: "success",
+        delay: 5500
       });
     } catch {
       setToast({
@@ -519,6 +524,7 @@ export default function App() {
 
     try {
       driveNameModal.setVisible(false);
+      archiveModal.setVisible(true);
     } catch {}
 
     setCreatingDrive(false);
@@ -658,7 +664,7 @@ export default function App() {
         </Modal.Action>
       </Modal>
       <Modal {...archiveModal.bindings}>
-        <Modal.Title>Archive site</Modal.Title>
+        <Modal.Title>Archive {archiveData.type}</Modal.Title>
         <Modal.Content className={styles.Modal}>
           <h2>Please select a drive</h2>
           {(drives &&
@@ -720,9 +726,9 @@ export default function App() {
           <h2>Notice</h2>
           <p>
             This will archive the{" "}
-            {(archiveData.type === "page" && "site") || "pdf file"} in this
-            preview on Arweave using an ArDrive public drive. You can later see
-            the generated file there.
+            {(archiveData.type === "page" && "site") || "pdf file"} on Arweave
+            using an ArDrive public drive. You will be able to find it there,
+            shortly after the transaction has been mined.
           </p>
           <p>
             <b>
@@ -730,7 +736,7 @@ export default function App() {
               this data will be archived permanently.
             </b>
           </p>
-          <h2>From</h2>
+          <h2>Wallet</h2>
           <Select
             value={usedAddress}
             onChange={(val) => setUsedAddress(val as string)}
