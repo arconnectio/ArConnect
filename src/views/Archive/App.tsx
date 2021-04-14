@@ -470,7 +470,7 @@ export default function App() {
       const filename = `arconnect-archive-${title
         .toLowerCase()
         .replace(/[/\\?%*:|"<>]/g, "_")
-        .replaceAll(" ", "_")}.html`;
+        .replaceAll(" ", "_")}.${archiveData.type === "page" ? "html" : "pdf"}`;
 
       const metadataTx = await createMetadataTransaction(arweave, {
         filename,
