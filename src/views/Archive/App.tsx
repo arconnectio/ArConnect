@@ -476,7 +476,7 @@ export default function App() {
         timestamp,
         dataTxId,
         driveInfo: {
-          id: driveToSave.name,
+          id: driveToSave.id,
           rootFolderId: driveToSave.rootFolderID
         },
         keyfile: useJWK
@@ -493,7 +493,7 @@ export default function App() {
       }
 
       setToast({
-        text: `Archived ${archiveData.type}. It will appear in the selected drive soon.`,
+        text: `Archived ${archiveData.type}. It should appear in the selected drive shortly.`,
         type: "success"
       });
     } catch {
