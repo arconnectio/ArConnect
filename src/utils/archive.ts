@@ -121,12 +121,12 @@ export function getSizeBytes(data: string) {
 }
 
 /**
- * Create a new ArDrive public drive
+ * Create a new ArDrive public drive transaction
  *
  * @param arweave Arweave client
- * @param driveName The name of the new public drive
+ * @param driveName Data about the new drive
  *
- * @returns ArDrive Drive object
+ * @returns ArDrive Drive object and create drive transactions
  */
 export async function createPublicDrive(
   arweave: Arweave,
