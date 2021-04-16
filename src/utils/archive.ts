@@ -2,6 +2,7 @@ import { JWKInterface } from "arweave/web/lib/wallet";
 import { v4 as uuidv4 } from "uuid";
 import Arweave from "arweave";
 import manifest from "../../public/manifest.json";
+import Transaction from "arweave/node/lib/transaction";
 
 /**
  * Some basic ArDrive info for transactions
@@ -117,4 +118,95 @@ interface Metadata {
  */
 export function getSizeBytes(data: string) {
   return new TextEncoder().encode(data).length;
+}
+
+/**
+ * Create a new ArDrive public drive
+ *
+ * @param arweave Arweave client
+ * @param driveName The name of the new public drive
+ *
+ * @returns ArDrive Drive object
+ */
+export async function createPublicDrive(
+  arweave: Arweave,
+  data: DriveTxData
+): Promise<{
+  drive: Drive;
+  txs: Transaction[];
+}> {
+  /**
+   * Infos about the new drive
+   */
+  const newDrive: Drive = {
+    id: uuidv4(),
+    name: data.name,
+    rootFolderID: uuidv4(),
+    rootFolderName: data.name,
+    isPrivate: false
+  };
+  const timestamp = new Date().getTime();
+
+  /**
+   * The drive transaction
+   */
+  const driveTx = await arweave.createTransaction(
+    {
+      data: JSON.stringify({
+        name: newDrive.name,
+        rootFolderId: newDrive.rootFolderID
+      })
+    },
+    data.keyfile
+  );
+
+  driveTx.addTag("App-Name", ardriveClient);
+  driveTx.addTag("App-Version", ardriveVersion);
+  driveTx.addTag("Content-Type", "application/json");
+  driveTx.addTag("ArFS", ArFS);
+  driveTx.addTag("Entity-Type", "drive");
+  driveTx.addTag("Unix-Time", timestamp.toString());
+  driveTx.addTag("Drive-Id", newDrive.id);
+  driveTx.addTag("Drive-Privacy", "public");
+
+  await arweave.transactions.sign(driveTx, data.keyfile);
+
+  /**
+   * The root folder transaction
+   */
+  const rootFolderTx = await arweave.createTransaction(
+    {
+      data: JSON.stringify({ name: newDrive.name })
+    },
+    data.keyfile
+  );
+
+  rootFolderTx.addTag("App-Name", ardriveClient);
+  rootFolderTx.addTag("App-Version", ardriveVersion);
+  rootFolderTx.addTag("Content-Type", "application/json");
+  rootFolderTx.addTag("ArFS", ArFS);
+  rootFolderTx.addTag("Entity-Type", "folder");
+  rootFolderTx.addTag("Unix-Time", (timestamp + 1).toString());
+  rootFolderTx.addTag("Drive-Id", newDrive.id);
+  rootFolderTx.addTag("Folder-Id", newDrive.rootFolderID);
+
+  await arweave.transactions.sign(rootFolderTx, data.keyfile);
+
+  return {
+    drive: newDrive,
+    txs: [driveTx, rootFolderTx]
+  };
+}
+
+interface DriveTxData {
+  name: string;
+  keyfile: JWKInterface;
+}
+
+export interface Drive {
+  id: string;
+  name: string;
+  rootFolderID: string;
+  rootFolderName: string;
+  isPrivate: boolean;
 }

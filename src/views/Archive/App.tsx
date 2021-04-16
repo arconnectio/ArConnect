@@ -19,7 +19,8 @@ import {
 import {
   getSizeBytes,
   createArchiveTransaction,
-  createMetadataTransaction
+  createMetadataTransaction,
+  Drive
 } from "../../utils/archive";
 import { useColorScheme } from "use-color-scheme";
 import { run } from "ar-gql";
@@ -61,15 +62,7 @@ export default function App() {
     arweaveConfig = useSelector((state: RootState) => state.arweave),
     wallets = useSelector((state: RootState) => state.wallets),
     arweave = new Arweave(arweaveConfig),
-    [drives, setDrives] = useState<
-      {
-        name: string;
-        rootFolderID: string;
-        rootFolderName: string;
-        id: string;
-        isPrivate: boolean;
-      }[]
-    >(),
+    [drives, setDrives] = useState<Drive[]>(),
     [selectedDrive, setSelectedDrive] = useState<string>(),
     [title, setTitle] = useState(""),
     [archiving, setArchiving] = useState(false),

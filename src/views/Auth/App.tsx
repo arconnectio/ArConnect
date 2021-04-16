@@ -138,7 +138,6 @@ export default function App() {
 
       if (existingPermissions && existingPermissions.permissions.length > 0) {
         setAlreadyHasPermissions(true);
-        setAllowedPermissions(currentPerms);
       }
 
       // create transaction event
@@ -499,12 +498,10 @@ export default function App() {
                   {requestedPermissions.map((permission, i) => (
                     <li key={i} className={styles.Check + " " + styles.Checked}>
                       <Checkbox
-                        checked={
-                          !!allowedPermissions.find((val) => val === permission)
-                        }
+                        checked
                         size="medium"
-                        onChange={() => {
-                          if (allowedPermissions.includes(permission))
+                        onChange={(e) => {
+                          if (!e.target.checked)
                             setAllowedPermissions((val) =>
                               val.filter((perm) => perm !== permission)
                             );
