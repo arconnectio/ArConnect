@@ -12,6 +12,7 @@ import {
 import {
   checkPermissions,
   getActiveTab,
+  getArweaveConfig,
   getPermissions,
   getStoreData,
   walletsStored
@@ -176,6 +177,26 @@ const handleApiCalls = async (
         ext: "arconnect",
         res: true,
         permissions: await getPermissions(tabURL),
+        sender: "background"
+      };
+
+    // get the user's custom arweave config
+    case "get_arweave_config":
+      if (!(await checkPermissions(["ACCESS_ARWEAVE_CONFIG"], tabURL)))
+        return {
+          type: "get_arweave_config_result",
+          ext: "arconnect",
+          res: false,
+          message:
+            "The site does not have the required permissions for this action",
+          sender: "background"
+        };
+
+      return {
+        type: "get_arweave_config_result",
+        ext: "arconnect",
+        res: true,
+        config: await getArweaveConfig(),
         sender: "background"
       };
 
