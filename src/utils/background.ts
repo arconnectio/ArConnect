@@ -1,6 +1,7 @@
 import { MessageType, validateMessage } from "../utils/messenger";
 import { RootState } from "../stores/reducers";
 import { IPermissionState } from "../stores/reducers/permissions";
+import { IArweave, defaultConfig } from "../stores/reducers/arweave";
 import { PermissionType } from "./permissions";
 import { getRealURL } from "./url";
 import { browser } from "webextension-polyfill-ts";
@@ -183,8 +184,28 @@ export const authenticateUser = (action: MessageType, tabURL: string) =>
     }
   });
 
+/**
+ * Get the currently active browser tab
+ *
+ * @returns Active tab object
+ */
 export async function getActiveTab() {
   const tabs = await browser.tabs.query({ active: true, currentWindow: true });
   if (!tabs[0]) throw new Error("No tabs opened");
   else return tabs[0];
+}
+
+/**
+ * Get the custom Arweave config from the
+ * browser's storage
+ *
+ * @returns Arweave config object
+ */
+export async function getArweaveConfig(): Promise<IArweave> {
+  try {
+    const storage = await getStoreData();
+    return storage.arweave ?? defaultConfig;
+  } catch {
+    return defaultConfig;
+  }
 }
