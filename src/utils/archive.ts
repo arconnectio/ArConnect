@@ -168,6 +168,7 @@ export async function createPublicDrive(
   driveTx.addTag("Unix-Time", timestamp.toString());
   driveTx.addTag("Drive-Id", newDrive.id);
   driveTx.addTag("Drive-Privacy", "public");
+  driveTx.addTag("ArDrive-Client", `ArConnect/${manifest.version}`);
 
   await arweave.transactions.sign(driveTx, data.keyfile);
 
@@ -189,6 +190,7 @@ export async function createPublicDrive(
   rootFolderTx.addTag("Unix-Time", (timestamp + 1).toString());
   rootFolderTx.addTag("Drive-Id", newDrive.id);
   rootFolderTx.addTag("Folder-Id", newDrive.rootFolderID);
+  rootFolderTx.addTag("ArDrive-Client", `ArConnect/${manifest.version}`);
 
   await arweave.transactions.sign(rootFolderTx, data.keyfile);
 

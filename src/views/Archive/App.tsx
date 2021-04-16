@@ -20,7 +20,8 @@ import {
   getSizeBytes,
   createArchiveTransaction,
   createMetadataTransaction,
-  Drive
+  Drive,
+  createPublicDrive
 } from "../../utils/archive";
 import { useColorScheme } from "use-color-scheme";
 import { run } from "ar-gql";
@@ -320,26 +321,33 @@ export default function App() {
       arFsVersion: tags.find(({ name }) => name === "ArFS")?.value ?? ""
     }));
 
-    setDrives(
-      await Promise.all(
-        res.map(async ({ txid, id, isPrivate, arFsVersion }) => {
-          const { data } = await axios.get(`https://arweave.net/${txid}`),
-            rootFolderName = await getRootFolderName({
-              arFs: arFsVersion,
-              driveID: id,
-              folderID: data.rootFolderId
-            });
+    const loadedDrives: Drive[] = await Promise.all(
+      res.map(async ({ txid, id, isPrivate, arFsVersion }) => {
+        const { data } = await axios.get(`https://arweave.net/${txid}`),
+          rootFolderName = await getRootFolderName({
+            arFs: arFsVersion,
+            driveID: id,
+            folderID: data.rootFolderId
+          });
 
-          return {
-            id,
-            isPrivate,
-            name: data.name,
-            rootFolderID: data.rootFolderId,
-            rootFolderName
-          };
-        })
-      )
+        return {
+          id,
+          isPrivate,
+          name: data.name,
+          rootFolderID: data.rootFolderId,
+          rootFolderName
+        };
+      })
     );
+    const cachedDrives: Drive[] =
+      (await browser.storage.local.get("cached_drives"))?.cached_drives ?? [];
+
+    setDrives([
+      ...loadedDrives,
+      ...cachedDrives.filter(
+        ({ id }) => !!loadedDrives.find((loadedDrive) => loadedDrive.id === id)
+      )
+    ]);
   }
 
   // get root folder for ArDrive drive
@@ -385,15 +393,7 @@ export default function App() {
     } catch {}
   }
 
-  async function archive() {
-    if (!(await checkPassword(passwordInput.state)))
-      return setToast({ text: "Invalid password", type: "error" });
-
-    setArchiving(true);
-
-    if (archiveData.type === "pdf") await loadPdfContent();
-
-    // find the current wallet (selected in the modal)
+  function getWallet(): JWKInterface | undefined {
     const encryptedJWK = wallets.find(({ address }) => address === usedAddress)
       ?.keyfile;
 
@@ -402,16 +402,29 @@ export default function App() {
         text: "Error finding encrypted keyfile for address",
         type: "error"
       });
-      return setArchiving(false);
+      return undefined;
     }
+
+    return JSON.parse(atob(encryptedJWK));
+  }
+
+  async function archive() {
+    if (!(await checkPassword(passwordInput.state)))
+      return setToast({ text: "Invalid password", type: "error" });
+
+    setArchiving(true);
+
+    if (archiveData.type === "pdf") await loadPdfContent();
 
     if (!selectedDrive) {
       setToast({ text: "Please select a drive", type: "error" });
       return setArchiving(false);
     }
 
-    const useJWK: JWKInterface = JSON.parse(atob(encryptedJWK));
+    const useJWK = getWallet();
     let dataTxId: string;
+
+    if (!useJWK) return setArchiving(false);
 
     // create data transaction
     try {
@@ -515,11 +528,47 @@ export default function App() {
   async function createDrive() {
     setCreatingDrive(true);
 
+    const useJWK = getWallet();
+
+    if (!useJWK) return setCreatingDrive(false);
+
     try {
+      const { drive, txs } = await createPublicDrive(arweave, {
+        name: driveNameInput.state,
+        keyfile: useJWK
+      });
+
+      for (const tx of txs) {
+        const uploader = await arweave.transactions.getUploader(tx);
+
+        while (!uploader.isComplete) {
+          await uploader.uploadChunk();
+          setUploadStatus({
+            percentage: uploader.pctComplete,
+            text: `Creating drive ${uploader.uploadedChunks}/${uploader.totalChunks}`
+          });
+        }
+      }
+
+      // cache drive
+      const cachedDrives: Drive[] =
+        (await browser.storage.local.get("cached_drives"))?.cached_drives ?? [];
+      await browser.storage.local.set({
+        cached_drives: [...cachedDrives, drive]
+      });
+
+      setDrives((val) => [...(val ?? []), drive]);
       driveNameModal.setVisible(false);
       archiveModal.setVisible(true);
-    } catch {}
+      setToast({
+        text: `Created new public drive ${drive.name}`,
+        type: "success"
+      });
+    } catch {
+      setToast({ text: "Error creating drive", type: "error" });
+    }
 
+    setUploadStatus(undefined);
     setCreatingDrive(false);
   }
 
@@ -644,6 +693,20 @@ export default function App() {
             {...driveNameInput.bindings}
             width="100%"
           />
+          <AnimatePresence>
+            {uploadStatus && (
+              <motion.div
+                initial={{ opacity: 0, scaleY: 0.35 }}
+                animate={{ opacity: 1, scaleY: 1 }}
+                exit={{ opacity: 0, scaleY: 0.35 }}
+                transition={{ duration: 0.23, ease: "easeInOut" }}
+              >
+                <Spacer y={1} />
+                <p>{uploadStatus.text}</p>
+                <Progress value={uploadStatus.percentage} type="success" />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </Modal.Content>
         <Modal.Action passive onClick={() => driveNameModal.setVisible(false)}>
           Cancel
