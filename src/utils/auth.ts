@@ -32,3 +32,12 @@ export async function fixupPasswords() {
     });
   }
 }
+
+/**
+ * Sign out from ArConnect
+ * Deletes everything from storage
+ */
+export async function logOut() {
+  await browser.storage.local.clear();
+  browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
+}
