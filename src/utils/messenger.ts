@@ -46,10 +46,17 @@ export type MessageType =
   | "get_arweave_config"
   | "get_arweave_config_result";
 
-// this function validates messages and check if they are from the extension
-// other extensions could interfer with the functionality of ArConnect
-// for example with the window.postMessage function
-// this ensures that that does not happen
+/**
+ * This function validates messages and check if they are from the extension
+ * other extensions could interfer with the functionality of ArConnect
+ * for example with the window.postMessage function
+ * this ensures that that does not happen
+ *
+ * @param message The message object to validate
+ * @param args Validate args
+ *
+ * @returns
+ */
 export function validateMessage(
   message: any,
   { sender, type }: { sender?: MessageSender; type?: MessageType }

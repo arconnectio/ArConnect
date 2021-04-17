@@ -10,9 +10,13 @@ import limestone from "@limestonefi/api";
 import Arweave from "arweave";
 import axios from "axios";
 
-// create an authenticator popup
-// data: the data sent to the popup
-// encoded
+/**
+ * Create an authenticator popup
+ *
+ * @param data The data sent to the popup
+ *
+ * @returns AuthPopup window
+ */
 export const createAuthPopup = (data: any) =>
   browser.windows.create({
     url: `${browser.extension.getURL("auth.html")}?auth=${encodeURIComponent(
@@ -26,7 +30,14 @@ export const createAuthPopup = (data: any) =>
 
 /** Permission utilities */
 
-// check the given permissions
+/**
+ * Check permissions for an application
+ *
+ * @param permissions Permissions to check for
+ * @param url App URL
+ *
+ * @returns if the app has the checked permissions
+ */
 export async function checkPermissions(
   permissions: PermissionType[],
   url: string
@@ -41,7 +52,13 @@ export async function checkPermissions(
   } else return false;
 }
 
-// get permissing for the given url
+/**
+ * Get permissions for an application
+ *
+ * @param url App URL
+ *
+ * @returns Permissions for the app
+ */
 export async function getPermissions(url: string): Promise<PermissionType[]> {
   const storedPermissions = (await getStoreData())?.["permissions"];
   url = getRealURL(url);
@@ -60,7 +77,7 @@ export async function getPermissions(url: string): Promise<PermissionType[]> {
 export type StoreData = Partial<RootState>;
 
 /**
- * get store data
+ * Get store data
  *
  * @returns StoreData
  */
@@ -78,7 +95,7 @@ export async function getStoreData(): Promise<StoreData> {
 }
 
 /**
- * set store data
+ * Set store data
  *
  * @param updatedData An object with the reducer name as a key
  */
@@ -97,7 +114,14 @@ export async function setStoreData(updatedData: StoreData) {
   });
 }
 
-// create a simple fee
+/**
+ * Calculate the fee amount needed for a signing
+ *
+ * @param address The address to base off the calculation
+ * @param arweave Arweave client
+ *
+ * @returns Fee amount in string
+ */
 export async function getFeeAmount(address: string, arweave: Arweave) {
   const res = await run(
     `
@@ -142,7 +166,9 @@ export async function getFeeAmount(address: string, arweave: Arweave) {
   } else return arweave.ar.arToWinston((usdPrice * 0.01).toString());
 }
 
-// check if there are any wallets stored
+/**
+ * Check if any wallets are in the local storage
+ */
 export async function walletsStored(): Promise<boolean> {
   try {
     const wallets = (await getStoreData())?.["wallets"];
@@ -154,8 +180,14 @@ export async function walletsStored(): Promise<boolean> {
   }
 }
 
-// get decryption key or open a popup
-// to enter it
+/**
+ * Authenticate the user.
+ * Opens an auth window if the user has not authenticated
+ * themselves.
+ *
+ * @param action Reason of the auth request
+ * @param tabURL The URL of the current app
+ */
 export const authenticateUser = (action: MessageType, tabURL: string) =>
   new Promise<void>(async (resolve, reject) => {
     try {
