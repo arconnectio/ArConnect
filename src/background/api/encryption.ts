@@ -1,5 +1,9 @@
 import { MessageFormat } from "../../utils/messenger";
-import { authenticateUser, getStoreData } from "../../utils/background";
+import {
+  authenticateUser,
+  getArweaveConfig,
+  getStoreData
+} from "../../utils/background";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import Arweave from "arweave";
 import { createSign } from "crypto";
@@ -97,11 +101,7 @@ export const signature = (message: MessageFormat, tabURL: string) =>
   });
 
 async function doEncrypt(message: MessageFormat) {
-  const arweave = new Arweave({
-      host: "arweave.net",
-      port: 443,
-      protocol: "https"
-    }),
+  const arweave = new Arweave(await getArweaveConfig()),
     storeData = await getStoreData(),
     storedKeyfiles = storeData?.["wallets"],
     storedAddress = storeData?.["profile"],
@@ -154,11 +154,7 @@ async function doEncrypt(message: MessageFormat) {
 }
 
 async function doDecrypt(message: MessageFormat) {
-  const arweave = new Arweave({
-      host: "arweave.net",
-      port: 443,
-      protocol: "https"
-    }),
+  const arweave = new Arweave(await getArweaveConfig()),
     storeData = await getStoreData(),
     storedKeyfiles = storeData?.["wallets"],
     storedAddress = storeData?.["profile"],

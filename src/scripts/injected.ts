@@ -1,6 +1,7 @@
 import { comparePermissions, PermissionType } from "../utils/permissions";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { getRealURL } from "../utils/url";
+import { IArweave } from "../stores/reducers/arweave";
 import {
   createOverlay,
   createCoinWithAnimation,
@@ -160,6 +161,19 @@ const WalletAPI = {
       });
       if (!data.permissions) throw new Error(data.message);
       return data.permissions;
+    } catch (e) {
+      throw new Error(e);
+    }
+  },
+  async getArweaveConfig(): Promise<IArweave> {
+    try {
+      const data = await callAPI({
+        type: "get_arweave_config",
+        ext: "arconnect",
+        sender: "api"
+      });
+      if (!data.config) throw new Error(data.message);
+      return data.config;
     } catch (e) {
       throw new Error(e);
     }

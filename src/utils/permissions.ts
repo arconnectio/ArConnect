@@ -7,7 +7,8 @@ export type PermissionType =
   | "SIGN_TRANSACTION"
   | "ENCRYPT"
   | "DECRYPT"
-  | "SIGNATURE";
+  | "SIGNATURE"
+  | "ACCESS_ARWEAVE_CONFIG";
 
 /**
  * Permissions and their descriptions
@@ -18,7 +19,8 @@ export const PermissionDescriptions: Record<PermissionType, string> = {
   SIGN_TRANSACTION: "Sign a transaction",
   ENCRYPT: "Encrypt data using the user's keyfile",
   DECRYPT: "Decrypt data using the user's keyfile",
-  SIGNATURE: "Sign data using the user's keyfile"
+  SIGNATURE: "Sign data using the user's keyfile",
+  ACCESS_ARWEAVE_CONFIG: "Access the user's custom Arweave config"
 };
 
 /**

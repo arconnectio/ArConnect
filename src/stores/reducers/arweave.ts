@@ -9,7 +9,7 @@ export interface IArweaveAction {
   payload?: IArweave;
 }
 
-const defaultConfig: IArweave = {
+export const defaultConfig: IArweave = {
   host: "arweave.net",
   port: 443,
   protocol: "https"

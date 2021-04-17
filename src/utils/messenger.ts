@@ -42,7 +42,9 @@ export type MessageType =
   | "switch_wallet_event"
   | "switch_wallet_event_forward"
   | "archive_page"
-  | "archive_page_content";
+  | "archive_page_content"
+  | "get_arweave_config"
+  | "get_arweave_config_result";
 
 // this function validates messages and check if they are from the extension
 // other extensions could interfer with the functionality of ArConnect

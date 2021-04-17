@@ -146,6 +146,12 @@ Get the [permissions](#permissions) allowed for you site by the user.
 
 - `returns`: A list of [permissions](#permissions) allowed for your dApp.
 
+### `getArweaveConfig()`
+
+Get the user's custom [Arweave config](#arweave-config) set in the extension
+
+- `returns`: Custom [Arweave config](#arweave-config)
+
 ## Permissions
 
 There are three permissions currently available. When calling `connect`, you need to specify at least one of them, preferably `ACCESS_ADDRESS`.
@@ -166,6 +172,18 @@ The permissions:
 
 - `DECRYPT`:
   Decrypt data using the user's keyfile
+
+## Arweave config
+
+The user can set a custom Arweave config in the extension. It implements the following format:
+
+```ts
+{
+  host: string;
+  port: number;
+  protocol: "http" | "https";
+}
+```
 
 ## Build project (Chrome, Firefox, Brave)
 

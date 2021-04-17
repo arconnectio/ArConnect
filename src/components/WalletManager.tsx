@@ -24,6 +24,7 @@ import { goTo } from "react-chrome-extension-router";
 import { getVerification, Threshold } from "arverify";
 import { browser } from "webextension-polyfill-ts";
 import { formatAddress } from "../utils/url";
+import { logOut } from "../utils/auth";
 import Settings from "../views/Popup/routes/Settings";
 import copy from "copy-to-clipboard";
 import "../styles/components/Tooltip.sass";
@@ -87,6 +88,7 @@ export default function WalletManager() {
       dispatch(removeWallet(addr));
     } else {
       dispatch(signOut());
+      logOut();
     }
   }
 
@@ -324,6 +326,7 @@ export default function WalletManager() {
             <Modal.Action
               onClick={() => {
                 dispatch(signOut());
+                logOut();
                 logoutModal.setVisible(false);
               }}
             >
