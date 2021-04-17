@@ -159,10 +159,10 @@ There are three permissions currently available. When calling `connect`, you nee
 The permissions:
 
 - `ACCESS_ADDRESS`:
-  Access the current address selected in WeaveMask
+  Access the current address selected in ArConnect
 
 - `ACCESS_ALL_ADDRESSES`:
-  Access all addresses added to WeaveMask
+  Access all addresses added to ArConnect
 
 - `SIGN_TRANSACTION`:
   Sign a transaction
