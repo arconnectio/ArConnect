@@ -152,6 +152,8 @@ Get the user's custom [Arweave config](#arweave-config) set in the extension
 
 - `returns`: Custom [Arweave config](#arweave-config)
 
+Requires the `ACCESS_ARWEAVE_CONFIG` [permission](#permissions).
+
 ## Permissions
 
 There are three permissions currently available. When calling `connect`, you need to specify at least one of them, preferably `ACCESS_ADDRESS`.
@@ -172,6 +174,9 @@ The permissions:
 
 - `DECRYPT`:
   Decrypt data using the user's keyfile
+
+- `ACCESS_ARWEAVE_CONFIG`:
+  Access the user's custom Arweave config
 
 ## Arweave config
 
