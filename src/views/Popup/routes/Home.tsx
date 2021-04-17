@@ -269,7 +269,7 @@ export default function Home() {
         </div>
       </div>
       <Tabs initialValue="1" className={styles.Tabs}>
-        <Tabs.Item label="PSTs" value="1">
+        <Tabs.Item label="Tokens" value="1">
           {(psts &&
             psts.filter(({ removed, balance }) => !removed && balance > 0)
               .length > 0 &&
