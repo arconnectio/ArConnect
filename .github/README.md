@@ -192,7 +192,7 @@ The user can set a custom Arweave config in the extension. It implements the fol
 
 ## Build project (Chrome, Firefox, Brave)
 
-You can find the build guide [here](./CONTRIBUTING.md#building-the-project)
+You can find the build guide [here](./CONTRIBUTING.md#building-the-project).
 
 ## Contributing
 

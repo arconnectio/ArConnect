@@ -667,6 +667,10 @@ export default function App() {
           loading={fetching}
           onClick={() => {
             if (fetching) return;
+            setToast({
+              text: "This feature is still in beta",
+              type: "warning"
+            });
             archiveModal.setVisible(true);
           }}
         >
