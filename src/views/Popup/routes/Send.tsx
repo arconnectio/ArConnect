@@ -103,7 +103,7 @@ export default function Send() {
 
     // ask for password if sending more than 1 AR
     if (
-      parseFloat(amountInput.state) > 1 &&
+      Number(amountInput.state) > 1 &&
       !(await checkPassword(passwordInput.state))
     )
       return setToast({ text: "Invalid password", type: "error" });
@@ -245,7 +245,7 @@ export default function Send() {
         <p className={styles.InputInfo}>
           <span>
             {"~" + getSymbol(currency)}
-            {(arPriceFiat * parseFloat(amountInput.state)).toFixed(2)}
+            {(arPriceFiat * Number(amountInput.state)).toFixed(2)}
             {" " + currency}
           </span>
           <span>1 AR = {getSymbol(currency) + arPriceFiat.toFixed(2)}</span>
@@ -266,9 +266,9 @@ export default function Send() {
             <QuestionIcon size={24} />
           </Tooltip>
         </p>
-        <p>Total: {parseFloat(fee) + parseFloat(amountInput.state)} AR</p>
+        <p>Total: {Number(fee) + Number(amountInput.state)} AR</p>
         <AnimatePresence>
-          {parseFloat(amountInput.state) > 1 && (
+          {Number(amountInput.state) > 1 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
