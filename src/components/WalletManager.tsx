@@ -318,7 +318,8 @@ export default function WalletManager() {
             <Modal.Title>Sign Out</Modal.Title>
             <Modal.Content>
               Do you really want to sign out from all wallets? <br />
-              Make sure you have your keyfiles / seedphrases locally!
+              Make sure you have your keyfiles / seedphrases locally or export
+              your config in the settings!
             </Modal.Content>
             <Modal.Action passive onClick={() => logoutModal.setVisible(false)}>
               Cancel
