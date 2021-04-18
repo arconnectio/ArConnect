@@ -874,17 +874,16 @@ export default function Settings() {
                 to the web.
                 <br />
                 To make seamless transitioning to a new browser easier, we allow
-                you to generate a config file, that contains your password, your
+                you to generate a config file that contains your password, your
                 settings and your wallets, all encrypted safely. This config
-                file can be used later to load all of your data into a new
+                file can later be used to load all of your data into a new
                 browser.
                 <br />
                 <b>
                   DO NOT SHARE THIS FILE WITH ANYONE AND DO NOT UPLOAD IT
                   ANYWHERE.
                 </b>{" "}
-                By doing so, you can risk loosing any founding from your
-                wallets.
+                By doing so, you risk losing your funds.
               </p>
               <Button
                 style={{ width: "100%", marginTop: ".5em" }}
@@ -892,7 +891,7 @@ export default function Settings() {
                 type="success"
                 loading={generatingConfig}
               >
-                I understand, download file
+                I understand; download file
               </Button>
               <Spacer />
             </div>
