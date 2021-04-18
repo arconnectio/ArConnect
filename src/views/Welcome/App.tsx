@@ -50,11 +50,17 @@ export default function App() {
     passwordInput = useInput(""),
     passwordInputAgain = useInput(""),
     [passwordGiven, setPasswordGiven] = useState(false),
-    feeModal = useModal(false);
+    feeModal = useModal(false),
+    loadConfigModal = useModal(),
+    configPasswordInput = useInput(""),
+    configFileInput = useRef<HTMLInputElement>(null),
+    [configFilenameDisplay, setConfigFilenameDisplay] = useState(
+      "Click to load"
+    );
 
   useEffect(() => {
     if (!fileInput.current) return;
-    let fileInputCurrent = fileInput.current;
+    const fileInputCurrent = fileInput.current;
 
     fileInputCurrent.addEventListener("change", loadFiles);
 
@@ -63,6 +69,22 @@ export default function App() {
     };
     // eslint-disable-next-line
   }, [fileInput.current]);
+
+  useEffect(() => {
+    if (!configFileInput.current) return;
+    const fileInputCurrent = configFileInput.current;
+    const updateDisplay = () =>
+      setConfigFilenameDisplay(
+        fileInputCurrent.files?.[0].name ?? "Click to load"
+      );
+
+    fileInputCurrent.addEventListener("change", updateDisplay);
+
+    return function cleanup() {
+      fileInputCurrent.removeEventListener("change", updateDisplay);
+    };
+    // eslint-disable-next-line
+  }, [configFileInput.current]);
 
   function loadFiles() {
     if (fileInput.current?.files)
@@ -209,14 +231,22 @@ export default function App() {
     setLoading(false);
   }
 
+  async function loadConfig() {}
+
   return (
     <>
       <div className={styles.Welcome}>
         <Card className={styles.Card}>
           <img src={logo} alt="logo" className={styles.Logo} />
           <h1>
-            Welcome to{" "}
-            <span style={{ color: theme.palette.success }}>ArConnect</span>
+            Welcome{" "}
+            {(walletsStore.length === 0 && (
+              <>
+                to{" "}
+                <span style={{ color: theme.palette.success }}>ArConnect</span>
+              </>
+            )) ||
+              "back! :)"}
           </h1>
           <p style={{ color: theme.palette.accents_4 }}>
             Secure wallet management for Arweave
@@ -270,6 +300,19 @@ export default function App() {
               >
                 {walletsStore.length === 0 ? "Create" : "Login"}
               </Button>
+              {walletsStore.length === 0 && (
+                <>
+                  <span
+                    className={styles.OR}
+                    style={{ width: "50%", margin: "1em auto" }}
+                  >
+                    OR
+                  </span>
+                  <Button onClick={() => loadConfigModal.setVisible(true)}>
+                    Load config file
+                  </Button>
+                </>
+              )}
             </>
           )}
           <p style={{ marginTop: "1.75em" }}>
@@ -415,6 +458,34 @@ export default function App() {
           Ok
         </Modal.Action>
       </Modal>
+      <Modal {...loadConfigModal.bindings}>
+        <Modal.Title>Load config file</Modal.Title>
+        <Modal.Subtitle>
+          Import your settings and wallets from a generated config
+        </Modal.Subtitle>
+        <Modal.Content>
+          <Card
+            className={styles.FileContent}
+            onClick={() => configFileInput.current?.click()}
+            style={{ display: "flex", alignItems: "center" }}
+          >
+            <div className={styles.items}>
+              <FileIcon size={24} />
+              <p className={styles.Filename}>{configFilenameDisplay}</p>
+            </div>
+          </Card>
+          <Spacer />
+          <Input.Password
+            {...configPasswordInput.bindings}
+            placeholder="Enter your password to decrypt..."
+            width="100%"
+          />
+        </Modal.Content>
+        <Modal.Action onClick={() => loadConfigModal.setVisible(false)} passive>
+          Cancel
+        </Modal.Action>
+        <Modal.Action onClick={loadConfig}>Load</Modal.Action>
+      </Modal>
       <input
         type="file"
         className={styles.FileInput}
@@ -422,6 +493,7 @@ export default function App() {
         accept=".json,application/json"
         multiple
       />
+      <input type="file" className={styles.FileInput} ref={configFileInput} />
     </>
   );
 }
