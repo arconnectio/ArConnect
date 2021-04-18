@@ -889,7 +889,6 @@ export default function Settings() {
                 style={{ width: "100%", marginTop: ".5em" }}
                 onClick={() => configFileModal.setVisible(true)}
                 type="success"
-                loading={generatingConfig}
               >
                 I understand; download file
               </Button>
@@ -915,7 +914,9 @@ export default function Settings() {
         <Modal.Action passive onClick={() => configFileModal.setVisible(false)}>
           Cancel
         </Modal.Action>
-        <Modal.Action onClick={generateConfigFile}>Ok</Modal.Action>
+        <Modal.Action onClick={generateConfigFile} loading={generatingConfig}>
+          Ok
+        </Modal.Action>
       </Modal>
     </>
   );
