@@ -42,6 +42,8 @@ import {
   removeAllowance,
   resetAllowanceSpent
 } from "../../../stores/actions";
+import CryptoES from "crypto-es";
+import dayjs from "dayjs";
 import Home from "./Home";
 import Arweave from "arweave";
 import manifest from "../../../../public/manifest.json";
@@ -89,7 +91,8 @@ export default function Settings() {
     },
     [, setToast] = useToasts(),
     configFileModal = useModal(),
-    configPasswordInput = useInput("");
+    configPasswordInput = useInput(""),
+    [generatingConfig, setGeneratingConfig] = useState(false);
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
@@ -208,7 +211,10 @@ export default function Settings() {
   }
 
   async function generateConfigFile() {
-    if (!(await checkPassword(configPasswordInput.state)))
+    const password = configPasswordInput.state;
+    setGeneratingConfig(true);
+
+    if (!(await checkPassword(password)))
       return setToast({ text: "Invalid password", type: "error" });
 
     const storedData = (await browser.storage.local.get("persist:root"))?.[
@@ -217,6 +223,31 @@ export default function Settings() {
 
     if (!storedData || storedData === "")
       return setToast({ text: "Could not get stored data", type: "error" });
+
+    const encrypted = CryptoES.AES.encrypt(storedData, password);
+
+    // create element that downloads the virtual file
+    const el = document.createElement("a");
+
+    el.setAttribute(
+      "href",
+      `data:text/plain;charset=utf-8,${encodeURIComponent(
+        encrypted.toString()
+      )}`
+    );
+    el.setAttribute(
+      "download",
+      `arconnect-config-${dayjs().format("YYYY-MM-DD")}.txt`
+    );
+    el.style.display = "none";
+
+    document.body.appendChild(el);
+    el.click();
+    document.body.removeChild(el);
+
+    setGeneratingConfig(false);
+    setToast({ text: "Created config", type: "success" });
+    configFileModal.setVisible(false);
   }
 
   return (
@@ -859,6 +890,7 @@ export default function Settings() {
                 style={{ width: "100%", marginTop: ".5em" }}
                 onClick={() => configFileModal.setVisible(true)}
                 type="success"
+                loading={generatingConfig}
               >
                 I understand, download file
               </Button>
