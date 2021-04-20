@@ -350,7 +350,7 @@ export default function App() {
               right: ".7em"
             }}
           >
-            You have reached your spending limit of {currentAllowance?.limit}{" "}
+            You have reached your spending limit of {currentAllowance?.limit} AR
             for
             {(appInfo.name && (
               <span style={{ color: theme.palette.success }}>
@@ -360,7 +360,7 @@ export default function App() {
                   ""}
               </span>
             )) ||
-              "This site"}{" "}
+              " this site"}{" "}
             . Please update it or cancel.
             {quickAdd && (
               <>

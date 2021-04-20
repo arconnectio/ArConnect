@@ -87,7 +87,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
 
         const feeTarget = await selectVRTHolder();
 
-        if (feeTarget) {
+        /*if (feeTarget) {
           const feeTx = await arweave.createTransaction(
             {
               target: feeTarget,
@@ -103,7 +103,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
 
           await arweave.transactions.sign(feeTx, keyfile);
           await arweave.transactions.post(feeTx);
-        }
+        }*/
 
         if (allowanceForURL)
           await setStoreData({
