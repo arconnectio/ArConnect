@@ -146,6 +146,14 @@ Get the [permissions](#permissions) allowed for you site by the user.
 
 - `returns`: A list of [permissions](#permissions) allowed for your dApp.
 
+### `getArweaveConfig()`
+
+Get the user's custom [Arweave config](#arweave-config) set in the extension
+
+- `returns`: Custom [Arweave config](#arweave-config)
+
+Requires the `ACCESS_ARWEAVE_CONFIG` [permission](#permissions).
+
 ## Permissions
 
 There are three permissions currently available. When calling `connect`, you need to specify at least one of them, preferably `ACCESS_ADDRESS`.
@@ -153,10 +161,10 @@ There are three permissions currently available. When calling `connect`, you nee
 The permissions:
 
 - `ACCESS_ADDRESS`:
-  Access the current address selected in WeaveMask
+  Access the current address selected in ArConnect
 
 - `ACCESS_ALL_ADDRESSES`:
-  Access all addresses added to WeaveMask
+  Access all addresses added to ArConnect
 
 - `SIGN_TRANSACTION`:
   Sign a transaction
@@ -167,9 +175,24 @@ The permissions:
 - `DECRYPT`:
   Decrypt data using the user's keyfile
 
+- `ACCESS_ARWEAVE_CONFIG`:
+  Access the user's custom Arweave config
+
+## Arweave config
+
+The user can set a custom Arweave config in the extension. It implements the following format:
+
+```ts
+{
+  host: string;
+  port: number;
+  protocol: "http" | "https";
+}
+```
+
 ## Build project (Chrome, Firefox, Brave)
 
-You can find the build guide [here](./CONTRIBUTING.md#building-the-project)
+You can find the build guide [here](./CONTRIBUTING.md#building-the-project).
 
 ## Contributing
 

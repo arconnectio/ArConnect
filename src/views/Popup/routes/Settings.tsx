@@ -11,10 +11,12 @@ import {
   Button,
   Code,
   Input,
+  Modal,
   Radio,
   Spacer,
   Toggle,
   useInput,
+  useModal,
   useTheme,
   useToasts
 } from "@geist-ui/react";
@@ -40,6 +42,8 @@ import {
   removeAllowance,
   resetAllowanceSpent
 } from "../../../stores/actions";
+import CryptoES from "crypto-es";
+import dayjs from "dayjs";
 import Home from "./Home";
 import Arweave from "arweave";
 import manifest from "../../../../public/manifest.json";
@@ -58,6 +62,7 @@ export default function Settings() {
       | "allowances"
       | "about"
       | "password"
+      | "config_file"
     >(),
     permissions = useSelector((state: RootState) => state.permissions),
     [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
@@ -84,7 +89,10 @@ export default function Settings() {
       newAgain: useInput(""),
       old: useInput("")
     },
-    [, setToast] = useToasts();
+    [, setToast] = useToasts(),
+    configFileModal = useModal(),
+    configPasswordInput = useInput(""),
+    [generatingConfig, setGeneratingConfig] = useState(false);
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
@@ -202,6 +210,46 @@ export default function Settings() {
     arweaveProtocolInput.reset();
   }
 
+  async function generateConfigFile() {
+    const password = configPasswordInput.state;
+    setGeneratingConfig(true);
+
+    if (!(await checkPassword(password)))
+      return setToast({ text: "Invalid password", type: "error" });
+
+    const storedData = (await browser.storage.local.get("persist:root"))?.[
+      "persist:root"
+    ];
+
+    if (!storedData || storedData === "")
+      return setToast({ text: "Could not get stored data", type: "error" });
+
+    const encrypted = CryptoES.AES.encrypt(storedData, password);
+
+    // create element that downloads the virtual file
+    const el = document.createElement("a");
+
+    el.setAttribute(
+      "href",
+      `data:text/plain;charset=utf-8,${encodeURIComponent(
+        encrypted.toString()
+      )}`
+    );
+    el.setAttribute(
+      "download",
+      `arconnect-config-${dayjs().format("YYYY-MM-DD")}.txt`
+    );
+    el.style.display = "none";
+
+    document.body.appendChild(el);
+    el.click();
+    document.body.removeChild(el);
+
+    setGeneratingConfig(false);
+    setToast({ text: "Created config", type: "success" });
+    configFileModal.setVisible(false);
+  }
+
   return (
     <>
       <div className={SubPageTopStyles.Head}>
@@ -227,6 +275,7 @@ export default function Settings() {
             (setting === "arverify" && "ArVerify Config") ||
             (setting === "allowances" && "Allowances") ||
             (setting === "about" && "About ArConnect") ||
+            (setting === "config_file" && "Download Config") ||
             "Settings"}
         </h1>
       </div>
@@ -355,6 +404,18 @@ export default function Settings() {
                     )
                   }
                 />
+              </div>
+            </div>
+            <div
+              className={styles.Setting}
+              onClick={() => setCurrSetting("config_file")}
+            >
+              <div>
+                <h1>Download config</h1>
+                <p>Generate an ArConnect config file</p>
+              </div>
+              <div className={styles.Arrow}>
+                <ChevronRightIcon />
               </div>
             </div>
             <div
@@ -801,8 +862,62 @@ export default function Settings() {
                 Change password
               </Button>
             </div>
+          )) ||
+          (setting === "config_file" && (
+            <div className={styles.OptionContent + " " + styles.ConfigFile}>
+              <p style={{ fontWeight: "bold" }}>
+                Please read before continuing!
+              </p>
+              <p>
+                ArConnect does not offer cloud syncing wallets and settings for
+                security reasons. Your password and wallets never get uploaded
+                to the web.
+                <br />
+                To make seamless transitioning to a new browser easier, we allow
+                you to generate a config file that contains your password, your
+                settings and your wallets, all encrypted safely. This config
+                file can later be used to load all of your data into a new
+                browser.
+                <br />
+                <b>
+                  DO NOT SHARE THIS FILE WITH ANYONE AND DO NOT UPLOAD IT
+                  ANYWHERE.
+                </b>{" "}
+                By doing so, you risk losing your funds.
+              </p>
+              <Button
+                style={{ width: "100%", marginTop: ".5em" }}
+                onClick={() => configFileModal.setVisible(true)}
+                type="success"
+              >
+                I understand; download file
+              </Button>
+              <Spacer />
+            </div>
           ))}
       </div>
+      <Modal {...configFileModal.bindings}>
+        <Modal.Title>Generate config file</Modal.Title>
+        <Modal.Content>
+          <Input.Password
+            {...configPasswordInput.bindings}
+            placeholder="Enter your password to continue..."
+            width="100%"
+          />
+          <p style={{ textAlign: "center", marginBottom: 0 }}>
+            <b style={{ display: "block" }}>
+              DO NOT SHARE THIS FILE WITH ANYONE!
+            </b>
+            It will compromise all of your wallets added to ArConnect.
+          </p>
+        </Modal.Content>
+        <Modal.Action passive onClick={() => configFileModal.setVisible(false)}>
+          Cancel
+        </Modal.Action>
+        <Modal.Action onClick={generateConfigFile} loading={generatingConfig}>
+          Ok
+        </Modal.Action>
+      </Modal>
     </>
   );
 }

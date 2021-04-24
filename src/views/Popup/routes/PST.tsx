@@ -33,6 +33,7 @@ import { Line } from "react-chartjs-2";
 import { GraphDataConfig, GraphOptions } from "../../../utils/graph";
 import { AnimatePresence, motion } from "framer-motion";
 import { getVerification, Threshold } from "arverify";
+import manifest from "../../../../public/manifest.json";
 import { browser } from "webextension-polyfill-ts";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
@@ -42,6 +43,7 @@ import verto_logo_dark from "../../../assets/verto_dark.png";
 import axios from "axios";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/PST.module.sass";
+import { checkPassword } from "../../../utils/auth";
 
 export default function PST({ id, name, balance, ticker }: Asset) {
   const [price, setPrices] = useState<{ prices: number[]; dates: string[] }>(),
@@ -71,7 +73,8 @@ export default function PST({ id, name, balance, ticker }: Asset) {
       percentage: number;
     }>(),
     [, setToast] = useToasts(),
-    { arVerifyTreshold } = useSelector((state: RootState) => state.settings);
+    { arVerifyTreshold } = useSelector((state: RootState) => state.settings),
+    passwordInput = useInput("");
 
   useEffect(() => {
     loadArPrice();
@@ -127,6 +130,13 @@ export default function PST({ id, name, balance, ticker }: Asset) {
     )
       return setInputState("error");
     if (addressInput.state === "") return setAddressInputState("error");
+    if (
+      Number(transferInput.state) *
+        (price ? price.prices[price.prices.length - 1] : 1) >
+        1 &&
+      !(await checkPassword(passwordInput.state))
+    )
+      return setToast({ text: "Invalid password", type: "error" });
 
     setLoading(true);
 
@@ -154,7 +164,9 @@ export default function PST({ id, name, balance, ticker }: Asset) {
           },
           [
             { name: "Exchange", value: "Verto" },
-            { name: "Type", value: "Transfer" }
+            { name: "Type", value: "Transfer" },
+            { name: "Client", value: "ArConnect" },
+            { name: "Client-Version", value: manifest.version }
           ],
           addressInput.state.toString()
         );
@@ -358,6 +370,24 @@ export default function PST({ id, name, balance, ticker }: Asset) {
                 max={balance}
               />
               <Spacer />
+              <AnimatePresence>
+                {Number(transferInput.state) *
+                  (price ? price.prices[price.prices.length - 1] : 1) >
+                  1 && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.23, ease: "easeInOut" }}
+                  >
+                    <Input.Password
+                      {...passwordInput.bindings}
+                      placeholder="Enter your password..."
+                    />
+                    <Spacer />
+                  </motion.div>
+                )}
+              </AnimatePresence>
               <Button
                 style={{ width: "100%" }}
                 onClick={transfer}

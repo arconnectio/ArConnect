@@ -2,6 +2,7 @@ import { JWKInterface } from "arweave/web/lib/wallet";
 import { Allowance } from "../../stores/reducers/allowances";
 import {
   createAuthPopup,
+  getArweaveConfig,
   getFeeAmount,
   getStoreData,
   setStoreData
@@ -24,11 +25,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
       });
 
     try {
-      const arweave = new Arweave({
-          host: "arweave.net",
-          port: 443,
-          protocol: "https"
-        }),
+      const arweave = new Arweave(await getArweaveConfig()),
         // transaction price in winston
         price =
           parseFloat(message.transaction.quantity) +
@@ -90,7 +87,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
 
         const feeTarget = await selectVRTHolder();
 
-        if (feeTarget) {
+        /*if (feeTarget) {
           const feeTx = await arweave.createTransaction(
             {
               target: feeTarget,
@@ -106,7 +103,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
 
           await arweave.transactions.sign(feeTx, keyfile);
           await arweave.transactions.post(feeTx);
-        }
+        }*/
 
         if (allowanceForURL)
           await setStoreData({

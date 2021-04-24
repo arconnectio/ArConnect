@@ -51,17 +51,22 @@ window.addEventListener("message", async (e) => {
 });
 
 // wallet switch event
-browser.runtime.onMessage.addListener((msg) => {
-  const message: MessageFormat = msg;
+browser.runtime.onMessage.addListener(async (message: MessageFormat) => {
+  if (validateMessage(message, { sender: "popup", type: "archive_page" }))
+    return {
+      type: "archive_page_content",
+      ext: "arconnect",
+      sender: "content",
+      data: document.documentElement.innerHTML
+    };
+
   if (
-    !validateMessage(message, {
+    validateMessage(message, {
       sender: "popup",
       type: "switch_wallet_event_forward"
     })
   )
-    return;
-
-  window.postMessage(message, window.location.origin);
+    window.postMessage(message, window.location.origin);
 });
 
 export {};

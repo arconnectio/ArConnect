@@ -6,6 +6,8 @@
 *.env
 *.local
 *.log
+*.DS_Store
 
 # Build artifacts
 arconnect.zip
+public.zip

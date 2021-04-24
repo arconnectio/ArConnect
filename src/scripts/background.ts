@@ -12,6 +12,7 @@ import {
 import {
   checkPermissions,
   getActiveTab,
+  getArweaveConfig,
   getPermissions,
   getStoreData,
   walletsStored
@@ -179,6 +180,26 @@ const handleApiCalls = async (
         sender: "background"
       };
 
+    // get the user's custom arweave config
+    case "get_arweave_config":
+      if (!(await checkPermissions(["ACCESS_ARWEAVE_CONFIG"], tabURL)))
+        return {
+          type: "get_arweave_config_result",
+          ext: "arconnect",
+          res: false,
+          message:
+            "The site does not have the required permissions for this action",
+          sender: "background"
+        };
+
+      return {
+        type: "get_arweave_config_result",
+        ext: "arconnect",
+        res: true,
+        config: await getArweaveConfig(),
+        sender: "background"
+      };
+
     // add a custom token
     case "add_token":
       return {
@@ -277,16 +298,21 @@ const handleApiCalls = async (
 // listen for messages from the popup
 // right now the only message from there
 // is for the wallet switch event
-browser.runtime.onMessage.addListener(async (msg) => {
-  const message: MessageFormat = msg,
-    activeTab = await getActiveTab();
+browser.runtime.onMessage.addListener(async (message: MessageFormat) => {
+  const activeTab = await getActiveTab();
 
   if (!validateMessage(message, { sender: "popup" })) return;
+  if (!(await walletsStored())) return;
 
   switch (message.type) {
-    case "switch_wallet_event":
-      if (!(await walletsStored())) return;
+    case "archive_page":
+      const response: MessageFormat = await browser.tabs.sendMessage(
+        activeTab.id as number,
+        message
+      );
+      return { ...response, url: activeTab.url };
 
+    case "switch_wallet_event":
       if (
         !(await checkPermissions(
           ["ACCESS_ALL_ADDRESSES", "ACCESS_ADDRESS"],

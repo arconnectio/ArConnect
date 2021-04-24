@@ -17,6 +17,8 @@ import { QuestionIcon, VerifiedIcon } from "@primer/octicons-react";
 import { arToFiat, getSymbol } from "../../../utils/currency";
 import { Threshold, getVerification } from "arverify";
 import { AnimatePresence, motion } from "framer-motion";
+import { checkPassword } from "../../../utils/auth";
+import manifest from "../../../../public/manifest.json";
 import Home from "./Home";
 import Arweave from "arweave";
 import axios from "axios";
@@ -46,7 +48,8 @@ export default function Send() {
       percentage: number;
     }>(),
     { arVerifyTreshold } = useSelector((state: RootState) => state.settings),
-    geistTheme = useTheme();
+    geistTheme = useTheme(),
+    passwordInput = useInput("");
 
   useEffect(() => {
     loadBalance();
@@ -97,6 +100,14 @@ export default function Send() {
       currentWallet === undefined
     )
       return;
+
+    // ask for password if sending more than 1 AR
+    if (
+      Number(amountInput.state) > 1 &&
+      !(await checkPassword(passwordInput.state))
+    )
+      return setToast({ text: "Invalid password", type: "error" });
+
     setLoading(true);
 
     try {
@@ -105,15 +116,15 @@ export default function Send() {
           {
             target: targetInput.state,
             quantity: arweave.ar.arToWinston(amountInput.state),
-            data:
-              messageInput.state !== ""
-                ? Buffer.from(messageInput.state, "utf-8")
-                : undefined
+            data: messageInput.state !== "" ? messageInput.state : undefined
           },
           keyfile
         );
 
       transaction.addTag("App-Name", "ArConnect");
+      transaction.addTag("App-Version", manifest.version);
+      transaction.addTag("Content-Type", "text/plain");
+
       await arweave.transactions.sign(transaction, keyfile);
 
       const res = await arweave.transactions.post(transaction);
@@ -222,7 +233,9 @@ export default function Send() {
               lineHeight: "unset"
             }}
             onClick={() =>
-              amountInput.setState((Number(balance) - Number(fee)).toString())
+              amountInput.setState(
+                (parseFloat(balance) - parseFloat(fee)).toString()
+              )
             }
           >
             Max
@@ -254,6 +267,26 @@ export default function Send() {
           </Tooltip>
         </p>
         <p>Total: {Number(fee) + Number(amountInput.state)} AR</p>
+        <AnimatePresence>
+          {Number(amountInput.state) > 1 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.23, ease: "easeInOut" }}
+            >
+              <Input.Password
+                {...passwordInput.bindings}
+                width="100%"
+                placeholder="Enter your password..."
+                status={
+                  submitted && passwordInput.state === "" ? "error" : "default"
+                }
+              />
+              <Spacer y={1} />
+            </motion.div>
+          )}
+        </AnimatePresence>
         <Button
           style={{ width: "100%" }}
           type="success"
