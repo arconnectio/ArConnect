@@ -6,8 +6,6 @@ import {
 } from "../../utils/background";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import Arweave from "arweave";
-import { createSign } from "crypto";
-import jwkToPem, { JWK } from "jwk-to-pem";
 
 // encrypt data using the user's keyfile
 export const encrypt = (message: MessageFormat, tabURL: string) =>
@@ -216,16 +214,26 @@ async function doSignature(message: MessageFormat) {
   if (!storedKeyfiles || !storedAddress || !keyfileToDecrypt)
     throw new Error("No wallets added");
 
-  const keyfile: JWK = JSON.parse(atob(keyfileToDecrypt));
+  const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt));
 
-  const res = createSign(message.options.algorithm);
-  res.update(message.data);
+  const cryptoKey = await crypto.subtle.importKey(
+    "jwk",
+    keyfile,
+    {
+      name: "RSA-PSS",
+      hash: {
+        name: "SHA-256"
+      }
+    },
+    false,
+    ["sign"]
+  );
 
-  const pem: string = jwkToPem(keyfile, { private: true });
-  const signature = res.sign({
-    key: pem,
-    ...message.options.signing
-  });
+  const signature = await crypto.subtle.sign(
+    message.options,
+    cryptoKey,
+    new Uint8Array(message.data)
+  );
 
-  return signature;
+  return new Uint8Array(signature);
 }
