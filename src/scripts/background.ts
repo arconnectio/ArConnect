@@ -1,7 +1,11 @@
 import { getRealURL } from "../utils/url";
 import { ArConnectEvent } from "../views/Popup/routes/Settings";
 import { connect, disconnect } from "../background/api/connection";
-import { activeAddress, allAddresses } from "../background/api/address";
+import {
+  activeAddress,
+  allAddresses,
+  publicKey
+} from "../background/api/address";
 import { addToken, walletNames } from "../background/api/utility";
 import { signTransaction } from "../background/api/transaction";
 import {
@@ -130,6 +134,25 @@ const handleApiCalls = async (
         ext: "arconnect",
         sender: "background",
         ...(await activeAddress())
+      };
+
+    // get the public key of the active/selected address
+    case "get_active_public_key":
+      if (!(await checkPermissions(["ACCESS_PUBLIC_KEY"], tabURL)))
+        return {
+          type: "get_active_public_key_result",
+          ext: "arconnect",
+          res: false,
+          message:
+            "The site does not have the required permissions for this action",
+          sender: "background"
+        };
+
+      return {
+        type: "get_active_public_key_result",
+        ext: "arconnect",
+        sender: "background",
+        ...(await publicKey())
       };
 
     // get all addresses added to ArConnect

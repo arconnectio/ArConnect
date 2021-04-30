@@ -79,6 +79,20 @@ const WalletAPI = {
       throw new Error(e);
     }
   },
+  async getActivePublicKey() {
+    try {
+      const data = await callAPI({
+        type: "get_active_public_key",
+        ext: "arconnect",
+        sender: "api"
+      });
+      if (!data.res) throw new Error(data.message);
+
+      return data.publicKey as string;
+    } catch (e) {
+      throw new Error(e);
+    }
+  },
   async getAllAddresses() {
     try {
       const data = await callAPI({
