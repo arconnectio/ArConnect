@@ -1,6 +1,6 @@
 {
   "name": "arconnect",
-  "version": "1.0.1",
+  "version": "0.2.8",
   "main": "index.js",
   "module": "index.es.js",
   "jsnext:main": "index.es.js",

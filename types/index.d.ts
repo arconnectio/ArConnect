@@ -106,6 +106,29 @@ declare global {
         port: number;
         protocol: "http" | "https";
       }>;
+
+      /**
+       * Get the signature for data array
+       *
+       * @param data `Uint8Array` data to get the signature for
+       * @param options Signature options
+       *
+       * @returns Promise of signature
+       */
+      signature(
+        data: Uint8Array,
+        options: {
+          algorithm: string;
+          signing: any;
+        }
+      ): Promise<string>;
+
+      /**
+       * Get the user's active public key, from their wallet
+       *
+       * @returns Promise of the active public key
+       */
+      getActivePublicKey(): Promise<string>;
     };
   }
   interface WindowEventMap {
@@ -119,10 +142,12 @@ declare global {
  */
 export type PermissionType =
   | "ACCESS_ADDRESS"
+  | "ACCESS_PUBLIC_KEY"
   | "ACCESS_ALL_ADDRESSES"
   | "SIGN_TRANSACTION"
   | "ENCRYPT"
   | "DECRYPT"
+  | "SIGNATURE"
   | "ACCESS_ARWEAVE_CONFIG";
 
 interface AppInfo {
