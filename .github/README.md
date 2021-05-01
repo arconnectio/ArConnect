@@ -51,7 +51,7 @@ Requires the `ACCESS_ADDRESS` and the `ACCESS_ALL_ADDRESSES` [permissions](#perm
 
 ArConnect supports much more with it's powerful API. These features are not integrated into arweave-js right now, but please let us know if you would like to see them added or not. You can access all of these using the global `window.arweaveWallet` object (`window.arweaveWallet.getActiveAddress()`, etc.).
 
-All of these functions are asynchronous, so you will need to `await` them.
+All of these functions are asynchronous, so you will need to `await` them. If you are using Typescript, read [this](#typescript-types) for type declarations.
 
 ### `connect(permissions, appInfo?)`
 
@@ -73,13 +73,21 @@ Connect to ArConnect and request permissions. This function can always be called
 
 Disconnect from ArConnect. Removes all permissions from your site.
 
-### `getActiveAddress()`
+### `getActiveAddress(): Promise<string>`
 
 Get the currently used wallet's address in the extension.
 
 - `returns`: A wallet address
 
 Requires the `ACCESS_ADDRESS` [permission](#permissions).
+
+### `getActivePublicKey(): Promise<string>`
+
+Get the user's active public key, from their wallet
+
+- `returns`: The active public key
+
+Requires the `ACCESS_PUBLIC_KEY` [permission](#permissions).
 
 ### `getAllAddresses(): Promise<string[]>`
 
@@ -97,7 +105,7 @@ Get wallet names for addresses.
 
 Requires the `ACCESS_ALL_ADDRESSES` [permission](#permissions).
 
-### `sign(transaction, options?)`
+### `sign(transaction, options?): Promise<Transaction>`
 
 Sign a transaction. Raw version of what is used in the `arweave-js` [API](#api).
 
@@ -140,19 +148,36 @@ Decrypt a string [encrypted](#encryptdata-options-promiseuint8array) with the us
 
 Requires the `DECRYPT` [permission](#permissions).
 
-### `getPermissions()`
+### `signature(data, options): Promise<string>`
+
+Get the signature for data array.
+
+- `data`: `Uint8Array` data to get the signature for
+- `options`: Signature options
+  <br />
+- `returns`: Signature
+
+Requires the `SIGNATURE` [permission](#permissions).
+
+### `getPermissions(): Promise<PermissionType[]>`
 
 Get the [permissions](#permissions) allowed for you site by the user.
 
 - `returns`: A list of [permissions](#permissions) allowed for your dApp.
 
-### `getArweaveConfig()`
+### `getArweaveConfig(): Promise<ArweaveConfig>`
 
 Get the user's custom [Arweave config](#arweave-config) set in the extension
 
 - `returns`: Custom [Arweave config](#arweave-config)
 
 Requires the `ACCESS_ARWEAVE_CONFIG` [permission](#permissions).
+
+### `addToken(id)`
+
+Add a token to ArConnect (if it is not already present)
+
+- `id`: Token contract ID
 
 ## Permissions
 
@@ -162,6 +187,9 @@ The permissions:
 
 - `ACCESS_ADDRESS`:
   Access the current address selected in ArConnect
+
+- `ACCESS_PUBLIC_KEY`
+  Access the public key of the current address selected in ArConnect
 
 - `ACCESS_ALL_ADDRESSES`:
   Access all addresses added to ArConnect
@@ -174,6 +202,9 @@ The permissions:
 
 - `DECRYPT`:
   Decrypt data using the user's keyfile
+
+- `SIGNATURE`
+  Sign data using the user's keyfile
 
 - `ACCESS_ARWEAVE_CONFIG`:
   Access the user's custom Arweave config
@@ -189,6 +220,28 @@ The user can set a custom Arweave config in the extension. It implements the fol
   protocol: "http" | "https";
 }
 ```
+
+## Typescript types
+
+To support ArConnect types, you can install the npm package `arconnect`, like this:
+
+```sh
+npm i -D arconnect
+```
+
+or
+
+```sh
+yarn add -D arconnect
+```
+
+To add the types to your project, you should either include the package in your `tsconfig.json`, or add this to your `env.d.ts` file:
+
+```ts
+/// <reference types="arconnect" />
+```
+
+Type declarations can be found [here](../types/index.d.ts).
 
 ## Build project (Chrome, Firefox, Brave)
 

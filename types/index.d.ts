@@ -129,6 +129,13 @@ declare global {
        * @returns Promise of the active public key
        */
       getActivePublicKey(): Promise<string>;
+
+      /**
+       * Add a token to ArConnect (if it is not already present)
+       *
+       * @param id Token contract ID
+       */
+      addToken(id: string): Promise<void>;
     };
   }
   interface WindowEventMap {
