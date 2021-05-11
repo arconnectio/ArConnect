@@ -90,10 +90,10 @@ export const signature = (message: MessageFormat, tabURL: string) =>
         data: await doSignature(message),
         message: "Success"
       });
-    } catch (e) {
+    } catch {
       resolve({
         res: false,
-        message: e.message || "Error signing data"
+        message: "Error signing data"
       });
     }
   });
@@ -232,7 +232,7 @@ async function doSignature(message: MessageFormat) {
   const signature = await crypto.subtle.sign(
     message.options,
     cryptoKey,
-    new Uint8Array(Object.values(message.data))
+    new Uint8Array(message.data)
   );
 
   return new Uint8Array(signature);
