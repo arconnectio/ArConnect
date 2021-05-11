@@ -111,16 +111,14 @@ declare global {
        * Get the signature for data array
        *
        * @param data `Uint8Array` data to get the signature for
-       * @param options Signature options
+       * @param algorithm
        *
        * @returns Promise of signature
        */
       signature(
         data: Uint8Array,
-        options: {
-          algorithm: string;
-          signing: any;
-        }
+        // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/sign#parameters
+        algorithm: any
       ): Promise<string>;
 
       /**
