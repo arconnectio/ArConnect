@@ -236,20 +236,14 @@ const WalletAPI = {
       throw new Error(e);
     }
   },
-  async signature(
-    data: Uint8Array,
-    options: {
-      algorithm: string;
-      signing: any;
-    }
-  ): Promise<string> {
+  async signature(data: Uint8Array, algorithm: any): Promise<string> {
     try {
       const result = await callAPI({
         type: "signature",
         ext: "arconnect",
         sender: "api",
         data,
-        options
+        options: algorithm
       });
       if (!result.res || !result.data) throw new Error(result.message);
       return result.data;
