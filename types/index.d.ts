@@ -155,7 +155,7 @@ export type PermissionType =
   | "SIGNATURE"
   | "ACCESS_ARWEAVE_CONFIG";
 
-interface AppInfo {
+export interface AppInfo {
   name?: string;
   logo?: string;
 }
