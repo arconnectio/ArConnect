@@ -11,3 +11,5 @@
 # Build artifacts
 arconnect.zip
 public.zip
+*.crx
+*.pem

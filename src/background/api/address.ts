@@ -1,3 +1,4 @@
+import { JWKInterface } from "arweave/node/lib/wallet";
 import { getStoreData } from "../../utils/background";
 import { MessageFormat } from "../../utils/messenger";
 
@@ -20,6 +21,45 @@ export const activeAddress = () =>
       resolve({
         res: false,
         message: "Error getting current address from extension storage"
+      });
+    }
+  });
+
+// get the public key of the currently selected (active) address from ArConnect
+export const publicKey = () =>
+  new Promise<Partial<MessageFormat>>(async (resolve, _) => {
+    try {
+      const address = (await getStoreData())["profile"];
+      const wallets = (await getStoreData())?.["wallets"];
+
+      if (wallets) {
+        const keyfileToDecrypt = wallets.find(
+          (wallet) => wallet.address === address
+        )?.keyfile;
+
+        if (keyfileToDecrypt) {
+          const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt));
+
+          resolve({
+            res: true,
+            publicKey: keyfile.n
+          });
+        } else {
+          resolve({
+            res: false,
+            message: "No wallets added"
+          });
+        }
+      } else {
+        resolve({
+          res: false,
+          message: "No wallets storage found"
+        });
+      }
+    } catch {
+      resolve({
+        res: false,
+        message: "Error getting public key of the current address"
       });
     }
   });

@@ -163,7 +163,6 @@ export default function PST({ id, name, balance, ticker }: Asset) {
             qty: Number(transferInput.state)
           },
           [
-            { name: "Exchange", value: "Verto" },
             { name: "Type", value: "Transfer" },
             { name: "Client", value: "ArConnect" },
             { name: "Client-Version", value: manifest.version }

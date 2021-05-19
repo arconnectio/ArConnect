@@ -31,6 +31,8 @@ export type MessageType =
   | "signature_auth_result"
   | "get_active_address"
   | "get_active_address_result"
+  | "get_active_public_key"
+  | "get_active_public_key_result"
   | "get_all_addresses"
   | "get_all_addresses_result"
   | "get_wallet_names"
