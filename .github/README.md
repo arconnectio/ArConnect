@@ -118,7 +118,7 @@ Requires the `SIGN_TRANSACTION` [permission](#permissions).
 
 ### `encrypt(data, options): Promise<Uint8Array>`
 
-Encrypt a string, using the user's wallet.
+Encrypt a string with the user's wallet.
 
 - `data`: String to encrypt
 - `options`: Encrypt [options](#encryption-options)
@@ -150,7 +150,7 @@ Requires the `DECRYPT` [permission](#permissions).
 
 ### `signature(data, options): Promise<string>`
 
-Get the signature for data array.
+Get the signature for a data array.
 
 - `data`: `Uint8Array` data to get the signature for
 - `options`: Signature options
@@ -198,13 +198,13 @@ The permissions:
   Sign a transaction
 
 - `ENCRYPT`:
-  Encrypt data using the user's keyfile
+  Encrypt data with the user's keyfile
 
 - `DECRYPT`:
-  Decrypt data using the user's keyfile
+  Decrypt data with the user's keyfile
 
 - `SIGNATURE`
-  Sign data using the user's keyfile
+  Sign data with the user's keyfile
 
 - `ACCESS_ARWEAVE_CONFIG`:
   Access the user's custom Arweave config
@@ -235,7 +235,7 @@ or
 yarn add -D arconnect
 ```
 
-To add the types to your project, you should either include the package in your `tsconfig.json`, or add this to your `env.d.ts` file:
+To add the types to your project, you should either include the package in your `tsconfig.json`, or add the following to your `env.d.ts` file:
 
 ```ts
 /// <reference types="arconnect" />
