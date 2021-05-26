@@ -18,7 +18,7 @@ esbuild
     ],
     format: "iife",
     bundle: true,
-    minify: false,
+    minify: true,
     sourcemap: process.env.NODE_ENV !== "production",
     watch: process.env.NODE_ENV !== "production",
     inject: ["./src/utils/polyfill.js"],
