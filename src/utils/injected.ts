@@ -73,8 +73,7 @@ export const callAPI = (message: MessageFormat) =>
       )
         return;
       window.removeEventListener("message", callback);
-
-      if (e.data?.res === false) reject();
+      if (e.data?.res === false) reject(e.data?.message);
       else resolve(e.data);
     }
   });
