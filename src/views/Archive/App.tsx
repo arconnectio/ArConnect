@@ -297,6 +297,7 @@ export default function App() {
             tags: [
               { name: "App-Name", values: ["ArDrive-Desktop", "ArDrive-Web"] }
               { name: "Entity-Type", values: "drive" }
+              { name: "Drive-Privacy", values: "public" } 
             ]
           ) {
             edges {
