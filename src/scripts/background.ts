@@ -37,11 +37,14 @@ browser.runtime.onInstalled.addListener(async () => {
 // and context menu item updates
 browser.tabs.onActivated.addListener(handleTabUpdate);
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  // TODO: Check if the user enters new URL in old tab.
   if (
     changeInfo.status === "complete" &&
-    tab.url?.startsWith("https://arweave.net/")
+    tab.url!.indexOf("arweave.net/") > -1
   ) {
-    console.log("opened", tabId, tab.url);
+    const id = tab.url!.split("arweave.net/")[1].split("/")[0];
+
+    if (/[a-z0-9_-]{43}/i.test(id)) console.log("opened", tabId, id);
   }
 
   handleTabUpdate();
