@@ -9,3 +9,18 @@ export async function handleTabUpdate() {
   updateIcon(permissionsForSite.length > 0);
   createContextMenus(permissionsForSite.length > 0);
 }
+
+export async function handleArweaveTab(
+  tab: number,
+  action: "open" | "close",
+  txID?: string
+) {
+  const time = new Date();
+  console.log(time);
+
+  if (action === "open") {
+  }
+
+  if (action === "close") {
+  }
+}

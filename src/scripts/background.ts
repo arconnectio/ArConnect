@@ -22,7 +22,7 @@ import {
   walletsStored
 } from "../utils/background";
 import { decrypt, encrypt, signature } from "../background/api/encryption";
-import { handleTabUpdate } from "../background/tab_update";
+import { handleArweaveTab, handleTabUpdate } from "../background/tab_update";
 import { browser } from "webextension-polyfill-ts";
 import { fixupPasswords } from "../utils/auth";
 
@@ -44,13 +44,13 @@ browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   ) {
     const id = tab.url!.split("arweave.net/")[1].split("/")[0];
 
-    if (/[a-z0-9_-]{43}/i.test(id)) console.log("opened", tabId, id);
+    if (/[a-z0-9_-]{43}/i.test(id)) handleArweaveTab(tabId, "open", id);
   }
 
   handleTabUpdate();
 });
 browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
-  console.log("closed", tabId);
+  handleArweaveTab(tabId, "close");
 });
 
 browser.runtime.onConnect.addListener((connection) => {
