@@ -36,7 +36,19 @@ browser.runtime.onInstalled.addListener(async () => {
 // create listeners for the icon utilities
 // and context menu item updates
 browser.tabs.onActivated.addListener(handleTabUpdate);
-browser.tabs.onUpdated.addListener(handleTabUpdate);
+browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (
+    changeInfo.status === "complete" &&
+    tab.url?.startsWith("https://arweave.net/")
+  ) {
+    console.log("opened", tabId, tab.url);
+  }
+
+  handleTabUpdate();
+});
+browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
+  console.log("closed", tabId);
+});
 
 browser.runtime.onConnect.addListener((connection) => {
   if (connection.name !== "backgroundConnection") return;
