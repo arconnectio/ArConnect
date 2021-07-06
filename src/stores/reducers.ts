@@ -9,6 +9,7 @@ import arweave from "./reducers/arweave";
 import allowances from "./reducers/allowances";
 import settings from "./reducers/settings";
 import balances from "./reducers/balances";
+import time from "./reducers/time";
 
 export const plainReducers = {
   wallets,
@@ -19,7 +20,8 @@ export const plainReducers = {
   arweave,
   allowances,
   settings,
-  balances
+  balances,
+  time
 };
 const reducers = combineReducers(plainReducers);
 
