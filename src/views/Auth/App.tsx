@@ -74,14 +74,7 @@ export default function App() {
 
     // invalid auth
     if (!authVal) {
-      browser.runtime.sendMessage({
-        type: getReturnType(),
-        ext: "arconnect",
-        res: false,
-        message: "Invalid auth call",
-        sender: "popup"
-      });
-      window.close();
+      invalidAuthCall();
       return;
     }
 
@@ -98,14 +91,7 @@ export default function App() {
 
     // if the type does not exist, this is an invalid call
     if (!decodedAuthParam.type) {
-      browser.runtime.sendMessage({
-        type: getReturnType(),
-        ext: "arconnect",
-        res: false,
-        message: "Invalid auth call",
-        sender: "popup"
-      });
-      window.close();
+      invalidAuthCall();
       return;
     } else setType(decodedAuthParam.type);
 
@@ -158,27 +144,12 @@ export default function App() {
 
       // if non of the types matched, this is an invalid auth call
     } else {
-      browser.runtime.sendMessage({
-        type: getReturnType(),
-        ext: "arconnect",
-        res: false,
-        message: "Invalid auth call",
-        sender: "popup"
-      });
-      window.close();
+      invalidAuthCall();
       return;
     }
 
     loadAllowance(url);
     setSpendingLimitReached(decodedAuthParam.spendingLimitReached);
-
-    // send cancel event if the popup is closed by the user
-    window.addEventListener("beforeunload", cancel);
-
-    return function cleanup() {
-      window.removeEventListener("beforeunload", cancel);
-    };
-    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
@@ -186,6 +157,13 @@ export default function App() {
     else loadAllowance(currentAllowance.url);
     // eslint-disable-next-line
   }, [currentAllowance]);
+
+  // send cancel event if the popup is closed by the user
+  window.onbeforeunload = cancel;
+  function closeWindow() {
+    window.onbeforeunload = null;
+    window.close();
+  }
 
   // check password
   async function login() {
@@ -203,16 +181,11 @@ export default function App() {
 
       // any event that needs authentication, but not the connect event
       if (type !== "connect") {
-        if (!currentURL) return urlError();
-        else {
-          browser.runtime.sendMessage({
-            type: getReturnType(),
-            ext: "arconnect",
-            res: true,
-            message: "Success",
-            sender: "popup"
-          });
-          window.close();
+        if (!currentURL) {
+          return urlError();
+        } else {
+          successCall();
+          return;
         }
 
         // connect event
@@ -226,6 +199,28 @@ export default function App() {
     }
   }
 
+  function successCall() {
+    browser.runtime.sendMessage({
+      type: getReturnType(),
+      ext: "arconnect",
+      res: true,
+      message: "Success",
+      sender: "popup"
+    });
+    closeWindow();
+  }
+
+  function invalidAuthCall() {
+    browser.runtime.sendMessage({
+      type: getReturnType(),
+      ext: "arconnect",
+      res: false,
+      message: "Invalid auth call",
+      sender: "popup"
+    });
+    closeWindow();
+  }
+
   // invalid url sent
   function urlError() {
     browser.runtime.sendMessage({
@@ -235,7 +230,7 @@ export default function App() {
       message: "No tab selected",
       sender: "popup"
     });
-    window.close();
+    closeWindow();
   }
 
   // get the type that needs to be returned in the message
@@ -256,16 +251,7 @@ export default function App() {
     dispatch(setPermissions(currentURL, allowedPermissions));
 
     // give time for the state to update
-    setTimeout(() => {
-      browser.runtime.sendMessage({
-        type: getReturnType(),
-        ext: "arconnect",
-        res: true,
-        message: "Success",
-        sender: "popup"
-      });
-      window.close();
-    }, 500);
+    setTimeout(successCall, 500);
   }
 
   // cancel login or permission request
@@ -277,7 +263,7 @@ export default function App() {
       message: "User cancelled the login",
       sender: "popup"
     });
-    window.close();
+    closeWindow();
   }
 
   // return the description of a permission
