@@ -74,7 +74,14 @@ export default function App() {
 
     // invalid auth
     if (!authVal) {
-      invalidAuthCall();
+      browser.runtime.sendMessage({
+        type: getReturnType(),
+        ext: "arconnect",
+        res: false,
+        message: "Invalid auth call",
+        sender: "popup"
+      });
+      window.close();
       return;
     }
 
@@ -91,7 +98,14 @@ export default function App() {
 
     // if the type does not exist, this is an invalid call
     if (!decodedAuthParam.type) {
-      invalidAuthCall();
+      browser.runtime.sendMessage({
+        type: getReturnType(),
+        ext: "arconnect",
+        res: false,
+        message: "Invalid auth call",
+        sender: "popup"
+      });
+      window.close();
       return;
     } else setType(decodedAuthParam.type);
 
@@ -144,7 +158,14 @@ export default function App() {
 
       // if non of the types matched, this is an invalid auth call
     } else {
-      invalidAuthCall();
+      browser.runtime.sendMessage({
+        type: getReturnType(),
+        ext: "arconnect",
+        res: false,
+        message: "Invalid auth call",
+        sender: "popup"
+      });
+      window.close();
       return;
     }
 
@@ -182,11 +203,16 @@ export default function App() {
 
       // any event that needs authentication, but not the connect event
       if (type !== "connect") {
-        if (!currentURL) {
-          return urlError();
-        } else {
-          successCall();
-          return;
+        if (!currentURL) return urlError();
+        else {
+          browser.runtime.sendMessage({
+            type: getReturnType(),
+            ext: "arconnect",
+            res: true,
+            message: "Success",
+            sender: "popup"
+          });
+          window.close();
         }
 
         // connect event
@@ -200,35 +226,6 @@ export default function App() {
     }
   }
 
-  function closeWindow() {
-    window.removeEventListener("beforeunload", cancel);
-    setTimeout(() => {
-      window.close();
-    }, 1000);
-  }
-
-  function successCall() {
-    browser.runtime.sendMessage({
-      type: getReturnType(),
-      ext: "arconnect",
-      res: true,
-      message: "Success",
-      sender: "popup"
-    });
-    closeWindow();
-  }
-
-  function invalidAuthCall() {
-    browser.runtime.sendMessage({
-      type: getReturnType(),
-      ext: "arconnect",
-      res: false,
-      message: "Invalid auth call",
-      sender: "popup"
-    });
-    closeWindow();
-  }
-
   // invalid url sent
   function urlError() {
     browser.runtime.sendMessage({
@@ -238,7 +235,7 @@ export default function App() {
       message: "No tab selected",
       sender: "popup"
     });
-    closeWindow();
+    window.close();
   }
 
   // get the type that needs to be returned in the message
@@ -259,7 +256,16 @@ export default function App() {
     dispatch(setPermissions(currentURL, allowedPermissions));
 
     // give time for the state to update
-    setTimeout(successCall, 500);
+    setTimeout(() => {
+      browser.runtime.sendMessage({
+        type: getReturnType(),
+        ext: "arconnect",
+        res: true,
+        message: "Success",
+        sender: "popup"
+      });
+      window.close();
+    }, 500);
   }
 
   // cancel login or permission request
@@ -268,10 +274,10 @@ export default function App() {
       type: getReturnType(),
       ext: "arconnect",
       res: false,
-      message: "User cancelled the login 12123",
+      message: "User cancelled the login",
       sender: "popup"
     });
-    closeWindow();
+    window.close();
   }
 
   // return the description of a permission
