@@ -1,11 +1,15 @@
 {
   "scripts": {
     "start": "NODE_ENV=development node esbuild.js",
-    "build": "NODE_ENV=production node esbuild.js",
+    "build": "yarn test && NODE_ENV=production node esbuild.js",
+    "test": "jest",
     "pack:firefox": "cd public && zip -r ../arconnect.zip *",
     "type-check": "tsc --noEmit",
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check ."
+  },
+  "jest": {
+    "preset": "ts-jest"
   },
   "dependencies": {
     "@geist-ui/react": "^2.1.0-canary.2",
@@ -48,6 +52,7 @@
     "@esbuild-plugins/node-modules-polyfill": "^0.0.2",
     "@types/bcryptjs": "^2.4.2",
     "@types/exchange-rates-api": "^1.0.0",
+    "@types/jest": "^26.0.24",
     "@types/jwk-to-pem": "^2.0.0",
     "@types/limestonefi__api": "^0.1.0",
     "@types/mime-types": "^2.1.0",
@@ -62,10 +67,12 @@
     "autoprefixer": "^10.2.4",
     "esbuild": "^0.8.46",
     "esbuild-plugin-postcss2": "^0.0.6",
+    "jest": "^27.0.6",
     "postcss": "^8.2.6",
     "prettier": "^2.2.1",
     "sass": "^1.32.5",
-    "typescript": "^3.8.0",
+    "ts-jest": "^27.0.3",
+    "typescript": "^4.3.5",
     "yorkie": "^2.0.0"
   },
   "gitHooks": {
