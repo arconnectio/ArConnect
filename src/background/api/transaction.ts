@@ -138,13 +138,21 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
               sender: "popup",
               type: "sign_auth_result"
             }) ||
-            !msg.decryptionKey ||
             !msg.res
-          )
-            throw new Error();
-
-          decryptionKey = msg.decryptionKey;
-          resolve(await sign());
+          ) {
+            resolve({
+              res: false,
+              message: msg.message
+            });
+          } else if (!decryptionKey && !msg.decryptionKey) {
+            resolve({
+              res: false,
+              message: msg.message
+            });
+          } else {
+            decryptionKey = decryptionKey || msg.decryptionKey;
+            resolve(await sign());
+          }
         });
       } else resolve(await sign());
     } catch {
