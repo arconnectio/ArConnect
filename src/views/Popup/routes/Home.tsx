@@ -36,7 +36,7 @@ import Verto from "@verto/lib";
 import arweaveLogo from "../../../assets/arweave.png";
 import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
-import WARLogo from "../../../assets/arweave.png";
+import WARLogo from "../../../assets/war.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
 
 export default function Home() {
