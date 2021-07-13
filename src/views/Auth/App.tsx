@@ -150,6 +150,7 @@ export default function App() {
 
     loadAllowance(url);
     setSpendingLimitReached(decodedAuthParam.spendingLimitReached);
+    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
