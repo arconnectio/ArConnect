@@ -26,6 +26,10 @@ export default function walletsReducer(
   switch (action.type) {
     case "ADD_WALLET":
       if (!action.payload.wallet) break;
+      if (
+        state.find(({ address }) => address === action.payload.wallet?.address)
+      )
+        break;
       return [...state, action.payload.wallet];
 
     case "REMOVE_WALLET":
@@ -42,7 +46,14 @@ export default function walletsReducer(
 
     case "SET_WALLETS":
       if (!action.payload.wallets) break;
-      return action.payload.wallets;
+      // remapping to make sure there's no duplication
+      const newList: Wallet[] = [];
+
+      for (const wallet of action.payload.wallets)
+        if (!newList.find(({ address }) => address === wallet.address))
+          newList.push(wallet);
+
+      return newList;
 
     case "USER_SIGNOUT":
       return [];

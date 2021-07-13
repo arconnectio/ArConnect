@@ -7,9 +7,17 @@ import {
   SignInIcon,
   ChevronRightIcon,
   ArrowSwitchIcon,
-  ArchiveIcon
+  ArchiveIcon,
+  ArrowRightIcon
 } from "@primer/octicons-react";
-import { Loading, Spacer, Tabs, Tooltip, useTheme } from "@geist-ui/react";
+import {
+  Loading,
+  Spacer,
+  Tabs,
+  Tooltip,
+  useTheme,
+  Note
+} from "@geist-ui/react";
 import { setAssets, setBalance } from "../../../stores/actions";
 import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
@@ -28,6 +36,7 @@ import Verto from "@verto/lib";
 import arweaveLogo from "../../../assets/arweave.png";
 import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
+import WARLogo from "../../../assets/war.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
 
 export default function Home() {
@@ -215,10 +224,49 @@ export default function Home() {
     browser.tabs.create({ url: browser.extension.getURL("/archive.html") });
   }
 
+  const [showNote, setShowNote] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { wrapped_ar_shown } = await browser.storage.local.get(
+        "wrapped_ar_shown"
+      );
+
+      if (!wrapped_ar_shown) {
+        setShowNote(true);
+        await browser.storage.local.set({ wrapped_ar_shown: true });
+      } else setShowNote(false);
+    })();
+  }, []);
+
   return (
     <div className={styles.Home}>
       <WalletManager />
       <div className={styles.Balance}>
+        {showNote && (
+          <Note
+            label={false}
+            type="success"
+            className={styles.Note}
+            onClick={() => setShowNote(false)}
+          >
+            <img src={WARLogo} alt="WAR" />
+            <div>
+              Wrapped AR just launched on Ethereum. <br />
+              <span
+                onClick={() =>
+                  browser.tabs.create({
+                    url:
+                      "https://medium.com/everfinance/what-is-wrapped-ar-c4b4375290b9"
+                  })
+                }
+              >
+                See it for yourself
+                <ArrowRightIcon />
+              </span>
+            </div>
+          </Note>
+        )}
         <h1>
           {formatBalance(balance()?.arBalance)}
           <span>AR</span>
