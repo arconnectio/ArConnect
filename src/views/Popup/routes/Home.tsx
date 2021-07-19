@@ -278,7 +278,7 @@ export default function Home() {
             text={
               <p style={{ textAlign: "center", margin: "0" }}>
                 Calculated using <br />
-                limestone.finance
+                redstone.finance
               </p>
             }
             style={{ marginLeft: ".18em" }}
