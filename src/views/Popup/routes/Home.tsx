@@ -89,15 +89,19 @@ export default function Home() {
       fiatBalance = balance()?.fiatBalance ?? 0;
 
     try {
-      arBalance = parseFloat(
-        arweave.ar.winstonToAr(await arweave.wallets.getBalance(profile))
+      const fetchedBalance = parseFloat(
+        await arweave.wallets.getBalance(profile)
       );
+
+      if (!isNaN(fetchedBalance)) arBalance = fetchedBalance;
     } catch {}
 
     try {
-      fiatBalance = parseFloat(
+      const fetchedBalance = parseFloat(
         (await arToFiat(arBalance, currency)).toFixed(2)
       );
+
+      if (!isNaN(fetchedBalance)) fiatBalance = fetchedBalance;
     } catch {}
 
     dispatch(setBalance({ address: profile, arBalance, fiatBalance }));
