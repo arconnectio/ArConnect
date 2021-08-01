@@ -90,7 +90,7 @@ export default function Home() {
 
     try {
       const fetchedBalance = parseFloat(
-        await arweave.wallets.getBalance(profile)
+        arweave.ar.winstonToAr(await arweave.wallets.getBalance(profile))
       );
 
       if (!isNaN(fetchedBalance)) arBalance = fetchedBalance;

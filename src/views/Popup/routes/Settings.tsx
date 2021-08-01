@@ -40,7 +40,8 @@ import {
   toggleAllowance,
   setAllowanceLimit,
   removeAllowance,
-  resetAllowanceSpent
+  resetAllowanceSpent,
+  resetArweaveConfig
 } from "../../../stores/actions";
 import CryptoES from "crypto-es";
 import dayjs from "dayjs";
@@ -734,6 +735,16 @@ export default function Settings() {
                 onClick={updateConfig}
               >
                 Set config
+              </Button>
+              <Spacer />
+              <Button
+                style={{ width: "100%", marginTop: ".5em" }}
+                onClick={() => {
+                  dispatch(resetArweaveConfig());
+                  setCurrSetting(undefined);
+                }}
+              >
+                Reset
               </Button>
             </div>
           )) ||
