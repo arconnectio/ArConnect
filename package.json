@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "NODE_ENV=development node esbuild.js",
-    "build": "yarn test && NODE_ENV=production node esbuild.js",
+    "build": "NODE_ENV=production node esbuild.js",
     "test": "jest",
     "pack:firefox": "cd public && zip -r ../arconnect.zip *",
     "type-check": "tsc --noEmit",
