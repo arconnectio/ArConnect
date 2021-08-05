@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import Arweave from "arweave";
 import manifest from "../../public/manifest.json";
 import Transaction from "arweave/node/lib/transaction";
+import { getArDriveFee, getWeightedPstHolder } from "./pst";
 
 /**
  * Some basic ArDrive info for transactions
@@ -199,7 +200,54 @@ export async function createPublicDrive(
     txs: [driveTx, rootFolderTx]
   };
 }
+export async function sendArDriveFee(
+  keyfile: JWKInterface,
+  arPrice: number,
+  arweave: Arweave
+): Promise<string> {
+  try {
+    // Get the latest ArDrive Community Fee from the Community Smart Contract
+    let fee = arPrice * ((await getArDriveFee()) / 100);
 
+    // If the fee is too small, we assign a minimum
+    if (fee < 0.00001) {
+      fee = 0.00001;
+    }
+
+    // Probabilistically select the PST token holder
+    const holder = await getWeightedPstHolder();
+
+    // send a fee. You should inform the user about this fee and amount.
+    const transaction = await arweave.createTransaction(
+      {
+        target: holder,
+        quantity: arweave.ar.arToWinston(fee.toString())
+      },
+      keyfile
+    );
+
+    // Tag file with data upload Tipping metadata
+    transaction.addTag("App-Name", ardriveClient);
+    transaction.addTag("App-Version", ardriveVersion);
+    transaction.addTag("Type", "fee");
+    transaction.addTag("Tip-Type", "data upload");
+
+    // Sign file
+    await arweave.transactions.sign(transaction, keyfile);
+
+    // Submit the transaction
+    const response = await arweave.transactions.post(transaction);
+    if (response.status === 200 || response.status === 202) {
+      // console.log('SUCCESS ArDrive fee of %s was submitted with TX %s to %s', fee.toFixed(9), transaction.id, holder);
+    } else {
+      // console.log('ERROR submitting ArDrive fee with TX %s', transaction.id);
+    }
+    return transaction.id;
+  } catch (err) {
+    console.log(err);
+    return "ERROR sending ArDrive fee";
+  }
+}
 interface DriveTxData {
   name: string;
   keyfile: JWKInterface;

@@ -3502,7 +3502,7 @@ arweave-mnemonic-keys@^0.0.9:
     human-crypto-keys "^0.1.4"
     libp2p-crypto "^0.19.0"
 
-arweave@^1.10.0, arweave@^1.10.11, arweave@^1.10.13, arweave@^1.10.2, arweave@^1.9.1:
+arweave@^1.10.0, arweave@^1.10.11, arweave@^1.10.13, arweave@^1.9.1:
   version "1.10.13"
   resolved "https://registry.npmjs.org/arweave/-/arweave-1.10.13.tgz"
   integrity sha512-FfM9CAF5msAk/12d87KDKu+00/ZriEf/S3ei2FTPMKCOdOb++SwLx7F3kAKO74obAgIGzL8X4Y0D/aV8oNNJDA==
@@ -12639,25 +12639,6 @@ smartweave@^0.4.10, smartweave@^0.4.27:
     "@types/inquirer" "^7.3.1"
     "@weavery/clarity" "^0.1.5"
     arweave "^1.10.11"
-    bignumber.js "^9.0.1"
-    chalk "^4.1.0"
-    clui "^0.3.6"
-    figlet "^1.5.0"
-    inquirer "^7.3.3"
-    json-beautify "^1.1.1"
-    loglevel "^1.7.0"
-    sentencer "^0.2.1"
-    yargs "^16.2.0"
-
-smartweave@^0.4.25:
-  version "0.4.25"
-  resolved "https://registry.npmjs.org/smartweave/-/smartweave-0.4.25.tgz"
-  integrity sha512-tJaqgAEA7Vky7w4lKYnoaNDXO5vZsQiOIolsjwjXFDQStg96A+9ZKH647qUoHiaDKcg/1/p/5wA4XOov5MM8IQ==
-  dependencies:
-    "@types/clui" "^0.3.0"
-    "@types/inquirer" "^7.3.1"
-    "@weavery/clarity" "^0.1.5"
-    arweave "^1.10.2"
     bignumber.js "^9.0.1"
     chalk "^4.1.0"
     clui "^0.3.6"
