@@ -454,7 +454,7 @@ export default function App() {
       dataTxId = archiveTx.id;
       const winston = await getWinston(getSizeBytes(previewHTML));
       arPrice = +winston * 0.000000000001;
-      sendArDriveFee(useJWK, arPrice, arweave);
+      await sendArDriveFee(useJWK, arPrice, arweave);
     } catch {
       setToast({
         text: "There was an error while uploading the site",
