@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import Arweave from "arweave";
 import manifest from "../../public/manifest.json";
 import Transaction from "arweave/node/lib/transaction";
-import { getArDriveFee, selectTokenHolder } from "./pst";
+import { getArDriveTipPercentage, selectTokenHolder } from "./pst";
 
 /**
  * Some basic ArDrive info for transactions
@@ -11,7 +11,7 @@ import { getArDriveFee, selectTokenHolder } from "./pst";
 const ardriveClient = "ArDrive-Web";
 const ardriveVersion = "0.1.0";
 const ArFS = "0.11";
-
+const defaultArDriveMinimumTipAR = 0.00001;
 /**
  * Create an archive file transaction
  * This will archive the file on Arweave using ArDrive
@@ -73,7 +73,7 @@ export async function createMetadataTransaction(
       data: JSON.stringify({
         name: data.filename,
         size: getSizeBytes(data.content),
-        lastModifiedDate: Math.round(data.timestamp / 1000),
+        lastModifiedDate: data.timestamp,
         dataTxId: data.dataTxId,
         dataContentType: data.contentType
       })
@@ -87,7 +87,7 @@ export async function createMetadataTransaction(
   tx.addTag("ArFS", ArFS);
   tx.addTag("Entity-Type", "file");
   tx.addTag("Drive-Id", data.driveInfo.id);
-  tx.addTag("Unix-Time", Math.round(data.timestamp / 1000).toString());
+  tx.addTag("Unix-Time", data.timestamp.toString());
   tx.addTag("File-Id", uuidv4());
   tx.addTag("Parent-Folder-Id", data.driveInfo.rootFolderId);
   tx.addTag("ArDrive-Client", `ArConnect/${manifest.version}`);
@@ -146,7 +146,7 @@ export async function createPublicDrive(
     rootFolderName: data.name,
     isPrivate: false
   };
-  const timestamp = Math.round(new Date().getTime() / 1000);
+  const timestamp = new Date().getTime();
 
   /**
    * The drive transaction
@@ -200,24 +200,37 @@ export async function createPublicDrive(
     txs: [driveTx, rootFolderTx]
   };
 }
+
+/**
+ * Sends the ardrive fee based on the AR price of data upload
+ *
+ * @param arweave Arweave client
+ * @param keyfile Wallet keyfile
+ * @param arPrice Cost of data upload
+ *
+ * @returns Fee Transaction if successful
+ */
 export async function sendArDriveFee(
   keyfile: JWKInterface,
   arPrice: number,
   arweave: Arweave
 ) {
   try {
-    // Get the latest ArDrive Community Fee from the Community Smart Contract
-    let fee = arPrice * ((await getArDriveFee()) / 100);
+    // Return if upload cost is zero, this should likely never happen
+    if (arPrice <= 0) {
+      return;
+    }
 
     // If the fee is too small, we assign a minimum
-    if (fee < 0.00001) {
-      fee = 0.00001;
-    }
+    let fee = Math.max(
+      arPrice * ((await getArDriveTipPercentage()) / 100),
+      defaultArDriveMinimumTipAR
+    );
 
     // Probabilistically select the PST token holder
     const holder = await selectTokenHolder();
 
-    // send a fee. You should inform the user about this fee and amount.
+    // send a fee.
     const transaction = await arweave.createTransaction(
       {
         target: holder,
@@ -230,7 +243,8 @@ export async function sendArDriveFee(
     transaction.addTag("App-Name", ardriveClient);
     transaction.addTag("App-Version", ardriveVersion);
     transaction.addTag("Type", "fee");
-    transaction.addTag("Tip-Type", "data upload");
+    transaction.addTag("Tip-Type", "page archive");
+    transaction.addTag("ArDrive-Client", `ArConnect/${manifest.version}`);
 
     // Sign file
     await arweave.transactions.sign(transaction, keyfile);

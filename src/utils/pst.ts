@@ -1,19 +1,20 @@
 import axios from "axios";
 
 // ArDrive Profit Sharing Community Smart Contract
-const vertoCacheURL =
+const cachedContractURL =
   "https://v2.cache.verto.exchange/-8A6RexFkpfWwuyVO98wzSFZh0d6VJuI-buTJvlwOJQ";
 
 // Calls the ArDrive Community Smart Contract to pull the fee
-export async function getArDriveFee(): Promise<number> {
+// A return value of .15 means that the retrieved tip setting is 15% of the data upload cost.
+export async function getArDriveTipPercentage(): Promise<number> {
   try {
-    const res = (await axios.get(vertoCacheURL)).data;
+    const res = (await axios.get(cachedContractURL)).data;
 
     const arDriveCommunityFee = res.state.settings.find(
       (setting: (string | number)[]) =>
         setting[0].toString().toLowerCase() === "fee"
     );
-    return arDriveCommunityFee ? arDriveCommunityFee[1] : 15;
+    return arDriveCommunityFee ? arDriveCommunityFee[1] / 100 : 0.15;
   } catch {
     return 0.15; // Default fee of 15% if we cannot pull it from the community contract
   }
@@ -22,7 +23,7 @@ export async function getArDriveFee(): Promise<number> {
 // Gets a random ArDrive token holder based off their weight (amount of tokens they hold)
 export async function selectTokenHolder(): Promise<string | undefined> {
   // Read the ArDrive Smart Contract to get the latest state
-  const res = (await axios.get(vertoCacheURL)).data;
+  const res = (await axios.get(cachedContractURL)).data;
   const balances = res.state.balances;
   const vault = res.state.vault;
 
