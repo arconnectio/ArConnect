@@ -41,7 +41,7 @@ import Arweave from "arweave";
 import ardriveLogoLight from "../../assets/ardrive_light.svg";
 import ardriveLogoDark from "../../assets/ardrive_dark.svg";
 import styles from "../../styles/views/Archive/view.module.sass";
-import { getWinston } from "../../utils/pst";
+import { getWinstonPriceForByteCount } from "../../utils/pst";
 
 export default function App() {
   const [safeMode, setSafeMode] = useState(true),
@@ -452,8 +452,10 @@ export default function App() {
       }
 
       dataTxId = archiveTx.id;
-      const winston = await getWinston(getSizeBytes(previewHTML));
-      arPrice = +winston * 0.000000000001;
+      const winston = await getWinstonPriceForByteCount(
+        getSizeBytes(previewHTML)
+      );
+      arPrice = +winston * 0.000_000_000_001;
       await sendArDriveFee(useJWK, arPrice, arweave);
     } catch {
       setToast({

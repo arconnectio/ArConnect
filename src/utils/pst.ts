@@ -27,10 +27,10 @@ export async function selectTokenHolder(): Promise<string | undefined> {
   const balances = res.state.balances;
   const vault = res.state.vault;
 
-  // Get the total number of token holders
-  let total = 0;
+  // Get the total number of tokens
+  let totalTokens = 0;
   for (const addr of Object.keys(balances)) {
-    total += balances[addr];
+    totalTokens += balances[addr];
   }
 
   // Check for how many tokens the user has staked/vaulted
@@ -41,7 +41,7 @@ export async function selectTokenHolder(): Promise<string | undefined> {
       .map((a: { balance: number; start: number; end: number }) => a.balance)
       .reduce((a: number, b: number) => a + b, 0);
 
-    total += vaultBalance;
+    totalTokens += vaultBalance;
 
     if (addr in balances) {
       balances[addr] += vaultBalance;
@@ -53,7 +53,7 @@ export async function selectTokenHolder(): Promise<string | undefined> {
   // Create a weighted list of token holders
   const weighted: { [addr: string]: number } = {};
   for (const addr of Object.keys(balances)) {
-    weighted[addr] = balances[addr] / total;
+    weighted[addr] = balances[addr] / totalTokens;
   }
   // Get a random holder based off of the weighted list of holders
   const randomHolder = weightedRandom(weighted);
@@ -61,7 +61,7 @@ export async function selectTokenHolder(): Promise<string | undefined> {
 }
 
 // Gets a random ardrive wallet, but each wallet has a weight of the tokens it has,
-// Probability of a wallet with a higher number of tokens being returned is greater.
+// A wallet with a higher number of tokens has a higher probability of being returned.
 export function weightedRandom(
   dict: Record<string, number>
 ): string | undefined {
@@ -76,9 +76,10 @@ export function weightedRandom(
   }
   return;
 }
-
-export async function getWinston(bytes: number): Promise<number> {
-  const response = await fetch(`https://arweave.net/price/${bytes}`);
-  const winston = await response.json();
-  return winston;
+export async function getWinstonPriceForByteCount(
+  byteCount: number
+): Promise<number> {
+  const response = await fetch(`https://arweave.net/price/${byteCount}`);
+  const winstonAsString = await response.text();
+  return +winstonAsString;
 }

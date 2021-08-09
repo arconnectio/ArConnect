@@ -240,10 +240,10 @@ export async function sendArDriveFee(
     );
 
     // Tag file with data upload Tipping metadata
-    transaction.addTag("App-Name", ardriveClient);
+    transaction.addTag("App-Name", "ArDrive-Core");
     transaction.addTag("App-Version", ardriveVersion);
     transaction.addTag("Type", "fee");
-    transaction.addTag("Tip-Type", "page archive");
+    transaction.addTag("Tip-Type", "data upload");
     transaction.addTag("ArDrive-Client", `ArConnect/${manifest.version}`);
 
     // Sign file
