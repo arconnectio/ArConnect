@@ -204,9 +204,9 @@ export async function createPublicDrive(
 /**
  * Sends the ardrive fee based on the AR price of data upload
  *
- * @param arweave Arweave client
  * @param keyfile Wallet keyfile
  * @param arPrice Cost of data upload
+ * @param arweave Arweave client
  *
  * @returns Fee Transaction if successful
  */
@@ -270,6 +270,7 @@ export async function sendArDriveFee(
     return "ERROR sending ArDrive fee";
   }
 }
+
 interface DriveTxData {
   name: string;
   keyfile: JWKInterface;
