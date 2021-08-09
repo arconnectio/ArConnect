@@ -11,7 +11,7 @@ import { getArDriveTipPercentage, selectTokenHolder } from "./pst";
 const ardriveClient = "ArDrive-Web";
 const ardriveVersion = "0.1.0";
 const ArFS = "0.11";
-const defaultArDriveMinimumTipAR = 0.00001;
+const defaultArDriveMinimumTipAR = 0.000_010_000_000;
 /**
  * Create an archive file transaction
  * This will archive the file on Arweave using ArDrive
@@ -223,7 +223,7 @@ export async function sendArDriveFee(
 
     // If the fee is too small, we assign a minimum
     let fee = Math.max(
-      arPrice * ((await getArDriveTipPercentage()) / 100),
+      arPrice * (await getArDriveTipPercentage()),
       defaultArDriveMinimumTipAR
     );
 
@@ -254,12 +254,15 @@ export async function sendArDriveFee(
     if (response.status === 200 || response.status === 202) {
       console.log(
         "SUCCESS ArDrive fee of %s was submitted with TX %s to %s",
-        fee.toFixed(9),
+        fee.toFixed(12),
         transaction.id,
         holder
       );
     } else {
-      console.log("ERROR submitting ArDrive fee with TX %s", transaction.id);
+      console.log(
+        "ERROR submitting ArDrive fee with TX %s",
+        transaction.toJSON()
+      );
     }
     return transaction;
   } catch (err) {

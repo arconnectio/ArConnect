@@ -59,6 +59,9 @@ export async function selectTokenHolder(): Promise<string | undefined> {
   const randomHolder = weightedRandom(weighted);
   return randomHolder;
 }
+
+// Gets a random ardrive wallet, but each wallet has a weight of the tokens it has,
+// Probability of a wallet with a higher number of tokens being returned is greater.
 export function weightedRandom(
   dict: Record<string, number>
 ): string | undefined {
