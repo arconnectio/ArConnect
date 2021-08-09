@@ -21,7 +21,8 @@ import {
   createArchiveTransaction,
   createMetadataTransaction,
   Drive,
-  createPublicDrive
+  createPublicDrive,
+  sendArDriveFee
 } from "../../utils/archive";
 import { useColorScheme } from "use-color-scheme";
 import { run } from "ar-gql";
@@ -40,6 +41,7 @@ import Arweave from "arweave";
 import ardriveLogoLight from "../../assets/ardrive_light.svg";
 import ardriveLogoDark from "../../assets/ardrive_dark.svg";
 import styles from "../../styles/views/Archive/view.module.sass";
+import { getWinstonPriceForByteCount } from "../../utils/pst";
 
 export default function App() {
   const [safeMode, setSafeMode] = useState(true),
@@ -424,7 +426,7 @@ export default function App() {
 
     const useJWK = getWallet();
     let dataTxId: string;
-
+    let arPrice = 0;
     if (!useJWK) return setArchiving(false);
 
     // create data transaction
@@ -450,6 +452,11 @@ export default function App() {
       }
 
       dataTxId = archiveTx.id;
+      const winston = await getWinstonPriceForByteCount(
+        getSizeBytes(previewHTML)
+      );
+      arPrice = +winston * 0.000_000_000_001;
+      await sendArDriveFee(useJWK, arPrice, arweave);
     } catch {
       setToast({
         text: "There was an error while uploading the site",
