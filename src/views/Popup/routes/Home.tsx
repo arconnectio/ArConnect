@@ -89,15 +89,19 @@ export default function Home() {
       fiatBalance = balance()?.fiatBalance ?? 0;
 
     try {
-      arBalance = parseFloat(
+      const fetchedBalance = parseFloat(
         arweave.ar.winstonToAr(await arweave.wallets.getBalance(profile))
       );
+
+      if (!isNaN(fetchedBalance)) arBalance = fetchedBalance;
     } catch {}
 
     try {
-      fiatBalance = parseFloat(
+      const fetchedBalance = parseFloat(
         (await arToFiat(arBalance, currency)).toFixed(2)
       );
+
+      if (!isNaN(fetchedBalance)) fiatBalance = fetchedBalance;
     } catch {}
 
     dispatch(setBalance({ address: profile, arBalance, fiatBalance }));
@@ -186,42 +190,46 @@ export default function Home() {
   }
 
   async function archive() {
-    const currentTab = await getActiveTab();
+    try {
+      const currentTab = await getActiveTab();
 
-    if (!currentTabContentType || !currentTab.url) return;
-    if (currentTabContentType === "page") {
-      const res = await browser.runtime.sendMessage({
-        type: "archive_page",
-        ext: "arconnect",
-        sender: "popup"
-      });
+      if (!currentTabContentType || !currentTab.url) return;
+      if (currentTabContentType === "page") {
+        const res = await browser.runtime.sendMessage({
+          type: "archive_page",
+          ext: "arconnect",
+          sender: "popup"
+        });
 
-      if (
-        !validateMessage(res, {
-          sender: "content",
-          type: "archive_page_content"
-        })
-      )
-        return;
+        if (
+          !validateMessage(res, {
+            sender: "content",
+            type: "archive_page_content"
+          })
+        )
+          return;
 
-      await browser.storage.local.set({
-        lastArchive: {
-          url: res.url,
-          content: res.data,
-          type: "page"
-        }
-      });
-    } else {
-      await browser.storage.local.set({
-        lastArchive: {
-          url: currentTab.url,
-          content: "",
-          type: "pdf"
-        }
-      });
+        await browser.storage.local.set({
+          lastArchive: {
+            url: res.url,
+            content: res.data,
+            type: "page"
+          }
+        });
+      } else {
+        await browser.storage.local.set({
+          lastArchive: {
+            url: currentTab.url,
+            content: "",
+            type: "pdf"
+          }
+        });
+      }
+
+      browser.tabs.create({ url: browser.extension.getURL("/archive.html") });
+    } catch (error) {
+      console.log(error);
     }
-
-    browser.tabs.create({ url: browser.extension.getURL("/archive.html") });
   }
 
   const [showNote, setShowNote] = useState(false);
@@ -278,7 +286,7 @@ export default function Home() {
             text={
               <p style={{ textAlign: "center", margin: "0" }}>
                 Calculated using <br />
-                limestone.finance
+                redstone.finance
               </p>
             }
             style={{ marginLeft: ".18em" }}
