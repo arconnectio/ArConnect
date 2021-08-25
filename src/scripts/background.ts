@@ -22,7 +22,11 @@ import {
   walletsStored
 } from "../utils/background";
 import { decrypt, encrypt, signature } from "../background/api/encryption";
-import { handleArweaveTab, handleTabUpdate } from "../background/tab_update";
+import {
+  handleArweaveTabOpened,
+  handleArweaveTabClosed,
+  handleTabUpdate
+} from "../background/tab_update";
 import { browser } from "webextension-polyfill-ts";
 import { fixupPasswords } from "../utils/auth";
 
@@ -35,22 +39,24 @@ browser.runtime.onInstalled.addListener(async () => {
 
 // create listeners for the icon utilities
 // and context menu item updates
-browser.tabs.onActivated.addListener(handleTabUpdate);
+browser.tabs.onActivated.addListener((activeInfo) => {
+  handleTabUpdate();
+});
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  // TODO: Check if the user enters new URL in old tab.
+  // https://sbnbvdu7enbvgvclwrooybvrycbrovradu4yhxzvazrwmqzfhrcq.arweave.net/kFoajp8jQ1NUS7Rc7AaxwIMXViAdOYPfNQZjZkMlPEU/index.html
   if (
     changeInfo.status === "complete" &&
     tab.url!.indexOf("arweave.net/") > -1
   ) {
-    const id = tab.url!.split("arweave.net/")[1].split("/")[0];
+    const txId = tab.url!.split("arweave.net/")[1].split("/")[0];
 
-    if (/[a-z0-9_-]{43}/i.test(id)) handleArweaveTab(tabId, "open", id);
+    if (/[a-z0-9_-]{43}/i.test(txId)) handleArweaveTabOpened(tabId, txId);
   }
 
   handleTabUpdate();
 });
 browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
-  handleArweaveTab(tabId, "close");
+  handleArweaveTabClosed(tabId);
 });
 
 browser.runtime.onConnect.addListener((connection) => {

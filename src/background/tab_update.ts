@@ -7,6 +7,13 @@ import {
 import { createContextMenus } from "./context_menus";
 import { updateIcon } from "./icon";
 
+function calculateDuration(openedAt: Date): number {
+  return (
+    Math.floor(new Date().getTime() / 1000) -
+    Math.floor(new Date(openedAt).getTime() / 1000)
+  );
+}
+
 export async function handleTabUpdate() {
   const activeTab = await getActiveTab(),
     permissionsForSite = await getPermissions(activeTab.url as string);
@@ -15,59 +22,66 @@ export async function handleTabUpdate() {
   createContextMenus(permissionsForSite.length > 0);
 }
 
-export async function handleArweaveTab(
-  tab: number,
-  action: "open" | "close",
-  txID?: string
-) {
+export async function handleArweaveTabOpened(tabId: number, txID: string) {
   const store = await getStoreData();
-  let tabs = store.time || [];
-  console.log(tabs);
+  let arweaveTabs = store.time || [];
 
-  if (action === "open") {
-    const index = tabs.findIndex((tab) => tab.id === txID);
+  const index = arweaveTabs.findIndex((tab) => tab.id === txID);
 
-    if (index === -1) {
-      // No data stored for ID.
-      tabs = [
-        ...tabs,
-        {
-          id: txID!,
-          sessions: {
-            [tab]: {
-              openedAt: new Date()
-            }
-          }
-        }
-      ];
-    } else {
-      // Already stored.
-      const sessions = tabs[index].sessions;
-      tabs[index] = {
+  if (index === -1) {
+    // No data stored for ID.
+    arweaveTabs = [
+      ...arweaveTabs,
+      {
         id: txID!,
+        totalTime: 0,
         sessions: {
-          ...sessions,
-          [tab]: {
+          [tabId]: {
             openedAt: new Date()
           }
         }
-      };
-    }
+      }
+    ];
+  } else {
+    // Already stored.
+    const sessions = arweaveTabs[index].sessions;
+    const totalTime = arweaveTabs[index].totalTime;
+    arweaveTabs[index] = {
+      id: txID!,
+      totalTime: totalTime,
+      sessions: {
+        ...sessions,
+        [tabId]: {
+          openedAt: new Date()
+        }
+      }
+    };
   }
 
-  if (action === "close") {
-    for (let i = 0; i < tabs.length; i++) {
-      const entry = tabs[i];
+  console.log(arweaveTabs);
 
-      for (const [id, session] of Object.entries(entry.sessions)) {
-        if (+id === tab && !session.duration) {
-          tabs[i].sessions[+id].duration =
-            Math.floor(new Date().getTime() / 1000) -
-            Math.floor(new Date(session.openedAt).getTime() / 1000);
-        }
+  setStoreData({ time: arweaveTabs });
+}
+
+export async function handleArweaveTabClosed(tabId: number) {
+  const store = await getStoreData();
+  let arweaveTabs = store.time || [];
+
+  for (let i = 0; i < arweaveTabs.length; ++i) {
+    const arweaveTab = arweaveTabs[i];
+
+    for (const [id, session] of Object.entries(arweaveTab.sessions)) {
+      if (+id === tabId) {
+        arweaveTab.totalTime += calculateDuration(session.openedAt);
+
+        delete arweaveTab.sessions[tabId];
+
+        break;
       }
     }
   }
 
-  setStoreData({ time: tabs });
+  console.log(arweaveTabs);
+
+  setStoreData({ time: arweaveTabs });
 }
