@@ -25,6 +25,7 @@ import { decrypt, encrypt, signature } from "../background/api/encryption";
 import {
   handleArweaveTabOpened,
   handleArweaveTabClosed,
+  handleArweaveTabActivated,
   handleTabUpdate
 } from "../background/tab_update";
 import { browser } from "webextension-polyfill-ts";
@@ -40,6 +41,7 @@ browser.runtime.onInstalled.addListener(async () => {
 // create listeners for the icon utilities
 // and context menu item updates
 browser.tabs.onActivated.addListener((activeInfo) => {
+  handleArweaveTabActivated(activeInfo.tabId);
   handleTabUpdate();
 });
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {

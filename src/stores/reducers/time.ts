@@ -5,6 +5,7 @@ export interface Tab {
     [tabId: number]: {
       openedAt: Date;
       duration?: number;
+      isActive: boolean;
     };
   };
 }
