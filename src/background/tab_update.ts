@@ -30,6 +30,7 @@ export async function handleArweaveTabOpened(tabId: number, txID: string) {
   const tabDoesNotExist = index === -1;
 
   if (tabDoesNotExist) {
+    console.log("Creating " + tabId);
     arweaveTabs = [
       ...arweaveTabs,
       {
@@ -46,17 +47,22 @@ export async function handleArweaveTabOpened(tabId: number, txID: string) {
   } else {
     const sessions = arweaveTabs[index].sessions;
     const totalTime = arweaveTabs[index].totalTime;
-    arweaveTabs[index] = {
-      id: txID!,
-      totalTime: totalTime,
-      sessions: {
-        ...sessions,
-        [tabId]: {
-          openedAt: new Date(),
-          isActive: true
+    if (tabId in sessions && sessions[tabId].isActive) {
+      console.log(`Reloading ${tabId}? - Do nothing`);
+    } else {
+      console.log("Adding " + tabId);
+      arweaveTabs[index] = {
+        id: txID!,
+        totalTime: totalTime,
+        sessions: {
+          ...sessions,
+          [tabId]: {
+            openedAt: new Date(),
+            isActive: true
+          }
         }
-      }
-    };
+      };
+    }
   }
 
   console.log(arweaveTabs);
