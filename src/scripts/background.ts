@@ -26,6 +26,7 @@ import {
   handleArweaveTabOpened,
   handleArweaveTabClosed,
   handleArweaveTabActivated,
+  closePreviousActiveArweaveSession,
   handleTabUpdate
 } from "../background/tab_update";
 import { browser } from "webextension-polyfill-ts";
@@ -36,6 +37,24 @@ browser.runtime.onInstalled.addListener(async () => {
   if (!(await walletsStored()))
     browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
   else await fixupPasswords();
+});
+
+browser.windows.onFocusChanged.addListener(async (windowId) => {
+  if (windowId === browser.windows.WINDOW_ID_NONE) {
+    console.log("Lost");
+
+    // We cannot get active tab here, so just find previously active session and close it.
+    closePreviousActiveArweaveSession();
+  } else {
+    console.log("Focus");
+
+    const activeTab = await getActiveTab();
+    if (activeTab.url!.indexOf("arweave.net/") > -1) {
+      const txId = activeTab.url!.split("arweave.net/")[1].split("/")[0];
+      if (/[a-z0-9_-]{43}/i.test(txId))
+        handleArweaveTabOpened(activeTab.id!, txId);
+    }
+  }
 });
 
 // create listeners for the icon utilities
@@ -51,7 +70,6 @@ browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     tab.url!.indexOf("arweave.net/") > -1
   ) {
     const txId = tab.url!.split("arweave.net/")[1].split("/")[0];
-
     if (/[a-z0-9_-]{43}/i.test(txId)) handleArweaveTabOpened(tabId, txId);
   }
 

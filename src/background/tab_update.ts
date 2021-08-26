@@ -96,7 +96,7 @@ export async function handleArweaveTabClosed(tabId: number) {
   setStoreData({ time: arweaveTabs });
 }
 
-async function closePreviousActiveSession() {
+export async function closePreviousActiveArweaveSession() {
   const store = await getStoreData();
   let arweaveTabs = store.time || [];
 
@@ -115,7 +115,7 @@ async function closePreviousActiveSession() {
 }
 
 export async function handleArweaveTabActivated(tabId: number) {
-  await closePreviousActiveSession();
+  await closePreviousActiveArweaveSession();
 
   const store = await getStoreData();
   let arweaveTabs = store.time || [];
