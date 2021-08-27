@@ -69,7 +69,7 @@ export async function handleArweaveTabOpened(tabId: number, txID: string) {
     const sessions = arweaveTabs[index].sessions;
     const totalTime = arweaveTabs[index].totalTime;
     if (tabId in sessions && sessions[tabId].isActive) {
-      console.log(`Reloading ${tabId}? - Do nothing`);
+      console.log(`Still on ${tabId}? - Do nothing`);
     } else {
       console.log("Adding " + tabId);
       arweaveTabs[index] = {
@@ -134,4 +134,20 @@ export async function handleArweaveTabActivated(tabId: number) {
       }
     }
   }
+}
+
+export async function getArweaveActiveTab(): Promise<number | undefined> {
+  let arweaveTabs = await loadData();
+
+  for (let arweaveTab of arweaveTabs) {
+    for (const [id, session] of Object.entries(arweaveTab.sessions)) {
+      if (session.isActive) {
+        return +id;
+      }
+    }
+  }
+
+  storeData(arweaveTabs);
+
+  return undefined;
 }

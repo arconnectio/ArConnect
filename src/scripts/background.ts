@@ -23,11 +23,12 @@ import {
 } from "../utils/background";
 import { decrypt, encrypt, signature } from "../background/api/encryption";
 import {
+  handleTabUpdate,
   handleArweaveTabOpened,
   handleArweaveTabClosed,
   handleArweaveTabActivated,
   closeActiveArweaveSession,
-  handleTabUpdate
+  getArweaveActiveTab
 } from "../background/tab_update";
 import { browser } from "webextension-polyfill-ts";
 import { fixupPasswords } from "../utils/auth";
@@ -63,13 +64,19 @@ browser.tabs.onActivated.addListener((activeInfo) => {
   handleArweaveTabActivated(activeInfo.tabId);
   handleTabUpdate();
 });
-browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (
-    changeInfo.status === "complete" &&
-    tab.url!.indexOf("arweave.net/") > -1
-  ) {
-    const txId = tab.url!.split("arweave.net/")[1].split("/")[0];
-    if (/[a-z0-9_-]{43}/i.test(txId)) handleArweaveTabOpened(tabId, txId);
+browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (changeInfo.status === "complete") {
+    if (tab.url!.indexOf("arweave.net/") > -1) {
+      const txId = tab.url!.split("arweave.net/")[1].split("/")[0];
+      if (/[a-z0-9_-]{43}/i.test(txId)) handleArweaveTabOpened(tabId, txId);
+    } else {
+      if (tabId === (await getArweaveActiveTab())) {
+        // It looks like user just entered or opened another web site on the same tab,
+        // where arweave.net/ page was displayed previously. Hence it needs to be closed.
+        console.log("New web page?");
+        handleArweaveTabClosed(tabId);
+      }
+    }
   }
 
   handleTabUpdate();
