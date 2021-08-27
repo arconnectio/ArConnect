@@ -18,9 +18,12 @@ export interface ITabAction {
   };
 }
 
-export default function timeReducer(
+export default function timeTrackingReducer(
   state: Tab[] = [],
   action: ITabAction
 ): Tab[] {
-  return state;
+  switch (action.type) {
+    default:
+      return state;
+  }
 }

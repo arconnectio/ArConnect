@@ -24,7 +24,7 @@ export async function handleTabUpdate() {
 
 export async function handleArweaveTabOpened(tabId: number, txID: string) {
   const store = await getStoreData();
-  let arweaveTabs = store.time || [];
+  let arweaveTabs = store.timeTracking || [];
 
   const index = arweaveTabs.findIndex((tab) => tab.id === txID);
   const tabDoesNotExist = index === -1;
@@ -67,7 +67,7 @@ export async function handleArweaveTabOpened(tabId: number, txID: string) {
 
   console.log(arweaveTabs);
 
-  setStoreData({ time: arweaveTabs });
+  setStoreData({ timeTracking: arweaveTabs });
 }
 
 function terminateSession(session: any): number {
@@ -79,7 +79,7 @@ function terminateSession(session: any): number {
 
 export async function handleArweaveTabClosed(tabId: number) {
   const store = await getStoreData();
-  let arweaveTabs = store.time || [];
+  let arweaveTabs = store.timeTracking || [];
 
   for (let arweaveTab of arweaveTabs) {
     for (const [id, session] of Object.entries(arweaveTab.sessions)) {
@@ -93,12 +93,12 @@ export async function handleArweaveTabClosed(tabId: number) {
 
   console.log(arweaveTabs);
 
-  setStoreData({ time: arweaveTabs });
+  setStoreData({ timeTracking: arweaveTabs });
 }
 
 export async function closePreviousActiveArweaveSession() {
   const store = await getStoreData();
-  let arweaveTabs = store.time || [];
+  let arweaveTabs = store.timeTracking || [];
 
   for (let arweaveTab of arweaveTabs) {
     for (const [id, session] of Object.entries(arweaveTab.sessions)) {
@@ -111,14 +111,14 @@ export async function closePreviousActiveArweaveSession() {
 
   console.log(arweaveTabs);
 
-  setStoreData({ time: arweaveTabs });
+  setStoreData({ timeTracking: arweaveTabs });
 }
 
 export async function handleArweaveTabActivated(tabId: number) {
   await closePreviousActiveArweaveSession();
 
   const store = await getStoreData();
-  let arweaveTabs = store.time || [];
+  let arweaveTabs = store.timeTracking || [];
 
   // Re-open session again.
   for (let arweaveTab of arweaveTabs) {
