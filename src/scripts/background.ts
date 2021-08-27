@@ -26,7 +26,7 @@ import {
   handleArweaveTabOpened,
   handleArweaveTabClosed,
   handleArweaveTabActivated,
-  closePreviousActiveArweaveSession,
+  closeActiveArweaveSession,
   handleTabUpdate
 } from "../background/tab_update";
 import { browser } from "webextension-polyfill-ts";
@@ -43,8 +43,8 @@ browser.windows.onFocusChanged.addListener(async (windowId) => {
   if (windowId === browser.windows.WINDOW_ID_NONE) {
     console.log("Lost");
 
-    // We cannot get active tab here, so just find previously active session and close it.
-    closePreviousActiveArweaveSession();
+    // We cannot get active tab here, so just find active session and close it.
+    closeActiveArweaveSession();
   } else {
     console.log("Focus");
 
@@ -64,7 +64,6 @@ browser.tabs.onActivated.addListener((activeInfo) => {
   handleTabUpdate();
 });
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  // https://sbnbvdu7enbvgvclwrooybvrycbrovradu4yhxzvazrwmqzfhrcq.arweave.net/kFoajp8jQ1NUS7Rc7AaxwIMXViAdOYPfNQZjZkMlPEU/index.html
   if (
     changeInfo.status === "complete" &&
     tab.url!.indexOf("arweave.net/") > -1
