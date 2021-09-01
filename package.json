@@ -3,7 +3,7 @@
     "start": "cross-env NODE_ENV=development node esbuild.js",
     "build": "cross-env NODE_ENV=production node esbuild.js",
     "test": "jest",
-    "pack:firefox": "cd public && zip -r ../arconnect.zip *",
+    "zip": "cd public && zip -r ../arconnect.zip *",
     "type-check": "tsc --noEmit",
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check ."
