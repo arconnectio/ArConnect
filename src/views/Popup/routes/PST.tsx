@@ -84,7 +84,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
 
   useEffect(() => {
     if (tabs.state === "3")
-      browser.tabs.create({ url: `https://verto.exchange/token?id=${id}` });
+      browser.tabs.create({ url: `https://verto.exchange/space/${id}` });
   }, [tabs, id]);
 
   useEffect(() => {
