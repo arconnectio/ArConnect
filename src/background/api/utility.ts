@@ -38,7 +38,7 @@ export const walletNames = () =>
 export const addToken = (message: MessageFormat) =>
   new Promise<Partial<MessageFormat>>(async (resolve, _) => {
     try {
-      await axios.post(`https://cache.verto.exchange/fetch/${message.id}`);
+      await axios.post(`https://v2.cache.verto.exchange/fetch/${message.id}`);
 
       resolve({ res: true });
     } catch {

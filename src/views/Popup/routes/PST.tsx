@@ -36,7 +36,7 @@ import { getVerification, Threshold } from "arverify";
 import manifest from "../../../../public/manifest.json";
 import { browser } from "webextension-polyfill-ts";
 import Arweave from "arweave";
-import Verto from "@verto/lib";
+import Verto from "@verto/js";
 import Home from "./Home";
 import verto_logo_light from "../../../assets/verto_light.png";
 import verto_logo_dark from "../../../assets/verto_dark.png";
@@ -84,7 +84,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
 
   useEffect(() => {
     if (tabs.state === "3")
-      browser.tabs.create({ url: `https://verto.exchange/token?id=${id}` });
+      browser.tabs.create({ url: `https://verto.exchange/space/${id}` });
   }, [tabs, id]);
 
   useEffect(() => {
@@ -94,15 +94,19 @@ export default function PST({ id, name, balance, ticker }: Asset) {
 
   async function loadArPrice() {
     const verto = new Verto(),
-      prices = await verto.price(id);
+      prices = await verto.getPriceHistory(id);
 
-    if (prices) setPrices(prices);
+    if (prices)
+      setPrices({
+        dates: Object.keys(prices).filter((date) => !!prices[date]),
+        prices: Object.values(prices).filter((price) => !!price)
+      });
   }
 
   async function loadData() {
     setLoadingData(true);
     try {
-      const { data } = await axios.get(`https://cache.verto.exchange/${id}`);
+      const { data } = await axios.get(`https://v2.cache.verto.exchange/${id}`);
 
       if (!data) return;
       setDescription(
@@ -254,9 +258,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
                         datasets: [
                           {
                             label: "AR",
-                            data: price.prices.map((val) =>
-                              parseFloat(val.toFixed(4))
-                            ),
+                            data: price.prices.map((val) => val.toFixed(4)),
                             ...GraphDataConfig
                           }
                         ]
