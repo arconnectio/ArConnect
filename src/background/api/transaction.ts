@@ -25,11 +25,11 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
       });
 
     try {
+      // transaction price in winston
+      let price =
+        parseFloat(message.transaction.quantity) +
+        parseFloat(message.transaction.reward);
       const arweave = new Arweave(await getArweaveConfig()),
-        // transaction price in winston
-        price =
-          parseFloat(message.transaction.quantity) +
-          parseFloat(message.transaction.reward),
         storeData = await getStoreData(),
         arConfettiSetting = storeData?.["settings"]?.arConfetti,
         allowances: Allowance[] = storeData?.["allowances"] ?? [],
@@ -82,14 +82,12 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
 
         // fee multiplying
         if (feeMultiplier > 1) {
-          const cost = await arweave.transactions.getPrice(
-            parseFloat(decodeTransaction.data_size),
-            decodeTransaction.target
-          );
-
           decodeTransaction.reward = (
-            parseFloat(cost) * feeMultiplier
+            +decodeTransaction.reward * feeMultiplier
           ).toString();
+          price =
+            parseFloat(message.transaction.quantity) +
+            parseFloat(decodeTransaction.reward);
         }
 
         await arweave.transactions.sign(
@@ -118,7 +116,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
           await arweave.transactions.post(feeTx);
         }
 
-        if (allowanceForURL)
+        if (allowanceForURL) {
           await setStoreData({
             allowances: [
               ...allowances.filter(({ url }) => url !== getRealURL(tabURL)),
@@ -128,6 +126,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
               }
             ]
           });
+        }
 
         return {
           res: true,

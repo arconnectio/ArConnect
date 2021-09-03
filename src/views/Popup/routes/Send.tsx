@@ -40,9 +40,6 @@ export default function Send() {
     [submitted, setSubmitted] = useState(false),
     [loading, setLoading] = useState(false),
     [, setToast] = useToasts(),
-    { currency, feeMultiplier } = useSelector(
-      (state: RootState) => state.settings
-    ),
     [arPriceFiat, setArPriceFiat] = useState(1),
     [verified, setVerified] = useState<{
       verified: boolean;
@@ -52,6 +49,9 @@ export default function Send() {
     { arVerifyTreshold } = useSelector((state: RootState) => state.settings),
     geistTheme = useTheme(),
     passwordInput = useInput("");
+  let { currency, feeMultiplier } = useSelector(
+    (state: RootState) => state.settings
+  );
 
   useEffect(() => {
     loadBalance();
@@ -89,6 +89,12 @@ export default function Send() {
         { data } = await axios.get(
           `https://arweave.net/price/${messageSize}/${targetInput.state}`
         );
+      if (
+        feeMultiplier < 1 ||
+        feeMultiplier === undefined ||
+        feeMultiplier === null
+      )
+        feeMultiplier = 1;
       setFee(
         arweave.ar.winstonToAr((parseFloat(data) * feeMultiplier).toString())
       );
