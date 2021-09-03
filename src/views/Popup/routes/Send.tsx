@@ -89,7 +89,9 @@ export default function Send() {
         { data } = await axios.get(
           `https://arweave.net/price/${messageSize}/${targetInput.state}`
         );
-      setFee(arweave.ar.winstonToAr(data));
+      setFee(
+        arweave.ar.winstonToAr((parseFloat(data) * feeMultiplier).toString())
+      );
     } catch {}
   }
 
