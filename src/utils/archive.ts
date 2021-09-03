@@ -1,9 +1,9 @@
 import { JWKInterface } from "arweave/web/lib/wallet";
 import { v4 as uuidv4 } from "uuid";
+import { getArDriveTipPercentage, selectTokenHolder } from "./pst";
 import Arweave from "arweave";
 import manifest from "../../public/manifest.json";
 import Transaction from "arweave/node/lib/transaction";
-import { getArDriveTipPercentage, selectTokenHolder } from "./pst";
 
 /**
  * Some basic ArDrive info for transactions

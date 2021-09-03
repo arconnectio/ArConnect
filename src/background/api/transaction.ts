@@ -80,6 +80,18 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
         decodeTransaction.addTag("Signing-Client", "ArConnect");
         decodeTransaction.addTag("Signing-Client-Version", manifest.version);
 
+        // fee multiplying
+        if (feeMultiplier > 1) {
+          const cost = await arweave.transactions.getPrice(
+            parseFloat(decodeTransaction.data_size),
+            decodeTransaction.target
+          );
+
+          decodeTransaction.reward = (
+            parseFloat(cost) * feeMultiplier
+          ).toString();
+        }
+
         await arweave.transactions.sign(
           decodeTransaction,
           keyfile,
@@ -116,18 +128,6 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
               }
             ]
           });
-
-        // fee multiplying
-        if (feeMultiplier > 1) {
-          const cost = await arweave.transactions.getPrice(
-            parseFloat(decodeTransaction.data_size),
-            decodeTransaction.target
-          );
-
-          decodeTransaction.reward = (
-            parseFloat(cost) * feeMultiplier
-          ).toString();
-        }
 
         return {
           res: true,

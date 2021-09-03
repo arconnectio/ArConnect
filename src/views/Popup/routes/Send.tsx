@@ -40,7 +40,9 @@ export default function Send() {
     [submitted, setSubmitted] = useState(false),
     [loading, setLoading] = useState(false),
     [, setToast] = useToasts(),
-    { currency } = useSelector((state: RootState) => state.settings),
+    { currency, feeMultiplier } = useSelector(
+      (state: RootState) => state.settings
+    ),
     [arPriceFiat, setArPriceFiat] = useState(1),
     [verified, setVerified] = useState<{
       verified: boolean;
@@ -120,6 +122,16 @@ export default function Send() {
           },
           keyfile
         );
+
+      // fee multiplying
+      if (feeMultiplier > 1) {
+        const cost = await arweave.transactions.getPrice(
+          parseFloat(transaction.data_size),
+          targetInput.state
+        );
+
+        transaction.reward = (parseFloat(cost) * feeMultiplier).toString();
+      }
 
       transaction.addTag("App-Name", "ArConnect");
       transaction.addTag("App-Version", manifest.version);
