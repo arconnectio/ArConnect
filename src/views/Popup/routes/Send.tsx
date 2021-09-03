@@ -40,7 +40,6 @@ export default function Send() {
     [submitted, setSubmitted] = useState(false),
     [loading, setLoading] = useState(false),
     [, setToast] = useToasts(),
-    { currency } = useSelector((state: RootState) => state.settings),
     [arPriceFiat, setArPriceFiat] = useState(1),
     [verified, setVerified] = useState<{
       verified: boolean;
@@ -50,6 +49,9 @@ export default function Send() {
     { arVerifyTreshold } = useSelector((state: RootState) => state.settings),
     geistTheme = useTheme(),
     passwordInput = useInput("");
+  let { currency, feeMultiplier } = useSelector(
+    (state: RootState) => state.settings
+  );
 
   useEffect(() => {
     loadBalance();
@@ -87,7 +89,15 @@ export default function Send() {
         { data } = await axios.get(
           `https://arweave.net/price/${messageSize}/${targetInput.state}`
         );
-      setFee(arweave.ar.winstonToAr(data));
+      if (
+        feeMultiplier < 1 ||
+        feeMultiplier === undefined ||
+        feeMultiplier === null
+      )
+        feeMultiplier = 1;
+      setFee(
+        arweave.ar.winstonToAr((parseFloat(data) * feeMultiplier).toString())
+      );
     } catch {}
   }
 
@@ -120,6 +130,16 @@ export default function Send() {
           },
           keyfile
         );
+
+      // fee multiplying
+      if (feeMultiplier > 1) {
+        const cost = await arweave.transactions.getPrice(
+          parseFloat(transaction.data_size),
+          targetInput.state
+        );
+
+        transaction.reward = (parseFloat(cost) * feeMultiplier).toString();
+      }
 
       transaction.addTag("App-Name", "ArConnect");
       transaction.addTag("App-Version", manifest.version);
