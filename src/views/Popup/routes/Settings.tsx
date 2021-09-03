@@ -95,13 +95,13 @@ export default function Settings() {
     configFileModal = useModal(),
     configPasswordInput = useInput(""),
     [generatingConfig, setGeneratingConfig] = useState(false),
-    feeMultiplier = useInput((otherSettings.feeMultiplier || 1).toString());
+    feeMultiplier = useInput((otherSettings?.feeMultiplier || 1).toString());
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
     loadEvents();
 
-    if (!otherSettings.feeMultiplier)
+    if (!otherSettings?.feeMultiplier)
       dispatch(updateSettings({ feeMultiplier: 1 }));
     // eslint-disable-next-line
   }, []);
@@ -258,7 +258,11 @@ export default function Settings() {
 
   function updateFeeMultiplier() {
     try {
-      if (feeMultiplier.state === "" || isNaN(parseFloat(feeMultiplier.state)))
+      if (
+        feeMultiplier.state === "" ||
+        isNaN(parseFloat(feeMultiplier.state)) ||
+        parseFloat(feeMultiplier.state) < 1
+      )
         return;
       dispatch(
         updateSettings({ feeMultiplier: parseFloat(feeMultiplier.state) })

@@ -36,6 +36,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
         allowanceForURL = allowances.find(
           ({ url }) => url === getRealURL(tabURL)
         ),
+        feeMultiplier = storeData?.["settings"]?.feeMultiplier || 1,
         // should we open an auth popup for the user
         // to update their allowance limit
         // this is true, if the user has allowances
@@ -115,6 +116,18 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
               }
             ]
           });
+
+        // fee multiplying
+        if (feeMultiplier > 1) {
+          const cost = await arweave.transactions.getPrice(
+            parseFloat(decodeTransaction.data_size),
+            decodeTransaction.target
+          );
+
+          decodeTransaction.reward = (
+            parseFloat(cost) * feeMultiplier
+          ).toString();
+        }
 
         return {
           res: true,
