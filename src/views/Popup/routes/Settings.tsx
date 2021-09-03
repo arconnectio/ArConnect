@@ -910,9 +910,9 @@ export default function Settings() {
           (setting === "fee" && (
             <div className={styles.OptionContent}>
               <p>
-                You can change the multiplier of the transaction fee here, which
-                incentivise the nodes to pick up your transactions with a higher
-                chance. The default is <b>1</b>.
+                You can create a transaction fee multiplier here, which further
+                incentivizes Arweave nodes to pick up your transactions. The
+                default is <b>1</b> (no multiplier).
               </p>
               <Spacer />
               <Input
