@@ -40,7 +40,8 @@ import {
   toggleAllowance,
   setAllowanceLimit,
   removeAllowance,
-  resetAllowanceSpent
+  resetAllowanceSpent,
+  resetArweaveConfig
 } from "../../../stores/actions";
 import CryptoES from "crypto-es";
 import dayjs from "dayjs";
@@ -63,6 +64,7 @@ export default function Settings() {
       | "about"
       | "password"
       | "config_file"
+      | "fee"
     >(),
     permissions = useSelector((state: RootState) => state.permissions),
     [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
@@ -92,11 +94,15 @@ export default function Settings() {
     [, setToast] = useToasts(),
     configFileModal = useModal(),
     configPasswordInput = useInput(""),
-    [generatingConfig, setGeneratingConfig] = useState(false);
+    [generatingConfig, setGeneratingConfig] = useState(false),
+    feeMultiplier = useInput((otherSettings?.feeMultiplier || 1).toString());
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
     loadEvents();
+
+    if (!otherSettings?.feeMultiplier)
+      dispatch(updateSettings({ feeMultiplier: 1 }));
     // eslint-disable-next-line
   }, []);
 
@@ -250,6 +256,21 @@ export default function Settings() {
     configFileModal.setVisible(false);
   }
 
+  function updateFeeMultiplier() {
+    try {
+      if (
+        feeMultiplier.state === "" ||
+        isNaN(parseFloat(feeMultiplier.state)) ||
+        parseFloat(feeMultiplier.state) < 1
+      )
+        return;
+      dispatch(
+        updateSettings({ feeMultiplier: parseFloat(feeMultiplier.state) })
+      );
+      setCurrSetting(undefined);
+    } catch {}
+  }
+
   return (
     <>
       <div className={SubPageTopStyles.Head}>
@@ -276,6 +297,7 @@ export default function Settings() {
             (setting === "allowances" && "Allowances") ||
             (setting === "about" && "About ArConnect") ||
             (setting === "config_file" && "Download Config") ||
+            (setting === "fee" && "Fee multiplier") ||
             "Settings"}
         </h1>
       </div>
@@ -325,6 +347,18 @@ export default function Settings() {
               <div>
                 <h1>Allowances</h1>
                 <p>Manage spending limits</p>
+              </div>
+              <div className={styles.Arrow}>
+                <ChevronRightIcon />
+              </div>
+            </div>
+            <div
+              className={styles.Setting}
+              onClick={() => setCurrSetting("fee")}
+            >
+              <div>
+                <h1>Fee multiplier</h1>
+                <p>Change default fee multiplier</p>
               </div>
               <div className={styles.Arrow}>
                 <ChevronRightIcon />
@@ -735,6 +769,16 @@ export default function Settings() {
               >
                 Set config
               </Button>
+              <Spacer />
+              <Button
+                style={{ width: "100%", marginTop: ".5em" }}
+                onClick={() => {
+                  dispatch(resetArweaveConfig());
+                  setCurrSetting(undefined);
+                }}
+              >
+                Reset
+              </Button>
             </div>
           )) ||
           (setting === "arverify" && (
@@ -860,6 +904,30 @@ export default function Settings() {
                 onClick={updatePassword}
               >
                 Change password
+              </Button>
+            </div>
+          )) ||
+          (setting === "fee" && (
+            <div className={styles.OptionContent}>
+              <p>
+                You can create a transaction fee multiplier here, which further
+                incentivizes Arweave nodes to pick up your transactions. The
+                default is <b>1</b> (no multiplier).
+              </p>
+              <Spacer />
+              <Input
+                {...feeMultiplier.bindings}
+                placeholder="Fee multiplier"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") updateFeeMultiplier();
+                }}
+              />
+              <Spacer />
+              <Button
+                style={{ width: "100%", marginTop: ".5em" }}
+                onClick={updateFeeMultiplier}
+              >
+                Update
               </Button>
             </div>
           )) ||

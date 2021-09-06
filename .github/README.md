@@ -181,7 +181,7 @@ Add a token to ArConnect (if it is not already present)
 
 ## Permissions
 
-There are three permissions currently available. When calling `connect`, you need to specify at least one of them, preferably `ACCESS_ADDRESS`.
+There are 8 permissions currently available. When calling `connect`, you need to specify at least one of them, commonly `ACCESS_ADDRESS`.
 
 The permissions:
 

@@ -25,17 +25,18 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
       });
 
     try {
+      // transaction price in winston
+      let price =
+        parseFloat(message.transaction.quantity) +
+        parseFloat(message.transaction.reward);
       const arweave = new Arweave(await getArweaveConfig()),
-        // transaction price in winston
-        price =
-          parseFloat(message.transaction.quantity) +
-          parseFloat(message.transaction.reward),
         storeData = await getStoreData(),
         arConfettiSetting = storeData?.["settings"]?.arConfetti,
         allowances: Allowance[] = storeData?.["allowances"] ?? [],
         allowanceForURL = allowances.find(
           ({ url }) => url === getRealURL(tabURL)
         ),
+        feeMultiplier = storeData?.["settings"]?.feeMultiplier || 1,
         // should we open an auth popup for the user
         // to update their allowance limit
         // this is true, if the user has allowances
@@ -79,6 +80,16 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
         decodeTransaction.addTag("Signing-Client", "ArConnect");
         decodeTransaction.addTag("Signing-Client-Version", manifest.version);
 
+        // fee multiplying
+        if (feeMultiplier > 1) {
+          decodeTransaction.reward = (
+            +decodeTransaction.reward * feeMultiplier
+          ).toString();
+          price =
+            parseFloat(message.transaction.quantity) +
+            parseFloat(decodeTransaction.reward);
+        }
+
         await arweave.transactions.sign(
           decodeTransaction,
           keyfile,
@@ -105,7 +116,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
           await arweave.transactions.post(feeTx);
         }
 
-        if (allowanceForURL)
+        if (allowanceForURL) {
           await setStoreData({
             allowances: [
               ...allowances.filter(({ url }) => url !== getRealURL(tabURL)),
@@ -115,6 +126,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
               }
             ]
           });
+        }
 
         return {
           res: true,
@@ -138,13 +150,21 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
               sender: "popup",
               type: "sign_auth_result"
             }) ||
-            !msg.decryptionKey ||
             !msg.res
-          )
-            throw new Error();
-
-          decryptionKey = msg.decryptionKey;
-          resolve(await sign());
+          ) {
+            resolve({
+              res: false,
+              message: msg.message
+            });
+          } else if (!decryptionKey && !msg.decryptionKey) {
+            resolve({
+              res: false,
+              message: msg.message
+            });
+          } else {
+            decryptionKey = decryptionKey || msg.decryptionKey;
+            resolve(await sign());
+          }
         });
       } else resolve(await sign());
     } catch {

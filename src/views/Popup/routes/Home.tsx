@@ -7,9 +7,17 @@ import {
   SignInIcon,
   ChevronRightIcon,
   ArrowSwitchIcon,
-  ArchiveIcon
+  ArchiveIcon,
+  ArrowRightIcon
 } from "@primer/octicons-react";
-import { Loading, Spacer, Tabs, Tooltip, useTheme } from "@geist-ui/react";
+import {
+  Loading,
+  Spacer,
+  Tabs,
+  Tooltip,
+  useTheme,
+  Note
+} from "@geist-ui/react";
 import { setAssets, setBalance } from "../../../stores/actions";
 import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
@@ -28,6 +36,7 @@ import Verto from "@verto/lib";
 import arweaveLogo from "../../../assets/arweave.png";
 import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
+import WARLogo from "../../../assets/war.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
 
 export default function Home() {
@@ -80,15 +89,19 @@ export default function Home() {
       fiatBalance = balance()?.fiatBalance ?? 0;
 
     try {
-      arBalance = parseFloat(
+      const fetchedBalance = parseFloat(
         arweave.ar.winstonToAr(await arweave.wallets.getBalance(profile))
       );
+
+      if (!isNaN(fetchedBalance)) arBalance = fetchedBalance;
     } catch {}
 
     try {
-      fiatBalance = parseFloat(
+      const fetchedBalance = parseFloat(
         (await arToFiat(arBalance, currency)).toFixed(2)
       );
+
+      if (!isNaN(fetchedBalance)) fiatBalance = fetchedBalance;
     } catch {}
 
     dispatch(setBalance({ address: profile, arBalance, fiatBalance }));
@@ -177,48 +190,91 @@ export default function Home() {
   }
 
   async function archive() {
-    const currentTab = await getActiveTab();
+    try {
+      const currentTab = await getActiveTab();
 
-    if (!currentTabContentType || !currentTab.url) return;
-    if (currentTabContentType === "page") {
-      const res = await browser.runtime.sendMessage({
-        type: "archive_page",
-        ext: "arconnect",
-        sender: "popup"
-      });
+      if (!currentTabContentType || !currentTab.url) return;
+      if (currentTabContentType === "page") {
+        const res = await browser.runtime.sendMessage({
+          type: "archive_page",
+          ext: "arconnect",
+          sender: "popup"
+        });
 
-      if (
-        !validateMessage(res, {
-          sender: "content",
-          type: "archive_page_content"
-        })
-      )
-        return;
+        if (
+          !validateMessage(res, {
+            sender: "content",
+            type: "archive_page_content"
+          })
+        )
+          return;
 
-      await browser.storage.local.set({
-        lastArchive: {
-          url: res.url,
-          content: res.data,
-          type: "page"
-        }
-      });
-    } else {
-      await browser.storage.local.set({
-        lastArchive: {
-          url: currentTab.url,
-          content: "",
-          type: "pdf"
-        }
-      });
+        await browser.storage.local.set({
+          lastArchive: {
+            url: res.url,
+            content: res.data,
+            type: "page"
+          }
+        });
+      } else {
+        await browser.storage.local.set({
+          lastArchive: {
+            url: currentTab.url,
+            content: "",
+            type: "pdf"
+          }
+        });
+      }
+
+      browser.tabs.create({ url: browser.extension.getURL("/archive.html") });
+    } catch (error) {
+      console.log(error);
     }
-
-    browser.tabs.create({ url: browser.extension.getURL("/archive.html") });
   }
+
+  const [showNote, setShowNote] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { wrapped_ar_shown } = await browser.storage.local.get(
+        "wrapped_ar_shown"
+      );
+
+      if (!wrapped_ar_shown) {
+        setShowNote(true);
+        await browser.storage.local.set({ wrapped_ar_shown: true });
+      } else setShowNote(false);
+    })();
+  }, []);
 
   return (
     <div className={styles.Home}>
       <WalletManager />
       <div className={styles.Balance}>
+        {showNote && (
+          <Note
+            label={false}
+            type="success"
+            className={styles.Note}
+            onClick={() => setShowNote(false)}
+          >
+            <img src={WARLogo} alt="WAR" />
+            <div>
+              Wrapped AR just launched on Ethereum. <br />
+              <span
+                onClick={() =>
+                  browser.tabs.create({
+                    url:
+                      "https://medium.com/everfinance/what-is-wrapped-ar-c4b4375290b9"
+                  })
+                }
+              >
+                See it for yourself
+                <ArrowRightIcon />
+              </span>
+            </div>
+          </Note>
+        )}
         <h1>
           {formatBalance(balance()?.arBalance)}
           <span>AR</span>
@@ -230,7 +286,7 @@ export default function Home() {
             text={
               <p style={{ textAlign: "center", margin: "0" }}>
                 Calculated using <br />
-                limestone.finance
+                redstone.finance
               </p>
             }
             style={{ marginLeft: ".18em" }}

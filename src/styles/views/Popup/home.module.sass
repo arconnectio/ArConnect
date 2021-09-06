@@ -9,6 +9,7 @@ $sidePaddingTransactions: .7em
     background-color: variables.$lighter-bg-dark
 
 .Balance
+  position: relative
   text-align: center
   padding: 3em 0 1.84em
 
@@ -37,6 +38,35 @@ $sidePaddingTransactions: .7em
 
     @media (prefers-color-scheme: dark)
       color: variables.$secondary-text-dark
+
+  .Note
+    position: absolute
+    display: flex
+    align-items: center
+    top: 1em
+    left: 1em
+    right: 1em
+
+    img
+      display: block
+      width: 2em
+      height: 2em
+      border-radius: 100%
+      margin-right: .75em
+
+    span
+      text-decoration: underline
+      display: flex
+      width: max-content
+      align-items: center
+      margin-left: auto
+      cursor: pointer
+
+      svg
+        font-size: 1em
+        width: 1em
+        height: 1em
+        margin-left: .33em
 
   .Menu
     display: flex
