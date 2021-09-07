@@ -19,7 +19,8 @@ import {
   getArweaveConfig,
   getPermissions,
   getStoreData,
-  walletsStored
+  walletsStored,
+  checkCommunityContract
 } from "../utils/background";
 import { decrypt, encrypt, signature } from "../background/api/encryption";
 import {
@@ -44,35 +45,32 @@ browser.windows.onFocusChanged.addListener(async (windowId) => {
   if (windowId === browser.windows.WINDOW_ID_NONE) {
     console.log("Lost");
 
-    // We cannot get active tab here, so just find active session and close it.
+    // Please note, we cannot get active tab here, so just find active session and close it.
     closeActiveArweaveSession();
   } else {
-    console.log("Focus");
+    console.log("Gained");
 
     const activeTab = await getActiveTab();
-    if (activeTab.url!.indexOf("arweave.net/") > -1) {
-      const txId = activeTab.url!.split("arweave.net/")[1].split("/")[0];
-      if (/[a-z0-9_-]{43}/i.test(txId))
-        handleArweaveTabOpened(activeTab.id!, txId);
-    }
+    const txId = await checkCommunityContract(activeTab.url!);
+    if (txId) handleArweaveTabOpened(activeTab.id!, txId);
   }
 });
 
-// create listeners for the icon utilities
-// and context menu item updates
-browser.tabs.onActivated.addListener((activeInfo) => {
+// Create listeners for the icon utilities and context menu item updates.
+browser.tabs.onActivated.addListener(async (activeInfo) => {
   handleArweaveTabActivated(activeInfo.tabId);
   handleTabUpdate();
 });
+
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete") {
-    if (tab.url!.indexOf("arweave.net/") > -1) {
-      const txId = tab.url!.split("arweave.net/")[1].split("/")[0];
-      if (/[a-z0-9_-]{43}/i.test(txId)) handleArweaveTabOpened(tabId, txId);
+    const txId = await checkCommunityContract(tab.url!);
+    if (txId) {
+      handleArweaveTabOpened(tabId, txId);
     } else {
       if (tabId === (await getArweaveActiveTab())) {
         // It looks like user just entered or opened another web site on the same tab,
-        // where arweave.net/ page was displayed previously. Hence it needs to be closed.
+        // where Arweave resource was loaded previously. Hence it needs to be closed.
         console.log("New web page?");
         handleArweaveTabClosed(tabId);
       }
@@ -81,8 +79,11 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
   handleTabUpdate();
 });
-browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
-  handleArweaveTabClosed(tabId);
+
+browser.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
+  const activeTab = await getActiveTab();
+  if (await checkCommunityContract(activeTab.url!))
+    handleArweaveTabClosed(tabId);
 });
 
 browser.runtime.onConnect.addListener((connection) => {

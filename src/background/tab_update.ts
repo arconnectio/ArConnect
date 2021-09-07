@@ -121,11 +121,12 @@ export async function closeActiveArweaveSession() {
 }
 
 export async function handleArweaveTabActivated(tabId: number) {
+  // We have to close previous session (if it was Arweave).
   await closeActiveArweaveSession();
 
   let arweaveTabs = await loadData();
 
-  // Re-open session again.
+  // Reopen existing Arweave session again.
   for (let arweaveTab of arweaveTabs) {
     for (const [id, session] of Object.entries(arweaveTab.sessions)) {
       if (+id === tabId) {
