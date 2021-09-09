@@ -104,8 +104,6 @@ export default function App() {
         }, 100)
       );
     } else if (archiveData.type === "pdf") loadPdfContent();
-
-    calculateFee();
     // eslint-disable-next-line
   }, [archiveData]);
 
@@ -388,13 +386,13 @@ export default function App() {
     return data.name;
   }
 
-  async function calculateFee() {
-    try {
-      const messageSize = getSizeBytes(previewHTML),
-        { data } = await axios.get(`https://arweave.net/price/${messageSize}`);
-      setFee(arweave.ar.winstonToAr(data));
-    } catch {}
-  }
+  useEffect(() => {
+    (async () => {
+      const size = getSizeBytes(previewHTML);
+      setFee(arweave.ar.winstonToAr(await arweave.transactions.getPrice(size)));
+    })();
+    // eslint-disable-next-line
+  }, [previewHTML]);
 
   function getWallet(): JWKInterface | undefined {
     const encryptedJWK = wallets.find(({ address }) => address === usedAddress)
