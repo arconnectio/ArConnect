@@ -43,6 +43,8 @@ browser.runtime.onInstalled.addListener(async () => {
 });
 
 browser.windows.onFocusChanged.addListener(async (windowId) => {
+  if (!(await walletsStored())) return;
+
   if (windowId === browser.windows.WINDOW_ID_NONE) {
     console.log("Lost");
 
@@ -58,11 +60,16 @@ browser.windows.onFocusChanged.addListener(async (windowId) => {
 
 // Create listeners for the icon utilities and context menu item updates.
 browser.tabs.onActivated.addListener(async (activeInfo) => {
+  if (!(await walletsStored())) return;
+
   handleArweaveTabActivated(activeInfo.tabId);
+
   handleTabUpdate();
 });
 
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (!(await walletsStored())) return;
+
   if (changeInfo.status === "complete") {
     const txId = await checkCommunityContract(tab.url!);
     if (txId) {
@@ -81,6 +88,8 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 });
 
 browser.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
+  if (!(await walletsStored())) return;
+
   const activeTab = await getActiveTab();
   if (await checkCommunityContract(activeTab.url!))
     handleArweaveTabClosed(tabId);
