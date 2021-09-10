@@ -28,7 +28,8 @@ import {
   handleArweaveTabOpened,
   handleArweaveTabClosed,
   handleArweaveTabActivated,
-  closeActiveArweaveSession,
+  handleBrowserLostFocus,
+  handleBrowserGainedFocus,
   getArweaveActiveTab
 } from "../background/tab_update";
 import { browser } from "webextension-polyfill-ts";
@@ -45,14 +46,13 @@ browser.windows.onFocusChanged.addListener(async (windowId) => {
   if (windowId === browser.windows.WINDOW_ID_NONE) {
     console.log("Lost");
 
-    // Please note, we cannot get active tab here, so just find active session and close it.
-    closeActiveArweaveSession();
+    handleBrowserLostFocus();
   } else {
     console.log("Gained");
 
     const activeTab = await getActiveTab();
     const txId = await checkCommunityContract(activeTab.url!);
-    if (txId) handleArweaveTabOpened(activeTab.id!, txId);
+    if (txId) handleBrowserGainedFocus(activeTab.id!, txId);
   }
 });
 

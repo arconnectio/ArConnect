@@ -44,10 +44,10 @@ export async function handleTabUpdate() {
   createContextMenus(permissionsForSite.length > 0);
 }
 
-export async function handleArweaveTabOpened(tabId: number, txID: string) {
+export async function handleArweaveTabOpened(tabId: number, txId: string) {
   let arweaveTabs = await loadData();
 
-  const index = arweaveTabs.findIndex((tab) => tab.id === txID);
+  const index = arweaveTabs.findIndex((tab) => tab.id === txId);
   const tabDoesNotExist = index === -1;
 
   if (tabDoesNotExist) {
@@ -55,7 +55,7 @@ export async function handleArweaveTabOpened(tabId: number, txID: string) {
     arweaveTabs = [
       ...arweaveTabs,
       {
-        id: txID!,
+        id: txId!,
         totalTime: 0,
         sessions: {
           [tabId]: {
@@ -73,7 +73,7 @@ export async function handleArweaveTabOpened(tabId: number, txID: string) {
     } else {
       console.log("Adding " + tabId);
       arweaveTabs[index] = {
-        id: txID!,
+        id: txId!,
         totalTime: totalTime,
         sessions: {
           ...sessions,
@@ -137,6 +137,15 @@ export async function handleArweaveTabActivated(tabId: number) {
   }
 }
 
+export async function handleBrowserLostFocus() {
+  // Please note, we cannot get active tab here, so just find active session and close it.
+  closeActiveArweaveSession();
+}
+
+export async function handleBrowserGainedFocus(tabId: number, txId: string) {
+  handleArweaveTabOpened(tabId, txId);
+}
+
 export async function getArweaveActiveTab(): Promise<number | undefined> {
   let arweaveTabs = await loadData();
 
@@ -147,8 +156,6 @@ export async function getArweaveActiveTab(): Promise<number | undefined> {
       }
     }
   }
-
-  storeData(arweaveTabs);
 
   return undefined;
 }
