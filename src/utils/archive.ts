@@ -11,7 +11,7 @@ import Transaction from "arweave/node/lib/transaction";
 const ardriveClient = "ArDrive-Web";
 const ardriveVersion = "0.1.0";
 const ArFS = "0.11";
-const defaultArDriveMinimumTipAR = 0.000_010_000_000;
+export const defaultArDriveMinimumTipAR = 0.000_010_000_000;
 /**
  * Create an archive file transaction
  * This will archive the file on Arweave using ArDrive
