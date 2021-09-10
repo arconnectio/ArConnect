@@ -74,9 +74,10 @@ export async function handleArweaveTabOpened(tabId: number, txId: string) {
     const sessions = arweaveTabs[index].sessions;
     const totalTime = arweaveTabs[index].totalTime;
     if (tabId in sessions && sessions[tabId].isActive) {
+      // Looks like current page has been refreshed or user headed to another path.
       console.log(`Still on ${tabId}? - Do nothing`);
     } else {
-      // Again, ensure that there will not be no 2 active sessions.
+      // Again, ensure that there will not be 2 active sessions.
       doCloseActiveArweaveSession(arweaveTabs);
 
       console.log("Adding " + tabId);
@@ -128,11 +129,11 @@ const doCloseActiveArweaveSession = (arweaveTabs: Tab[]) => {
   }
 };
 
-export async function closeActiveArweaveSession() {
+const closeActiveArweaveSession = async () => {
   let arweaveTabs = await loadData();
   doCloseActiveArweaveSession(arweaveTabs);
   storeData(arweaveTabs);
-}
+};
 
 export async function handleArweaveTabActivated(tabId: number) {
   // We have to close previous session (if it was Arweave).
