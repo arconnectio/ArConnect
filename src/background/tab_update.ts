@@ -51,7 +51,12 @@ export async function handleArweaveTabOpened(tabId: number, txId: string) {
   const tabDoesNotExist = index === -1;
 
   if (tabDoesNotExist) {
+    // What if opening Arweave page in the same tab where another Arweave page already opened?
+    // We should close previous session here, otherwise - will be 2 active sessions.
+    doCloseActiveArweaveSession(arweaveTabs);
+
     console.log("Creating " + tabId);
+
     arweaveTabs = [
       ...arweaveTabs,
       {
@@ -71,7 +76,11 @@ export async function handleArweaveTabOpened(tabId: number, txId: string) {
     if (tabId in sessions && sessions[tabId].isActive) {
       console.log(`Still on ${tabId}? - Do nothing`);
     } else {
+      // Again, ensure that there will not be no 2 active sessions.
+      doCloseActiveArweaveSession(arweaveTabs);
+
       console.log("Adding " + tabId);
+
       arweaveTabs[index] = {
         id: txId!,
         totalTime: totalTime,
@@ -96,7 +105,9 @@ export async function handleArweaveTabClosed(tabId: number) {
     for (const [id, session] of Object.entries(arweaveTab.sessions)) {
       if (+id === tabId && session.isActive) {
         console.log("Closing " + id);
+
         arweaveTab.totalTime += terminateSession(session);
+
         break;
       }
     }
@@ -105,18 +116,21 @@ export async function handleArweaveTabClosed(tabId: number) {
   storeData(arweaveTabs);
 }
 
-export async function closeActiveArweaveSession() {
-  let arweaveTabs = await loadData();
-
+const doCloseActiveArweaveSession = (arweaveTabs: Tab[]) => {
   for (let arweaveTab of arweaveTabs) {
     for (const [id, session] of Object.entries(arweaveTab.sessions)) {
       if (session.isActive) {
         console.log("Pausing " + id);
+
         arweaveTab.totalTime += terminateSession(session);
       }
     }
   }
+};
 
+export async function closeActiveArweaveSession() {
+  let arweaveTabs = await loadData();
+  doCloseActiveArweaveSession(arweaveTabs);
   storeData(arweaveTabs);
 }
 
@@ -131,6 +145,7 @@ export async function handleArweaveTabActivated(tabId: number) {
     for (const [id, session] of Object.entries(arweaveTab.sessions)) {
       if (+id === tabId) {
         console.log("Reopening " + tabId);
+
         handleArweaveTabOpened(tabId, arweaveTab.id);
       }
     }
