@@ -393,8 +393,8 @@ export default function App() {
   useEffect(() => {
     (async () => {
       const size = getSizeBytes(previewHTML);
-      const dataFee = arweave.ar.winstonToAr(
-        await arweave.transactions.getPrice(size)
+      const dataFee = parseFloat(
+        arweave.ar.winstonToAr(await arweave.transactions.getPrice(size))
       );
       const communityTip = Math.max(
         dataFee * (await getArDriveTipPercentage()),
@@ -403,7 +403,7 @@ export default function App() {
       // Sum both the data fees and the community tip
       const totalFee = +dataFee + communityTip;
 
-      setFee(totalFee);
+      setFee(totalFee.toString());
     })();
     // eslint-disable-next-line
   }, [previewHTML]);
