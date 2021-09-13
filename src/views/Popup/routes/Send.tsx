@@ -96,7 +96,7 @@ export default function Send() {
       )
         feeMultiplier = 1;
       setFee(
-        arweave.ar.winstonToAr((parseFloat(data) * feeMultiplier).toString())
+        arweave.ar.winstonToAr((parseFloat(data) * feeMultiplier).toFixed(0))
       );
     } catch {}
   }
