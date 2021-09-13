@@ -138,7 +138,7 @@ export default function Send() {
           targetInput.state
         );
 
-        transaction.reward = (parseFloat(cost) * feeMultiplier).toString();
+        transaction.reward = (parseFloat(cost) * feeMultiplier).toFixed(0);
       }
 
       transaction.addTag("App-Name", "ArConnect");
