@@ -214,14 +214,31 @@ $sidePaddingTransactions: .7em
     h2
       font-size: .95em
 
-.EmptyIndicatorText
+.EmptyIndicatorText, .ShowAll
   color: variables.$secondary-text-light
   margin: 0
   padding: 1em 0
   text-align: center
 
+  &.ShowAll
+    display: flex
+    align-items: center
+    justify-content: center
+    cursor: pointer
+
+    svg
+      margin-left: .3em
+      font-size: 1em
+      width: 1em
+      height: 1em
+
   @media (prefers-color-scheme: dark)
     color: variables.$secondary-text-dark
+
+.Title
+  font-size: 1.8em
+  margin: 0
+    left: .3em
 
 .PST
   display: flex

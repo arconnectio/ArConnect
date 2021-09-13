@@ -8,7 +8,9 @@ import {
   ChevronRightIcon,
   ArrowSwitchIcon,
   ArchiveIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  ChevronDownIcon,
+  ChevronUpIcon
 } from "@primer/octicons-react";
 import {
   Loading,
@@ -247,6 +249,8 @@ export default function Home() {
     })();
   }, []);
 
+  const [showAll, setShowAll] = useState(false);
+
   return (
     <div className={styles.Home}>
       <WalletManager />
@@ -332,6 +336,7 @@ export default function Home() {
             psts
               .filter(({ removed }) => !removed)
               .sort((a, b) => b.balance - a.balance)
+              .slice(0, showAll ? psts.length : 6)
               .map((pst, i) => (
                 <div
                   className={styles.PST}
@@ -377,6 +382,27 @@ export default function Home() {
                 <Spacer y={1.25} />
               </>
             )) || <p className={styles.EmptyIndicatorText}>No PSTs</p>}
+          {psts && psts.length > 6 && (
+            <p
+              onClick={() => setShowAll((val) => !val)}
+              className={styles.ShowAll}
+            >
+              {(showAll && (
+                <>
+                  Show less
+                  <ChevronUpIcon />
+                </>
+              )) || (
+                <>
+                  Show more
+                  <ChevronDownIcon />
+                </>
+              )}
+            </p>
+          )}
+          <h1 className={styles.Title}>Collectibles</h1>
+          <Spacer y={0.7} />
+          {/** TODO */}
         </Tabs.Item>
         <Tabs.Item label="Transactions" value="2">
           {(transactions.length > 0 &&

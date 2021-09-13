@@ -103,16 +103,25 @@ export default function PST({ id, name, balance, ticker }: Asset) {
       });
   }
 
+  const [type, setType] = useState<"community" | "collectible">("community");
+
   async function loadData() {
     setLoadingData(true);
     try {
       const { data } = await axios.get(`https://v2.cache.verto.exchange/${id}`);
 
       if (!data) return;
+      setType(
+        data.state.settings && data.state.roles && data.state.votes
+          ? "community"
+          : "collectible"
+      );
       setDescription(
         data.state.settings?.find(
           (entry: any) => entry[0] === "communityDescription"
-        )[1] ?? ""
+        )[1] ||
+          data.state.description ||
+          ""
       );
       setLinks([
         data.state.settings?.find(
@@ -221,17 +230,27 @@ export default function PST({ id, name, balance, ticker }: Asset) {
         >
           <TrashcanIcon />
         </button>
-        <h1 className={styles.Balance}>
-          {balance.toLocaleString()} <span>{ticker}</span>
-        </h1>
-        <h2 className={styles.BalanceInAR}>
-          {!price || price.prices.length === 0
-            ? "??"
-            : parseFloat(
-                (balance * price.prices[price.prices.length - 1]).toFixed(4)
-              )}{" "}
-          AR
-        </h2>
+        {(type === "community" && (
+          <>
+            <h1 className={styles.Balance}>
+              {balance.toLocaleString()} <span>{ticker}</span>
+            </h1>
+            <h2 className={styles.BalanceInAR}>
+              {!price || price.prices.length === 0
+                ? "??"
+                : parseFloat(
+                    (balance * price.prices[price.prices.length - 1]).toFixed(4)
+                  )}{" "}
+              AR
+            </h2>
+          </>
+        )) || (
+          <img
+            src={`https://arweave.net/${id}`}
+            className={styles.CollectiblePreview}
+            alt="collectible"
+          />
+        )}
         <Tabs {...tabs.bindings} className={styles.Tabs}>
           <Tabs.Item
             label={
@@ -287,18 +306,20 @@ export default function PST({ id, name, balance, ticker }: Asset) {
                           </a>
                         </li>
                       ))}
-                      <li>
-                        <a
-                          href={`https://community.xyz/#${id}`}
-                          onClick={() =>
-                            browser.tabs.create({
-                              url: `https://community.xyz/#${id}`
-                            })
-                          }
-                        >
-                          community.xyz/{name.toLowerCase()}
-                        </a>
-                      </li>
+                      {type === "community" && (
+                        <li>
+                          <a
+                            href={`https://community.xyz/#${id}`}
+                            onClick={() =>
+                              browser.tabs.create({
+                                url: `https://community.xyz/#${id}`
+                              })
+                            }
+                          >
+                            community.xyz/{name.toLowerCase()}
+                          </a>
+                        </li>
+                      )}
                     </ul>
                   </>
                 )) || (
