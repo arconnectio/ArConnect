@@ -415,7 +415,7 @@ export default function Home() {
             )) || <Spacer y={0.32} />}
           <h1 className={styles.Title}>Collectibles</h1>
           <Spacer y={0.7} />
-          <div className={styles.Collectibles}>
+          <div className={styles.Collectibles} title="Hold shift to scroll">
             {(psts &&
               psts.filter(
                 ({ removed, balance, type }) =>
