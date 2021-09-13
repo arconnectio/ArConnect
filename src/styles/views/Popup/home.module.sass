@@ -298,3 +298,57 @@ $sidePaddingTransactions: .7em
     display: flex
     align-items: center
     transform: translateY(-50%)
+
+.Collectibles
+  display: flex
+  align-items: stretch
+  overflow: auto
+  width: 100%
+  padding-bottom: 1em
+  -ms-overflow-style: none
+  scrollbar-width: none
+
+  &::-webkit-scrollbar
+    display: none
+
+  .Collectible
+    $collectibleWidth: 185px
+    $sidePadding: .3em
+    margin: 0 1em
+    width: $collectibleWidth
+    overflow-x: hidden
+    border: 1px solid variables.$border-light
+    border-radius: 8px
+    flex: 0 0 $collectibleWidth
+    cursor: pointer
+    padding-bottom: $sidePadding
+    transition: all .23s ease-in-out
+
+    &:hover
+      opacity: .84
+
+    @media (prefers-color-scheme: dark)
+      border-color: variables.$border-dark
+
+    img
+      max-width: $collectibleWidth
+      max-height: $collectibleWidth
+
+    h1, span
+      margin: 0
+      line-height: 1.1em
+      padding: 0 $sidePadding
+      white-space: nowrap
+
+    .CollectibleTitle
+      font-size: 1.85em
+      font-weight: 600
+
+    .CollectibleBalance
+      font-size: 1.1em
+      font-weight: 500
+      color: variables.$secondary-text-light
+      text-transform: uppercase
+
+      @media (prefers-color-scheme: dark)
+        color: variables.$secondary-text-dark

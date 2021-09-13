@@ -230,27 +230,26 @@ export default function PST({ id, name, balance, ticker }: Asset) {
         >
           <TrashcanIcon />
         </button>
-        {(type === "community" && (
-          <>
-            <h1 className={styles.Balance}>
-              {balance.toLocaleString()} <span>{ticker}</span>
-            </h1>
-            <h2 className={styles.BalanceInAR}>
-              {!price || price.prices.length === 0
-                ? "??"
-                : parseFloat(
-                    (balance * price.prices[price.prices.length - 1]).toFixed(4)
-                  )}{" "}
-              AR
-            </h2>
-          </>
-        )) || (
+        {type === "collectible" && (
           <img
             src={`https://arweave.net/${id}`}
             className={styles.CollectiblePreview}
             alt="collectible"
           />
         )}
+        <h1 className={styles.Balance}>
+          {balance.toLocaleString()} <span>{ticker}</span>
+        </h1>
+        {(type === "community" && (
+          <h2 className={styles.BalanceInAR}>
+            {!price || price.prices.length === 0
+              ? "??"
+              : parseFloat(
+                  (balance * price.prices[price.prices.length - 1]).toFixed(4)
+                )}{" "}
+            AR
+          </h2>
+        )) || <Spacer y={0.32} />}
         <Tabs {...tabs.bindings} className={styles.Tabs}>
           <Tabs.Item
             label={
