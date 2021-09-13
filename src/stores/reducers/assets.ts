@@ -6,6 +6,7 @@ export interface Asset {
   arBalance: number;
   logo?: string;
   removed: boolean;
+  type: "community" | "collectible";
 }
 
 export interface AssetStateItem {

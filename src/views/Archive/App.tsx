@@ -22,7 +22,8 @@ import {
   createMetadataTransaction,
   Drive,
   createPublicDrive,
-  sendArDriveFee
+  sendArDriveFee,
+  defaultArDriveMinimumTipAR
 } from "../../utils/archive";
 import { useColorScheme } from "use-color-scheme";
 import { run } from "ar-gql";
@@ -41,7 +42,10 @@ import Arweave from "arweave";
 import ardriveLogoLight from "../../assets/ardrive_light.svg";
 import ardriveLogoDark from "../../assets/ardrive_dark.svg";
 import styles from "../../styles/views/Archive/view.module.sass";
-import { getWinstonPriceForByteCount } from "../../utils/pst";
+import {
+  getArDriveTipPercentage,
+  getWinstonPriceForByteCount
+} from "../../utils/pst";
 
 export default function App() {
   const [safeMode, setSafeMode] = useState(true),
@@ -104,8 +108,6 @@ export default function App() {
         }, 100)
       );
     } else if (archiveData.type === "pdf") loadPdfContent();
-
-    calculateFee();
     // eslint-disable-next-line
   }, [archiveData]);
 
@@ -388,13 +390,23 @@ export default function App() {
     return data.name;
   }
 
-  async function calculateFee() {
-    try {
-      const messageSize = getSizeBytes(previewHTML),
-        { data } = await axios.get(`https://arweave.net/price/${messageSize}`);
-      setFee(arweave.ar.winstonToAr(data));
-    } catch {}
-  }
+  useEffect(() => {
+    (async () => {
+      const size = getSizeBytes(previewHTML);
+      const dataFee = parseFloat(
+        arweave.ar.winstonToAr(await arweave.transactions.getPrice(size))
+      );
+      const communityTip = Math.max(
+        dataFee * (await getArDriveTipPercentage()),
+        defaultArDriveMinimumTipAR // If the fee is too small, we assign a minimum
+      );
+      // Sum both the data fees and the community tip
+      const totalFee = +dataFee + communityTip;
+
+      setFee(totalFee.toString());
+    })();
+    // eslint-disable-next-line
+  }, [previewHTML]);
 
   function getWallet(): JWKInterface | undefined {
     const encryptedJWK = wallets.find(({ address }) => address === usedAddress)
