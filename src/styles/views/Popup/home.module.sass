@@ -313,7 +313,6 @@ $sidePaddingTransactions: .7em
 
   .Collectible
     $collectibleWidth: 185px
-    $sidePadding: .3em
     margin: 0 1em
     width: $collectibleWidth
     overflow-x: hidden
@@ -321,7 +320,6 @@ $sidePaddingTransactions: .7em
     border-radius: 8px
     flex: 0 0 $collectibleWidth
     cursor: pointer
-    padding-bottom: $sidePadding
     transition: all .23s ease-in-out
 
     &:hover
@@ -331,24 +329,28 @@ $sidePaddingTransactions: .7em
       border-color: variables.$border-dark
 
     img
+      display: block
+      margin: 0 auto
       max-width: $collectibleWidth
       max-height: $collectibleWidth
 
-    h1, span
-      margin: 0
-      line-height: 1.1em
-      padding: 0 $sidePadding
-      white-space: nowrap
+    .CollectibleInfo
+      padding: .34em .3em
 
-    .CollectibleTitle
-      font-size: 1.85em
-      font-weight: 600
+      h1, span
+        margin: 0
+        line-height: 1.1em
+        white-space: nowrap
 
-    .CollectibleBalance
-      font-size: 1.1em
-      font-weight: 500
-      color: variables.$secondary-text-light
-      text-transform: uppercase
+      .CollectibleTitle
+        font-size: 1.85em
+        font-weight: 600
 
-      @media (prefers-color-scheme: dark)
-        color: variables.$secondary-text-dark
+      .CollectibleBalance
+        font-size: 1.1em
+        font-weight: 500
+        color: variables.$secondary-text-light
+        text-transform: uppercase
+
+        @media (prefers-color-scheme: dark)
+          color: variables.$secondary-text-dark

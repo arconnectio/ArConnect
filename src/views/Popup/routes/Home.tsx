@@ -443,10 +443,12 @@ export default function Home() {
                       src={`https://arweave.net/${token.id}`}
                       alt="preview"
                     />
-                    <h1 className={styles.CollectibleTitle}>{token.name}</h1>
-                    <span className={styles.CollectibleBalance}>
-                      {token.balance} {token.ticker}
-                    </span>
+                    <div className={styles.CollectibleInfo}>
+                      <h1 className={styles.CollectibleTitle}>{token.name}</h1>
+                      <span className={styles.CollectibleBalance}>
+                        {token.balance} {token.ticker}
+                      </span>
+                    </div>
                   </div>
                 ))) || (
               <p className={styles.EmptyIndicatorText}>No collectibles</p>
