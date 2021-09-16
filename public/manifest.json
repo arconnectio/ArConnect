@@ -4,7 +4,7 @@
   "version": "0.3.5",
   "author": "th8ta",
   "description": "Secure wallet management for Arweave",
-  "permissions": ["activeTab", "tabs", "storage", "contextMenus"],
+  "permissions": ["activeTab", "tabs", "storage", "contextMenus", "<all_urls>"],
   "background": {
     "scripts": ["build/scripts/background.js"]
   },
