@@ -18,7 +18,6 @@ async function loadData(): Promise<Tab[]> {
 }
 
 function storeData(data: Tab[]) {
-  console.log(data);
   setStoreData({ timeTracking: data });
 }
 
@@ -55,8 +54,6 @@ export async function handleArweaveTabOpened(tabId: number, txId: string) {
     // We should close previous session here, otherwise - will be 2 active sessions.
     doCloseActiveArweaveSession(arweaveTabs);
 
-    console.log("Creating " + tabId);
-
     arweaveTabs = [
       ...arweaveTabs,
       {
@@ -75,12 +72,9 @@ export async function handleArweaveTabOpened(tabId: number, txId: string) {
     const totalTime = arweaveTabs[index].totalTime;
     if (tabId in sessions && sessions[tabId].isActive) {
       // Looks like current page has been refreshed or user headed to another path.
-      console.log(`Still on ${tabId}? - Do nothing`);
     } else {
       // Again, ensure that there will not be 2 active sessions.
       doCloseActiveArweaveSession(arweaveTabs);
-
-      console.log("Adding " + tabId);
 
       arweaveTabs[index] = {
         id: txId!,
@@ -105,8 +99,6 @@ export async function handleArweaveTabClosed(tabId: number) {
   for (let arweaveTab of arweaveTabs) {
     for (const [id, session] of Object.entries(arweaveTab.sessions)) {
       if (+id === tabId && session.isActive) {
-        console.log("Closing " + id);
-
         arweaveTab.totalTime += terminateSession(session);
 
         break;
@@ -121,8 +113,6 @@ const doCloseActiveArweaveSession = (arweaveTabs: Tab[]) => {
   for (let arweaveTab of arweaveTabs) {
     for (const [id, session] of Object.entries(arweaveTab.sessions)) {
       if (session.isActive) {
-        console.log("Pausing " + id);
-
         arweaveTab.totalTime += terminateSession(session);
       }
     }
@@ -145,8 +135,6 @@ export async function handleArweaveTabActivated(tabId: number) {
   for (let arweaveTab of arweaveTabs) {
     for (const [id, session] of Object.entries(arweaveTab.sessions)) {
       if (+id === tabId) {
-        console.log("Reopening " + tabId);
-
         handleArweaveTabOpened(tabId, arweaveTab.id);
       }
     }
