@@ -96,7 +96,7 @@ export default function Send() {
       )
         feeMultiplier = 1;
       setFee(
-        arweave.ar.winstonToAr((parseFloat(data) * feeMultiplier).toString())
+        arweave.ar.winstonToAr((parseFloat(data) * feeMultiplier).toFixed(0))
       );
     } catch {}
   }
@@ -138,7 +138,7 @@ export default function Send() {
           targetInput.state
         );
 
-        transaction.reward = (parseFloat(cost) * feeMultiplier).toString();
+        transaction.reward = (parseFloat(cost) * feeMultiplier).toFixed(0);
       }
 
       transaction.addTag("App-Name", "ArConnect");

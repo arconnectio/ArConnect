@@ -84,7 +84,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
         if (feeMultiplier > 1) {
           decodeTransaction.reward = (
             +decodeTransaction.reward * feeMultiplier
-          ).toString();
+          ).toFixed(0);
           price =
             parseFloat(message.transaction.quantity) +
             parseFloat(decodeTransaction.reward);
