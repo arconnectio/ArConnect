@@ -137,7 +137,7 @@ const WalletAPI = {
   async sign(
     transaction: Transaction,
     options?: SignatureOptions
-  ): Promise<Transaction> {
+  ): Promise<Transaction | "Bundled"> {
     const arweave = new Arweave({
       host: "arweave.net",
       port: 443,
@@ -161,7 +161,11 @@ const WalletAPI = {
           setTimeout(() => createCoinWithAnimation(), i * 150);
       }
 
-      return decodeTransaction;
+      if (typeof data.transaction === "string") {
+        return "Bundled";
+      } else {
+        return decodeTransaction;
+      }
     } catch (e) {
       throw new Error(e);
     }

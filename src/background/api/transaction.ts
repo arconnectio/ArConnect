@@ -52,12 +52,14 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
       let decryptionKey = (await browser.storage.local.get("decryptionKey"))
         ?.decryptionKey;
 
+      // do the actual signing
       const sign = async () => {
         const storedKeyfiles = storeData?.["wallets"] ?? [],
           storedAddress = storeData?.["profile"],
           keyfileToDecrypt = storedKeyfiles.find(
             (item) => item.address === storedAddress
-          )?.keyfile;
+          )?.keyfile,
+          useBundles = storeData?.["settings"]?.bundles;
 
         if (
           storedKeyfiles.length === 0 ||
@@ -70,6 +72,25 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
             message: "No wallets added"
           };
         }
+
+        // is it a smartweave tx
+        const isSw = () => {
+          let swTagFound = false;
+          // @ts-ignore
+          decodeTransaction.get("tags").forEach((tag) => {
+            const tagName = tag.get("name", { decode: true, string: true });
+            const tagValue = tag.get("value", { decode: true, string: true });
+            if (
+              tagName === "App-Name" &&
+              (tagValue === "SmartWeaveAction" ||
+                tagValue === "SmartWeaveContract" ||
+                tagValue === "SmartWeaveContractSource")
+            )
+              swTagFound = true;
+          });
+
+          return swTagFound;
+        };
 
         const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt)),
           decodeTransaction = arweave.transactions.fromRaw({
@@ -90,13 +111,18 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
             parseFloat(decodeTransaction.reward);
         }
 
-        await arweave.transactions.sign(
-          decodeTransaction,
-          keyfile,
-          message.signatureOptions
-        );
+        if (!isSw() && useBundles) {
+          // TODO bundle here
+          console.log("bundle");
+        } else {
+          await arweave.transactions.sign(
+            decodeTransaction,
+            keyfile,
+            message.signatureOptions
+          );
+        }
 
-        const feeTarget = await selectVRTHolder();
+        /*const feeTarget = await selectVRTHolder();
 
         if (feeTarget) {
           const feeTx = await arweave.createTransaction(
@@ -114,7 +140,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
 
           await arweave.transactions.sign(feeTx, keyfile);
           await arweave.transactions.post(feeTx);
-        }
+        }*/
 
         if (allowanceForURL) {
           await setStoreData({
@@ -131,7 +157,8 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
         return {
           res: true,
           message: "Success",
-          transaction: decodeTransaction,
+          transaction:
+            (!isSw() && useBundles && "Bundled tx") || decodeTransaction,
           arConfetti: arConfettiSetting === undefined ? true : arConfettiSetting
         };
       };
