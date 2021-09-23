@@ -6,6 +6,7 @@ export interface ISettings {
   arConfetti: boolean;
   arVerifyTreshold: Threshold;
   feeMultiplier: number;
+  bundles: boolean;
 }
 
 export interface ISettingsAction {
@@ -17,7 +18,8 @@ const defaultConfig: ISettings = {
   currency: "USD",
   arConfetti: true,
   arVerifyTreshold: Threshold.MEDIUM,
-  feeMultiplier: 1
+  feeMultiplier: 1,
+  bundles: false
 };
 
 export default function settingsReducer(
