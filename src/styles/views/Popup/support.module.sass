@@ -1,0 +1,16 @@
+@use "../../variables"
+
+.Support
+  background-color: variables.$lighter-bg-light
+
+  @media (prefers-color-scheme: dark)
+    background-color: variables.$lighter-bg-dark
+
+  label
+    display: inline-block
+    padding: 1em
+
+  .Checkbox
+    display: flex
+    align-items: center
+    padding: 1em

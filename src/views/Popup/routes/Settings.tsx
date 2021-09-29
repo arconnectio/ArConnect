@@ -50,6 +50,7 @@ import Arweave from "arweave";
 import manifest from "../../../../public/manifest.json";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
+import SupportWidget from "./Support";
 
 export default function Settings() {
   const [setting, setCurrSetting] = useState<
@@ -65,6 +66,7 @@ export default function Settings() {
       | "password"
       | "config_file"
       | "fee"
+      | "support"
     >(),
     permissions = useSelector((state: RootState) => state.permissions),
     [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
@@ -298,6 +300,7 @@ export default function Settings() {
             (setting === "about" && "About ArConnect") ||
             (setting === "config_file" && "Download Config") ||
             (setting === "fee" && "Fee multiplier") ||
+            (setting === "support" && "Support") ||
             "Settings"}
         </h1>
       </div>
@@ -475,6 +478,18 @@ export default function Settings() {
               <div>
                 <h1>About</h1>
                 <p>Information about ArConnect</p>
+              </div>
+              <div className={styles.Arrow}>
+                <ChevronRightIcon />
+              </div>
+            </div>
+            <div
+              className={styles.Setting}
+              onClick={() => setCurrSetting("support")}
+            >
+              <div>
+                <h1>Support</h1>
+                <p>Support your favorite Arweave websites</p>
               </div>
               <div className={styles.Arrow}>
                 <ChevronRightIcon />
@@ -977,6 +992,11 @@ export default function Settings() {
                 I understand; download file
               </Button>
               <Spacer />
+            </div>
+          )) ||
+          (setting == "support" && (
+            <div>
+              <SupportWidget />
             </div>
           ))}
       </div>

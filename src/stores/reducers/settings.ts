@@ -7,6 +7,8 @@ export interface ISettings {
   arVerifyTreshold: Threshold;
   feeMultiplier: number;
   bundles: boolean;
+  // Enabling support user's favorite Arweave websites.
+  enableSupport: boolean;
 }
 
 export interface ISettingsAction {
@@ -19,7 +21,8 @@ const defaultConfig: ISettings = {
   arConfetti: true,
   arVerifyTreshold: Threshold.MEDIUM,
   feeMultiplier: 1,
-  bundles: false
+  bundles: false,
+  enableSupport: false
 };
 
 export default function settingsReducer(
