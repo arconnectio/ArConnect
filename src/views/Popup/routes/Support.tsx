@@ -36,7 +36,8 @@ export default function SupportWidget() {
         >
           ArConnect desktop app
         </a>{" "}
-        you are suporting Arweave websites.
+        you’ll be contributing Arweave tokens to the sites you visit the most
+        often.
       </p>
       <Button
         onClick={() => {
@@ -52,7 +53,7 @@ export default function SupportWidget() {
         {connectToNativeApp() ? "Stop" : "Start"}
       </Button>
       <div className={styles.Checkbox}>
-        <label>Run on browser start</label>
+        <label>Run desktop app on browser start</label>
         <Toggle
           checked={settings.enableSupport}
           onChange={() =>
