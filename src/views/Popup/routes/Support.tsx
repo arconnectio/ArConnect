@@ -13,17 +13,30 @@ import {
 } from "../../../utils/native_messaging";
 
 import styles from "../../../styles/views/Popup/support.module.sass";
+import { browser } from "webextension-polyfill-ts";
 
 export default function SupportWidget() {
   const settings = useSelector((state: RootState) => state.settings);
   const dispatch = useDispatch();
   const [, setToast] = useToasts();
 
+  function downloadDesktopApp() {
+    browser.tabs.create({ url: "https://arconnect.io" });
+  }
+
   return (
     <div className={styles.Support}>
       <p>
-        By running <a href="https://google.com">ArConnect desktop app</a> you
-        are suporting Arweave websites.
+        By running{" "}
+        <a
+          href="#"
+          onClick={() => {
+            downloadDesktopApp();
+          }}
+        >
+          ArConnect desktop app
+        </a>{" "}
+        you are suporting Arweave websites.
       </p>
       <Button
         onClick={() => {
