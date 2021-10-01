@@ -20,10 +20,6 @@ export default function SupportWidget() {
   const dispatch = useDispatch();
   const [, setToast] = useToasts();
 
-  function downloadDesktopApp() {
-    browser.tabs.create({ url: "https://arconnect.io" });
-  }
-
   return (
     <div className={styles.Support}>
       <p>
@@ -31,7 +27,7 @@ export default function SupportWidget() {
         <a
           href="#"
           onClick={() => {
-            downloadDesktopApp();
+            browser.tabs.create({ url: "https://arconnect.io" });
           }}
         >
           ArConnect desktop app
