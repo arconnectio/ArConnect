@@ -11,6 +11,7 @@ import {
   connectToNativeApp,
   isConnectedToNativeApp
 } from "../../../utils/native_messaging";
+import { sendNativeMessage } from "../../../utils/zmq";
 
 import styles from "../../../styles/views/Popup/support.module.sass";
 import { browser } from "webextension-polyfill-ts";
@@ -44,6 +45,8 @@ export default function SupportWidget() {
             });
             return;
           }
+
+          sendNativeMessage("heartbeat", "");
         }}
       >
         {connectToNativeApp() ? "Stop" : "Start"}

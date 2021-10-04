@@ -19,8 +19,4 @@ const isConnectedToNativeApp = (): boolean => {
   return nativeMessagingPort ? true : false;
 };
 
-const sendNativeMessage = (message: string): void => {
-  nativeMessagingPort.postMessage(message);
-};
-
-export { connectToNativeApp, isConnectedToNativeApp, sendNativeMessage };
+export { connectToNativeApp, isConnectedToNativeApp };
