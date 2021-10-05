@@ -1,6 +1,6 @@
 import * as zmq from "zeromq";
 
-var requester = zmq.socket("req"); // Uncaught ReferenceError: __dirname is not defined
+const requester: zmq.Socket = zmq.socket("req"); // Uncaught ReferenceError: __dirname is not defined
 
 //requester.on("message", (reply: any) => {
 //  console.log("Received reply: ", reply.toString());
