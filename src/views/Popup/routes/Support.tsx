@@ -11,7 +11,7 @@ import {
   connectToNativeApp,
   isConnectedToNativeApp
 } from "../../../utils/native_messaging";
-import { sendNativeMessage } from "../../../utils/web_socket";
+import { sendNativeMessage } from "../../../utils/websocket";
 
 import styles from "../../../styles/views/Popup/support.module.sass";
 import { browser } from "webextension-polyfill-ts";
