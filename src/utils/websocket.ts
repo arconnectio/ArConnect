@@ -55,9 +55,12 @@ export function sendNativeMessage(
     if (!client) {
       handleError();
     }
-    ++socketQueueId;
-    if (callback) {
-      socketQueue[makeCallbackId(socketQueueId)] = callback;
+    {
+      // Implementation details - https://stackoverflow.com/a/24145135
+      ++socketQueueId;
+      if (callback) {
+        socketQueue[makeCallbackId(socketQueueId)] = callback;
+      }
     }
     const data = {
       id: socketQueueId,
