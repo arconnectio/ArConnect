@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 
@@ -20,6 +20,7 @@ export default function SupportWidget() {
   const settings = useSelector((state: RootState) => state.settings);
   const dispatch = useDispatch();
   const [, setToast] = useToasts();
+  const [connected, setConnected] = useState(false);
 
   return (
     <div className={styles.Support}>
@@ -38,18 +39,14 @@ export default function SupportWidget() {
       </p>
       <Button
         onClick={() => {
-          if (!isConnectedToNativeApp()) {
-            setToast({
-              text: "Unable to connect to the desktop app",
-              type: "error"
-            });
-            return;
-          }
-
-          sendNativeMessage("heartbeat", "");
+          sendNativeMessage("heartbeat", "", (response: any) => {
+            const resp: string = JSON.stringify(response);
+            setToast({ text: resp, type: "success" });
+            setConnected(!connected);
+          });
         }}
       >
-        {connectToNativeApp() ? "Stop" : "Start"}
+        {connected ? "Stop" : "Start"}
       </Button>
       <div className={styles.Checkbox}>
         <label>Run desktop app on browser start</label>
