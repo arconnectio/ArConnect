@@ -2,7 +2,7 @@ import { browser } from "webextension-polyfill-ts";
 
 let nativeMessagingPort: any = null;
 
-const connectToNativeApp = (): any => {
+const connectToNativeApp = (): void => {
   const hostName = "com.arweave.arconnect";
   nativeMessagingPort = browser.runtime.connectNative(hostName);
   if (nativeMessagingPort) {

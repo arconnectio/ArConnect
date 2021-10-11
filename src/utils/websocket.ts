@@ -8,9 +8,20 @@ const makeCallbackId = (id: number): string => "i_" + id;
 const W3CWebSocket = websocket.w3cwebsocket;
 const client = new W3CWebSocket("ws://localhost:5555/arc");
 
+const handleError = () => {
+  const callbackId = makeCallbackId(0);
+  const callback = socketQueue[callbackId];
+  if (callback) {
+    callback();
+  }
+};
+
 client.onerror = () => {
-  // TODO: Show error in toast
-  console.log("Connection error");
+  handleError();
+};
+
+client.onclose = () => {
+  handleError();
 };
 
 client.onmessage = (e) => {
@@ -29,16 +40,32 @@ client.onmessage = (e) => {
   }
 };
 
+export function setNativeMessageErrorHandler(callback: () => void) {
+  if (callback) {
+    socketQueue[makeCallbackId(0)] = callback;
+  }
+}
+
 export function sendNativeMessage(
   action: string,
-  message?: string,
+  message?: any,
   callback?: (response: any) => void
 ): void {
-  if (client) {
+  try {
+    if (!client) {
+      handleError();
+    }
     ++socketQueueId;
     if (callback) {
       socketQueue[makeCallbackId(socketQueueId)] = callback;
     }
-    client.send(`{"id": ${socketQueueId}, "action": "${action}"}`);
+    const data = {
+      id: socketQueueId,
+      action: action,
+      payload: message
+    };
+    client.send(JSON.stringify(data));
+  } catch (e) {
+    handleError();
   }
 }
