@@ -429,22 +429,6 @@ export default function Settings() {
             </div>
             <div className={styles.Setting}>
               <div>
-                <h1>Experimental bundles</h1>
-                <p>Bundle txs when it's possible with ANS-104 (beta)</p>
-              </div>
-              <div className={styles.Arrow}>
-                <Toggle
-                  checked={!!otherSettings.bundles}
-                  onChange={() =>
-                    dispatch(
-                      updateSettings({ bundles: !otherSettings.bundles })
-                    )
-                  }
-                />
-              </div>
-            </div>
-            <div className={styles.Setting}>
-              <div>
                 <h1>ARConfetti effect</h1>
                 <p>Show animation on wallet usage</p>
               </div>

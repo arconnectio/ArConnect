@@ -6,7 +6,6 @@ export interface ISettings {
   arConfetti: boolean;
   arVerifyTreshold: Threshold;
   feeMultiplier: number;
-  bundles: boolean;
   // Enabling support user's favorite Arweave websites.
   enableSupport: boolean;
 }
@@ -20,8 +19,6 @@ const defaultConfig: ISettings = {
   currency: "USD",
   arConfetti: true,
   arVerifyTreshold: Threshold.MEDIUM,
-  feeMultiplier: 1,
-  bundles: false,
   enableSupport: false
 };
 
