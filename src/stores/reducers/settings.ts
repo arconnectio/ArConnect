@@ -19,6 +19,7 @@ const defaultConfig: ISettings = {
   currency: "USD",
   arConfetti: true,
   arVerifyTreshold: Threshold.MEDIUM,
+  feeMultiplier: 1,
   enableSupport: false
 };
 
