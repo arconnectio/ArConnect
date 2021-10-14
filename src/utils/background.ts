@@ -241,3 +241,30 @@ export async function getArweaveConfig(): Promise<IArweave> {
     return defaultConfig;
   }
 }
+
+const getCommunityContractId = async (
+  url: string
+): Promise<string | undefined> => {
+  const response = await axios.head(url);
+  return response.headers["x-community-contract"];
+};
+
+/**
+ * @brief Checks if current resource relates to Arweave community by testing 'X-Community-Contract' header.
+ * @param url Resource that needs to be checked for community contract.
+ * @returns Transaction ID if it is Arweave resource, otherwise - undefined.
+ */
+export async function checkCommunityContract(
+  url: string
+): Promise<string | undefined> {
+  try {
+    if (url.startsWith("chrome://") || url.startsWith("about:"))
+      return undefined;
+    const id = await getCommunityContractId(url);
+    return id && /[a-z0-9_-]{43}/i.test(id) ? id : undefined;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+
+  return undefined;
+}

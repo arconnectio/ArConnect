@@ -19,10 +19,19 @@ import {
   getArweaveConfig,
   getPermissions,
   getStoreData,
-  walletsStored
+  walletsStored,
+  checkCommunityContract
 } from "../utils/background";
 import { decrypt, encrypt, signature } from "../background/api/encryption";
-import { handleTabUpdate } from "../background/tab_update";
+import {
+  handleTabUpdate,
+  handleArweaveTabOpened,
+  handleArweaveTabClosed,
+  handleArweaveTabActivated,
+  handleBrowserLostFocus,
+  handleBrowserGainedFocus,
+  getArweaveActiveTab
+} from "../background/tab_update";
 import { browser } from "webextension-polyfill-ts";
 import { fixupPasswords } from "../utils/auth";
 
@@ -33,10 +42,53 @@ browser.runtime.onInstalled.addListener(async () => {
   else await fixupPasswords();
 });
 
-// create listeners for the icon utilities
-// and context menu item updates
-browser.tabs.onActivated.addListener(handleTabUpdate);
-browser.tabs.onUpdated.addListener(handleTabUpdate);
+browser.windows.onFocusChanged.addListener(async (windowId) => {
+  if (!(await walletsStored())) return;
+
+  if (windowId === browser.windows.WINDOW_ID_NONE) {
+    handleBrowserLostFocus();
+  } else {
+    const activeTab = await getActiveTab();
+    const txId = await checkCommunityContract(activeTab.url!);
+    if (txId) handleBrowserGainedFocus(activeTab.id!, txId);
+  }
+});
+
+// Create listeners for the icon utilities and context menu item updates.
+browser.tabs.onActivated.addListener(async (activeInfo) => {
+  if (!(await walletsStored())) return;
+
+  handleArweaveTabActivated(activeInfo.tabId);
+
+  handleTabUpdate();
+});
+
+browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (!(await walletsStored())) return;
+
+  if (changeInfo.status === "complete") {
+    const txId = await checkCommunityContract(tab.url!);
+    if (txId) {
+      handleArweaveTabOpened(tabId, txId);
+    } else {
+      if (tabId === (await getArweaveActiveTab())) {
+        // It looks like user just entered or opened another web site on the same tab,
+        // where Arweave resource was loaded previously. Hence it needs to be closed.
+        handleArweaveTabClosed(tabId);
+      }
+    }
+  }
+
+  handleTabUpdate();
+});
+
+browser.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
+  if (!(await walletsStored())) return;
+
+  const activeTab = await getActiveTab();
+  if (await checkCommunityContract(activeTab.url!))
+    handleArweaveTabClosed(tabId);
+});
 
 browser.runtime.onConnect.addListener((connection) => {
   if (connection.name !== "backgroundConnection") return;

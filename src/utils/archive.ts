@@ -11,7 +11,7 @@ import Transaction from "arweave/node/lib/transaction";
 const ardriveClient = "ArDrive-Web";
 const ardriveVersion = "0.1.0";
 const ArFS = "0.11";
-const defaultArDriveMinimumTipAR = 0.000_010_000_000;
+export const defaultArDriveMinimumTipAR = 0.000_010_000_000;
 /**
  * Create an archive file transaction
  * This will archive the file on Arweave using ArDrive
@@ -87,7 +87,7 @@ export async function createMetadataTransaction(
   tx.addTag("ArFS", ArFS);
   tx.addTag("Entity-Type", "file");
   tx.addTag("Drive-Id", data.driveInfo.id);
-  tx.addTag("Unix-Time", data.timestamp.toString());
+  tx.addTag("Unix-Time", Math.round(data.timestamp / 1000).toString());
   tx.addTag("File-Id", uuidv4());
   tx.addTag("Parent-Folder-Id", data.driveInfo.rootFolderId);
   tx.addTag("ArDrive-Client", `ArConnect/${manifest.version}`);
@@ -146,7 +146,7 @@ export async function createPublicDrive(
     rootFolderName: data.name,
     isPrivate: false
   };
-  const timestamp = new Date().getTime();
+  const timestamp = Math.round(Date.now() / 1000);
 
   /**
    * The drive transaction

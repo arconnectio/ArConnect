@@ -8,7 +8,9 @@ import {
   ChevronRightIcon,
   ArrowSwitchIcon,
   ArchiveIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  ChevronDownIcon,
+  ChevronUpIcon
 } from "@primer/octicons-react";
 import {
   Loading,
@@ -119,7 +121,15 @@ export default function Home() {
             ...pst,
             arBalance:
               ((await verto.latestPrice(pst.id)) ?? 0) * (pst.balance ?? 0),
-            removed: psts?.find(({ id }) => id === pst.id)?.removed ?? false
+            removed: psts?.find(({ id }) => id === pst.id)?.removed ?? false,
+            type:
+              (
+                await axios.get(
+                  `https://v2.cache.verto.exchange/site/type/${pst.id}`
+                )
+              )?.data?.type === "community"
+                ? "community"
+                : "collectible"
           }))
         );
 
@@ -247,6 +257,8 @@ export default function Home() {
     })();
   }, []);
 
+  const [showAll, setShowAll] = useState(false);
+
   return (
     <div className={styles.Home}>
       <WalletManager />
@@ -327,11 +339,14 @@ export default function Home() {
       <Tabs initialValue="1" className={styles.Tabs}>
         <Tabs.Item label="Tokens" value="1">
           {(psts &&
-            psts.filter(({ removed, balance }) => !removed && balance > 0)
-              .length > 0 &&
+            psts.filter(
+              ({ removed, balance, type }) =>
+                !removed && balance > 0 && type !== "collectible"
+            ).length > 0 &&
             psts
-              .filter(({ removed }) => !removed)
+              .filter(({ removed, type }) => !removed && type !== "collectible")
               .sort((a, b) => b.balance - a.balance)
+              .slice(0, showAll ? psts.length : 6)
               .map((pst, i) => (
                 <div
                   className={styles.PST}
@@ -377,6 +392,68 @@ export default function Home() {
                 <Spacer y={1.25} />
               </>
             )) || <p className={styles.EmptyIndicatorText}>No PSTs</p>}
+          {(psts &&
+            psts.filter(
+              ({ removed, type }) => !removed && type !== "collectible"
+            ).length > 6 && (
+              <p
+                onClick={() => setShowAll((val) => !val)}
+                className={styles.ShowAll}
+              >
+                {(showAll && (
+                  <>
+                    Show less
+                    <ChevronUpIcon />
+                  </>
+                )) || (
+                  <>
+                    Show more
+                    <ChevronDownIcon />
+                  </>
+                )}
+              </p>
+            )) || <Spacer y={0.32} />}
+          <h1 className={styles.Title}>Collectibles</h1>
+          <Spacer y={0.7} />
+          <div className={styles.Collectibles} title="Hold shift to scroll">
+            {(psts &&
+              psts.filter(
+                ({ removed, balance, type }) =>
+                  !removed && balance > 0 && type === "collectible"
+              ).length > 0 &&
+              psts
+                .filter(
+                  ({ removed, type }) => !removed && type === "collectible"
+                )
+                .sort((a, b) => b.balance - a.balance)
+                .map((token, i) => (
+                  <div
+                    className={styles.Collectible}
+                    key={i}
+                    onClick={() =>
+                      goTo(PST, {
+                        name: token.name,
+                        id: token.id,
+                        balance: token.balance,
+                        ticker: token.ticker
+                      })
+                    }
+                  >
+                    <img
+                      src={`https://arweave.net/${token.id}`}
+                      alt="preview"
+                    />
+                    <div className={styles.CollectibleInfo}>
+                      <h1 className={styles.CollectibleTitle}>{token.name}</h1>
+                      <span className={styles.CollectibleBalance}>
+                        {token.balance} {token.ticker}
+                      </span>
+                    </div>
+                  </div>
+                ))) || (
+              <p className={styles.EmptyIndicatorText}>No collectibles</p>
+            )}
+          </div>
         </Tabs.Item>
         <Tabs.Item label="Transactions" value="2">
           {(transactions.length > 0 &&
