@@ -144,7 +144,8 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
           url: tabURL,
           spendingLimitReached: openAllowance
         });
-        browser.runtime.onMessage.addListener(async (msg) => {
+        const listenerCallback = async (msg) => {
+          browser.runtime.onMessage.removeListener(listenerCallback);
           if (
             !validateMessage(msg, {
               sender: "popup",
@@ -165,7 +166,8 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
             decryptionKey = decryptionKey || msg.decryptionKey;
             resolve(await sign());
           }
-        });
+        };
+        browser.runtime.onMessage.addListener(listenerCallback);
       } else resolve(await sign());
     } catch {
       resolve({
