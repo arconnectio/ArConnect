@@ -2,6 +2,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=development node esbuild.js",
     "build": "cross-env NODE_ENV=production node esbuild.js",
+    "build:firefox": "cross-env NODE_ENV=production BUIL_TARGET=FIREFOX node esbuild.js",
     "test": "jest",
     "zip": "cd public && zip -r ../arconnect.zip *",
     "type-check": "tsc --noEmit",

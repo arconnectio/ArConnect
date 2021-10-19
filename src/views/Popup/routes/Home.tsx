@@ -199,7 +199,23 @@ export default function Home() {
     }
   }
 
+  const [isFirefox, setIsFirefox] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const browserInfo = await browser.runtime.getBrowserInfo();
+
+        setIsFirefox(browserInfo.name === "Firefox");
+      } catch {
+        setIsFirefox(false);
+      }
+    })();
+  }, []);
+
   async function archive() {
+    if (isFirefox) return;
+
     try {
       const currentTab = await getActiveTab();
 
@@ -242,51 +258,12 @@ export default function Home() {
     }
   }
 
-  const [showNote, setShowNote] = useState(false);
-
-  useEffect(() => {
-    (async () => {
-      const { wrapped_ar_shown } = await browser.storage.local.get(
-        "wrapped_ar_shown"
-      );
-
-      if (!wrapped_ar_shown) {
-        setShowNote(true);
-        await browser.storage.local.set({ wrapped_ar_shown: true });
-      } else setShowNote(false);
-    })();
-  }, []);
-
   const [showAll, setShowAll] = useState(false);
 
   return (
     <div className={styles.Home}>
       <WalletManager />
       <div className={styles.Balance}>
-        {showNote && (
-          <Note
-            label={false}
-            type="success"
-            className={styles.Note}
-            onClick={() => setShowNote(false)}
-          >
-            <img src={WARLogo} alt="WAR" />
-            <div>
-              Wrapped AR just launched on Ethereum. <br />
-              <span
-                onClick={() =>
-                  browser.tabs.create({
-                    url:
-                      "https://medium.com/everfinance/what-is-wrapped-ar-c4b4375290b9"
-                  })
-                }
-              >
-                See it for yourself
-                <ArrowRightIcon />
-              </span>
-            </div>
-          </Note>
-        )}
         <h1>
           {formatBalance(balance()?.arBalance)}
           <span>AR</span>
@@ -311,12 +288,15 @@ export default function Home() {
             <ArrowSwitchIcon size={24} />
             <span>Send</span>
           </div>
-          <ArchiveWrapper supported={currentTabContentType !== undefined}>
+          <ArchiveWrapper
+            supported={currentTabContentType !== undefined}
+            firefox={isFirefox}
+          >
             <div
               className={
                 styles.Item +
                 " " +
-                (!currentTabContentType ? styles.Unavailable : "")
+                (!currentTabContentType || isFirefox ? styles.Unavailable : "")
               }
               onClick={archive}
             >
@@ -545,11 +525,18 @@ export default function Home() {
 
 function ArchiveWrapper({
   children,
-  supported
-}: PropsWithChildren<{ supported: boolean }>) {
+  supported,
+  firefox
+}: PropsWithChildren<{ supported: boolean; firefox: boolean }>) {
   return (
-    (supported && <>{children}</>) || (
-      <Tooltip text={<p style={{ margin: 0 }}>Content-type unsupported</p>}>
+    (supported && !firefox && <>{children}</>) || (
+      <Tooltip
+        text={
+          <p style={{ margin: 0 }}>
+            {(firefox && "Unsupported browser") || "Content-type unsupported"}
+          </p>
+        }
+      >
         {children}
       </Tooltip>
     )
