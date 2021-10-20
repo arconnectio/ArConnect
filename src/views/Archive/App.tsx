@@ -119,7 +119,9 @@ export default function App() {
       if (safeMode && lastData.type !== "pdf")
         setArchiveData({
           url: lastData.lastArchive.url,
-          content: (await axios.get(lastData.lastArchive.url)).data.toString(),
+          content: (
+            (await axios.get(lastData.lastArchive.url)) as any
+          ).data.toString(),
           type: lastData.lastArchive.type
         });
       else setArchiveData(lastData.lastArchive);
@@ -139,7 +141,7 @@ export default function App() {
     let data = "";
 
     try {
-      const { data } = await axios.get(archiveData.url);
+      const { data }: any = await axios.get(archiveData.url);
       setPreviewHTML(data);
     } catch {
       setToast({ text: "Error fetching PDF", type: "error" });
@@ -204,7 +206,7 @@ export default function App() {
       fetchAssets.push(
         axios
           .get(link.href)
-          .then(({ data }) =>
+          .then(({ data }: any) =>
             styles.push({
               style: data,
               href: relativeLink,
@@ -233,7 +235,7 @@ export default function App() {
       fetchAssets.push(
         axios
           .get(link.href, { responseType: "arraybuffer" })
-          .then(({ data, headers }) =>
+          .then(({ data, headers }: any) =>
             images.push({
               src: link.href,
               content: Buffer.from(data, "binary").toString("base64"),
@@ -328,7 +330,7 @@ export default function App() {
 
     const loadedDrives: Drive[] = await Promise.all(
       res.map(async ({ txid, id, isPrivate, arFsVersion }) => {
-        const { data } = await axios.get(`https://arweave.net/${txid}`),
+        const { data }: any = await axios.get(`https://arweave.net/${txid}`),
           rootFolderName = await getRootFolderName({
             arFs: arFsVersion,
             driveID: id,
@@ -383,7 +385,7 @@ export default function App() {
       `,
         props
       ),
-      { data } = await axios.get(
+      { data }: any = await axios.get(
         `https://arweave.net/${rootFolderNameQuery.data.transactions.edges[0].node.id}`
       );
 
@@ -624,8 +626,8 @@ export default function App() {
           </div>
         </Tooltip>
       </div>
-      <Page size="large" className={styles.Preview}>
-        {fetching && <Spinner className={styles.Fetching} size="large" />}
+      <Page scale={2} className={styles.Preview}>
+        {fetching && <Spinner className={styles.Fetching} scale={2} />}
         {(archiveData.type === "page" && (
           <iframe
             title={title}
@@ -725,7 +727,7 @@ export default function App() {
                 exit={{ opacity: 0, scaleY: 0.35 }}
                 transition={{ duration: 0.23, ease: "easeInOut" }}
               >
-                <Spacer y={1} />
+                <Spacer h={1} />
                 <p>{uploadStatus.text}</p>
                 <Progress value={uploadStatus.percentage} type="success" />
               </motion.div>
@@ -802,7 +804,7 @@ export default function App() {
                 .
               </p>
             ))) || <Loading />}
-          <Spacer y={1} />
+          <Spacer h={1} />
           <h2>Notice</h2>
           <p>
             This will archive the{" "}
@@ -828,7 +830,7 @@ export default function App() {
               </Select.Option>
             ))}
           </Select>
-          <Spacer y={1} />
+          <Spacer h={1} />
           <h2>{upperCaseFirst(archiveData.type)} title</h2>
           <p>{title}</p>
           <h2>{upperCaseFirst(archiveData.type)} URL</h2>
@@ -857,7 +859,7 @@ export default function App() {
               >
                 <p>{uploadStatus.text}</p>
                 <Progress value={uploadStatus.percentage} type="success" />
-                <Spacer y={1} />
+                <Spacer h={1} />
               </motion.div>
             )}
           </AnimatePresence>

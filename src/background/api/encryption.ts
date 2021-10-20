@@ -90,7 +90,7 @@ export const signature = (message: MessageFormat, tabURL: string) =>
         data: await doSignature(message),
         message: "Success"
       });
-    } catch (e) {
+    } catch (e: any) {
       resolve({
         res: false,
         message: e.message || "Error signing data"

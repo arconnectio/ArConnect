@@ -19,7 +19,7 @@ import axios from "axios";
  */
 export const createAuthPopup = (data: any) =>
   browser.windows.create({
-    url: `${browser.extension.getURL("auth.html")}?auth=${encodeURIComponent(
+    url: `${browser.runtime.getURL("auth.html")}?auth=${encodeURIComponent(
       JSON.stringify(data)
     )}`,
     focused: true,
@@ -151,7 +151,7 @@ export async function getFeeAmount(address: string, arweave: Arweave) {
     const res = await limestone.getPrice("AR");
     arPrice = res.price;
   } catch {
-    const { data: res } = await axios.get(
+    const { data: res }: any = await axios.get(
       "https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=usd"
     );
     arPrice = res.arweave.usd;
@@ -211,7 +211,7 @@ export const authenticateUser = (action: MessageType, tabURL: string) =>
           reject();
         else resolve();
       });
-    } catch (e) {
+    } catch (e: any) {
       reject(e);
     }
   });

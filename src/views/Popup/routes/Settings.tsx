@@ -747,20 +747,20 @@ export default function Settings() {
               <Input
                 {...arweaveHostInput.bindings}
                 placeholder="Host..."
-                status={arweaveHostInput.state === "" ? "error" : "default"}
+                type={arweaveHostInput.state === "" ? "error" : "default"}
               />
               <Spacer />
               <Input
                 {...arweavePortInput.bindings}
                 placeholder="Port..."
-                type="number"
-                status={arweavePortInput.state === "" ? "error" : "default"}
+                htmlType="number"
+                type={arweavePortInput.state === "" ? "error" : "default"}
               />
               <Spacer />
               <Input
                 {...arweaveProtocolInput.bindings}
                 placeholder="Protocol..."
-                status={arweaveProtocolInput.state === "" ? "error" : "default"}
+                type={arweaveProtocolInput.state === "" ? "error" : "default"}
               />
               <Spacer />
               <Button
@@ -823,7 +823,7 @@ export default function Settings() {
                 <sup>{manifest.version}</sup>
               </h1>
               <p>{manifest.description}</p>
-              <Spacer y={1} />
+              <Spacer h={1} />
               <p>
                 Used permissions:
                 <ul>

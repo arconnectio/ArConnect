@@ -1,22 +1,27 @@
 import React, { useEffect } from "react";
-import { CssBaseline, GeistProvider } from "@geist-ui/react";
+import { CssBaseline, GeistProvider, Themes } from "@geist-ui/react";
 import { Provider as ReduxProvider } from "react-redux";
 import { useColorScheme } from "use-color-scheme";
 import { PersistGate } from "redux-persist/integration/react";
 import { fixupPasswords } from "../utils/auth";
 import setupStores from "../stores";
 
-const lightTheme = {
-  palette: {
-    success: "#AB9DF2",
-    successLight: "#c8bff2",
-    successDark: "#7f6aeb",
-    link: "#AB9DF2",
-    selection: "#AB9DF2",
-    code: "#F81CE5"
-  }
+const themeCommon = {
+  success: "#AB9DF2",
+  successLight: "#c8bff2",
+  successDark: "#7f6aeb",
+  link: "#AB9DF2",
+  selection: "#AB9DF2",
+  code: "#F81CE5"
 };
-const darkTheme = {
+
+const lightTheme = Themes.createFromLight({
+  type: "light",
+  palette: themeCommon
+});
+
+const darkTheme = Themes.createFromDark({
+  type: "dark",
   palette: {
     accents_1: "#111",
     accents_2: "#333",
@@ -30,7 +35,7 @@ const darkTheme = {
     foreground: "#fff",
     secondary: "#888",
     border: "#333",
-    ...lightTheme.palette
+    ...themeCommon
   },
   expressiveness: {
     dropdownBoxShadow: "0 0 0 1px #333",
@@ -39,7 +44,7 @@ const darkTheme = {
     shadowLarge: "0 0 0 1px #333",
     portalOpacity: 0.75
   }
-};
+});
 
 export default function Provider({ children }: Props) {
   const { scheme } = useColorScheme(),
@@ -52,7 +57,7 @@ export default function Provider({ children }: Props) {
   return (
     <ReduxProvider store={store}>
       <PersistGate persistor={persistor}>
-        <GeistProvider theme={scheme === "dark" ? darkTheme : lightTheme}>
+        <GeistProvider themeType={scheme} themes={[darkTheme, lightTheme]}>
           <CssBaseline />
           {children}
         </GeistProvider>

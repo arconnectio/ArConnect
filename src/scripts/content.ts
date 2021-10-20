@@ -11,7 +11,7 @@ function addScriptToWindow(path: string) {
     script.setAttribute("src", path);
     container.insertBefore(script, container.children[0]);
     container.removeChild(script);
-  } catch (e) {
+  } catch (e: any) {
     console.error("Failed to inject ArConnect api", e);
   }
 }
@@ -24,7 +24,7 @@ interFont.href =
 document.head.appendChild(interFont);
 
 // inject the api
-addScriptToWindow(browser.extension.getURL("build/scripts/injected.js"));
+addScriptToWindow(browser.runtime.getURL("build/scripts/injected.js"));
 
 const connection = browser.runtime.connect(browser.runtime.id, {
   name: "backgroundConnection"

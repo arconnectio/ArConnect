@@ -424,12 +424,12 @@ export default function App() {
                     </Select.Option>
                   ))}
                 </Select>
-                <Spacer y={0.67} />
+                <Spacer h={0.67} />
               </>
             )}
             <Input.Password
               {...passwordInput.bindings}
-              status={passwordStatus}
+              type={passwordStatus}
               placeholder="Password..."
               onKeyPress={(e) => {
                 if (e.key === "Enter") login();
@@ -440,7 +440,7 @@ export default function App() {
               <div className={styles.Check + " " + styles.Checked}>
                 <Checkbox
                   checked={currentAllowance?.enabled}
-                  size="medium"
+                  scale={1.5}
                   onChange={(e) => {
                     if (!currentURL) return e.preventDefault();
                     dispatch(toggleAllowance(currentURL, e.target.checked));
@@ -464,7 +464,7 @@ export default function App() {
             >
               Log In
             </Button>
-            <Spacer y={0.73} />
+            <Spacer h={0.73} />
             <Button style={{ width: "100%" }} onClick={cancel}>
               Cancel
             </Button>
@@ -485,7 +485,7 @@ export default function App() {
                     <li key={i} className={styles.Check + " " + styles.Checked}>
                       <Checkbox
                         checked
-                        size="medium"
+                        scale={1.5}
                         onChange={(e) => {
                           if (!e.target.checked)
                             setAllowedPermissions((val) =>
@@ -564,7 +564,7 @@ export default function App() {
           </p>
           <Input
             {...allowanceAmount.bindings}
-            type="number"
+            htmlType="number"
             placeholder="Signing limit"
             labelRight="AR"
           />

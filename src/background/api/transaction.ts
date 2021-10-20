@@ -177,7 +177,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
 
 async function selectVRTHolder() {
   try {
-    const res = (
+    const res: any = (
       await axios.get(
         "https://v2.cache.verto.exchange/usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
       )

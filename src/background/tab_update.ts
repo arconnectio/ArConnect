@@ -12,7 +12,7 @@ async function loadData(): Promise<Tab[]> {
   try {
     const store = await getStoreData();
     return store.timeTracking || [];
-  } catch (e) {
+  } catch (e: any) {
     return [];
   }
 }

@@ -112,7 +112,7 @@ export default function Home() {
   async function loadPSTs() {
     setLoading((val) => ({ ...val, psts: true }));
     try {
-      const { data } = await axios.get(
+      const { data }: { data: any[] } = await axios.get(
           `https://v2.cache.verto.exchange/user/${profile}/balances`
         ),
         verto = new Verto(),
@@ -124,10 +124,10 @@ export default function Home() {
             removed: psts?.find(({ id }) => id === pst.id)?.removed ?? false,
             type:
               (
-                await axios.get(
+                (await axios.get(
                   `https://v2.cache.verto.exchange/site/type/${pst.id}`
-                )
-              )?.data?.type === "community"
+                )) as any
+              ).data.type === "community"
                 ? "community"
                 : "collectible"
           }))
@@ -252,7 +252,7 @@ export default function Home() {
         });
       }
 
-      browser.tabs.create({ url: browser.extension.getURL("/archive.html") });
+      browser.tabs.create({ url: browser.runtime.getURL("/archive.html") });
     } catch (error) {
       console.log(error);
     }
@@ -367,9 +367,9 @@ export default function Home() {
               ))) ||
             (loading.psts && (
               <>
-                <Spacer y={0.5} />
+                <Spacer h={0.5} />
                 <Loading />
-                <Spacer y={1.25} />
+                <Spacer h={1.25} />
               </>
             )) || <p className={styles.EmptyIndicatorText}>No PSTs</p>}
           {(psts &&
@@ -392,9 +392,9 @@ export default function Home() {
                   </>
                 )}
               </p>
-            )) || <Spacer y={0.32} />}
+            )) || <Spacer h={0.32} />}
           <h1 className={styles.Title}>Collectibles</h1>
-          <Spacer y={0.7} />
+          <Spacer h={0.7} />
           <div className={styles.Collectibles} title="Hold shift to scroll">
             {(psts &&
               psts.filter(
@@ -500,9 +500,9 @@ export default function Home() {
             ))) ||
             (loading.txs && (
               <>
-                <Spacer y={0.5} />
+                <Spacer h={0.5} />
                 <Loading />
-                <Spacer y={1.25} />
+                <Spacer h={1.25} />
               </>
             )) || <p className={styles.EmptyIndicatorText}>No transactions</p>}
           {transactions.length > 0 && (
