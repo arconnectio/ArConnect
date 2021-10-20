@@ -361,8 +361,7 @@ export default function App() {
                     allowanceAmount.setState(updateTo.toString());
                     setQuickAdd(false);
                     setToast({
-                      text:
-                        "The added allowance will be applied after you enter you password",
+                      text: "The added allowance will be applied after you enter you password",
                       type: "success"
                     });
                   }}

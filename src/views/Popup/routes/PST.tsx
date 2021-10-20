@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   ArrowLeftIcon,
   ArrowSwitchIcon,
-  TrashcanIcon,
+  TrashIcon,
   InfoIcon,
   VerifiedIcon
 } from "@primer/octicons-react";
@@ -228,7 +228,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
           onClick={() => removeModal.setVisible(true)}
           className={styles.Remove}
         >
-          <TrashcanIcon />
+          <TrashIcon />
         </button>
         {type === "collectible" && (
           <img

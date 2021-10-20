@@ -409,8 +409,9 @@ export default function App() {
   }, [previewHTML]);
 
   function getWallet(): JWKInterface | undefined {
-    const encryptedJWK = wallets.find(({ address }) => address === usedAddress)
-      ?.keyfile;
+    const encryptedJWK = wallets.find(
+      ({ address }) => address === usedAddress
+    )?.keyfile;
 
     if (!encryptedJWK) {
       setToast({
@@ -483,8 +484,7 @@ export default function App() {
     // check if the selected drive exists
     if (!driveToSave) {
       setToast({
-        text:
-          "Site was archived, but there was an error with the selected drive",
+        text: "Site was archived, but there was an error with the selected drive",
         type: "error"
       });
       setUploadStatus(undefined);

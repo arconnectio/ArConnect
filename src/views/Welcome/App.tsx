@@ -56,9 +56,8 @@ export default function App() {
     loadConfigModal = useModal(),
     configPasswordInput = useInput(""),
     configFileInput = useRef<HTMLInputElement>(null),
-    [configFilenameDisplay, setConfigFilenameDisplay] = useState(
-      "Click to load"
-    ),
+    [configFilenameDisplay, setConfigFilenameDisplay] =
+      useState("Click to load"),
     [loadingConfig, setLoadingConfig] = useState(false);
 
   useEffect(() => {
