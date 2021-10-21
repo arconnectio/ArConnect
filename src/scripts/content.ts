@@ -54,10 +54,7 @@ window.addEventListener("message", async (e) => {
     connection.onMessage.removeListener(listener);
   };
 
-  if (e.data.type === "sign_transaction")
-    connection.postMessage(toMsgReferece(e.data));
-  else connection.postMessage(e.data);
-
+  connection.postMessage(toMsgReferece(e.data));
   connection.onMessage.addListener(listener);
 });
 

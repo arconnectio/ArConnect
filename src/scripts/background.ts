@@ -95,6 +95,10 @@ browser.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
 browser.runtime.onConnect.addListener((connection) => {
   if (connection.name !== "backgroundConnection") return;
   connection.onMessage.addListener(async (msg) => {
+    if (typeof msg === "string" && msg.includes("blob:")) {
+      msg = await fromMsgReference(msg);
+    }
+
     if (!validateMessage(msg, { sender: "api" })) return;
 
     const res = await handleApiCalls(msg);
@@ -112,12 +116,6 @@ const handleApiCalls = async (
     tabURL = activeTab.url as string,
     faviconUrl = activeTab.favIconUrl,
     blockedSites = (await getStoreData())?.["blockedSites"];
-
-  // @ts-expect-error
-  if (typeof message === "string" && message.includes("blob:")) {
-    // @ts-ignore
-    message = await fromMsgReference(res);
-  }
 
   // check if site is blocked
   if (blockedSites) {
