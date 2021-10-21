@@ -1,4 +1,9 @@
-import { validateMessage, MessageFormat } from "../utils/messenger";
+import {
+  validateMessage,
+  MessageFormat,
+  toMsgReferece,
+  fromMsgReference
+} from "../utils/messenger";
 import { browser } from "webextension-polyfill-ts";
 
 function addScriptToWindow(path: string) {
@@ -33,7 +38,10 @@ const connection = browser.runtime.connect(browser.runtime.id, {
 // forward messages from the api to the background script
 window.addEventListener("message", async (e) => {
   if (!validateMessage(e.data, {}) || !e.data.type) return;
-  const listener = (res: any) => {
+  const listener = async (res: any) => {
+    if (typeof res === "string" && res.includes("blob:"))
+      res = await fromMsgReference(res);
+
     if (
       !res.ext ||
       res.ext !== "arconnect" ||
@@ -46,7 +54,10 @@ window.addEventListener("message", async (e) => {
     connection.onMessage.removeListener(listener);
   };
 
-  connection.postMessage(e.data);
+  if (e.data.type === "sign_transaction")
+    connection.postMessage(toMsgReferece(e.data));
+  else connection.postMessage(e.data);
+
   connection.onMessage.addListener(listener);
 });
 

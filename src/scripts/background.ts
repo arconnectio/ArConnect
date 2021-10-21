@@ -9,8 +9,10 @@ import {
 import { addToken, walletNames } from "../background/api/utility";
 import { signTransaction } from "../background/api/transaction";
 import {
+  fromMsgReference,
   MessageFormat,
   MessageType,
+  toMsgReferece,
   validateMessage
 } from "../utils/messenger";
 import {
@@ -103,13 +105,19 @@ browser.runtime.onConnect.addListener((connection) => {
 // listen for messages from the content script
 const handleApiCalls = async (
   message: MessageFormat
-): Promise<MessageFormat> => {
+): Promise<MessageFormat | string> => {
   const eventsStore = localStorage.getItem("arweave_events"),
     events: ArConnectEvent[] = eventsStore ? JSON.parse(eventsStore)?.val : [],
     activeTab = await getActiveTab(),
     tabURL = activeTab.url as string,
     faviconUrl = activeTab.favIconUrl,
     blockedSites = (await getStoreData())?.["blockedSites"];
+
+  // @ts-expect-error
+  if (typeof message === "string" && message.includes("blob:")) {
+    // @ts-ignore
+    message = await fromMsgReference(res);
+  }
 
   // check if site is blocked
   if (blockedSites) {
@@ -296,12 +304,12 @@ const handleApiCalls = async (
           sender: "background"
         };
 
-      return {
+      return toMsgReferece({
         type: "sign_transaction_result",
         ext: "arconnect",
         sender: "background",
         ...(await signTransaction(message, tabURL))
-      };
+      });
 
     case "encrypt":
       if (!(await checkPermissions(["ENCRYPT"], tabURL)))
