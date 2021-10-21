@@ -16,12 +16,12 @@ const themeCommon = {
 };
 
 const lightTheme = Themes.createFromLight({
-  type: "light",
+  type: "arconnectlight",
   palette: themeCommon
 });
 
 const darkTheme = Themes.createFromDark({
-  type: "dark",
+  type: "arconnectdark",
   palette: {
     accents_1: "#111",
     accents_2: "#333",
@@ -57,7 +57,10 @@ export default function Provider({ children }: Props) {
   return (
     <ReduxProvider store={store}>
       <PersistGate persistor={persistor}>
-        <GeistProvider themeType={scheme} themes={[darkTheme, lightTheme]}>
+        <GeistProvider
+          themeType={"arconnect" + scheme}
+          themes={[darkTheme, lightTheme]}
+        >
           <CssBaseline />
           {children}
         </GeistProvider>
