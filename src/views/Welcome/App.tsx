@@ -56,9 +56,8 @@ export default function App() {
     loadConfigModal = useModal(),
     configPasswordInput = useInput(""),
     configFileInput = useRef<HTMLInputElement>(null),
-    [configFilenameDisplay, setConfigFilenameDisplay] = useState(
-      "Click to load"
-    ),
+    [configFilenameDisplay, setConfigFilenameDisplay] =
+      useState("Click to load"),
     [loadingConfig, setLoadingConfig] = useState(false);
 
   useEffect(() => {
@@ -520,6 +519,12 @@ export default function App() {
           Import your settings and wallets from a generated config
         </Modal.Subtitle>
         <Modal.Content>
+          <Spacer h={0.5} />
+          <p style={{ fontWeight: 500, textAlign: "center" }}>
+            Important: this is for ArConnect config files,{" "}
+            <b>NOT ARWEAVE KEYFILES</b>
+          </p>
+          <Spacer h={0.5} />
           <Card
             className={styles.FileContent}
             onClick={() => configFileInput.current?.click()}

@@ -19,7 +19,7 @@ import axios from "axios";
  */
 export const createAuthPopup = (data: any) =>
   browser.windows.create({
-    url: `${browser.extension.getURL("auth.html")}?auth=${encodeURIComponent(
+    url: `${browser.runtime.getURL("auth.html")}?auth=${encodeURIComponent(
       JSON.stringify(data)
     )}`,
     focused: true,
@@ -151,7 +151,7 @@ export async function getFeeAmount(address: string, arweave: Arweave) {
     const res = await limestone.getPrice("AR");
     arPrice = res.price;
   } catch {
-    const { data: res } = await axios.get(
+    const { data: res }: any = await axios.get(
       "https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=usd"
     );
     arPrice = res.arweave.usd;
@@ -211,7 +211,7 @@ export const authenticateUser = (action: MessageType, tabURL: string) =>
           reject();
         else resolve();
       });
-    } catch (e) {
+    } catch (e: any) {
       reject(e);
     }
   });
@@ -240,4 +240,31 @@ export async function getArweaveConfig(): Promise<IArweave> {
   } catch {
     return defaultConfig;
   }
+}
+
+const getCommunityContractId = async (
+  url: string
+): Promise<string | undefined> => {
+  const response = await axios.head(url);
+  return response.headers["x-community-contract"];
+};
+
+/**
+ * @brief Checks if current resource relates to Arweave community by testing 'X-Community-Contract' header.
+ * @param url Resource that needs to be checked for community contract.
+ * @returns Transaction ID if it is Arweave resource, otherwise - undefined.
+ */
+export async function checkCommunityContract(
+  url: string
+): Promise<string | undefined> {
+  try {
+    if (url.startsWith("chrome://") || url.startsWith("about:"))
+      return undefined;
+    const id = await getCommunityContractId(url);
+    return id && /[a-z0-9_-]{43}/i.test(id) ? id : undefined;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+
+  return undefined;
 }

@@ -30,7 +30,7 @@ export async function arToFiat(quantity: number, currency: Currency) {
     const res = await limestone.getPrice("AR");
     price = res.price;
   } catch {
-    const { data: res } = await axios.get(
+    const { data: res }: any = await axios.get(
       "https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=usd"
     );
     price = res.arweave.usd;

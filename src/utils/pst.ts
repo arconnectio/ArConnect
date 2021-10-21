@@ -8,7 +8,7 @@ const cachedContractURL =
 // A return value of .15 means that the retrieved tip setting is 15% of the data upload cost.
 export async function getArDriveTipPercentage(): Promise<number> {
   try {
-    const res = (await axios.get(cachedContractURL)).data;
+    const res: any = (await axios.get(cachedContractURL)).data;
 
     const arDriveCommunityFee = res.state.settings.find(
       (setting: (string | number)[]) =>
@@ -23,7 +23,7 @@ export async function getArDriveTipPercentage(): Promise<number> {
 // Gets a random ArDrive token holder based off their weight (amount of tokens they hold)
 export async function selectTokenHolder(): Promise<string | undefined> {
   // Read the ArDrive Smart Contract to get the latest state
-  const res = (await axios.get(cachedContractURL)).data;
+  const res: any = (await axios.get(cachedContractURL)).data;
   const balances = res.state.balances;
   const vault = res.state.vault;
 

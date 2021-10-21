@@ -18,12 +18,18 @@ To actually build from source, you will need to execute the `build` command, tha
 yarn build
 ```
 
+If you want to build for **Firefox**, you will need to run:
+
+```sh
+yarn build:firefox
+```
+
 The compiled and bundled JS and CSS files will be built into the `public/build` folder. Now all you need to do is to load the built files as an "Unpacked extension" in Chrome / Brave. Open the extensions manager and click "Load unpacked" (this button will not be visible if developer mode is not toggled). Select the `public` folder when it asks for a directory to load.
 
 To build for **Firefox**, you will need to zip the built files first:
 
 ```sh
-yarn pack:firefox
+yarn zip
 ```
 
 Than you can click "Debug Add-ons" in the extensions menu and load the ZIP file.

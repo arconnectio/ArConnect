@@ -14,7 +14,7 @@ import {
   GearIcon,
   PlusIcon,
   SignOutIcon,
-  TrashcanIcon,
+  TrashIcon,
   VerifiedIcon
 } from "@primer/octicons-react";
 import { useColorScheme } from "use-color-scheme";
@@ -281,7 +281,7 @@ export default function WalletManager() {
                     className={styles.Remove}
                     onClick={() => deleteWallet(wallet.address)}
                   >
-                    <TrashcanIcon />
+                    <TrashIcon />
                   </div>
                 </div>
               ))}

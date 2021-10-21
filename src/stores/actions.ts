@@ -9,8 +9,7 @@ import { PermissionType } from "../utils/permissions";
 import { IAllowancesAction } from "./reducers/allowances";
 import { ISettings, ISettingsAction } from "./reducers/settings";
 import { IBalanceAction, Balance } from "./reducers/balances";
-
-import { browser } from "webextension-polyfill-ts";
+import { ITabAction } from "./reducers/time_tracking";
 
 export function addWallet(wallet: Wallet): IWalletsAction {
   return {
@@ -180,5 +179,19 @@ export function setBalance(balance: Balance): IBalanceAction {
   return {
     type: "UPDATE_BALANCE",
     payload: { balance }
+  };
+}
+
+export function startSession(id: string, tabId: number): ITabAction {
+  return {
+    type: "START_SESSION",
+    payload: { id, tabId }
+  };
+}
+
+export function closeSession(tabId: number): ITabAction {
+  return {
+    type: "CLOSE_SESSION",
+    payload: { tabId }
   };
 }

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   ArrowLeftIcon,
   ArrowSwitchIcon,
-  TrashcanIcon,
+  TrashIcon,
   InfoIcon,
   VerifiedIcon
 } from "@primer/octicons-react";
@@ -108,7 +108,9 @@ export default function PST({ id, name, balance, ticker }: Asset) {
   async function loadData() {
     setLoadingData(true);
     try {
-      const { data } = await axios.get(`https://v2.cache.verto.exchange/${id}`);
+      const { data }: any = await axios.get(
+        `https://v2.cache.verto.exchange/${id}`
+      );
 
       if (!data) return;
       setType(
@@ -228,7 +230,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
           onClick={() => removeModal.setVisible(true)}
           className={styles.Remove}
         >
-          <TrashcanIcon />
+          <TrashIcon />
         </button>
         {type === "collectible" && (
           <img
@@ -249,7 +251,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
                 )}{" "}
             AR
           </h2>
-        )) || <Spacer y={0.32} />}
+        )) || <Spacer h={0.32} />}
         <Tabs {...tabs.bindings} className={styles.Tabs}>
           <Tabs.Item
             label={
@@ -342,7 +344,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
               >
                 <Input
                   {...addressInput.bindings}
-                  status={addressInputState}
+                  type={addressInputState}
                   placeholder="Transfer address..."
                 />
                 {verified && verified.verified && (
@@ -384,8 +386,8 @@ export default function PST({ id, name, balance, ticker }: Asset) {
               <Input
                 {...transferInput.bindings}
                 placeholder="Transfer amount..."
-                type="number"
-                status={inputState}
+                htmlType="number"
+                type={inputState}
                 labelRight={ticker}
                 min="0"
                 max={balance}

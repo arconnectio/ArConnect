@@ -1,4 +1,9 @@
-import { validateMessage, MessageFormat } from "../utils/messenger";
+import {
+  validateMessage,
+  MessageFormat,
+  toMsgReferece,
+  fromMsgReference
+} from "../utils/messenger";
 import { browser } from "webextension-polyfill-ts";
 
 function addScriptToWindow(path: string) {
@@ -11,7 +16,7 @@ function addScriptToWindow(path: string) {
     script.setAttribute("src", path);
     container.insertBefore(script, container.children[0]);
     container.removeChild(script);
-  } catch (e) {
+  } catch (e: any) {
     console.error("Failed to inject ArConnect api", e);
   }
 }
@@ -24,7 +29,7 @@ interFont.href =
 document.head.appendChild(interFont);
 
 // inject the api
-addScriptToWindow(browser.extension.getURL("build/scripts/injected.js"));
+addScriptToWindow(browser.runtime.getURL("build/scripts/injected.js"));
 
 const connection = browser.runtime.connect(browser.runtime.id, {
   name: "backgroundConnection"
@@ -33,7 +38,10 @@ const connection = browser.runtime.connect(browser.runtime.id, {
 // forward messages from the api to the background script
 window.addEventListener("message", async (e) => {
   if (!validateMessage(e.data, {}) || !e.data.type) return;
-  const listener = (res: any) => {
+  const listener = async (res: any) => {
+    if (typeof res === "string" && res.includes("blob:"))
+      res = await fromMsgReference(res);
+
     if (
       !res.ext ||
       res.ext !== "arconnect" ||
@@ -46,7 +54,7 @@ window.addEventListener("message", async (e) => {
     connection.onMessage.removeListener(listener);
   };
 
-  connection.postMessage(e.data);
+  connection.postMessage(toMsgReferece(e.data));
   connection.onMessage.addListener(listener);
 });
 

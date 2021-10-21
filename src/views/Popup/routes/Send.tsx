@@ -96,7 +96,9 @@ export default function Send() {
       )
         feeMultiplier = 1;
       setFee(
-        arweave.ar.winstonToAr((parseFloat(data) * feeMultiplier).toFixed(0))
+        arweave.ar.winstonToAr(
+          (parseFloat(data as string) * feeMultiplier).toFixed(0)
+        )
       );
     } catch {}
   }
@@ -191,7 +193,7 @@ export default function Send() {
           <Input
             {...targetInput.bindings}
             placeholder="Send to address..."
-            status={submitted && targetInput.state === "" ? "error" : "default"}
+            type={submitted && targetInput.state === "" ? "error" : "default"}
           />
           {verified && verified.verified && (
             <Tooltip
@@ -228,15 +230,15 @@ export default function Send() {
             </motion.div>
           )}
         </AnimatePresence>
-        <Spacer y={verified ? 0.55 : 1} />
+        <Spacer h={verified ? 0.55 : 1} />
         <div className={styles.Amount}>
           <Input
             {...amountInput.bindings}
             placeholder="Amount"
             labelRight="AR"
-            type="number"
+            htmlType="number"
             min="0"
-            status={
+            type={
               submitted &&
               (amountInput.state === "" ||
                 Number(amountInput.state) > Number(balance))
@@ -261,7 +263,7 @@ export default function Send() {
             Max
           </Button>
         </div>
-        <Spacer y={0.19} />
+        <Spacer h={0.19} />
         <p className={styles.InputInfo}>
           <span>
             {"~" + getSymbol(currency)}
@@ -270,7 +272,7 @@ export default function Send() {
           </span>
           <span>1 AR = {getSymbol(currency) + arPriceFiat.toFixed(2)}</span>
         </p>
-        <Spacer y={0.45} />
+        <Spacer h={0.45} />
         <Input {...messageInput.bindings} placeholder="Message (optional)" />
         <p className={styles.FeeDisplay}>
           Arweave fee: {fee} AR
@@ -299,11 +301,11 @@ export default function Send() {
                 {...passwordInput.bindings}
                 width="100%"
                 placeholder="Enter your password..."
-                status={
+                type={
                   submitted && passwordInput.state === "" ? "error" : "default"
                 }
               />
-              <Spacer y={1} />
+              <Spacer h={1} />
             </motion.div>
           )}
         </AnimatePresence>
