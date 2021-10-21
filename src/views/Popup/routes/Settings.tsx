@@ -4,6 +4,7 @@ import {
   CheckIcon,
   ChevronDownIcon,
   ChevronRightIcon,
+  DownloadIcon,
   PencilIcon,
   XIcon
 } from "@primer/octicons-react";
@@ -23,7 +24,7 @@ import {
 import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
-import { getRealURL, shortenURL } from "../../../utils/url";
+import { formatAddress, getRealURL, shortenURL } from "../../../utils/url";
 import { Currency } from "../../../stores/reducers/settings";
 import { Threshold } from "arverify";
 import { MessageType } from "../../../utils/messenger";
@@ -95,7 +96,9 @@ export default function Settings() {
     configFileModal = useModal(),
     configPasswordInput = useInput(""),
     [generatingConfig, setGeneratingConfig] = useState(false),
-    feeMultiplier = useInput((otherSettings?.feeMultiplier || 1).toString());
+    feeMultiplier = useInput((otherSettings?.feeMultiplier || 1).toString()),
+    wallets = useSelector((state: RootState) => state.wallets),
+    [downloadWallet, setDownloadWallet] = useState<string>();
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
@@ -218,11 +221,6 @@ export default function Settings() {
 
   async function generateConfigFile() {
     const password = configPasswordInput.state;
-    setGeneratingConfig(true);
-
-    if (!(await checkPassword(password)))
-      return setToast({ text: "Invalid password", type: "error" });
-
     const storedData = (await browser.storage.local.get("persist:root"))?.[
       "persist:root"
     ];
@@ -251,7 +249,6 @@ export default function Settings() {
     el.click();
     document.body.removeChild(el);
 
-    setGeneratingConfig(false);
     setToast({ text: "Created config", type: "success" });
     configFileModal.setVisible(false);
   }
@@ -269,6 +266,36 @@ export default function Settings() {
       );
       setCurrSetting(undefined);
     } catch {}
+  }
+
+  async function downloadSelectedWallet() {
+    const el = document.createElement("a");
+    const walletJWK = wallets.find(
+      ({ address }) => address === downloadWallet
+    )?.keyfile;
+
+    if (!walletJWK)
+      return setToast({
+        text: "Error finding keyfile",
+        type: "error",
+        delay: 2000
+      });
+
+    el.setAttribute(
+      "href",
+      `data:application/json;charset=utf-8,${encodeURIComponent(
+        atob(walletJWK)
+      )}`
+    );
+    el.setAttribute("download", `arweave-keyfile-${downloadWallet}.json`);
+    el.style.display = "none";
+
+    document.body.appendChild(el);
+    el.click();
+    document.body.removeChild(el);
+
+    setToast({ text: "Downloaded keyfile", type: "success", delay: 3000 });
+    configFileModal.setVisible(false);
   }
 
   return (
@@ -955,17 +982,38 @@ export default function Settings() {
               </p>
               <Button
                 style={{ width: "100%", marginTop: ".5em" }}
-                onClick={() => configFileModal.setVisible(true)}
+                onClick={() => {
+                  setDownloadWallet(undefined);
+                  configFileModal.setVisible(true);
+                }}
                 type="success"
               >
                 I understand; download file
               </Button>
+              <Spacer h={1.5} />
+              <div className={styles.Wallets}>
+                {wallets.map(({ address }, i) => (
+                  <div className={styles.Wallet} key={i}>
+                    {formatAddress(address)}
+                    <span
+                      onClick={() => {
+                        setDownloadWallet(address);
+                        configFileModal.setVisible(true);
+                      }}
+                    >
+                      <DownloadIcon />
+                    </span>
+                  </div>
+                ))}
+              </div>
               <Spacer />
             </div>
           ))}
       </div>
       <Modal {...configFileModal.bindings}>
-        <Modal.Title>Generate config file</Modal.Title>
+        <Modal.Title>
+          {downloadWallet ? "Download wallet" : "Generate config file"}
+        </Modal.Title>
         <Modal.Content>
           <Input.Password
             {...configPasswordInput.bindings}
@@ -976,13 +1024,38 @@ export default function Settings() {
             <b style={{ display: "block" }}>
               DO NOT SHARE THIS FILE WITH ANYONE!
             </b>
-            It will compromise all of your wallets added to ArConnect.
+            It will compromise{" "}
+            {downloadWallet
+              ? `your wallet (${formatAddress(downloadWallet, 8)})`
+              : "all of your wallets added to ArConnect"}
+            .
           </p>
         </Modal.Content>
         <Modal.Action passive onClick={() => configFileModal.setVisible(false)}>
           Cancel
         </Modal.Action>
-        <Modal.Action onClick={generateConfigFile} loading={generatingConfig}>
+        <Modal.Action
+          onClick={async () => {
+            const password = configPasswordInput.state;
+            setGeneratingConfig(true);
+
+            if (!(await checkPassword(password))) {
+              setToast({ text: "Invalid password", type: "error" });
+              setGeneratingConfig(false);
+              return;
+            }
+
+            try {
+              if (downloadWallet) {
+                await downloadSelectedWallet();
+              } else {
+                await generateConfigFile();
+              }
+            } catch {}
+            setGeneratingConfig(false);
+          }}
+          loading={generatingConfig}
+        >
           Ok
         </Modal.Action>
       </Modal>

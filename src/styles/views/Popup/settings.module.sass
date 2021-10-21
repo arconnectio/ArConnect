@@ -211,3 +211,34 @@
 .ConfigFile
   p
     text-align: justify
+
+.Wallets
+  .Wallet
+    display: flex
+    justify-content: space-between
+    align-items: center
+    font-size: 1em
+    color: variables.$secondary-text-light
+    margin-bottom: .25em
+
+    &:last-child
+      margin-bottom: 0
+
+    span
+      cursor: pointer
+      color: #000
+      transition: all .23s ease-in-out
+
+      svg
+        font-size: 1em
+        width: 1em
+        height: 1em
+
+      &:hover
+        opacity: .8
+
+    @media (prefers-color-scheme: dark)
+      color: variables.$secondary-text-dark
+
+      span
+        color: #fff

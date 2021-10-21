@@ -144,7 +144,7 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
           url: tabURL,
           spendingLimitReached: openAllowance
         });
-        const listenerCallback = async (msg) => {
+        const listenerCallback = async (msg: any) => {
           browser.runtime.onMessage.removeListener(listenerCallback);
           if (
             !validateMessage(msg, {
