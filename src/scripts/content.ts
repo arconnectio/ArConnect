@@ -38,10 +38,15 @@ const connection = browser.runtime.connect(browser.runtime.id, {
 // forward messages from the api to the background script
 window.addEventListener("message", async (e) => {
   if (!validateMessage(e.data, {}) || !e.data.type) return;
+  let id = e.data.id;
   const listener = async (res: any) => {
     if (typeof res === "string" && res.includes("blob:"))
       res = await fromMsgReference(res);
 
+    // only resolve when the result matching our message.id is deleivered
+    if (res.id != id)
+      return;
+      
     if (
       !res.ext ||
       res.ext !== "arconnect" ||
