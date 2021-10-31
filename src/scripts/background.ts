@@ -9,10 +9,8 @@ import {
 import { addToken, walletNames } from "../background/api/utility";
 import { signTransaction } from "../background/api/transaction";
 import {
-  fromMsgReference,
   MessageFormat,
   MessageType,
-  toMsgReferece,
   validateMessage
 } from "../utils/messenger";
 import {
@@ -95,10 +93,6 @@ browser.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
 browser.runtime.onConnect.addListener((connection) => {
   if (connection.name !== "backgroundConnection") return;
   connection.onMessage.addListener(async (msg) => {
-    if (typeof msg === "string" && msg.includes("blob:")) {
-      msg = await fromMsgReference(msg);
-    }
-
     if (!validateMessage(msg, { sender: "api" })) return;
 
     const res = await handleApiCalls(msg);
@@ -302,12 +296,12 @@ const handleApiCalls = async (
           sender: "background"
         };
 
-      return toMsgReferece({
+      return {
         type: "sign_transaction_result",
         ext: "arconnect",
         sender: "background",
         ...(await signTransaction(message, tabURL))
-      });
+      };
 
     case "encrypt":
       if (!(await checkPermissions(["ENCRYPT"], tabURL)))
