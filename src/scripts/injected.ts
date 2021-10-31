@@ -145,6 +145,17 @@ const WalletAPI = {
       protocol: "https"
     });
 
+    // save split fields to be added back later
+    const splitTx = {
+      data: transaction.data,
+      tags: transaction.tags
+    };
+
+    // remove fields that are not needed for the signing
+    // and are large
+    transaction.data = new TextEncoder().encode("DATA");
+    transaction.tags = [];
+
     try {
       const data = await callAPI({
         type: "sign_transaction",
@@ -153,9 +164,17 @@ const WalletAPI = {
         transaction,
         signatureOptions: options
       });
+
+      transaction.data = splitTx.data;
+      transaction.tags = splitTx.tags;
+
       if (!data.res || !data.transaction) throw new Error(data.message);
 
       const decodeTransaction = arweave.transactions.fromRaw(data.transaction);
+
+      // add back missing fields
+      decodeTransaction.data = splitTx.data;
+      decodeTransaction.tags = [...splitTx.tags, ...decodeTransaction.tags];
 
       if (data.arConfetti) {
         for (let i = 0; i < 8; i++)
