@@ -43,6 +43,7 @@ let transactions: {
   transaction: Transaction;
   signatureOptions: SignatureOptions;
   origin: string; // tabID for verification
+  rawChunks: Chunk[]; // raw chunks to be reconstructed
 }[] = [];
 
 // open the welcome page
@@ -105,7 +106,7 @@ browser.runtime.onConnect.addListener((connection) => {
   connection.onMessage.addListener(async (msg, port) => {
     if (!validateMessage(msg, { sender: "api" })) return;
     const res = await handleApiCalls(msg, port);
-    connection.postMessage(res);
+    connection.postMessage({ ...res, ext: "arconnect" });
   });
 });
 
@@ -113,7 +114,7 @@ browser.runtime.onConnect.addListener((connection) => {
 const handleApiCalls = async (
   message: MessageFormat,
   port: Runtime.Port
-): Promise<MessageFormat | string> => {
+): Promise<MessageFormat> => {
   const eventsStore = localStorage.getItem("arweave_events"),
     events: ArConnectEvent[] = eventsStore ? JSON.parse(eventsStore)?.val : [],
     activeTab = await getActiveTab(),
@@ -315,7 +316,8 @@ const handleApiCalls = async (
         transaction: message.transaction,
         signatureOptions: message.signatureOptions,
         // @ts-ignore
-        origin: port.sender.origin
+        origin: port.sender.origin,
+        rawChunks: []
       });
 
       // tell the injected script that the background
@@ -332,7 +334,7 @@ const handleApiCalls = async (
     case "sign_transaction_chunk":
       // get the chunk from the message
       const chunk: Chunk = message.chunk;
-      // find the key of the transactions that the
+      // find the key of the transaction that the
       // chunk belongs to
       // also check if the origin of the chunk matches
       // the origin of the tx creation
@@ -352,20 +354,57 @@ const handleApiCalls = async (
           sender: "background"
         };
 
-      if (chunk.type === "data") {
-        // handle data chunks
-        transactions[txArrayID].transaction.data = addChunkToUint8Array(
-          transactions[txArrayID].transaction.data,
-          chunk.value as number[]
-        );
-      } else if (chunk.type === "tag") {
-        // handle tag chunks by simply pushing them
-        transactions[txArrayID].transaction.tags.push(chunk.value as Tag);
-      }
+      // push valid chunk for evaluation in the future
+      transactions[txArrayID].rawChunks.push(chunk);
 
       // let the injected script know that it can send the next chunk
       return {
         type: "sign_transaction_chunk_result",
+        ext: "arconnect",
+        res: true,
+        sender: "background"
+      };
+
+    case "sign_transaction_end":
+      // find the key of the transaction whose chunk
+      // stream is ending
+      // also check if the origin matches
+      // the origin of the tx creation
+      const txArrayKey = transactions.findIndex(
+        ({ transaction: tx, origin }) =>
+          // @ts-expect-error
+          tx.id === message.txID && origin === port.sender.origin
+      );
+
+      // throw error if the owner tx of this tx is not present
+      if (txArrayKey < 0)
+        return {
+          type: "sign_transaction_end_result",
+          ext: "arconnect",
+          res: false,
+          message: "Invalid origin for chunk",
+          sender: "background"
+        };
+
+      // loop through the raw chunks and reconstruct
+      // the transaction fields: data and tags
+      for (const chunk of transactions[txArrayKey].rawChunks) {
+        if (chunk.type === "data") {
+          // handle data chunks
+          transactions[txArrayKey].transaction.data = addChunkToUint8Array(
+            transactions[txArrayKey].transaction.data,
+            chunk.value as number[]
+          );
+        } else if (chunk.type === "tag") {
+          // handle tag chunks by simply pushing them
+          transactions[txArrayKey].transaction.tags.push(chunk.value as Tag);
+        }
+      }
+
+      // now the tx is ready for signing, the injected
+      // script can request the background script to sign
+      return {
+        type: "sign_transaction_end_result",
         ext: "arconnect",
         res: true,
         sender: "background"
