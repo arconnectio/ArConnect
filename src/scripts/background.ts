@@ -36,7 +36,7 @@ import {
 import { browser, Runtime } from "webextension-polyfill-ts";
 import { fixupPasswords } from "../utils/auth";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
-import { Chunk } from "../utils/chunks";
+import { addChunkToUint8Array, Chunk } from "../utils/chunks";
 
 // stored transactions and their chunks
 let transactions: {
@@ -354,12 +354,10 @@ const handleApiCalls = async (
 
       if (chunk.type === "data") {
         // handle data chunks
-        // create a number array from the data of the tx and
-        // concat it with the received chunk's data
-        const oldArray = Array.from(transactions[txArrayID].transaction.data);
-        const newArray = [...oldArray, ...(chunk.value as number[])];
-
-        transactions[txArrayID].transaction.data = new Uint8Array(newArray);
+        transactions[txArrayID].transaction.data = addChunkToUint8Array(
+          transactions[txArrayID].transaction.data,
+          chunk.value as number[]
+        );
       } else if (chunk.type === "tag") {
         // handle tag chunks by simply pushing them
         transactions[txArrayID].transaction.tags.push(chunk.value as Tag);

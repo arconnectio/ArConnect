@@ -57,3 +57,24 @@ export function splitTxToChunks(transaction: Transaction) {
     dataChunks
   };
 }
+
+/**
+ * Add a number array from a chunk to a
+ * Uint8Array of data for a transaction
+ *
+ * @param dataArray The Uint8Array of the data
+ * @param chunkArray Number array to add to the data
+ *
+ * @returns A Uint8Array with the additional data
+ */
+export function addChunkToUint8Array(
+  dataArray: Uint8Array,
+  chunkArray: number[]
+) {
+  // create a number array from the Uint8Array
+  const oldArray = Array.from(dataArray);
+  // concat the two
+  const newArray = [...oldArray, ...chunkArray];
+
+  return new Uint8Array(newArray);
+}
