@@ -15,6 +15,8 @@ export type MessageType =
   | "disconnect_result"
   | "sign_transaction"
   | "sign_transaction_result"
+  | "sign_transaction_chunk"
+  | "sign_transaction_chunk_result"
   | "sign_auth"
   | "sign_auth_result"
   | "encrypt"
@@ -74,34 +76,4 @@ export function validateMessage(
   if (sender && message.sender !== sender) return false;
   if (type && message.type !== type) return false;
   return true;
-}
-
-/**
- * Create a file from an object and create a reference to that
- * This helps minifying the messages in the extension
- *
- * @param object Object to minify
- *
- * @returns Reference blob URL
- */
-export function toMsgReferece(object: object) {
-  const blob = new Blob([JSON.stringify(object)], { type: "text/plain" });
-
-  return URL.createObjectURL(blob);
-}
-
-/**
- * Get an object from a blob file URL
- *
- * @param reference Reference URL to the blob
- *
- * @returns Parsed object
- */
-export async function fromMsgReference(reference: string) {
-  const res = await fetch(reference);
-  const data = await (await res.blob()).text();
-
-  URL.revokeObjectURL(reference);
-
-  return JSON.parse(data);
 }

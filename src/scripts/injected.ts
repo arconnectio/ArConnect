@@ -145,14 +145,25 @@ const WalletAPI = {
       protocol: "https"
     });
 
+    const tags = transaction.tags;
+    // split by around 0.5 mb = 500000 bytes
+    const data = transaction.get("data", { decode: true, string: true });
+    const dataChunks = data.match(/.{1,500000}/g);
+    const tx = {
+      ...transaction,
+      data: undefined,
+      tags: undefined
+    };
+
     try {
       const data = await callAPI({
         type: "sign_transaction",
         ext: "arconnect",
         sender: "api",
-        transaction,
+        transaction: tx,
         signatureOptions: options
       });
+
       if (!data.res || !data.transaction) throw new Error(data.message);
 
       const decodeTransaction = arweave.transactions.fromRaw(data.transaction);
