@@ -40,6 +40,7 @@ import Transaction, { Tag } from "arweave/web/lib/transaction";
 
 // stored transactions and their chunks
 let transactions: {
+  chunkCollectionID: string; // unique ID for this collection
   transaction: Transaction;
   signatureOptions: SignatureOptions;
   origin: string; // tabID for verification
@@ -313,7 +314,13 @@ const handleApiCalls = async (
       // the content of the chunks will get pushed
       // here
       transactions.push({
-        transaction: message.transaction,
+        chunkCollectionID: message.chunkCollectionID,
+        transaction: {
+          ...message.transaction,
+          // add an empty tag array and data array to start,
+          data: new Uint8Array(),
+          tags: []
+        },
         signatureOptions: message.signatureOptions,
         // @ts-ignore
         origin: port.sender.origin,
@@ -338,9 +345,10 @@ const handleApiCalls = async (
       // also check if the origin of the chunk matches
       // the origin of the tx creation
       const txArrayID = transactions.findIndex(
-        ({ transaction: tx, origin }) =>
+        ({ chunkCollectionID, origin }) =>
           // @ts-expect-error
-          tx.id === chunk.txID && origin === port.sender.origin
+          chunkCollectionID === chunk.collectionID &&
+          origin === port.sender.origin
       );
 
       // throw error if the owner tx of this chunk is not present
@@ -370,9 +378,10 @@ const handleApiCalls = async (
       // also check if the origin matches
       // the origin of the tx creation
       const txArrayKey = transactions.findIndex(
-        ({ transaction: tx, origin }) =>
+        ({ chunkCollectionID, origin }) =>
           // @ts-expect-error
-          tx.id === message.txID && origin === port.sender.origin
+          chunkCollectionID === message.chunkCollectionID &&
+          origin === port.sender.origin
       );
 
       // throw error if the owner tx of this tx is not present
@@ -404,7 +413,7 @@ const handleApiCalls = async (
       transactions[txArrayKey].rawChunks = [];
 
       const signResult = await signTransaction(
-        message.transaction,
+        transactions[txArrayKey].transaction,
         tabURL,
         message.signatureOptions
       );
@@ -415,6 +424,7 @@ const handleApiCalls = async (
         type: "sign_transaction_end_result",
         ext: "arconnect",
         sender: "background",
+        chunkCollectionID: message.chunkCollectionID,
         ...signResult
       };
 

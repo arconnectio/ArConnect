@@ -145,6 +145,11 @@ const WalletAPI = {
       port: 443,
       protocol: "https"
     });
+    // generate a unique ID for this transaction's chunks
+    // since the transaction does not have an ID yet
+    const chunkCollectionID = (
+      Date.now() * Math.floor(Math.random() * 100)
+    ).toString();
 
     /**
      * Part one, create chunks from the tags
@@ -154,7 +159,7 @@ const WalletAPI = {
       transaction: tx,
       dataChunks,
       tagChunks
-    } = splitTxToChunks(transaction);
+    } = splitTxToChunks(transaction, chunkCollectionID);
 
     try {
       /**
@@ -167,6 +172,7 @@ const WalletAPI = {
       // will listen for incoming chunks
       const data = await callAPI({
         type: "sign_transaction",
+        chunkCollectionID,
         transaction: tx,
         signatureOptions: options
       });
@@ -188,7 +194,7 @@ const WalletAPI = {
         // chunk fail
         if (!chunkRes.res)
           throw new Error(
-            `Error while sending a data chunk for tx ${transaction.id}: \n${data.message}`
+            `Error while sending a data chunk of collection "${chunkCollectionID}": \n${data.message}`
           );
       }
 
@@ -196,13 +202,13 @@ const WalletAPI = {
       for (const chunk of tagChunks) {
         const chunkRes = await callAPI({
           type: "sign_transaction_chunk",
-          chunk: chunk
+          chunk
         });
 
         // chunk fail
         if (!chunkRes.res)
           throw new Error(
-            `Error while sending a tag chunk for tx ${transaction.id}: \n${chunkRes.message}`
+            `Error while sending a tag chunk for tx from chunk collection "${chunkCollectionID}": \n${chunkRes.message}`
           );
       }
 
@@ -212,17 +218,22 @@ const WalletAPI = {
        */
       const endRes = await callAPI({
         type: "sign_transaction_end",
-        txID: transaction.id
+        chunkCollectionID
       });
 
       if (!endRes.res)
         throw new Error(
-          `Could not end chunk stream for tx ${transaction.id}: \n${endRes.message}`
+          `Could not end chunk stream with ID "${chunkCollectionID}": \n${endRes.message}`
         );
 
       if (!endRes.transaction)
         throw new Error(
-          `No transaction returned from signing tx ${transaction.id}`
+          `No transaction returned from signing tx from chunk collection "${chunkCollectionID}"`
+        );
+
+      if (endRes.chunkCollectionID !== chunkCollectionID)
+        throw new Error(
+          `Invalid chunk collection ID returned. Should be "${chunkCollectionID}", but it is "${endRes.chunkCollectionID}"`
         );
 
       // Reconstruct the transaction

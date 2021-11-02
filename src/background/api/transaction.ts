@@ -198,10 +198,10 @@ export const signTransaction = (
         };
         browser.runtime.onMessage.addListener(listenerCallback);
       } else resolve(await sign());
-    } catch {
+    } catch (e) {
       resolve({
         res: false,
-        message: "Error signing transaction"
+        message: `Error signing transaction: ${e}`
       });
     }
   });

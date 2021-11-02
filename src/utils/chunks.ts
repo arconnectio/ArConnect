@@ -4,7 +4,7 @@ import Transaction, { Tag } from "arweave/web/lib/transaction";
  * The chunk of the transaction signing
  */
 export interface Chunk {
-  txID: string;
+  collectionID: string; // unique ID for the collection, that is the parent of this chunk
   type: "tag" | "data";
   index: number; // index of the chunk, to make sure it is not in the wrong order
   value: number[] | Tag; // Uint8Array converted to number array or a tag
@@ -19,10 +19,13 @@ export interface Chunk {
  * @returns The transaction (without data and tags) + tag chunks
  * and data chunks
  */
-export function splitTxToChunks(transaction: Transaction) {
+export function splitTxToChunks(
+  transaction: Transaction,
+  collectionID: string
+) {
   // create tag chunks
   const tagChunks: Chunk[] = transaction.tags.map((value, index) => ({
-    txID: transaction.id,
+    collectionID,
     type: "tag",
     index,
     value
@@ -38,7 +41,7 @@ export function splitTxToChunks(transaction: Transaction) {
   // map data into chunks of 0.5 mb = 500000 bytes
   while (dataToNumber.length) {
     dataChunks.push({
-      txID: transaction.id,
+      collectionID,
       type: "data",
       index: dataChunkCounter,
       value: dataToNumber.splice(0, 500000)
