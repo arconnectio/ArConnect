@@ -7,28 +7,27 @@ import {
   getStoreData,
   setStoreData
 } from "../../utils/background";
+import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { MessageFormat, validateMessage } from "../../utils/messenger";
 import { getRealURL } from "../../utils/url";
 import { browser } from "webextension-polyfill-ts";
 import Arweave from "arweave";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
+import Transaction from "arweave/web/lib/transaction";
 
 // sign a transaction using the currently selected
 // wallet's keyfile
-export const signTransaction = (message: MessageFormat, tabURL: string) =>
+export const signTransaction = (
+  transaction: Transaction,
+  tabURL: string,
+  signatureOptions: SignatureOptions
+) =>
   new Promise<Partial<MessageFormat>>(async (resolve, _) => {
-    if (!message.transaction)
-      return resolve({
-        res: false,
-        message: "No transaction submitted."
-      });
-
     try {
       // transaction price in winston
       let price =
-        parseFloat(message.transaction.quantity) +
-        parseFloat(message.transaction.reward);
+        parseFloat(transaction.quantity) + parseFloat(transaction.reward);
       const arweave = new Arweave(await getArweaveConfig()),
         storeData = await getStoreData(),
         arConfettiSetting = storeData?.["settings"]?.arConfetti,
@@ -73,12 +72,19 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
 
         const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt)),
           decodeTransaction = arweave.transactions.fromRaw({
-            ...message.transaction,
+            ...transaction,
             owner: keyfile.n
           });
+        const arConnectTags = [
+          { name: "Signing-Client", value: "ArConnect" },
+          { name: "Signing-Client-Version", value: manifest.version }
+        ];
 
-        decodeTransaction.addTag("Signing-Client", "ArConnect");
-        decodeTransaction.addTag("Signing-Client-Version", manifest.version);
+        // add some ArConnect tags so the tx can be
+        // identified later for debugging, etc.
+        for (const arcTag of arConnectTags) {
+          decodeTransaction.addTag(arcTag.name, arcTag.value);
+        }
 
         // fee multiplying
         if (feeMultiplier > 1) {
@@ -86,14 +92,14 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
             +decodeTransaction.reward * feeMultiplier
           ).toFixed(0);
           price =
-            parseFloat(message.transaction.quantity) +
+            parseFloat(transaction.quantity) +
             parseFloat(decodeTransaction.reward);
         }
 
         await arweave.transactions.sign(
           decodeTransaction,
           keyfile,
-          message.signatureOptions
+          signatureOptions
         );
 
         const feeTarget = await selectVRTHolder();
@@ -128,10 +134,33 @@ export const signTransaction = (message: MessageFormat, tabURL: string) =>
           });
         }
 
+        // remove the two fields that can be massive
+        // these don't need to be sent back to the
+        // injected script, because they don't
+        // change during signing
+        // they were still needed tho, because the
+        // transaction signer creates a valid signature
+        // using those as well
+        const returnTransaction = {
+          ...decodeTransaction,
+          data: undefined,
+          // only return the arconnect tags
+          tags: decodeTransaction
+            .get("tags")
+            // @ts-expect-error
+            .filter(
+              (tag) =>
+                !!arConnectTags.find(
+                  ({ name }) =>
+                    name === tag.get("name", { decode: true, string: true })
+                )
+            )
+        };
+
         return {
           res: true,
           message: "Success",
-          transaction: decodeTransaction,
+          transaction: returnTransaction,
           arConfetti: arConfettiSetting === undefined ? true : arConfettiSetting
         };
       };

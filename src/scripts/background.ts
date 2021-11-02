@@ -1,4 +1,3 @@
-import Transaction, { Tag } from "arweave/web/lib/transaction";
 import { getRealURL } from "../utils/url";
 import { ArConnectEvent } from "../views/Popup/routes/Settings";
 import { connect, disconnect } from "../background/api/connection";
@@ -37,6 +36,7 @@ import { browser, Runtime } from "webextension-polyfill-ts";
 import { fixupPasswords } from "../utils/auth";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { addChunkToUint8Array, Chunk } from "../utils/chunks";
+import Transaction, { Tag } from "arweave/web/lib/transaction";
 
 // stored transactions and their chunks
 let transactions: {
@@ -327,7 +327,6 @@ const handleApiCalls = async (
         ext: "arconnect",
         sender: "background",
         res: true
-        //...(await signTransaction(message, tabURL))
       };
 
     // receive and reconstruct a chunk
@@ -382,7 +381,7 @@ const handleApiCalls = async (
           type: "sign_transaction_end_result",
           ext: "arconnect",
           res: false,
-          message: "Invalid origin for chunk",
+          message: "Invalid origin for end request",
           sender: "background"
         };
 
@@ -401,13 +400,22 @@ const handleApiCalls = async (
         }
       }
 
+      // clean up the raw chunks
+      transactions[txArrayKey].rawChunks = [];
+
+      const signResult = await signTransaction(
+        message.transaction,
+        tabURL,
+        message.signatureOptions
+      );
+
       // now the tx is ready for signing, the injected
       // script can request the background script to sign
       return {
         type: "sign_transaction_end_result",
         ext: "arconnect",
-        res: true,
-        sender: "background"
+        sender: "background",
+        ...signResult
       };
 
     case "encrypt":

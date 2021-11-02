@@ -202,15 +202,41 @@ const WalletAPI = {
         // chunk fail
         if (!chunkRes.res)
           throw new Error(
-            `Error while sending a tag chunk for tx ${transaction.id}`
+            `Error while sending a tag chunk for tx ${transaction.id}: \n${chunkRes.message}`
           );
       }
 
-      // if (!data.res || !data.transaction) throw new Error(data.message);
+      /**
+       * Parth three, signal the end of the chunk stream
+       * and request signing
+       */
+      const endRes = await callAPI({
+        type: "sign_transaction_end",
+        txID: transaction.id
+      });
 
-      const decodeTransaction = arweave.transactions.fromRaw(data.transaction);
+      if (!endRes.res)
+        throw new Error(
+          `Could not end chunk stream for tx ${transaction.id}: \n${endRes.message}`
+        );
 
-      if (data.arConfetti) {
+      if (!endRes.transaction)
+        throw new Error(
+          `No transaction returned from signing tx ${transaction.id}`
+        );
+
+      // Reconstruct the transaction
+      // Since the tags and the data are not sent
+      // back, we need to add them back manually
+      const decodeTransaction = arweave.transactions.fromRaw({
+        ...endRes.transaction,
+        // some arconnect tags are sent back, so we need to concat them
+        tags: [...transaction.tags, ...endRes.transaction.tags],
+        data: transaction.data
+      });
+
+      // show a nice confetti eeffect, if enabled
+      if (endRes.arConfetti) {
         for (let i = 0; i < 8; i++)
           setTimeout(() => createCoinWithAnimation(), i * 150);
       }
