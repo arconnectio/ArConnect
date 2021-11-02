@@ -2,6 +2,7 @@ import { comparePermissions, PermissionType } from "../utils/permissions";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { getRealURL } from "../utils/url";
 import { IArweave } from "../stores/reducers/arweave";
+import { splitTxToChunks } from "../utils/chunks";
 import {
   createOverlay,
   createCoinWithAnimation,
@@ -145,26 +146,67 @@ const WalletAPI = {
       protocol: "https"
     });
 
-    const tags = transaction.tags;
-    // split by around 0.5 mb = 500000 bytes
-    const data = transaction.get("data", { decode: true, string: true });
-    const dataChunks = data.match(/.{1,500000}/g);
-    const tx = {
-      ...transaction,
-      data: undefined,
-      tags: undefined
-    };
+    /**
+     * Part one, create chunks from the tags
+     * and the data of the transaction
+     */
+    const {
+      transaction: tx,
+      dataChunks,
+      tagChunks
+    } = splitTxToChunks(transaction);
 
     try {
+      /**
+       * Part two, send the chunks to the background script
+       */
+
+      // we call the api and request it to start receiving
+      // the chunks and we also send the tx object (except
+      // the data and the tags). now the background script
+      // will listen for incoming chunks
       const data = await callAPI({
         type: "sign_transaction",
-        ext: "arconnect",
-        sender: "api",
         transaction: tx,
         signatureOptions: options
       });
 
-      if (!data.res || !data.transaction) throw new Error(data.message);
+      // somewhy the chunk streaming was not accepted, most
+      // likely because the site does not have the permission
+      if (!data.res)
+        throw new Error(
+          `Failed to initiate transaction chunk stream: \n${data.message}`
+        );
+
+      // send data chunks
+      for (const chunk of dataChunks) {
+        const chunkRes = await callAPI({
+          type: "sign_transaction_chunk",
+          chunk: chunk
+        });
+
+        // chunk fail
+        if (!chunkRes.res)
+          throw new Error(
+            `Error while sending a data chunk for tx ${transaction.id}: \n${data.message}`
+          );
+      }
+
+      // send tag chunks
+      for (const chunk of tagChunks) {
+        const chunkRes = await callAPI({
+          type: "sign_transaction_chunk",
+          chunk: chunk
+        });
+
+        // chunk fail
+        if (!chunkRes.res)
+          throw new Error(
+            `Error while sending a tag chunk for tx ${transaction.id}`
+          );
+      }
+
+      // if (!data.res || !data.transaction) throw new Error(data.message);
 
       const decodeTransaction = arweave.transactions.fromRaw(data.transaction);
 

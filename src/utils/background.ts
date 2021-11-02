@@ -5,7 +5,6 @@ import { IArweave, defaultConfig } from "../stores/reducers/arweave";
 import { PermissionType } from "./permissions";
 import { getRealURL } from "./url";
 import { browser } from "webextension-polyfill-ts";
-import { Tag } from "arweave/web/lib/transaction";
 import { run } from "ar-gql";
 import limestone from "@limestonefi/api";
 import Arweave from "arweave";
@@ -268,13 +267,4 @@ export async function checkCommunityContract(
   }
 
   return undefined;
-}
-
-/**
- * The chunk of the transaction signing
- */
-export interface Chunk {
-  txID: string;
-  type: "tag" | "data" | "end";
-  value?: string | Tag;
 }

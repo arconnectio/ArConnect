@@ -21,8 +21,7 @@ import {
   getPermissions,
   getStoreData,
   walletsStored,
-  checkCommunityContract,
-  Chunk
+  checkCommunityContract
 } from "../utils/background";
 import { decrypt, encrypt, signature } from "../background/api/encryption";
 import {
@@ -37,6 +36,7 @@ import {
 import { browser, Runtime } from "webextension-polyfill-ts";
 import { fixupPasswords } from "../utils/auth";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
+import { Chunk } from "../utils/chunks";
 
 // stored transactions and their chunks
 let transactions: {
@@ -307,6 +307,10 @@ const handleApiCalls = async (
         };
 
       // Begin listening for chunks
+      // this initializes a new array element
+      // with all the data for a future signing
+      // the content of the chunks will get pushed
+      // here
       transactions.push({
         transaction: message.transaction,
         signatureOptions: message.signatureOptions,
@@ -314,6 +318,8 @@ const handleApiCalls = async (
         origin: port.sender.origin
       });
 
+      // tell the injected script that the background
+      // script is ready to receive the chunks
       return {
         type: "sign_transaction_result",
         ext: "arconnect",
@@ -322,13 +328,21 @@ const handleApiCalls = async (
         //...(await signTransaction(message, tabURL))
       };
 
+    // receive and reconstruct a chunk
     case "sign_transaction_chunk":
+      // get the chunk from the message
       const chunk: Chunk = message.chunk;
+      // find the key of the transactions that the
+      // chunk belongs to
+      // also check if the origin of the chunk matches
+      // the origin of the tx creation
       const txArrayID = transactions.findIndex(
         ({ transaction: tx, origin }) =>
+          // @ts-expect-error
           tx.id === chunk.txID && origin === port.sender.origin
       );
 
+      // throw error if the owner tx of this chunk is not present
       if (txArrayID < 0)
         return {
           type: "sign_transaction_chunk_result",
@@ -338,14 +352,20 @@ const handleApiCalls = async (
           sender: "background"
         };
 
-      // TODO: update this to push to the data array
-      // and the chunks to use a split array data too (number array basically)
       if (chunk.type === "data") {
-        transactions[txArrayID].transaction.data += chunk.value as string;
+        // handle data chunks
+        // create a number array from the data of the tx and
+        // concat it with the received chunk's data
+        const oldArray = Array.from(transactions[txArrayID].transaction.data);
+        const newArray = [...oldArray, ...(chunk.value as number[])];
+
+        transactions[txArrayID].transaction.data = new Uint8Array(newArray);
       } else if (chunk.type === "tag") {
+        // handle tag chunks by simply pushing them
         transactions[txArrayID].transaction.tags.push(chunk.value as Tag);
       }
 
+      // let the injected script know that it can send the next chunk
       return {
         type: "sign_transaction_chunk_result",
         ext: "arconnect",
