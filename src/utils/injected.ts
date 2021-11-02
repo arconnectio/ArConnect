@@ -65,7 +65,7 @@ export const callAPI = (message: MessageFormat) =>
   new Promise<void | any>((resolve, reject) => {
     // give every message a unique autoincrementing id
     let id = messageId;
-    message.id =id;
+    message.id = id;
     messageId += 1;
     window.postMessage(message, window.location.origin);
     window.addEventListener("message", callback);

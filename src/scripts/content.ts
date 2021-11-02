@@ -44,9 +44,8 @@ window.addEventListener("message", async (e) => {
       res = await fromMsgReference(res);
 
     // only resolve when the result matching our message.id is deleivered
-    if (res.id != id)
-      return;
-      
+    if (res.id != id) return;
+
     if (
       !res.ext ||
       res.ext !== "arconnect" ||
