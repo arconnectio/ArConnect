@@ -1,3 +1,4 @@
+import Transaction, { Tag } from "arweave/web/lib/transaction";
 import { getRealURL } from "../utils/url";
 import { ArConnectEvent } from "../views/Popup/routes/Settings";
 import { connect, disconnect } from "../background/api/connection";
@@ -20,7 +21,8 @@ import {
   getPermissions,
   getStoreData,
   walletsStored,
-  checkCommunityContract
+  checkCommunityContract,
+  Chunk
 } from "../utils/background";
 import { decrypt, encrypt, signature } from "../background/api/encryption";
 import {
@@ -32,8 +34,16 @@ import {
   handleBrowserGainedFocus,
   getArweaveActiveTab
 } from "../background/tab_update";
-import { browser } from "webextension-polyfill-ts";
+import { browser, Runtime } from "webextension-polyfill-ts";
 import { fixupPasswords } from "../utils/auth";
+import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
+
+// stored transactions and their chunks
+let transactions: {
+  transaction: Transaction;
+  signatureOptions: SignatureOptions;
+  origin: string; // tabID for verification
+}[] = [];
 
 // open the welcome page
 browser.runtime.onInstalled.addListener(async () => {
@@ -92,17 +102,17 @@ browser.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
 
 browser.runtime.onConnect.addListener((connection) => {
   if (connection.name !== "backgroundConnection") return;
-  connection.onMessage.addListener(async (msg) => {
+  connection.onMessage.addListener(async (msg, port) => {
     if (!validateMessage(msg, { sender: "api" })) return;
-
-    const res = await handleApiCalls(msg);
+    const res = await handleApiCalls(msg, port);
     connection.postMessage(res);
   });
 });
 
 // listen for messages from the content script
 const handleApiCalls = async (
-  message: MessageFormat
+  message: MessageFormat,
+  port: Runtime.Port
 ): Promise<MessageFormat | string> => {
   const eventsStore = localStorage.getItem("arweave_events"),
     events: ArConnectEvent[] = eventsStore ? JSON.parse(eventsStore)?.val : [],
@@ -296,11 +306,51 @@ const handleApiCalls = async (
           sender: "background"
         };
 
+      // Begin listening for chunks
+      transactions.push({
+        transaction: message.transaction,
+        signatureOptions: message.signatureOptions,
+        // @ts-ignore
+        origin: port.sender.origin
+      });
+
       return {
         type: "sign_transaction_result",
         ext: "arconnect",
         sender: "background",
-        ...(await signTransaction(message, tabURL))
+        res: true
+        //...(await signTransaction(message, tabURL))
+      };
+
+    case "sign_transaction_chunk":
+      const chunk: Chunk = message.chunk;
+      const txArrayID = transactions.findIndex(
+        ({ transaction: tx, origin }) =>
+          tx.id === chunk.txID && origin === port.sender.origin
+      );
+
+      if (txArrayID < 0)
+        return {
+          type: "sign_transaction_chunk_result",
+          ext: "arconnect",
+          res: false,
+          message: "Invalid origin for chunk",
+          sender: "background"
+        };
+
+      // TODO: update this to push to the data array
+      // and the chunks to use a split array data too (number array basically)
+      if (chunk.type === "data") {
+        transactions[txArrayID].transaction.data += chunk.value as string;
+      } else if (chunk.type === "tag") {
+        transactions[txArrayID].transaction.tags.push(chunk.value as Tag);
+      }
+
+      return {
+        type: "sign_transaction_chunk_result",
+        ext: "arconnect",
+        res: true,
+        sender: "background"
       };
 
     case "encrypt":

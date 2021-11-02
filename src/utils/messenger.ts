@@ -15,6 +15,8 @@ export type MessageType =
   | "disconnect_result"
   | "sign_transaction"
   | "sign_transaction_result"
+  | "sign_transaction_chunk"
+  | "sign_transaction_chunk_result"
   | "sign_auth"
   | "sign_auth_result"
   | "encrypt"
