@@ -31,22 +31,32 @@ export function splitTxToChunks(
     value
   }));
 
-  // the data gets converted from a Uint8Array
-  // to a number array.
-  // then this array is split into chunks of 0.5 mb
-  const dataToNumber = Array.from(transaction.data);
+  // split the data array
+  const dataEntries = transaction.data.entries();
   const dataChunks: Chunk[] = [];
+  let dataChunkArrays: number[][] = [];
+  let dataChunkArrayCounter = 0;
 
-  let dataChunkCounter = 0;
-  // map data into chunks of 0.5 mb = 500000 bytes
-  while (dataToNumber.length) {
+  // loop through the entries of the data array
+  for (const n of dataEntries) {
+    // divide array by 0.5 mb = 500000 bytes
+    const pushKey = Math.floor(dataChunkArrayCounter / 500000);
+
+    // push bytes as number
+    dataChunkArrays[pushKey] = [...(dataChunkArrays[pushKey] ?? []), n[1]];
+    dataChunkArrayCounter++;
+  }
+
+  // map chunks
+  for (let i = 0; i < dataChunkArrays.length; i++) {
+    const chunkArray = dataChunkArrays[i];
+
     dataChunks.push({
       collectionID,
       type: "data",
-      index: dataChunkCounter,
-      value: dataToNumber.splice(0, 500000)
+      index: i,
+      value: chunkArray
     });
-    dataChunkCounter++;
   }
 
   // remove data and tag values from the tx object
@@ -79,10 +89,14 @@ export function addChunkToUint8Array(
   dataArray: Uint8Array,
   chunkArray: number[]
 ) {
-  // create a number array from the Uint8Array
-  const oldArray = Array.from(dataArray);
-  // concat the two
-  const newArray = [...oldArray, ...chunkArray];
+  const convertedChunkArray = new Uint8Array(chunkArray);
+  // @ts-expect-error
+  const newArray: Uint8Array = new dataArray.constructor(
+    dataArray.length + convertedChunkArray.length
+  );
 
-  return new Uint8Array(newArray);
+  newArray.set(dataArray, 0);
+  newArray.set(convertedChunkArray, dataArray.length);
+
+  return newArray;
 }
