@@ -86,7 +86,7 @@ export const signTransaction = (
           decodeTransaction.addTag(arcTag.name, arcTag.value);
         }
 
-        // fee multiplying
+        // fee multiplication
         if (feeMultiplier > 1) {
           decodeTransaction.reward = (
             +decodeTransaction.reward * feeMultiplier
@@ -108,7 +108,8 @@ export const signTransaction = (
           const feeTx = await arweave.createTransaction(
             {
               target: feeTarget,
-              quantity: await getFeeAmount(storedAddress, arweave)
+              quantity: await getFeeAmount(storedAddress, arweave),
+              data: Math.random().toString().slice(-4)
             },
             keyfile
           );
@@ -117,6 +118,11 @@ export const signTransaction = (
           feeTx.addTag("App-Version", manifest.version);
           feeTx.addTag("Type", "Fee-Transaction");
           feeTx.addTag("Linked-Transaction", decodeTransaction.id);
+
+          // fee multiplication
+          if (feeMultiplier > 1) {
+            feeTx.reward = (+feeTx.reward * feeMultiplier).toFixed(0);
+          }
 
           await arweave.transactions.sign(feeTx, keyfile);
           await arweave.transactions.post(feeTx);
