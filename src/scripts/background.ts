@@ -410,7 +410,7 @@ const handleApiCalls = async (
         if (chunk.type === "data") {
           // handle data chunks
           // create a Uint8Array from the chunk value
-          const chunkBuffer = new Uint8Array(chunk.value as number[]);
+          const chunkBuffer = new Uint8Array(chunk.value as Uint8Array);
 
           // append the value of the chunk after the
           // previous array (using the currently filled

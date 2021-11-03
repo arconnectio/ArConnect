@@ -7,7 +7,7 @@ export interface Chunk {
   collectionID: string; // unique ID for the collection, that is the parent of this chunk
   type: "tag" | "data";
   index: number; // index of the chunk, to make sure it is not in the wrong order
-  value: number[] | Tag; // Uint8Array converted to number array or a tag
+  value: Uint8Array | Tag; // Uint8Array converted to number array or a tag
 }
 
 /**
@@ -32,11 +32,10 @@ export function splitTxToChunks(
   }));
 
   // the data array is split into chunks of 0.5 mb
-  const dataToNumber = Array.from(transaction.data);
   const dataChunks: Chunk[] = [];
 
   // map data into chunks of 0.5 mb = 500000 bytes
-  for (let i = 0; i < Math.ceil(dataToNumber.length / CHUNK_SIZE); i++) {
+  for (let i = 0; i < Math.ceil(transaction.data.length / CHUNK_SIZE); i++) {
     const sliceFrom = i * CHUNK_SIZE;
 
     dataChunks.push({
@@ -45,7 +44,7 @@ export function splitTxToChunks(
       // the index has to be added to the already
       // existing indexes of the tag chunks
       index: i + (tagChunks.length - 1),
-      value: dataToNumber.slice(sliceFrom, sliceFrom + CHUNK_SIZE)
+      value: transaction.data.slice(sliceFrom, sliceFrom + CHUNK_SIZE)
     });
   }
 
