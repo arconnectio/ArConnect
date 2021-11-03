@@ -31,31 +31,21 @@ export function splitTxToChunks(
     value
   }));
 
-  // split the data array
-  const dataEntries = transaction.data.entries();
+  // the data array is split into chunks of 0.5 mb
+  const dataToNumber = Array.from(transaction.data);
   const dataChunks: Chunk[] = [];
-  let dataChunkArrays: number[][] = [];
-  let dataChunkArrayCounter = 0;
 
-  // loop through the entries of the data array
-  for (const n of dataEntries) {
-    // divide array by 0.5 mb = 500000 bytes
-    const pushKey = Math.floor(dataChunkArrayCounter / 500000);
-
-    // push bytes as number
-    dataChunkArrays[pushKey] = [...(dataChunkArrays[pushKey] ?? []), n[1]];
-    dataChunkArrayCounter++;
-  }
-
-  // map chunks
-  for (let i = 0; i < dataChunkArrays.length; i++) {
-    const chunkArray = dataChunkArrays[i];
+  // map data into chunks of 0.5 mb = 500000 bytes
+  for (let i = 0; i < Math.ceil(dataToNumber.length / CHUNK_SIZE); i++) {
+    const sliceFrom = i * CHUNK_SIZE;
 
     dataChunks.push({
       collectionID,
       type: "data",
-      index: i,
-      value: chunkArray
+      // the index has to be added to the already
+      // existing indexes of the tag chunks
+      index: i + (tagChunks.length - 1),
+      value: dataToNumber.slice(sliceFrom, sliceFrom + CHUNK_SIZE)
     });
   }
 
@@ -77,26 +67,6 @@ export function splitTxToChunks(
 }
 
 /**
- * Add a number array from a chunk to a
- * Uint8Array of data for a transaction
- *
- * @param dataArray The Uint8Array of the data
- * @param chunkArray Number array to add to the data
- *
- * @returns A Uint8Array with the additional data
+ * SIze of a chunk in bytes
  */
-export function addChunkToUint8Array(
-  dataArray: Uint8Array,
-  chunkArray: number[]
-) {
-  const convertedChunkArray = new Uint8Array(chunkArray);
-  // @ts-expect-error
-  const newArray: Uint8Array = new dataArray.constructor(
-    dataArray.length + convertedChunkArray.length
-  );
-
-  newArray.set(dataArray, 0);
-  newArray.set(convertedChunkArray, dataArray.length);
-
-  return newArray;
-}
+export const CHUNK_SIZE = 500000;

@@ -35,7 +35,7 @@ import {
 import { browser, Runtime } from "webextension-polyfill-ts";
 import { fixupPasswords } from "../utils/auth";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
-import { addChunkToUint8Array, Chunk } from "../utils/chunks";
+import { Chunk } from "../utils/chunks";
 import Transaction, { Tag } from "arweave/web/lib/transaction";
 
 // stored transactions and their chunks
@@ -346,8 +346,8 @@ const handleApiCalls = async (
       // the origin of the tx creation
       const txArrayID = transactions.findIndex(
         ({ chunkCollectionID, origin }) =>
-          // @ts-expect-error
           chunkCollectionID === chunk.collectionID &&
+          // @ts-expect-error
           origin === port.sender.origin
       );
 
@@ -373,19 +373,19 @@ const handleApiCalls = async (
       };
 
     case "sign_transaction_end":
-      // find the key of the transaction whose chunk
+      // find the the transaction whose chunk
       // stream is ending
       // also check if the origin matches
       // the origin of the tx creation
-      const txArrayKey = transactions.findIndex(
+      const reconstructTx = transactions.find(
         ({ chunkCollectionID, origin }) =>
-          // @ts-expect-error
           chunkCollectionID === message.chunkCollectionID &&
+          // @ts-expect-error
           origin === port.sender.origin
       );
 
       // throw error if the owner tx of this tx is not present
-      if (txArrayKey < 0)
+      if (!reconstructTx)
         return {
           type: "sign_transaction_end_result",
           ext: "arconnect",
@@ -394,26 +394,43 @@ const handleApiCalls = async (
           sender: "background"
         };
 
+      // sort the chunks by their indexes to make sure
+      // that we are not loading them in the wrong order
+      reconstructTx.rawChunks.sort((a, b) => a.index - b.index);
+
+      // create a Uint8Array to reconstruct the data to
+      const reconstructedData = new Uint8Array(
+        parseFloat(reconstructTx.transaction.data_size ?? "0")
+      );
+      let previousLength = 0;
+
       // loop through the raw chunks and reconstruct
       // the transaction fields: data and tags
-      for (const chunk of transactions[txArrayKey].rawChunks) {
+      for (const chunk of reconstructTx.rawChunks) {
         if (chunk.type === "data") {
           // handle data chunks
-          transactions[txArrayKey].transaction.data = addChunkToUint8Array(
-            transactions[txArrayKey].transaction.data,
-            chunk.value as number[]
-          );
+          // create a Uint8Array from the chunk value
+          const chunkBuffer = new Uint8Array(chunk.value as number[]);
+
+          // append the value of the chunk after the
+          // previous array (using the currently filled
+          // indexes with "previousLength")
+          reconstructedData.set(chunkBuffer, previousLength);
+          previousLength += chunkBuffer.length; // increase the previous length by the buffer size
         } else if (chunk.type === "tag") {
           // handle tag chunks by simply pushing them
-          transactions[txArrayKey].transaction.tags.push(chunk.value as Tag);
+          reconstructTx.transaction.tags.push(chunk.value as Tag);
         }
       }
 
+      // update the tx data with the reconstructed data
+      reconstructTx.transaction.data = reconstructedData;
+
       // clean up the raw chunks
-      transactions[txArrayKey].rawChunks = [];
+      reconstructTx.rawChunks = [];
 
       const signResult = await signTransaction(
-        transactions[txArrayKey].transaction,
+        reconstructTx.transaction,
         tabURL,
         message.signatureOptions
       );

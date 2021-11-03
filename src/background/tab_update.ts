@@ -7,6 +7,7 @@ import {
 import { createContextMenus } from "./context_menus";
 import { updateIcon } from "./icon";
 import { Tab } from "../stores/reducers/time_tracking";
+import { Tabs } from "webextension-polyfill-ts";
 
 async function loadData(): Promise<Tab[]> {
   try {
@@ -36,8 +37,15 @@ function terminateSession(session: any): number {
 }
 
 export async function handleTabUpdate() {
-  const activeTab = await getActiveTab(),
-    permissionsForSite = await getPermissions(activeTab.url as string);
+  let activeTab: Tabs.Tab;
+
+  try {
+    activeTab = await getActiveTab();
+  } catch {
+    return;
+  }
+
+  const permissionsForSite = await getPermissions(activeTab.url as string);
 
   updateIcon(permissionsForSite.length > 0);
   createContextMenus(permissionsForSite.length > 0);
