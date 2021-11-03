@@ -11,10 +11,10 @@ import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { MessageFormat, validateMessage } from "../../utils/messenger";
 import { getRealURL } from "../../utils/url";
 import { browser } from "webextension-polyfill-ts";
+import Transaction, { Tag } from "arweave/web/lib/transaction";
 import Arweave from "arweave";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
-import Transaction from "arweave/web/lib/transaction";
 
 // sign a transaction using the currently selected
 // wallet's keyfile
@@ -149,7 +149,7 @@ export const signTransaction = (
             .get("tags")
             // @ts-expect-error
             .filter(
-              (tag) =>
+              (tag: Tag) =>
                 !!arConnectTags.find(
                   ({ name }) =>
                     name === tag.get("name", { decode: true, string: true })
