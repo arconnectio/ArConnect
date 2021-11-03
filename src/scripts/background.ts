@@ -433,9 +433,15 @@ const handleApiCalls = async (
         reconstructTx.rawChunks = [];
 
         const signResult = await signTransaction(
-          reconstructTx.transaction,
+          Object.assign({}, reconstructTx.transaction),
           tabURL,
           message.signatureOptions
+        );
+
+        // remove tx from the global chunk storage
+        transactions = transactions.filter(
+          ({ chunkCollectionID }) =>
+            chunkCollectionID !== message.chunkCollectionID
         );
 
         // now the tx is ready for signing, the injected
