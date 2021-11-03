@@ -119,7 +119,7 @@ export async function handleArweaveTabClosed(tabId: number) {
 
 const doCloseActiveArweaveSession = (arweaveTabs: Tab[]) => {
   for (let arweaveTab of arweaveTabs) {
-    for (const [id, session] of Object.entries(arweaveTab.sessions)) {
+    for (const [, session] of Object.entries(arweaveTab.sessions)) {
       if (session.isActive) {
         arweaveTab.totalTime += terminateSession(session);
       }
@@ -141,7 +141,7 @@ export async function handleArweaveTabActivated(tabId: number) {
 
   // Reopen existing Arweave session again.
   for (let arweaveTab of arweaveTabs) {
-    for (const [id, session] of Object.entries(arweaveTab.sessions)) {
+    for (const [id] of Object.entries(arweaveTab.sessions)) {
       if (+id === tabId) {
         handleArweaveTabOpened(tabId, arweaveTab.id);
       }
