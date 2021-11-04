@@ -1,0 +1,53 @@
+name: "Release"
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    name: Release for Firefox & Chrome
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "14"
+
+      - name: Install yarn
+        run: npm i -g yarn
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Build for Firefox
+        run: yarn build:firefox
+
+      - name: Zip for Firefox
+        run: yarn zip
+
+      - name: Release for Firefox
+        uses: trmcnvn/firefox-addon@v1
+        with:
+          uuid: "{6c337925-991d-4139-8b64-8380cd30517a}"
+          xpi: arconnect.zip
+          manifest: public/manifest.json
+          api-key: ${{ secrets.FIREFOX_API_KEY }}
+          api-secret: ${{ secrets.FIREFOX_API_SECRET }}
+
+      - name: Build for Chrome
+        run: yarn build
+
+      - name: Zip for Chrome
+        run: yarn zip
+
+      - name: Release for Chrome
+        uses: Klemensas/chrome-extension-upload-action@v1.3
+        with:
+          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          client-id: ${{ secrets.CHROME_CLIENT_ID }}
+          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          file-name: "arconnect.zip"
+          app-id: "xzc12xzc21cx23"
+          publish: true
