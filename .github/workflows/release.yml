@@ -49,5 +49,5 @@ jobs:
           client-id: ${{ secrets.CHROME_CLIENT_ID }}
           client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
           file-name: "arconnect.zip"
-          app-id: "xzc12xzc21cx23"
+          app-id: "einnioafmpimabjcddiinlhmijaionap"
           publish: true
