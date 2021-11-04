@@ -59,9 +59,12 @@ export function createCoinWithAnimation() {
   }, 100);
 }
 
-export const callAPI = (message: MessageFormat) =>
+export const callAPI = (message: Omit<MessageFormat, "ext" | "sender">) =>
   new Promise<void | any>((resolve, reject) => {
-    window.postMessage(message, window.location.origin);
+    window.postMessage(
+      { ...message, ext: "arconnect", sender: "api" },
+      window.location.origin
+    );
     window.addEventListener("message", callback);
 
     // @ts-ignore

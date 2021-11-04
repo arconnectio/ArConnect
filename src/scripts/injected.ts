@@ -2,6 +2,7 @@ import { comparePermissions, PermissionType } from "../utils/permissions";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { getRealURL } from "../utils/url";
 import { IArweave } from "../stores/reducers/arweave";
+import { splitTxToChunks } from "../utils/chunks";
 import {
   createOverlay,
   createCoinWithAnimation,
@@ -144,21 +145,109 @@ const WalletAPI = {
       port: 443,
       protocol: "https"
     });
+    // generate a unique ID for this transaction's chunks
+    // since the transaction does not have an ID yet
+    const chunkCollectionID = (
+      Date.now() * Math.floor(Math.random() * 100)
+    ).toString();
+
+    /**
+     * Part one, create chunks from the tags
+     * and the data of the transaction
+     */
+    const {
+      transaction: tx,
+      dataChunks,
+      tagChunks
+    } = splitTxToChunks(transaction, chunkCollectionID);
 
     try {
+      /**
+       * Part two, send the chunks to the background script
+       */
+
+      // we call the api and request it to start receiving
+      // the chunks and we also send the tx object (except
+      // the data and the tags). now the background script
+      // will listen for incoming chunks
       const data = await callAPI({
         type: "sign_transaction",
-        ext: "arconnect",
-        sender: "api",
-        transaction,
+        chunkCollectionID,
+        transaction: tx,
         signatureOptions: options
       });
 
-      if (!data.res || !data.transaction) throw new Error(data.message);
+      // somewhy the chunk streaming was not accepted, most
+      // likely because the site does not have the permission
+      if (!data.res)
+        throw new Error(
+          `Failed to initiate transaction chunk stream: \n${data.message}`
+        );
 
-      const decodeTransaction = arweave.transactions.fromRaw(data.transaction);
+      // send data chunks
+      for (const chunk of dataChunks) {
+        const chunkRes = await callAPI({
+          type: "sign_transaction_chunk",
+          chunk: chunk
+        });
 
-      if (data.arConfetti) {
+        // chunk fail
+        if (!chunkRes.res)
+          throw new Error(
+            `Error while sending a data chunk of collection "${chunkCollectionID}": \n${data.message}`
+          );
+      }
+
+      // send tag chunks
+      for (const chunk of tagChunks) {
+        const chunkRes = await callAPI({
+          type: "sign_transaction_chunk",
+          chunk
+        });
+
+        // chunk fail
+        if (!chunkRes.res)
+          throw new Error(
+            `Error while sending a tag chunk for tx from chunk collection "${chunkCollectionID}": \n${chunkRes.message}`
+          );
+      }
+
+      /**
+       * Parth three, signal the end of the chunk stream
+       * and request signing
+       */
+      const endRes = await callAPI({
+        type: "sign_transaction_end",
+        chunkCollectionID
+      });
+
+      if (!endRes.res)
+        throw new Error(
+          `Could not end chunk stream with ID "${chunkCollectionID}": \n${endRes.message}`
+        );
+
+      if (!endRes.transaction)
+        throw new Error(
+          `No transaction returned from signing tx from chunk collection "${chunkCollectionID}"`
+        );
+
+      if (endRes.chunkCollectionID !== chunkCollectionID)
+        throw new Error(
+          `Invalid chunk collection ID returned. Should be "${chunkCollectionID}", but it is "${endRes.chunkCollectionID}"`
+        );
+
+      // Reconstruct the transaction
+      // Since the tags and the data are not sent
+      // back, we need to add them back manually
+      const decodeTransaction = arweave.transactions.fromRaw({
+        ...endRes.transaction,
+        // some arconnect tags are sent back, so we need to concat them
+        tags: [...transaction.tags, ...endRes.transaction.tags],
+        data: transaction.data
+      });
+
+      // show a nice confetti eeffect, if enabled
+      if (endRes.arConfetti) {
         for (let i = 0; i < 8; i++)
           setTimeout(() => createCoinWithAnimation(), i * 150);
       }

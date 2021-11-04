@@ -8,18 +8,10 @@ import {
   ChevronRightIcon,
   ArrowSwitchIcon,
   ArchiveIcon,
-  ArrowRightIcon,
   ChevronDownIcon,
   ChevronUpIcon
 } from "@primer/octicons-react";
-import {
-  Loading,
-  Spacer,
-  Tabs,
-  Tooltip,
-  useTheme,
-  Note
-} from "@geist-ui/react";
+import { Loading, Spacer, Tabs, Tooltip, useTheme } from "@geist-ui/react";
 import { setAssets, setBalance } from "../../../stores/actions";
 import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
@@ -38,7 +30,6 @@ import Verto from "@verto/lib";
 import arweaveLogo from "../../../assets/arweave.png";
 import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
-import WARLogo from "../../../assets/war.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
 
 export default function Home() {
