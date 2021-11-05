@@ -1,53 +1,52 @@
-name: "Release"
+name: Release
 
 on:
-  release:
-    types: [published]
+  create:
+    ref_type: tag
 
 jobs:
   release:
-    name: Release for Firefox & Chrome
+    name: release / ${{ matrix.browser }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser: [chrome, firefox]
 
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: "14"
+      - name: Checkout
+        uses: actions/checkout@v2
 
-      - name: Install yarn
-        run: npm i -g yarn
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
 
       - name: Install dependencies
-        run: yarn
+        run: yarn install --production
 
-      - name: Build for Firefox
-        run: yarn build:firefox
+      - name: Build (${{ matrix.browser }})
+        run: yarn build:${{ matrix.browser }}
 
-      - name: Zip for Firefox
+      - name: Zip
         run: yarn zip
 
-      - name: Release for Firefox
+      - name: Release (Firefox)
         uses: trmcnvn/firefox-addon@v1
+        if: matrix.browser == 'firefox'
         with:
-          uuid: "{6c337925-991d-4139-8b64-8380cd30517a}"
+          uuid: '{6c337925-991d-4139-8b64-8380cd30517a}'
           xpi: arconnect.zip
           manifest: public/manifest.json
           api-key: ${{ secrets.FIREFOX_API_KEY }}
           api-secret: ${{ secrets.FIREFOX_API_SECRET }}
 
-      - name: Build for Chrome
-        run: yarn build
-
-      - name: Zip for Chrome
-        run: yarn zip
-
-      - name: Release for Chrome
-        uses: Klemensas/chrome-extension-upload-action@v1.3
+      - name: Release (Chrome)
+        uses: Klemensas/chrome-extension-upload-action@master
+        if: matrix.browser == 'chrome'
         with:
-          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
           client-id: ${{ secrets.CHROME_CLIENT_ID }}
           client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
-          file-name: "arconnect.zip"
-          app-id: "einnioafmpimabjcddiinlhmijaionap"
+          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          file-name: arconnect.zip
+          app-id: einnioafmpimabjcddiinlhmijaionap
           publish: true
