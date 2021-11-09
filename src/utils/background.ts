@@ -5,7 +5,6 @@ import { IArweave, defaultConfig } from "../stores/reducers/arweave";
 import { PermissionType } from "./permissions";
 import { getRealURL } from "./url";
 import { browser } from "webextension-polyfill-ts";
-import { Tag } from "arweave/web/lib/transaction";
 import { run } from "ar-gql";
 import limestone from "@limestonefi/api";
 import Arweave from "arweave";
@@ -220,12 +219,35 @@ export const authenticateUser = (action: MessageType, tabURL: string) =>
 /**
  * Get the currently active browser tab
  *
+ * @param returnFromCache If true, it returns a cached tab object,
+ * so if the browser loses focus or the user opens an internal page,
+ * ArConnect can keep handling the last opened tab
+ *
  * @returns Active tab object
  */
-export async function getActiveTab() {
+export async function getActiveTab(returnFromCache = true) {
   const tabs = await browser.tabs.query({ active: true, currentWindow: true });
-  if (!tabs[0]) throw new Error("No tabs opened");
-  else return tabs[0];
+  let activeTab = tabs[0];
+
+  if (!activeTab && !returnFromCache) throw new Error("No tabs opened");
+  // if there is an active tab (that is not a chrome/firefox/internal tab)
+  else if (activeTab && !isInternalURL(activeTab.url || "")) {
+    // the active tab can be cached in the browser's localstorage
+    // because it does not change often and it does not hold
+    // any sensitive information
+    localStorage.setItem("lastActiveTab", JSON.stringify(activeTab));
+
+    return activeTab;
+  }
+
+  // this continues, if the cache loading
+  // is enabled and the activeTab is undefined
+  const storedTab = localStorage.getItem("lastActiveTab");
+
+  if (!storedTab) throw new Error("No active tab cached");
+  activeTab = JSON.parse(storedTab);
+
+  return activeTab;
 }
 
 /**
@@ -271,10 +293,16 @@ export async function checkCommunityContract(
 }
 
 /**
- * The chunk of the transaction signing
+ * Get if the URL is an internal URL, such as "chrome://settings"
+ *
+ * @param url The URL to check
+ *
+ * @returns Whether the if the url is internal or not
  */
-export interface Chunk {
-  txID: string;
-  type: "tag" | "data" | "end";
-  value?: string | Tag;
+export function isInternalURL(url: string) {
+  const urlObject = new URL(url);
+
+  return !!urlObject.protocol.match(
+    /^(chrome|brave|edge|opera|firefox|about):/
+  );
 }
