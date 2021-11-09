@@ -59,12 +59,12 @@ export function createCoinWithAnimation() {
   }, 100);
 }
 
-var messageId = 0;
+let messageId = 0;
 
 export const callAPI = (message: Omit<MessageFormat, "ext" | "sender">) =>
   new Promise<void | any>((resolve, reject) => {
     // give every message a unique autoincrementing id
-    let id = messageId;
+    const id = messageId;
     message.id = id;
     messageId += 1;
     window.postMessage(
