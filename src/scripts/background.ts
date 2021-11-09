@@ -121,7 +121,12 @@ const handleApiCalls = async (
       events: ArConnectEvent[] = eventsStore
         ? JSON.parse(eventsStore)?.val
         : [],
-      activeTab = await getActiveTab(),
+      activeTab = await getActiveTab(
+        message.type === "sign_transaction" ||
+          message.type === "sign_transaction_chunk" ||
+          message.type === "sign_transaction_end" ||
+          false
+      ),
       tabURL = activeTab.url as string,
       faviconUrl = activeTab.favIconUrl,
       blockedSites = (await getStoreData())?.["blockedSites"];
