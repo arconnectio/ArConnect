@@ -63,7 +63,7 @@ var messageId = 0;
 
 export const callAPI = (message: Omit<MessageFormat, "ext" | "sender">) =>
   new Promise<void | any>((resolve, reject) => {
-     // give every message a unique autoincrementing id
+    // give every message a unique autoincrementing id
     let id = messageId;
     message.id = id;
     messageId += 1;
@@ -71,7 +71,7 @@ export const callAPI = (message: Omit<MessageFormat, "ext" | "sender">) =>
       { ...message, ext: "arconnect", sender: "api" },
       window.location.origin
     );
-    
+
     window.addEventListener("message", callback);
 
     // @ts-ignore

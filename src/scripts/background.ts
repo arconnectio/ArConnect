@@ -137,7 +137,8 @@ const handleApiCalls = async (
           ext: "arconnect",
           res: false,
           message: "Site is blocked",
-          sender: "background"
+          sender: "background",
+          id: message.id
         };
     }
 
@@ -149,7 +150,8 @@ const handleApiCalls = async (
         ext: "arconnect",
         res: false,
         message: "No wallets added",
-        sender: "background"
+        sender: "background",
+        id: message.id
       };
     }
 
@@ -172,6 +174,7 @@ const handleApiCalls = async (
           type: "connect_result",
           ext: "arconnect",
           sender: "background",
+          id: message.id,
           ...(await connect(message, tabURL, faviconUrl))
         };
 
@@ -181,6 +184,7 @@ const handleApiCalls = async (
           type: "disconnect_result",
           ext: "arconnect",
           sender: "background",
+          id: message.id,
           ...(await disconnect(tabURL))
         };
 
@@ -191,6 +195,7 @@ const handleApiCalls = async (
             type: "get_active_address_result",
             ext: "arconnect",
             res: false,
+            id: message.id,
             message:
               "The site does not have the required permissions for this action",
             sender: "background"
@@ -200,6 +205,7 @@ const handleApiCalls = async (
           type: "get_active_address_result",
           ext: "arconnect",
           sender: "background",
+          id: message.id,
           ...(await activeAddress())
         };
 
@@ -210,6 +216,7 @@ const handleApiCalls = async (
             type: "get_active_public_key_result",
             ext: "arconnect",
             res: false,
+            id: message.id,
             message:
               "The site does not have the required permissions for this action",
             sender: "background"
@@ -219,6 +226,7 @@ const handleApiCalls = async (
           type: "get_active_public_key_result",
           ext: "arconnect",
           sender: "background",
+          id: message.id,
           ...(await publicKey())
         };
 
@@ -229,6 +237,7 @@ const handleApiCalls = async (
             type: "get_all_addresses_result",
             ext: "arconnect",
             res: false,
+            id: message.id,
             message:
               "The site does not have the required permissions for this action",
             sender: "background"
@@ -238,6 +247,7 @@ const handleApiCalls = async (
           type: "get_all_addresses_result",
           ext: "arconnect",
           sender: "background",
+          id: message.id,
           ...(await allAddresses())
         };
 
@@ -248,6 +258,7 @@ const handleApiCalls = async (
             type: "get_wallet_names_result",
             ext: "arconnect",
             res: false,
+            id: message.id,
             message:
               "The site does not have the required permissions for this action",
             sender: "background"
@@ -256,7 +267,7 @@ const handleApiCalls = async (
         return {
           type: "get_wallet_names_result",
           ext: "arconnect",
-
+          id: message.id,
           sender: "background",
           ...(await walletNames())
         };
@@ -268,6 +279,7 @@ const handleApiCalls = async (
           ext: "arconnect",
           res: true,
           permissions: await getPermissions(tabURL),
+          id: message.id,
           sender: "background"
         };
 
@@ -278,6 +290,7 @@ const handleApiCalls = async (
             type: "get_arweave_config_result",
             ext: "arconnect",
             res: false,
+            id: message.id,
             message:
               "The site does not have the required permissions for this action",
             sender: "background"
@@ -287,6 +300,7 @@ const handleApiCalls = async (
           type: "get_arweave_config_result",
           ext: "arconnect",
           res: true,
+          id: message.id,
           config: await getArweaveConfig(),
           sender: "background"
         };
@@ -297,6 +311,7 @@ const handleApiCalls = async (
           type: "add_token_result",
           ext: "arconnect",
           sender: "background",
+          id: message.id,
           ...(await addToken(message))
         };
 
@@ -307,6 +322,7 @@ const handleApiCalls = async (
             type: "sign_transaction_result",
             ext: "arconnect",
             res: false,
+            id: message.id,
             message:
               "The site does not have the required permissions for this action",
             sender: "background"
@@ -337,6 +353,7 @@ const handleApiCalls = async (
           type: "sign_transaction_result",
           ext: "arconnect",
           sender: "background",
+          id: message.id,
           res: true
         };
 
@@ -362,6 +379,7 @@ const handleApiCalls = async (
             ext: "arconnect",
             res: false,
             message: "Invalid origin for chunk",
+            id: message.id,
             sender: "background"
           };
 
@@ -373,6 +391,7 @@ const handleApiCalls = async (
           type: "sign_transaction_chunk_result",
           ext: "arconnect",
           res: true,
+          id: message.id,
           sender: "background"
         };
 
@@ -394,6 +413,7 @@ const handleApiCalls = async (
             type: "sign_transaction_end_result",
             ext: "arconnect",
             res: false,
+            id: message.id,
             message: "Invalid origin for end request",
             sender: "background"
           };
@@ -451,6 +471,7 @@ const handleApiCalls = async (
           type: "sign_transaction_end_result",
           ext: "arconnect",
           sender: "background",
+          id: message.id,
           chunkCollectionID: message.chunkCollectionID,
           ...signResult
         };
@@ -461,6 +482,7 @@ const handleApiCalls = async (
             type: "encrypt_result",
             ext: "arconnect",
             res: false,
+            id: message.id,
             message:
               "The site does not have the required permissions for this action",
             sender: "background"
@@ -470,6 +492,7 @@ const handleApiCalls = async (
           type: "encrypt_result",
           ext: "arconnect",
           sender: "background",
+          id: message.id,
           ...(await encrypt(message, tabURL))
         };
 
@@ -479,6 +502,7 @@ const handleApiCalls = async (
             type: "decrypt_result",
             ext: "arconnect",
             res: false,
+            id: message.id,
             message:
               "The site does not have the required permissions for this action",
             sender: "background"
@@ -488,6 +512,7 @@ const handleApiCalls = async (
           type: "decrypt_result",
           ext: "arconnect",
           sender: "background",
+          id: message.id,
           ...(await decrypt(message, tabURL))
         };
 
@@ -497,6 +522,7 @@ const handleApiCalls = async (
             type: "signature_result",
             ext: "arconnect",
             res: false,
+            id: message.id,
             message:
               "The site does not have the required permissions for this action",
             sender: "background"
@@ -506,6 +532,7 @@ const handleApiCalls = async (
           type: "signature_result",
           ext: "arconnect",
           sender: "background",
+          id: message.id,
           ...(await signature(message, tabURL))
         };
 
@@ -517,6 +544,7 @@ const handleApiCalls = async (
       type: `${message.type}_result` as MessageType,
       ext: "arconnect",
       res: false,
+      id: message.id,
       message: "Unknown error",
       sender: "background"
     };
@@ -525,6 +553,7 @@ const handleApiCalls = async (
       type: `${message.type}_result` as MessageType,
       ext: "arconnect",
       res: false,
+      id: message.id,
       message: `Internal error: \n${e}`,
       sender: "background"
     };
