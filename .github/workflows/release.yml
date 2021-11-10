@@ -34,7 +34,7 @@ jobs:
         uses: trmcnvn/firefox-addon@v1
         if: matrix.browser == 'firefox'
         with:
-          uuid: '{6c337925-991d-4139-8b64-8380cd30517a}'
+          uuid: "{6c337925-991d-4139-8b64-8380cd30517a}"
           xpi: arconnect.zip
           manifest: public/manifest.json
           api-key: ${{ secrets.FIREFOX_API_KEY }}
