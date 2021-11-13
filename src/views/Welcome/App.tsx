@@ -41,7 +41,7 @@ export default function App() {
       }[]
     >([]),
     [loading, setLoading] = useState(false),
-    dispath = useDispatch(),
+    dispatch = useDispatch(),
     walletsStore = useSelector((state: RootState) => state.wallets),
     seedModal = useModal(false),
     [seedKeyfile, setSeedKeyfile] = useState<{
@@ -146,8 +146,8 @@ export default function App() {
       wallets.push({ address, keyfile, name });
     }
 
-    dispath(setWallets([...walletsStore, ...wallets]));
-    if (walletsStoreEmpty) dispath(switchProfile(wallets[0].address));
+    dispatch(setWallets([...walletsStore, ...wallets]));
+    if (walletsStoreEmpty) dispatch(switchProfile(wallets[0].address));
     setLoading(false);
     loadWalletsModal.setVisible(false);
     setToast({ text: "Loaded wallets", type: "success" });
@@ -170,7 +170,7 @@ export default function App() {
     setSeed(mnemonic);
     setSeedKeyfile({ address, keyfile });
     seedModal.setVisible(true);
-    dispath(
+    dispatch(
       setWallets([
         ...walletsStore,
         {
@@ -180,7 +180,7 @@ export default function App() {
         }
       ])
     );
-    dispath(switchProfile(address));
+    dispatch(switchProfile(address));
     setLoading(false);
   }
 
