@@ -25,6 +25,7 @@
     "arweave-mnemonic-keys": "^0.0.9",
     "axios": "^0.23.0",
     "bcryptjs": "^2.4.3",
+    "bip39-web-crypto": "^4.0.1",
     "buffer": "^6.0.3",
     "chart.js": "^2.9.4",
     "copy-to-clipboard": "^3.3.1",
