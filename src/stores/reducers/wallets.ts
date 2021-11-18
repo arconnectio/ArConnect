@@ -1,5 +1,9 @@
 export interface Wallet {
-  keyfile: string; // encrypted string
+  /**
+   * The keyfile of the wallet stored in encrypted form.
+   * `undefined` if imported from a Ledger.
+   */
+  keyfile?: string;
   address: string;
   name: string;
 }

@@ -21,6 +21,7 @@ import { Wallet } from "../../stores/reducers/wallets";
 import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
 import { checkPassword as checkPw, setPassword } from "../../utils/auth";
+import * as ledger from "../../utils/ledger";
 import { browser } from "webextension-polyfill-ts";
 import CryptoES from "crypto-es";
 import Arweave from "arweave";
@@ -40,7 +41,7 @@ export default function App() {
       }[]
     >([]),
     [loading, setLoading] = useState(false),
-    dispath = useDispatch(),
+    dispatch = useDispatch(),
     walletsStore = useSelector((state: RootState) => state.wallets),
     seedModal = useModal(false),
     [seedKeyfile, setSeedKeyfile] = useState<{
@@ -145,8 +146,8 @@ export default function App() {
       wallets.push({ address, keyfile, name });
     }
 
-    dispath(setWallets([...walletsStore, ...wallets]));
-    if (walletsStoreEmpty) dispath(switchProfile(wallets[0].address));
+    dispatch(setWallets([...walletsStore, ...wallets]));
+    if (walletsStoreEmpty) dispatch(switchProfile(wallets[0].address));
     setLoading(false);
     loadWalletsModal.setVisible(false);
     setToast({ text: "Loaded wallets", type: "success" });
@@ -169,7 +170,7 @@ export default function App() {
     setSeed(mnemonic);
     setSeedKeyfile({ address, keyfile });
     seedModal.setVisible(true);
-    dispath(
+    dispatch(
       setWallets([
         ...walletsStore,
         {
@@ -179,7 +180,23 @@ export default function App() {
         }
       ])
     );
-    dispath(switchProfile(address));
+    dispatch(switchProfile(address));
+    setLoading(false);
+  }
+
+  async function connectLedger() {
+    const address = await ledger.getWalletAddress();
+
+    dispatch(
+      setWallets([
+        ...walletsStore,
+        {
+          address,
+          name: `Account ${walletsStore.length + 1}`
+        }
+      ])
+    );
+    dispatch(switchProfile(address));
     setLoading(false);
   }
 
@@ -322,6 +339,7 @@ export default function App() {
               <Button onClick={createWallet} loading={loading}>
                 New wallet
               </Button>
+              <Button onClick={connectLedger}>Connect Ledger</Button>
             </div>
           )) || (
             <>
