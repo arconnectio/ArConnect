@@ -1,11 +1,13 @@
 export interface Wallet {
+  name: string;
+  address: string;
+  /** The type of wallet this is. */
+  type: "local" | "ledger";
   /**
    * The keyfile of the wallet stored in encrypted form.
    * `undefined` if imported from a Ledger.
    */
   keyfile?: string;
-  address: string;
-  name: string;
 }
 
 export interface IWalletsAction {

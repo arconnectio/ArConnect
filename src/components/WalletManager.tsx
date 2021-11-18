@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../stores/reducers";
+import { PlugIcon, FileIcon } from "@primer/octicons-react";
 import {
   removeWallet,
   renameWallet,
@@ -275,7 +276,14 @@ export default function WalletManager() {
                         </Tooltip>
                       )}
                     </div>
-                    <p>{formatAddress(wallet.address)}</p>
+                    <p>
+                      {wallet.type === "local" ? (
+                        <FileIcon className={styles.WalletIcon} size={16} />
+                      ) : (
+                        <PlugIcon className={styles.WalletIcon} size={16} />
+                      )}
+                      <span>{formatAddress(wallet.address)}</span>
+                    </p>
                   </div>
                   <div
                     className={styles.Remove}

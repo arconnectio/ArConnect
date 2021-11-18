@@ -1,6 +1,7 @@
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { getStoreData } from "../../utils/background";
 import { MessageFormat } from "../../utils/messenger";
+import * as ledger from "../../utils/ledger";
 
 /**
  * APIs for getting the user's address / addresses
@@ -33,16 +34,18 @@ export const publicKey = () =>
       const wallets = (await getStoreData())?.["wallets"];
 
       if (wallets) {
-        const keyfileToDecrypt = wallets.find(
-          (wallet) => wallet.address === address
-        )?.keyfile;
+        const wallet = wallets.find((wallet) => wallet.address === address);
 
-        if (keyfileToDecrypt) {
-          const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt));
-
+        if (wallet?.type === "local") {
+          const keyfile: JWKInterface = JSON.parse(atob(wallet.keyfile!));
           resolve({
             res: true,
             publicKey: keyfile.n
+          });
+        } else if (wallet?.type === "ledger") {
+          resolve({
+            res: true,
+            publicKey: await ledger.getWalletOwner()
           });
         } else {
           resolve({

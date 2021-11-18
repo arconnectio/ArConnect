@@ -143,7 +143,7 @@ export default function App() {
         keyfile = btoa(JSON.stringify(keyfilesToLoad[i])),
         name = `Account ${i + 1 + walletsStore.length}`;
 
-      wallets.push({ address, keyfile, name });
+      wallets.push({ name, address, type: "local", keyfile });
     }
 
     dispatch(setWallets([...walletsStore, ...wallets]));
@@ -174,9 +174,10 @@ export default function App() {
       setWallets([
         ...walletsStore,
         {
-          keyfile: encryptedKeyfile,
+          name: `Account ${walletsStore.length + 1}`,
           address,
-          name: `Account ${walletsStore.length + 1}`
+          type: "local",
+          keyfile: encryptedKeyfile
         }
       ])
     );
@@ -191,8 +192,9 @@ export default function App() {
       setWallets([
         ...walletsStore,
         {
+          name: "Ledger",
           address,
-          name: `Account ${walletsStore.length + 1}`
+          type: "ledger"
         }
       ])
     );
