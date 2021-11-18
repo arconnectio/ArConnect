@@ -36,14 +36,31 @@ export default function walletsReducer(
         state.find(({ address }) => address === action.payload.wallet?.address)
       )
         break;
-      return [...state, action.payload.wallet];
 
+      const wallet = action.payload.wallet;
+
+      if (wallet.type === "local") {
+        return [...state, action.payload.wallet];
+      } else if (wallet.type === "ledger") {
+        // Replace existing Ledger wallet.
+        return [
+          ...state.filter((wallet) => wallet.type === "local"),
+          action.payload.wallet
+        ];
+      } else {
+        throw Error("Unknown wallet type");
+      }
     case "REMOVE_WALLET":
       if (!action.payload.address) break;
       return state.filter(({ address }) => address !== action.payload.address);
 
     case "RENAME_WALLET":
-      if (!action.payload.address || action.payload.name === undefined) break;
+      if (
+        !action.payload.address ||
+        action.payload.name === undefined ||
+        action.payload.wallet?.type === "ledger"
+      )
+        break;
       return state.map((wallet) =>
         wallet.address === action.payload.address
           ? { ...wallet, name: action.payload.name ?? "" }

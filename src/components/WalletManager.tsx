@@ -261,6 +261,7 @@ export default function WalletManager() {
                         style={{
                           width: `${walletNameSizes[wallet.address] ?? 0}px`
                         }}
+                        disabled={wallet.type === "ledger"}
                       />
                       {verifiedAddresses.includes(wallet.address) && (
                         <Tooltip
