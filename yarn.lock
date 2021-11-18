@@ -3920,6 +3920,13 @@ bindings@^1.5.0:
   dependencies:
     file-uri-to-path "1.0.0"
 
+bip39-web-crypto@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/bip39-web-crypto/-/bip39-web-crypto-4.0.1.tgz#5ef85b70c6250cccbec568f8dbed02236810f59f"
+  integrity sha512-Mpi+8Af5hDbjx+rv4ZHMB3FxIV7wfiZzlOr1Sg0vYhrc/E2YnQUwbHconxUrNl+qTXK8TBNOaiiy/tcGOq4HKw==
+  dependencies:
+    "@types/node" "11.11.6"
+
 bip39@^3.0.2:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/bip39/-/bip39-3.0.4.tgz#5b11fed966840b5e1b8539f0f54ab6392969b2a0"

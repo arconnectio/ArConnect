@@ -2,9 +2,10 @@
   "scripts": {
     "start": "cross-env NODE_ENV=development node esbuild.js",
     "build": "cross-env NODE_ENV=production node esbuild.js",
-    "build:firefox": "cross-env NODE_ENV=production BUIL_TARGET=FIREFOX node esbuild.js",
+    "build:chrome": "cross-env NODE_ENV=production node esbuild.js",
+    "build:firefox": "cross-env NODE_ENV=production BUILD_TARGET=FIREFOX node esbuild.js",
     "test": "jest",
-    "zip": "cd public && zip -r ../arconnect.zip *",
+    "zip": "rm -f arconnect.zip && cd public && zip -r ../arconnect.zip *",
     "type-check": "tsc --noEmit",
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check ."
@@ -26,6 +27,7 @@
     "arweave-mnemonic-keys": "^0.0.9",
     "axios": "^0.23.0",
     "bcryptjs": "^2.4.3",
+    "bip39-web-crypto": "^4.0.1",
     "buffer": "^6.0.3",
     "chart.js": "^2.9.4",
     "copy-to-clipboard": "^3.3.1",

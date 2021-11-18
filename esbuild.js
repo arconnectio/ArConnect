@@ -20,7 +20,7 @@ esbuild
       "./src/views/popup.tsx",
       "./src/views/auth.tsx",
       "./src/views/welcome.tsx",
-      ...(process.env.BUIL_TARGET === "FIREFOX"
+      ...(process.env.BUILD_TARGET === "FIREFOX"
         ? []
         : ["./src/views/archive.tsx"])
     ],
