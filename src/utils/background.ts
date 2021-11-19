@@ -125,7 +125,7 @@ export async function setStoreData(updatedData: StoreData) {
   const encodedData = await encodeStoreData(data);
 
   await browser.storage.local.set({
-    "persist:root": JSON.stringify(encodedData)
+    "persist:root": encodedData
   });
 }
 
