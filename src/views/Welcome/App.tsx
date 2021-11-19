@@ -187,20 +187,25 @@ export default function App() {
   }
 
   async function connectLedger() {
-    const address = await ledger.getWalletAddress();
+    try {
+      const address = await ledger.getWalletAddress();
 
-    dispatch(
-      setWallets([
-        ...walletsStore,
-        {
-          name: "Ledger",
-          address,
-          type: "ledger"
-        }
-      ])
-    );
-    dispatch(switchProfile(address));
-    setLoading(false);
+      dispatch(
+        setWallets([
+          ...walletsStore,
+          {
+            name: "Ledger",
+            address,
+            type: "ledger"
+          }
+        ])
+      );
+      dispatch(switchProfile(address));
+
+      setToast({ text: "Ledger connected", type: "success" });
+    } catch {
+      setToast({ text: "Could not connect Ledger", type: "error" });
+    }
   }
 
   function downloadSeedWallet() {
@@ -342,7 +347,9 @@ export default function App() {
               <Button onClick={createWallet} loading={loading}>
                 New wallet
               </Button>
-              <Button onClick={connectLedger}>Connect Ledger</Button>
+              {ledger.isSupported() && (
+                <Button onClick={connectLedger}>Connect Ledger</Button>
+              )}
             </div>
           )) || (
             <>
