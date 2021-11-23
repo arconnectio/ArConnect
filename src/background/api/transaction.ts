@@ -52,7 +52,7 @@ export const signTransaction = (
       let decryptionKey = (await browser.storage.local.get("decryptionKey"))
         ?.decryptionKey;
 
-      const sign = async () => {
+      const sign = async (): Promise<Partial<MessageFormat>> => {
         const storedKeyfiles = storeData?.["wallets"] ?? [],
           storedAddress = storeData?.["profile"],
           wallet = storedKeyfiles.find(
@@ -215,7 +215,7 @@ export const signTransaction = (
     }
   });
 
-async function selectVRTHolder() {
+async function selectVRTHolder(): Promise<string | undefined> {
   try {
     const res: any = (
       await axios.get(

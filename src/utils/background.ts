@@ -17,7 +17,7 @@ import axios from "axios";
  *
  * @returns AuthPopup window
  */
-export const createAuthPopup = (data: any) =>
+export function createAuthPopup(data: any) {
   browser.windows.create({
     url: `${browser.runtime.getURL("auth.html")}?auth=${encodeURIComponent(
       JSON.stringify(data)
@@ -27,6 +27,7 @@ export const createAuthPopup = (data: any) =>
     width: 385,
     height: 635
   });
+}
 
 /** Permission utilities */
 

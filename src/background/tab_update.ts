@@ -117,7 +117,7 @@ export async function handleArweaveTabClosed(tabId: number) {
   storeData(arweaveTabs);
 }
 
-const doCloseActiveArweaveSession = (arweaveTabs: Tab[]) => {
+function doCloseActiveArweaveSession(arweaveTabs: Tab[]): void {
   for (let arweaveTab of arweaveTabs) {
     for (const [, session] of Object.entries(arweaveTab.sessions)) {
       if (session.isActive) {
@@ -125,13 +125,13 @@ const doCloseActiveArweaveSession = (arweaveTabs: Tab[]) => {
       }
     }
   }
-};
+}
 
-const closeActiveArweaveSession = async () => {
+async function closeActiveArweaveSession(): Promise<void> {
   let arweaveTabs = await loadData();
   doCloseActiveArweaveSession(arweaveTabs);
   storeData(arweaveTabs);
-};
+}
 
 export async function handleArweaveTabActivated(tabId: number) {
   // We have to close previous session (if it was Arweave).
