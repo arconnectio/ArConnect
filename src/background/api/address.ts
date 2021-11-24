@@ -42,9 +42,15 @@ export async function publicKey(): Promise<Partial<MessageFormat>> {
           publicKey: keyfile.n
         };
       } else if (wallet?.type === "ledger") {
+        const { address: ledgerAddress, owner } = await ledger.getWalletInfo();
+
+        if (ledgerAddress !== address) {
+          throw new Error("Ledger address mismatch");
+        }
+
         return {
           res: true,
-          publicKey: await ledger.getWalletOwner()
+          publicKey: owner
         };
       } else {
         return {
