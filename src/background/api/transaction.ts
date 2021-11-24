@@ -81,7 +81,14 @@ export const signTransaction = (
               })()
             : {
                 owner: await ledger.getWalletOwner(),
-                signTx: (tx: Transaction) => ledger.signTransaction(tx)
+                signTx: async (tx: Transaction) => {
+                  const ledgerAddress = await ledger.getWalletAddress();
+                  if (ledgerAddress !== wallet.address) {
+                    throw new Error("Ledger address mismatch");
+                  }
+
+                  await ledger.signTransaction(tx);
+                }
               };
 
         const userTx = arweave.transactions.fromRaw({

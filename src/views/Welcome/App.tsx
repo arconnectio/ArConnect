@@ -171,11 +171,16 @@ export default function App() {
     setSeed(mnemonic);
     setSeedKeyfile({ address, keyfile });
     seedModal.setVisible(true);
+
+    const localWalletCount = walletsStore.reduce<number>((count, wallet) => {
+      return wallet.type === "local" ? count + 1 : count;
+    }, 0);
+
     dispatch(
       setWallets([
         ...walletsStore,
         {
-          name: `Account ${walletsStore.length + 1}`,
+          name: `Account ${localWalletCount + 1}`,
           address,
           type: "local",
           keyfile: encryptedKeyfile
@@ -190,11 +195,15 @@ export default function App() {
     try {
       const address = await ledger.getWalletAddress();
 
+      const ledgerWalletCount = walletsStore.reduce<number>((count, wallet) => {
+        return wallet.type === "ledger" ? count + 1 : count;
+      }, 0);
+
       dispatch(
         setWallets([
           ...walletsStore,
           {
-            name: "Ledger",
+            name: `Ledger ${ledgerWalletCount + 1}`,
             address,
             type: "ledger"
           }

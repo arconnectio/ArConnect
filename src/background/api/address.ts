@@ -43,9 +43,16 @@ export const publicKey = () =>
             publicKey: keyfile.n
           });
         } else if (wallet?.type === "ledger") {
+          const { address: ledgerAddress, owner } =
+            await ledger.getWalletInfo();
+
+          if (ledgerAddress !== address) {
+            throw new Error("Ledger address mismatch");
+          }
+
           resolve({
             res: true,
-            publicKey: await ledger.getWalletOwner()
+            publicKey: owner
           });
         } else {
           resolve({

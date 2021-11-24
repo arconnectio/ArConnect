@@ -3,6 +3,11 @@ import ArweaveApp, { ResponseBase } from "@zondax/ledger-arweave";
 import Transaction from "arweave/web/lib/transaction";
 import Arweave from "arweave/web/common";
 
+export interface LedgerWalletInfo {
+  owner: string;
+  address: string;
+}
+
 export function isSupported(): boolean {
   const nav = navigator as any;
   const webUSBSupported =
@@ -11,16 +16,16 @@ export function isSupported(): boolean {
   return webUSBSupported;
 }
 
+export async function getWalletInfo(): Promise<LedgerWalletInfo> {
+  return interactWithLedger((ledger) => ledger.getAddress());
+}
+
 export async function getWalletAddress(): Promise<string> {
-  return interactWithLedger((ledger) => ledger.getAddress()).then(
-    (res) => res.address
-  );
+  return getWalletInfo().then((res) => res.address);
 }
 
 export async function getWalletOwner(): Promise<string> {
-  return interactWithLedger((ledger) => ledger.getAddress()).then(
-    (res) => res.owner
-  );
+  return getWalletInfo().then((res) => res.owner);
 }
 
 export async function signTransaction(transaction: Transaction): Promise<void> {
