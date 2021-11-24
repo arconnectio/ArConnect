@@ -81,7 +81,16 @@ export const signTransaction = (
               })()
             : {
                 owner: await ledger.getWalletOwner(),
-                signTx: async (tx: Transaction) => {
+                signTx: async (
+                  tx: Transaction,
+                  signatureOptions?: SignatureOptions
+                ) => {
+                  if (signatureOptions) {
+                    throw new Error(
+                      "Ledger does not support signature options"
+                    );
+                  }
+
                   const ledgerAddress = await ledger.getWalletAddress();
                   if (ledgerAddress !== wallet.address) {
                     throw new Error("Ledger address mismatch");
