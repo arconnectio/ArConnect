@@ -33,7 +33,11 @@ const connection = browser.runtime.connect(browser.runtime.id, {
 // forward messages from the api to the background script
 window.addEventListener("message", async (e) => {
   if (!validateMessage(e.data, {}) || !e.data.type) return;
+
   const listener = async (res: any) => {
+    // only resolve when the result matching our message.id is deleivered
+    if (res.id != e.data.id) return;
+
     if (
       !res.ext ||
       res.ext !== "arconnect" ||

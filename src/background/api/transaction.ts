@@ -125,7 +125,12 @@ export const signTransaction = (
           }
 
           await arweave.transactions.sign(feeTx, keyfile);
-          await arweave.transactions.post(feeTx);
+
+          const uploader = await arweave.transactions.getUploader(feeTx);
+
+          while (!uploader.isComplete) {
+            await uploader.uploadChunk();
+          }
         }
 
         if (allowanceForURL) {
