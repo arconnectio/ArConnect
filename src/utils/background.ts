@@ -76,6 +76,38 @@ export async function getPermissions(url: string): Promise<PermissionType[]> {
 
 export type StoreData = Partial<RootState>;
 
+export async function parseStoreData(
+  encodedStoreData: string
+): Promise<StoreData> {
+  const parseRoot: StoreData = JSON.parse(encodedStoreData ?? "{}");
+  const parsedData: StoreData = {};
+
+  for (const key in parseRoot) {
+    // @ts-ignore
+    parsedData[key] = JSON.parse(parseRoot[key]);
+  }
+
+  // Hack to default previously added wallets to being of the `local` type.
+  // Ideally we would have a data store that can perform schema migrations but this will do for now.
+  for (const wallet of parsedData.wallets ?? []) {
+    wallet.type ??= "local";
+  }
+
+  return parsedData;
+}
+
+export async function encodeStoreData(storeData: StoreData): Promise<string> {
+  // store data, but with stringified values
+  const encodedData: { [key: string]: string } = {};
+
+  for (const reducer in storeData) {
+    // @ts-ignore
+    encodedData[reducer] = JSON.stringify(storeData[reducer]);
+  }
+
+  return JSON.stringify(encodedData);
+}
+
 /**
  * Get store data
  *
@@ -83,15 +115,10 @@ export type StoreData = Partial<RootState>;
  */
 export async function getStoreData(): Promise<StoreData> {
   const data = (await browser.storage.local.get("persist:root"))?.[
-      "persist:root"
-    ],
-    parseRoot: StoreData = JSON.parse(data ?? "{}");
+    "persist:root"
+  ];
 
-  let parsedData: StoreData = {};
-  // @ts-ignore
-  for (const key in parseRoot) parsedData[key] = JSON.parse(parseRoot[key]);
-
-  return parsedData;
+  return parseStoreData(data);
 }
 
 /**
@@ -101,16 +128,10 @@ export async function getStoreData(): Promise<StoreData> {
  */
 export async function setStoreData(updatedData: StoreData) {
   const data = { ...(await getStoreData()), ...updatedData };
-  // store data, but with stringified values
-  let encodedData: { [key: string]: string } = {};
-
-  for (const reducer in data) {
-    // @ts-ignore
-    encodedData[reducer] = JSON.stringify(data[reducer]);
-  }
+  const encodedData = await encodeStoreData(data);
 
   await browser.storage.local.set({
-    "persist:root": JSON.stringify(encodedData)
+    "persist:root": encodedData
   });
 }
 

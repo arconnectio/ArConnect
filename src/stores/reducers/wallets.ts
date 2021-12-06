@@ -1,7 +1,13 @@
 export interface Wallet {
-  keyfile: string; // encrypted string
-  address: string;
   name: string;
+  address: string;
+  /** The type of wallet this is. */
+  type: "local" | "ledger";
+  /**
+   * The keyfile of the wallet stored in encrypted form.
+   * `undefined` if imported from a Ledger.
+   */
+  keyfile?: string;
 }
 
 export interface IWalletsAction {
@@ -25,13 +31,12 @@ export default function walletsReducer(
 ): Wallet[] {
   switch (action.type) {
     case "ADD_WALLET":
-      if (!action.payload.wallet) break;
-      if (
-        state.find(({ address }) => address === action.payload.wallet?.address)
-      )
-        break;
-      return [...state, action.payload.wallet];
+      const wallet = action.payload.wallet;
 
+      if (!wallet || state.find(({ address }) => address === wallet.address))
+        break;
+
+      return [...state, wallet];
     case "REMOVE_WALLET":
       if (!action.payload.address) break;
       return state.filter(({ address }) => address !== action.payload.address);

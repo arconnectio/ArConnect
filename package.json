@@ -15,10 +15,12 @@
   },
   "dependencies": {
     "@geist-ui/react": "^2.2.0",
+    "@ledgerhq/hw-transport-webusb": "^6.11.2",
     "@limestonefi/api": "^0.1.3",
     "@primer/octicons-react": "^16.0.0",
     "@verto/js": "^0.0.0-alpha.19",
     "@verto/lib": "^0.10.4",
+    "@zondax/ledger-arweave": "^1.0.0",
     "ar-gql": "^0.0.6",
     "arverify": "^0.0.11",
     "arweave": "^1.10.18",

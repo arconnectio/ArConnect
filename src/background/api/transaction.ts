@@ -12,6 +12,7 @@ import { MessageFormat, validateMessage } from "../../utils/messenger";
 import { getRealURL } from "../../utils/url";
 import { browser } from "webextension-polyfill-ts";
 import Transaction, { Tag } from "arweave/web/lib/transaction";
+import * as ledger from "../../utils/ledger";
 import Arweave from "arweave";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
@@ -54,15 +55,11 @@ export const signTransaction = (
       const sign = async () => {
         const storedKeyfiles = storeData?.["wallets"] ?? [],
           storedAddress = storeData?.["profile"],
-          keyfileToDecrypt = storedKeyfiles.find(
+          wallet = storedKeyfiles.find(
             (item) => item.address === storedAddress
-          )?.keyfile;
+          );
 
-        if (
-          storedKeyfiles.length === 0 ||
-          !storedAddress ||
-          !keyfileToDecrypt
-        ) {
+        if (storedKeyfiles.length === 0 || !storedAddress || !wallet) {
           browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
           return {
             res: false,
@@ -70,11 +67,43 @@ export const signTransaction = (
           };
         }
 
-        const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt)),
-          decodeTransaction = arweave.transactions.fromRaw({
-            ...transaction,
-            owner: keyfile.n
-          });
+        const signer =
+          wallet.type === "local"
+            ? (() => {
+                const keyfile: JWKInterface = JSON.parse(atob(wallet.keyfile!));
+                return {
+                  owner: keyfile.n,
+                  signTx: (
+                    tx: Transaction,
+                    signatureOptions?: SignatureOptions
+                  ) => arweave.transactions.sign(tx, keyfile, signatureOptions)
+                };
+              })()
+            : {
+                owner: await ledger.getWalletOwner(),
+                signTx: async (
+                  tx: Transaction,
+                  signatureOptions?: SignatureOptions
+                ) => {
+                  if (signatureOptions) {
+                    throw new Error(
+                      "Ledger does not support signature options"
+                    );
+                  }
+
+                  const ledgerAddress = await ledger.getWalletAddress();
+                  if (ledgerAddress !== wallet.address) {
+                    throw new Error("Ledger address mismatch");
+                  }
+
+                  await ledger.signTransaction(tx);
+                }
+              };
+
+        const userTx = arweave.transactions.fromRaw({
+          ...transaction,
+          owner: signer.owner
+        });
         const arConnectTags = [
           { name: "Signing-Client", value: "ArConnect" },
           { name: "Signing-Client-Version", value: manifest.version }
@@ -83,51 +112,41 @@ export const signTransaction = (
         // add some ArConnect tags so the tx can be
         // identified later for debugging, etc.
         for (const arcTag of arConnectTags) {
-          decodeTransaction.addTag(arcTag.name, arcTag.value);
+          userTx.addTag(arcTag.name, arcTag.value);
         }
 
         // fee multiplication
         if (feeMultiplier > 1) {
-          decodeTransaction.reward = (
-            +decodeTransaction.reward * feeMultiplier
-          ).toFixed(0);
-          price =
-            parseFloat(transaction.quantity) +
-            parseFloat(decodeTransaction.reward);
+          userTx.reward = (+userTx.reward * feeMultiplier).toFixed(0);
+          price = parseFloat(transaction.quantity) + parseFloat(userTx.reward);
         }
 
-        await arweave.transactions.sign(
-          decodeTransaction,
-          keyfile,
-          signatureOptions
-        );
+        await signer.signTx(userTx, signatureOptions);
 
         const feeTarget = await selectVRTHolder();
 
         if (feeTarget) {
-          const feeTx = await arweave.createTransaction(
-            {
-              target: feeTarget,
-              quantity: await getFeeAmount(storedAddress, arweave),
-              data: Math.random().toString().slice(-4)
-            },
-            keyfile
-          );
+          const feeTx = await arweave.createTransaction({
+            owner: signer.owner,
+            target: feeTarget,
+            quantity: await getFeeAmount(storedAddress, arweave),
+            data: Math.random().toString().slice(-4)
+          });
 
           feeTx.addTag("App-Name", "ArConnect");
           feeTx.addTag("App-Version", manifest.version);
           feeTx.addTag("Type", "Fee-Transaction");
-          feeTx.addTag("Linked-Transaction", decodeTransaction.id);
+          feeTx.addTag("Linked-Transaction", userTx.id);
 
           // fee multiplication
           if (feeMultiplier > 1) {
             feeTx.reward = (+feeTx.reward * feeMultiplier).toFixed(0);
           }
 
-          await arweave.transactions.sign(feeTx, keyfile);
+          await signer.signTx(feeTx);
 
+          // Using the uploader explicitly over `post()` is supposed to help with transaction block inclusion.
           const uploader = await arweave.transactions.getUploader(feeTx);
-
           while (!uploader.isComplete) {
             await uploader.uploadChunk();
           }
@@ -153,10 +172,10 @@ export const signTransaction = (
         // transaction signer creates a valid signature
         // using those as well
         const returnTransaction = {
-          ...decodeTransaction,
+          ...userTx,
           data: undefined,
           // only return the arconnect tags
-          tags: decodeTransaction
+          tags: userTx
             .get("tags")
             // @ts-expect-error
             .filter(

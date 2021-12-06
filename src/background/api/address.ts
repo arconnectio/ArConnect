@@ -1,6 +1,7 @@
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { getStoreData } from "../../utils/background";
 import { MessageFormat } from "../../utils/messenger";
+import * as ledger from "../../utils/ledger";
 
 /**
  * APIs for getting the user's address / addresses
@@ -29,25 +30,38 @@ export const activeAddress = () =>
 export const publicKey = () =>
   new Promise<Partial<MessageFormat>>(async (resolve, _) => {
     try {
-      const address = (await getStoreData())["profile"];
-      const wallets = (await getStoreData())?.["wallets"];
+      const store = await getStoreData();
+      const address = store["profile"];
+      const wallets = store["wallets"];
 
       if (wallets) {
-        const keyfileToDecrypt = wallets.find(
-          (wallet) => wallet.address === address
-        )?.keyfile;
+        const wallet = wallets.find((wallet) => wallet.address === address);
 
-        if (keyfileToDecrypt) {
-          const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt));
+        if (!wallet) {
+          resolve({
+            res: false,
+            message: "No wallets added"
+          });
+          return;
+        }
 
+        if (wallet.type === "local") {
+          const keyfile: JWKInterface = JSON.parse(atob(wallet.keyfile!));
           resolve({
             res: true,
             publicKey: keyfile.n
           });
-        } else {
+        } else if (wallet.type === "ledger") {
+          const { address: ledgerAddress, owner } =
+            await ledger.getWalletInfo();
+
+          if (ledgerAddress !== address) {
+            throw new Error("Ledger address mismatch");
+          }
+
           resolve({
-            res: false,
-            message: "No wallets added"
+            res: true,
+            publicKey: owner
           });
         }
       } else {

@@ -21,6 +21,7 @@ import { Wallet } from "../../stores/reducers/wallets";
 import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
 import { checkPassword as checkPw, setPassword } from "../../utils/auth";
+import * as ledger from "../../utils/ledger";
 import { browser } from "webextension-polyfill-ts";
 import bip39 from "bip39-web-crypto";
 import CryptoES from "crypto-es";
@@ -143,7 +144,7 @@ export default function App() {
         keyfile = btoa(JSON.stringify(keyfilesToLoad[i])),
         name = `Account ${i + 1 + walletsStore.length}`;
 
-      wallets.push({ address, keyfile, name });
+      wallets.push({ name, address, type: "local", keyfile });
     }
 
     dispatch(setWallets([...walletsStore, ...wallets]));
@@ -170,18 +171,50 @@ export default function App() {
     setSeed(mnemonic);
     setSeedKeyfile({ address, keyfile });
     seedModal.setVisible(true);
+
+    const localWalletCount = walletsStore.reduce<number>((count, wallet) => {
+      return wallet.type === "local" ? count + 1 : count;
+    }, 0);
+
     dispatch(
       setWallets([
         ...walletsStore,
         {
-          keyfile: encryptedKeyfile,
+          name: `Account ${localWalletCount + 1}`,
           address,
-          name: `Account ${walletsStore.length + 1}`
+          type: "local",
+          keyfile: encryptedKeyfile
         }
       ])
     );
     dispatch(switchProfile(address));
     setLoading(false);
+  }
+
+  async function connectLedger() {
+    try {
+      const address = await ledger.getWalletAddress();
+
+      const ledgerWalletCount = walletsStore.reduce<number>((count, wallet) => {
+        return wallet.type === "ledger" ? count + 1 : count;
+      }, 0);
+
+      dispatch(
+        setWallets([
+          ...walletsStore,
+          {
+            name: `Ledger ${ledgerWalletCount + 1}`,
+            address,
+            type: "ledger"
+          }
+        ])
+      );
+      dispatch(switchProfile(address));
+
+      setToast({ text: "Ledger connected", type: "success" });
+    } catch {
+      setToast({ text: "Could not connect Ledger", type: "error" });
+    }
   }
 
   function downloadSeedWallet() {
@@ -323,6 +356,9 @@ export default function App() {
               <Button onClick={createWallet} loading={loading}>
                 New wallet
               </Button>
+              {ledger.isSupported() && (
+                <Button onClick={connectLedger}>Connect Ledger</Button>
+              )}
             </div>
           )) || (
             <>

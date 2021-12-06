@@ -51,6 +51,7 @@ import Arweave from "arweave";
 import manifest from "../../../../public/manifest.json";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
+import { encodeStoreData, getStoreData } from "../../../utils/background";
 
 export default function Settings() {
   const [setting, setCurrSetting] = useState<
@@ -221,14 +222,14 @@ export default function Settings() {
 
   async function generateConfigFile() {
     const password = configPasswordInput.state;
-    const storedData = (await browser.storage.local.get("persist:root"))?.[
-      "persist:root"
-    ];
+    const storeData = await getStoreData();
 
-    if (!storedData || storedData === "")
-      return setToast({ text: "Could not get stored data", type: "error" });
+    storeData.wallets = storeData.wallets?.filter(
+      (wallet) => wallet.type === "local"
+    );
 
-    const encrypted = CryptoES.AES.encrypt(storedData, password);
+    const encodedStoreData = await encodeStoreData(storeData);
+    const encrypted = CryptoES.AES.encrypt(encodedStoreData, password);
 
     // create element that downloads the virtual file
     const el = document.createElement("a");
