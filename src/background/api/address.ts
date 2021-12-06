@@ -30,19 +30,28 @@ export const activeAddress = () =>
 export const publicKey = () =>
   new Promise<Partial<MessageFormat>>(async (resolve, _) => {
     try {
-      const address = (await getStoreData())["profile"];
-      const wallets = (await getStoreData())?.["wallets"];
+      const store = await getStoreData();
+      const address = store["profile"];
+      const wallets = store["wallets"];
 
       if (wallets) {
         const wallet = wallets.find((wallet) => wallet.address === address);
 
-        if (wallet?.type === "local") {
+        if (!wallet) {
+          resolve({
+            res: false,
+            message: "No wallets added"
+          });
+          return;
+        }
+
+        if (wallet.type === "local") {
           const keyfile: JWKInterface = JSON.parse(atob(wallet.keyfile!));
           resolve({
             res: true,
             publicKey: keyfile.n
           });
-        } else if (wallet?.type === "ledger") {
+        } else if (wallet.type === "ledger") {
           const { address: ledgerAddress, owner } =
             await ledger.getWalletInfo();
 
@@ -53,11 +62,6 @@ export const publicKey = () =>
           resolve({
             res: true,
             publicKey: owner
-          });
-        } else {
-          resolve({
-            res: false,
-            message: "No wallets added"
           });
         }
       } else {

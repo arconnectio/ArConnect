@@ -62,8 +62,8 @@ async function handleMessage(
     await authenticateUser(message.type, tabURL);
 
     const storeData = await getStoreData(),
-      wallets = storeData?.["wallets"],
-      storedAddress = storeData?.["profile"],
+      wallets = storeData.wallets,
+      storedAddress = storeData.profile,
       wallet = wallets?.find((item) => item.address === storedAddress);
 
     if (!wallets || !storedAddress || !wallet)
