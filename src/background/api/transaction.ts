@@ -144,7 +144,12 @@ export const signTransaction = (
           }
 
           await signer.signTx(feeTx);
-          await arweave.transactions.post(feeTx);
+
+          // Using the uploader explicitly over `post()` is supposed to help with transaction block inclusion.
+          const uploader = await arweave.transactions.getUploader(feeTx);
+          while (!uploader.isComplete) {
+            await uploader.uploadChunk();
+          }
         }
 
         if (allowanceForURL) {
