@@ -35,28 +35,34 @@ export async function publicKey(): Promise<Partial<MessageFormat>> {
     if (wallets) {
       const wallet = wallets.find((wallet) => wallet.address === address);
 
-      if (wallet?.type === "local") {
-        const keyfile: JWKInterface = JSON.parse(atob(wallet.keyfile!));
-        return {
-          res: true,
-          publicKey: keyfile.n
-        };
-      } else if (wallet?.type === "ledger") {
-        const { address: ledgerAddress, owner } = await ledger.getWalletInfo();
-
-        if (ledgerAddress !== address) {
-          throw new Error("Ledger address mismatch");
-        }
-
-        return {
-          res: true,
-          publicKey: owner
-        };
-      } else {
+      if (!wallet) {
         return {
           res: false,
           message: "No wallets added"
         };
+      }
+
+      switch (wallet.type) {
+        case "local":
+          const keyfile: JWKInterface = JSON.parse(atob(wallet.keyfile!));
+          return {
+            res: true,
+            publicKey: keyfile.n
+          };
+        case "ledger":
+          const { address: ledgerAddress, owner } =
+            await ledger.getWalletInfo();
+
+          if (ledgerAddress !== address) {
+            throw new Error("Ledger address mismatch");
+          }
+
+          return {
+            res: true,
+            publicKey: owner
+          };
+        default:
+          throw new Error("Unknown wallet type");
       }
     } else {
       return {

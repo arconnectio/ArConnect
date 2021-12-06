@@ -62,22 +62,23 @@ async function handleMessage(
     await authenticateUser(message.type, tabURL);
 
     const storeData = await getStoreData(),
-      wallets = storeData?.["wallets"],
-      storedAddress = storeData?.["profile"],
+      wallets = storeData.wallets,
+      storedAddress = storeData.profile,
       wallet = wallets?.find((item) => item.address === storedAddress);
 
     if (!wallets || !storedAddress || !wallet)
       throw new Error("No wallets added");
 
-    if (wallet.type === "local") {
-      return handler(message, wallet);
-    } else if (wallet.type === "ledger") {
-      return {
-        res: false,
-        message: "Action not supported"
-      };
-    } else {
-      throw new Error("Unknown wallet type");
+    switch (wallet.type) {
+      case "local":
+        return handler(message, wallet);
+      case "ledger":
+        return {
+          res: false,
+          message: "Action not supported"
+        };
+      default:
+        throw new Error("Unknown wallet type");
     }
   } catch (e: any) {
     return {

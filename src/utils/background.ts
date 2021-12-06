@@ -88,6 +88,12 @@ export async function parseStoreData(
     parsedData[key] = JSON.parse(parseRoot[key]);
   }
 
+  // Hack to default previously added wallets to being of the `local` type.
+  // Ideally we would have a data store that can perform schema migrations but this will do for now.
+  for (const wallet of parsedData.wallets ?? []) {
+    wallet.type ??= "local";
+  }
+
   return parsedData;
 }
 
