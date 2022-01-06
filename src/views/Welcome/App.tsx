@@ -27,12 +27,22 @@ import CryptoES from "crypto-es";
 import Arweave from "arweave";
 import logo from "../../assets/logo.png";
 import styles from "../../styles/views/Welcome/view.module.sass";
+import setupStyles from "../../styles/views/Setup/welcome.module.sass";
+
+interface SetupConfigProps {
+  welcome: boolean;
+  password: boolean;
+}
 
 export default function App() {
   const theme = useTheme(),
     fileInput = useRef<HTMLInputElement>(null),
     loadWalletsModal = useModal(false),
     [seed, setSeed] = useState<string>(),
+    [setupConfig, setSetupConfig] = useState<SetupConfigProps>({
+      welcome: false,
+      password: false
+    }),
     [, setToast] = useToasts(),
     [keyfiles, setKeyfiles] = useState<
       {
@@ -289,100 +299,150 @@ export default function App() {
     };
   }
 
+  const SetupTemplate = ({
+    text,
+    children
+  }: {
+    text: string;
+    children: React.ReactNode;
+  }) => {
+    return (
+      <section className={setupStyles.startupwelcome}>
+        <div>
+          <img src={logo} alt="arconnect logo" className={setupStyles.logo} />
+          <h1 className={setupStyles.header}>Welcome to ArConnect</h1>
+          <p className={setupStyles.intro}>{text}</p>
+          {children}
+        </div>
+        <a
+          className={styles.th8ta}
+          href="https://th8ta.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          th<span>8</span>ta
+        </a>
+      </section>
+    );
+  };
+  const SetupWelcome = () => {
+    return (
+      <SetupTemplate
+        text="A simple and secure way to authorize transactions and manage your
+            Arweave assets"
+      >
+        <button
+          className={styles.welcomeButton}
+          onClick={() => {
+            setSetupConfig({ ...setupConfig, welcome: true });
+          }}
+        >
+          Get Started
+        </button>
+      </SetupTemplate>
+    );
+  };
+
   return (
     <>
-      <div className={styles.Welcome}>
-        <Card className={styles.Card}>
-          <img src={logo} alt="logo" className={styles.Logo} />
-          <h1>
-            Welcome{" "}
-            {(walletsStore.length === 0 && (
-              <>
-                to{" "}
-                <span style={{ color: theme.palette.success }}>ArConnect</span>
-              </>
-            )) ||
-              "back! :)"}
-          </h1>
-          <p style={{ color: theme.palette.accents_4 }}>
-            Secure wallet management for Arweave
-            {!passwordGiven && (
-              <>
-                <br />
-                {walletsStore.length === 0
-                  ? "Please create a password to encrypt your keyfiles"
-                  : "Please enter your password"}
-              </>
-            )}
-          </p>
+      {setupConfig.welcome ? (
+        <div className={styles.Welcome}>
           {(passwordGiven && (
-            <div className={styles.Actions}>
-              <Button onClick={() => loadWalletsModal.setVisible(true)}>
-                Load wallet(s)
-              </Button>
-              <Button onClick={createWallet} loading={loading}>
-                New wallet
-              </Button>
-            </div>
+            <>
+              <img src={logo} alt="arconnect logo" className={styles.logo} />
+              <h1 className={styles.header}>Welcome to ArConnect</h1>
+              <p className={styles.intro}>Load or create a new wallet.</p>
+              <div className={styles.loadwallets}>
+                <button
+                  onClick={() => loadWalletsModal.setVisible(true)}
+                  className={styles.loadButton}
+                >
+                  Load Wallet(s)
+                </button>
+                <button
+                  onClick={createWallet}
+                  className={styles.newWalletButton}
+                >
+                  New Wallet
+                </button>
+              </div>
+              <p>
+                Read more about our <span className={styles.fees}>fees.</span>
+              </p>
+            </>
           )) || (
             <>
-              <Input.Password
+              <img src={logo} alt="arconnect logo" className={styles.logo} />
+              <h1 className={styles.header}>Welcome to ArConnect</h1>
+              <p className={styles.intro}>
+                {walletsStore.length === 0
+                  ? "Please create a password to use for authentication"
+                  : "Login with your password"}
+                {/* TODO: Suggest better wording for login */}
+              </p>
+              <label className={`${styles.passwordLabel} ${styles.label1}`}>
+                password
+              </label>
+              <input
                 {...passwordInput.bindings}
                 onKeyPress={(e) => {
                   if (e.key === "Enter" && walletsStore.length > 0)
                     checkPassword();
                 }}
-                placeholder="Password..."
+                type="password"
+                placeholder="*********"
+                id={styles.overRideInput}
               />
               {walletsStore.length === 0 && (
                 <>
                   <Spacer />
-                  <Input.Password
+                  <p className={styles.passwordLabel}>repeat password</p>
+                  <input
                     {...passwordInputAgain.bindings}
-                    placeholder="Password again..."
                     onKeyPress={(e) => {
                       if (e.key === "Enter") createPassword();
                     }}
+                    type="password"
+                    placeholder="*********"
+                    id={styles.overRideInput}
                   />
                 </>
               )}
               <Spacer />
-              <Button
+              {/* TODO: ADD LOADING SPINNER TO BUTTONS  */}
+              <button
                 onClick={() => {
                   if (walletsStore.length === 0) createPassword();
                   else checkPassword();
                 }}
-                loading={loading}
+                className={styles.setupButton}
               >
                 {walletsStore.length === 0 ? "Create" : "Login"}
-              </Button>
+              </button>
+
               {walletsStore.length === 0 && (
                 <>
-                  <span
-                    className={styles.OR}
-                    style={{ width: "50%", margin: "1em auto" }}
+                  <span className={styles.OR}>OR</span>
+                  {/* <Button onClick={() => loadConfigModal.setVisible(true)}>
+                      Load config file
+                    </Button> */}
+                  <button
+                    onClick={() => {
+                      setSetupConfig({ ...setupConfig, welcome: false });
+                    }}
+                    className={styles.cancelButton}
                   >
-                    OR
-                  </span>
-                  <Button onClick={() => loadConfigModal.setVisible(true)}>
-                    Load config file
-                  </Button>
+                    Cancel
+                  </button>
                 </>
               )}
             </>
           )}
-          <p style={{ marginTop: "1.75em" }}>
-            Read more about our{" "}
-            <span
-              onClick={() => feeModal.setVisible(true)}
-              style={{ color: theme.palette.link, cursor: "pointer" }}
-            >
-              fees
-            </span>
-            .
-          </p>
-        </Card>
-      </div>
+        </div>
+      ) : (
+        <SetupWelcome />
+      )}
+
       <a
         className={styles.th8ta}
         href="https://th8ta.org"

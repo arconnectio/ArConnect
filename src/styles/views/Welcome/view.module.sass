@@ -1,56 +1,117 @@
 @use "../../variables"
 @import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap")
-  
+@import url('https://fonts.googleapis.com/css2?family=Inter&family=Poppins:wght@100;200;300;400;500;600;700;800&display=swap')
+@import url('https://fonts.googleapis.com/css2?family=Inter&family=Poppins:wght@100;200;300;400;500;600;700;800&family=Roboto+Mono:wght@400;500;600&display=swap')
+
+
 .Welcome
-  position: relative
+  width: 100%
   height: 100vh
+  color: #000
+  display: flex
+  background: #fff
+  align-items: center
+  flex-direction: column
+  justify-content: center
+  font-family: 'Poppins', sans-serif
 
-  .Card
-    position: absolute
-    top: 50%
-    left: 50%
-    text-align: center
-    width: 30% !important
-    transform: translate(-50%, -50%)
+.welcomeButton
+  background: #000
+  color: #fff
+  min-width: 8rem
+  border: none
+  border-radius: 14px
+  font-size: 17px
+  font-weight: 500
+  margin-top: 2rem
+  padding: 0.5rem 1.5rem
+  cursor: pointer
 
-    @media screen and (max-width: variables.$smaller-screens)
-      width: 53% !important
+.setupButton
+  @extend .welcomeButton
+  width: 18rem
+  margin-top: 0
 
-    @media screen and (max-width: variables.$mobile-screens)
-      width: 88% !important
+.cancelButton
+  @extend .setupButton
+  background: none
+  border: 3px solid #66666690
+  color: #666
+  font-weight: 500
+  transition: all 500ms ease-in-out
 
-    h1
-      font-size: 2.5em
-      font-weight: 500
-      margin-bottom: 0
+  &:hover 
+    transform: scale(1.09)
 
-      span
-        text-transform: uppercase
-        font-weight: 600
-        display: inline-block
 
-      @media screen and (max-width: variables.$smaller-screens)
-        font-size: 2.265em
+.logo
+  width: 150px
+  height: 150px
 
-      @media screen and (max-width: variables.$mobile-screens)
-        line-height: 1em
+.header 
+  margin-top: 1rem
+  text-align: center
+  font-size: 38px
+  font-weight: 500
+  font-family: inherit
+  
+.intro
+  text-align: center
+  margin: 0
+  font-family: inherit
+  font-weight: normal
+  text-align: center
+  font-size: 1rem
+  color: #666666
+  width: 70%
 
-    .Actions
-      margin-top: 1em
+.fees
+  color: #000
+  font-size: 14px
+  font-weight: bold
 
-      button
-        margin: 0 1em
+#overRideInput
+  width: 20rem
+  padding: 0.4rem
+  border-radius: 14px
+  border: 2px solid #000
 
-    .Logo
-      display: block
-      height: 4.65em
-      width: 4.65em
-      margin: 0 auto
-        bottom: 1.25em
+  &::placeholder
+    font-size: 1rem
+    color: #00000090
+    font-weight: 500
+    font-family: 'Roboto Mono', monospace
+    margin-left: 1rem
 
-      @media screen and (max-width: variables.$mobile-screens)
-        height: 3.5em
-        width: 3.5em
+  
+.passwordLabel
+  width: 20rem
+  margin: 0 0 0.4rem 0
+  padding: 0
+  font-size: 12px
+  color: #666666
+  font-weight: 500
+  text-transform: uppercase
+
+.label1
+  margin: 1.5rem 0 0.4rem 0
+
+.loadwallets
+  width: 30rem
+  margin: 1.5rem 0
+  display: flex
+  align-items: center
+  justify-content: space-evenly
+  
+  .loadButton
+    @extend .welcomeButton
+    margin-top: 0
+
+  .newWalletButton
+    @extend .cancelButton
+    width: 8rem
+
+
 
 .FileInput
   position: fixed
@@ -88,27 +149,12 @@
     margin-top: 0 !important
 
 .OR
-  position: relative
-  margin-top: 1em
   display: block
+  font-size: 14px
+  color: #666666
   text-align: center
+  margin: 1rem 0
 
-  &::after, &::before
-    content: ''
-    position: absolute
-    top: 50%
-    left: 0
-    width: 44%
-    height: 1px
-    background-color: #eaeaea
-    transform: translateY(-50%)
-
-    @media (prefers-color-scheme: dark)
-      background-color: #fff
-
-  &::after
-    right: 0
-    left: unset
 
 .th8ta
   position: absolute
@@ -126,7 +172,7 @@
     bottom: .2em
 
   @media (prefers-color-scheme: dark)
-    color: #fff
+    color: #000
 
   span
     background: linear-gradient(142.25deg, #fc9867 23.99%, #ab9df2 73.9%)
