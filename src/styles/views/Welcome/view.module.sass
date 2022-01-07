@@ -31,17 +31,23 @@
   @extend .welcomeButton
   width: 18rem
   margin-top: 0
+  transition: all 500ms ease-in-out
+
+  &:hover 
+    transform: scale(1.05)
+
 
 .cancelButton
   @extend .setupButton
   background: none
-  border: 3px solid #66666690
   color: #666
   font-weight: 500
+  padding: 0.4rem 1.4rem
+  border: 3px solid #66666690
   transition: all 500ms ease-in-out
 
   &:hover 
-    transform: scale(1.09)
+    transform: scale(1.05)
 
 
 .logo
@@ -100,8 +106,9 @@
   width: 30rem
   margin: 1.5rem 0
   display: flex
+  gap: 2rem
   align-items: center
-  justify-content: space-evenly
+  justify-content: center
   
   .loadButton
     @extend .welcomeButton
