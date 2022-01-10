@@ -9,9 +9,18 @@ import {
   ArrowSwitchIcon,
   ArchiveIcon,
   ChevronDownIcon,
-  ChevronUpIcon
+  ChevronUpIcon,
+  CopyIcon,
+  GlobeIcon
 } from "@primer/octicons-react";
-import { Loading, Spacer, Tabs, Tooltip, useTheme } from "@geist-ui/react";
+import {
+  Loading,
+  Spacer,
+  Tabs,
+  Tooltip,
+  useTheme,
+  useToasts
+} from "@geist-ui/react";
 import { setAssets, setBalance } from "../../../stores/actions";
 import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
@@ -31,6 +40,9 @@ import arweaveLogo from "../../../assets/arweave.png";
 import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
+import copy from "copy-to-clipboard";
+import { shortenURL } from "../../../utils/url";
+import walletStyles from "../styles/components/WalletManager.module.sass";
 
 export default function Home() {
   const arweaveConfig = useSelector((state: RootState) => state.arweave),
@@ -57,7 +69,9 @@ export default function Home() {
     [loading, setLoading] = useState({ psts: true, txs: true }),
     [currentTabContentType, setCurrentTabContentType] = useState<
       "page" | "pdf" | undefined
-    >("page");
+    >("page"),
+    [showQRCode, setShowQRCode] = useState(false),
+    [, setToast] = useToasts();
 
   useEffect(() => {
     loadBalance();
@@ -255,29 +269,139 @@ export default function Home() {
     <div className={styles.Home}>
       <WalletManager />
       <div className={styles.Balance}>
-        <h1>
-          {formatBalance(balance()?.arBalance)}
-          <span>AR</span>
-        </h1>
+        <p className={styles.Address}>
+          <button onClick={() => setShowQRCode(true)}>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                x="13.5"
+                y="2.5"
+                width="8"
+                height="8"
+                rx="0.5"
+                stroke="currentColor"
+              />
+              <rect
+                x="2.5"
+                y="2.5"
+                width="8"
+                height="8"
+                rx="0.5"
+                stroke="currentColor"
+              />
+              <rect
+                x="2.5"
+                y="13.5"
+                width="8"
+                height="8"
+                rx="0.5"
+                stroke="currentColor"
+              />
+              <rect
+                x="13"
+                y="18.5"
+                width="3.5"
+                height="3.5"
+                rx="1"
+                fill="currentColor"
+              />
+              <rect
+                x="18.5"
+                y="18.5"
+                width="3.5"
+                height="3.5"
+                rx="1"
+                fill="currentColor"
+              />
+              <rect
+                x="18.5"
+                y="13"
+                width="3.5"
+                height="3.5"
+                rx="1"
+                fill="currentColor"
+              />
+              <rect
+                x="13"
+                y="13"
+                width="3.5"
+                height="3.5"
+                rx="1"
+                fill="currentColor"
+              />
+              <rect
+                x="5"
+                y="16"
+                width="3"
+                height="3"
+                rx="0.5"
+                fill="currentColor"
+              />
+              <rect
+                x="16"
+                y="5"
+                width="3"
+                height="3"
+                rx="0.5"
+                fill="currentColor"
+              />
+              <rect
+                x="5"
+                y="5"
+                width="3"
+                height="3"
+                rx="0.5"
+                fill="currentColor"
+              />
+            </svg>
+          </button>
+          <button
+            style={{ marginRight: ".5em", marginLeft: ".5em" }}
+            onClick={() => {
+              copy(profile);
+              setToast({
+                text: "Copied address to clipboard",
+                type: "success"
+              });
+            }}
+          >
+            <CopyIcon />
+          </button>
+          {shortenURL(profile)}
+        </p>
+        <h1>{formatBalance(balance()?.arBalance)}</h1>
         <h2>
           {getSymbol(currency)}
           {balance()?.fiatBalance.toLocaleString()} {currency ?? "???"}
-          <Tooltip
-            text={
-              <p style={{ textAlign: "center", margin: "0" }}>
-                Calculated using <br />
-                redstone.finance
-              </p>
-            }
-            style={{ marginLeft: ".18em" }}
-          >
-            <QuestionIcon size={24} />
-          </Tooltip>
         </h2>
         <div className={styles.Menu}>
           <div className={styles.Item} onClick={() => goTo(Send)}>
             <ArrowSwitchIcon size={24} />
             <span>Send</span>
+          </div>
+          <Tooltip text="Not available yet">
+            <div
+              className={
+                styles.Item + " " + styles.SwapItem + " " + styles.Unavailable
+              }
+            >
+              <ArrowSwitchIcon size={24} />
+              <span>Swap</span>
+            </div>
+          </Tooltip>
+          <div
+            className={
+              styles.Item + " " + styles.SwapItem + " " + styles.Unavailable
+            }
+          >
+            <GlobeIcon size={24} />
+            {/* TODO: Use Globe in Figma */}
+            <span>Explore</span>
           </div>
           <ArchiveWrapper
             supported={currentTabContentType !== undefined}
@@ -295,16 +419,6 @@ export default function Home() {
               <span>Archive {currentTabContentType ?? "page"}</span>
             </div>
           </ArchiveWrapper>
-          <Tooltip text="Not available yet">
-            <div
-              className={
-                styles.Item + " " + styles.SwapItem + " " + styles.Unavailable
-              }
-            >
-              <ArrowSwitchIcon size={24} />
-              <span>Swap</span>
-            </div>
-          </Tooltip>
         </div>
       </div>
       <Tabs initialValue="1" className={styles.Tabs}>

@@ -1,4 +1,6 @@
 @use "../../variables"
+@import url('https://fonts.googleapis.com/css2?family=Inter&family=Poppins:wght@100;200;300;400;500;600;700;800&display=swap')
+
   
 $sidePaddingTransactions: .7em
   
@@ -7,27 +9,61 @@ $sidePaddingTransactions: .7em
 
   @media (prefers-color-scheme: dark)
     background-color: variables.$lighter-bg-dark
+    // TODO -> remove color scheme
 
 .Balance
   position: relative
   text-align: center
   padding: 3em 0 1.84em
 
+  .Address
+    display: flex
+    align-items: center
+    justify-content: center
+    font-size: .85em
+    // color: #666  
+    // todo -> Remove comment
+
+    button
+      display: flex
+      align-items: center
+      text-align: center
+      justify-content: center
+      background-color: transparent
+      font-size: 1em
+      padding: 0
+      outline: none
+      border: none
+      cursor: pointer
+      margin: 0 .23em
+      transition: all .23s ease-in-out
+      // color: #666
+      // todo -> Remove comment
+
+
+      svg
+        font-size: 1em
+        width: 0.9em
+        height: 0.9em
+
+        &:hover
+          opacity: .77
+
   h1, h2
     margin: 0
     font-weight: 600
+    text-align: center
+    font-family: 'Poppins'
 
   h1
-    font-size: 2.2em
+    font-size: 2.625em
     line-height: 1.1em
-    margin-bottom: .16em
-
-    span
-      font-size: .6em
+    font-weight: normal
+    margin: .16em 0
 
   h2
     font-size: 1.36em
-    font-weight: 400
+    font-weight: 500
     line-height: 1.1em
     color: variables.$secondary-text-light
 

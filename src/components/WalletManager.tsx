@@ -7,10 +7,9 @@ import {
   signOut,
   switchProfile
 } from "../stores/actions";
-import { Modal, Tooltip, useModal, useToasts } from "@geist-ui/react";
+import { Modal, Tooltip, useModal } from "@geist-ui/react";
 import {
   ChevronDownIcon,
-  CopyIcon,
   GearIcon,
   PlusIcon,
   SignOutIcon,
@@ -26,7 +25,6 @@ import { browser } from "webextension-polyfill-ts";
 import { formatAddress } from "../utils/url";
 import { logOut } from "../utils/auth";
 import Settings from "../views/Popup/routes/Settings";
-import copy from "copy-to-clipboard";
 import "../styles/components/Tooltip.sass";
 import toastStyles from "../styles/components/SmallToast.module.sass";
 import styles from "../styles/components/WalletManager.module.sass";
@@ -44,8 +42,7 @@ export default function WalletManager() {
     { arVerifyTreshold } = useSelector((state: RootState) => state.settings),
     [walletNameSizes, setWalletNameSizes] = useState<{
       [address: string]: number;
-    }>({}),
-    [, setToast] = useToasts();
+    }>({});
 
   useEffect(() => {
     loadVerifiedAddresses();
@@ -120,111 +117,6 @@ export default function WalletManager() {
           {currentWalletName() || "• • •"}
           {verifiedAddresses.includes(profile) && <VerifiedIcon />}
         </h1>
-        <p className={styles.Address}>
-          {formatAddress(profile)}
-          <button
-            style={{ marginLeft: ".85em" }}
-            onClick={() => {
-              copy(profile);
-              setToast({
-                text: "Copied address to clipboard",
-                type: "success"
-              });
-            }}
-          >
-            <CopyIcon />
-          </button>
-          <button onClick={() => setShowQRCode(true)}>
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect
-                x="13.5"
-                y="2.5"
-                width="8"
-                height="8"
-                rx="0.5"
-                stroke="currentColor"
-              />
-              <rect
-                x="2.5"
-                y="2.5"
-                width="8"
-                height="8"
-                rx="0.5"
-                stroke="currentColor"
-              />
-              <rect
-                x="2.5"
-                y="13.5"
-                width="8"
-                height="8"
-                rx="0.5"
-                stroke="currentColor"
-              />
-              <rect
-                x="13"
-                y="18.5"
-                width="3.5"
-                height="3.5"
-                rx="1"
-                fill="currentColor"
-              />
-              <rect
-                x="18.5"
-                y="18.5"
-                width="3.5"
-                height="3.5"
-                rx="1"
-                fill="currentColor"
-              />
-              <rect
-                x="18.5"
-                y="13"
-                width="3.5"
-                height="3.5"
-                rx="1"
-                fill="currentColor"
-              />
-              <rect
-                x="13"
-                y="13"
-                width="3.5"
-                height="3.5"
-                rx="1"
-                fill="currentColor"
-              />
-              <rect
-                x="5"
-                y="16"
-                width="3"
-                height="3"
-                rx="0.5"
-                fill="currentColor"
-              />
-              <rect
-                x="16"
-                y="5"
-                width="3"
-                height="3"
-                rx="0.5"
-                fill="currentColor"
-              />
-              <rect
-                x="5"
-                y="5"
-                width="3"
-                height="3"
-                rx="0.5"
-                fill="currentColor"
-              />
-            </svg>
-          </button>
-        </p>
         <div
           className={styles.Icon + " " + (open ? styles.Open : "")}
           onClick={() => setOpen(!open)}
