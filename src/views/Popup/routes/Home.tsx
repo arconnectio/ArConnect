@@ -42,7 +42,8 @@ import verto_dark_logo from "../../../assets/verto_dark.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
 import copy from "copy-to-clipboard";
 import { shortenURL } from "../../../utils/url";
-import walletStyles from "../styles/components/WalletManager.module.sass";
+import { motion, AnimatePresence } from "framer-motion";
+import { QRCode } from "react-qr-svg";
 
 export default function Home() {
   const arweaveConfig = useSelector((state: RootState) => state.arweave),
@@ -154,7 +155,7 @@ export default function Home() {
   }
 
   function formatBalance(val: number | string = 0, small = false) {
-    if (Number(val) === 0 && !small) return "0".repeat(10);
+    if (Number(val) === 0 && !small) return "0".repeat(3) + "." + "0".repeat(3);
     val = String(val);
     const full = val.split(".")[0];
     if (full.length >= 10) return full;
@@ -374,7 +375,10 @@ export default function Home() {
           </button>
           {shortenURL(profile)}
         </p>
-        <h1>{formatBalance(balance()?.arBalance)}</h1>
+        <div className={styles.ArBalance}>
+          <h1>{formatBalance(balance()?.arBalance)} AR </h1>
+          <ChevronRightIcon size={30} className={styles.ChevronBalance} />
+        </div>
         <h2>
           {getSymbol(currency)}
           {balance()?.fiatBalance.toLocaleString()} {currency ?? "???"}
@@ -624,6 +628,29 @@ export default function Home() {
           )}
         </Tabs.Item>
       </Tabs>
+
+      <AnimatePresence>
+        {showQRCode && (
+          <motion.div
+            className={styles.QROverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.23, ease: "easeInOut" }}
+            onClick={() => setShowQRCode(false)}
+          >
+            <div className={styles.wrapper}>
+              <QRCode
+                className={styles.QRCode}
+                value={profile}
+                bgColor={scheme === "dark" ? "#000000" : "#ffffff"}
+                fgColor={scheme === "dark" ? "#ffffff" : "#000000"}
+              />
+              <p>{profile}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

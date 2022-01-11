@@ -20,7 +20,7 @@ export function getRealURL(url: string) {
 export function shortenURL(url: string) {
   if (url.length < 25) return url;
   return (
-    url.substring(0, 8) + "..." + url.substring(url.length - 8, url.length)
+    url.substring(0, 7) + "..." + url.substring(url.length - 7, url.length)
   );
 }
 
