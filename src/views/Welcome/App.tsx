@@ -2,14 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Card,
   useTheme,
-  Button,
   useModal,
   Modal,
   Textarea,
   useToasts,
   Tooltip,
   useInput,
-  Input,
   Spacer,
   Code
 } from "@geist-ui/react";
@@ -28,6 +26,7 @@ import Arweave from "arweave";
 import logo from "../../assets/logo.png";
 import styles from "../../styles/views/Welcome/view.module.sass";
 import setupStyles from "../../styles/views/Setup/welcome.module.sass";
+import { Button, Input } from "@verto/ui";
 
 interface SetupConfigProps {
   welcome: boolean;
@@ -69,7 +68,15 @@ export default function App() {
     configFileInput = useRef<HTMLInputElement>(null),
     [configFilenameDisplay, setConfigFilenameDisplay] =
       useState("Click to load"),
-    [loadingConfig, setLoadingConfig] = useState(false);
+    [loadingConfig, setLoadingConfig] = useState(false),
+    inputStyles = {
+      width: "89%",
+      height: "1.99em",
+      marginLeft: "1.2rem",
+      background: "white",
+      borderRadius: "14px",
+      border: "2px solid #000"
+    };
 
   useEffect(() => {
     if (!fileInput.current) return;
@@ -331,14 +338,16 @@ export default function App() {
         text="A simple and secure way to authorize transactions and manage your
             Arweave assets"
       >
-        <button
+        <Button
+          small
+          type="outlined"
           className={styles.welcomeButton}
           onClick={() => {
             setSetupConfig({ ...setupConfig, welcome: true });
           }}
         >
           Get Started
-        </button>
+        </Button>
       </SetupTemplate>
     );
   };
@@ -353,18 +362,16 @@ export default function App() {
               <h1 className={styles.header}>Welcome to ArConnect</h1>
               <p className={styles.intro}>Load or create a new wallet.</p>
               <div className={styles.loadwallets}>
-                <button
+                <Button
                   onClick={() => loadWalletsModal.setVisible(true)}
-                  className={styles.loadButton}
+                  small
+                  type="outlined"
                 >
                   Load Wallet(s)
-                </button>
-                <button
-                  onClick={createWallet}
-                  className={styles.newWalletButton}
-                >
+                </Button>
+                <Button onClick={createWallet} small loading={loading}>
                   New Wallet
-                </button>
+                </Button>
               </div>
               <p>
                 Read more about our <span className={styles.fees}>fees.</span>
@@ -378,47 +385,43 @@ export default function App() {
                 {walletsStore.length === 0
                   ? "Please create a password to use for authentication"
                   : "Login with your password"}
-                {/* TODO: Suggest better wording for login */}
               </p>
               <label className={`${styles.passwordLabel} ${styles.label1}`}>
                 password
               </label>
-              <input
-                {...passwordInput.bindings}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter" && walletsStore.length > 0)
-                    checkPassword();
-                }}
+              <Input
                 type="password"
                 placeholder="*********"
-                id={styles.overRideInput}
+                style={{
+                  ...inputStyles
+                }}
               />
               {walletsStore.length === 0 && (
                 <>
                   <Spacer />
                   <p className={styles.passwordLabel}>repeat password</p>
-                  <input
-                    {...passwordInputAgain.bindings}
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") createPassword();
-                    }}
+
+                  <Input
                     type="password"
                     placeholder="*********"
-                    id={styles.overRideInput}
+                    style={{
+                      ...inputStyles
+                    }}
                   />
                 </>
               )}
               <Spacer />
-              {/* TODO: ADD LOADING SPINNER TO BUTTONS  */}
-              <button
+              <Button
+                small
+                type="outlined"
                 onClick={() => {
                   if (walletsStore.length === 0) createPassword();
                   else checkPassword();
                 }}
-                className={styles.setupButton}
+                style={{ width: "15%" }}
               >
                 {walletsStore.length === 0 ? "Create" : "Login"}
-              </button>
+              </Button>
 
               {walletsStore.length === 0 && (
                 <>
@@ -426,14 +429,15 @@ export default function App() {
                   {/* <Button onClick={() => loadConfigModal.setVisible(true)}>
                       Load config file
                     </Button> */}
-                  <button
+                  <Button
+                    small
                     onClick={() => {
                       setSetupConfig({ ...setupConfig, welcome: false });
                     }}
-                    className={styles.cancelButton}
+                    style={{ width: "15%" }}
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </>
               )}
             </>
@@ -529,7 +533,12 @@ export default function App() {
             className={styles.Seed + " " + styles.NewSeed}
           ></Textarea>
           <p style={{ textAlign: "center" }}>...and download your keyfile.</p>
-          <Button onClick={downloadSeedWallet} style={{ width: "100%" }}>
+          <Button
+            small
+            type="filled"
+            onClick={downloadSeedWallet}
+            style={{ width: "100%" }}
+          >
             Download
           </Button>
         </Modal.Content>
@@ -597,11 +606,11 @@ export default function App() {
             </div>
           </Card>
           <Spacer />
-          <Input.Password
+          {/* <Input.Password
             {...configPasswordInput.bindings}
             placeholder="Enter your password to decrypt..."
             width="100%"
-          />
+          /> */}
         </Modal.Content>
         <Modal.Action onClick={() => loadConfigModal.setVisible(false)} passive>
           Cancel
@@ -621,3 +630,8 @@ export default function App() {
     </>
   );
 }
+
+// TODO -> Increase Margin @th8ta logo & auth page
+// TODO -> Fix theme issue
+// TODO -> Structure style files
+// TODO -> Fix Inputs - minor fix

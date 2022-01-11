@@ -7,8 +7,8 @@ $sidePaddingTransactions: .7em
 .Home
   background-color: variables.$lighter-bg-light
 
-  @media (prefers-color-scheme: dark)
-    background-color: variables.$lighter-bg-dark
+  // @media (prefers-color-scheme: dark)
+  //   background-color: variables.$lighter-bg-dark
     // TODO -> remove color scheme
 
 .Balance
@@ -34,7 +34,7 @@ $sidePaddingTransactions: .7em
     align-items: center
     justify-content: center
     font-size: .85em
-    // color: #666  
+    color: #666  
     // todo -> Remove comment
 
     button
@@ -50,9 +50,8 @@ $sidePaddingTransactions: .7em
       cursor: pointer
       margin: 0 .23em
       transition: all .23s ease-in-out
-      // color: #666
+      color: #666
       // todo -> Remove comment
-
 
       svg
         font-size: 1em
@@ -64,6 +63,7 @@ $sidePaddingTransactions: .7em
 
   h1, h2
     margin: 0
+    color: #000
     font-weight: 600
     text-align: center
     font-family: 'Poppins'
@@ -78,15 +78,15 @@ $sidePaddingTransactions: .7em
     font-size: 1.36em
     font-weight: 500
     line-height: 1.1em
-    color: variables.$secondary-text-light
 
     svg
       width: .54em
       height: .54em
       vertical-align: middle !important
 
-    @media (prefers-color-scheme: dark)
-      color: variables.$secondary-text-dark
+    // @media (prefers-color-scheme: dark)
+    //   color: variables.$secondary-text-dark
+    // todo -> consider removing
 
   .Note
     position: absolute
@@ -121,14 +121,10 @@ $sidePaddingTransactions: .7em
     display: flex
     align-items: center
     justify-content: center
-    // margin: 
-    // anything up there??
-    top: 2.5em
-    bottom: 2.5em
-    
+    margin: 2.5em 0    
 
     .Item
-      color: variables.$secondary-text-light
+      color: #000
       text-align: center
       cursor: pointer
       font-size: .9em

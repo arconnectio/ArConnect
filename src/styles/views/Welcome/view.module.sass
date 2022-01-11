@@ -27,29 +27,6 @@
   padding: 0.5rem 1.5rem
   cursor: pointer
 
-.setupButton
-  @extend .welcomeButton
-  width: 18rem
-  margin-top: 0
-  transition: all 500ms ease-in-out
-
-  &:hover 
-    transform: scale(1.05)
-
-
-.cancelButton
-  @extend .setupButton
-  background: none
-  color: #666
-  font-weight: 500
-  padding: 0.4rem 1.4rem
-  border: 3px solid #66666690
-  transition: all 500ms ease-in-out
-
-  &:hover 
-    transform: scale(1.05)
-
-
 .logo
   width: 150px
   height: 150px
@@ -91,7 +68,7 @@
 
   
 .passwordLabel
-  width: 20rem
+  width: 22rem
   margin: 0 0 0.4rem 0
   padding: 0
   font-size: 12px
@@ -109,15 +86,6 @@
   gap: 2rem
   align-items: center
   justify-content: center
-  
-  .loadButton
-    @extend .welcomeButton
-    margin-top: 0
-
-  .newWalletButton
-    @extend .cancelButton
-    width: 8rem
-
 
 
 .FileInput
