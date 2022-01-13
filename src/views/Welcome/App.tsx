@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Card,
-  useTheme,
   useModal,
   Modal,
   Textarea,
@@ -20,13 +19,12 @@ import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
 import { checkPassword as checkPw, setPassword } from "../../utils/auth";
 import { browser } from "webextension-polyfill-ts";
-import { Button, Input } from "@verto/ui";
+import { Button, Input, useTheme } from "@verto/ui";
 import bip39 from "bip39-web-crypto";
 import CryptoES from "crypto-es";
 import Arweave from "arweave";
 import logo from "../../assets/logo.png";
 import styles from "../../styles/views/Welcome/view.module.sass";
-import setupStyles from "../../styles/views/Setup/welcome.module.sass";
 
 interface SetupConfigProps {
   welcome: boolean;
@@ -75,7 +73,7 @@ export default function App() {
       marginLeft: "1.2rem",
       background: "white",
       borderRadius: "14px",
-      border: "2px solid #000"
+      border: "3px solid #000"
     };
 
   useEffect(() => {
@@ -314,11 +312,11 @@ export default function App() {
     children: React.ReactNode;
   }) => {
     return (
-      <section className={setupStyles.startupwelcome}>
+      <section className={styles.startupwelcome}>
         <div>
-          <img src={logo} alt="arconnect logo" className={setupStyles.logo} />
-          <h1 className={setupStyles.header}>Welcome to ArConnect</h1>
-          <p className={setupStyles.intro}>{text}</p>
+          <img src={logo} alt="arconnect logo" className={styles.logo} />
+          <h1 className={styles.header}>Welcome to ArConnect</h1>
+          <p className={styles.intro}>{text}</p>
           {children}
         </div>
         <a
@@ -364,7 +362,12 @@ export default function App() {
                 <Button onClick={() => loadWalletsModal.setVisible(true)} small>
                   Load Wallet(s)
                 </Button>
-                <Button onClick={createWallet} small loading={loading}>
+                <Button
+                  onClick={createWallet}
+                  small
+                  loading={loading}
+                  type="secondary"
+                >
                   New Wallet
                 </Button>
               </div>
@@ -385,6 +388,11 @@ export default function App() {
                 password
               </label>
               <Input
+                {...passwordInput.bindings}
+                // @ts-ignore: debug
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") createPassword();
+                }}
                 type="password"
                 placeholder="*********"
                 style={{
@@ -397,6 +405,12 @@ export default function App() {
                   <p className={styles.passwordLabel}>repeat password</p>
 
                   <Input
+                    {...passwordInputAgain.bindings}
+                    // @ts-ignore: debug
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter" && walletsStore.length > 0)
+                        checkPassword();
+                    }}
                     type="password"
                     placeholder="*********"
                     style={{
@@ -420,10 +434,8 @@ export default function App() {
               {walletsStore.length === 0 && (
                 <>
                   <span className={styles.OR}>OR</span>
-                  {/* <Button onClick={() => loadConfigModal.setVisible(true)}>
-                      Load config file
-                    </Button> */}
                   <Button
+                    type="secondary"
                     small
                     onClick={() => {
                       setSetupConfig({ ...setupConfig, welcome: false });
@@ -600,11 +612,12 @@ export default function App() {
             </div>
           </Card>
           <Spacer />
-          {/* <Input.Password
+          <Input
             {...configPasswordInput.bindings}
+            type="password"
             placeholder="Enter your password to decrypt..."
-            width="100%"
-          /> */}
+            style={{ width: "100%" }}
+          />
         </Modal.Content>
         <Modal.Action onClick={() => loadConfigModal.setVisible(false)} passive>
           Cancel
@@ -625,7 +638,4 @@ export default function App() {
   );
 }
 
-// TODO -> Increase Margin @th8ta logo & auth page
-// TODO -> Fix theme issue
-// TODO -> Structure style files
-// TODO -> Fix Inputs - minor fix
+// TODO -> Fix Inputs - Add Status
