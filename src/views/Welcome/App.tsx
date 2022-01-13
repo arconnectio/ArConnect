@@ -20,13 +20,13 @@ import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
 import { checkPassword as checkPw, setPassword } from "../../utils/auth";
 import { browser } from "webextension-polyfill-ts";
+import { Button, Input } from "@verto/ui";
 import bip39 from "bip39-web-crypto";
 import CryptoES from "crypto-es";
 import Arweave from "arweave";
 import logo from "../../assets/logo.png";
 import styles from "../../styles/views/Welcome/view.module.sass";
 import setupStyles from "../../styles/views/Setup/welcome.module.sass";
-import { Button, Input } from "@verto/ui";
 
 interface SetupConfigProps {
   welcome: boolean;
@@ -340,7 +340,6 @@ export default function App() {
       >
         <Button
           small
-          type="outlined"
           className={styles.welcomeButton}
           onClick={() => {
             setSetupConfig({ ...setupConfig, welcome: true });
@@ -362,11 +361,7 @@ export default function App() {
               <h1 className={styles.header}>Welcome to ArConnect</h1>
               <p className={styles.intro}>Load or create a new wallet.</p>
               <div className={styles.loadwallets}>
-                <Button
-                  onClick={() => loadWalletsModal.setVisible(true)}
-                  small
-                  type="outlined"
-                >
+                <Button onClick={() => loadWalletsModal.setVisible(true)} small>
                   Load Wallet(s)
                 </Button>
                 <Button onClick={createWallet} small loading={loading}>
@@ -413,7 +408,6 @@ export default function App() {
               <Spacer />
               <Button
                 small
-                type="outlined"
                 onClick={() => {
                   if (walletsStore.length === 0) createPassword();
                   else checkPassword();
