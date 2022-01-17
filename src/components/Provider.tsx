@@ -5,6 +5,7 @@ import { useColorScheme } from "use-color-scheme";
 import { PersistGate } from "redux-persist/integration/react";
 import { fixupPasswords } from "../utils/auth";
 import { VertoProvider } from "@verto/ui";
+import { DisplayTheme } from "@verto/ui/dist/types";
 import setupStores from "../stores";
 
 const themeCommon = {
@@ -58,7 +59,12 @@ export default function Provider({ children }: Props) {
   return (
     <ReduxProvider store={store}>
       <PersistGate persistor={persistor}>
-        <VertoProvider theme="Light">
+        <VertoProvider
+          theme={
+            (scheme[0].toUpperCase() +
+              scheme.slice(1, scheme.length)) as DisplayTheme
+          }
+        >
           <GeistProvider
             themeType={"arconnect" + scheme}
             themes={[darkTheme, lightTheme]}

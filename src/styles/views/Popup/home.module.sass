@@ -1,6 +1,4 @@
 @use "../../variables"
-@import url('https://fonts.googleapis.com/css2?family=Inter&family=Poppins:wght@100;200;300;400;500;600;700;800&display=swap')
-
   
 $sidePaddingTransactions: .7em
   
@@ -47,10 +45,10 @@ $sidePaddingTransactions: .7em
       transition: all .23s ease-in-out
       color: #666
 
-      svg
+      .QRIcon
         font-size: 1em
-        width: 0.9em
-        height: 0.9em
+        width: 1em
+        height: 1em
 
         &:hover
           opacity: .77
@@ -114,7 +112,7 @@ $sidePaddingTransactions: .7em
     margin: 2.5em 0    
 
     .Item
-      color: #000
+      color: #555
       text-align: center
       cursor: pointer
       font-size: .9em
@@ -140,8 +138,8 @@ $sidePaddingTransactions: .7em
         height: 1.4em
         display: block
 
-      &.SwapItem svg
-        transform: rotate(90deg)
+      &.SendItem svg
+        transform: rotate(180deg)
 
       span
         display: block
@@ -401,7 +399,7 @@ $sidePaddingTransactions: .7em
   background-color: rgba(#000, .8)
   z-index: 1000
 
-  .wrapper
+  .Wrapper
     position: absolute
     top: 50%
     left: 50%
@@ -420,8 +418,8 @@ $sidePaddingTransactions: .7em
         color: #fff
 
     .QRCode
-      width: 195px
-      height: 195px
+      width: 10px
+      height: 10px
       display: block
       margin: 0 auto
       box-shadow: 0px 0px 14px 1px rgb(0, 0, 0, .93)

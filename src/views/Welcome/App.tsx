@@ -304,20 +304,26 @@ export default function App() {
     };
   }
 
-  const SetupTemplate = ({
-    text,
-    children
-  }: {
-    text: string;
-    children: React.ReactNode;
-  }) => {
+  const SetupPage = () => {
     return (
-      <section className={styles.startupwelcome}>
+      <section className={styles.SetupPage}>
         <div>
           <img src={logo} alt="arconnect logo" className={styles.logo} />
           <h1 className={styles.header}>Welcome to ArConnect</h1>
-          <p className={styles.intro}>{text}</p>
-          {children}
+          <p className={styles.intro}>
+            A simple and secure way to authorize transactions and manage your
+            Arweave assets
+          </p>
+          <Button
+            small
+            className={styles.welcomeButton}
+            onClick={() => {
+              setSetupConfig({ ...setupConfig, welcome: true });
+            }}
+            style={{ marginTop: "2rem" }}
+          >
+            Get Started
+          </Button>
         </div>
         <a
           className={styles.th8ta}
@@ -328,24 +334,6 @@ export default function App() {
           th<span>8</span>ta
         </a>
       </section>
-    );
-  };
-  const SetupWelcome = () => {
-    return (
-      <SetupTemplate
-        text="A simple and secure way to authorize transactions and manage your
-            Arweave assets"
-      >
-        <Button
-          small
-          className={styles.welcomeButton}
-          onClick={() => {
-            setSetupConfig({ ...setupConfig, welcome: true });
-          }}
-        >
-          Get Started
-        </Button>
-      </SetupTemplate>
     );
   };
 
@@ -403,7 +391,6 @@ export default function App() {
                 <>
                   <Spacer />
                   <p className={styles.passwordLabel}>repeat password</p>
-
                   <Input
                     {...passwordInputAgain.bindings}
                     // @ts-ignore: debug
@@ -450,17 +437,17 @@ export default function App() {
           )}
         </div>
       ) : (
-        <SetupWelcome />
+        <SetupPage />
       )}
 
-      <a
+      {/* <a
         className={styles.th8ta}
         href="https://th8ta.org"
         target="_blank"
         rel="noopener noreferrer"
       >
         th<span>8</span>ta
-      </a>
+      </a> */}
       <Modal {...loadWalletsModal.bindings}>
         <Modal.Title>Load wallet(s)</Modal.Title>
         <Modal.Subtitle>

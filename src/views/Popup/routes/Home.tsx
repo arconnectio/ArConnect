@@ -11,7 +11,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   CopyIcon,
-  GlobeIcon
+  DownloadIcon
 } from "@primer/octicons-react";
 import {
   Loading,
@@ -44,6 +44,8 @@ import copy from "copy-to-clipboard";
 import { shortenURL } from "../../../utils/url";
 import { motion, AnimatePresence } from "framer-motion";
 import { QRCode } from "react-qr-svg";
+import qrIcon from "../../../assets/QR.svg";
+import globe from "../../../assets/globe.svg";
 
 export default function Home() {
   const arweaveConfig = useSelector((state: RootState) => state.arweave),
@@ -272,94 +274,7 @@ export default function Home() {
       <div className={styles.Balance}>
         <p className={styles.Address}>
           <button onClick={() => setShowQRCode(true)}>
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect
-                x="13.5"
-                y="2.5"
-                width="8"
-                height="8"
-                rx="0.5"
-                stroke="currentColor"
-              />
-              <rect
-                x="2.5"
-                y="2.5"
-                width="8"
-                height="8"
-                rx="0.5"
-                stroke="currentColor"
-              />
-              <rect
-                x="2.5"
-                y="13.5"
-                width="8"
-                height="8"
-                rx="0.5"
-                stroke="currentColor"
-              />
-              <rect
-                x="13"
-                y="18.5"
-                width="3.5"
-                height="3.5"
-                rx="1"
-                fill="currentColor"
-              />
-              <rect
-                x="18.5"
-                y="18.5"
-                width="3.5"
-                height="3.5"
-                rx="1"
-                fill="currentColor"
-              />
-              <rect
-                x="18.5"
-                y="13"
-                width="3.5"
-                height="3.5"
-                rx="1"
-                fill="currentColor"
-              />
-              <rect
-                x="13"
-                y="13"
-                width="3.5"
-                height="3.5"
-                rx="1"
-                fill="currentColor"
-              />
-              <rect
-                x="5"
-                y="16"
-                width="3"
-                height="3"
-                rx="0.5"
-                fill="currentColor"
-              />
-              <rect
-                x="16"
-                y="5"
-                width="3"
-                height="3"
-                rx="0.5"
-                fill="currentColor"
-              />
-              <rect
-                x="5"
-                y="5"
-                width="3"
-                height="3"
-                rx="0.5"
-                fill="currentColor"
-              />
-            </svg>
+            <img src={qrIcon} alt="qr icon" className={styles.QRIcon} />
           </button>
           <button
             style={{ marginRight: ".5em", marginLeft: ".5em" }}
@@ -384,8 +299,11 @@ export default function Home() {
           {balance()?.fiatBalance.toLocaleString()} {currency ?? "???"}
         </h2>
         <div className={styles.Menu}>
-          <div className={styles.Item} onClick={() => goTo(Send)}>
-            <ArrowSwitchIcon size={24} />
+          <div
+            className={styles.Item + " " + styles.SendItem}
+            onClick={() => goTo(Send)}
+          >
+            <DownloadIcon size={24} />
             <span>Send</span>
           </div>
           <Tooltip text="Not available yet">
@@ -403,8 +321,7 @@ export default function Home() {
               styles.Item + " " + styles.SwapItem + " " + styles.Unavailable
             }
           >
-            <GlobeIcon size={24} />
-            {/* TODO: Use Globe in Figma */}
+            <img src={globe} alt="globe icon" />
             <span>Explore</span>
           </div>
           <ArchiveWrapper
