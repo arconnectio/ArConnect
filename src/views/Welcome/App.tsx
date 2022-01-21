@@ -25,7 +25,6 @@ import CryptoES from "crypto-es";
 import Arweave from "arweave";
 import logo from "../../assets/logo.png";
 import styles from "../../styles/views/Welcome/view.module.sass";
-
 interface SetupConfigProps {
   welcome: boolean;
   password: boolean;
@@ -325,14 +324,6 @@ export default function App() {
             Get Started
           </Button>
         </div>
-        <a
-          className={styles.th8ta}
-          href="https://th8ta.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          th<span>8</span>ta
-        </a>
       </section>
     );
   };
@@ -439,15 +430,14 @@ export default function App() {
       ) : (
         <SetupPage />
       )}
-
-      {/* <a
+      <a
         className={styles.th8ta}
         href="https://th8ta.org"
         target="_blank"
         rel="noopener noreferrer"
       >
         th<span>8</span>ta
-      </a> */}
+      </a>
       <Modal {...loadWalletsModal.bindings}>
         <Modal.Title>Load wallet(s)</Modal.Title>
         <Modal.Subtitle>

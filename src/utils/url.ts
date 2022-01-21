@@ -31,7 +31,7 @@ export function shortenURL(url: string) {
  *
  * @returns Formatted address
  */
-export function formatAddress(address: string, count = 13) {
+export function formatAddress(address: string, count = 9) {
   return (
     address.substring(0, count) +
     "..." +

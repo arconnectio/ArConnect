@@ -10,10 +10,25 @@
   text-align: center
   border-bottom: 1px solid #eaeaea
   background-color: #fff
+  display: flex
+  align-items: center
+  justify-content: space-between
 
   @media (prefers-color-scheme: dark)
     border-bottom-color: #333
-    background-color: #000
+    background-color: #000   
+
+  .ProfilePicture 
+    width: 40px
+    height: 40px
+    cursor: pointer
+    margin-right: 1em
+
+    img
+      width: 40px
+      height: 40px
+      object-fit: cover
+      border-radius: 50%
 
   h1
     font-size: 2em
@@ -70,32 +85,45 @@
     left: 0
     right: 0
     z-index: 1000
-    background-color: variables.$lighter-bg-light
+    margin: 1em
+    border-radius: 14px
+    background-color: #fff
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1)
 
     @media (prefers-color-scheme: dark)
       background-color: variables.$lighter-bg-dark
 
+    .ChooseWallet
+      width: 100%
+      margin-top: 1em
+      margin-left: 2em
+      text-align: left
+      font-weight: 600
+      font-size: 0.875em
+      text-transform: uppercase
+
     .Wallet
       $removeWidth: 2.3em
       display: flex
+      gap: .8em
       align-items: center
       justify-content: space-between
-      background-color: variables.$lighter-bg-light
-      border-top: 1px solid #eaeaea
+      background-color: #fff
       padding: .3em .95em
       cursor: pointer
       text-align: left
       transition: all .25s ease-in
+      margin: 0.05em 0.5em
 
       &.Options
         justify-content: flex-end
         align-items: flex-end
         font-size: 1.125em
-        border-bottom: 1px solid #eaeaea
         cursor: default
-        padding:
+        padding: .8em 0
           top: .8em
           bottom: .8em
+        margin-top: 1em
 
         @media (prefers-color-scheme: dark)
           border-color: #333
@@ -103,6 +131,7 @@
       @media (prefers-color-scheme: dark)
         background-color: variables.$lighter-bg-dark
         border-color: #333
+        background-color: #000
 
       &:hover:not(.Options)
         background-color: #fcfcfc
@@ -114,12 +143,17 @@
         position: relative
         width: calc(100% - #{$removeWidth})
 
+        .WalletName 
+          color: #000
+          font-weight: 600
+          font-size: 1.5em
+
         input
+          @extend .WalletName
           +walletName
           background-color: transparent
           border: none
           outline: none
-          color: #000
           padding: 0
           margin: 0
           max-width: 100%
@@ -136,10 +170,10 @@
               border-bottom-color: rgba(#fff, .5)
 
         p
-          font-size: 1em
           margin: 0
-          color: variables.$secondary-text-light
           width: auto
+          font-size: 0.8em
+          color: variables.$secondary-text-light
 
           &:hover
             opacity: 1
@@ -177,6 +211,17 @@
         svg
           width: 1.23em
           height: 1.23em
+
+      .WalletBalance
+        width: 8em
+        margin-top: 0.5em
+        text-align: right
+        font-size: 1.3em
+        font-weight: 600
+        word-spacing: -0.2em
+
+        span
+          font-size: 0.8em
 
 // same style as the wallet name inputs'
 // this element is required to get the 

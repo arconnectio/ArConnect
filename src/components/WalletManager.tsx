@@ -9,12 +9,14 @@ import {
 } from "../stores/actions";
 import { Modal, Tooltip, useModal } from "@geist-ui/react";
 import {
-  ChevronDownIcon,
   GearIcon,
   PlusIcon,
   SignOutIcon,
   TrashIcon,
-  VerifiedIcon
+  VerifiedIcon,
+  PencilIcon,
+  BellIcon,
+  CheckCircleIcon
 } from "@primer/octicons-react";
 import { useColorScheme } from "use-color-scheme";
 import { QRCode } from "react-qr-svg";
@@ -24,14 +26,18 @@ import { getVerification, Threshold } from "arverify";
 import { browser } from "webextension-polyfill-ts";
 import { formatAddress } from "../utils/url";
 import { logOut } from "../utils/auth";
+import { formatBalance } from "../utils/balance";
 import Settings from "../views/Popup/routes/Settings";
 import "../styles/components/Tooltip.sass";
 import toastStyles from "../styles/components/SmallToast.module.sass";
+import logo from "../assets/logo.png";
 import styles from "../styles/components/WalletManager.module.sass";
+import testDP from "../assets/test.png";
 
 export default function WalletManager() {
   const profile = useSelector((state: RootState) => state.profile),
     wallets = useSelector((state: RootState) => state.wallets),
+    storedBalances = useSelector((state: RootState) => state.balances),
     dispatch = useDispatch(),
     [open, setOpen] = useState(false),
     { scheme } = useColorScheme(),
@@ -39,6 +45,7 @@ export default function WalletManager() {
     [showSwitch, setShowSwitch] = useState(false),
     [verifiedAddresses, setVerifiedAddresses] = useState<string[]>([]),
     [showQRCode, setShowQRCode] = useState(false),
+    [renameWallets, setRenameWallets] = useState(false),
     { arVerifyTreshold } = useSelector((state: RootState) => state.settings),
     [walletNameSizes, setWalletNameSizes] = useState<{
       [address: string]: number;
@@ -110,18 +117,28 @@ export default function WalletManager() {
     setTimeout(() => setShowSwitch(false), 1700);
   }
 
+  function balance() {
+    return storedBalances.find((balance) => balance.address === profile);
+  }
+
   return (
     <>
       <div className={styles.CurrentWallet}>
+        <img
+          src={logo}
+          alt="ArConnect Logo"
+          style={{ width: "30px", height: "30px", marginLeft: "1rem" }}
+        />
         <h1 onClick={() => setOpen(!open)}>
           {currentWalletName() || "• • •"}
           {verifiedAddresses.includes(profile) && <VerifiedIcon />}
         </h1>
+
         <div
-          className={styles.Icon + " " + (open ? styles.Open : "")}
+          className={styles.ProfilePicture + " " + (open ? styles.Open : "")}
           onClick={() => setOpen(!open)}
         >
-          <ChevronDownIcon />
+          <img src={testDP} alt="profile pic" />
         </div>
         <AnimatePresence>
           {open && (
@@ -131,6 +148,7 @@ export default function WalletManager() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
+              <p className={styles.ChooseWallet}>choose a wallet</p>
               {wallets.map((wallet, i) => (
                 <div className={styles.Wallet} key={i}>
                   <div
@@ -138,21 +156,30 @@ export default function WalletManager() {
                     onClick={() => switchWallet(wallet.address)}
                   >
                     <div style={{ display: "flex", alignItems: "center" }}>
-                      <input
-                        type="text"
-                        value={wallet.name}
-                        title="Type to change wallet name"
-                        onChange={(e) =>
-                          dispatch(renameWallet(wallet.address, e.target.value))
-                        }
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }}
-                        style={{
-                          width: `${walletNameSizes[wallet.address] ?? 0}px`
-                        }}
-                      />
+                      {renameWallets ? (
+                        <input
+                          type="text"
+                          value={wallet.name}
+                          title="Type to change wallet name"
+                          onChange={(e) =>
+                            dispatch(
+                              renameWallet(wallet.address, e.target.value)
+                            )
+                          }
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                          style={{
+                            width: "10em",
+                            borderBottom: "2px solid #000"
+                          }}
+                          ref={(element) => element?.focus?.()}
+                        />
+                      ) : (
+                        <p className={styles.WalletName}>{wallet.name}</p>
+                      )}
+
                       {verifiedAddresses.includes(wallet.address) && (
                         <Tooltip
                           text={
@@ -169,41 +196,83 @@ export default function WalletManager() {
                     </div>
                     <p>{formatAddress(wallet.address)}</p>
                   </div>
-                  <div
-                    className={styles.Remove}
-                    onClick={() => deleteWallet(wallet.address)}
-                  >
-                    <TrashIcon />
-                  </div>
+                  {renameWallets ? (
+                    <div
+                      className={styles.Remove}
+                      onClick={() => deleteWallet(wallet.address)}
+                    >
+                      <TrashIcon />
+                    </div>
+                  ) : (
+                    <h6 className={styles.WalletBalance}>
+                      {formatBalance(balance()?.arBalance)} <span>AR</span>
+                    </h6>
+                  )}
                 </div>
               ))}
-              <div className={styles.Wallet + " " + styles.Options}>
-                <Tooltip text="Add wallet">
-                  <div
-                    className={styles.Action}
-                    onClick={() =>
-                      browser.tabs.create({
-                        url: browser.runtime.getURL("/welcome.html")
-                      })
-                    }
-                  >
-                    <PlusIcon />
-                  </div>
-                </Tooltip>
-                <Tooltip text="Settings">
-                  <div className={styles.Action} onClick={() => goTo(Settings)}>
-                    <GearIcon />
-                  </div>
-                </Tooltip>
-                <Tooltip text="Log out">
-                  <div
-                    className={styles.Action}
-                    onClick={() => logoutModal.setVisible(true)}
-                  >
-                    <SignOutIcon />
-                  </div>
-                </Tooltip>
-              </div>
+              {renameWallets ? (
+                <div className={styles.Wallet + " " + styles.Options}>
+                  <Tooltip text="Add wallet">
+                    <div
+                      className={styles.Action}
+                      onClick={() =>
+                        browser.tabs.create({
+                          url: browser.runtime.getURL("/welcome.html")
+                        })
+                      }
+                    >
+                      <PlusIcon />
+                    </div>
+                  </Tooltip>
+                  <Tooltip text="Save Changes">
+                    <div
+                      className={styles.Action}
+                      onClick={() => setRenameWallets(!renameWallets)}
+                    >
+                      <CheckCircleIcon />
+                    </div>
+                  </Tooltip>
+                </div>
+              ) : (
+                <div className={styles.Wallet + " " + styles.Options}>
+                  <Tooltip text="Notifications">
+                    <div
+                      className={styles.Action}
+                      onClick={() =>
+                        browser.tabs.create({
+                          url: browser.runtime.getURL("/welcome.html")
+                        })
+                      }
+                    >
+                      <BellIcon />
+                    </div>
+                  </Tooltip>
+                  <Tooltip text="Rename Wallet(s)">
+                    <div
+                      className={styles.Action}
+                      onClick={() => setRenameWallets(!renameWallets)}
+                    >
+                      <PencilIcon />
+                    </div>
+                  </Tooltip>
+                  <Tooltip text="Settings">
+                    <div
+                      className={styles.Action}
+                      onClick={() => goTo(Settings)}
+                    >
+                      <GearIcon />
+                    </div>
+                  </Tooltip>
+                  <Tooltip text="Log out">
+                    <div
+                      className={styles.Action}
+                      onClick={() => logoutModal.setVisible(true)}
+                    >
+                      <SignOutIcon />
+                    </div>
+                  </Tooltip>
+                </div>
+              )}
             </motion.div>
           )}
           <Modal {...logoutModal.bindings}>
