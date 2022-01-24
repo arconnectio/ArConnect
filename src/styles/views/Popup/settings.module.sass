@@ -1,9 +1,16 @@
 @use "../../variables"
   
 .Settings
+  margin: 1em
   position: relative
   background-color: variables.$lighter-bg-light
   text-align: center
+  background-color: orangered
+  border-radius: 14px
+  background-color: #fff
+  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1)
+
+
 
   @media (prefers-color-scheme: dark)
     background-color: variables.$lighter-bg-dark
@@ -13,6 +20,7 @@
   border-bottom: 1px solid variables.$border-light
   padding: .9em .7em .7em
   cursor: pointer
+  padding: 1.3em
   color: variables.$secondary-text-light
   transition: all .23s ease-in-out
 
@@ -35,19 +43,19 @@
     border-bottom: none
 
   h1
-    font-size: 1.3em
+    font-size: 1.45em
     line-height: 1em
     margin: 0
-      bottom: .1em
+      bottom: .2em
     text-align: left
-    font-weight: 600
+    font-weight: 500
     color: #000
 
     @media (prefers-color-scheme: dark)
       color: #fff
 
   p
-    font-size: 1.05em
+    font-size: 0.95em
     font-weight: 500
     margin: 0
     text-align: left
