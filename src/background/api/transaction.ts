@@ -217,6 +217,8 @@ export const signTransaction = (
     }
   });
 
+export async function dispatch(transaction: Transaction) {}
+
 async function selectVRTHolder() {
   try {
     const res: any = (
