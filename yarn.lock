@@ -2803,6 +2803,19 @@
     react-media-hook "^0.4.9"
     styled-components "^5.2.1"
 
+"@verto/ui@^3.0.1-alpha":
+  version "3.0.1-alpha"
+  resolved "https://registry.yarnpkg.com/@verto/ui/-/ui-3.0.1-alpha.tgz#818ebece28762c9f2c68008e41c4c59b198e09d9"
+  integrity sha512-SN+r6daVKTmres6XQQREjASZWVJ9uyUFiZh0bYw+33SSUwLuN6P2E1ac+QaUj2KezPiDJkaChKlQr+WsW/DyFg==
+  dependencies:
+    "@iconicicons/react" "^1.1.1"
+    "@verto/ui" "^3.0.0-alpha"
+    color-hash "^2.0.1"
+    framer-motion "^3.1.1"
+    nanoid "^3.1.22"
+    react-media-hook "^0.4.9"
+    styled-components "^5.2.1"
+
 "@weavery/clarity@^0.1.5":
   version "0.1.5"
   resolved "https://registry.yarnpkg.com/@weavery/clarity/-/clarity-0.1.5.tgz#f06bbb0dac7c63c6e2ccd76cda3e8b32b57f82c2"
@@ -9676,15 +9689,20 @@ nan@^2.12.1, nan@^2.14.2:
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.15.0.tgz#3f34a473ff18e15c1b5626b62903b5ad6e665fee"
   integrity sha512-8ZtvEnA2c5aYCZYd1cvgdnU6cqwixRoYg70xPLWUws5ORTa/lnw+u4amixRS/Ac5U5mQVgp9pnlSUnbNWFaWZQ==
 
-nanoid@^3.1.22, nanoid@^3.1.30:
-  version "3.1.30"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.30.tgz#63f93cc548d2a113dc5dfbc63bfa09e2b9b64362"
-  integrity sha512-zJpuPDwOv8D2zq2WRoMe1HsfZthVewpel9CAvTfc/2mBD1uUT/agc5f7GHGWXlYkFvi1mVxe4IjvP2HNrop7nQ==
+nanoid@^3.1.22:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.2.0.tgz#62667522da6673971cca916a6d3eff3f415ff80c"
+  integrity sha512-fmsZYa9lpn69Ad5eDn7FMcnnSR+8R34W9qJEijxYhTbfOWzr22n1QxCMzXLK+ODyW2973V3Fux959iQoUxzUIA==
 
 nanoid@^3.1.23:
   version "3.1.32"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.32.tgz#8f96069e6239cc0a9ae8c0d3b41a3b4933a88c0a"
   integrity sha512-F8mf7R3iT9bvThBoW4tGXhXFHCctyCiUUPrWF8WaTqa3h96d9QybkSeba43XVOOE3oiLfkVDe4bT8MeGmkrTxw==
+
+nanoid@^3.1.30:
+  version "3.1.30"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.30.tgz#63f93cc548d2a113dc5dfbc63bfa09e2b9b64362"
+  integrity sha512-zJpuPDwOv8D2zq2WRoMe1HsfZthVewpel9CAvTfc/2mBD1uUT/agc5f7GHGWXlYkFvi1mVxe4IjvP2HNrop7nQ==
 
 nanomatch@^1.2.9:
   version "1.2.13"

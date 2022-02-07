@@ -16,7 +16,8 @@ import {
   VerifiedIcon,
   PencilIcon,
   BellIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  ChevronLeftIcon
 } from "@primer/octicons-react";
 import { useColorScheme } from "use-color-scheme";
 import { QRCode } from "react-qr-svg";
@@ -33,8 +34,9 @@ import toastStyles from "../styles/components/SmallToast.module.sass";
 import logo from "../assets/logo.png";
 import styles from "../styles/components/WalletManager.module.sass";
 import testDP from "../assets/test.png";
+import Home from "../views/Popup/routes/Home";
 
-export default function WalletManager() {
+export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
   const profile = useSelector((state: RootState) => state.profile),
     wallets = useSelector((state: RootState) => state.wallets),
     storedBalances = useSelector((state: RootState) => state.balances),
@@ -124,13 +126,29 @@ export default function WalletManager() {
   return (
     <>
       <div className={styles.CurrentWallet}>
-        <img
-          src={logo}
-          alt="ArConnect Logo"
-          style={{ width: "30px", height: "30px", marginLeft: "1rem" }}
-        />
+        {pageTitle ? (
+          <div
+            onClick={() => goTo(Home)}
+            style={{ marginLeft: "1em", cursor: "pointer" }}
+          >
+            <ChevronLeftIcon size={24} />
+          </div>
+        ) : (
+          <img
+            onClick={() => goTo(Home)}
+            src={logo}
+            alt="ArConnect Logo"
+            style={{
+              width: "30px",
+              height: "30px",
+              marginLeft: "1rem",
+              cursor: "pointer"
+            }}
+          />
+        )}
+
         <h1 onClick={() => setOpen(!open)}>
-          {currentWalletName() || "• • •"}
+          {pageTitle ? pageTitle : currentWalletName() || "• • •"}
           {verifiedAddresses.includes(profile) && <VerifiedIcon />}
         </h1>
 

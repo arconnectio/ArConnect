@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, KeyboardEvent } from "react";
 import {
   Card,
   useModal,
@@ -368,8 +368,8 @@ export default function App() {
               </label>
               <Input
                 {...passwordInput.bindings}
-                // @ts-ignore: debug
-                onKeyPress={(e) => {
+                //@ts-ignore: Update UI Lib
+                onKeyPress={(e: KeyboardEvent<HTMLInputElement>) => {
                   if (e.key === "Enter") createPassword();
                 }}
                 type="password"
@@ -384,10 +384,11 @@ export default function App() {
                   <p className={styles.passwordLabel}>repeat password</p>
                   <Input
                     {...passwordInputAgain.bindings}
-                    // @ts-ignore: debug
-                    onKeyPress={(e) => {
+                    //@ts-ignore: Update UI Lib
+                    onKeyPress={(e: KeyboardEvent<HTMLInputElement>) => {
                       if (e.key === "Enter" && walletsStore.length > 0)
                         checkPassword();
+                      console.log("Pressed");
                     }}
                     type="password"
                     placeholder="*********"

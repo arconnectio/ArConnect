@@ -1,4 +1,5 @@
 @use "../../variables"
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap')
 
 .View
   background-color: variables.$lighter-bg-light
@@ -14,14 +15,26 @@
       width: 100%
 
   .Amount
+    margin-top: 2em
     +variables.flexInput
     
     &.Target
       +variables.flexInput(true)
 
+  .FeeContainer
+    margin-top: 1em
+    margin-bottom: 1.8em
+
   .FeeDisplay
+    margin: 0
+    padding: 0
     display: flex
+    font-size: 13px
+    font-weight: 500
     align-items: center
+    font-family: 'Poppins'
+    color: variables.$secondary-text-light
+
 
     div[class~=tooltip]
       position: relative
@@ -37,9 +50,37 @@
 .InputInfo
   margin: 0
   font-size: .83em
+  font-weight: 500
   display: flex
   justify-content: space-between
   color: variables.$secondary-text-light
 
   @media (prefers-color-scheme: dark)
     color: variables.$secondary-text-dark
+
+.MessageLabel
+  color: #666
+  margin: 1rem 0
+  font-size: .95em
+  font-weight: 500
+  display: inline-block
+  text-transform: uppercase  
+  font-family: 'Poppins'
+
+
+.MessageInput
+  width: 93%
+  height: 5em
+  resize: none
+  color: #555
+  padding: 0.5em
+  margin-top: .5em
+  font-size: 1.25em
+  font-weight: 500
+  border-radius: 14px
+  border: 3px solid #000
+  font-family: 'Roboto Mono'
+
+  &::placeholder
+    color: inherit
+    font-family: inherit

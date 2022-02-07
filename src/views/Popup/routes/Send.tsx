@@ -2,27 +2,27 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
 import {
-  Button,
-  Input,
   Spacer,
   useInput,
   useToasts,
-  Tooltip,
   Progress,
   useTheme
 } from "@geist-ui/react";
-import { goTo } from "react-chrome-extension-router";
+import {
+  VerifiedIcon,
+  ChevronDownIcon,
+  FileSubmoduleIcon
+} from "@primer/octicons-react";
+import { Button, Input } from "@verto/ui";
 import { JWKInterface } from "arweave/node/lib/wallet";
-import { QuestionIcon, VerifiedIcon } from "@primer/octicons-react";
 import { arToFiat, getSymbol } from "../../../utils/currency";
 import { Threshold, getVerification } from "arverify";
 import { AnimatePresence, motion } from "framer-motion";
 import { checkPassword } from "../../../utils/auth";
 import manifest from "../../../../public/manifest.json";
-import Home from "./Home";
+import WalletManager from "../../../components/WalletManager";
 import Arweave from "arweave";
 import axios from "axios";
-import WalletManager from "../../../components/WalletManager";
 import styles from "../../../styles/views/Popup/send.module.sass";
 
 export default function Send() {
@@ -179,9 +179,34 @@ export default function Send() {
     }
   }
 
+  const DisplayVerifiedIcon = () => (
+    <>
+      {verified && verified?.verified ? (
+        <VerifiedIcon />
+      ) : (
+        <FileSubmoduleIcon />
+      )}
+    </>
+  );
+
+  const DisplayAR = () => (
+    <span
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-evenly",
+        gap: "0.5em",
+        fontWeight: "400",
+        fontSize: "0.9em"
+      }}
+    >
+      AR <ChevronDownIcon size={24} />
+    </span>
+  );
+
   return (
     <>
-      <WalletManager />
+      <WalletManager pageTitle="Send" />
       <div className={styles.View}>
         <div
           className={
@@ -191,23 +216,14 @@ export default function Send() {
           }
         >
           <Input
+            small
             {...targetInput.bindings}
-            placeholder="Send to address..."
-            type={submitted && targetInput.state === "" ? "error" : "default"}
+            style={{ width: "98%" }}
+            inlineLabel={<DisplayVerifiedIcon />}
+            label="TARGET"
+            placeholder="Address..."
+            status={submitted && targetInput.state === "" ? "error" : undefined}
           />
-          {verified && verified.verified && (
-            <Tooltip
-              text={
-                <p style={{ margin: 0, textAlign: "center" }}>
-                  Verified on <br />
-                  ArVerify
-                </p>
-              }
-              placement="bottomEnd"
-            >
-              <VerifiedIcon />
-            </Tooltip>
-          )}
         </div>
         <AnimatePresence>
           {verified && (
@@ -216,7 +232,15 @@ export default function Send() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <p style={{ margin: 0, marginBottom: ".21em" }}>
+              <p
+                style={{
+                  marginTop: "2em",
+                  marginBottom: ".4em",
+                  fontWeight: "500",
+                  color: "#666",
+                  fontSize: ".9em"
+                }}
+              >
                 Trust score: {verified.percentage?.toFixed(2) ?? 0}%
               </p>
               <Progress
@@ -233,37 +257,23 @@ export default function Send() {
         <Spacer h={verified ? 0.55 : 1} />
         <div className={styles.Amount}>
           <Input
+            small
             {...amountInput.bindings}
-            placeholder="Amount"
-            labelRight="AR"
-            htmlType="number"
+            style={{ width: "98%" }}
+            placeholder="000.000"
+            label="QUANTITY"
+            inlineLabel={<DisplayAR />}
+            type="number"
             min="0"
-            type={
+            status={
               submitted &&
               (amountInput.state === "" ||
                 Number(amountInput.state) > Number(balance))
                 ? "error"
-                : "default"
+                : undefined
             }
           />
-          <Button
-            style={{
-              paddingLeft: ".5em",
-              paddingRight: ".5em",
-              minWidth: "unset",
-              height: "2.65em",
-              lineHeight: "unset"
-            }}
-            onClick={() =>
-              amountInput.setState(
-                (parseFloat(balance) - parseFloat(fee)).toString()
-              )
-            }
-          >
-            Max
-          </Button>
         </div>
-        <Spacer h={0.19} />
         <p className={styles.InputInfo}>
           <span>
             {"~" + getSymbol(currency)}
@@ -272,23 +282,20 @@ export default function Send() {
           </span>
           <span>1 AR = {getSymbol(currency) + arPriceFiat.toFixed(2)}</span>
         </p>
-        <Spacer h={0.45} />
-        <Input {...messageInput.bindings} placeholder="Message (optional)" />
-        <p className={styles.FeeDisplay}>
-          Arweave fee: {fee} AR
-          <Tooltip
-            text={
-              <p style={{ textAlign: "center", margin: "0" }}>
-                Fee charged by the <br />
-                Arweave network
-              </p>
-            }
-            style={{ marginLeft: ".18em" }}
-          >
-            <QuestionIcon size={24} />
-          </Tooltip>
-        </p>
-        <p>Total: {Number(fee) + Number(amountInput.state)} AR</p>
+        <label className={styles.MessageLabel}>
+          message (optional)
+          <textarea
+            {...messageInput.bindings}
+            className={styles.MessageInput}
+            placeholder="This is a test ..."
+          ></textarea>
+        </label>
+
+        <div className={styles.FeeContainer}>
+          <p className={styles.FeeDisplay}>Arweave fee: {fee} AR</p>
+          <p className={styles.FeeDisplay}>Total: {fee} AR</p>
+        </div>
+
         <AnimatePresence>
           {Number(amountInput.state) > 1 && (
             <motion.div
@@ -297,12 +304,15 @@ export default function Send() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.23, ease: "easeInOut" }}
             >
-              <Input.Password
+              <Input
+                small
                 {...passwordInput.bindings}
-                width="100%"
+                type="password"
+                label="ENTER PASSWORD"
+                style={{ width: "98%", marginBottom: "1em" }}
                 placeholder="Enter your password..."
-                type={
-                  submitted && passwordInput.state === "" ? "error" : "default"
+                status={
+                  submitted && passwordInput.state === "" ? "error" : undefined
                 }
               />
               <Spacer h={1} />
@@ -310,17 +320,15 @@ export default function Send() {
           )}
         </AnimatePresence>
         <Button
-          style={{ width: "100%" }}
-          type="success"
+          small
+          style={{ width: "84%" }}
+          type="filled"
           onClick={send}
           loading={loading}
         >
-          Send AR
+          Send
         </Button>
         <Spacer />
-        <Button style={{ width: "100%" }} onClick={() => goTo(Home)}>
-          Cancel
-        </Button>
       </div>
     </>
   );
