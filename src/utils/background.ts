@@ -3,6 +3,7 @@ import { RootState } from "../stores/reducers";
 import { IPermissionState } from "../stores/reducers/permissions";
 import { IArweave, defaultConfig } from "../stores/reducers/arweave";
 import { PermissionType } from "./permissions";
+import { JWKInterface } from "arweave/node/lib/wallet";
 import { getRealURL } from "./url";
 import { browser } from "webextension-polyfill-ts";
 import { run } from "ar-gql";
@@ -305,4 +306,38 @@ export function isInternalURL(url: string) {
   return !!urlObject.protocol.match(
     /^(chrome|brave|edge|opera|firefox|about):/
   );
+}
+
+/**
+ * Get active JWK key or error and open browser tab top add a new wallet
+ * (if no wallets are added yet)
+ *
+ * @returns Active JWK key
+ */
+export async function getActiveKeyfile() {
+  const storeData = await getStoreData();
+  const storedKeyfiles = storeData?.["wallets"] ?? [];
+  const storedAddress = storeData?.["profile"];
+  const keyfileToDecrypt = storedKeyfiles.find(
+    (item) => item.address === storedAddress
+  )?.keyfile;
+
+  if (storedKeyfiles.length === 0 || !storedAddress || !keyfileToDecrypt) {
+    browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
+
+    throw new Error("No keyfiles added");
+  }
+
+  const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt));
+
+  return {
+    keyfile,
+    address: storedAddress
+  };
+}
+
+export interface DispatchResult {
+  status: "OK" | "INSUFFICIENT_FUNDS" | "ERROR";
+  message?: string; // id for now
+  type?: "BASE" | "BUNDLED";
 }

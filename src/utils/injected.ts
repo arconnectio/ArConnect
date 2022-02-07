@@ -84,7 +84,7 @@ export const callAPI = (message: Omit<MessageFormat, "ext" | "sender">) =>
         return;
 
       // only resolve when the result matching our message.id is deleivered
-      if (id != e.data?.id) return;
+      if (id !== e.data?.id) return;
 
       window.removeEventListener("message", callback);
       if (e.data?.res === false) reject(e.data?.message);

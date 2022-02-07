@@ -3,6 +3,7 @@ import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { getRealURL } from "../utils/url";
 import { IArweave } from "../stores/reducers/arweave";
 import { splitTxToChunks } from "../utils/chunks";
+import { DispatchResult } from "../utils/background";
 import {
   createOverlay,
   createCoinWithAnimation,
@@ -345,11 +346,7 @@ const WalletAPI = {
       throw new Error(e);
     }
   },
-  async dispatch(transaction: Transaction): Promise<{
-    status: "OK" | "INSUFFICIENT_FUNDS" | "NO_WALLET" | "ERROR";
-    message?: string;
-    type?: "BASE" | "BUNDLED";
-  }> {
+  async dispatch(transaction: Transaction): Promise<DispatchResult> {
     const rawTx = JSON.stringify(transaction.toJSON());
     const size = new TextEncoder().encode(rawTx).byteLength;
 
@@ -366,6 +363,7 @@ const WalletAPI = {
         sender: "api",
         transaction: transaction.toJSON()
       });
+
       if (!result.res || !result.data) throw new Error(result.message);
       return result.data;
     } catch (e: any) {
