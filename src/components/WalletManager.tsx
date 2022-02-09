@@ -29,12 +29,12 @@ import { formatAddress } from "../utils/url";
 import { logOut } from "../utils/auth";
 import { formatBalance } from "../utils/balance";
 import Settings from "../views/Popup/routes/Settings";
-import "../styles/components/Tooltip.sass";
 import toastStyles from "../styles/components/SmallToast.module.sass";
 import logo from "../assets/logo.png";
 import styles from "../styles/components/WalletManager.module.sass";
 import testDP from "../assets/test.png";
 import Home from "../views/Popup/routes/Home";
+import "../styles/components/Tooltip.sass";
 
 export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
   const profile = useSelector((state: RootState) => state.profile),
@@ -126,37 +126,17 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
   return (
     <>
       <div className={styles.CurrentWallet}>
-        {pageTitle ? (
-          <div
-            onClick={() => goTo(Home)}
-            style={{ marginLeft: "1em", cursor: "pointer" }}
-          >
-            <ChevronLeftIcon size={24} />
-          </div>
-        ) : (
-          <img
-            onClick={() => goTo(Home)}
-            src={logo}
-            alt="ArConnect Logo"
-            style={{
-              width: "30px",
-              height: "30px",
-              marginLeft: "1rem",
-              cursor: "pointer"
-            }}
-          />
-        )}
-
+        <div className={styles.Icon} onClick={() => goTo(Home)}>
+          {(pageTitle && <ChevronLeftIcon size={24} />) || (
+            <img src={logo} alt="logo" />
+          )}
+        </div>
         <h1 onClick={() => setOpen(!open)}>
           {pageTitle ? pageTitle : currentWalletName() || "• • •"}
           {verifiedAddresses.includes(profile) && <VerifiedIcon />}
         </h1>
-
-        <div
-          className={styles.ProfilePicture + " " + (open ? styles.Open : "")}
-          onClick={() => setOpen(!open)}
-        >
-          <img src={testDP} alt="profile pic" />
+        <div className={styles.Icon} onClick={() => setOpen((val) => !val)}>
+          <img src={testDP} alt="profile" />
         </div>
         <AnimatePresence>
           {open && (
@@ -223,7 +203,8 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
                     </div>
                   ) : (
                     <h6 className={styles.WalletBalance}>
-                      {formatBalance(balance()?.arBalance)} <span>AR</span>
+                      {balance()?.arBalance?.toFixed(3) || ""}
+                      <span>AR</span>
                     </h6>
                   )}
                 </div>

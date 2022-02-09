@@ -6,7 +6,7 @@
   
 .CurrentWallet
   position: relative
-  padding: .3em 0
+  padding: .3em 1em
   text-align: center
   border-bottom: 1px solid #eaeaea
   background-color: #fff
@@ -16,19 +16,26 @@
 
   @media (prefers-color-scheme: dark)
     border-bottom-color: #333
-    background-color: #000   
+    background-color: #000
 
-  .ProfilePicture 
-    width: 40px
-    height: 40px
+  .Icon, [class~=VertoPopoverWrapper]
+    width: 35px
+    height: 35px
     cursor: pointer
-    margin-right: 1em
+    transition: all .23s ease-in-out
 
     img
-      width: 40px
-      height: 40px
+      width: 100%
+      height: 100%
       object-fit: cover
       border-radius: 50%
+      box-shadow: variables.$standard-shadow
+
+    &:hover img
+      box-shadow: variables.$standard-shadow-hover
+
+    &:active
+      transform: scale(.93)
 
   h1
     font-size: 2em
@@ -60,26 +67,8 @@
     @media (prefers-color-scheme: dark)
       color: variables.$secondary-text-dark
 
-  .Icon
-    position: absolute
-    top: 50%
-    right: 1em
-    cursor: pointer
-    color: variables.$secondary-text-light
-    transform: translateY(-50%)
-    transition: all .23s ease-in-out
-
-    &.Open
-      transform: translateY(-50%) rotate(180deg)
-
-    @media (prefers-color-scheme: dark)
-      color: variables.$secondary-text-dark
-
-    svg
-      width: 1.23em
-      height: 1.23em
-
   .Wallets
+    $sidePadding: .55em
     position: absolute
     top: 100%
     left: 0
@@ -89,14 +78,16 @@
     border-radius: 14px
     background-color: #fff
     box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1)
+    padding: 0 0.5em
 
     @media (prefers-color-scheme: dark)
       background-color: variables.$lighter-bg-dark
 
     .ChooseWallet
       width: 100%
-      margin-top: 1em
-      margin-left: 2em
+      margin:
+        top: 1em
+        left: $sidePadding
       text-align: left
       font-weight: 600
       font-size: 0.875em
@@ -109,11 +100,12 @@
       align-items: center
       justify-content: space-between
       background-color: #fff
-      padding: .3em .95em
+      padding: .3em $sidePadding
       cursor: pointer
       text-align: left
       transition: all .25s ease-in
-      margin: 0.05em 0.5em
+      margin: 0.05em 0
+      border-radius: 8px
 
       &.Options
         justify-content: flex-end
@@ -213,15 +205,15 @@
           height: 1.23em
 
       .WalletBalance
-        width: 8em
         margin-top: 0.5em
         text-align: right
-        font-size: 1.3em
-        font-weight: 600
+        font-size: 1.25em
+        font-weight: 500
         word-spacing: -0.2em
 
         span
-          font-size: 0.8em
+          font-size: 0.67em
+          margin-left: .26em
 
 // same style as the wallet name inputs'
 // this element is required to get the 
