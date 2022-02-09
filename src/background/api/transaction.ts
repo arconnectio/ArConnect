@@ -15,7 +15,7 @@ import { getRealURL } from "../../utils/url";
 import { browser } from "webextension-polyfill-ts";
 import Transaction, { Tag } from "arweave/web/lib/transaction";
 import Arweave from "arweave";
-import Bundlr from "@bundlr-network/client";
+import { WebBundlr as Bundlr } from "@bundlr-network/client/web";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
 
