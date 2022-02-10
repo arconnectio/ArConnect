@@ -15,7 +15,6 @@ import { getRealURL } from "../../utils/url";
 import { browser } from "webextension-polyfill-ts";
 import Transaction, { Tag } from "arweave/web/lib/transaction";
 import Arweave from "arweave";
-import { WebBundlr as Bundlr } from "@bundlr-network/client/web";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
 
@@ -222,10 +221,13 @@ export const signTransaction = (
  * @param transaction Arweave transaction object
  * @returns Result
  */
-export async function dispatch(transaction: Transaction): Promise<{
+export async function dispatch(tx: object): Promise<{
   res: boolean;
   data: DispatchResult;
 }> {
+  const arweave = new Arweave(await getArweaveConfig());
+  const transaction = arweave.transactions.fromRaw(tx);
+
   let userData: { address: string; keyfile: JWKInterface };
 
   try {
@@ -252,6 +254,7 @@ export async function dispatch(transaction: Transaction): Promise<{
   }));
 
   try {
+    const Bundlr = await import("@bundlr-network/client/web");
     const bundlr = new Bundlr(
       "https://node1.bundlr.network/",
       "Arweave",
@@ -274,8 +277,6 @@ export async function dispatch(transaction: Transaction): Promise<{
   } catch {
     try {
       // sign & post if there is something wrong with the bundlr
-      const arweave = new Arweave(await getArweaveConfig());
-
       // check wallet balance
       const balance = parseFloat(
         await arweave.wallets.getBalance(userData.address)
