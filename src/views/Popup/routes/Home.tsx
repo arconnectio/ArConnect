@@ -2,7 +2,6 @@ import React, { PropsWithChildren, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
 import {
-  QuestionIcon,
   SignOutIcon,
   SignInIcon,
   ChevronRightIcon,

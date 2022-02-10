@@ -368,8 +368,10 @@ export default function App() {
               </label>
               <Input
                 {...passwordInput.bindings}
-                //@ts-ignore: Update UI Lib
-                onKeyPress={(e: KeyboardEvent<HTMLInputElement>) => {
+                onKeyPressHandler={(e) => {
+                  // TODO -> Move cursor to next input if field is populated
+                  // TODO -> Display Toast if user presses Enter but input field is empty
+                  // TODO -> Update input status
                   if (e.key === "Enter") createPassword();
                 }}
                 type="password"
@@ -384,11 +386,9 @@ export default function App() {
                   <p className={styles.passwordLabel}>repeat password</p>
                   <Input
                     {...passwordInputAgain.bindings}
-                    //@ts-ignore: Update UI Lib
-                    onKeyPress={(e: KeyboardEvent<HTMLInputElement>) => {
-                      if (e.key === "Enter" && walletsStore.length > 0)
+                    onKeyPressHandler={(e) => {
+                      if (e.key === "Enter" && walletsStore.length >= 0)
                         checkPassword();
-                      console.log("Pressed");
                     }}
                     type="password"
                     placeholder="*********"

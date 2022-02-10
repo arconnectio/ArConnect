@@ -8,12 +8,8 @@ import {
   Progress,
   useTheme
 } from "@geist-ui/react";
-import {
-  VerifiedIcon,
-  ChevronDownIcon,
-  FileSubmoduleIcon
-} from "@primer/octicons-react";
-import { Button, Input } from "@verto/ui";
+import { VerifiedIcon, FileSubmoduleIcon } from "@primer/octicons-react";
+import { Button, Input, Select } from "@verto/ui";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { arToFiat, getSymbol } from "../../../utils/currency";
 import { Threshold, getVerification } from "arverify";
@@ -184,24 +180,19 @@ export default function Send() {
       {verified && verified?.verified ? (
         <VerifiedIcon />
       ) : (
-        <FileSubmoduleIcon />
+        <FileSubmoduleIcon size={30} />
       )}
     </>
   );
 
   const DisplayAR = () => (
-    <span
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-evenly",
-        gap: "0.5em",
-        fontWeight: "400",
-        fontSize: "0.9em"
-      }}
-    >
-      AR <ChevronDownIcon size={24} />
-    </span>
+    <Select filled small>
+      <option value="AR">AR</option>
+      <option value="BTC">BTC</option>
+      <option value="VRT">VRT</option>
+      <option value="ETH">ETH</option>
+      <option value="USDT">USDT</option>
+    </Select>
   );
 
   return (
@@ -281,6 +272,7 @@ export default function Send() {
             {" " + currency}
           </span>
           <span>1 AR = {getSymbol(currency) + arPriceFiat.toFixed(2)}</span>
+          {/* TODO: Update to display price according to selected price */}
         </p>
         <label className={styles.MessageLabel}>
           message (optional)
