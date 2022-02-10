@@ -2094,6 +2094,11 @@
   resolved "https://registry.yarnpkg.com/@primer/octicons-react/-/octicons-react-16.2.0.tgz#702f59169dd763dc03e613b0e881aa715da37a5c"
   integrity sha512-943t5kkVRt+/hxVnKS27xweUp4lXFxwJaTrsit1C1xBB4kqdjzmYGpU84zwKsNyyV2Ch7may3umKjbI/mFBPPQ==
 
+"@primer/octicons-react@^16.3.0":
+  version "16.3.1"
+  resolved "https://registry.yarnpkg.com/@primer/octicons-react/-/octicons-react-16.3.1.tgz#86982fe1001eee138d5ee46accbcdf62d51d11c5"
+  integrity sha512-uzTs8/CvLiW1/47cgMRkIK9bKWpnw+UonCbgczXErwSSLqMDHfiiTpobW1trvRuoiMgLwsPo0l7kBBdKBnmq3g==
+
 "@protobufjs/aspromise@^1.1.1", "@protobufjs/aspromise@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@protobufjs/aspromise/-/aspromise-1.1.2.tgz#9b8b0cc663d669a7d8f6f5d0893a14d348f30fbf"
@@ -2803,13 +2808,28 @@
     react-media-hook "^0.4.9"
     styled-components "^5.2.1"
 
-"@verto/ui@^3.0.1-alpha":
-  version "3.0.1-alpha"
-  resolved "https://registry.yarnpkg.com/@verto/ui/-/ui-3.0.1-alpha.tgz#818ebece28762c9f2c68008e41c4c59b198e09d9"
-  integrity sha512-SN+r6daVKTmres6XQQREjASZWVJ9uyUFiZh0bYw+33SSUwLuN6P2E1ac+QaUj2KezPiDJkaChKlQr+WsW/DyFg==
+"@verto/ui@^3.0.2-alpha":
+  version "3.0.2-alpha"
+  resolved "https://registry.yarnpkg.com/@verto/ui/-/ui-3.0.2-alpha.tgz#1654e65e045ef36d867e550aa18d5b7db8301e18"
+  integrity sha512-JzUwbta5ALpL4m4F9bQK9eBUSVSjG/l48XvWyGvdF1Ix6q9pD706UOrHq8ZVEP991MUItihu0OROjLbK05i+OQ==
   dependencies:
     "@iconicicons/react" "^1.1.1"
+    "@primer/octicons-react" "^16.3.0"
     "@verto/ui" "^3.0.0-alpha"
+    color-hash "^2.0.1"
+    framer-motion "^3.1.1"
+    nanoid "^3.1.22"
+    react-media-hook "^0.4.9"
+    styled-components "^5.2.1"
+
+"@verto/ui@^3.0.3-alpha":
+  version "3.0.3-alpha"
+  resolved "https://registry.yarnpkg.com/@verto/ui/-/ui-3.0.3-alpha.tgz#b4011b671194719ed23f2dfaa087288d33c31c3e"
+  integrity sha512-OlVA7IxxXortuMmOUOvYLo5c5u2T/vT4uOOsQID/K5mYt/9bqrzdM5Ct8NXXi3AU90AT2yfBatZmGwSNWMfeAg==
+  dependencies:
+    "@iconicicons/react" "^1.1.1"
+    "@primer/octicons-react" "^16.3.0"
+    "@verto/ui" "^3.0.2-alpha"
     color-hash "^2.0.1"
     framer-motion "^3.1.1"
     nanoid "^3.1.22"
