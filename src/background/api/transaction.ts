@@ -1,3 +1,4 @@
+import Bundlr from "@bundlr-network/client/web";
 import { JWKInterface } from "arweave/web/lib/wallet";
 import { Allowance } from "../../stores/reducers/allowances";
 import {
@@ -254,7 +255,6 @@ export async function dispatch(tx: object): Promise<{
   }));
 
   try {
-    const Bundlr = await import("@bundlr-network/client/web");
     const bundlr = new Bundlr(
       "https://node1.bundlr.network/",
       "Arweave",
@@ -274,7 +274,8 @@ export async function dispatch(tx: object): Promise<{
         type: "BUNDLED"
       }
     };
-  } catch {
+  } catch (e) {
+    console.log("Error", e);
     try {
       // sign & post if there is something wrong with the bundlr
       // check wallet balance
