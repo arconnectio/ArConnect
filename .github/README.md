@@ -148,7 +148,7 @@ Decrypt a string [encrypted](#encryptdata-options-promiseuint8array) with the us
 
 Requires the `DECRYPT` [permission](#permissions).
 
-### `signature(data, options): Promise<string>`
+### `signature(data, options): Promise<Uint8Array>`
 
 Get the signature for a data array.
 

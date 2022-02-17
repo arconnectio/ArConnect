@@ -119,7 +119,7 @@ declare global {
         data: Uint8Array,
         // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/sign#parameters
         algorithm: any
-      ): Promise<string>;
+      ): Promise<Uint8Array>;
 
       /**
        * Get the user's active public key, from their wallet

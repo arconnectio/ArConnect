@@ -85,9 +85,11 @@ export const signature = (message: MessageFormat, tabURL: string) =>
     try {
       await authenticateUser(message.type, tabURL);
 
+      const signatureObject = await doSignature(message);
+
       resolve({
         res: true,
-        data: await doSignature(message),
+        data: Object.values(signatureObject),
         message: "Success"
       });
     } catch (e: any) {

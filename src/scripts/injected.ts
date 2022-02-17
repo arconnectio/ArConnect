@@ -327,7 +327,7 @@ const WalletAPI = {
       throw new Error(e);
     }
   },
-  async signature(data: Uint8Array, algorithm: any): Promise<string> {
+  async signature(data: Uint8Array, algorithm: any): Promise<Uint8Array> {
     try {
       const result = await callAPI({
         type: "signature",
@@ -337,7 +337,7 @@ const WalletAPI = {
         options: algorithm
       });
       if (!result.res || !result.data) throw new Error(result.message);
-      return result.data;
+      return new Uint8Array(result.data);
     } catch (e: any) {
       throw new Error(e);
     }
