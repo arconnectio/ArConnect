@@ -1,9 +1,11 @@
-import Bundlr from "@bundlr-network/client/web";
+import { createData } from "arbundles";
+import { ArweaveSigner } from "arbundles/src/signing";
 import { JWKInterface } from "arweave/web/lib/wallet";
 import { Allowance } from "../../stores/reducers/allowances";
 import {
   createAuthPopup,
   DispatchResult,
+  generateBundlrAnchor,
   getActiveKeyfile,
   getArweaveConfig,
   getFeeAmount,
@@ -255,16 +257,17 @@ export async function dispatch(tx: object): Promise<{
   }));
 
   try {
-    const bundlr = new Bundlr(
-      "https://node1.bundlr.network/",
-      "Arweave",
-      userData.keyfile
-    );
+    const dataSigner = new ArweaveSigner(userData.keyfile);
+    const dataEntry = createData(data, dataSigner, {
+      // TODO: ? not sure if target works ?
+      // target:
+      anchor: generateBundlrAnchor(),
+      tags
+    });
 
-    const tx = bundlr.createTransaction(data, { tags });
-
-    await tx.sign();
-    await tx.upload();
+    await dataEntry.sign(dataSigner);
+    // TODO: send to bundlr node
+    // https://github.com/Bundlr-Network/js-client/blob/fb57e8e4036fba1d769aa11d5bb48625b09326d0/src/common/upload.ts#L46
 
     return {
       res: true,

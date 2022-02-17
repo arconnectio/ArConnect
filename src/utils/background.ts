@@ -341,3 +341,13 @@ export interface DispatchResult {
   message?: string; // id for now
   type?: "BASE" | "BUNDLED";
 }
+
+export function generateBundlrAnchor() {
+  const randomBytes = crypto.getRandomValues(new Uint8Array(32));
+  // we can do this, because we know that the randomBytes buffer
+  // will be 32 bytes of length
+  // for larger buffers, String.fromCharCode should not be used
+  const base64str = btoa(String.fromCharCode(...randomBytes));
+
+  return base64str;
+}
