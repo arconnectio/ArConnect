@@ -6,10 +6,11 @@ import { PermissionType } from "./permissions";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { getRealURL } from "./url";
 import { browser } from "webextension-polyfill-ts";
+import { DataItem } from "arbundles";
 import { run } from "ar-gql";
+import axios, { AxiosResponse } from "axios";
 import limestone from "@limestonefi/api";
 import Arweave from "arweave";
-import axios from "axios";
 
 /**
  * Create an authenticator popup
@@ -350,4 +351,27 @@ export function generateBundlrAnchor() {
   const base64str = btoa(String.fromCharCode(...randomBytes));
 
   return base64str;
+}
+
+/**
+ * Upload a data entry to a Bundlr node
+ *
+ * @param dataItem Data entry to upload
+ * @returns Bundlr node response
+ */
+export async function uploadDataToBundlr(dataItem: DataItem) {
+  const res = await axios.post(
+    "https://node1.bundlr.network/tx/arweave",
+    dataItem.getRaw(),
+    {
+      headers: { "Content-Type": "application/octet-stream" },
+      timeout: 20000,
+      maxBodyLength: Infinity
+    }
+  );
+
+  if (res.status >= 400)
+    throw new Error(
+      `Error uploading DataItem: ${res.status} ${res.statusText}`
+    );
 }

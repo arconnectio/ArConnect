@@ -10,7 +10,8 @@ import {
   getArweaveConfig,
   getFeeAmount,
   getStoreData,
-  setStoreData
+  setStoreData,
+  uploadDataToBundlr
 } from "../../utils/background";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { MessageFormat, validateMessage } from "../../utils/messenger";
@@ -257,6 +258,7 @@ export async function dispatch(tx: object): Promise<{
   }));
 
   try {
+    // create bundlr tx as a data entry
     const dataSigner = new ArweaveSigner(userData.keyfile);
     const dataEntry = createData(data, dataSigner, {
       // TODO: ? not sure if target works ?
@@ -265,20 +267,21 @@ export async function dispatch(tx: object): Promise<{
       tags
     });
 
+    // sign and upload bundler tx
     await dataEntry.sign(dataSigner);
-    // TODO: send to bundlr node
-    // https://github.com/Bundlr-Network/js-client/blob/fb57e8e4036fba1d769aa11d5bb48625b09326d0/src/common/upload.ts#L46
+    await uploadDataToBundlr(dataEntry);
 
     return {
       res: true,
       data: {
         status: "OK",
-        message: tx.id,
+        message: dataEntry.id,
         type: "BUNDLED"
       }
     };
   } catch (e) {
-    console.log("Error", e);
+    console.log("Error signing", e);
+
     try {
       // sign & post if there is something wrong with the bundlr
       // check wallet balance
