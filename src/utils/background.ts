@@ -8,7 +8,7 @@ import { getRealURL } from "./url";
 import { browser } from "webextension-polyfill-ts";
 import { DataItem } from "arbundles";
 import { run } from "ar-gql";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import limestone from "@limestonefi/api";
 import Arweave from "arweave";
 
