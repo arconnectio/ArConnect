@@ -20,7 +20,7 @@
     "@verto/js": "^0.0.0-alpha.19",
     "@verto/lib": "^0.10.4",
     "ar-gql": "^0.0.6",
-    "arbundles": "^0.6.13",
+    "arbundles": "^0.6.14",
     "arverify": "^0.0.11",
     "arweave": "^1.10.18",
     "arweave-mnemonic-keys": "^0.0.9",
