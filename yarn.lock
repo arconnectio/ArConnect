@@ -13905,6 +13905,13 @@ vendors@^1.0.0:
   resolved "https://registry.yarnpkg.com/vendors/-/vendors-1.0.4.tgz#e2b800a53e7a29b93506c3cf41100d16c4c4ad8e"
   integrity sha512-/juG65kTL4Cy2su4P8HjtkTxk6VmJDiOPBufWniqQ6wknac6jNiXS9vU+hO3wgusiyqWlzTbVHi0dyJqRONg3w==
 
+verto-cache-interface@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/verto-cache-interface/-/verto-cache-interface-1.1.1.tgz#cea2bd20e5d940091e87fa50080e5a240a7b921d"
+  integrity sha512-oOu3KIwW2+mNoySUsslcCV9/j6qd4mXcddhQLe2AKz9zpmuU7dbN4y262HGnWbOWIegJRiiUFFFfNFE1ib19CQ==
+  dependencies:
+    axios "^0.23.0"
+
 vm-browserify@^1.0.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"

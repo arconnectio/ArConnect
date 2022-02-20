@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, KeyboardEvent } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Card,
   useModal,

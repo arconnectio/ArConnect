@@ -28,11 +28,15 @@ import { arToFiat, getSymbol } from "../../../utils/currency";
 import { validateMessage } from "../../../utils/messenger";
 import { browser } from "webextension-polyfill-ts";
 import { getActiveTab } from "../../../utils/background";
+import { shortenURL } from "../../../utils/url";
+import { motion, AnimatePresence } from "framer-motion";
+import { QRCode } from "react-qr-svg";
 import mime from "mime-types";
 import axios from "axios";
 import PST from "./PST";
 import WalletManager from "../../../components/WalletManager";
 import Send from "./Send";
+import Explore from "./Explore";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
 import arweaveLogo from "../../../assets/arweave.png";
@@ -40,9 +44,6 @@ import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
 import copy from "copy-to-clipboard";
-import { shortenURL } from "../../../utils/url";
-import { motion, AnimatePresence } from "framer-motion";
-import { QRCode } from "react-qr-svg";
 import qrIcon from "../../../assets/QR.svg";
 import globe from "../../../assets/globe.svg";
 
@@ -316,9 +317,8 @@ export default function Home() {
             </div>
           </Tooltip>
           <div
-            className={
-              styles.Item + " " + styles.SwapItem + " " + styles.Unavailable
-            }
+            onClick={() => goTo(Explore)}
+            className={styles.Item + " " + styles.SwapItem}
           >
             <img src={globe} alt="globe icon" />
             <span>Explore</span>

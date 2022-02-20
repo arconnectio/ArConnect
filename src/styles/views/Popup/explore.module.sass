@@ -1,0 +1,150 @@
+@use "../../variables"
+
+.Explore
+  background-color: variables.$lighter-bg-light
+  padding: .65em .7em
+
+  @media (prefers-color-scheme: dark)
+    background-color: variables.$lighter-bg-dark
+
+  .SectionHeader
+    font-size: 14px
+    font-weight: 500
+    text-transform: uppercase
+    color: variables.$secondary-text-light
+
+  .FeaturedWrapper 
+    padding: 1em
+    color: #fff
+    border-radius: 12px
+    background-color: #000
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1)
+
+    .FeaturedItem
+      display: flex
+      flex-direction: column
+      justify-content: center
+      align-items: center
+
+      span
+        display: flex
+        font-size: 1.5em
+        font-weight: 600
+        letter-spacing: 0.5em
+        align-items: center
+        text-transform: uppercase
+        
+        img
+          width: 25px
+          height: 25px
+          margin-right: 0.5em
+      
+      .FeaturedItemInfo
+        width: 70%
+        font-size: 0.7em
+        font-weight: 600
+        text-align: center
+        text-transform: uppercase
+      
+      .Paginator
+        display: flex
+        bottom: 1.2em
+
+        span
+          margin: 0 .3em
+          border: 1.5px solid #fff
+          border-radius: 100%
+          width: 5px
+          height: 5px
+          cursor: pointer
+          transition: all .23s ease-in-out
+
+          &.ActivePage
+            background-color: #fff
+
+          &:hover
+            opacity: .8
+
+          &:active
+            transform: scale(.9)
+
+  .ArweaveNewsWrapper
+    display: flex
+    gap: 1em
+    margin-top: .7em
+
+    .ArweaveNewsItem
+      display: flex
+      flex-direction: column
+      justify-content: space-between
+      background: #fff
+      min-height: 7.5em
+      border-radius: 12px
+      padding: .5em
+      box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1)
+      
+      >p
+        margin-top: -0.4em
+        font-size: 12px
+        font-weight: 500
+        text-transform: uppercase
+      
+      >div
+        display: flex
+        margin-top: -1em
+        align-items: center
+        justify-content: space-between
+
+        p
+          font-size: 12px
+          font-weight: 500
+          color: #666
+
+        img
+          width: 25px
+          height: 25px
+
+  .CollectionCardsWrapper
+    display: flex
+    gap: 1em
+    flex-wrap: wrap
+
+    .CollectionCard
+      width: 95px
+      height: 110px
+      margin-bottom: 0.8em
+      border-radius: 14px
+      padding-left: 0.5em
+      padding-bottom: 0.6em
+      box-shadow: (0px 10px 25px rgba(0, 0, 0, 0.1))
+      display: flex
+      flex-direction: column
+      justify-content: space-between
+
+      .Ticker
+        display: flex
+        gap: 0.5em
+        align-items: center
+
+        .Logo
+          width: 22px
+          height: 22px
+
+          img
+            object-fit: cover
+        
+        p
+          font-size: 12px
+          font-weight: 600
+
+      .CardName
+        display: flex
+        flex-direction: column
+        font-weight: 600
+
+        .Name
+          font-size: 14px
+
+        .Price
+          font-size: 10px
+          color: variables.$secondary-text-light

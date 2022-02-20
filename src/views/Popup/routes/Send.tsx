@@ -272,7 +272,7 @@ export default function Send() {
             {" " + currency}
           </span>
           <span>1 AR = {getSymbol(currency) + arPriceFiat.toFixed(2)}</span>
-          {/* TODO: Update to display price according to selected price */}
+          {/* TODO: Update to display price according to selected token */}
         </p>
         <label className={styles.MessageLabel}>
           message (optional)
