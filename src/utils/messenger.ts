@@ -50,7 +50,9 @@ export type MessageType =
   | "archive_page"
   | "archive_page_content"
   | "get_arweave_config"
-  | "get_arweave_config_result";
+  | "get_arweave_config_result"
+  | "dispatch"
+  | "dispatch_result";
 
 /**
  * This function validates messages and check if they are from the extension

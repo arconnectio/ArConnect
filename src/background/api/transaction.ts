@@ -1,11 +1,17 @@
+import { createData } from "arbundles";
+import { ArweaveSigner } from "arbundles/src/signing";
 import { JWKInterface } from "arweave/web/lib/wallet";
 import { Allowance } from "../../stores/reducers/allowances";
 import {
   createAuthPopup,
+  DispatchResult,
+  generateBundlrAnchor,
+  getActiveKeyfile,
   getArweaveConfig,
   getFeeAmount,
   getStoreData,
-  setStoreData
+  setStoreData,
+  uploadDataToBundlr
 } from "../../utils/background";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { MessageFormat, validateMessage } from "../../utils/messenger";
@@ -52,29 +58,23 @@ export const signTransaction = (
         ?.decryptionKey;
 
       const sign = async () => {
-        const storedKeyfiles = storeData?.["wallets"] ?? [],
-          storedAddress = storeData?.["profile"],
-          keyfileToDecrypt = storedKeyfiles.find(
-            (item) => item.address === storedAddress
-          )?.keyfile;
+        let userData: { address: string; keyfile: JWKInterface };
 
-        if (
-          storedKeyfiles.length === 0 ||
-          !storedAddress ||
-          !keyfileToDecrypt
-        ) {
+        try {
+          userData = await getActiveKeyfile();
+        } catch {
           browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
+
           return {
             res: false,
             message: "No wallets added"
           };
         }
 
-        const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt)),
-          decodeTransaction = arweave.transactions.fromRaw({
-            ...transaction,
-            owner: keyfile.n
-          });
+        const decodeTransaction = arweave.transactions.fromRaw({
+          ...transaction,
+          owner: userData.keyfile.n
+        });
         const arConnectTags = [
           { name: "Signing-Client", value: "ArConnect" },
           { name: "Signing-Client-Version", value: manifest.version }
@@ -98,7 +98,7 @@ export const signTransaction = (
 
         await arweave.transactions.sign(
           decodeTransaction,
-          keyfile,
+          userData.keyfile,
           signatureOptions
         );
 
@@ -108,10 +108,10 @@ export const signTransaction = (
           const feeTx = await arweave.createTransaction(
             {
               target: feeTarget,
-              quantity: await getFeeAmount(storedAddress, arweave),
+              quantity: await getFeeAmount(userData.address, arweave),
               data: Math.random().toString().slice(-4)
             },
-            keyfile
+            userData.keyfile
           );
 
           feeTx.addTag("App-Name", "ArConnect");
@@ -124,7 +124,7 @@ export const signTransaction = (
             feeTx.reward = (+feeTx.reward * feeMultiplier).toFixed(0);
           }
 
-          await arweave.transactions.sign(feeTx, keyfile);
+          await arweave.transactions.sign(feeTx, userData.keyfile);
 
           const uploader = await arweave.transactions.getUploader(feeTx);
 
@@ -216,6 +216,120 @@ export const signTransaction = (
       });
     }
   });
+
+/**
+ * Dispatch a transaction. This just gets a transaction to the network in one step,
+ * if the Bundlr Network accepts it as a bundle. If it is rejected, it ArConnect will
+ * try to submit it as a regular transaction.
+ *
+ * @param transaction Arweave transaction object
+ * @returns Result
+ */
+export async function dispatch(tx: object): Promise<{
+  res: boolean;
+  data: DispatchResult;
+}> {
+  const arweave = new Arweave(await getArweaveConfig());
+  const transaction = arweave.transactions.fromRaw(tx);
+
+  let userData: { address: string; keyfile: JWKInterface };
+
+  try {
+    userData = await getActiveKeyfile();
+  } catch {
+    // user doesn't have a wallet
+    return {
+      // we return res: true for everything, because we want to return an object
+      // in the injected script, even if the process failed
+      res: true,
+      data: {
+        status: "ERROR",
+        message: "No wallets added to ArConnect",
+        type: "BUNDLED"
+      }
+    };
+  }
+
+  const data = transaction.get("data", { decode: true, string: false });
+  // @ts-expect-error
+  const tags = (transaction.get("tags") as Tag[]).map((tag) => ({
+    name: tag.get("name", { decode: true, string: true }),
+    value: tag.get("value", { decode: true, string: true })
+  }));
+
+  try {
+    // create bundlr tx as a data entry
+    const dataSigner = new ArweaveSigner(userData.keyfile);
+    const dataEntry = createData(data, dataSigner, {
+      // TODO: ? not sure if target works ?
+      // target:
+      anchor: generateBundlrAnchor(),
+      tags
+    });
+
+    // sign and upload bundler tx
+    await dataEntry.sign(dataSigner);
+    await uploadDataToBundlr(dataEntry);
+
+    return {
+      res: true,
+      data: {
+        status: "OK",
+        message: dataEntry.id,
+        type: "BUNDLED"
+      }
+    };
+  } catch (e) {
+    console.log("Error signing", e);
+
+    try {
+      // sign & post if there is something wrong with the bundlr
+      // check wallet balance
+      const balance = parseFloat(
+        await arweave.wallets.getBalance(userData.address)
+      );
+      const cost = parseFloat(
+        await arweave.transactions.getPrice(parseFloat(transaction.data_size))
+      );
+
+      if (balance < cost) {
+        return {
+          res: true,
+          data: {
+            status: "INSUFFICIENT_FUNDS",
+            message: `Wallet doesn't have enough AR. Required: ${cost}. Has: ${balance}`,
+            type: "BASE"
+          }
+        };
+      }
+
+      await arweave.transactions.sign(transaction, userData.keyfile);
+      const uploader = await arweave.transactions.getUploader(transaction);
+
+      while (!uploader.isComplete) {
+        await uploader.uploadChunk();
+      }
+
+      return {
+        res: true,
+        data: {
+          status: "OK",
+          message: transaction.id,
+          type: "BASE"
+        }
+      };
+    } catch (e) {
+      return {
+        res: true,
+        data: {
+          status: "ERROR",
+          message: e as string,
+          type: "BASE"
+        }
+      };
+    }
+  }
+}
 
 async function selectVRTHolder() {
   try {
