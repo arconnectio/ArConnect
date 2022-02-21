@@ -1,0 +1,46 @@
+@use "../variables"
+
+.AssetCard
+  display: flex
+  flex-direction: column
+  justify-content: space-between
+  padding: variables.$cardPadding !important
+  width: calc(26.2vw - #{variables.$cardPadding}) !important
+  height: calc(26.2vw - #{variables.$cardPadding})
+  border-radius: 14px !important
+  cursor: pointer
+  min-width: unset !important
+  overflow: hidden
+  box-shadow: variables.$standard-shadow !important
+  transition: all .23s ease-in-out
+
+  &:active
+    transform: scale(.97)
+
+  h1, h2
+    font-weight: 500
+    margin: 0
+    line-height: 1.18em
+    white-space: nowrap
+
+  h1
+    font-size: 1.1em
+    color: variables.$foreground-color
+
+  h2
+    font-size: .7em
+    color: variables.$light-text
+
+  .Head
+    display: flex
+    align-items: center
+
+    .Logo
+      box-shadow: variables.$standard-shadow
+      max-height: 1.3em
+      max-width: 1.3em
+      user-select: none
+      margin-right: .35em
+
+  .Body h1
+    margin-bottom: .13em

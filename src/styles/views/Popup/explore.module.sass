@@ -105,46 +105,7 @@
           height: 25px
 
   .CollectionCardsWrapper
-    display: flex
-    gap: 1em
-    flex-wrap: wrap
-
-    .CollectionCard
-      width: 95px
-      height: 110px
-      margin-bottom: 0.8em
-      border-radius: 14px
-      padding-left: 0.5em
-      padding-bottom: 0.6em
-      box-shadow: (0px 10px 25px rgba(0, 0, 0, 0.1))
-      display: flex
-      flex-direction: column
-      justify-content: space-between
-
-      .Ticker
-        display: flex
-        gap: 0.5em
-        align-items: center
-
-        .Logo
-          width: 22px
-          height: 22px
-
-          img
-            object-fit: cover
-        
-        p
-          font-size: 12px
-          font-weight: 600
-
-      .CardName
-        display: flex
-        flex-direction: column
-        font-weight: 600
-
-        .Name
-          font-size: 14px
-
-        .Price
-          font-size: 10px
-          color: variables.$secondary-text-light
+    display: grid
+    grid-template-columns: auto auto auto
+    justify-content: space-between
+    row-gap: 1em

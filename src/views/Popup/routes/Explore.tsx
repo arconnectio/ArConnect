@@ -5,10 +5,12 @@ import {
 } from "verto-cache-interface";
 import { Loading } from "@verto/ui";
 import { AnimatePresence, motion } from "framer-motion";
-import vertoLogo from "../../../assets/verto_dark.png";
+import { cardListAnimation } from "verto-internals/utils";
 import { useRouter } from "next/router";
+import vertoLogo from "../../../assets/verto_dark.png";
 import arweaveNewsLogo from "../../../assets/arweave_news.png";
 import WalletManager from "../../../components/WalletManager";
+import AssetCard from "../../../components/AssetCard";
 import styles from "../../../styles/views/Popup/explore.module.sass";
 
 const Explore = () => {
@@ -115,20 +117,16 @@ const Explore = () => {
 
         <div className={styles.CollectionCardsWrapper}>
           {communities ? (
-            communities.map((comm) => (
-              <div className={styles.CollectionCard} key={comm.id}>
-                <div className={styles.Ticker}>
-                  <div className={styles.Logo}>
-                    <img src={`https://arweave.net/${comm.logo}`} alt="logo" />
-                  </div>
-                  <p>{comm.ticker}</p>
-                </div>
-
-                <div className={styles.CardName}>
-                  <span className={styles.Name}>{comm.name}</span>
-                  <span className={styles.Price}>$35.432 USD</span>
-                </div>
-              </div>
+            communities.map((comm, i) => (
+              <motion.div {...cardListAnimation(i)} key={i}>
+                {/** TODO: price here */}
+                <AssetCard
+                  ticker={comm.ticker}
+                  logo={`https://arweave.net/${comm.logo}`}
+                  display={comm.name}
+                  usd={35.435}
+                />
+              </motion.div>
             ))
           ) : (
             <Loading.Spinner style={{ width: "100%", marginBottom: ".5em" }} />
