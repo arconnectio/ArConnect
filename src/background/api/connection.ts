@@ -6,9 +6,9 @@ import {
   setStoreData
 } from "../../utils/background";
 import { MessageFormat, validateMessage } from "../../utils/messenger";
-import { browser } from "webextension-polyfill-ts";
 import { getRealURL } from "../../utils/url";
 import { updateIcon } from "../icon";
+import browser from "webextension-polyfill";
 
 /**
  * APIs for a Web 2 like login system, but

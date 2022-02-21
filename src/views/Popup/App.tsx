@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import { Router } from "react-chrome-extension-router";
 import { useSelector } from "react-redux";
 import { useTheme } from "@geist-ui/react";
-import { browser } from "webextension-polyfill-ts";
 import { RootState } from "../../stores/reducers";
+import browser from "webextension-polyfill";
 
 import Home from "./routes/Home";
 

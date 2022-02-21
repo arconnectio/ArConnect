@@ -1,7 +1,7 @@
 import { IPermissionState } from "../stores/reducers/permissions";
 import { getStoreData, setStoreData, walletsStored } from "../utils/background";
 import { getRealURL } from "../utils/url";
-import { browser } from "webextension-polyfill-ts";
+import browser from "webextension-polyfill";
 
 // create context menus
 // (right click actions)

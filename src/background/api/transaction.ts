@@ -16,8 +16,8 @@ import {
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { MessageFormat, validateMessage } from "../../utils/messenger";
 import { getRealURL } from "../../utils/url";
-import { browser } from "webextension-polyfill-ts";
 import Transaction, { Tag } from "arweave/web/lib/transaction";
+import browser from "webextension-polyfill";
 import Arweave from "arweave";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";

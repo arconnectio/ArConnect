@@ -34,7 +34,7 @@ import { GraphDataConfig, GraphOptions } from "../../../utils/graph";
 import { AnimatePresence, motion } from "framer-motion";
 import { getVerification, Threshold } from "arverify";
 import manifest from "../../../../public/manifest.json";
-import { browser } from "webextension-polyfill-ts";
+import browser from "webextension-polyfill";
 import Arweave from "arweave";
 import Verto from "@verto/js";
 import Home from "./Home";

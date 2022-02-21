@@ -1,6 +1,6 @@
-import { browser } from "webextension-polyfill-ts";
 import { walletsStored } from "./background";
 import bcrypt from "bcryptjs";
+import browser from "webextension-polyfill";
 
 /**
  * Check if the password is valid

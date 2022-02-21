@@ -1,5 +1,5 @@
 import { validateMessage, MessageFormat } from "../utils/messenger";
-import { browser } from "webextension-polyfill-ts";
+import browser from "webextension-polyfill";
 
 function addScriptToWindow(path: string) {
   try {

@@ -21,7 +21,7 @@ import { Wallet } from "../../stores/reducers/wallets";
 import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
 import { checkPassword as checkPw, setPassword } from "../../utils/auth";
-import { browser } from "webextension-polyfill-ts";
+import browser from "webextension-polyfill";
 import bip39 from "bip39-web-crypto";
 import CryptoES from "crypto-es";
 import Arweave from "arweave";

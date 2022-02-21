@@ -28,11 +28,11 @@ import { getRealURL, shortenURL, formatAddress } from "../../utils/url";
 import { ChevronRightIcon } from "@primer/octicons-react";
 import { Allowance } from "../../stores/reducers/allowances";
 import { checkPassword } from "../../utils/auth";
-import { browser } from "webextension-polyfill-ts";
 import {
   PermissionType,
   PermissionDescriptions
 } from "../../utils/permissions";
+import browser from "webextension-polyfill";
 import toastStyles from "../../styles/components/SmallToast.module.sass";
 import styles from "../../styles/views/Auth/view.module.sass";
 

@@ -30,7 +30,6 @@ import { Threshold } from "arverify";
 import { MessageType } from "../../../utils/messenger";
 import { updateIcon } from "../../../background/icon";
 import { checkPassword, setPassword } from "../../../utils/auth";
-import { browser } from "webextension-polyfill-ts";
 import {
   readdAsset,
   removePermissions,
@@ -44,6 +43,7 @@ import {
   resetAllowanceSpent,
   resetArweaveConfig
 } from "../../../stores/actions";
+import browser from "webextension-polyfill";
 import CryptoES from "crypto-es";
 import dayjs from "dayjs";
 import Home from "./Home";

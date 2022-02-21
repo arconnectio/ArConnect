@@ -7,7 +7,7 @@ import {
 import { createContextMenus } from "./context_menus";
 import { updateIcon } from "./icon";
 import { Tab } from "../stores/reducers/time_tracking";
-import { Tabs } from "webextension-polyfill-ts";
+import { Tabs } from "webextension-polyfill";
 
 async function loadData(): Promise<Tab[]> {
   try {

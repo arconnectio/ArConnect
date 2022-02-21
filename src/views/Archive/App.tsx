@@ -34,7 +34,7 @@ import { formatAddress } from "../../utils/url";
 import { checkPassword } from "../../utils/auth";
 import { JWKInterface } from "arweave/web/lib/wallet";
 import { motion, AnimatePresence } from "framer-motion";
-import { browser } from "webextension-polyfill-ts";
+import browser from "webextension-polyfill";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
 import prettyBytes from "pretty-bytes";

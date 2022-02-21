@@ -32,11 +32,11 @@ import {
   handleBrowserGainedFocus,
   getArweaveActiveTab
 } from "../background/tab_update";
-import { browser, Runtime } from "webextension-polyfill-ts";
 import { fixupPasswords } from "../utils/auth";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { Chunk } from "../utils/chunks";
 import Transaction, { Tag } from "arweave/web/lib/transaction";
+import browser, { Runtime } from "webextension-polyfill";
 
 // stored transactions and their chunks
 let transactions: {
