@@ -122,7 +122,12 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
   return (
     <>
       <div className={styles.CurrentWallet}>
-        <div className={styles.Icon} onClick={() => goTo(Home)}>
+        <div
+          className={
+            styles.Icon + " " + ((!pageTitle && styles.ArConnectLogo) || "")
+          }
+          onClick={() => goTo(Home)}
+        >
           {(pageTitle && <ChevronLeftIcon size={24} />) || (
             <img src={logo} alt="logo" />
           )}
