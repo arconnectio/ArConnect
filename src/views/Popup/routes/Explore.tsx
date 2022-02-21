@@ -116,21 +116,26 @@ const Explore = () => {
         <p className={styles.SectionHeader}>communities</p>
 
         <div className={styles.CollectionCardsWrapper}>
-          {communities ? (
-            communities.map((comm, i) => (
-              <motion.div {...cardListAnimation(i)} key={i}>
-                {/** TODO: price here */}
-                <AssetCard
-                  ticker={comm.ticker}
-                  logo={`https://arweave.net/${comm.logo}`}
-                  display={comm.name}
-                  usd={35.435}
-                />
-              </motion.div>
-            ))
-          ) : (
-            <Loading.Spinner style={{ width: "100%", marginBottom: ".5em" }} />
-          )}
+          <AnimatePresence>
+            {communities ? (
+              communities.map((community, i) => (
+                <motion.div {...cardListAnimation(i)} key={i}>
+                  {/** TODO: price here */}
+                  <AssetCard
+                    id={community.id}
+                    ticker={community.ticker}
+                    logo={`https://arweave.net/${community.logo}`}
+                    display={community.name}
+                    fiat={35.435}
+                  />
+                </motion.div>
+              ))
+            ) : (
+              <Loading.Spinner
+                style={{ width: "100%", marginBottom: ".5em" }}
+              />
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </>

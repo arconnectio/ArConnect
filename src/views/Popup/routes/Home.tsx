@@ -2,24 +2,14 @@ import React, { PropsWithChildren, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
 import {
-  SignOutIcon,
-  SignInIcon,
   ChevronRightIcon,
   ArrowSwitchIcon,
   ArchiveIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
   CopyIcon,
   DownloadIcon
 } from "@primer/octicons-react";
-import {
-  Loading,
-  Spacer,
-  Tabs,
-  Tooltip,
-  useTheme,
-  useToasts
-} from "@geist-ui/react";
+import { Tooltip } from "@verto/ui";
+import { useTheme, useToasts } from "@geist-ui/react";
 import { setAssets, setBalance } from "../../../stores/actions";
 import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
@@ -30,6 +20,7 @@ import { browser } from "webextension-polyfill-ts";
 import { getActiveTab } from "../../../utils/background";
 import { shortenURL } from "../../../utils/url";
 import { motion, AnimatePresence } from "framer-motion";
+import { cardListAnimation } from "verto-internals/utils/index";
 import { QRCode } from "react-qr-svg";
 import mime from "mime-types";
 import axios from "axios";
@@ -42,10 +33,11 @@ import Verto from "@verto/lib";
 import arweaveLogo from "../../../assets/arweave.png";
 import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
-import styles from "../../../styles/views/Popup/home.module.sass";
 import copy from "copy-to-clipboard";
 import qrIcon from "../../../assets/QR.svg";
 import globe from "../../../assets/globe.svg";
+import AssetCard from "../../../components/AssetCard";
+import styles from "../../../styles/views/Popup/home.module.sass";
 
 export default function Home() {
   const arweaveConfig = useSelector((state: RootState) => state.arweave),
@@ -266,8 +258,6 @@ export default function Home() {
     }
   }
 
-  const [showAll, setShowAll] = useState(false);
-
   return (
     <div className={styles.Home}>
       <WalletManager />
@@ -347,209 +337,51 @@ export default function Home() {
           </ArchiveWrapper>
         </div>
       </div>
-      <Tabs initialValue="1" className={styles.Tabs}>
-        <Tabs.Item label="Tokens" value="1">
-          {(psts &&
-            psts.filter(
-              ({ removed, balance, type }) =>
-                !removed && balance > 0 && type !== "collectible"
-            ).length > 0 &&
-            psts
-              .filter(({ removed, type }) => !removed && type !== "collectible")
-              .sort((a, b) => b.balance - a.balance)
-              .slice(0, showAll ? psts.length : 6)
-              .map((pst, i) => (
-                <div
-                  className={styles.PST}
-                  key={i}
-                  onClick={() =>
-                    goTo(PST, {
-                      name: pst.name,
-                      id: pst.id,
-                      balance: pst.balance,
-                      ticker: pst.ticker
-                    })
-                  }
-                >
-                  <div
-                    className={
-                      styles.Logo +
-                      " " +
-                      (pst.ticker === "VRT" ? styles.NoOutline : "")
-                    }
-                  >
-                    <img src={logo(pst.id)} alt="pst-logo" />
-                  </div>
-                  <div>
-                    <h1>
-                      {pst.balance.toLocaleString()} {pst.ticker}
-                    </h1>
-                    <h2>
-                      {pst.balance !== 0 && pst.arBalance === 0
-                        ? "??"
-                        : pst.arBalance.toLocaleString()}{" "}
-                      AR
-                    </h2>
-                  </div>
-                  <div className={styles.Arrow}>
-                    <ChevronRightIcon />
-                  </div>
-                </div>
-              ))) ||
-            (loading.psts && (
-              <>
-                <Spacer h={0.5} />
-                <Loading />
-                <Spacer h={1.25} />
-              </>
-            )) || <p className={styles.EmptyIndicatorText}>No PSTs</p>}
-          {(psts &&
-            psts.filter(
-              ({ removed, type }) => !removed && type !== "collectible"
-            ).length > 6 && (
-              <p
-                onClick={() => setShowAll((val) => !val)}
-                className={styles.ShowAll}
-              >
-                {(showAll && (
-                  <>
-                    Show less
-                    <ChevronUpIcon />
-                  </>
-                )) || (
-                  <>
-                    Show more
-                    <ChevronDownIcon />
-                  </>
-                )}
-              </p>
-            )) || <Spacer h={0.32} />}
-          <h1 className={styles.Title}>Collectibles</h1>
-          <Spacer h={0.7} />
-          <div className={styles.Collectibles} title="Hold shift to scroll">
+
+      <div className={styles.Section}>
+        <div className={styles.Title}>
+          <h1>Assets</h1>
+          <h1
+            className={styles.Link}
+            onClick={() =>
+              browser.tabs.create({
+                url: `https://viewblock.io/arweave/address/${profile}?tab=tokens`
+              })
+            }
+          >
+            View all
+            <span>{psts?.length || "0"}</span>
+          </h1>
+        </div>
+        <div className={styles.Items}>
+          <AnimatePresence>
             {(psts &&
               psts.filter(
-                ({ removed, balance, type }) =>
-                  !removed && balance > 0 && type === "collectible"
+                ({ balance, type }) => balance > 0 && type === "community"
               ).length > 0 &&
               psts
-                .filter(
-                  ({ removed, type }) => !removed && type === "collectible"
-                )
+                .filter(({ type }) => type === "community")
                 .sort((a, b) => b.balance - a.balance)
-                .map((token, i) => (
-                  <div
-                    className={styles.Collectible}
+                .slice(0, 6)
+                .map((pst, i) => (
+                  <motion.div
+                    className={styles.SectionItem}
+                    {...cardListAnimation(i)}
                     key={i}
-                    onClick={() =>
-                      goTo(PST, {
-                        name: token.name,
-                        id: token.id,
-                        balance: token.balance,
-                        ticker: token.ticker
-                      })
-                    }
                   >
-                    <img
-                      src={`https://arweave.net/${token.id}`}
-                      alt="preview"
+                    <AssetCard
+                      id={pst.id}
+                      ticker={pst.ticker}
+                      logo={logo(pst.id)}
+                      display={pst.balance}
+                      fiat={pst.arBalance * arPriceInCurrency}
                     />
-                    <div className={styles.CollectibleInfo}>
-                      <h1 className={styles.CollectibleTitle}>{token.name}</h1>
-                      <span className={styles.CollectibleBalance}>
-                        {token.balance} {token.ticker}
-                      </span>
-                    </div>
-                  </div>
-                ))) || (
-              <p className={styles.EmptyIndicatorText}>No collectibles</p>
-            )}
-          </div>
-        </Tabs.Item>
-        <Tabs.Item label="Transactions" value="2">
-          {(transactions.length > 0 &&
-            transactions.map((tx, i) => (
-              <div
-                className={styles.Transaction}
-                key={i}
-                onClick={() =>
-                  browser.tabs.create({
-                    url: `https://viewblock.io/arweave/tx/${tx.id}`
-                  })
-                }
-              >
-                <div className={styles.Details}>
-                  <span className={styles.Direction}>
-                    {(tx.type === "in" && <SignInIcon size={24} />) || (
-                      <SignOutIcon size={24} />
-                    )}
-                  </span>
-                  <div className={styles.Data}>
-                    <h1>
-                      {tx.type === "in"
-                        ? "Incoming transaction"
-                        : "Outgoing transaction"}
-                    </h1>
-                    <p title={tx.id}>
-                      <span
-                        className={styles.Status}
-                        style={{
-                          color:
-                            tx.status === "success"
-                              ? theme.palette.cyan
-                              : tx.status === "error"
-                              ? theme.palette.error
-                              : tx.status === "pending"
-                              ? theme.palette.warning
-                              : undefined
-                        }}
-                      >
-                        {tx.status} ·{" "}
-                      </span>
-                      {tx.id}
-                    </p>
-                  </div>
-                </div>
-                <div className={styles.Cost}>
-                  <h1>
-                    {tx.amount !== 0 && (tx.type === "in" ? "+" : "-")}
-                    {formatBalance(tx.amount, true)} AR
-                  </h1>
-                  <h2>
-                    {tx.amount !== 0 && (tx.type === "in" ? "+" : "-")}
-                    {getSymbol(currency)}
-                    {formatBalance(
-                      parseFloat(
-                        (tx.amount * arPriceInCurrency).toFixed(2)
-                      ).toLocaleString(),
-                      true
-                    )}{" "}
-                    {currency}
-                  </h2>
-                </div>
-              </div>
-            ))) ||
-            (loading.txs && (
-              <>
-                <Spacer h={0.5} />
-                <Loading />
-                <Spacer h={1.25} />
-              </>
-            )) || <p className={styles.EmptyIndicatorText}>No transactions</p>}
-          {transactions.length > 0 && (
-            <div
-              className={styles.Transaction + " " + styles.ViewMore}
-              onClick={() =>
-                browser.tabs.create({
-                  url: `https://viewblock.io/arweave/address/${profile}`
-                })
-              }
-            >
-              View more...
-            </div>
-          )}
-        </Tabs.Item>
-      </Tabs>
+                  </motion.div>
+                ))) ||
+              "No PSTs"}
+          </AnimatePresence>
+        </div>
+      </div>
 
       <AnimatePresence>
         {showQRCode && (
