@@ -392,7 +392,7 @@ export default function Home() {
             transition={{ duration: 0.23, ease: "easeInOut" }}
             onClick={() => setShowQRCode(false)}
           >
-            <div className={styles.wrapper}>
+            <div className={styles.Wrapper}>
               <QRCode
                 className={styles.QRCode}
                 value={profile}
