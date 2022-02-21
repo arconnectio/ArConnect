@@ -8,7 +8,6 @@
   position: relative
   padding: .3em 1em
   text-align: center
-  border-bottom: 1px solid #eaeaea
   background-color: #fff
   display: flex
   align-items: center
@@ -76,12 +75,9 @@
     z-index: 1000
     margin: 1em
     border-radius: 14px
-    background-color: #fff
+    background-color: variables.$background-color
     box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1)
     padding: 0 0.5em
-
-    @media (prefers-color-scheme: dark)
-      background-color: variables.$lighter-bg-dark
 
     .ChooseWallet
       width: 100%
@@ -99,7 +95,7 @@
       gap: .8em
       align-items: center
       justify-content: space-between
-      background-color: #fff
+      background-color: variables.$background-color
       padding: .3em $sidePadding
       cursor: pointer
       text-align: left
@@ -121,9 +117,7 @@
           border-color: #333
 
       @media (prefers-color-scheme: dark)
-        background-color: variables.$lighter-bg-dark
         border-color: #333
-        background-color: #000
 
       &:hover:not(.Options)
         background-color: #fcfcfc
