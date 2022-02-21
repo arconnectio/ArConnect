@@ -165,7 +165,7 @@ export default function Home() {
       if (full.length >= 5) return full;
       else return val.slice(0, 5);
     }
-    return val.slice(0, 10);
+    return val.slice(0, 8);
   }
 
   function logo(id: string) {
@@ -292,11 +292,17 @@ export default function Home() {
         </p>
         <div className={styles.ArBalance}>
           <h1>{formatBalance(balance()?.arBalance)} AR </h1>
-          <ChevronRightIcon size={30} className={styles.ChevronBalance} />
+          <span onClick={() => goTo(Explore)}>
+            <ChevronRightIcon size={20} className={styles.ChevronBalance} />
+          </span>
         </div>
         <h2>
           {getSymbol(currency)}
-          {balance()?.fiatBalance.toLocaleString()} {currency ?? "???"}
+          {balance()?.fiatBalance.toLocaleString(undefined, {
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 2
+          })}{" "}
+          {currency ?? "???"}
         </h2>
         <div className={styles.Menu}>
           <div
@@ -336,7 +342,7 @@ export default function Home() {
               onClick={archive}
             >
               <ArchiveIcon size={24} />
-              <span>Archive {currentTabContentType ?? "page"}</span>
+              <span>Archive</span>
             </div>
           </ArchiveWrapper>
         </div>

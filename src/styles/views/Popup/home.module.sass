@@ -20,15 +20,17 @@ $sidePaddingTransactions: .7em
       cursor: pointer
       transition: all 300ms ease-in-out
 
-      &:hover
+      &:active
         transform: scale(0.8)
 
   .Address
     display: flex
     align-items: center
     justify-content: center
-    font-size: .85em
-    color: #666  
+    font-size: .75em
+    font-weight: 600
+    color: #666
+    margin-bottom: 0
 
     button
       display: flex
@@ -41,17 +43,17 @@ $sidePaddingTransactions: .7em
       outline: none
       border: none
       cursor: pointer
-      margin: 0 .23em
+      margin: 0 .23em 0 0
       transition: all .23s ease-in-out
       color: #666
 
-      .QRIcon
+      .QRIcon, svg
         font-size: 1em
         width: 1em
         height: 1em
 
-        &:hover
-          opacity: .77
+      &:hover
+        opacity: .77
 
   h1, h2
     margin: 0
@@ -67,7 +69,7 @@ $sidePaddingTransactions: .7em
     margin: .16em 0
 
   h2
-    font-size: 1.36em
+    font-size: 1.06em
     font-weight: 500
     line-height: 1.1em
 
