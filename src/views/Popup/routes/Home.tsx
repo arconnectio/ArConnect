@@ -24,7 +24,6 @@ import { cardListAnimation } from "verto-internals/utils/index";
 import { QRCode } from "react-qr-svg";
 import mime from "mime-types";
 import axios from "axios";
-import PST from "./PST";
 import WalletManager from "../../../components/WalletManager";
 import Send from "./Send";
 import Explore from "./Explore";
@@ -378,7 +377,7 @@ export default function Home() {
                     />
                   </motion.div>
                 ))) ||
-              "No PSTs"}
+              "No assets yet"}
           </AnimatePresence>
         </div>
       </div>

@@ -33,8 +33,9 @@ import { Line } from "react-chartjs-2";
 import { GraphDataConfig, GraphOptions } from "../../../utils/graph";
 import { AnimatePresence, motion } from "framer-motion";
 import { getVerification, Threshold } from "arverify";
-import manifest from "../../../../public/manifest.json";
 import { browser } from "webextension-polyfill-ts";
+import { checkPassword } from "../../../utils/auth";
+import manifest from "../../../../public/manifest.json";
 import Arweave from "arweave";
 import Verto from "@verto/js";
 import Home from "./Home";
@@ -42,10 +43,9 @@ import verto_logo_light from "../../../assets/verto_light.png";
 import verto_logo_dark from "../../../assets/verto_dark.png";
 import axios from "axios";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
-import styles from "../../../styles/views/Popup/PST.module.sass";
-import { checkPassword } from "../../../utils/auth";
+import styles from "../../../styles/views/Popup/token.module.sass";
 
-export default function PST({ id, name, balance, ticker }: Asset) {
+export default function Token({ id, name, balance, ticker }: Asset) {
   const [price, setPrices] = useState<{ prices: number[]; dates: string[] }>(),
     { scheme } = useColorScheme(),
     tabs = useTabs("1"),
@@ -225,7 +225,7 @@ export default function PST({ id, name, balance, ticker }: Asset) {
         </div>
         <h1>{name}</h1>
       </div>
-      <div className={styles.PST}>
+      <div className={styles.Token}>
         <button
           onClick={() => removeModal.setVisible(true)}
           className={styles.Remove}

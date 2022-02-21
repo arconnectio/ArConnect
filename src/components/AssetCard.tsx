@@ -4,7 +4,7 @@ import { goTo } from "react-chrome-extension-router";
 import { getSymbol } from "../utils/currency";
 import { useSelector } from "react-redux";
 import { RootState } from "../stores/reducers";
-import PST from "../views/Popup/routes/PST";
+import Token from "../views/Popup/routes/Token";
 import styles from "../styles/components/AssetCard.module.sass";
 
 export default function AssetCard({
@@ -17,7 +17,7 @@ export default function AssetCard({
   const { currency } = useSelector((state: RootState) => state.settings);
 
   return (
-    <Card className={styles.AssetCard} onClick={() => goTo(PST, { id })}>
+    <Card className={styles.AssetCard} onClick={() => goTo(Token, { id })}>
       <div className={styles.Head}>
         <img className={styles.Logo} src={logo} alt="logo" draggable={false} />
         <h1>{ticker.toUpperCase()}</h1>
