@@ -1,35 +1,15 @@
 @use "../variables"
+@use "./Card"
 
 .AssetCard
   display: flex
   flex-direction: column
   justify-content: space-between
-  padding: variables.$cardPadding !important
-  width: calc(26.2vw - #{variables.$cardPadding}) !important
-  height: calc(26.2vw - #{variables.$cardPadding})
-  border-radius: 14px !important
-  cursor: pointer
-  min-width: unset !important
+  height: Card.$width
   overflow: hidden
-  box-shadow: variables.$standard-shadow !important
-  transition: all .23s ease-in-out
+  +Card.SmallCard
 
-  &:active
-    transform: scale(.97)
-
-  h1, h2
-    font-weight: 500
-    margin: 0
-    line-height: 1.18em
-    white-space: nowrap
-
-  h1
-    font-size: 1.1em
-    color: variables.$foreground-color
-
-  h2
-    font-size: .7em
-    color: variables.$light-text
+  +Card.SmallCardTexts
 
   .Head
     display: flex

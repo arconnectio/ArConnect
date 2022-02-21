@@ -8,7 +8,7 @@ import {
   CopyIcon,
   DownloadIcon
 } from "@primer/octicons-react";
-import { Tooltip } from "@verto/ui";
+import { Tooltip, Spacer } from "@verto/ui";
 import { useTheme, useToasts } from "@geist-ui/react";
 import { setAssets, setBalance } from "../../../stores/actions";
 import { goTo } from "react-chrome-extension-router";
@@ -36,6 +36,7 @@ import copy from "copy-to-clipboard";
 import qrIcon from "../../../assets/QR.svg";
 import globe from "../../../assets/globe.svg";
 import AssetCard from "../../../components/AssetCard";
+import CollectibleCard from "../../../components/CollectibleCard";
 import styles from "../../../styles/views/Popup/home.module.sass";
 
 export default function Home() {
@@ -349,7 +350,9 @@ export default function Home() {
             }
           >
             View all
-            <span>{psts?.length || "0"}</span>
+            <span>
+              {psts?.filter(({ type }) => type === "community")?.length || "0"}
+            </span>
           </h1>
         </div>
         <div className={styles.Items}>
@@ -378,6 +381,57 @@ export default function Home() {
                   </motion.div>
                 ))) ||
               "No assets yet"}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      <Spacer y={0.95} />
+
+      <div className={styles.Section}>
+        <div className={styles.Title}>
+          <h1>Collectibles</h1>
+          <h1
+            className={styles.Link}
+            onClick={() =>
+              browser.tabs.create({
+                url: `https://www.verto.exchange/@${profile}/owns`
+              })
+            }
+          >
+            View all
+            <span>
+              {psts?.filter(({ type }) => type === "collectible")?.length ||
+                "0"}
+            </span>
+          </h1>
+        </div>
+        <div className={styles.Items}>
+          <AnimatePresence>
+            {(psts &&
+              psts.filter(
+                ({ balance, type }) => balance > 0 && type === "collectible"
+              ).length > 0 &&
+              psts
+                .filter(({ type }) => type === "collectible")
+                .sort((a, b) => b.balance - a.balance)
+                .slice(0, 6)
+                .map((collectible, i) => (
+                  <motion.div
+                    className={styles.SectionItem}
+                    {...cardListAnimation(i)}
+                    key={i}
+                  >
+                    {/** TODO: use current gateway to fetch this and the community logo */}
+                    <CollectibleCard
+                      id={collectible.id}
+                      image={`https://arweave.net/${collectible.id}`}
+                      name={collectible.name}
+                      ticker={collectible.ticker}
+                      balance={collectible.balance}
+                    />
+                  </motion.div>
+                ))) ||
+              "No collectibles yet"}
           </AnimatePresence>
         </div>
       </div>

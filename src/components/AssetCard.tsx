@@ -7,15 +7,10 @@ import { RootState } from "../stores/reducers";
 import Token from "../views/Popup/routes/Token";
 import styles from "../styles/components/AssetCard.module.sass";
 
-export default function AssetCard({
-  ticker,
-  logo,
-  display,
-  fiat,
-  id
-}: AssetCardProps) {
+export default function AssetCard({ ticker, logo, display, fiat, id }: Props) {
   const { currency } = useSelector((state: RootState) => state.settings);
 
+  // TODO: update goTo to go to the proper token and not crash
   return (
     <Card className={styles.AssetCard} onClick={() => goTo(Token, { id })}>
       <div className={styles.Head}>
@@ -44,7 +39,7 @@ export default function AssetCard({
   );
 }
 
-interface AssetCardProps {
+interface Props {
   id: string;
   ticker: string;
   logo: string;
