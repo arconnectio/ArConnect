@@ -119,10 +119,6 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
     setTimeout(() => setShowSwitch(false), 1700);
   }
 
-  function balance() {
-    return storedBalances.find((balance) => balance.address === profile);
-  }
-
   return (
     <>
       <div className={styles.CurrentWallet}>
@@ -203,7 +199,9 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
                     </div>
                   ) : (
                     <h6 className={styles.WalletBalance}>
-                      {balance()?.arBalance?.toFixed(3) || ""}
+                      {storedBalances
+                        .find((balance) => balance.address === wallet.address)
+                        ?.arBalance?.toFixed(3) || ""}
                       <span>AR</span>
                     </h6>
                   )}

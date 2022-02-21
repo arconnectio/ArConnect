@@ -8,14 +8,11 @@
   position: relative
   padding: .3em 1em
   text-align: center
-  background-color: #fff
+  background-color: variables.$background-color
   display: flex
   align-items: center
   justify-content: space-between
-
-  @media (prefers-color-scheme: dark)
-    border-bottom-color: #333
-    background-color: #000
+  border-bottom: 1px solid variables.$skeleton
 
   .Icon, [class~=VertoPopoverWrapper]
     width: 35px
