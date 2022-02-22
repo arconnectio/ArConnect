@@ -47,6 +47,7 @@
     display: flex
     align-items: center
     justify-content: center
+    color: variables.$foreground-color
 
     svg
       font-size: .55em
@@ -57,16 +58,13 @@
   p
     font-size: .82em
     margin: 0
-    color: variables.$secondary-text-light
+    color: variables.$light-text
     white-space: nowrap
     overflow: hidden
     text-overflow: ellipsis
     width: 80%
     margin: 0 auto
     font-weight: 500
-
-    @media (prefers-color-scheme: dark)
-      color: variables.$secondary-text-dark
 
   .Wallets
     $sidePadding: .55em
@@ -78,7 +76,7 @@
     margin: 1em
     border-radius: 14px
     background-color: variables.$background-color
-    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1)
+    box-shadow: variables.$standard-shadow
     padding: 0 0.5em
 
     .ChooseWallet
@@ -90,6 +88,7 @@
       font-weight: 600
       font-size: 0.875em
       text-transform: uppercase
+      color: variables.$light-text
 
     .Wallet
       $removeWidth: 2.3em
@@ -115,24 +114,22 @@
           bottom: .8em
         margin-top: 1em
 
-        @media (prefers-color-scheme: dark)
-          border-color: #333
-
-      @media (prefers-color-scheme: dark)
-        border-color: #333
-
       &:hover:not(.Options)
-        background-color: #fcfcfc
-
-        @media (prefers-color-scheme: dark)
-          background-color: #030303
+        background-color: variables.$skeleton
 
       .Info
         position: relative
         width: calc(100% - #{$removeWidth})
 
+        .WalletNameWrapper
+          display: flex
+          align-items: center
+
+          svg
+            color: variables.$foreground-color
+
         .WalletName 
-          color: #000
+          color: variables.$foreground-color
           font-weight: 600
           font-size: 1.5em
 
@@ -146,47 +143,22 @@
           margin: 0
           max-width: 100%
           border-bottom: 1px solid transparent
-          transition: border-bottom-color .3s ease-in-out
-
-          @media (prefers-color-scheme: dark)
-            color: #fff
-
-          &:hover
-            border-bottom-color: rgba(#000, .5)
-
-            @media (prefers-color-scheme: dark)
-              border-bottom-color: rgba(#fff, .5)
-
+          color: variables.$foreground-color
+          
         p
           margin: 0
           width: auto
           font-size: 0.8em
-          color: variables.$secondary-text-light
+          color: variables.$light-text
 
-          &:hover
-            opacity: 1
-
-          @media (prefers-color-scheme: dark)
-            color: variables.$secondary-text-dark
-
-        .VerifiedIcon
-          color: #000
-          margin-left: .3em
-          display: flex
-          align-items: center
-
-          @media (prefers-color-scheme: dark)
-            color: #fff
-
-          svg
-            font-size: 1em
-            width: 1em
-            height: 1em
+        .VerifiedText
+          color: variables.$foreground-reverse-color
 
       .Remove, .Action
         width: $removeWidth
         cursor: pointer
         text-align: center
+        color: variables.$light-text
         transition: all .2s ease-in
 
         &.DisabledRemove
@@ -206,6 +178,7 @@
         font-size: 1.25em
         font-weight: 500
         word-spacing: -0.2em
+        color: variables.$foreground-color
 
         span
           font-size: 0.67em

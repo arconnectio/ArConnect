@@ -7,7 +7,8 @@ import {
   signOut,
   switchProfile
 } from "../stores/actions";
-import { Modal, Tooltip, useModal } from "@geist-ui/react";
+import { Modal, useModal } from "@geist-ui/react";
+import { Tooltip, Spacer } from "@verto/ui";
 import {
   GearIcon,
   PlusIcon,
@@ -27,7 +28,6 @@ import { getVerification, Threshold } from "arverify";
 import { browser } from "webextension-polyfill-ts";
 import { formatAddress } from "../utils/url";
 import { logOut } from "../utils/auth";
-import { formatBalance } from "../utils/balance";
 import Settings from "../views/Popup/routes/Settings";
 import toastStyles from "../styles/components/SmallToast.module.sass";
 import logo from "../assets/logo.png";
@@ -154,7 +154,7 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
                     className={styles.Info}
                     onClick={() => switchWallet(wallet.address)}
                   >
-                    <div style={{ display: "flex", alignItems: "center" }}>
+                    <div className={styles.WalletNameWrapper}>
                       {renameWallets ? (
                         <input
                           type="text"
@@ -179,15 +179,19 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
                         <p className={styles.WalletName}>{wallet.name}</p>
                       )}
 
+                      <Spacer x={0.45} />
+
                       {verifiedAddresses.includes(wallet.address) && (
                         <Tooltip
                           text={
-                            <p style={{ textAlign: "center", margin: "0" }}>
+                            <p
+                              style={{ textAlign: "center", margin: "0" }}
+                              className={styles.VerifiedText}
+                            >
                               Verified on <br />
                               ArVerify
                             </p>
                           }
-                          className={styles.VerifiedIcon}
                         >
                           <VerifiedIcon />
                         </Tooltip>
