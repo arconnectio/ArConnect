@@ -17,7 +17,7 @@
     "@geist-ui/react": "^2.2.0",
     "@limestonefi/api": "^0.1.3",
     "@primer/octicons-react": "^16.0.0",
-    "@verto/js": "^0.0.0-alpha.19",
+    "@verto/js": "^1.0.0-beta-1",
     "@verto/lib": "^0.10.4",
     "@verto/ui": "^3.0.3-alpha",
     "ar-gql": "^0.0.6",

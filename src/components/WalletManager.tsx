@@ -7,7 +7,14 @@ import {
   signOut,
   switchProfile
 } from "../stores/actions";
-import { Tooltip, Spacer, Modal, Button, useModal } from "@verto/ui";
+import {
+  Tooltip,
+  Spacer,
+  Modal,
+  Button,
+  useModal,
+  generateAvatarGradient
+} from "@verto/ui";
 import {
   GearIcon,
   PlusIcon,
@@ -19,6 +26,7 @@ import {
   CheckCircleIcon,
   ChevronLeftIcon
 } from "@primer/octicons-react";
+import { UserInterface } from "@verto/js/dist/faces";
 import { useColorScheme } from "use-color-scheme";
 import { QRCode } from "react-qr-svg";
 import { motion, AnimatePresence } from "framer-motion";
@@ -32,6 +40,7 @@ import toastStyles from "../styles/components/SmallToast.module.sass";
 import logo from "../assets/logo.png";
 import styles from "../styles/components/WalletManager.module.sass";
 import testDP from "../assets/test.png";
+import Verto from "@verto/js";
 import Home from "../views/Popup/routes/Home";
 import "../styles/components/Tooltip.sass";
 
@@ -118,6 +127,15 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
     setTimeout(() => setShowSwitch(false), 1700);
   }
 
+  const [vertoID, setVertoID] = useState<UserInterface>();
+  const arweaveConfig = useSelector((state: RootState) => state.arweave);
+
+  useEffect(() => {
+    const verto = new Verto();
+
+    verto.user.getUser(profile).then((res) => setVertoID(res));
+  }, [profile]);
+
   return (
     <>
       <div className={styles.CurrentWallet}>
@@ -135,8 +153,20 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
           {pageTitle ? pageTitle : currentWalletName() || "• • •"}
           {verifiedAddresses.includes(profile) && <VerifiedIcon />}
         </h1>
-        <div className={styles.Icon} onClick={() => setOpen((val) => !val)}>
-          <img src={testDP} alt="profile" />
+        <div
+          className={
+            styles.Icon + " " + (!vertoID?.image ? styles.DummyAvatar : "")
+          }
+          onClick={() => setOpen((val) => !val)}
+          style={{
+            background:
+              (!vertoID?.image && generateAvatarGradient(profile).gradient) ||
+              "transparent"
+          }}
+        >
+          {vertoID?.image && (
+            <img src={`https://arweave.net/${vertoID.image}`} alt="profile" />
+          )}
         </div>
         {open && (
           <div
@@ -258,7 +288,7 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
                       <BellIcon />
                     </div>
                   </Tooltip>
-                  <Tooltip text="Rename Wallet(s)">
+                  <Tooltip text="Edit Wallets">
                     <div
                       className={styles.Action}
                       onClick={() => setRenameWallets(!renameWallets)}

@@ -3061,15 +3061,15 @@
     "@typescript-eslint/types" "4.33.0"
     eslint-visitor-keys "^2.0.0"
 
-"@verto/js@^0.0.0-alpha.19":
-  version "0.0.0-alpha.19"
-  resolved "https://registry.yarnpkg.com/@verto/js/-/js-0.0.0-alpha.19.tgz#c78e9245be04005d12af1806c245857465b98a22"
-  integrity sha512-NQVikolsmohvmJlSmxRiJC8lX6QASFbVnVF79g77TkOVVGH/uaBlYe8MS+ZlsMJDB9c4B+OBp2ARjrEhWzSIKQ==
+"@verto/js@^1.0.0-beta-1":
+  version "1.0.0-beta-1"
+  resolved "https://registry.yarnpkg.com/@verto/js/-/js-1.0.0-beta-1.tgz#8463650a8df56883b1ccad900925464704eb56a0"
+  integrity sha512-Z48TboMvBlme1/GNmItK39dAVSuSEngWS3Hs6stCjphjWFaMrhruaNktYW2EEi/P1XgXLXaaMT0E5tA40ccpqQ==
   dependencies:
-    ardb "^1.0.8"
-    arweave "^1.10.13"
-    axios "^0.21.1"
-    smartweave "^0.4.29"
+    ar-gql "^0.0.6"
+    arweave "^1.10.18"
+    axios "^0.24.0"
+    verto-cache-interface "^1.0.7"
 
 "@verto/lib@^0.10.4":
   version "0.10.5"
@@ -3510,7 +3510,7 @@ arconnect@^0.2.8, arconnect@^0.2.9:
   dependencies:
     arweave "^1.10.13"
 
-ardb@^1.0.8, ardb@^1.1.8:
+ardb@^1.1.8:
   version "1.1.8"
   resolved "https://registry.yarnpkg.com/ardb/-/ardb-1.1.8.tgz#07a3ff85ca0c8cd422d264db8337b3e3629de999"
   integrity sha512-Oul2AhhMNC9kXPzLMV+Wf/sUDd623RQAnHBJ/M+ZnhrrIzyLOcbtG5B9I7MfqLIE0v/Ib5jAs2bLvKvGixJIcQ==
@@ -3799,6 +3799,13 @@ axios@^0.23.0:
   version "0.23.0"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.23.0.tgz#b0fa5d0948a8d1d75e3d5635238b6c4625b05149"
   integrity sha512-NmvAE4i0YAv5cKq8zlDoPd1VLKAqX5oLuZKs8xkJa4qi6RGn0uhCYFjWtHHC9EM/MwOwYWOs53W+V0aqEXq1sg==
+  dependencies:
+    follow-redirects "^1.14.4"
+
+axios@^0.24.0:
+  version "0.24.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.24.0.tgz#804e6fa1e4b9c5288501dd9dff56a7a0940d20d6"
+  integrity sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==
   dependencies:
     follow-redirects "^1.14.4"
 
@@ -13181,7 +13188,7 @@ slice-ansi@^4.0.0:
     astral-regex "^2.0.0"
     is-fullwidth-code-point "^3.0.0"
 
-smartweave@^0.4.10, smartweave@^0.4.27, smartweave@^0.4.29, smartweave@^0.4.43, smartweave@^0.4.45:
+smartweave@^0.4.10, smartweave@^0.4.27, smartweave@^0.4.43, smartweave@^0.4.45:
   version "0.4.46"
   resolved "https://registry.yarnpkg.com/smartweave/-/smartweave-0.4.46.tgz#55e2eb0e006e6ca84e5eb99f1bea7f19ac8a98db"
   integrity sha512-wZMCBRz5n+uElzdpEbQOvHs32q1rnAPVMlR57gtoKSSAtMolUVjjlcl6WK2RBU5doi9PQdUEHB/c7nLRwgfSew==
@@ -14513,7 +14520,7 @@ vendors@^1.0.0:
   resolved "https://registry.yarnpkg.com/vendors/-/vendors-1.0.4.tgz#e2b800a53e7a29b93506c3cf41100d16c4c4ad8e"
   integrity sha512-/juG65kTL4Cy2su4P8HjtkTxk6VmJDiOPBufWniqQ6wknac6jNiXS9vU+hO3wgusiyqWlzTbVHi0dyJqRONg3w==
 
-verto-cache-interface@^1.1.1:
+verto-cache-interface@^1.0.7, verto-cache-interface@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/verto-cache-interface/-/verto-cache-interface-1.1.1.tgz#cea2bd20e5d940091e87fa50080e5a240a7b921d"
   integrity sha512-oOu3KIwW2+mNoySUsslcCV9/j6qd4mXcddhQLe2AKz9zpmuU7dbN4y262HGnWbOWIegJRiiUFFFfNFE1ib19CQ==
