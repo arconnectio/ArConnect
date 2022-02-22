@@ -9,15 +9,18 @@ $sidePaddingTransactions: .7em
   position: relative
   text-align: center
   padding: 2.4em 0 1.84em
+  color: variables.$foreground-color
 
   .ArBalance 
     display: flex
     align-items: center
     justify-content: center
     gap: 0.4em
+    color: variables.$foreground-color
 
     .ChevronBalance
       cursor: pointer
+      color: variables.$foreground-color
       transition: all 300ms ease-in-out
 
       &:active
@@ -29,7 +32,7 @@ $sidePaddingTransactions: .7em
     justify-content: center
     font-size: .75em
     font-weight: 600
-    color: #666
+    color: variables.$light-text
     margin-bottom: 0
 
     button
@@ -45,7 +48,7 @@ $sidePaddingTransactions: .7em
       cursor: pointer
       margin: 0 .23em 0 0
       transition: all .23s ease-in-out
-      color: #666
+      color: variables.$light-text
 
       .QRIcon, svg
         font-size: 1em
@@ -57,7 +60,7 @@ $sidePaddingTransactions: .7em
 
   h1, h2
     margin: 0
-    color: #000
+    color: variables.$foreground-color
     font-weight: 600
     text-align: center
     font-family: 'Poppins', sans-serif
@@ -85,7 +88,7 @@ $sidePaddingTransactions: .7em
     margin: 2.5em 0 0 
 
     .Item
-      color: #555
+      color: variables.$light-text
       text-align: center
       cursor: pointer
       font-size: .9em
@@ -97,13 +100,7 @@ $sidePaddingTransactions: .7em
         cursor: default
 
       &:hover:not(.Unavailable)
-        color: #000
-
-      @media (prefers-color-scheme: dark)
-        color: variables.$secondary-text-dark
-
-        &:hover:not(.Unavailable)
-          color: #fff
+        opacity: .9
 
       svg
         font-size: 1.4em
