@@ -138,6 +138,12 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
         <div className={styles.Icon} onClick={() => setOpen((val) => !val)}>
           <img src={testDP} alt="profile" />
         </div>
+        {open && (
+          <div
+            className={styles.WalletMenuBackground}
+            onClick={() => setOpen(false)}
+          />
+        )}
         <AnimatePresence>
           {open && (
             <motion.div
