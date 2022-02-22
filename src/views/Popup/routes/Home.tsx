@@ -30,8 +30,8 @@ import Explore from "./Explore";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
 import copy from "copy-to-clipboard";
-import qrIcon from "../../../assets/QR.svg";
-import globe from "../../../assets/globe.svg";
+import QRIcon from "../../../assets/QR.svg";
+import GlobeIcon from "../../../assets/globe.svg";
 import AssetCard from "../../../components/AssetCard";
 import CollectibleCard from "../../../components/CollectibleCard";
 import styles from "../../../styles/views/Popup/home.module.sass";
@@ -251,7 +251,8 @@ export default function Home() {
       <div className={styles.Balance}>
         <p className={styles.Address}>
           <button onClick={() => setShowQRCode(true)}>
-            <img src={qrIcon} alt="qr icon" className={styles.QRIcon} />
+            {/*<img src={qrIcon} alt="qr icon" className={styles.QRIcon} />*/}
+            <QRIcon />
           </button>
           <button
             style={{ marginRight: ".5em", marginLeft: ".5em" }}
@@ -303,7 +304,7 @@ export default function Home() {
             onClick={() => goTo(Explore)}
             className={styles.Item + " " + styles.SwapItem}
           >
-            <img src={globe} alt="globe icon" />
+            <GlobeIcon />
             <span>Explore</span>
           </div>
           <ArchiveWrapper

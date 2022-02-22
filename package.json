@@ -78,6 +78,7 @@
     "cross-env": "^7.0.3",
     "esbuild": "^0.13.8",
     "esbuild-plugin-postcss2": "^0.1.0",
+    "esbuild-plugin-svgr": "^1.0.0",
     "jest": "^27.0.6",
     "postcss": "^8.3.6",
     "prettier": "^2.2.1",

@@ -1,11 +1,12 @@
-const esbuild = require("esbuild"),
-  autoprefixer = require("autoprefixer"),
-  postCssPlugin = require("esbuild-plugin-postcss2"),
-  {
-    NodeModulesPolyfillPlugin
-  } = require("@esbuild-plugins/node-modules-polyfill"),
-  fs = require("fs"),
-  { join } = require("path");
+const esbuild = require("esbuild");
+const autoprefixer = require("autoprefixer");
+const postCssPlugin = require("esbuild-plugin-postcss2");
+const {
+  NodeModulesPolyfillPlugin
+} = require("@esbuild-plugins/node-modules-polyfill");
+const fs = require("fs");
+const { join } = require("path");
+const svgrPlugin = require("esbuild-plugin-svgr");
 
 const outDir = "./public/build";
 if (fs.existsSync(join(__dirname, outDir)))
@@ -36,14 +37,14 @@ esbuild
       global: "window"
     },
     loader: {
-      ".png": "dataurl",
-      ".svg": "dataurl"
+      ".png": "dataurl"
     },
     plugins: [
       NodeModulesPolyfillPlugin(),
       postCssPlugin.default({
         plugins: [autoprefixer]
-      })
+      }),
+      svgrPlugin()
     ]
   })
   .catch(() => process.exit(1));

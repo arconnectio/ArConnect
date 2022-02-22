@@ -39,13 +39,13 @@ import manifest from "../../../public/manifest.json";
 import axios from "axios";
 import prettyBytes from "pretty-bytes";
 import Arweave from "arweave";
-import ardriveLogoLight from "../../assets/ardrive_light.svg";
-import ardriveLogoDark from "../../assets/ardrive_dark.svg";
-import styles from "../../styles/views/Archive/view.module.sass";
+import ArdriveLogoLight from "../../assets/ardrive_light.svg";
+import ArdriveLogoDark from "../../assets/ardrive_dark.svg";
 import {
   getArDriveTipPercentage,
   getWinstonPriceForByteCount
 } from "../../utils/pst";
+import styles from "../../styles/views/Archive/view.module.sass";
 
 export default function App() {
   const [safeMode, setSafeMode] = useState(true),
@@ -597,11 +597,9 @@ export default function App() {
   return (
     <>
       <div className={styles.Head}>
-        <img
-          src={scheme === "dark" ? ardriveLogoDark : ardriveLogoLight}
-          alt="ArDrive"
-          className={styles.ArDrive}
-        />
+        <div className={styles.ArDrive}>
+          {(scheme === "dark" && <ArdriveLogoDark />) || <ArdriveLogoLight />}
+        </div>
         <Tooltip
           text={
             <p style={{ textAlign: "center", margin: 0 }}>
