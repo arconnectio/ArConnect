@@ -8,7 +8,7 @@ $sidePaddingTransactions: .7em
 .Balance
   position: relative
   text-align: center
-  padding: 2.4em 0 1.84em
+  padding: 2.4em 0 2.45em
   color: variables.$foreground-color
 
   .ArBalance 
@@ -85,7 +85,7 @@ $sidePaddingTransactions: .7em
     display: flex
     align-items: center
     justify-content: center
-    margin: 2.5em 0 0 
+    margin: 2.5em 0 .75em
 
     .Item
       color: variables.$light-text
@@ -121,13 +121,14 @@ $sidePaddingTransactions: .7em
         font-size: .8em
 
 .Section
-  padding: 1.4em .9em
+  $sidePadding: .9em
+  padding-top: .4em
 
   .Title
     display: flex
     align-items: center
     justify-content: space-between
-    margin-bottom: 1em
+    padding: 0 $sidePadding
 
     h1
       line-height: 1em
@@ -161,7 +162,18 @@ $sidePaddingTransactions: .7em
   .Items
     display: flex
     align-items: center
-    overflow-x: visible
+    overflow-x: auto
+    overflow-x: -moz-scrollbars-none
+    -ms-overflow-style: none
+    scrollbar-width: none
+    padding:
+      top: 1em
+      bottom: 2em
+      left: $sidePadding
+      right: $sidePadding
+
+    &::-webkit-scrollbar
+      display: none
 
     .SectionItem
       margin-right: 1.5em

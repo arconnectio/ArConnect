@@ -35,8 +35,7 @@ export default function AssetCard({ ticker, display, fiat, id }: Props) {
           {getSymbol(currency)}
           {/** TODO: convert to currency */}
           {fiat.toLocaleString(undefined, {
-            maximumFractionDigits: 2,
-            minimumFractionDigits: 2
+            maximumFractionDigits: 2
           })}{" "}
           {currency}
         </h2>

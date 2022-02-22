@@ -8,11 +8,10 @@ import {
   CopyIcon,
   DownloadIcon
 } from "@primer/octicons-react";
-import { Tooltip, Spacer } from "@verto/ui";
-import { useTheme, useToasts } from "@geist-ui/react";
-import { setAssets, setBalance } from "../../../stores/actions";
+import { Tooltip, Spacer, Loading } from "@verto/ui";
+import { useToasts } from "@geist-ui/react";
+import { setBalance } from "../../../stores/actions";
 import { goTo } from "react-chrome-extension-router";
-import { Asset } from "../../../stores/reducers/assets";
 import { useColorScheme } from "use-color-scheme";
 import { arToFiat, getSymbol } from "../../../utils/currency";
 import { validateMessage } from "../../../utils/messenger";
@@ -21,6 +20,7 @@ import { getActiveTab } from "../../../utils/background";
 import { shortenURL } from "../../../utils/url";
 import { motion, AnimatePresence } from "framer-motion";
 import { cardListAnimation } from "verto-internals/utils/index";
+import { fetchBalancesForAddress, UserBalance } from "verto-cache-interface";
 import { QRCode } from "react-qr-svg";
 import mime from "mime-types";
 import axios from "axios";
@@ -28,7 +28,6 @@ import WalletManager from "../../../components/WalletManager";
 import Send from "./Send";
 import Explore from "./Explore";
 import Arweave from "arweave";
-import Verto from "@verto/lib";
 import copy from "copy-to-clipboard";
 import QRIcon from "../../../assets/QR.svg";
 import GlobeIcon from "../../../assets/globe.svg";
@@ -41,24 +40,9 @@ export default function Home() {
     storedBalances = useSelector((state: RootState) => state.balances),
     arweave = new Arweave(arweaveConfig),
     profile = useSelector((state: RootState) => state.profile),
-    psts = useSelector((state: RootState) => state.assets).find(
-      ({ address }) => address === profile
-    )?.assets,
-    [transactions, setTransactions] = useState<
-      {
-        id: string;
-        amount: number;
-        type: string;
-        status: string;
-        timestamp: number;
-      }[]
-    >([]),
-    theme = useTheme(),
     dispatch = useDispatch(),
     { scheme } = useColorScheme(),
     { currency } = useSelector((state: RootState) => state.settings),
-    [arPriceInCurrency, setArPriceInCurrency] = useState(1),
-    [loading, setLoading] = useState({ psts: true, txs: true }),
     [currentTabContentType, setCurrentTabContentType] = useState<
       "page" | "pdf" | undefined
     >("page"),
@@ -67,21 +51,9 @@ export default function Home() {
 
   useEffect(() => {
     loadBalance();
-    loadPSTs();
-    loadTransactions();
     loadContentType();
     // eslint-disable-next-line
-  }, [profile]);
-
-  useEffect(() => {
-    calculateArPriceInCurrency();
-    loadBalance();
-    // eslint-disable-next-line
   }, [currency, profile]);
-
-  async function calculateArPriceInCurrency() {
-    setArPriceInCurrency(await arToFiat(1, currency));
-  }
 
   async function loadBalance() {
     let arBalance = balance()?.arBalance ?? 0,
@@ -104,57 +76,6 @@ export default function Home() {
     } catch {}
 
     dispatch(setBalance({ address: profile, arBalance, fiatBalance }));
-  }
-
-  async function loadPSTs() {
-    setLoading((val) => ({ ...val, psts: true }));
-    try {
-      const { data }: { data: any[] } = await axios.get(
-          `https://v2.cache.verto.exchange/user/${profile}/balances`
-        ),
-        verto = new Verto(),
-        pstsLoaded: Asset[] = await Promise.all(
-          data.map(async (pst: any) => ({
-            ...pst,
-            arBalance:
-              ((await verto.latestPrice(pst.id)) ?? 0) * (pst.balance ?? 0),
-            removed: psts?.find(({ id }) => id === pst.id)?.removed ?? false,
-            type:
-              (
-                (await axios.get(
-                  `https://v2.cache.verto.exchange/site/type/${pst.id}`
-                )) as any
-              ).data.type === "community"
-                ? "community"
-                : "collectible"
-          }))
-        );
-
-      dispatch(setAssets(profile, pstsLoaded));
-    } catch {}
-    setLoading((val) => ({ ...val, psts: false }));
-  }
-
-  async function loadTransactions() {
-    const verto = new Verto();
-    setLoading((val) => ({ ...val, txs: true }));
-
-    try {
-      setTransactions(await verto.getTransactions(profile));
-    } catch {}
-    setLoading((val) => ({ ...val, txs: false }));
-  }
-
-  function formatBalance(val: number | string = 0, small = false) {
-    if (Number(val) === 0 && !small) return "0".repeat(3) + "." + "0".repeat(3);
-    val = String(val);
-    const full = val.split(".")[0];
-    if (full.length >= 10) return full;
-    if (small) {
-      if (full.length >= 5) return full;
-      else return val.slice(0, 5);
-    }
-    return val.slice(0, 8);
   }
 
   function balance() {
@@ -245,13 +166,49 @@ export default function Home() {
     }
   }
 
+  const [assets, setAssets] = useState<(UserBalance & { arPrice: number })[]>();
+
+  // load asset balances (first from cache) for the active address
+  useEffect(() => {
+    const CACHE_NAME = "assets_cache";
+    const val = localStorage.getItem(CACHE_NAME);
+
+    if (val) setAssets(JSON.parse(val));
+
+    (async () => {
+      // TODO: asset total balance in current currency
+      const res = (await fetchBalancesForAddress(profile, "community")).map(
+        (val) => ({ ...val, arPrice: 1000 })
+      );
+
+      setAssets(res);
+      localStorage.setItem(CACHE_NAME, JSON.stringify(res));
+    })();
+  }, [profile]);
+
+  const [collectibles, setCollectibles] = useState<UserBalance[]>();
+
+  // load collectibles (first from cache) for the active address
+  useEffect(() => {
+    const CACHE_NAME = "collectibles_cache";
+    const val = localStorage.getItem(CACHE_NAME);
+
+    if (val) setCollectibles(JSON.parse(val));
+
+    (async () => {
+      const res = await fetchBalancesForAddress(profile, "art");
+
+      setCollectibles(res);
+      localStorage.setItem(CACHE_NAME, JSON.stringify(res));
+    })();
+  }, [profile]);
+
   return (
     <div className={styles.Home}>
       <WalletManager />
       <div className={styles.Balance}>
         <p className={styles.Address}>
           <button onClick={() => setShowQRCode(true)}>
-            {/*<img src={qrIcon} alt="qr icon" className={styles.QRIcon} />*/}
             <QRIcon />
           </button>
           <button
@@ -269,7 +226,12 @@ export default function Home() {
           {shortenURL(profile)}
         </p>
         <div className={styles.ArBalance}>
-          <h1>{formatBalance(balance()?.arBalance)} AR </h1>
+          <h1>
+            {balance()?.arBalance?.toLocaleString(undefined, {
+              maximumFractionDigits: 5
+            })}{" "}
+            AR{" "}
+          </h1>
           <span onClick={() => goTo(Explore)}>
             <ChevronRightIcon size={20} className={styles.ChevronBalance} />
           </span>
@@ -338,36 +300,32 @@ export default function Home() {
             }
           >
             View all
-            <span>
-              {psts?.filter(({ type }) => type === "community")?.length || "0"}
-            </span>
+            <span>{assets?.length || "0"}</span>
           </h1>
         </div>
         <div className={styles.Items}>
           <AnimatePresence>
-            {(psts &&
-              psts.filter(
-                ({ balance, type }) => balance > 0 && type === "community"
-              ).length > 0 &&
-              psts
-                .filter(({ type }) => type === "community")
-                .sort((a, b) => b.balance - a.balance)
-                .slice(0, 6)
-                .map((pst, i) => (
-                  <motion.div
-                    className={styles.SectionItem}
-                    {...cardListAnimation(i)}
-                    key={i}
-                  >
-                    <AssetCard
-                      id={pst.id}
-                      ticker={pst.ticker}
-                      display={pst.balance}
-                      fiat={pst.arBalance * arPriceInCurrency}
-                    />
-                  </motion.div>
-                ))) ||
-              "No assets yet"}
+            {(assets &&
+              ((assets.length &&
+                assets
+                  .sort((a, b) => b.balance - a.balance)
+                  .map((asset, i) => (
+                    <motion.div
+                      className={styles.SectionItem}
+                      {...cardListAnimation(i)}
+                      key={i}
+                    >
+                      <AssetCard
+                        id={asset.contractId}
+                        ticker={asset.ticker || ""}
+                        display={asset.balance}
+                        fiat={asset.arPrice}
+                      />
+                    </motion.div>
+                  ))) ||
+                "No assets so far")) || (
+              <Loading.Spinner style={{ margin: "0 auto" }} />
+            )}
           </AnimatePresence>
         </div>
       </div>
@@ -386,39 +344,33 @@ export default function Home() {
             }
           >
             View all
-            <span>
-              {psts?.filter(({ type }) => type === "collectible")?.length ||
-                "0"}
-            </span>
+            <span>{collectibles?.length || "0"}</span>
           </h1>
         </div>
         <div className={styles.Items}>
           <AnimatePresence>
-            {(psts &&
-              psts.filter(
-                ({ balance, type }) => balance > 0 && type === "collectible"
-              ).length > 0 &&
-              psts
-                .filter(({ type }) => type === "collectible")
-                .sort((a, b) => b.balance - a.balance)
-                .slice(0, 6)
-                .map((collectible, i) => (
-                  <motion.div
-                    className={styles.SectionItem}
-                    {...cardListAnimation(i)}
-                    key={i}
-                  >
-                    {/** TODO: use current gateway to fetch this and the community logo */}
-                    <CollectibleCard
-                      id={collectible.id}
-                      image={`https://arweave.net/${collectible.id}`}
-                      name={collectible.name}
-                      ticker={collectible.ticker}
-                      balance={collectible.balance}
-                    />
-                  </motion.div>
-                ))) ||
-              "No collectibles yet"}
+            {(collectibles &&
+              ((collectibles.length &&
+                collectibles
+                  .sort((a, b) => b.balance - a.balance)
+                  .map((collectible, i) => (
+                    <motion.div
+                      className={styles.SectionItem}
+                      {...cardListAnimation(i)}
+                      key={i}
+                    >
+                      <CollectibleCard
+                        id={collectible.contractId}
+                        image={`https://arweave.net/${collectible.contractId}`}
+                        name={collectible.name || ""}
+                        ticker={collectible.ticker || ""}
+                        balance={collectible.balance}
+                      />
+                    </motion.div>
+                  ))) ||
+                "No collectibles so far")) || (
+              <Loading.Spinner style={{ margin: "0 auto" }} />
+            )}
           </AnimatePresence>
         </div>
       </div>
