@@ -7,8 +7,7 @@ import {
   signOut,
   switchProfile
 } from "../stores/actions";
-import { Modal, useModal } from "@geist-ui/react";
-import { Tooltip, Spacer } from "@verto/ui";
+import { Tooltip, Spacer, Modal, Button, useModal } from "@verto/ui";
 import {
   GearIcon,
   PlusIcon,
@@ -272,7 +271,7 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
                   <Tooltip text="Log out">
                     <div
                       className={styles.Action}
-                      onClick={() => logoutModal.setVisible(true)}
+                      onClick={() => logoutModal.setState(true)}
                     >
                       <SignOutIcon />
                     </div>
@@ -281,26 +280,6 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
               )}
             </motion.div>
           )}
-          <Modal {...logoutModal.bindings}>
-            <Modal.Title>Sign Out</Modal.Title>
-            <Modal.Content>
-              Do you really want to sign out from all wallets? <br />
-              Make sure you have your keyfiles / seedphrases locally or export
-              your config in the settings!
-            </Modal.Content>
-            <Modal.Action passive onClick={() => logoutModal.setVisible(false)}>
-              Cancel
-            </Modal.Action>
-            <Modal.Action
-              onClick={() => {
-                dispatch(signOut());
-                logOut();
-                logoutModal.setVisible(false);
-              }}
-            >
-              Ok
-            </Modal.Action>
-          </Modal>
         </AnimatePresence>
       </div>
       <AnimatePresence>
@@ -337,6 +316,28 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
           </motion.div>
         )}
       </AnimatePresence>
+      <Modal {...logoutModal.bindings} className={styles.LogOutModal}>
+        <Modal.Title>Sign Out</Modal.Title>
+        <Modal.Content>
+          <p>
+            Do you really want to sign out from all wallets? <br />
+            Make sure you have your keyfiles / seedphrases locally or export
+            your config in the settings!
+          </p>
+          <Spacer y={2.5} />
+          <Button
+            small
+            className={styles.Btn}
+            onClick={() => {
+              dispatch(signOut());
+              logOut();
+              logoutModal.setState(false);
+            }}
+          >
+            Okay
+          </Button>
+        </Modal.Content>
+      </Modal>
       {wallets.map(({ name, address }, i) => (
         <span
           className={styles.ImitateWalletName}
