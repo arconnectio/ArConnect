@@ -29,9 +29,6 @@ import Send from "./Send";
 import Explore from "./Explore";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
-import arweaveLogo from "../../../assets/arweave.png";
-import verto_light_logo from "../../../assets/verto_light.png";
-import verto_dark_logo from "../../../assets/verto_dark.png";
 import copy from "copy-to-clipboard";
 import qrIcon from "../../../assets/QR.svg";
 import globe from "../../../assets/globe.svg";
@@ -158,16 +155,6 @@ export default function Home() {
       else return val.slice(0, 5);
     }
     return val.slice(0, 8);
-  }
-
-  function logo(id: string) {
-    if (!psts) return arweaveLogo;
-    const pst = psts.find((pst) => pst.id === id);
-    if (!pst || !pst.logo) return arweaveLogo;
-    else if (pst.ticker === "VRT") {
-      if (scheme === "dark") return verto_dark_logo;
-      else return verto_light_logo;
-    } else return `https://arweave.net/${pst.logo}`;
   }
 
   function balance() {
@@ -374,7 +361,6 @@ export default function Home() {
                     <AssetCard
                       id={pst.id}
                       ticker={pst.ticker}
-                      logo={logo(pst.id)}
                       display={pst.balance}
                       fiat={pst.arBalance * arPriceInCurrency}
                     />

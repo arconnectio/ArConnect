@@ -124,7 +124,6 @@ const Explore = () => {
                   <AssetCard
                     id={community.id}
                     ticker={community.ticker}
-                    logo={`https://arweave.net/${community.logo}`}
                     display={community.name}
                     fiat={35.435}
                   />
