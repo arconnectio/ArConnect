@@ -166,6 +166,10 @@ export default function Home() {
     }
   }
 
+  /**
+   * TODO: only load 5-6 of the assets and the collectibles in detail (price & additional loadings),
+   * but display the total amount of these that the user owns
+   */
   const [assets, setAssets] = useState<(UserBalance & { arPrice: number })[]>();
 
   // load asset balances (first from cache) for the active address
