@@ -3,10 +3,12 @@ import {
   fetchRandomCommunitiesWithMetadata,
   RandomCommunities
 } from "verto-cache-interface";
+import { useTheme } from "@verto/ui";
 import { Loading } from "@verto/ui";
 import { AnimatePresence, motion } from "framer-motion";
 import { cardListAnimation } from "verto-internals/utils";
-import { useRouter } from "next/router";
+import { Line } from "react-chartjs-2";
+import { GraphOptions } from "../../../utils/graph";
 import vertoLogo from "../../../assets/verto_dark.png";
 import arweaveNewsLogo from "../../../assets/arweave_news.png";
 import WalletManager from "../../../components/WalletManager";
@@ -14,10 +16,9 @@ import AssetCard from "../../../components/AssetCard";
 import styles from "../../../styles/views/Popup/explore.module.sass";
 
 const Explore = () => {
-  const [communities, setCommunities] = useState<RandomCommunities[]>(),
-    [currentPage, setCurrentPage] = useState<1 | 2 | 3>(1),
-    // [currentTokenData, setCurrentTokenData] = useState(featured[0]),
-    router = useRouter();
+  const theme = useTheme(),
+    [communities, setCommunities] = useState<RandomCommunities[]>(),
+    [currentPage, setCurrentPage] = useState<1 | 2 | 3>(1);
 
   useEffect(() => {
     try {
@@ -36,9 +37,49 @@ const Explore = () => {
     <>
       <WalletManager pageTitle="Explore" />
       <div className={styles.Explore}>
-        {/**
-         * GRAPH
-         */}
+        <div className={styles.TokenPrice}>
+          <div className={styles.TokenInfo}>
+            <h3>Arweave</h3>
+            <h2>$78.34</h2>
+          </div>
+          <div className={styles.Graph}>
+            <Line
+              data={{
+                labels: [
+                  "this",
+                  "is",
+                  "just",
+                  "a",
+                  "test",
+                  "to",
+                  "see",
+                  "if",
+                  "blah",
+                  "blah",
+                  "blah"
+                ], // TODO: replace with dates / prices in implementation
+                datasets: [
+                  {
+                    label: "My First Dataset",
+                    data: [65, 9, 80, 89, 99, 32, 120, 90, 79, 18, 79, 60], // TODO: replace with real data in implementation
+                    fill: false,
+                    borderColor: "#000",
+                    tension: 0.1
+                  }
+                ]
+              }}
+              options={GraphOptions({
+                theme,
+                tooltipText: ({ value }) =>
+                  `${Number(value).toLocaleString(undefined, {
+                    maximumFractionDigits: 2,
+                    minimumFractionDigits: 2
+                  })} AR`
+              })}
+            />
+          </div>
+        </div>
+
         <p className={styles.SectionHeader}>news & updates</p>
         <div>
           <div className={styles.FeaturedWrapper}>
