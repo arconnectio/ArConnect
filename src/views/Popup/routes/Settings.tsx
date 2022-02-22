@@ -12,11 +12,11 @@ import {
   Modal,
   Radio,
   Spacer,
-  Toggle,
   useInput,
   useModal,
   useToasts
 } from "@geist-ui/react";
+import { Checkbox, Select } from "@verto/ui";
 import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
@@ -32,7 +32,8 @@ import {
   updateArweaveConfig,
   updateSettings,
   removeAllowance,
-  resetArweaveConfig
+  resetArweaveConfig,
+  updateTheme
 } from "../../../stores/actions";
 import CryptoES from "crypto-es";
 import dayjs from "dayjs";
@@ -266,29 +267,25 @@ export default function Settings() {
     header,
     headerText,
     currSetting,
-    confettiEffect
+    children
   }: SettingsItemProps) => (
-    <div className={styles.Setting} onClick={() => setCurrSetting(currSetting)}>
+    <div
+      className={styles.Setting}
+      onClick={() => {
+        if (!children && currSetting) setCurrSetting(currSetting);
+      }}
+    >
       <div>
         <h1>{header}</h1>
         <p>{headerText}</p>
       </div>
       <div className={styles.Arrow}>
-        {confettiEffect ? (
-          <Toggle
-            checked={otherSettings.arConfetti}
-            onChange={() =>
-              dispatch(
-                updateSettings({ arConfetti: !otherSettings.arConfetti })
-              )
-            }
-          />
-        ) : (
-          <ChevronRightIcon size={18} />
-        )}
+        {children || <ChevronRightIcon size={18} />}
       </div>
     </div>
   );
+
+  const theme = useSelector((state: RootState) => state.theme);
 
   return (
     <>
@@ -325,6 +322,21 @@ export default function Settings() {
               headerText="View settings for connected dApps"
             />
 
+            <SettingsItem header="Theme" headerText="Set display theme">
+              <Select
+                small
+                //@ts-ignore
+                onChange={(ev) => dispatch(updateTheme(ev.target.value))}
+                // @ts-ignore
+                value={theme}
+                className={styles.NoramlizeVertoComponent}
+              >
+                <option value="Auto">Auto</option>
+                <option value="Dark">Dark</option>
+                <option value="Light">Light</option>
+              </Select>
+            </SettingsItem>
+
             <SettingsItem
               header="Password"
               currSetting="password"
@@ -357,10 +369,15 @@ export default function Settings() {
 
             <SettingsItem
               header="Confetti effect"
-              currSetting="arweave"
               headerText="Show confetti animation on transaction signing"
-              confettiEffect
-            />
+            >
+              <Checkbox
+                checked={otherSettings.arConfetti}
+                onChange={(e) =>
+                  dispatch(updateSettings({ arConfetti: e.target.checked }))
+                }
+              />
+            </SettingsItem>
 
             <SettingsItem
               header="Download config"
@@ -739,8 +756,7 @@ export default function Settings() {
 interface SettingsItemProps {
   header: string;
   headerText: string;
-  confettiEffect?: boolean;
-  currSetting: React.SetStateAction<
+  currSetting?: React.SetStateAction<
     | "events" // change to apps
     | "permissions"
     | "currency"
@@ -751,6 +767,7 @@ interface SettingsItemProps {
     | "fee"
     | undefined
   >;
+  children?: React.ReactNode;
 }
 export interface ArConnectEvent {
   event: MessageType;

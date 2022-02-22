@@ -3,15 +3,15 @@
 .Settings
   margin: 1em
   position: relative
-  background-color: variables.$background-color
   text-align: center
   border-radius: 14px
-  background-color: #fff
-  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1)
+  box-shadow: variables.$standard-shadow
+  overflow: hidden
 
 .Setting
   position: relative
-  border-bottom: 1px solid variables.$border-light
+  border-bottom: 1px solid variables.$skeleton
+  background-color: variables.$background-color
   padding: .9em .7em .7em
   cursor: pointer
   padding: 1.3em
@@ -23,16 +23,6 @@
     align-items: center
     justify-content: space-between
 
-  @media (prefers-color-scheme: dark)
-    border-bottom-color: variables.$border-dark
-    color: variables.$secondary-text-dark
-
-  &:hover
-    background-color: #f5f5f5
-
-    @media (prefers-color-scheme: dark)
-      background-color: #000
-
   &:last-child
     border-bottom: none
 
@@ -43,10 +33,7 @@
       bottom: .2em
     text-align: left
     font-weight: 500
-    color: #000
-
-    @media (prefers-color-scheme: dark)
-      color: #fff
+    color: variables.$foreground-color
 
   p
     font-size: 0.95em
@@ -244,3 +231,6 @@
 
       span
         color: #fff
+
+.NoramlizeVertoComponent
+  font-size: 1rem
