@@ -25,10 +25,6 @@ import CryptoES from "crypto-es";
 import Arweave from "arweave";
 import logo from "../../assets/logo.png";
 import styles from "../../styles/views/Welcome/view.module.sass";
-interface SetupConfigProps {
-  welcome: boolean;
-  password: boolean;
-}
 
 export default function App() {
   const theme = useTheme(),
@@ -617,3 +613,8 @@ export default function App() {
 }
 
 // TODO -> Fix Inputs - Add Status
+
+interface SetupConfigProps {
+  welcome: boolean;
+  password: boolean;
+}
