@@ -178,9 +178,9 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
           {open && (
             <motion.div
               className={styles.Wallets}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
             >
               <p className={styles.ChooseWallet}>choose a wallet</p>
               {wallets.map((wallet, i) => (
