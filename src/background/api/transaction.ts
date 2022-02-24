@@ -256,7 +256,7 @@ export async function dispatch(tx: object): Promise<{
     name: tag.get("name", { decode: true, string: true }),
     value: tag.get("value", { decode: true, string: true })
   }));
-
+  console.log(generateBundlrAnchor());
   try {
     // create bundlr tx as a data entry
     const dataSigner = new ArweaveSigner(userData.keyfile);
@@ -267,9 +267,12 @@ export async function dispatch(tx: object): Promise<{
       tags
     });
 
+    console.log("data entry", dataEntry);
+
     // sign and upload bundler tx
     await dataEntry.sign(dataSigner);
-    await uploadDataToBundlr(dataEntry);
+    console.log("signed", dataEntry);
+    console.log("res", await uploadDataToBundlr(dataEntry));
 
     return {
       res: true,

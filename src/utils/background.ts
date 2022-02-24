@@ -348,7 +348,7 @@ export function generateBundlrAnchor() {
   // we can do this, because we know that the randomBytes buffer
   // will be 32 bytes of length
   // for larger buffers, String.fromCharCode should not be used
-  const base64str = btoa(String.fromCharCode(...randomBytes));
+  const base64str = btoa(String.fromCharCode(...randomBytes)).slice(0, 32);
 
   return base64str;
 }
