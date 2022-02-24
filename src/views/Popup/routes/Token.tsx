@@ -45,7 +45,7 @@ import axios from "axios";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/token.module.sass";
 
-export default function Token({ id, name, balance, ticker }: Asset) {
+export default function Token({ id }: { id: string }) {
   const [price, setPrices] = useState<{ prices: number[]; dates: string[] }>(),
     { scheme } = useColorScheme(),
     tabs = useTabs("1"),
