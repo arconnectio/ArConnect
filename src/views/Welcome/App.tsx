@@ -365,10 +365,14 @@ export default function App() {
               <Input
                 {...passwordInput.bindings}
                 onKeyPressHandler={(e) => {
-                  // TODO -> Move cursor to next input if field is populated
-                  // TODO -> Display Toast if user presses Enter but input field is empty
-                  // TODO -> Update input status
-                  if (e.key === "Enter") createPassword();
+                  if (e.key === "Enter" && walletsStore.length > 0) {
+                    checkPassword();
+                  } else if (e.key === "Enter" && walletsStore.length === 0) {
+                    setToast({
+                      text: "Please fill both password fields",
+                      type: "error"
+                    });
+                  }
                 }}
                 type="password"
                 placeholder="*********"
@@ -383,8 +387,9 @@ export default function App() {
                   <Input
                     {...passwordInputAgain.bindings}
                     onKeyPressHandler={(e) => {
-                      if (e.key === "Enter" && walletsStore.length >= 0)
-                        checkPassword();
+                      if (e.key === "Enter") {
+                        createPassword();
+                      }
                     }}
                     type="password"
                     placeholder="*********"
@@ -611,9 +616,6 @@ export default function App() {
     </>
   );
 }
-
-// TODO -> Fix Inputs - Add Status
-
 interface SetupConfigProps {
   welcome: boolean;
   password: boolean;

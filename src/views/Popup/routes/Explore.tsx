@@ -140,6 +140,7 @@ const Explore = () => {
 
         <p className={styles.SectionHeader}>art & collectibles</p>
         <div>
+          {/* TODO: Implement with styled-components */}
           <div>
             <p>Bark Blocks #18</p>
           </div>
