@@ -5,9 +5,7 @@ import {
   Modal,
   Textarea,
   useToasts,
-  // Tooltip,
   useInput,
-  Spacer,
   Code
 } from "@geist-ui/react";
 import { FileIcon } from "@primer/octicons-react";
@@ -19,7 +17,7 @@ import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
 import { checkPassword as checkPw, setPassword } from "../../utils/auth";
 import { browser } from "webextension-polyfill-ts";
-import { Button, Input, useTheme, Tooltip } from "@verto/ui";
+import { Button, Input, useTheme, Tooltip, Spacer } from "@verto/ui";
 import bip39 from "bip39-web-crypto";
 import CryptoES from "crypto-es";
 import Arweave from "arweave";
@@ -574,12 +572,12 @@ export default function App() {
           Import your settings and wallets from a generated config
         </Modal.Subtitle>
         <Modal.Content>
-          <Spacer h={0.5} />
+          <Spacer y={0.5} />
           <p style={{ fontWeight: 500, textAlign: "center" }}>
             Important: this is for ArConnect config files,{" "}
             <b>NOT ARWEAVE KEYFILES</b>
           </p>
-          <Spacer h={0.5} />
+          <Spacer y={0.5} />
           <Card
             className={styles.FileContent}
             onClick={() => configFileInput.current?.click()}
