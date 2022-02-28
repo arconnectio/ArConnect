@@ -5,7 +5,7 @@ import {
   Modal,
   Textarea,
   useToasts,
-  Tooltip,
+  // Tooltip,
   useInput,
   Spacer,
   Code
@@ -19,7 +19,7 @@ import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
 import { checkPassword as checkPw, setPassword } from "../../utils/auth";
 import { browser } from "webextension-polyfill-ts";
-import { Button, Input, useTheme } from "@verto/ui";
+import { Button, Input, useTheme, Tooltip } from "@verto/ui";
 import bip39 from "bip39-web-crypto";
 import CryptoES from "crypto-es";
 import Arweave from "arweave";
@@ -465,7 +465,7 @@ export default function App() {
               file.filename && (
                 <Tooltip
                   text="Click to remove."
-                  placement="right"
+                  position="right"
                   key={i}
                   style={{ width: "100%" }}
                 >
