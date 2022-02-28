@@ -338,8 +338,7 @@ export async function getActiveKeyfile() {
 }
 
 export interface DispatchResult {
-  status: "OK" | "INSUFFICIENT_FUNDS" | "ERROR";
-  message?: string; // id for now
+  id: string;
   type?: "BASE" | "BUNDLED";
 }
 
@@ -365,7 +364,6 @@ export async function uploadDataToBundlr(dataItem: DataItem) {
     dataItem.getRaw(),
     {
       headers: { "Content-Type": "application/octet-stream" },
-      timeout: 20000,
       maxBodyLength: Infinity
     }
   );
