@@ -1,5 +1,4 @@
-import { createData } from "arbundles";
-import { ArweaveSigner } from "arbundles/src/signing";
+import { createData, signers } from "../../../bin/arbundles/bundle";
 import { JWKInterface } from "arweave/web/lib/wallet";
 import { Allowance } from "../../stores/reducers/allowances";
 import {
@@ -254,7 +253,7 @@ export async function dispatch(tx: object): Promise<{
 
   try {
     // create bundlr tx as a data entry
-    const dataSigner = new ArweaveSigner(userData.keyfile);
+    const dataSigner = new signers.ArweaveSigner(userData.keyfile);
     const dataEntry = createData(data, dataSigner, {
       // TODO: ? not sure if target works ?
       // target:

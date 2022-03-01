@@ -35,7 +35,7 @@ window.addEventListener("message", async (e) => {
   if (!validateMessage(e.data, {}) || !e.data.type) return;
 
   const listener = async (res: any) => {
-    // only resolve when the result matching our message.id is deleivered
+    // only resolve when the result matching our message.id is delivered
     if (res.id != e.data.id) return;
 
     if (

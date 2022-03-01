@@ -555,6 +555,7 @@ const handleApiCalls = async (
           type: "dispatch_result",
           ext: "arconnect",
           sender: "background",
+          id: message.id,
           ...(await dispatch(message.transaction))
         };
 

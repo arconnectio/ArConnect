@@ -6,7 +6,7 @@ import { PermissionType } from "./permissions";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { getRealURL } from "./url";
 import { browser } from "webextension-polyfill-ts";
-import { DataItem } from "arbundles";
+import type { DataItem } from "arbundles";
 import { run } from "ar-gql";
 import axios from "axios";
 import limestone from "@limestonefi/api";
