@@ -257,7 +257,7 @@ export async function dispatch(tx: object): Promise<{
     const dataEntry = createData(data, dataSigner, {
       // TODO: ? not sure if target works ?
       // target:
-      anchor: generateBundlrAnchor(),
+      // anchor: generateBundlrAnchor(),
       tags
     });
 

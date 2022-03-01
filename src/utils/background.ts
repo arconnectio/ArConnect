@@ -360,10 +360,13 @@ export function generateBundlrAnchor() {
  */
 export async function uploadDataToBundlr(dataItem: DataItem) {
   const res = await axios.post(
-    "https://node2.bundlr.network/tx/arweave",
+    "https://node2.bundlr.network/tx",
     dataItem.getRaw(),
     {
-      headers: { "Content-Type": "application/octet-stream" },
+      headers: {
+        "Content-Type": "application/octet-stream",
+        "Transfer-Encoding": "chunked"
+      },
       maxBodyLength: Infinity
     }
   );
