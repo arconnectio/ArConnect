@@ -116,6 +116,16 @@ Sign a transaction. Raw version of what is used in the `arweave-js` [API](#api).
 
 Requires the `SIGN_TRANSACTION` [permission](#permissions).
 
+### `dispatch(transaction): Promise<DispatchResult>`
+
+Dispatches (signs and sends) a transaction to the network, preferably by bundling it. Best for smaller interactions (< 120 Kbs).
+
+- `transaction`: A valid Arweave transaction without a wallet keyfile added to it
+  <br />
+- `returns`: Dispatch result (id and submit type)
+
+Requires the `DISPATCH` [permission](#permissions).
+
 ### `encrypt(data, options): Promise<Uint8Array>`
 
 Encrypt a string with the user's wallet.
@@ -196,6 +206,9 @@ The permissions:
 
 - `SIGN_TRANSACTION`:
   Sign a transaction
+
+- `DISPATCH`:
+  Dispatch (sign and send) a transaction
 
 - `ENCRYPT`:
   Encrypt data with the user's keyfile

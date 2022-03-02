@@ -542,6 +542,17 @@ const handleApiCalls = async (
         };
 
       case "dispatch":
+        if (!(await checkPermissions(["DISPATCH"], tabURL)))
+          return {
+            type: "dispatch_result",
+            ext: "arconnect",
+            res: false,
+            id: message.id,
+            message:
+              "The site does not have the required permissions for this action",
+            sender: "background"
+          };
+
         if (!message.transaction)
           return {
             type: "dispatch_result",
@@ -555,6 +566,7 @@ const handleApiCalls = async (
           type: "dispatch_result",
           ext: "arconnect",
           sender: "background",
+          id: message.id,
           ...(await dispatch(message.transaction))
         };
 

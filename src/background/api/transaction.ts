@@ -1,5 +1,4 @@
-import { createData } from "arbundles";
-import { ArweaveSigner } from "arbundles/src/signing";
+import { createData, signers } from "../../../bin/arbundles/bundle";
 import { JWKInterface } from "arweave/web/lib/wallet";
 import { Allowance } from "../../stores/reducers/allowances";
 import {
@@ -227,7 +226,8 @@ export const signTransaction = (
  */
 export async function dispatch(tx: object): Promise<{
   res: boolean;
-  data: DispatchResult;
+  data?: DispatchResult;
+  message?: string;
 }> {
   const arweave = new Arweave(await getArweaveConfig());
   const transaction = arweave.transactions.fromRaw(tx);
@@ -239,14 +239,8 @@ export async function dispatch(tx: object): Promise<{
   } catch {
     // user doesn't have a wallet
     return {
-      // we return res: true for everything, because we want to return an object
-      // in the injected script, even if the process failed
-      res: true,
-      data: {
-        status: "ERROR",
-        message: "No wallets added to ArConnect",
-        type: "BUNDLED"
-      }
+      res: false,
+      message: "Failed to get user's keyfile"
     };
   }
 
@@ -259,11 +253,11 @@ export async function dispatch(tx: object): Promise<{
 
   try {
     // create bundlr tx as a data entry
-    const dataSigner = new ArweaveSigner(userData.keyfile);
+    const dataSigner = new signers.ArweaveSigner(userData.keyfile);
     const dataEntry = createData(data, dataSigner, {
       // TODO: ? not sure if target works ?
       // target:
-      anchor: generateBundlrAnchor(),
+      // anchor: generateBundlrAnchor(),
       tags
     });
 
@@ -274,8 +268,7 @@ export async function dispatch(tx: object): Promise<{
     return {
       res: true,
       data: {
-        status: "OK",
-        message: dataEntry.id,
+        id: dataEntry.id,
         type: "BUNDLED"
       }
     };
@@ -294,12 +287,8 @@ export async function dispatch(tx: object): Promise<{
 
       if (balance < cost) {
         return {
-          res: true,
-          data: {
-            status: "INSUFFICIENT_FUNDS",
-            message: `Wallet doesn't have enough AR. Required: ${cost}. Has: ${balance}`,
-            type: "BASE"
-          }
+          res: false,
+          message: `Insufficient funds in wallet ${userData.address}`
         };
       }
 
@@ -313,19 +302,14 @@ export async function dispatch(tx: object): Promise<{
       return {
         res: true,
         data: {
-          status: "OK",
-          message: transaction.id,
+          id: transaction.id,
           type: "BASE"
         }
       };
     } catch (e) {
       return {
-        res: true,
-        data: {
-          status: "ERROR",
-          message: e as string,
-          type: "BASE"
-        }
+        res: false,
+        message: e as string
       };
     }
   }

@@ -134,6 +134,14 @@ declare global {
        * @param id Token contract ID
        */
       addToken(id: string): Promise<void>;
+
+      /**
+       * Dispatch an Arweave transaction (preferably bundled)
+       *
+       * @param transaction Transaction to dispatch
+       * @returns Dispatched transaction ID and type
+       */
+      dispatch(transaction: Transaction): Promise<DispatchResult>;
     };
   }
   interface WindowEventMap {
@@ -153,7 +161,13 @@ export type PermissionType =
   | "ENCRYPT"
   | "DECRYPT"
   | "SIGNATURE"
-  | "ACCESS_ARWEAVE_CONFIG";
+  | "ACCESS_ARWEAVE_CONFIG"
+  | "DISPATCH";
+
+export interface DispatchResult {
+  id: string;
+  type?: "BASE" | "BUNDLED";
+}
 
 export interface AppInfo {
   name?: string;
