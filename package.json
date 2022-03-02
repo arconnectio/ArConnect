@@ -19,7 +19,7 @@
     "@primer/octicons-react": "^16.0.0",
     "@verto/js": "^1.0.0-beta-1",
     "@verto/lib": "^0.10.4",
-    "@verto/ui": "^3.0.3-alpha",
+    "@verto/ui": "^3.5.1-beta",
     "ar-gql": "^0.0.6",
     "arverify": "^0.0.11",
     "arweave": "^1.10.18",

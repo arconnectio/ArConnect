@@ -11,11 +11,11 @@
 .Setting
   position: relative
   border-bottom: 1px solid variables.$skeleton
-  background-color: variables.$background-color
+  background-color: variables.$component-background
   padding: .9em .7em .7em
   cursor: pointer
   padding: 1.3em
-  color: variables.$secondary-text-light
+  color: variables.$light-text
   transition: all .23s ease-in-out
 
   &:not(.NoFlex)
@@ -92,11 +92,8 @@
 
     .RemoveOption
       font-size: .8em
-      color: variables.$secondary-text-light
+      color: variables.$light-text
       cursor: pointer
-      
-      @media (prefers-color-scheme: dark)
-        color: variables.$secondary-text-dark
 
   div[class~=with-label]
     width: 100%
@@ -113,10 +110,7 @@
     display: block
     font-size: .55em
     font-weight: 500
-    color: variables.$secondary-text-light
-
-    @media (prefers-color-scheme: dark)
-      color: variables.$secondary-text-dark
+    color: variables.$light-text
 
 .Radio
   span
@@ -156,10 +150,7 @@
     sup
       font-size: .65em
       margin-left: .22em
-      color: variables.$secondary-text-light
-
-      @media (prefers-color-scheme: dark)
-        color: variables.$secondary-text-dark
+      color: variables.$light-text
 
   p
     margin: 0
@@ -207,7 +198,7 @@
     justify-content: space-between
     align-items: center
     font-size: 1em
-    color: variables.$secondary-text-light
+    color: variables.$light-text
     margin-bottom: .25em
 
     &:last-child
@@ -225,9 +216,6 @@
 
       &:hover
         opacity: .8
-
-    @media (prefers-color-scheme: dark)
-      color: variables.$secondary-text-dark
 
       span
         color: #fff

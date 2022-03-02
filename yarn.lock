@@ -3124,6 +3124,20 @@
     react-media-hook "^0.4.9"
     styled-components "^5.2.1"
 
+"@verto/ui@^3.5.1-beta":
+  version "3.5.1-beta"
+  resolved "https://registry.yarnpkg.com/@verto/ui/-/ui-3.5.1-beta.tgz#44688546fed0b6c49e4de5568d2c1d009ec69339"
+  integrity sha512-RLtniAkHpMG7xtqJ0Z8iWq32V5D3+gDKCKtXyyEstDbrCBbXk2F5Yyf2MbM9XScBeWRqt+4g47JnZbcQcKoREA==
+  dependencies:
+    "@iconicicons/react" "^1.1.1"
+    "@primer/octicons-react" "^16.3.0"
+    "@verto/ui" "^3.0.3-alpha"
+    color-hash "^2.0.1"
+    framer-motion "^3.1.1"
+    nanoid "^3.1.22"
+    react-media-hook "^0.4.9"
+    styled-components "^5.2.1"
+
 "@weavery/clarity@^0.1.5":
   version "0.1.5"
   resolved "https://registry.yarnpkg.com/@weavery/clarity/-/clarity-0.1.5.tgz#f06bbb0dac7c63c6e2ccd76cda3e8b32b57f82c2"

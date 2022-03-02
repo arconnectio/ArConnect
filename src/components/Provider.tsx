@@ -67,6 +67,14 @@ function Provider({ children }: Props) {
     fixupPasswords();
   }, []);
 
+  useEffect(() => {
+    const html = document.querySelector("html");
+
+    if (!html) return;
+    if (displayTheme === "Dark") html.style.backgroundColor = "#000";
+    else html.style.backgroundColor = "#fff";
+  }, [displayTheme]);
+
   return (
     <VertoProvider theme={displayTheme}>
       <GeistProvider
