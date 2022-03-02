@@ -116,6 +116,8 @@ Sign a transaction. Raw version of what is used in the `arweave-js` [API](#api).
 
 Requires the `SIGN_TRANSACTION` [permission](#permissions).
 
+> Note: if you are trying to sign a larger chunk of data (5 MB <), make sure to notify the user to not switch / close browser tabs. Signing large datas takes longer and the browser won't send the chunks to the signer in the background.
+
 ### `dispatch(transaction): Promise<DispatchResult>`
 
 Dispatches (signs and sends) a transaction to the network, preferably by bundling it. Best for smaller interactions (< 120 Kbs).
