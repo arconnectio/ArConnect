@@ -16,6 +16,7 @@ import Arweave from "arweave";
 const ACCEPTED_DISPATCH_SIZE = 120 * Math.pow(10, 3);
 
 const WalletAPI = {
+  walletName: "ArConnect",
   async connect(
     permissions: PermissionType[],
     appInfo: { name?: string; logo?: string } = {}
