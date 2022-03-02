@@ -364,8 +364,7 @@ export async function uploadDataToBundlr(dataItem: DataItem) {
     dataItem.getRaw(),
     {
       headers: {
-        "Content-Type": "application/octet-stream",
-        "Transfer-Encoding": "chunked"
+        "Content-Type": "application/octet-stream"
       },
       maxBodyLength: Infinity
     }
