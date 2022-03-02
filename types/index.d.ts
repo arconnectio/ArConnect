@@ -8,6 +8,11 @@ declare global {
   interface Window {
     arweaveWallet: {
       /**
+       * Name of the wallet the API was provided by.
+       */
+      walletName: string;
+
+      /**
        * Connect to ArConnect and request permissions. This function can always be
        * called again if you want to request more permissions for your site.
        *

@@ -3,8 +3,11 @@ import { getStoreData, setStoreData, walletsStored } from "../utils/background";
 import { getRealURL } from "../utils/url";
 import { browser } from "webextension-polyfill-ts";
 
-// create context menus
-// (right click actions)
+/**
+ * Create context menus (right click actions)
+ *
+ * @param hasPerms Does the active site have any permissions?
+ */
 export async function createContextMenus(hasPerms: boolean) {
   browser.contextMenus.removeAll();
 

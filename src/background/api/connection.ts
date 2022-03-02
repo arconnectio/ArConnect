@@ -8,6 +8,7 @@ import {
 import { MessageFormat, validateMessage } from "../../utils/messenger";
 import { browser } from "webextension-polyfill-ts";
 import { getRealURL } from "../../utils/url";
+import { createContextMenus } from "../context_menus";
 import { updateIcon } from "../icon";
 
 /**
@@ -63,7 +64,8 @@ export const connect = (
     browser.runtime.onMessage.addListener(async (msg) => {
       if (!validateMessage(msg, { sender: "popup", type: "connect_result" }))
         return;
-      updateIcon(true);
+      updateIcon(msg?.res);
+      createContextMenus(msg?.res);
       resolve(msg);
     });
   });
