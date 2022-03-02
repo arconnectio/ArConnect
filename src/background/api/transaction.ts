@@ -21,6 +21,11 @@ import Arweave from "arweave";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
 
+const arConnectTags = [
+  { name: "Signing-Client", value: "ArConnect" },
+  { name: "Signing-Client-Version", value: manifest.version }
+];
+
 // sign a transaction using the currently selected
 // wallet's keyfile
 export const signTransaction = (
@@ -74,10 +79,6 @@ export const signTransaction = (
           ...transaction,
           owner: userData.keyfile.n
         });
-        const arConnectTags = [
-          { name: "Signing-Client", value: "ArConnect" },
-          { name: "Signing-Client-Version", value: manifest.version }
-        ];
 
         // add some ArConnect tags so the tx can be
         // identified later for debugging, etc.
@@ -251,6 +252,9 @@ export async function dispatch(tx: object): Promise<{
     value: tag.get("value", { decode: true, string: true })
   }));
 
+  // add ArConnect tags to the tag list
+  tags.push(...arConnectTags);
+
   try {
     // create bundlr tx as a data entry
     const dataSigner = new signers.ArweaveSigner(userData.keyfile);
@@ -290,6 +294,11 @@ export async function dispatch(tx: object): Promise<{
           res: false,
           message: `Insufficient funds in wallet ${userData.address}`
         };
+      }
+
+      // add ArConnect tags to the tx object
+      for (const arcTag of arConnectTags) {
+        transaction.addTag(arcTag.name, arcTag.value);
       }
 
       await arweave.transactions.sign(transaction, userData.keyfile);
