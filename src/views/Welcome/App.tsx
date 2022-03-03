@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Card,
   useModal,
-  Modal,
+  // Modal,
   Textarea,
   useToasts,
   useInput,
@@ -17,7 +16,15 @@ import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
 import { checkPassword as checkPw, setPassword } from "../../utils/auth";
 import { browser } from "webextension-polyfill-ts";
-import { Button, Input, useTheme, Tooltip, Spacer } from "@verto/ui";
+import {
+  Button,
+  Input,
+  useTheme,
+  Tooltip,
+  Spacer,
+  Card,
+  Modal
+} from "@verto/ui";
 import bip39 from "bip39-web-crypto";
 import CryptoES from "crypto-es";
 import Arweave from "arweave";
@@ -66,6 +73,7 @@ export default function App() {
       marginLeft: "1.2rem",
       background: "white",
       borderRadius: "14px",
+      marginBottom: "1em",
       border: "3px solid #000"
     };
 
@@ -438,9 +446,16 @@ export default function App() {
       >
         th<span>8</span>ta
       </a>
-      <Modal {...loadWalletsModal.bindings}>
+      <Modal
+        {...loadWalletsModal.bindings}
+        // TODO - Implement closing modal first thing 2mox --- PRIORITY
+        open
+        onClose={() => {
+          loadWalletsModal.setVisible(false);
+        }}
+      >
         <Modal.Title>Load wallet(s)</Modal.Title>
-        <Modal.Subtitle>
+        <h4 className={styles.ModalSubtitle}>
           Use your{" "}
           <a
             href="https://www.arweave.org/wallet"
@@ -450,7 +465,7 @@ export default function App() {
             Arweave keyfile
           </a>{" "}
           or seedphrase to continue.
-        </Modal.Subtitle>
+        </h4>
         <Modal.Content>
           <Textarea
             placeholder="Enter 12 word seedphrase..."
@@ -483,10 +498,16 @@ export default function App() {
                 </Tooltip>
               )
           )}
+
           <Card
             className={styles.FileContent}
             onClick={() => fileInput.current?.click()}
-            style={{ display: "flex", alignItems: "center" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "auto"
+            }}
           >
             <div className={styles.items}>
               <FileIcon size={24} />
@@ -496,17 +517,36 @@ export default function App() {
             </div>
           </Card>
         </Modal.Content>
-        <Modal.Action
-          passive
-          onClick={() => loadWalletsModal.setVisible(false)}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-evenly",
+            marginTop: "2em",
+            gap: "1em"
+          }}
         >
-          Cancel
-        </Modal.Action>
-        <Modal.Action onClick={login} loading={loading}>
-          Load
-        </Modal.Action>
+          <Button
+            small
+            type="secondary"
+            onClick={() => loadWalletsModal.setVisible(false)}
+            style={{ width: "30%" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            small
+            type="filled"
+            onClick={login}
+            loading={loading}
+            style={{ width: "30%" }}
+          >
+            Load
+          </Button>
+        </div>
       </Modal>
-      <Modal {...seedModal.bindings}>
+
+      {/* GENERATE NEW WALLET */}
+      {/* <Modal {...seedModal.bindings}>
         <Modal.Title>Generated a wallet</Modal.Title>
         <Modal.Subtitle>Make sure to remember this seedphrase</Modal.Subtitle>
         <Modal.Content>
@@ -528,8 +568,10 @@ export default function App() {
         <Modal.Action onClick={() => seedModal.setVisible(false)}>
           Ok
         </Modal.Action>
-      </Modal>
-      <Modal {...feeModal.bindings}>
+      </Modal> */}
+
+      {/* READ ABOUT OUR FEES */}
+      {/* <Modal {...feeModal.bindings}>
         <Modal.Title>Tips</Modal.Title>
         <Modal.Content>
           <p style={{ textAlign: "justify" }}>
@@ -565,8 +607,10 @@ export default function App() {
         <Modal.Action onClick={() => feeModal.setVisible(false)}>
           Ok
         </Modal.Action>
-      </Modal>
-      <Modal {...loadConfigModal.bindings}>
+      </Modal> */}
+
+      {/* LOAD CONFIG FILE */}
+      {/* <Modal {...loadConfigModal.bindings}>
         <Modal.Title>Load config file</Modal.Title>
         <Modal.Subtitle>
           Import your settings and wallets from a generated config
@@ -602,7 +646,7 @@ export default function App() {
         <Modal.Action onClick={loadConfig} loading={loadingConfig}>
           Load
         </Modal.Action>
-      </Modal>
+      </Modal> */}
       <input
         type="file"
         className={styles.FileInput}

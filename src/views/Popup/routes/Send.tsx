@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
-import {
-  Spacer,
-  useInput,
-  useToasts,
-  Progress,
-  useTheme
-} from "@geist-ui/react";
+import { useInput, useToasts, Progress, useTheme } from "@geist-ui/react";
 import { VerifiedIcon, FileSubmoduleIcon } from "@primer/octicons-react";
-import { Button, Input, Select } from "@verto/ui";
+import { Button, Input, Select, Spacer } from "@verto/ui";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { arToFiat, getSymbol } from "../../../utils/currency";
 import { Threshold, getVerification } from "arverify";
@@ -245,7 +239,7 @@ export default function Send() {
             </motion.div>
           )}
         </AnimatePresence>
-        <Spacer h={verified ? 0.55 : 1} />
+        <Spacer y={verified ? 0.55 : 1} />
         <div className={styles.Amount}>
           <Input
             small
@@ -307,7 +301,7 @@ export default function Send() {
                   submitted && passwordInput.state === "" ? "error" : undefined
                 }
               />
-              <Spacer h={1} />
+              <Spacer y={1} />
             </motion.div>
           )}
         </AnimatePresence>
