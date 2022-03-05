@@ -130,12 +130,16 @@
   text-align: center
 
 .NewWalletButton
-  width: 50%
   padding: 0.7em
-  marginTop: 2em
-  borderRadius: 14px
-  textAlign: center
+  margin-top: 2em
+  border-radius: 14px
+  text-align: center
   border: none
   background: #ffffff
   cursor: pointer
-  boxShadow: 0px 10px 20px rgba(0, 0, 0, 0.2)
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2)
+  transition: all 300ms ease-in-out
+
+  &:hover
+    transition: all 300ms ease-in-out
+    transform: scale(0.95)

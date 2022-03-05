@@ -363,8 +363,21 @@ export default function App() {
                   New Wallet
                 </Button>
               </div>
-              <p>
-                Read more about our <span className={styles.fees}>fees.</span>
+              <p style={{ marginTop: "1.75em" }}>
+                Read more about our{" "}
+                <span
+                  // onClick={() => feeModal.setVisible(true)}
+                  onClick={() => feeModal.setState(true)}
+                  style={{
+                    color: "#000",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    textDecoration: "underline"
+                  }}
+                >
+                  fees
+                </span>
+                .
               </p>
             </>
           )) || (
@@ -580,14 +593,14 @@ export default function App() {
         <div style={{ display: "flex", justifyContent: "center" }}>
           <button
             onClick={() => seedModal.setState(false)}
-            className={styles.newWalletButton}
+            className={styles.NewWalletButton}
+            style={{ width: "50%" }}
           >
             Dismiss
           </button>
         </div>
       </Modal>
-
-      <Modal {...feeModal.bindings}>
+      <Modal {...feeModal.bindings} open={feeModal.bindings.open}>
         <Modal.Title>Tips</Modal.Title>
         <Modal.Content>
           <p style={{ textAlign: "justify" }}>
@@ -620,12 +633,20 @@ export default function App() {
             the transaction.
           </p>
         </Modal.Content>
-        <Modal.Action onClick={() => feeModal.setVisible(false)}>
-          Ok
-        </Modal.Action>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <button
+            onClick={() => feeModal.setState(false)}
+            className={styles.NewWalletButton}
+            style={{ width: "100%" }}
+          >
+            Dismiss
+          </button>
+        </div>
       </Modal>
 
-      <Modal {...loadConfigModal.bindings}>
+      {/*  LOAD WALLET */}
+
+      {/* <Modal {...loadConfigModal.bindings}>
         <Modal.Title>Load config file</Modal.Title>
         <Modal.Subtitle>
           Import your settings and wallets from a generated config
@@ -661,7 +682,7 @@ export default function App() {
         <Modal.Action onClick={loadConfig} loading={loadingConfig}>
           Load
         </Modal.Action>
-      </Modal>
+      </Modal> */}
       <input
         type="file"
         className={styles.FileInput}
