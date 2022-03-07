@@ -8,6 +8,11 @@ declare global {
   interface Window {
     arweaveWallet: {
       /**
+       * Name of the wallet the API was provided by.
+       */
+      walletName: string;
+
+      /**
        * Connect to ArConnect and request permissions. This function can always be
        * called again if you want to request more permissions for your site.
        *
@@ -119,7 +124,7 @@ declare global {
         data: Uint8Array,
         // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/sign#parameters
         algorithm: any
-      ): Promise<string>;
+      ): Promise<Uint8Array>;
 
       /**
        * Get the user's active public key, from their wallet
@@ -134,6 +139,14 @@ declare global {
        * @param id Token contract ID
        */
       addToken(id: string): Promise<void>;
+
+      /**
+       * Dispatch an Arweave transaction (preferably bundled)
+       *
+       * @param transaction Transaction to dispatch
+       * @returns Dispatched transaction ID and type
+       */
+      dispatch(transaction: Transaction): Promise<DispatchResult>;
     };
   }
   interface WindowEventMap {
@@ -153,7 +166,13 @@ export type PermissionType =
   | "ENCRYPT"
   | "DECRYPT"
   | "SIGNATURE"
-  | "ACCESS_ARWEAVE_CONFIG";
+  | "ACCESS_ARWEAVE_CONFIG"
+  | "DISPATCH";
+
+export interface DispatchResult {
+  id: string;
+  type?: "BASE" | "BUNDLED";
+}
 
 export interface AppInfo {
   name?: string;

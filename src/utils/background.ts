@@ -3,12 +3,14 @@ import { RootState } from "../stores/reducers";
 import { IPermissionState } from "../stores/reducers/permissions";
 import { IArweave, defaultConfig } from "../stores/reducers/arweave";
 import { PermissionType } from "./permissions";
+import { JWKInterface } from "arweave/node/lib/wallet";
 import { getRealURL } from "./url";
 import { browser } from "webextension-polyfill-ts";
+import type { DataItem } from "arbundles";
 import { run } from "ar-gql";
+import axios from "axios";
 import limestone from "@limestonefi/api";
 import Arweave from "arweave";
-import axios from "axios";
 
 /**
  * Create an authenticator popup
@@ -305,4 +307,71 @@ export function isInternalURL(url: string) {
   return !!urlObject.protocol.match(
     /^(chrome|brave|edge|opera|firefox|about):/
   );
+}
+
+/**
+ * Get active JWK key or error and open browser tab top add a new wallet
+ * (if no wallets are added yet)
+ *
+ * @returns Active JWK key
+ */
+export async function getActiveKeyfile() {
+  const storeData = await getStoreData();
+  const storedKeyfiles = storeData?.["wallets"] ?? [];
+  const storedAddress = storeData?.["profile"];
+  const keyfileToDecrypt = storedKeyfiles.find(
+    (item) => item.address === storedAddress
+  )?.keyfile;
+
+  if (storedKeyfiles.length === 0 || !storedAddress || !keyfileToDecrypt) {
+    browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
+
+    throw new Error("No keyfiles added");
+  }
+
+  const keyfile: JWKInterface = JSON.parse(atob(keyfileToDecrypt));
+
+  return {
+    keyfile,
+    address: storedAddress
+  };
+}
+
+export interface DispatchResult {
+  id: string;
+  type?: "BASE" | "BUNDLED";
+}
+
+export function generateBundlrAnchor() {
+  const randomBytes = crypto.getRandomValues(new Uint8Array(32));
+  // we can do this, because we know that the randomBytes buffer
+  // will be 32 bytes of length
+  // for larger buffers, String.fromCharCode should not be used
+  const base64str = btoa(String.fromCharCode(...randomBytes)).slice(0, 32);
+
+  return base64str;
+}
+
+/**
+ * Upload a data entry to a Bundlr node
+ *
+ * @param dataItem Data entry to upload
+ * @returns Bundlr node response
+ */
+export async function uploadDataToBundlr(dataItem: DataItem) {
+  const res = await axios.post(
+    "https://node2.bundlr.network/tx",
+    dataItem.getRaw(),
+    {
+      headers: {
+        "Content-Type": "application/octet-stream"
+      },
+      maxBodyLength: Infinity
+    }
+  );
+
+  if (res.status >= 400)
+    throw new Error(
+      `Error uploading DataItem: ${res.status} ${res.statusText}`
+    );
 }

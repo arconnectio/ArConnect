@@ -3,6 +3,7 @@ import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { getRealURL } from "../utils/url";
 import { IArweave } from "../stores/reducers/arweave";
 import { splitTxToChunks } from "../utils/chunks";
+import { DispatchResult } from "../utils/background";
 import {
   createOverlay,
   createCoinWithAnimation,
@@ -11,7 +12,11 @@ import {
 import Transaction from "arweave/web/lib/transaction";
 import Arweave from "arweave";
 
+/** Maximum size (in bytes) sponsored for bundles using the Bundlr Network */
+const ACCEPTED_DISPATCH_SIZE = 120 * Math.pow(10, 3);
+
 const WalletAPI = {
+  walletName: "ArConnect",
   async connect(
     permissions: PermissionType[],
     appInfo: { name?: string; logo?: string } = {}
@@ -327,7 +332,7 @@ const WalletAPI = {
       throw new Error(e);
     }
   },
-  async signature(data: Uint8Array, algorithm: any): Promise<string> {
+  async signature(data: Uint8Array, algorithm: any): Promise<Uint8Array> {
     try {
       const result = await callAPI({
         type: "signature",
@@ -336,6 +341,30 @@ const WalletAPI = {
         data,
         options: algorithm
       });
+      if (!result.res || !result.data) throw new Error(result.message);
+      return new Uint8Array(result.data);
+    } catch (e: any) {
+      throw new Error(e);
+    }
+  },
+  async dispatch(transaction: Transaction): Promise<DispatchResult> {
+    const rawTx = JSON.stringify(transaction.toJSON());
+    const size = new TextEncoder().encode(rawTx).byteLength;
+
+    // do not allow size > ACCEPTED_DISPATCH_SIZE
+    if (ACCEPTED_DISPATCH_SIZE < size)
+      throw new Error(
+        `ArConnect does not currently support dispatching transactions that are greater than ${ACCEPTED_DISPATCH_SIZE} bytes.`
+      );
+
+    try {
+      const result = await callAPI({
+        type: "dispatch",
+        ext: "arconnect",
+        sender: "api",
+        transaction: transaction.toJSON()
+      });
+
       if (!result.res || !result.data) throw new Error(result.message);
       return result.data;
     } catch (e: any) {

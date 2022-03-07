@@ -5,7 +5,8 @@ const esbuild = require("esbuild"),
     NodeModulesPolyfillPlugin
   } = require("@esbuild-plugins/node-modules-polyfill"),
   fs = require("fs"),
-  { join } = require("path");
+  { join } = require("path"),
+  GlobalsPolyfills = require("@esbuild-plugins/node-globals-polyfill").default;
 
 const outDir = "./public/build";
 if (fs.existsSync(join(__dirname, outDir)))
@@ -27,10 +28,10 @@ esbuild
     format: "iife",
     bundle: true,
     minify: true,
-    sourcemap: process.env.NODE_ENV !== "production",
+    sourcemap: true,
     watch: process.env.NODE_ENV !== "production",
     inject: ["./src/utils/polyfill.js"],
-    target: ["chrome58", "firefox57"],
+    target: ["chrome67", "firefox68"],
     outdir: outDir,
     define: {
       global: "window"
@@ -41,6 +42,9 @@ esbuild
     },
     plugins: [
       NodeModulesPolyfillPlugin(),
+      GlobalsPolyfills({
+        buffer: true
+      }),
       postCssPlugin.default({
         plugins: [autoprefixer]
       })

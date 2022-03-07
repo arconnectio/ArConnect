@@ -7,7 +7,7 @@ import {
   publicKey
 } from "../background/api/address";
 import { addToken, walletNames } from "../background/api/utility";
-import { signTransaction } from "../background/api/transaction";
+import { signTransaction, dispatch } from "../background/api/transaction";
 import {
   MessageFormat,
   MessageType,
@@ -539,6 +539,35 @@ const handleApiCalls = async (
           sender: "background",
           id: message.id,
           ...(await signature(message, tabURL))
+        };
+
+      case "dispatch":
+        if (!(await checkPermissions(["DISPATCH"], tabURL)))
+          return {
+            type: "dispatch_result",
+            ext: "arconnect",
+            res: false,
+            id: message.id,
+            message:
+              "The site does not have the required permissions for this action",
+            sender: "background"
+          };
+
+        if (!message.transaction)
+          return {
+            type: "dispatch_result",
+            ext: "arconnect",
+            res: false,
+            message: "No transaction to dispatch",
+            sender: "background"
+          };
+
+        return {
+          type: "dispatch_result",
+          ext: "arconnect",
+          sender: "background",
+          id: message.id,
+          ...(await dispatch(message.transaction))
         };
 
       default:

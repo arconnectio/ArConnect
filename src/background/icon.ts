@@ -1,5 +1,10 @@
 import { browser } from "webextension-polyfill-ts";
 
+/**
+ * Update the popup icon
+ *
+ * @param hasPerms Does the site have any permissions?
+ */
 export function updateIcon(hasPerms: boolean) {
   const offlineLogos = {
     64: "icons/offline/logo64.png",

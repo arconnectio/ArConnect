@@ -20,6 +20,7 @@
     "@verto/js": "^0.0.0-alpha.19",
     "@verto/lib": "^0.10.4",
     "ar-gql": "^0.0.6",
+    "arbundles": "^0.6.14",
     "arverify": "^0.0.11",
     "arweave": "^1.10.18",
     "arweave-mnemonic-keys": "^0.0.9",
@@ -52,7 +53,7 @@
     "webextension-polyfill-ts": "^0.26.0"
   },
   "devDependencies": {
-    "@esbuild-plugins/node-globals-polyfill": "0.1.1",
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@esbuild-plugins/node-modules-polyfill": "^0.1.2",
     "@types/bcryptjs": "^2.4.2",
     "@types/exchange-rates-api": "^1.0.0",
