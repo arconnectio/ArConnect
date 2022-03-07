@@ -78,6 +78,10 @@ export default function WalletManager() {
     setVerifiedAddresses(loaded);
   }
 
+  function getViewblockLinkForAddress(address: string) {
+    return `https://viewblock.io/arweave/address/${address}`;
+  }
+
   function deleteWallet(addr: string) {
     if (wallets.length - 1 > 0) {
       if (profile === addr)
@@ -121,7 +125,12 @@ export default function WalletManager() {
           {verifiedAddresses.includes(profile) && <VerifiedIcon />}
         </h1>
         <p className={styles.Address}>
-          {formatAddress(profile)}
+          <Tooltip text="Check address on viewblock">
+            <a href={getViewblockLinkForAddress(profile)} target="_blank">
+              {formatAddress(profile)}
+            </a>
+          </Tooltip>
+
           <button
             style={{ marginLeft: ".85em" }}
             onClick={() => {
