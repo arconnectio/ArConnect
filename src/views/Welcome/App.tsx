@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  useModal,
+  // useModal,
   // Modal,
   Textarea,
   useToasts,
@@ -23,7 +23,8 @@ import {
   Tooltip,
   Spacer,
   Card,
-  Modal
+  Modal,
+  useModal
 } from "@verto/ui";
 import bip39 from "bip39-web-crypto";
 import CryptoES from "crypto-es";
@@ -165,11 +166,13 @@ export default function App() {
     dispatch(setWallets([...walletsStore, ...wallets]));
     if (walletsStoreEmpty) dispatch(switchProfile(wallets[0].address));
     setLoading(false);
-    loadWalletsModal.setVisible(false);
+    loadWalletsModal.setState(false);
+    // loadWalletsModal.setVisible(false);
     setToast({ text: "Loaded wallets", type: "success" });
     // allow time to save the wallets
     setTimeout(() => {
-      loadWalletsModal.setVisible(false);
+      loadWalletsModal.setState(false);
+      // loadWalletsModal.setVisible(false);
       setKeyfiles([]);
       if (fileInput.current) fileInput.current.value = "";
     }, 600);
@@ -185,7 +188,8 @@ export default function App() {
 
     setSeed(mnemonic);
     setSeedKeyfile({ address, keyfile });
-    seedModal.setVisible(true);
+    // seedModal.setVisible(true);
+    seedModal.setState(true);
     dispatch(
       setWallets([
         ...walletsStore,
@@ -301,7 +305,8 @@ export default function App() {
         setToast({ text: "Invalid password", type: "error" });
       }
       setLoadingConfig(false);
-      loadConfigModal.setVisible(false);
+      loadConfigModal.setState(false);
+      // loadConfigModal.setVisible(false);
     };
   }
 
@@ -340,7 +345,13 @@ export default function App() {
               <h1 className={styles.header}>Welcome to ArConnect</h1>
               <p className={styles.intro}>Load or create a new wallet.</p>
               <div className={styles.loadwallets}>
-                <Button onClick={() => loadWalletsModal.setVisible(true)} small>
+                <Button
+                  onClick={() => {
+                    loadWalletsModal.setState(true);
+                    // loadWalletsModal.setVisible(true);
+                  }}
+                  small
+                >
                   Load Wallet(s)
                 </Button>
                 <Button
@@ -448,10 +459,9 @@ export default function App() {
       </a>
       <Modal
         {...loadWalletsModal.bindings}
-        // TODO - Implement closing modal first thing 2mox --- PRIORITY
-        open
+        open={loadWalletsModal.bindings.open}
         onClose={() => {
-          loadWalletsModal.setVisible(false);
+          loadWalletsModal.setState(false);
         }}
       >
         <Modal.Title>Load wallet(s)</Modal.Title>
@@ -528,7 +538,9 @@ export default function App() {
           <Button
             small
             type="secondary"
-            onClick={() => loadWalletsModal.setVisible(false)}
+            onClick={() => {
+              loadWalletsModal.setState(false);
+            }}
             style={{ width: "30%" }}
           >
             Cancel
@@ -544,11 +556,11 @@ export default function App() {
           </Button>
         </div>
       </Modal>
-
-      {/* GENERATE NEW WALLET */}
-      {/* <Modal {...seedModal.bindings}>
+      <Modal {...seedModal.bindings} open={seedModal.bindings.open}>
         <Modal.Title>Generated a wallet</Modal.Title>
-        <Modal.Subtitle>Make sure to remember this seedphrase</Modal.Subtitle>
+        <h4 className={styles.ModalSubtitle} style={{ fontWeight: "400" }}>
+          Make sure to remember this seedphrase
+        </h4>
         <Modal.Content>
           <Textarea
             value={seed}
@@ -560,18 +572,22 @@ export default function App() {
             small
             type="filled"
             onClick={downloadSeedWallet}
-            style={{ width: "100%" }}
+            style={{ width: "89%" }}
           >
             Download
           </Button>
         </Modal.Content>
-        <Modal.Action onClick={() => seedModal.setVisible(false)}>
-          Ok
-        </Modal.Action>
-      </Modal> */}
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <button
+            onClick={() => seedModal.setState(false)}
+            className={styles.newWalletButton}
+          >
+            Dismiss
+          </button>
+        </div>
+      </Modal>
 
-      {/* READ ABOUT OUR FEES */}
-      {/* <Modal {...feeModal.bindings}>
+      <Modal {...feeModal.bindings}>
         <Modal.Title>Tips</Modal.Title>
         <Modal.Content>
           <p style={{ textAlign: "justify" }}>
@@ -607,10 +623,9 @@ export default function App() {
         <Modal.Action onClick={() => feeModal.setVisible(false)}>
           Ok
         </Modal.Action>
-      </Modal> */}
+      </Modal>
 
-      {/* LOAD CONFIG FILE */}
-      {/* <Modal {...loadConfigModal.bindings}>
+      <Modal {...loadConfigModal.bindings}>
         <Modal.Title>Load config file</Modal.Title>
         <Modal.Subtitle>
           Import your settings and wallets from a generated config
@@ -646,7 +661,7 @@ export default function App() {
         <Modal.Action onClick={loadConfig} loading={loadingConfig}>
           Load
         </Modal.Action>
-      </Modal> */}
+      </Modal>
       <input
         type="file"
         className={styles.FileInput}
