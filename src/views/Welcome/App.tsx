@@ -1,12 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  // useModal,
-  // Modal,
-  Textarea,
-  useToasts,
-  useInput,
-  Code
-} from "@geist-ui/react";
+import { Textarea, useToasts, useInput, Code } from "@geist-ui/react";
 import { FileIcon } from "@primer/octicons-react";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { getKeyFromMnemonic } from "arweave-mnemonic-keys";
@@ -167,12 +160,10 @@ export default function App() {
     if (walletsStoreEmpty) dispatch(switchProfile(wallets[0].address));
     setLoading(false);
     loadWalletsModal.setState(false);
-    // loadWalletsModal.setVisible(false);
     setToast({ text: "Loaded wallets", type: "success" });
     // allow time to save the wallets
     setTimeout(() => {
       loadWalletsModal.setState(false);
-      // loadWalletsModal.setVisible(false);
       setKeyfiles([]);
       if (fileInput.current) fileInput.current.value = "";
     }, 600);
@@ -188,7 +179,6 @@ export default function App() {
 
     setSeed(mnemonic);
     setSeedKeyfile({ address, keyfile });
-    // seedModal.setVisible(true);
     seedModal.setState(true);
     dispatch(
       setWallets([
@@ -253,6 +243,8 @@ export default function App() {
     }
     setLoading(false);
   }
+
+  // TODO: Delete
 
   async function loadConfig() {
     if (
@@ -348,7 +340,6 @@ export default function App() {
                 <Button
                   onClick={() => {
                     loadWalletsModal.setState(true);
-                    // loadWalletsModal.setVisible(true);
                   }}
                   small
                 >
@@ -366,7 +357,6 @@ export default function App() {
               <p style={{ marginTop: "1.75em" }}>
                 Read more about our{" "}
                 <span
-                  // onClick={() => feeModal.setVisible(true)}
                   onClick={() => feeModal.setState(true)}
                   style={{
                     color: "#000",
@@ -569,7 +559,10 @@ export default function App() {
           </Button>
         </div>
       </Modal>
-      <Modal {...seedModal.bindings} open={seedModal.bindings.open}>
+      <Modal
+        {...seedModal.bindings}
+        // open={seedModal.bindings.open}
+      >
         <Modal.Title>Generated a wallet</Modal.Title>
         <h4 className={styles.ModalSubtitle} style={{ fontWeight: "400" }}>
           Make sure to remember this seedphrase
@@ -644,8 +637,6 @@ export default function App() {
         </div>
       </Modal>
 
-      {/*  LOAD WALLET */}
-
       {/* <Modal {...loadConfigModal.bindings}>
         <Modal.Title>Load config file</Modal.Title>
         <Modal.Subtitle>
@@ -683,6 +674,7 @@ export default function App() {
           Load
         </Modal.Action>
       </Modal> */}
+
       <input
         type="file"
         className={styles.FileInput}
