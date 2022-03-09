@@ -15,9 +15,16 @@
     display: flex
     align-items: center
     flex-direction: column
-    color: #000
+    color: variables.$dark-background-color
 
     @include variables.SetupIntro
+
+  @media (prefers-color-scheme: dark)
+    background: variables.$dark-background-color
+
+    div
+      .intro
+        color: #acaaaa
 
 .Welcome
   width: 100%
@@ -111,14 +118,14 @@
   font-weight: 700
   margin: 0
   text-decoration: none
-  color: #000
+  color: variables.$background-color
   transform: translateX(-50%)
   
   @media screen and (max-width: variables.$smaller-screens)
     bottom: .2em
 
   @media (prefers-color-scheme: dark)
-    color: #000
+    color: #fff
 
   span
     background: linear-gradient(142.25deg, #fc9867 23.99%, #ab9df2 73.9%)

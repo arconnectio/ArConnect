@@ -298,7 +298,6 @@ export default function App() {
       }
       setLoadingConfig(false);
       loadConfigModal.setState(false);
-      // loadConfigModal.setVisible(false);
     };
   }
 
@@ -314,7 +313,6 @@ export default function App() {
           </p>
           <Button
             small
-            className={styles.welcomeButton}
             onClick={() => {
               setSetupConfig({ ...setupConfig, welcome: true });
             }}
@@ -559,10 +557,7 @@ export default function App() {
           </Button>
         </div>
       </Modal>
-      <Modal
-        {...seedModal.bindings}
-        // open={seedModal.bindings.open}
-      >
+      <Modal {...seedModal.bindings}>
         <Modal.Title>Generated a wallet</Modal.Title>
         <h4 className={styles.ModalSubtitle} style={{ fontWeight: "400" }}>
           Make sure to remember this seedphrase
