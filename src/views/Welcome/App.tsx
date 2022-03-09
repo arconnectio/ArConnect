@@ -244,8 +244,6 @@ export default function App() {
     setLoading(false);
   }
 
-  // TODO: Delete
-
   async function loadConfig() {
     if (
       !configFileInput.current?.files ||
@@ -435,12 +433,10 @@ export default function App() {
                   <Button
                     type="secondary"
                     small
-                    onClick={() => {
-                      setSetupConfig({ ...setupConfig, welcome: false });
-                    }}
-                    style={{ width: "15%" }}
+                    style={{ width: "14%" }}
+                    onClick={() => loadConfigModal.setState(true)}
                   >
-                    Cancel
+                    Load Config File
                   </Button>
                 </>
               )}
@@ -632,11 +628,11 @@ export default function App() {
         </div>
       </Modal>
 
-      {/* <Modal {...loadConfigModal.bindings}>
+      <Modal {...loadConfigModal.bindings}>
         <Modal.Title>Load config file</Modal.Title>
-        <Modal.Subtitle>
+        <h4 className={styles.ModalSubtitle} style={{ fontWeight: "500" }}>
           Import your settings and wallets from a generated config
-        </Modal.Subtitle>
+        </h4>
         <Modal.Content>
           <Spacer y={0.5} />
           <p style={{ fontWeight: 500, textAlign: "center" }}>
@@ -647,7 +643,6 @@ export default function App() {
           <Card
             className={styles.FileContent}
             onClick={() => configFileInput.current?.click()}
-            style={{ display: "flex", alignItems: "center" }}
           >
             <div className={styles.items}>
               <FileIcon size={24} />
@@ -657,18 +652,43 @@ export default function App() {
           <Spacer />
           <Input
             {...configPasswordInput.bindings}
+            onKeyPressHandler={(e) => {
+              if (e.key === "Enter") loadConfig();
+            }}
+            {...configPasswordInput.bindings}
             type="password"
-            placeholder="Enter your password to decrypt..."
-            style={{ width: "100%" }}
+            placeholder="Enter password to decrypt"
+            style={{
+              ...inputStyles
+            }}
           />
         </Modal.Content>
-        <Modal.Action onClick={() => loadConfigModal.setVisible(false)} passive>
-          Cancel
-        </Modal.Action>
-        <Modal.Action onClick={loadConfig} loading={loadingConfig}>
-          Load
-        </Modal.Action>
-      </Modal> */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-evenly",
+            gap: "1em"
+          }}
+        >
+          <Button
+            type="secondary"
+            small
+            style={{ width: "30%" }}
+            onClick={() => loadConfigModal.setState(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="filled"
+            small
+            style={{ width: "30%" }}
+            onClick={loadConfig}
+            loading={loadingConfig}
+          >
+            Load
+          </Button>
+        </div>
+      </Modal>
 
       <input
         type="file"
