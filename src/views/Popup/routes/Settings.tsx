@@ -593,7 +593,7 @@ export default function Settings() {
           (setting === "password" && (
             //  STARTING HERE
             <div className={styles.OptionContent}>
-              <Spacer y={1} />
+              <Spacer y={1.2} />
               <Input
                 small
                 type="password"
@@ -603,7 +603,7 @@ export default function Settings() {
                   if (e.key === "Enter") updatePassword();
                 }}
               />
-              <Spacer y={1} />
+              <Spacer y={1.2} />
               <Input
                 small
                 type="password"
@@ -613,7 +613,7 @@ export default function Settings() {
                   if (e.key === "Enter") updatePassword();
                 }}
               />
-              <Spacer y={1} />
+              <Spacer y={1.2} />
               <Input
                 small
                 type="password"
@@ -623,7 +623,7 @@ export default function Settings() {
                   if (e.key === "Enter") updatePassword();
                 }}
               />
-              <Spacer y={1} />
+              <Spacer y={1.2} />
               <Button
                 small
                 type="filled"
@@ -632,6 +632,7 @@ export default function Settings() {
               >
                 Change password
               </Button>
+              <Spacer y={1.2} />
             </div>
           )) ||
           (setting === "fee" && (
@@ -642,20 +643,23 @@ export default function Settings() {
                 default is <b>1</b> (no multiplier).
               </p>
               <Spacer />
-              {/* <Input
+              <Input
+                small
                 {...feeMultiplier.bindings}
                 placeholder="Fee multiplier"
-                onKeyPress={(e) => {
+                onKeyPressHandler={(e) => {
                   if (e.key === "Enter") updateFeeMultiplier();
                 }}
-              /> */}
-              <Spacer />
-              {/* <Button
-                style={{ width: "100%", marginTop: ".5em" }}
+              />
+              <Spacer y={1.2} />
+              <Button
+                small
+                style={{ width: "85%", marginTop: ".5em" }}
                 onClick={updateFeeMultiplier}
               >
                 Update
-              </Button> */}
+              </Button>
+              <Spacer y={1.2} />
             </div>
           )) ||
           (setting === "config_file" && (
