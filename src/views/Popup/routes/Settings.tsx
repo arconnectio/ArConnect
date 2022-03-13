@@ -7,15 +7,16 @@ import {
   XIcon
 } from "@primer/octicons-react";
 import {
-  Button,
-  Input,
+  // Button,
+  // Input,
   Modal,
   Radio,
-  Spacer,
+  // Spacer,
   useInput,
   useModal,
   useToasts
 } from "@geist-ui/react";
+import { Spacer, Input, Button } from "@verto/ui";
 import { Checkbox, Select } from "@verto/ui";
 import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -516,7 +517,7 @@ export default function Settings() {
           )) ||
           (setting === "arweave" && (
             <div className={styles.OptionContent}>
-              <Spacer />
+              {/* <Spacer />
               <Input
                 {...arweaveHostInput.bindings}
                 placeholder="Host..."
@@ -551,7 +552,7 @@ export default function Settings() {
                 }}
               >
                 Reset
-              </Button>
+              </Button> */}
             </div>
           )) ||
           (setting === "arverify" && (
@@ -590,34 +591,43 @@ export default function Settings() {
             </div>
           )) ||
           (setting === "password" && (
+            //  STARTING HERE
             <div className={styles.OptionContent}>
-              <Spacer />
-              <Input.Password
+              <Spacer y={1} />
+              <Input
+                small
+                type="password"
+                {...passwords.old.bindings}
+                placeholder="Current password..."
+                onKeyPressHandler={(e) => {
+                  if (e.key === "Enter") updatePassword();
+                }}
+              />
+              <Spacer y={1} />
+              <Input
+                small
+                type="password"
                 {...passwords.new.bindings}
                 placeholder="New password..."
-                onKeyPress={(e) => {
+                onKeyPressHandler={(e) => {
                   if (e.key === "Enter") updatePassword();
                 }}
               />
-              <Spacer />
-              <Input.Password
+              <Spacer y={1} />
+              <Input
+                small
+                type="password"
                 {...passwords.newAgain.bindings}
-                placeholder="New password again..."
-                onKeyPress={(e) => {
+                placeholder="Confirm password..."
+                onKeyPressHandler={(e) => {
                   if (e.key === "Enter") updatePassword();
                 }}
               />
-              <Spacer />
-              <Input.Password
-                {...passwords.old.bindings}
-                placeholder="Old password..."
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") updatePassword();
-                }}
-              />
-              <Spacer />
+              <Spacer y={1} />
               <Button
-                style={{ width: "100%", marginTop: ".5em" }}
+                small
+                type="filled"
+                style={{ width: "85%", marginTop: ".5em" }}
                 onClick={updatePassword}
               >
                 Change password
@@ -632,20 +642,20 @@ export default function Settings() {
                 default is <b>1</b> (no multiplier).
               </p>
               <Spacer />
-              <Input
+              {/* <Input
                 {...feeMultiplier.bindings}
                 placeholder="Fee multiplier"
                 onKeyPress={(e) => {
                   if (e.key === "Enter") updateFeeMultiplier();
                 }}
-              />
+              /> */}
               <Spacer />
-              <Button
+              {/* <Button
                 style={{ width: "100%", marginTop: ".5em" }}
                 onClick={updateFeeMultiplier}
               >
                 Update
-              </Button>
+              </Button> */}
             </div>
           )) ||
           (setting === "config_file" && (
@@ -670,7 +680,7 @@ export default function Settings() {
                 </b>{" "}
                 By doing so, you risk losing your funds.
               </p>
-              <Button
+              {/* <Button
                 style={{ width: "100%", marginTop: ".5em" }}
                 onClick={() => {
                   setDownloadWallet(undefined);
@@ -679,8 +689,8 @@ export default function Settings() {
                 type="success"
               >
                 I understand; download file
-              </Button>
-              <Spacer h={1.5} />
+              </Button> */}
+              <Spacer y={1.5} />
               <div className={styles.Wallets}>
                 {wallets.map(({ address }, i) => (
                   <div className={styles.Wallet} key={i}>
@@ -705,11 +715,11 @@ export default function Settings() {
           {downloadWallet ? "Download wallet" : "Generate config file"}
         </Modal.Title>
         <Modal.Content>
-          <Input.Password
+          {/* <Input.Password
             {...configPasswordInput.bindings}
             placeholder="Enter your password to continue..."
             width="100%"
-          />
+          /> */}
           <p style={{ textAlign: "center", marginBottom: 0 }}>
             <b style={{ display: "block" }}>
               DO NOT SHARE THIS FILE WITH ANYONE!
