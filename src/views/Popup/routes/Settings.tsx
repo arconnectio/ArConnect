@@ -6,16 +6,7 @@ import {
   DownloadIcon,
   XIcon
 } from "@primer/octicons-react";
-import {
-  // Button,
-  // Input,
-  Modal,
-  Radio,
-  // Spacer,
-  useInput,
-  useModal,
-  useToasts
-} from "@geist-ui/react";
+import { Modal, Radio, useInput, useModal, useToasts } from "@geist-ui/react";
 import { Spacer, Input, Button, Checkbox, Select } from "@verto/ui";
 import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -688,16 +679,18 @@ export default function Settings() {
                 </b>{" "}
                 By doing so, you risk losing your funds.
               </p>
-              {/* <Button
-                style={{ width: "100%", marginTop: ".5em" }}
+              <Button
+                small
+                type="filled"
+                style={{ width: "85%", marginTop: ".5em" }}
                 onClick={() => {
                   setDownloadWallet(undefined);
                   configFileModal.setVisible(true);
                 }}
-                type="success"
+                // state="success"
               >
                 I understand; download file
-              </Button> */}
+              </Button>
               <Spacer y={1.5} />
               <div className={styles.Wallets}>
                 {wallets.map(({ address }, i) => (
@@ -723,11 +716,11 @@ export default function Settings() {
           {downloadWallet ? "Download wallet" : "Generate config file"}
         </Modal.Title>
         <Modal.Content>
-          {/* <Input.Password
+          <Input
+            small
             {...configPasswordInput.bindings}
             placeholder="Enter your password to continue..."
-            width="100%"
-          /> */}
+          />
           <p style={{ textAlign: "center", marginBottom: 0 }}>
             <b style={{ display: "block" }}>
               DO NOT SHARE THIS FILE WITH ANYONE!
