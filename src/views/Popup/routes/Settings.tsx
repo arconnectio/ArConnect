@@ -16,8 +16,7 @@ import {
   useModal,
   useToasts
 } from "@geist-ui/react";
-import { Spacer, Input, Button } from "@verto/ui";
-import { Checkbox, Select } from "@verto/ui";
+import { Spacer, Input, Button, Checkbox, Select } from "@verto/ui";
 import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
@@ -517,42 +516,47 @@ export default function Settings() {
           )) ||
           (setting === "arweave" && (
             <div className={styles.OptionContent}>
-              {/* <Spacer />
+              <Spacer y={1} />
               <Input
                 {...arweaveHostInput.bindings}
                 placeholder="Host..."
-                type={arweaveHostInput.state === "" ? "error" : "default"}
+                status={arweaveHostInput.state === "" ? "error" : undefined}
               />
-              <Spacer />
+              <Spacer y={1} />
               <Input
                 {...arweavePortInput.bindings}
                 placeholder="Port..."
-                htmlType="number"
-                type={arweavePortInput.state === "" ? "error" : "default"}
+                type="number"
+                status={arweavePortInput.state === "" ? "error" : undefined}
               />
-              <Spacer />
+              <Spacer y={1} />
               <Input
                 {...arweaveProtocolInput.bindings}
                 placeholder="Protocol..."
-                type={arweaveProtocolInput.state === "" ? "error" : "default"}
+                status={arweaveProtocolInput.state === "" ? "error" : undefined}
               />
-              <Spacer />
+              <Spacer y={1} />
               <Button
-                style={{ width: "100%", marginTop: ".5em" }}
+                small
+                type="filled"
+                style={{ width: "85%", marginTop: ".5em" }}
                 onClick={updateConfig}
               >
                 Set config
               </Button>
-              <Spacer />
+              <Spacer y={1} />
               <Button
-                style={{ width: "100%", marginTop: ".5em" }}
+                small
+                type="filled"
+                style={{ width: "85%", marginTop: ".5em" }}
                 onClick={() => {
                   dispatch(resetArweaveConfig());
                   setCurrSetting(undefined);
                 }}
               >
                 Reset
-              </Button> */}
+              </Button>
+              <Spacer y={1} />
             </div>
           )) ||
           (setting === "arverify" && (
