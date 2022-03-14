@@ -5,7 +5,7 @@
   width: 100%
   height: 100vh
   display: flex
-  background: #fff
+  background: variables.$background-color
   align-items: center
   flex-direction: column
   justify-content: center
@@ -16,19 +16,14 @@
     align-items: center
     flex-direction: column
     color: variables.$background-color
-
     @include variables.SetupIntro
-
-    div
-      .intro
-        color: #acaaaa
 
 .Welcome
   width: 100%
   height: 100vh
-  color: #000
+  color: variables.$foreground-color
   display: flex
-  background: #fff
+  background: variables.$background-color
   align-items: center
   flex-direction: column
   justify-content: center
@@ -37,16 +32,20 @@
   @include variables.SetupIntro
 
   .fees
-    color: #000
+    color: variables.$foreground-color
     font-size: 14px
-    font-weight: bold
+
+    span
+      cursor: pointer
+      font-weight: bold
+      text-decoration: underline
   
   .passwordLabel
     width: 22rem
     margin: 0 0 0.4rem 0
     padding: 0
     font-size: 12px
-    color: #666666
+    color: variables.$light-text
     font-weight: 500
     text-transform: uppercase
 
@@ -81,6 +80,7 @@
     display: flex
     overflow: hidden
     align-items: center
+    color: variables.$foreground-color
 
     .Filename
       margin: 0
@@ -92,15 +92,19 @@
 .Seed
   display: block !important
   margin-top: 1em !important
-  border: 2px solid #999 !important
+  border: 2px solid variables.$light-text !important
 
   &.NewSeed
+    color: variables.$foreground-color !important
     margin-top: 0 !important
+
+.KeyFileText
+  color: variables.$foreground-color
 
 .OR
   display: block
   font-size: 14px
-  color: #666666
+  color: variables.$light-text
   text-align: center
   margin: 1rem 0
 
@@ -114,7 +118,7 @@
   font-weight: 700
   margin: 0
   text-decoration: none
-  color: variables.$background-color
+  color: variables.$foreground-color
   transform: translateX(-50%)
   
   @media screen and (max-width: variables.$smaller-screens)
@@ -128,6 +132,14 @@
 .ModalSubtitle
   font-size: 1.02em
   text-align: center
+  color: variables.$foreground-color
+
+.FeesModal
+  color: variables.$foreground-color
+
+  li 
+    color: variables.$foreground-color
+
 
 .NewWalletButton
   padding: 0.7em
@@ -135,7 +147,8 @@
   border-radius: 14px
   text-align: center
   border: none
-  background: #ffffff
+  color: variables.$background-color
+  background: variables.$foreground-color
   cursor: pointer
   box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2)
   transition: all 300ms ease-in-out

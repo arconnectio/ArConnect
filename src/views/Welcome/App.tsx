@@ -350,20 +350,9 @@ export default function App() {
                   New Wallet
                 </Button>
               </div>
-              <p style={{ marginTop: "1.75em" }}>
+              <p style={{ marginTop: "1.75em" }} className={styles.fees}>
                 Read more about our{" "}
-                <span
-                  onClick={() => feeModal.setState(true)}
-                  style={{
-                    color: "#000",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                    textDecoration: "underline"
-                  }}
-                >
-                  fees
-                </span>
-                .
+                <span onClick={() => feeModal.setState(true)}>fees</span>.
               </p>
             </>
           )) || (
@@ -496,7 +485,10 @@ export default function App() {
                         val.filter(({ filename }) => filename !== file.filename)
                       )
                     }
-                    style={{ display: "flex", alignItems: "center" }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center"
+                    }}
                   >
                     <div className={styles.items}>
                       <p className={styles.Filename}>{file.filename}</p>
@@ -564,29 +556,35 @@ export default function App() {
             readOnly
             className={styles.Seed + " " + styles.NewSeed}
           ></Textarea>
-          <p style={{ textAlign: "center" }}>...and download your keyfile.</p>
+          <p style={{ textAlign: "center" }} className={styles.KeyFileText}>
+            ...and download your keyfile.
+          </p>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Button
+              small
+              type="filled"
+              onClick={downloadSeedWallet}
+              style={{ width: "50%" }}
+            >
+              Download
+            </Button>
+          </div>
+        </Modal.Content>
+        <span className={styles.OR}>OR</span>
+        <div style={{ display: "flex", justifyContent: "center" }}>
           <Button
             small
-            type="filled"
-            onClick={downloadSeedWallet}
-            style={{ width: "89%" }}
-          >
-            Download
-          </Button>
-        </Modal.Content>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <button
+            type="secondary"
             onClick={() => seedModal.setState(false)}
-            className={styles.NewWalletButton}
             style={{ width: "50%" }}
           >
             Dismiss
-          </button>
+          </Button>
         </div>
       </Modal>
       <Modal {...feeModal.bindings} open={feeModal.bindings.open}>
         <Modal.Title>Tips</Modal.Title>
-        <Modal.Content>
+        <Modal.Content className={styles.FeesModal}>
           <p style={{ textAlign: "justify" }}>
             We at{" "}
             <a
@@ -618,13 +616,14 @@ export default function App() {
           </p>
         </Modal.Content>
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <button
+          <Button
+            small
+            type="filled"
             onClick={() => feeModal.setState(false)}
-            className={styles.NewWalletButton}
             style={{ width: "100%" }}
           >
             Dismiss
-          </button>
+          </Button>
         </div>
       </Modal>
 
