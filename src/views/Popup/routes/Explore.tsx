@@ -33,6 +33,8 @@ const Explore = () => {
     }
   }, []);
 
+  console.log(theme);
+
   return (
     <>
       <WalletManager pageTitle="Explore" />
@@ -63,7 +65,7 @@ const Explore = () => {
                     label: "My First Dataset",
                     data: [65, 9, 80, 89, 99, 32, 120, 90, 79, 18, 79, 60], // TODO: replace with real data in implementation
                     fill: false,
-                    borderColor: "#000",
+                    borderColor: `${theme === "Dark" ? "#fff" : "#000"}`,
                     tension: 0.1
                   }
                 ]
