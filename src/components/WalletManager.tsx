@@ -11,6 +11,7 @@ import { Modal, Tooltip, useModal, useToasts } from "@geist-ui/react";
 import {
   ChevronDownIcon,
   CopyIcon,
+  FlameIcon,
   GearIcon,
   PlusIcon,
   SignOutIcon,
@@ -26,6 +27,7 @@ import { browser } from "webextension-polyfill-ts";
 import { formatAddress } from "../utils/url";
 import { logOut } from "../utils/auth";
 import Settings from "../views/Popup/routes/Settings";
+import Support from "../views/Popup/routes/Support";
 import copy from "copy-to-clipboard";
 import "../styles/components/Tooltip.sass";
 import toastStyles from "../styles/components/SmallToast.module.sass";
@@ -296,6 +298,11 @@ export default function WalletManager() {
                     }
                   >
                     <PlusIcon />
+                  </div>
+                </Tooltip>
+                <Tooltip text="Support Arweave websites">
+                  <div className={styles.Action} onClick={() => goTo(Support)}>
+                    <FlameIcon fill="red" />
                   </div>
                 </Tooltip>
                 <Tooltip text="Settings">
