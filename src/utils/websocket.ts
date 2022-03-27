@@ -1,4 +1,3 @@
-import { isJsxOpeningElement } from "typescript";
 import * as websocket from "websocket";
 
 let socketQueueId: number = 0;
@@ -41,7 +40,7 @@ client.onmessage = (e) => {
   }
 };
 
-export function isSocketOpen() {
+export function isSocketOpened() {
   return client.readyState === client.OPEN;
 }
 

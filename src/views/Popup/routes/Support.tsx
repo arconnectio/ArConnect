@@ -1,18 +1,19 @@
-import React, { useState } from "react";
-
+import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
 import { goTo } from "react-chrome-extension-router";
 
 import { Button, Toggle, Spacer, useToasts } from "@geist-ui/react";
+import { ArrowLeftIcon } from "@primer/octicons-react";
 
 import { browser } from "webextension-polyfill-ts";
 
 import { updateSettings } from "../../../stores/actions";
 import { RootState } from "../../../stores/reducers";
 
+import Home from "./Home";
+
 import {
-  isSocketOpen,
+  isSocketOpened,
   sendNativeMessage,
   setNativeMessageErrorHandler
 } from "../../../utils/websocket";
@@ -20,27 +21,48 @@ import {
 import styles from "../../../styles/views/Popup/support.module.sass";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 
-import { ArrowLeftIcon } from "@primer/octicons-react";
-
-import Home from "./Home";
-
 export default function Support() {
-  const [connectionStatus, setConnectionStatus] = useState<string>();
+  const [connectionStatus, setConnectionStatus] = useState<string>("Undefined");
   const settings = useSelector((state: RootState) => state.settings);
   const dispatch = useDispatch();
   const [, setToast] = useToasts();
 
   setNativeMessageErrorHandler(() => {
-    setToast({ text: "No connection", type: "error" });
+    const text: string = "Connection aborted";
+    setConnectionStatus(text);
+    setToast({ text: text, type: "error" });
   });
 
-  const getStatus = (): string => {
-    if (isSocketOpen()) {
-      return "OK, connected";
-    } else {
-      return "ArConnect desktop app is not detected. Please install and run it.";
+  const updateStatus = () => {
+    if (!isSocketOpened()) {
+      setConnectionStatus(
+        "ArConnect desktop app is not detected. Please install it and run."
+      );
+      return;
     }
+
+    if (!settings.enableSupport) {
+      setConnectionStatus("Support is disabled.");
+      return;
+    }
+
+    sendNativeMessage("compute", {}, (response: any) => {
+      try {
+        const status: string = response.state == "on" ? "active" : "paused";
+        setConnectionStatus(`Contribution is ${status}.`);
+      } catch (error) {
+        setConnectionStatus("OK, connected.");
+      }
+    });
   };
+
+  useEffect((): void => {
+    updateStatus();
+  }, []);
+
+  useEffect((): void => {
+    updateStatus();
+  }, [settings.enableSupport]);
 
   return (
     <>
@@ -72,15 +94,15 @@ export default function Support() {
         <div className={styles.Option}>
           <label>Enable support</label>
           <Toggle
-            disabled={!isSocketOpen()}
+            disabled={!isSocketOpened()}
             checked={settings.enableSupport}
             onChange={() => {
-              const payload = {
-                pause: settings.enableSupport
-              };
-              sendNativeMessage("compute", payload, (response: any) => {
-                const data: string = JSON.stringify(response);
-                setToast({ text: data, type: "success" });
+              sendNativeMessage("compute", {}, (response: any) => {
+                const currentSupportState: boolean = settings.enableSupport;
+                const stateText: string = currentSupportState
+                  ? "disabled"
+                  : "enabled";
+                setToast({ text: `Support is ${stateText}`, type: "success" });
                 dispatch(
                   updateSettings({ enableSupport: !settings.enableSupport })
                 );
@@ -90,7 +112,7 @@ export default function Support() {
         </div>
         <div className={styles.Option}>
           <label>Status:</label>
-          <div className={styles.Status}>{getStatus()}</div>
+          <div className={styles.Status}>{connectionStatus}</div>
         </div>
       </div>
     </>
