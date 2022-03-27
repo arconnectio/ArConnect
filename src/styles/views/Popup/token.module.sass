@@ -88,22 +88,42 @@ $sidePadding: .7em
         color: variables.$foreground-color
         text-decoration: none
 
-    ul li
-      position: relative
-      list-style: none
-      font-size: .84em
-      font-weight: 500
+    ul 
+      margin-bottom: 1em
 
-      &:last-child
-        margin-bottom: 0
+      li
+        position: relative
+        list-style: none
+        font-size: .84em
+        font-weight: 500
 
-      &::before
-        content: "-"
-        position: absolute
-        left: -1.25em
-        color: variables.$foreground-color
-        margin-left: 0
+        &:last-child
+          margin-bottom: 0
 
-      a
-        color: variables.$foreground-color
-        text-decoration: underline
+        &::before
+          content: "-"
+          position: absolute
+          left: -1.25em
+          color: variables.$foreground-color
+          margin-left: 0
+
+        a
+          color: variables.$foreground-color
+          text-decoration: underline
+
+    .TokenLinkIcons
+      display: flex
+      align-items: center
+
+      img
+        display: block
+        cursor: pointer
+        height: 1.4em
+        margin: 0 .3em
+        transition: all .23s ease-in-out
+
+        &:first-child
+          margin-left: 0
+
+        &:hover
+          opacity: .8

@@ -6,9 +6,13 @@ import { browser } from "webextension-polyfill-ts";
 import { useTheme } from "@verto/ui";
 import { GraphOptions } from "../../../utils/graph";
 import { Line } from "react-chartjs-2";
+import { marked } from "marked";
+import vertoLightLogo from "../../../assets/verto_light.png";
+import vertoDarkLogo from "../../../assets/verto_dark.png";
+import viewblockLogo from "../../../assets/viewblock.png";
+import cxyzLogo from "../../../assets/communityxyz.png";
 import Verto from "@verto/js";
 import Home from "./Home";
-import { marked } from "marked";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/token.module.sass";
 
@@ -169,6 +173,37 @@ export default function Token({ id }: { id: string }) {
                       </li>
                     ))}
               </ul>
+              <div className={styles.TokenLinkIcons}>
+                <img
+                  src={theme === "Dark" ? vertoDarkLogo : vertoLightLogo}
+                  alt="v"
+                  onClick={() =>
+                    browser.tabs.create({
+                      url: `https://verto.exchange/space/${id}`
+                    })
+                  }
+                />
+                <img
+                  src={viewblockLogo}
+                  alt="b"
+                  onClick={() =>
+                    browser.tabs.create({
+                      url: `https://viewblock.io/arweave/address/${id}`
+                    })
+                  }
+                />
+                {tokenType === "community" && (
+                  <img
+                    src={cxyzLogo}
+                    alt="c"
+                    onClick={() =>
+                      browser.tabs.create({
+                        url: `https://community.xyz/#${id}`
+                      })
+                    }
+                  />
+                )}
+              </div>
             </div>
           </>
         )}
