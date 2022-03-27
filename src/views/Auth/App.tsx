@@ -501,18 +501,25 @@ export default function App() {
                             ]);
                         }}
                       />
-                      {getPermissionDescription(permission)}
+                      <p
+                        style={{
+                          display: "block",
+                          textAlign: "left",
+                          paddingTop: "1em"
+                        }}
+                      >
+                        {getPermissionDescription(permission)}
+                      </p>
                     </li>
                   ))}
                 </ul>
               )) || <p>No permissions requested.</p>}
-              <Spacer />
-              {/*TODO*/}
-              <Button style={{ width: "100%" }} onClick={accept} type="success">
+              <Spacer y={1} />
+              <Button small onClick={accept} type="filled">
                 Accept
               </Button>
-              <Spacer />
-              <Button style={{ width: "100%" }} onClick={cancel}>
+              <Spacer y={1.5} />
+              <Button small onClick={cancel} type="secondary">
                 Cancel
               </Button>
               <div className={styles.AppInfo}>
