@@ -5,7 +5,7 @@ $sidePadding: .7em
 
 .Token
   position: relative
-  padding: $sidePadding
+  padding: 1em $sidePadding
   background-color: variables.$background-color
 
   .TokenName, .Price
@@ -23,6 +23,7 @@ $sidePadding: .7em
       font-size: .55em
       line-height: 1.4em
       margin-left: .35em
+      text-transform: uppercase
 
   .Price
     font-size: 2.7em
@@ -127,3 +128,28 @@ $sidePadding: .7em
 
         &:hover
           opacity: .8
+
+  .ArtPreview
+    width: 100%
+    box-shadow: variables.$lighter-shadow
+    border-radius: 15px
+    margin-bottom: 1.2em
+    user-select: none
+
+  .Owned
+    font-size: 1.7em
+    font-weight: 500
+    color: variables.$foreground-color
+    line-height: 1.1em
+    margin: 0
+
+    span
+      font-size: .7em
+      margin-left: .3em
+      text-transform: uppercase
+
+  .ArtPrice
+    font-size: .95em
+    color: variables.$light-text
+    font-weight: 500
+    margin: 0

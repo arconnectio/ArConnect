@@ -3,10 +3,12 @@ import { ArrowLeftIcon } from "@primer/octicons-react";
 import { goTo } from "react-chrome-extension-router";
 import { fetchContract } from "verto-cache-interface";
 import { browser } from "webextension-polyfill-ts";
-import { useTheme } from "@verto/ui";
+import { useTheme, Spacer } from "@verto/ui";
 import { GraphOptions } from "../../../utils/graph";
 import { Line } from "react-chartjs-2";
 import { marked } from "marked";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../stores/reducers";
 import vertoLightLogo from "../../../assets/verto_light.png";
 import vertoDarkLogo from "../../../assets/verto_dark.png";
 import viewblockLogo from "../../../assets/viewblock.png";
@@ -66,6 +68,15 @@ export default function Token({ id }: { id: string }) {
 
     setFormattedDescription(marked(desc));
   }, [tokenState, communitySettings]);
+
+  // get how much the users owns of this token
+  const [owned, setOwned] = useState(0);
+  const address = useSelector((state: RootState) => state.profile);
+
+  useEffect(() => {
+    if (!tokenState) return;
+    setOwned(tokenState.balances[address] || 0);
+  }, [tokenState, address]);
 
   return (
     <>
@@ -138,7 +149,22 @@ export default function Token({ id }: { id: string }) {
                   </div>
                 </div>
               </>
-            )) || <div className={styles.ArtPreview}></div>}
+            )) || (
+              <>
+                <img
+                  src={`https://arweave.net/${id}`}
+                  className={styles.ArtPreview}
+                  alt=""
+                  draggable={false}
+                />
+                <h1 className={styles.Owned}>
+                  {owned}
+                  <span>{tokenState.ticker}</span>
+                </h1>
+                <p className={styles.ArtPrice}>$---.--</p>
+                <Spacer y={1.3} />
+              </>
+            )}
             <div className={styles.AboutToken}>
               <div className={styles.AboutMenu}>
                 <span className={styles.Selected}>About</span>
