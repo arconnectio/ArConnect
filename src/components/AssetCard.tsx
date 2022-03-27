@@ -11,7 +11,6 @@ export default function AssetCard({ ticker, display, fiat, id }: Props) {
   const { currency } = useSelector((state: RootState) => state.settings);
   const theme = useTheme();
 
-  // TODO: update goTo to go to the proper token and not crash
   return (
     <Card className={styles.AssetCard} onClick={() => goTo(Token, { id })}>
       <div className={styles.Head}>

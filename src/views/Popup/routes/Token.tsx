@@ -1,221 +1,67 @@
 import React, { useEffect, useState } from "react";
-import {
-  ArrowLeftIcon,
-  ArrowSwitchIcon,
-  TrashIcon,
-  InfoIcon,
-  VerifiedIcon
-} from "@primer/octicons-react";
+import { ArrowLeftIcon } from "@primer/octicons-react";
 import { goTo } from "react-chrome-extension-router";
-import { Asset } from "../../../stores/reducers/assets";
-import {
-  Input,
-  Tabs,
-  useInput,
-  useTabs,
-  Button,
-  Spacer,
-  useModal,
-  Modal,
-  Loading,
-  Progress,
-  useTheme,
-  Tooltip,
-  useToasts
-} from "@geist-ui/react";
-import { useColorScheme } from "use-color-scheme";
-import { useDispatch, useSelector } from "react-redux";
-import { removeAsset } from "../../../stores/actions";
-import { RootState } from "../../../stores/reducers";
-import { JWKInterface } from "arweave/node/lib/wallet";
-import { interactWrite } from "smartweave";
-import { Line } from "react-chartjs-2";
-import { GraphDataConfig, GraphOptions } from "../../../utils/graph";
-import { AnimatePresence, motion } from "framer-motion";
-import { getVerification, Threshold } from "arverify";
+import { fetchContract } from "verto-cache-interface";
 import { browser } from "webextension-polyfill-ts";
-import { checkPassword } from "../../../utils/auth";
-import manifest from "../../../../public/manifest.json";
-import Arweave from "arweave";
+import { useTheme } from "@verto/ui";
+import { GraphOptions } from "../../../utils/graph";
+import { Line } from "react-chartjs-2";
 import Verto from "@verto/js";
 import Home from "./Home";
-import verto_logo_light from "../../../assets/verto_light.png";
-import verto_logo_dark from "../../../assets/verto_dark.png";
-import axios from "axios";
+import { marked } from "marked";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/token.module.sass";
 
 export default function Token({ id }: { id: string }) {
-  const [price, setPrices] = useState<{ prices: number[]; dates: string[] }>(),
-    { scheme } = useColorScheme(),
-    tabs = useTabs("1"),
-    transferInput = useInput(""),
-    addressInput = useInput(""),
-    [inputState, setInputState] = useState<
-      "default" | "secondary" | "success" | "warning" | "error"
-    >(),
-    [addressInputState, setAddressInputState] = useState<
-      "default" | "secondary" | "success" | "warning" | "error"
-    >(),
-    [loading, setLoading] = useState(false),
-    dispatch = useDispatch(),
-    profile = useSelector((state: RootState) => state.profile),
-    removeModal = useModal(false),
-    [description, setDescription] = useState(""),
-    [links, setLinks] = useState<string[]>([]),
-    [loadingData, setLoadingData] = useState(false),
-    arweaveConfig = useSelector((state: RootState) => state.arweave),
-    wallets = useSelector((state: RootState) => state.wallets),
-    geistTheme = useTheme(),
-    [verified, setVerified] = useState<{
-      verified: boolean;
-      icon: string;
-      percentage: number;
-    }>(),
-    [, setToast] = useToasts(),
-    { arVerifyTreshold } = useSelector((state: RootState) => state.settings),
-    passwordInput = useInput("");
+  // load token type and state
+  const [tokenType, setTokenType] = useState<"community" | "art">();
+  const [tokenState, setTokenState] = useState<TokenState>();
+  const [communitySettings, setCommunitySettings] = useState<Map<string, any>>(
+    new Map([])
+  );
 
   useEffect(() => {
-    loadArPrice();
-    loadData();
-    // eslint-disable-next-line
+    (async () => {
+      try {
+        const verto = new Verto();
+        const type = await verto.token.getTokenType(id);
+        const state = await fetchContract<TokenState>(id);
+
+        if (!type || !state) return goTo(Home);
+        if (type === "custom")
+          return browser.tabs.create({
+            url: `https://viewblock.io/arweave/address/${id}`
+          });
+
+        setTokenType(type);
+        setTokenState(state.state);
+
+        if (state.state.settings)
+          setCommunitySettings(new Map(state.state.settings));
+      } catch {
+        goTo(Home);
+      }
+    })();
   }, [id]);
 
-  useEffect(() => {
-    if (tabs.state === "3")
-      browser.tabs.create({ url: `https://verto.exchange/space/${id}` });
-  }, [tabs, id]);
+  // ui theme
+  const theme = useTheme();
+
+  // period picker
+  const periods = ["24h", "1w", "1m", "1y", "ALL"];
+
+  // format description
+  const [formattedDescription, setFormattedDescription] = useState("");
 
   useEffect(() => {
-    checkVerification();
-    // eslint-disable-next-line
-  }, [addressInput.state]);
+    if (!tokenState || !communitySettings) return;
+    const desc =
+      tokenState.description ||
+      communitySettings.get("communityDescription") ||
+      "No description available...";
 
-  async function loadArPrice() {
-    const verto = new Verto(),
-      prices = await verto.getPriceHistory(id);
-
-    if (prices)
-      setPrices({
-        dates: Object.keys(prices).filter((date) => !!prices[date]),
-        prices: Object.values(prices).filter((price) => !!price)
-      });
-  }
-
-  const [type, setType] = useState<"community" | "collectible">("community");
-
-  async function loadData() {
-    setLoadingData(true);
-    try {
-      const { data }: any = await axios.get(
-        `https://v2.cache.verto.exchange/${id}`
-      );
-
-      if (!data) return;
-      setType(
-        data.state.settings && data.state.roles && data.state.votes
-          ? "community"
-          : "collectible"
-      );
-      setDescription(
-        data.state.settings?.find(
-          (entry: any) => entry[0] === "communityDescription"
-        )[1] ||
-          data.state.description ||
-          ""
-      );
-      setLinks([
-        data.state.settings?.find(
-          (entry: any) => entry[0] === "communityAppUrl"
-        )[1],
-        ...data.state.settings?.find(
-          (entry: any) => entry[0] === "communityDiscussionLinks"
-        )[1]
-      ]);
-    } catch {}
-    setLoadingData(false);
-  }
-
-  async function transfer() {
-    if (
-      transferInput.state === "" ||
-      Number(transferInput.state) <= 0 ||
-      Number(transferInput.state) > balance
-    )
-      return setInputState("error");
-    if (addressInput.state === "") return setAddressInputState("error");
-    if (
-      Number(transferInput.state) *
-        (price ? price.prices[price.prices.length - 1] : 1) >
-        1 &&
-      !(await checkPassword(passwordInput.state))
-    )
-      return setToast({ text: "Invalid password", type: "error" });
-
-    setLoading(true);
-
-    let keyfile: JWKInterface | undefined = undefined;
-    try {
-      const currentWallet = wallets.find(({ address }) => address === profile);
-      if (currentWallet) keyfile = JSON.parse(atob(currentWallet.keyfile));
-      else throw new Error("No wallet found");
-    } catch {
-      return setToast({ type: "error", text: "Could not decrypt keyfile" });
-    }
-
-    if (keyfile) {
-      try {
-        const arweave = new Arweave(arweaveConfig);
-        await interactWrite(
-          // @ts-ignore
-          arweave,
-          keyfile,
-          id,
-          {
-            function: "transfer",
-            target: addressInput.state,
-            qty: Number(transferInput.state)
-          },
-          [
-            { name: "Type", value: "Transfer" },
-            { name: "Client", value: "ArConnect" },
-            { name: "Client-Version", value: manifest.version }
-          ],
-          addressInput.state.toString()
-        );
-        setToast({ type: "success", text: "The transfer is now processing" });
-      } catch {
-        setLoading(false);
-        return setToast({ type: "error", text: "Error durring transfer" });
-      }
-    }
-    setLoading(false);
-    transferInput.setState("");
-    addressInput.setState("");
-    setInputState("default");
-    setAddressInputState("default");
-  }
-
-  function removePst() {
-    dispatch(removeAsset(profile, id));
-    removeModal.setVisible(false);
-    goTo(Home);
-  }
-
-  async function checkVerification() {
-    if (addressInput.state === "") return setVerified(undefined);
-
-    try {
-      const verification = await getVerification(
-        addressInput.state,
-        arVerifyTreshold ?? Threshold.MEDIUM
-      );
-      setVerified(verification);
-    } catch {
-      setVerified(undefined);
-    }
-  }
+    setFormattedDescription(marked(desc));
+  }, [tokenState, communitySettings]);
 
   return (
     <>
@@ -223,228 +69,119 @@ export default function Token({ id }: { id: string }) {
         <div className={SubPageTopStyles.Back} onClick={() => goTo(Home)}>
           <ArrowLeftIcon />
         </div>
-        <h1>{name}</h1>
+        <h1>{tokenState?.name || ""}</h1>
       </div>
       <div className={styles.Token}>
-        <button
-          onClick={() => removeModal.setVisible(true)}
-          className={styles.Remove}
-        >
-          <TrashIcon />
-        </button>
-        {type === "collectible" && (
-          <img
-            src={`https://arweave.net/${id}`}
-            className={styles.CollectiblePreview}
-            alt="collectible"
-          />
-        )}
-        <h1 className={styles.Balance}>
-          {balance.toLocaleString()} <span>{ticker}</span>
-        </h1>
-        {(type === "community" && (
-          <h2 className={styles.BalanceInAR}>
-            {!price || price.prices.length === 0
-              ? "??"
-              : parseFloat(
-                  (balance * price.prices[price.prices.length - 1]).toFixed(4)
-                )}{" "}
-            AR
-          </h2>
-        )) || <Spacer h={0.32} />}
-        <Tabs {...tabs.bindings} className={styles.Tabs}>
-          <Tabs.Item
-            label={
+        {tokenState && tokenType && (
+          <>
+            {(tokenType === "community" && (
               <>
-                <InfoIcon />
-                About
-              </>
-            }
-            value="1"
-          >
-            <div className={styles.About}>
-              <AnimatePresence>
-                {price && price.prices.length > 0 && price.dates.length > 0 && (
-                  <motion.div
-                    className={styles.Graph}
-                    initial={{ opacity: 0, transform: "scaleY(0)" }}
-                    animate={{ opacity: 1, transform: "scaleY(1)" }}
-                    exit={{ opacity: 0, transform: "scaleY(0)" }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Line
-                      data={{
-                        labels: price.dates,
-                        datasets: [
-                          {
-                            label: "AR",
-                            data: price.prices.map((val) => val.toFixed(4)),
-                            ...GraphDataConfig
-                          }
-                        ]
-                      }}
-                      options={GraphOptions({
-                        tooltipText: ({ value }) => `${value} AR`
-                      })}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              {(loadingData && <Loading />) ||
-                ((description || (links && links.length > 0)) && (
-                  <>
-                    <p>{description}</p>
-                    <ul>
-                      {links.map((link, i) => (
-                        <li key={i}>
-                          <a
-                            href={link}
-                            onClick={() => browser.tabs.create({ url: link })}
-                          >
-                            {link
-                              .replace(/(https|http):\/\//, "")
-                              .replace(/\/$/, "")}
-                          </a>
-                        </li>
-                      ))}
-                      {type === "community" && (
-                        <li>
-                          <a
-                            href={`https://community.xyz/#${id}`}
-                            onClick={() =>
-                              browser.tabs.create({
-                                url: `https://community.xyz/#${id}`
-                              })
-                            }
-                          >
-                            community.xyz/{name.toLowerCase()}
-                          </a>
-                        </li>
-                      )}
-                    </ul>
-                  </>
-                )) || (
-                  <p style={{ textAlign: "center" }}>No data for this PST.</p>
-                )}
-            </div>
-          </Tabs.Item>
-          <Tabs.Item
-            label={
-              <>
-                <ArrowSwitchIcon />
-                Transfer
-              </>
-            }
-            value="2"
-          >
-            <div className={styles.Transfer}>
-              <Spacer />
-              <div
-                className={verified && verified.verified ? styles.Address : ""}
-              >
-                <Input
-                  {...addressInput.bindings}
-                  type={addressInputState}
-                  placeholder="Transfer address..."
-                />
-                {verified && verified.verified && (
-                  <Tooltip
-                    text={
-                      <p style={{ margin: 0, textAlign: "center" }}>
-                        Verified on <br />
-                        ArVerify
-                      </p>
+                <h1 className={styles.TokenName}>
+                  {tokenState.name}
+                  <span>({tokenState.ticker})</span>
+                </h1>
+                <h1 className={styles.Price}>
+                  {/** TODO: price */}
+                  $--.--
+                </h1>
+                <div className={styles.PeriodMenu}>
+                  {periods.map((per, i) => (
+                    <span
+                      key={i}
+                      //className={selectedPeriod === per ? styles.Selected : ""}
+                      //onClick={() => setSelectedPeriod(per)}
+                      className={
+                        i === periods.length - 1 ? styles.Selected : ""
+                      }
+                    >
+                      {per}
+                    </span>
+                  ))}
+                </div>
+                <div className={styles.PriceGraph}>
+                  <Line
+                    data={{
+                      labels: ["", "", "", "", "", "", "", "", "", "", ""], // TODO: replace with dates / prices in implementation
+                      datasets: [
+                        {
+                          label: "My First Dataset",
+                          data: [
+                            65, 9, 80, 89, 99, 32, 120, 90, 79, 18, 79, 60
+                          ], // TODO: replace with real data in implementation
+                          fill: false,
+                          borderColor: "#000",
+                          tension: 0.1
+                        }
+                      ]
+                    }}
+                    options={GraphOptions({
+                      theme,
+                      tooltipText: ({ value }) =>
+                        `${Number(value).toLocaleString(undefined, {
+                          maximumFractionDigits: 2,
+                          minimumFractionDigits: 2
+                        })} AR`
+                    })}
+                  />
+                  <div
+                    className={
+                      styles.NoPrice +
+                      " " +
+                      ((theme === "Dark" && styles.DarkNoPrice) || "")
                     }
-                    placement="topEnd"
                   >
-                    <VerifiedIcon />
-                  </Tooltip>
-                )}
-              </div>
-              <AnimatePresence>
-                {verified && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    <p style={{ margin: 0, marginBottom: ".21em" }}>
-                      Trust score: {verified.percentage?.toFixed(2) ?? 0}%
-                    </p>
-                    <Progress
-                      value={verified.percentage}
-                      colors={{
-                        30: geistTheme.palette.error,
-                        80: geistTheme.palette.warning,
-                        100: "#99C507"
-                      }}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              <Spacer />
-              <Input
-                {...transferInput.bindings}
-                placeholder="Transfer amount..."
-                htmlType="number"
-                type={inputState}
-                labelRight={ticker}
-                min="0"
-                max={balance}
-              />
-              <Spacer />
-              <AnimatePresence>
-                {Number(transferInput.state) *
-                  (price ? price.prices[price.prices.length - 1] : 1) >
-                  1 && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.23, ease: "easeInOut" }}
-                  >
-                    <Input.Password
-                      {...passwordInput.bindings}
-                      placeholder="Enter your password..."
-                    />
-                    <Spacer />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              <Button
-                style={{ width: "100%" }}
-                onClick={transfer}
-                loading={loading}
-              >
-                Transfer
-              </Button>
-            </div>
-          </Tabs.Item>
-          <Tabs.Item
-            label={
-              <>
-                <img
-                  src={scheme === "dark" ? verto_logo_dark : verto_logo_light}
-                  alt="verto"
-                  className={styles.TabItemIcon}
-                />
-                Verto
+                    No price data...
+                  </div>
+                </div>
               </>
-            }
-            value="3"
-          ></Tabs.Item>
-        </Tabs>
+            )) || <div className={styles.ArtPreview}></div>}
+            <div className={styles.AboutToken}>
+              <div className={styles.AboutMenu}>
+                <span className={styles.Selected}>About</span>
+                <span style={{ cursor: "not-allowed" }}>Swap</span>
+              </div>
+              <div
+                className={styles.Description}
+                dangerouslySetInnerHTML={{ __html: formattedDescription }}
+              />
+              <ul>
+                {communitySettings.get("communityAppUrl") && (
+                  <li>
+                    <a
+                      href={tokenState.settings.communityAppUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {communitySettings
+                        .get("communityAppUrl")
+                        .replace(/((http(s?)):\/\/)|(\/$)/g, "")}
+                    </a>
+                  </li>
+                )}
+                {communitySettings.get("communityDiscussionLinks") &&
+                  communitySettings
+                    .get("communityDiscussionLinks")
+                    .map((url: string, i: number) => (
+                      <li key={i}>
+                        <a href={url} target="_blank" rel="noopener noreferrer">
+                          {url.replace(/((http(s?)):\/\/)|(\/$)/g, "")}
+                        </a>
+                      </li>
+                    ))}
+              </ul>
+            </div>
+          </>
+        )}
       </div>
-      <Modal {...removeModal.bindings}>
-        <Modal.Title>Remove PST?</Modal.Title>
-        <Modal.Content>
-          <p>Do you want to remove this PST from the displayed PSTs list?</p>
-        </Modal.Content>
-        <Modal.Action passive onClick={() => removeModal.setVisible(false)}>
-          Cancel
-        </Modal.Action>
-        <Modal.Action onClick={removePst}>Remove</Modal.Action>
-      </Modal>
     </>
   );
+}
+
+interface TokenState {
+  name: string;
+  ticker: string;
+  balances: {
+    [address: string]: number;
+  };
+  [key: string]: any;
 }

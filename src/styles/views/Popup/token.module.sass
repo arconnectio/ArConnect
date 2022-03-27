@@ -1,79 +1,109 @@
 @use "../../variables"
+@use "../../components/PeriodMenu"
   
 $sidePadding: .7em
 
 .Token
-  $topPadding: 2.35em
   position: relative
-  padding: $topPadding $sidePadding 1em
+  padding: $sidePadding
   background-color: variables.$background-color
-  text-align: center
 
-  .Remove
-    position: absolute
-    right: 1.1em
-    top: 1.1em
-    line-height: 1em
-    cursor: pointer
-    padding: 0
-    background-color: transparent
-    outline: none
-    border: none
-    color: variables.$light-text
-    transition: all .23s ease-in-out
-
-    &:hover
-      opacity: .76
-
-  .CollectiblePreview
-    width: 70%
+  .TokenName, .Price
+    display: flex
+    align-items: flex-end
+    font-size: 2.4em
+    font-weight: 500
+    color: variables.$foreground-color
+    line-height: 1.1em
     margin: 0 auto
-      top: 1em
-      bottom: 1em
-    box-shadow: 0px 10px 20px rgba(0, 0, 0, .2)
-
-  .Balance
-    font-size: 2.25em
-    line-height: 1em
-    font-weight: 600
-    margin: 0
-      bottom: .1em
+      bottom: .04em
 
     span
-      font-size: .62em
+      color: variables.$light-text
+      font-size: .55em
+      line-height: 1.4em
+      margin-left: .35em
 
-  .BalanceInAR
-    font-size: 1.4em
-    line-height: 1em
-    color: variables.$light-text
-    font-weight: 500
-    margin-bottom: $topPadding
+  .Price
+    font-size: 2.7em
+    font-weight: 600
+    margin-bottom: .35em
 
-.TabItemIcon
-  width: .7em
-  height: .7em
-  display: inline-block
-  vertical-align: middle
-  margin-right: .3em
+  .PeriodMenu
+    +PeriodMenu.periodMenu
+    margin-bottom: 1em
 
-.Tabs
-  header
-    justify-content: center
+  .PriceGraph
+    position: relative
+    height: 180px
+    padding-bottom: 1.25em
 
-.About, .Transfer
-  text-align: justify
+    .NoPrice
+      position: absolute
+      top: -4px
+      left: 0
+      right: 0
+      bottom: -4px
+      background-color: rgba(#fff, .4)
+      backdrop-filter: blur(4px)
 
-  &.About
-    padding: 0 1.25em
+      display: flex
+      align-items: center
+      justify-content: center
+      text-align: center
+      color: variables.$light-text
+      font-weight: 500
+      font-size: .93em
 
-    .Graph
+      &.DarkNoPrice
+        background-color: rgba(#000, .4)
+
+  .AboutToken
+    .AboutMenu
+      display: flex
+      align-items: center
+      justify-content: space-between
+      margin-bottom: .85em
+
+      span
+        font-size: .84em
+        font-weight: 500
+        color: variables.$light-text
+        cursor: pointer
+        transition: all .23s ease-in-out
+
+        &.Selected
+          color: variables.$foreground-color
+
+    .Description
+      margin-bottom: .35em
+
+      p
+        font-weight: 500
+        font-size: .88em
+        text-align: justify
+        color: variables.$light-text
+
+      a
+        color: variables.$foreground-color
+        text-decoration: none
+
+    ul li
       position: relative
+      list-style: none
+      font-size: .84em
+      font-weight: 500
 
-  div[class~=with-label]
-    width: 100%
+      &:last-child
+        margin-bottom: 0
 
-    div
-      width: 100%
+      &::before
+        content: "-"
+        position: absolute
+        left: -1.25em
+        color: variables.$foreground-color
+        margin-left: 0
 
-  .Address
-    +variables.flexInput(true)
+      a
+        color: variables.$foreground-color
+        text-decoration: underline

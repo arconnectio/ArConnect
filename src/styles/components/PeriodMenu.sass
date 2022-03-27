@@ -1,0 +1,24 @@
+
+@use "../variables"
+  
+=periodMenu
+  display: flex
+  align-items: center
+
+  span
+    display: block
+    text-align: center
+    padding: .2rem .32rem .16rem
+    margin: 0 .2rem
+    cursor: pointer
+    font-size: .7rem
+    font-weight: 500
+    line-height: 1rem
+    color: variables.$foreground-color
+    border-radius: 4px
+    transition: all .23s ease-in-out
+
+    &.Selected
+      background-color: variables.$foreground-color
+      color: variables.$foreground-reverse-color
+      box-shadow: variables.$standard-shadow

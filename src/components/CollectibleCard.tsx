@@ -14,14 +14,7 @@ export default function CollectibleCard({
   return (
     <Card
       className={styles.CollectibleCard}
-      onClick={() =>
-        goTo(Token, {
-          name,
-          id,
-          balance,
-          ticker
-        })
-      }
+      onClick={() => goTo(Token, { id })}
     >
       <img
         src={image}
