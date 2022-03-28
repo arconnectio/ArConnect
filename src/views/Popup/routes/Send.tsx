@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
-import { useInput, useToasts, Progress, useTheme } from "@geist-ui/react";
+import { useToasts, Progress, useTheme } from "@geist-ui/react";
 import { VerifiedIcon, FileSubmoduleIcon } from "@primer/octicons-react";
-import { Button, Input, Select, Spacer } from "@verto/ui";
+import { Button, Input, Select, Spacer, useInput } from "@verto/ui";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { arToFiat, getSymbol } from "../../../utils/currency";
 import { Threshold, getVerification } from "arverify";
 import { AnimatePresence, motion } from "framer-motion";
 import { checkPassword } from "../../../utils/auth";
+import { updateSettings } from "../../../stores/actions";
 import manifest from "../../../../public/manifest.json";
 import WalletManager from "../../../components/WalletManager";
 import Arweave from "arweave";
@@ -17,8 +18,7 @@ import styles from "../../../styles/views/Popup/send.module.sass";
 
 export default function Send() {
   const targetInput = useInput(""),
-    amountInput = useInput("0"),
-    messageInput = useInput(""),
+    amountInput = useInput<number>(0),
     arweaveConfig = useSelector((state: RootState) => state.arweave),
     arweave = new Arweave(arweaveConfig),
     [fee, setFee] = useState("0"),
@@ -39,9 +39,11 @@ export default function Send() {
     { arVerifyTreshold } = useSelector((state: RootState) => state.settings),
     geistTheme = useTheme(),
     passwordInput = useInput("");
-  let { currency, feeMultiplier } = useSelector(
+
+  const { currency, feeMultiplier } = useSelector(
     (state: RootState) => state.settings
   );
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     loadBalance();
@@ -52,7 +54,7 @@ export default function Send() {
     calculateFee();
     checkVerification();
     // eslint-disable-next-line
-  }, [targetInput.state, messageInput.state, profile]);
+  }, [targetInput.state, message, profile]);
 
   useEffect(() => {
     calculateArPriceInCurrency();
@@ -73,18 +75,19 @@ export default function Send() {
     } catch {}
   }
 
+  const dispatch = useDispatch();
+
   async function calculateFee() {
     try {
-      const messageSize = new TextEncoder().encode(messageInput.state).length,
+      const messageSize = new TextEncoder().encode(message).length,
         { data } = await axios.get(
           `https://arweave.net/price/${messageSize}/${targetInput.state}`
         );
-      if (
-        feeMultiplier < 1 ||
-        feeMultiplier === undefined ||
-        feeMultiplier === null
-      )
-        feeMultiplier = 1;
+
+      if (feeMultiplier < 1 || !feeMultiplier) {
+        dispatch(updateSettings({ feeMultiplier: 1 }));
+      }
+
       setFee(
         arweave.ar.winstonToAr(
           (parseFloat(data as string) * feeMultiplier).toFixed(0)
@@ -97,7 +100,7 @@ export default function Send() {
     setSubmitted(true);
     if (
       targetInput.state === "" ||
-      amountInput.state === "" ||
+      amountInput.state === 0 ||
       Number(amountInput.state) > Number(balance) ||
       currentWallet === undefined
     )
@@ -117,8 +120,8 @@ export default function Send() {
         transaction = await arweave.createTransaction(
           {
             target: targetInput.state,
-            quantity: arweave.ar.arToWinston(amountInput.state),
-            data: messageInput.state !== "" ? messageInput.state : undefined
+            quantity: arweave.ar.arToWinston(amountInput.state.toString()),
+            data: message !== "" ? message : undefined
           },
           keyfile
         );
@@ -146,8 +149,9 @@ export default function Send() {
       else throw new Error("");
 
       targetInput.setState("");
-      amountInput.setState("");
-      messageInput.setState("");
+      amountInput.setState(0);
+
+      setMessage("");
       setSubmitted(false);
     } catch {
       setToast({ text: "Error sending transaction", type: "error" });
@@ -169,47 +173,19 @@ export default function Send() {
     }
   }
 
-  const DisplayVerifiedIcon = () => (
-    <>
-      {verified && verified?.verified ? (
-        <VerifiedIcon />
-      ) : (
-        <FileSubmoduleIcon size={30} />
-      )}
-    </>
-  );
-
-  const DisplayAR = () => (
-    <Select filled small>
-      <option value="AR">AR</option>
-      <option value="BTC">BTC</option>
-      <option value="VRT">VRT</option>
-      <option value="ETH">ETH</option>
-      <option value="USDT">USDT</option>
-    </Select>
-  );
-
   return (
     <>
       <WalletManager pageTitle="Send" />
       <div className={styles.View}>
-        <div
-          className={
-            verified && verified.verified
-              ? styles.Amount + " " + styles.Target
-              : ""
-          }
-        >
-          <Input
-            small
-            {...targetInput.bindings}
-            style={{ width: "98%" }}
-            inlineLabel={<DisplayVerifiedIcon />}
-            label="TARGET"
-            placeholder="Address..."
-            status={submitted && targetInput.state === "" ? "error" : undefined}
-          />
-        </div>
+        <p className={styles.Label}>Target</p>
+        <Input
+          small
+          {...targetInput.bindings}
+          inlineLabel={(verified && <VerifiedIcon />) || undefined}
+          placeholder="Address..."
+          fullWidth
+          status={submitted && targetInput.state === "" ? "error" : undefined}
+        />
         <AnimatePresence>
           {verified && (
             <motion.div
@@ -217,15 +193,8 @@ export default function Send() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <p
-                style={{
-                  marginTop: "2em",
-                  marginBottom: ".4em",
-                  fontWeight: "500",
-                  color: "#666",
-                  fontSize: ".9em"
-                }}
-              >
+              <Spacer y={1} />
+              <p className={styles.InputInfo}>
                 Trust score: {verified.percentage?.toFixed(2) ?? 0}%
               </p>
               <Progress
@@ -240,25 +209,29 @@ export default function Send() {
           )}
         </AnimatePresence>
         <Spacer y={verified ? 0.55 : 1} />
-        <div className={styles.Amount}>
-          <Input
-            small
-            {...amountInput.bindings}
-            style={{ width: "98%" }}
-            placeholder="000.000"
-            label="QUANTITY"
-            inlineLabel={<DisplayAR />}
-            type="number"
-            min="0"
-            status={
-              submitted &&
-              (amountInput.state === "" ||
-                Number(amountInput.state) > Number(balance))
-                ? "error"
-                : undefined
-            }
-          />
-        </div>
+        <p className={styles.Label}>Quantity</p>
+        <Input
+          small
+          {...amountInput.bindings}
+          fullWidth
+          placeholder="000.000"
+          inlineLabel={
+            <Select filled small className={styles.TokenSelect}>
+              <option value="AR">AR</option>
+              <option value="VRT">VRT</option>
+              <option value="ARDRIVE">ARDRIVE</option>
+            </Select>
+          }
+          type="number"
+          min={0}
+          status={
+            submitted &&
+            (amountInput.state === 0 ||
+              Number(amountInput.state) > Number(balance))
+              ? "error"
+              : undefined
+          }
+        />
         <p className={styles.InputInfo}>
           <span>
             {"~" + getSymbol(currency)}
@@ -268,20 +241,17 @@ export default function Send() {
           <span>1 AR = {getSymbol(currency) + arPriceFiat.toFixed(2)}</span>
           {/* TODO: Update to display price according to selected token */}
         </p>
-        <label className={styles.MessageLabel}>
-          message (optional)
-          <textarea
-            {...messageInput.bindings}
-            className={styles.MessageInput}
-            placeholder="This is a test ..."
-          ></textarea>
-        </label>
-
-        <div className={styles.FeeContainer}>
-          <p className={styles.FeeDisplay}>Arweave fee: {fee} AR</p>
-          <p className={styles.FeeDisplay}>Total: {fee} AR</p>
-        </div>
-
+        <p className={styles.Label}>Message (optional)</p>
+        <textarea
+          className={styles.MessageInput}
+          placeholder="Enter message here..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+        ></textarea>
+        <Spacer y={0.2} />
+        <p className={styles.FeeDisplay}>Arweave fee: {fee} AR</p>
+        <p className={styles.FeeDisplay}>Total: {fee} AR</p>
+        <Spacer y={1} />
         <AnimatePresence>
           {Number(amountInput.state) > 1 && (
             <motion.div
@@ -307,10 +277,11 @@ export default function Send() {
         </AnimatePresence>
         <Button
           small
-          style={{ width: "84%" }}
           type="filled"
           onClick={send}
           loading={loading}
+          className={styles.Button}
+          fullWidth
         >
           Send
         </Button>

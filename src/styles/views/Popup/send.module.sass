@@ -11,38 +11,11 @@
     div
       width: 100%
 
-  .Amount
-    margin-top: 2em
-    +variables.flexInput
-    
-    &.Target
-      +variables.flexInput(true)
-
-  .FeeContainer
-    margin-top: 1em
-    margin-bottom: 1.8em
-
   .FeeDisplay
     margin: 0
-    padding: 0
-    display: flex
-    font-size: 13px
+    font-size: .85em
     font-weight: 500
-    align-items: center
-    font-family: 'Poppins', sans-serif
     color: variables.$light-text
-
-
-    div[class~=tooltip]
-      position: relative
-
-      svg
-        position: absolute
-        top: 50%
-        left: .3em
-        width: .67em
-        height: .67em
-        transform: translateY(-50%)
 
 .InputInfo
   margin: 0
@@ -52,28 +25,30 @@
   justify-content: space-between
   color: variables.$light-text
 
-.MessageLabel
-  color: #666
-  margin: 1rem 0
-  font-size: .95em
-  font-weight: 500
-  display: inline-block
-  text-transform: uppercase  
-  font-family: 'Poppins', sans-serif
-
 .MessageInput
-  width: 93%
+  $borderSize: 3px
+  $sidePadding: .5em
+  width: calc(100% - #{$sidePadding} * 2 - #{$borderSize} * 2)
   height: 5em
   resize: none
-  color: #555
-  padding: 0.5em
-  margin-top: .5em
-  font-size: 1.25em
+  color: variables.$light-text
+  padding: .35em $sidePadding
+  font-size: 1em
   font-weight: 500
   border-radius: 14px
-  border: 3px solid #000
+  border: $borderSize solid variables.$foreground-color
   font-family: 'Poppins', sans-serif
 
   &::placeholder
     color: inherit
     font-family: inherit
+
+.Label
+  font-size: .9em
+  font-weight: 500
+  text-transform: uppercase
+  color: variables.$light-text
+  margin: 1em 0 .2em
+
+.TokenSelect
+  margin-left: .35em
