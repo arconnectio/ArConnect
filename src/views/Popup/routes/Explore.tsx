@@ -65,7 +65,15 @@ const Explore = () => {
         <div className={styles.TokenPrice}>
           <div className={styles.TokenInfo}>
             <h3>Arweave</h3>
-            <h2>$78.34</h2>
+            <h2>
+              $
+              {(
+                arweavePrices[arweavePrices.length - 1]?.price || 0
+              ).toLocaleString(undefined, {
+                maximumFractionDigits: 2,
+                minimumFractionDigits: 2
+              })}
+            </h2>
           </div>
           <div className={styles.Graph}>
             <Line
@@ -73,10 +81,9 @@ const Explore = () => {
                 labels: arweavePrices.map(({ date }) => date),
                 datasets: [
                   {
-                    label: "My First Dataset",
                     data: arweavePrices.map(({ price }) => price),
                     fill: false,
-                    borderColor: "#000",
+                    borderColor: theme === "Light" ? "#000" : "#fff",
                     tension: 0.1
                   }
                 ]

@@ -12,6 +12,7 @@
   display: flex
   align-items: center
   justify-content: space-between
+  color: variables.$foreground-color
   border-bottom: 1px solid variables.$skeleton
 
   .Icon, [class~=VertoPopoverWrapper]
@@ -95,7 +96,7 @@
     z-index: 1000
     margin: 1em
     border-radius: 14px
-    background-color: variables.$background-color
+    background-color: variables.$component-background
     box-shadow: variables.$standard-shadow
     padding: 0 0.5em
 
@@ -116,7 +117,7 @@
       gap: .8em
       align-items: center
       justify-content: space-between
-      background-color: variables.$background-color
+      background-color: variables.$component-background
       padding: .3em $sidePadding
       cursor: pointer
       text-align: left

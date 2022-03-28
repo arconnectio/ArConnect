@@ -39,12 +39,17 @@ import Settings from "../views/Popup/routes/Settings";
 import toastStyles from "../styles/components/SmallToast.module.sass";
 import logo from "../assets/logo.png";
 import styles from "../styles/components/WalletManager.module.sass";
-import testDP from "../assets/test.png";
 import Verto from "@verto/js";
 import Home from "../views/Popup/routes/Home";
 import "../styles/components/Tooltip.sass";
 
-export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
+export default function WalletManager({
+  pageTitle,
+  previousPage
+}: {
+  pageTitle?: string;
+  previousPage?: () => JSX.Element;
+}) {
   const profile = useSelector((state: RootState) => state.profile),
     wallets = useSelector((state: RootState) => state.wallets),
     storedBalances = useSelector((state: RootState) => state.balances),
@@ -145,7 +150,7 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
             " " +
             ((!pageTitle && styles.ArConnectLogo) || styles.BackIcon)
           }
-          onClick={() => goTo(Home)}
+          onClick={() => goTo(previousPage || Home)}
         >
           {(pageTitle && <ChevronLeftIcon size={24} />) || (
             <img src={logo} alt="logo" />

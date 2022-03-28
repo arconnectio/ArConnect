@@ -15,10 +15,17 @@ import viewblockLogo from "../../../assets/viewblock.png";
 import cxyzLogo from "../../../assets/communityxyz.png";
 import Verto from "@verto/js";
 import Home from "./Home";
+import WalletManager from "../../../components/WalletManager";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/token.module.sass";
 
-export default function Token({ id }: { id: string }) {
+export default function Token({
+  id,
+  previousPage
+}: {
+  id: string;
+  previousPage: () => JSX.Element;
+}) {
   // load token type and state
   const [tokenType, setTokenType] = useState<"community" | "art">();
   const [tokenState, setTokenState] = useState<TokenState>();
@@ -80,12 +87,10 @@ export default function Token({ id }: { id: string }) {
 
   return (
     <>
-      <div className={SubPageTopStyles.Head}>
-        <div className={SubPageTopStyles.Back} onClick={() => goTo(Home)}>
-          <ArrowLeftIcon />
-        </div>
-        <h1>{tokenState?.name || ""}</h1>
-      </div>
+      <WalletManager
+        previousPage={previousPage}
+        pageTitle={tokenState?.name || ""}
+      />
       <div className={styles.Token}>
         {tokenState && tokenType && (
           <>
@@ -124,7 +129,7 @@ export default function Token({ id }: { id: string }) {
                             65, 9, 80, 89, 99, 32, 120, 90, 79, 18, 79, 60
                           ], // TODO: replace with real data in implementation
                           fill: false,
-                          borderColor: "#000",
+                          borderColor: theme === "Light" ? "#000" : "#fff",
                           tension: 0.1
                         }
                       ]
