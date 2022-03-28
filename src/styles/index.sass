@@ -1,3 +1,5 @@
+@use "./variables"
+  
 body::-webkit-scrollbar
   display: none
 
@@ -5,3 +7,5 @@ body
   -ms-overflow-style: none
   scrollbar-width: none
   font-family: "Poppins", sans-serif !important
+  background-color: variables.$background-color !important
+  color: variables.$foreground-color !important
