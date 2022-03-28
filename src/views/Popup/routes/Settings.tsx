@@ -30,8 +30,8 @@ import CryptoES from "crypto-es";
 import dayjs from "dayjs";
 import Home from "./Home";
 import Arweave from "arweave";
-import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
+import WalletManager from "../../../components/WalletManager";
 
 export default function Settings() {
   const [setting, setCurrSetting] = useState<
@@ -280,30 +280,27 @@ export default function Settings() {
 
   return (
     <>
-      <div className={SubPageTopStyles.Head}>
-        <div
-          className={SubPageTopStyles.Back}
-          onClick={() => {
-            if (setting) {
+      <WalletManager
+        pageTitle={
+          (setting === "events" && "Events") ||
+          (setting === "permissions" && "Permissions") ||
+          (setting === "password" && "Password") ||
+          (setting === "currency" && "Currency") ||
+          (setting === "arweave" && "Arweave Config") ||
+          (setting === "arverify" && "ArVerify Config") ||
+          (setting === "config_file" && "Download Config") ||
+          (setting === "fee" && "Fee multiplier") ||
+          "Settings"
+        }
+        backAction={
+          (setting &&
+            (() => {
               setCurrSetting(undefined);
               clearInputs();
-            } else goTo(Home);
-          }}
-        >
-          <ArrowLeftIcon />
-        </div>
-        <h1>
-          {(setting === "events" && "Events") ||
-            (setting === "permissions" && "Permissions") ||
-            (setting === "password" && "Password") ||
-            (setting === "currency" && "Currency") ||
-            (setting === "arweave" && "Arweave Config") ||
-            (setting === "arverify" && "ArVerify Config") ||
-            (setting === "config_file" && "Download Config") ||
-            (setting === "fee" && "Fee multiplier") ||
-            "Settings"}
-        </h1>
-      </div>
+            })) ||
+          undefined
+        }
+      />
       <div className={styles.Settings}>
         {(!setting && (
           <>

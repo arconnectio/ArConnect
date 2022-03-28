@@ -42,7 +42,13 @@ import styles from "../styles/components/WalletManager.module.sass";
 import Verto from "@verto/js";
 import "../styles/components/Tooltip.sass";
 
-export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
+export default function WalletManager({
+  pageTitle,
+  backAction
+}: {
+  pageTitle?: string;
+  backAction?: () => void;
+}) {
   const profile = useSelector((state: RootState) => state.profile),
     wallets = useSelector((state: RootState) => state.wallets),
     storedBalances = useSelector((state: RootState) => state.balances),
@@ -143,7 +149,7 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
             " " +
             ((!pageTitle && styles.ArConnectLogo) || styles.BackIcon)
           }
-          onClick={() => goBack()}
+          onClick={backAction || (() => goBack())}
         >
           {(pageTitle && <ChevronLeftIcon size={24} />) || (
             <img src={logo} alt="logo" />
@@ -281,11 +287,7 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
                   <Tooltip text="Notifications">
                     <div
                       className={styles.Action}
-                      onClick={() =>
-                        browser.tabs.create({
-                          url: browser.runtime.getURL("/welcome.html")
-                        })
-                      }
+                      style={{ cursor: "not-allowed" }}
                     >
                       <BellIcon />
                     </div>
