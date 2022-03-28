@@ -6,7 +6,7 @@
   
 .CurrentWallet
   position: relative
-  padding: .3em 1em
+  padding: 2.2em 1em .55em
   text-align: center
   background-color: variables.$background-color
   display: flex
@@ -39,6 +39,11 @@
         box-shadow: none
         border-radius: 0
 
+    &.BackIcon
+      display: flex
+      align-items: center
+      justify-content: flex-start
+
     &.DummyAvatar
       border-radius: 100%
       box-shadow: variables.$standard-shadow
@@ -48,9 +53,9 @@
 
   h1
     font-size: 2em
-    font-weight: 600
+    line-height: 1.1em
+    font-weight: 500
     margin: 0
-      bottom: .11em
     cursor: pointer
     display: flex
     align-items: center

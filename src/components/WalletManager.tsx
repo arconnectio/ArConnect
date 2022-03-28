@@ -141,7 +141,9 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
       <div className={styles.CurrentWallet}>
         <div
           className={
-            styles.Icon + " " + ((!pageTitle && styles.ArConnectLogo) || "")
+            styles.Icon +
+            " " +
+            ((!pageTitle && styles.ArConnectLogo) || styles.BackIcon)
           }
           onClick={() => goTo(Home)}
         >
@@ -149,9 +151,11 @@ export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
             <img src={logo} alt="logo" />
           )}
         </div>
-        <h1 onClick={() => setOpen(!open)}>
+        <h1>
           {pageTitle ? pageTitle : currentWalletName() || "• • •"}
-          {verifiedAddresses.includes(profile) && <VerifiedIcon />}
+          {verifiedAddresses.includes(profile) && !pageTitle && (
+            <VerifiedIcon />
+          )}
         </h1>
         <div
           className={
