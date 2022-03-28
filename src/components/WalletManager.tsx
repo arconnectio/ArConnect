@@ -30,7 +30,7 @@ import { UserInterface } from "@verto/js/dist/faces";
 import { useColorScheme } from "use-color-scheme";
 import { QRCode } from "react-qr-svg";
 import { motion, AnimatePresence } from "framer-motion";
-import { goTo } from "react-chrome-extension-router";
+import { goBack, goTo } from "react-chrome-extension-router";
 import { getVerification, Threshold } from "arverify";
 import { browser } from "webextension-polyfill-ts";
 import { formatAddress } from "../utils/url";
@@ -40,16 +40,9 @@ import toastStyles from "../styles/components/SmallToast.module.sass";
 import logo from "../assets/logo.png";
 import styles from "../styles/components/WalletManager.module.sass";
 import Verto from "@verto/js";
-import Home from "../views/Popup/routes/Home";
 import "../styles/components/Tooltip.sass";
 
-export default function WalletManager({
-  pageTitle,
-  previousPage
-}: {
-  pageTitle?: string;
-  previousPage?: () => JSX.Element;
-}) {
+export default function WalletManager({ pageTitle }: { pageTitle?: string }) {
   const profile = useSelector((state: RootState) => state.profile),
     wallets = useSelector((state: RootState) => state.wallets),
     storedBalances = useSelector((state: RootState) => state.balances),
@@ -150,7 +143,7 @@ export default function WalletManager({
             " " +
             ((!pageTitle && styles.ArConnectLogo) || styles.BackIcon)
           }
-          onClick={() => goTo(previousPage || Home)}
+          onClick={() => goBack()}
         >
           {(pageTitle && <ChevronLeftIcon size={24} />) || (
             <img src={logo} alt="logo" />

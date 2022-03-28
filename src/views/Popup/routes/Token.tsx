@@ -16,16 +16,9 @@ import cxyzLogo from "../../../assets/communityxyz.png";
 import Verto from "@verto/js";
 import Home from "./Home";
 import WalletManager from "../../../components/WalletManager";
-import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/token.module.sass";
 
-export default function Token({
-  id,
-  previousPage
-}: {
-  id: string;
-  previousPage: () => JSX.Element;
-}) {
+export default function Token({ id }: { id: string }) {
   // load token type and state
   const [tokenType, setTokenType] = useState<"community" | "art">();
   const [tokenState, setTokenState] = useState<TokenState>();
@@ -87,10 +80,7 @@ export default function Token({
 
   return (
     <>
-      <WalletManager
-        previousPage={previousPage}
-        pageTitle={tokenState?.name || ""}
-      />
+      <WalletManager pageTitle={tokenState?.name || ""} />
       <div className={styles.Token}>
         {tokenState && tokenType && (
           <>
