@@ -3,8 +3,7 @@ import {
   fetchRandomCommunitiesWithMetadata,
   RandomCommunities
 } from "verto-cache-interface";
-import { useTheme } from "@verto/ui";
-import { Loading } from "@verto/ui";
+import { useTheme, Loading } from "@verto/ui";
 import { AnimatePresence, motion } from "framer-motion";
 import { cardListAnimation } from "verto-internals/utils";
 import { Line } from "react-chartjs-2";
@@ -32,8 +31,6 @@ const Explore = () => {
       setCommunities(undefined);
     }
   }, []);
-
-  console.log(theme);
 
   return (
     <>
