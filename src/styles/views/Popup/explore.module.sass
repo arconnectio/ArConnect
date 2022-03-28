@@ -5,32 +5,34 @@
   padding: .65em .7em
 
   .SectionHeader
-    font-size: 14px
-    font-weight: 500
+    font-size: .77em
+    font-weight: 600
     text-transform: uppercase
     color: variables.$light-text
+    margin: 1em 0
 
   .TokenPrice
     display: flex
     align-items: center
-    justify-content: space-evenly
+    justify-content: space-between
 
     .TokenInfo
-      line-height: 2.5em
+      h2, h3
+        color: variables.$foreground-color
+        line-height: 1.1em
+        margin: 0
 
       h2
-        font-size: 2.5em
+        font-weight: 600
+        font-size: 2.8em
 
       h3
-        font-size: 2.2em
         font-weight: 500
+        font-size: 1.9em
 
     .Graph
       position: relative
-      min-height: 135px
-      width: 150px
-      margin-top: 1em
-      align-self: baseline
+      width: 52%
 
   .FeaturedWrapper 
     padding: 1em
@@ -88,8 +90,9 @@
             transform: scale(.9)
 
   .ArweaveNewsWrapper
-    display: flex
-    gap: 1em
+    display: grid
+    grid-template-columns: 48% 48%
+    justify-content: space-between
     margin-top: .7em
 
     .ArweaveNewsItem
@@ -99,25 +102,31 @@
       background: #fff
       min-height: 7.5em
       border-radius: 12px
-      padding: .5em
+      padding: .5em .65em
       box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1)
+      cursor: pointer
+      transition: all .23s ease-in-out
+
+      &:active
+        transform: scale(.95)
       
       >p
-        margin-top: -0.4em
-        font-size: 12px
+        color: variables.$foreground-color
+        font-size: .8em
         font-weight: 500
         text-transform: uppercase
+        margin: 0
       
       >div
         display: flex
-        margin-top: -1em
         align-items: center
         justify-content: space-between
 
         p
-          font-size: 12px
-          font-weight: 500
           color: #666
+          font-size: .8em
+          font-weight: 500
+          margin: 0
 
         img
           width: 25px

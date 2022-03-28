@@ -3,7 +3,7 @@ import {
   fetchRandomCommunitiesWithMetadata,
   RandomCommunities
 } from "verto-cache-interface";
-import { useTheme } from "@verto/ui";
+import { Spacer, useTheme } from "@verto/ui";
 import { Loading } from "@verto/ui";
 import { AnimatePresence, motion } from "framer-motion";
 import { cardListAnimation } from "verto-internals/utils";
@@ -11,9 +11,14 @@ import { Line } from "react-chartjs-2";
 import { GraphOptions } from "../../../utils/graph";
 import vertoLogo from "../../../assets/verto_dark.png";
 import arweaveNewsLogo from "../../../assets/arweave_news.png";
+import axios from "axios";
 import WalletManager from "../../../components/WalletManager";
 import AssetCard from "../../../components/AssetCard";
+import dayjs from "dayjs";
+import localizedFormat from "dayjs/plugin/localizedFormat";
 import styles from "../../../styles/views/Popup/explore.module.sass";
+
+dayjs.extend(localizedFormat);
 
 const Explore = () => {
   const theme = useTheme(),
@@ -33,10 +38,30 @@ const Explore = () => {
     }
   }, []);
 
+  const [arweavePrices, setArweavePrice] = useState<
+    { date: string; price: number }[]
+  >([]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await axios.get<{ prices: [number, number][] }>(
+        "https://api.coingecko.com/api/v3/coins/arweave/market_chart?vs_currency=usd&days=1&interval=hourly"
+      );
+
+      setArweavePrice(
+        data.prices.map(([timestamp, price]) => ({
+          date: dayjs(timestamp).format("h:mm A"),
+          price
+        }))
+      );
+    })();
+  }, []);
+
   return (
     <>
       <WalletManager pageTitle="Explore" />
       <div className={styles.Explore}>
+        <Spacer y={0.5} />
         <div className={styles.TokenPrice}>
           <div className={styles.TokenInfo}>
             <h3>Arweave</h3>
@@ -45,23 +70,11 @@ const Explore = () => {
           <div className={styles.Graph}>
             <Line
               data={{
-                labels: [
-                  "this",
-                  "is",
-                  "just",
-                  "a",
-                  "test",
-                  "to",
-                  "see",
-                  "if",
-                  "blah",
-                  "blah",
-                  "blah"
-                ], // TODO: replace with dates / prices in implementation
+                labels: arweavePrices.map(({ date }) => date),
                 datasets: [
                   {
                     label: "My First Dataset",
-                    data: [65, 9, 80, 89, 99, 32, 120, 90, 79, 18, 79, 60], // TODO: replace with real data in implementation
+                    data: arweavePrices.map(({ price }) => price),
                     fill: false,
                     borderColor: "#000",
                     tension: 0.1
@@ -71,10 +84,10 @@ const Explore = () => {
               options={GraphOptions({
                 theme,
                 tooltipText: ({ value }) =>
-                  `${Number(value).toLocaleString(undefined, {
+                  `$${Number(value).toLocaleString(undefined, {
                     maximumFractionDigits: 2,
                     minimumFractionDigits: 2
-                  })} AR`
+                  })} USD`
               })}
             />
           </div>
