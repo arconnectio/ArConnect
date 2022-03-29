@@ -36,9 +36,9 @@
 
   .FeaturedWrapper 
     padding: 1em
-    color: #fff
+    color: variables.$background-color
     border-radius: 12px
-    background-color: #000
+    background-color: variables.$foreground-color
     box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1)
 
     .FeaturedItem
@@ -73,7 +73,7 @@
 
         span
           margin: 0 .3em
-          border: 1.5px solid #fff
+          border: 1.5px solid variables.$background-color
           border-radius: 100%
           width: 5px
           height: 5px
@@ -81,7 +81,7 @@
           transition: all .23s ease-in-out
 
           &.ActivePage
-            background-color: #fff
+            background-color: variables.$background-color
 
           &:hover
             opacity: .8
