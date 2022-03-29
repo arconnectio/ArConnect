@@ -3,8 +3,7 @@ import {
   fetchRandomCommunitiesWithMetadata,
   RandomCommunities
 } from "verto-cache-interface";
-import { Spacer, useTheme } from "@verto/ui";
-import { Loading } from "@verto/ui";
+import { Spacer, useTheme, Loading } from "@verto/ui";
 import { AnimatePresence, motion } from "framer-motion";
 import { cardListAnimation } from "verto-internals/utils";
 import { Line } from "react-chartjs-2";
@@ -179,7 +178,7 @@ const Explore = () => {
 
         <div className={styles.CollectionCardsWrapper}>
           <AnimatePresence>
-            {communities ? (
+            {(communities &&
               communities.map((community, i) => (
                 <motion.div {...cardListAnimation(i)} key={i}>
                   {/** TODO: price here */}
@@ -190,8 +189,7 @@ const Explore = () => {
                     fiat={35.435}
                   />
                 </motion.div>
-              ))
-            ) : (
+              ))) || (
               <Loading.Spinner
                 style={{ width: "100%", marginBottom: ".5em" }}
               />
