@@ -8,6 +8,7 @@ import { VertoProvider } from "@verto/ui";
 import { DisplayTheme } from "@verto/ui/dist/types";
 import { RootState } from "../stores/reducers";
 import setupStores from "../stores";
+import "../styles/index.sass";
 
 const themeCommon = {
   success: "#AB9DF2",
