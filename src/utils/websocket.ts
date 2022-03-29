@@ -56,7 +56,7 @@ export function sendNativeMessage(
   callback?: (response: any) => void
 ): void {
   try {
-    if (!client) {
+    if (!isSocketOpened()) {
       handleError();
     }
 

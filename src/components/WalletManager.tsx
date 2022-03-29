@@ -302,7 +302,7 @@ export default function WalletManager() {
                 </Tooltip>
                 <Tooltip text="Support Arweave websites">
                   <div className={styles.Action} onClick={() => goTo(Support)}>
-                    <FlameIcon fill="red" />
+                    <img className={styles.Image} src="icons/massive.svg" />
                   </div>
                 </Tooltip>
                 <Tooltip text="Settings">
