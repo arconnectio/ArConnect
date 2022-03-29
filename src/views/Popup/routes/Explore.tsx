@@ -124,7 +124,6 @@ const Explore = () => {
                   September
                 </p>
 
-                {/* PAGINATOR */}
                 <div className={styles.Paginator}>
                   {new Array(3).fill("_").map((_, i) => (
                     <span
