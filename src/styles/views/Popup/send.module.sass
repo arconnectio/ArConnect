@@ -1,4 +1,5 @@
 @use "../../variables"
+@use "../../components/Textarea"
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap')
 
 .View
@@ -26,23 +27,7 @@
   color: variables.$light-text
 
 .MessageInput
-  $borderSize: 3px
-  $sidePadding: .5em
-  width: calc(100% - #{$sidePadding} * 2 - #{$borderSize} * 2)
-  height: 5em
-  resize: none
-  color: variables.$light-text
-  padding: .35em $sidePadding
-  font-size: 1em
-  font-weight: 500
-  border-radius: 14px
-  border: $borderSize solid variables.$input-border-color
-  font-family: 'Poppins', sans-serif
-  background-color: variables.$component-background
-
-  &::placeholder
-    color: inherit
-    font-family: inherit
+  +Textarea.TextArea
 
 .Label
   font-size: .9em

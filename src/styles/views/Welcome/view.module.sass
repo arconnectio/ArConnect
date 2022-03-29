@@ -1,5 +1,6 @@
 @use "../../variables"
 @import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap")
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300&display=swap')
 
 =SetupIntro
   .logo
@@ -131,6 +132,9 @@
   text-align: center
   margin: 1rem 0
 
+.OROptionButton
+  margin: 0 auto
+  width: 45%
 
 .th8ta
   position: absolute
@@ -156,13 +160,13 @@
   font-size: 1.02em
   text-align: center
   color: variables.$foreground-color
+  font-weight: 500
 
 .FeesModal
   color: variables.$foreground-color
 
   li 
     color: variables.$foreground-color
-
 
 .NewWalletButton
   padding: 0.7em
@@ -179,3 +183,7 @@
   &:hover
     transition: all 300ms ease-in-out
     transform: scale(0.95)
+
+.CodeStyle
+  font-family: "JetBrains Mono", sans-serif
+  color: rgb(variables.$primary-color)

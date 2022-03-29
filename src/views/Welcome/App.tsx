@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Textarea, useToasts, useInput, Code } from "@geist-ui/react";
 import { FileIcon } from "@primer/octicons-react";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { getKeyFromMnemonic } from "arweave-mnemonic-keys";
@@ -17,7 +16,9 @@ import {
   Spacer,
   Card,
   Modal,
-  useModal
+  useModal,
+  useInput,
+  useToasts
 } from "@verto/ui";
 import bip39 from "bip39-web-crypto";
 import CryptoES from "crypto-es";
@@ -34,7 +35,6 @@ export default function App() {
       welcome: false,
       password: false
     }),
-    [, setToast] = useToasts(),
     [keyfiles, setKeyfiles] = useState<
       {
         keyfile: JWKInterface;
@@ -60,16 +60,7 @@ export default function App() {
     configFileInput = useRef<HTMLInputElement>(null),
     [configFilenameDisplay, setConfigFilenameDisplay] =
       useState("Click to load"),
-    [loadingConfig, setLoadingConfig] = useState(false),
-    inputStyles = {
-      width: "89%",
-      height: "1.99em",
-      marginLeft: "1.2rem",
-      background: "white",
-      borderRadius: "14px",
-      marginBottom: "1em",
-      border: "3px solid #000"
-    };
+    [loadingConfig, setLoadingConfig] = useState(false);
 
   useEffect(() => {
     if (!fileInput.current) return;
@@ -99,6 +90,8 @@ export default function App() {
     // eslint-disable-next-line
   }, [configFileInput.current]);
 
+  const { setToast } = useToasts();
+
   function loadFiles() {
     if (fileInput.current?.files)
       for (const file of fileInput.current.files) {
@@ -109,15 +102,24 @@ export default function App() {
           reader.readAsText(file);
         } catch {
           setToast({
-            text: `There was an error when loading ${file.name}`,
-            type: "error"
+            description: `There was an error when loading ${file.name}`,
+            type: "error",
+            duration: 3400
           });
         }
 
         reader.onabort = () =>
-          setToast({ text: "File reading was aborted", type: "error" });
+          setToast({
+            description: "File reading was aborted",
+            type: "error",
+            duration: 3000
+          });
         reader.onerror = () =>
-          setToast({ text: "File reading has failed", type: "error" });
+          setToast({
+            description: "File reading has failed",
+            type: "error",
+            duration: 3000
+          });
         reader.onload = (e) => {
           try {
             const keyfile: JWKInterface = JSON.parse(
@@ -126,8 +128,9 @@ export default function App() {
             setKeyfiles((val) => [...val, { keyfile, filename: file.name }]);
           } catch {
             setToast({
-              text: "There was an error when loading a keyfile",
-              type: "error"
+              description: "There was an error when loading a keyfile",
+              type: "error",
+              duration: 3000
             });
           }
         };
@@ -160,7 +163,11 @@ export default function App() {
     if (walletsStoreEmpty) dispatch(switchProfile(wallets[0].address));
     setLoading(false);
     loadWalletsModal.setState(false);
-    setToast({ text: "Loaded wallets", type: "success" });
+    setToast({
+      description: "Loaded wallets",
+      type: "success",
+      duration: 2300
+    });
     // allow time to save the wallets
     setTimeout(() => {
       loadWalletsModal.setState(false);
@@ -214,15 +221,23 @@ export default function App() {
 
   async function createPassword() {
     if (passwordInput.state === "" || passwordInputAgain.state === "") {
-      setToast({ text: "Please fill both password fields", type: "error" });
+      setToast({
+        description: "Please fill both password fields",
+        type: "error",
+        duration: 3000
+      });
       return;
     }
     if (passwordInput.state !== passwordInputAgain.state) {
-      setToast({ text: "The two passwords are not the same", type: "error" });
+      setToast({
+        description: "The two passwords are not the same",
+        type: "error",
+        duration: 3000
+      });
       return;
     }
     if (passwordInputAgain.state.length < 5) {
-      setToast({ text: "Weak password", type: "error" });
+      setToast({ description: "Weak password", type: "error", duration: 3000 });
       return;
     }
 
@@ -237,9 +252,13 @@ export default function App() {
       if (!res) throw new Error();
 
       setPasswordGiven(true);
-      setToast({ text: "Logged in", type: "success" });
+      setToast({ description: "Logged in", type: "success", duration: 2300 });
     } catch {
-      setToast({ text: "Wrong password", type: "error" });
+      setToast({
+        description: "Wrong password",
+        type: "error",
+        duration: 3000
+      });
     }
     setLoading(false);
   }
@@ -249,13 +268,21 @@ export default function App() {
       !configFileInput.current?.files ||
       configFileInput.current.files.length === 0
     )
-      return setToast({ text: "Please load your config file", type: "error" });
+      return setToast({
+        description: "Please load your config file",
+        type: "error",
+        duration: 3000
+      });
 
     // read config
     const file = configFileInput.current.files[0];
 
     if (file.type !== "text/plain")
-      return setToast({ text: "Invalid file format", type: "error" });
+      return setToast({
+        description: "Invalid file format",
+        type: "error",
+        duration: 3000
+      });
 
     const reader = new FileReader();
 
@@ -263,18 +290,31 @@ export default function App() {
       reader.readAsText(file);
     } catch {
       setToast({
-        text: `There was an error when loading ${file.name}`,
-        type: "error"
+        description: `There was an error when loading ${file.name}`,
+        type: "error",
+        duration: 3000
       });
     }
 
     reader.onabort = () =>
-      setToast({ text: "File reading was aborted", type: "error" });
+      setToast({
+        description: "File reading was aborted",
+        type: "error",
+        duration: 3000
+      });
     reader.onerror = () =>
-      setToast({ text: "File reading has failed", type: "error" });
+      setToast({
+        description: "File reading has failed",
+        type: "error",
+        duration: 3000
+      });
     reader.onload = async (e) => {
       if (!e.target?.result)
-        return setToast({ text: "Error reading the file", type: "error" });
+        return setToast({
+          description: "Error reading the file",
+          type: "error",
+          duration: 3000
+        });
 
       setLoadingConfig(true);
       // decrypt config and apply settings
@@ -289,10 +329,18 @@ export default function App() {
           "persist:root": decrypted.toString(CryptoES.enc.Utf8),
           decryptionKey: false
         });
-        setToast({ text: "Loaded config", type: "success" });
+        setToast({
+          description: "Loaded config",
+          type: "success",
+          duration: 2300
+        });
         setTimeout(() => window.location.reload(), 1300);
       } catch {
-        setToast({ text: "Invalid password", type: "error" });
+        setToast({
+          description: "Invalid password",
+          type: "error",
+          duration: 3000
+        });
       }
       setLoadingConfig(false);
       loadConfigModal.setState(false);
@@ -374,16 +422,14 @@ export default function App() {
                     checkPassword();
                   } else if (e.key === "Enter" && walletsStore.length === 0) {
                     setToast({
-                      text: "Please fill both password fields",
-                      type: "error"
+                      description: "Please fill both password fields",
+                      type: "error",
+                      duration: 3000
                     });
                   }
                 }}
                 type="password"
                 placeholder="*********"
-                style={{
-                  ...inputStyles
-                }}
               />
               {walletsStore.length === 0 && (
                 <>
@@ -398,9 +444,6 @@ export default function App() {
                     }}
                     type="password"
                     placeholder="*********"
-                    style={{
-                      ...inputStyles
-                    }}
                   />
                 </>
               )}
@@ -463,11 +506,11 @@ export default function App() {
           or seedphrase to continue.
         </h4>
         <Modal.Content>
-          <Textarea
+          <textarea
             placeholder="Enter 12 word seedphrase..."
             onChange={(e) => setSeed(e.target.value)}
             className={styles.Seed}
-          ></Textarea>
+          ></textarea>
           <span className={styles.OR}>OR</span>
           {keyfiles.map(
             (file, i) =>
@@ -515,72 +558,49 @@ export default function App() {
                 : "Load keyfile(s) from filesystem"}
             </div>
           </Card>
-        </Modal.Content>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-evenly",
-            marginTop: "2em",
-            gap: "1em"
-          }}
-        >
-          <Button
-            small
-            type="secondary"
-            onClick={() => {
-              loadWalletsModal.setState(false);
-            }}
-            style={{ width: "30%" }}
-          >
-            Cancel
-          </Button>
           <Button
             small
             type="filled"
             onClick={login}
             loading={loading}
-            style={{ width: "30%" }}
+            style={{ margin: "0 auto" }}
           >
             Load
           </Button>
-        </div>
+        </Modal.Content>
       </Modal>
       <Modal {...seedModal.bindings}>
         <Modal.Title>Generated a wallet</Modal.Title>
-        <h4 className={styles.ModalSubtitle} style={{ fontWeight: "400" }}>
+        <h4 className={styles.ModalSubtitle}>
           Make sure to remember this seedphrase
         </h4>
         <Modal.Content>
-          <Textarea
+          <textarea
             value={seed}
             readOnly
             className={styles.Seed + " " + styles.NewSeed}
-          ></Textarea>
+          ></textarea>
           <p style={{ textAlign: "center" }} className={styles.KeyFileText}>
             ...and download your keyfile.
           </p>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <Button
-              small
-              type="filled"
-              onClick={downloadSeedWallet}
-              style={{ width: "50%" }}
-            >
-              Download
-            </Button>
-          </div>
-        </Modal.Content>
-        <span className={styles.OR}>OR</span>
-        <div style={{ display: "flex", justifyContent: "center" }}>
+          <Button
+            small
+            type="filled"
+            onClick={downloadSeedWallet}
+            className={styles.OROptionButton}
+          >
+            Download
+          </Button>
+          <span className={styles.OR}>OR</span>
           <Button
             small
             type="secondary"
             onClick={() => seedModal.setState(false)}
-            style={{ width: "50%" }}
+            className={styles.OROptionButton}
           >
             Dismiss
           </Button>
-        </div>
+        </Modal.Content>
       </Modal>
       <Modal {...feeModal.bindings} open={feeModal.bindings.open}>
         <Modal.Title>Tips</Modal.Title>
@@ -597,16 +617,16 @@ export default function App() {
             are working hard to bring you the best experiences on the permaweb.
             Because of this, we take a small tip whenever a 3rd-party
             application utilizes ArConnect. This tip goes to a randomly-selected{" "}
-            <Code>VRT</Code> token holder:
+            <span className={styles.CodeStyle}>VRT</span> token holder:
           </p>
           <ul>
             <li>
-              <Code>$0.03</Code> USD-equivalent of AR for the first 10
-              transactions
+              <span className={styles.CodeStyle}>$0.03</span> USD-equivalent of
+              AR for the first 10 transactions
             </li>
             <li>
-              <Code>$0.01</Code> USD-equivalent of AR for all subsequent
-              transactions
+              <span className={styles.CodeStyle}>$0.01</span> USD-equivalent of
+              AR for all subsequent transactions
             </li>
           </ul>
           <p>
@@ -615,21 +635,19 @@ export default function App() {
             the transaction.
           </p>
         </Modal.Content>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button
-            small
-            type="filled"
-            onClick={() => feeModal.setState(false)}
-            style={{ width: "100%" }}
-          >
-            Dismiss
-          </Button>
-        </div>
+        <Button
+          small
+          type="filled"
+          onClick={() => feeModal.setState(false)}
+          style={{ margin: "0 auto" }}
+        >
+          Dismiss
+        </Button>
       </Modal>
 
       <Modal {...loadConfigModal.bindings}>
         <Modal.Title>Load config file</Modal.Title>
-        <h4 className={styles.ModalSubtitle} style={{ fontWeight: "500" }}>
+        <h4 className={styles.ModalSubtitle}>
           Import your settings and wallets from a generated config
         </h4>
         <Modal.Content>
@@ -654,39 +672,19 @@ export default function App() {
             onKeyPressHandler={(e) => {
               if (e.key === "Enter") loadConfig();
             }}
-            {...configPasswordInput.bindings}
             type="password"
             placeholder="Enter password to decrypt"
-            style={{
-              ...inputStyles
-            }}
           />
         </Modal.Content>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-evenly",
-            gap: "1em"
-          }}
+        <Button
+          type="filled"
+          small
+          style={{ margin: "0 auto" }}
+          onClick={loadConfig}
+          loading={loadingConfig}
         >
-          <Button
-            type="secondary"
-            small
-            style={{ width: "30%" }}
-            onClick={() => loadConfigModal.setState(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="filled"
-            small
-            style={{ width: "30%" }}
-            onClick={loadConfig}
-            loading={loadingConfig}
-          >
-            Load
-          </Button>
-        </div>
+          Load
+        </Button>
       </Modal>
 
       <input
