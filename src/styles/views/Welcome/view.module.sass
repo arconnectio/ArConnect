@@ -1,4 +1,5 @@
 @use "../../variables"
+@use "../../components/Textarea"
 @import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap")
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300&display=swap')
 
@@ -33,7 +34,6 @@
   align-items: center
   flex-direction: column
   justify-content: center
-  font-family: 'Poppins', sans-serif
 
   div
     display: flex
@@ -63,18 +63,6 @@
       cursor: pointer
       font-weight: bold
       text-decoration: underline
-  
-  .passwordLabel
-    width: 22rem
-    margin: 0 0 0.4rem 0
-    padding: 0
-    font-size: 12px
-    color: variables.$light-text
-    font-weight: 500
-    text-transform: uppercase
-
-  .label1
-    margin: 1.5rem 0 0.4rem 0
 
 .loadwallets
   width: 30rem
@@ -93,18 +81,17 @@
   opacity: 0
 
 .FileContent
-  margin: auto
-  margin-bottom: 1em !important
   cursor: pointer
-  display: flex !important
-  justify-content: center !important
-  border: 1px dashed #eaeaea !important
+  border: 1px dashed #eaeaea
+  border-radius: 10px
+  padding: .9em 1.25em
 
   .items
     display: flex
     overflow: hidden
     align-items: center
     color: variables.$foreground-color
+    margin: 0 auto
 
     .Filename
       margin: 0
@@ -113,14 +100,8 @@
     svg
       margin-right: 1em
 
-.Seed
-  display: block !important
-  margin-top: 1em !important
-  border: 2px solid variables.$light-text !important
-
-  &.NewSeed
-    color: variables.$foreground-color !important
-    margin-top: 0 !important
+.Textarea
+  +Textarea.TextArea
 
 .KeyFileText
   color: variables.$foreground-color
@@ -131,6 +112,7 @@
   color: variables.$light-text
   text-align: center
   margin: 1rem 0
+  font-weight: 500
 
 .OROptionButton
   margin: 0 auto

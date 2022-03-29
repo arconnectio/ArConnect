@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FileIcon } from "@primer/octicons-react";
+import { FileIcon, TrashIcon } from "@primer/octicons-react";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { getKeyFromMnemonic } from "arweave-mnemonic-keys";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,13 +8,13 @@ import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
 import { checkPassword as checkPw, setPassword } from "../../utils/auth";
 import { browser } from "webextension-polyfill-ts";
+import { formatAddress } from "../../utils/url";
 import {
   Button,
   Input,
   useTheme,
   Tooltip,
   Spacer,
-  Card,
   Modal,
   useModal,
   useInput,
@@ -412,9 +412,6 @@ export default function App() {
                   ? "Please create a password to use for authentication"
                   : "Login with your password"}
               </p>
-              <label className={`${styles.passwordLabel} ${styles.label1}`}>
-                password
-              </label>
               <Input
                 {...passwordInput.bindings}
                 onKeyPressHandler={(e) => {
@@ -428,13 +425,14 @@ export default function App() {
                     });
                   }
                 }}
+                small
                 type="password"
                 placeholder="*********"
+                label="Password"
               />
               {walletsStore.length === 0 && (
                 <>
                   <Spacer />
-                  <p className={styles.passwordLabel}>repeat password</p>
                   <Input
                     {...passwordInputAgain.bindings}
                     onKeyPressHandler={(e) => {
@@ -444,6 +442,7 @@ export default function App() {
                     }}
                     type="password"
                     placeholder="*********"
+                    label
                   />
                 </>
               )}
@@ -494,62 +493,51 @@ export default function App() {
         }}
       >
         <Modal.Title>Load wallet(s)</Modal.Title>
-        <h4 className={styles.ModalSubtitle}>
-          Use your{" "}
-          <a
-            href="https://www.arweave.org/wallet"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Arweave keyfile
-          </a>{" "}
-          or seedphrase to continue.
-        </h4>
         <Modal.Content>
+          <h4 className={styles.ModalSubtitle}>
+            Use your{" "}
+            <a
+              href="https://www.arweave.org/wallet"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Arweave keyfile
+            </a>{" "}
+            or seedphrase to continue.
+          </h4>
+          <Spacer y={0.8} />
           <textarea
             placeholder="Enter 12 word seedphrase..."
             onChange={(e) => setSeed(e.target.value)}
-            className={styles.Seed}
+            className={styles.Textarea}
           ></textarea>
           <span className={styles.OR}>OR</span>
           {keyfiles.map(
             (file, i) =>
               file.filename && (
-                <Tooltip
-                  text="Click to remove."
-                  position="right"
-                  key={i}
-                  style={{ width: "100%" }}
-                >
-                  <Card
+                <>
+                  <div
                     className={styles.FileContent}
                     onClick={() =>
                       setKeyfiles((val) =>
                         val.filter(({ filename }) => filename !== file.filename)
                       )
                     }
-                    style={{
-                      display: "flex",
-                      alignItems: "center"
-                    }}
                   >
                     <div className={styles.items}>
-                      <p className={styles.Filename}>{file.filename}</p>
+                      <TrashIcon size={24} />
+                      <p className={styles.Filename}>
+                        {formatAddress(file.filename, 18)}
+                      </p>
                     </div>
-                  </Card>
-                </Tooltip>
+                  </div>
+                  <Spacer y={1} />
+                </>
               )
           )}
-
-          <Card
+          <div
             className={styles.FileContent}
             onClick={() => fileInput.current?.click()}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              margin: "auto"
-            }}
           >
             <div className={styles.items}>
               <FileIcon size={24} />
@@ -557,7 +545,8 @@ export default function App() {
                 ? "Add more keyfile(s)"
                 : "Load keyfile(s) from filesystem"}
             </div>
-          </Card>
+          </div>
+          <Spacer y={1.65} />
           <Button
             small
             type="filled"
@@ -578,7 +567,7 @@ export default function App() {
           <textarea
             value={seed}
             readOnly
-            className={styles.Seed + " " + styles.NewSeed}
+            className={styles.Textarea}
           ></textarea>
           <p style={{ textAlign: "center" }} className={styles.KeyFileText}>
             ...and download your keyfile.
@@ -657,15 +646,17 @@ export default function App() {
             <b>NOT ARWEAVE KEYFILES</b>
           </p>
           <Spacer y={0.5} />
-          <Card
+          <div
             className={styles.FileContent}
             onClick={() => configFileInput.current?.click()}
           >
             <div className={styles.items}>
               <FileIcon size={24} />
-              <p className={styles.Filename}>{configFilenameDisplay}</p>
+              <p className={styles.Filename}>
+                {formatAddress(configFilenameDisplay, 18)}
+              </p>
             </div>
-          </Card>
+          </div>
           <Spacer />
           <Input
             {...configPasswordInput.bindings}
@@ -674,6 +665,7 @@ export default function App() {
             }}
             type="password"
             placeholder="Enter password to decrypt"
+            small
           />
         </Modal.Content>
         <Button
