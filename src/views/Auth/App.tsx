@@ -579,31 +579,22 @@ export default function App() {
             type="number"
             placeholder="Signing limit"
             inlineLabel="AR"
+            style={{ margin: "auto" }}
           />
         </Modal.Content>
-        <Spacer y={1.5} />
-        <div style={{ display: "flex", gap: "1em" }}>
-          <Button
-            small
-            type="secondary"
-            style={{ width: "40%" }}
-            onClick={() => allowanceModal.setState(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            small
-            className={styles.OkButton}
-            style={{ width: "40%" }}
-            onClick={() => {
-              if (!currentURL) return;
-              setUpdateAllowance(Number(allowanceAmount.state));
-              allowanceModal.setState(false);
-            }}
-          >
-            Ok
-          </Button>
-        </div>
+        <Spacer y={2} />
+        <Button
+          small
+          className={styles.OkButton}
+          style={{ width: "85%" }}
+          onClick={() => {
+            if (!currentURL) return;
+            setUpdateAllowance(Number(allowanceAmount.state));
+            allowanceModal.setState(false);
+          }}
+        >
+          Ok
+        </Button>
       </Modal>
     </>
   );
