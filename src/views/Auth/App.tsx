@@ -484,7 +484,7 @@ export default function App() {
                 <p>This site wants to access more permissions:</p>
               )) || <p>Please allow these permissions for this site</p>}
               {(requestedPermissions.length > 0 && (
-                <ul>
+                <>
                   {requestedPermissions.map((permission, i) => (
                     <li key={i} className={styles.Check + " " + styles.Checked}>
                       <Checkbox
@@ -512,7 +512,7 @@ export default function App() {
                       </p>
                     </li>
                   ))}
-                </ul>
+                </>
               )) || <p>No permissions requested.</p>}
               <Spacer y={1} />
               <Button small onClick={accept} type="filled">
