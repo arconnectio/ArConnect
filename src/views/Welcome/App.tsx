@@ -412,6 +412,7 @@ export default function App() {
                   ? "Please create a password to use for authentication"
                   : "Login with your password"}
               </p>
+              <Spacer y={1} />
               <Input
                 {...passwordInput.bindings}
                 onKeyPressHandler={(e) => {
@@ -430,10 +431,11 @@ export default function App() {
                 placeholder="*********"
                 label="Password"
               />
+              <Spacer y={1.3} />
               {walletsStore.length === 0 && (
                 <>
-                  <Spacer />
                   <Input
+                    small
                     {...passwordInputAgain.bindings}
                     onKeyPressHandler={(e) => {
                       if (e.key === "Enter") {
@@ -442,8 +444,9 @@ export default function App() {
                     }}
                     type="password"
                     placeholder="*********"
-                    label
+                    label="Repeat Password"
                   />
+                  <Spacer y={2} />
                 </>
               )}
               <Spacer />
