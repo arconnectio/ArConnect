@@ -562,9 +562,9 @@ export default function App() {
         )}
       </AnimatePresence>
       <Modal {...allowanceModal.bindings} style={{ width: "auto" }}>
-        <Modal.Title>Allowance limit</Modal.Title>
+        <Modal.Title>Allowance Limit</Modal.Title>
         <Modal.Content className={styles.AllowanceModal}>
-          <p>
+          <p style={{ width: "320px" }}>
             Warn me again to set a new allowance once the app has sent more than{" "}
             {allowanceAmount.state} AR
           </p>
@@ -581,7 +581,7 @@ export default function App() {
         <Button
           small
           className={styles.OkButton}
-          style={{ width: "85%" }}
+          style={{ width: "30%", margin: "auto" }}
           onClick={() => {
             if (!currentURL) return;
             setUpdateAllowance(Number(allowanceAmount.state));
