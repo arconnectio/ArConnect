@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  useInput,
-  // Loading,
-  Note,
-  useTheme,
-  useToasts
-} from "@geist-ui/react";
+import { useInput, Note, useTheme, useToasts } from "@geist-ui/react";
 import {
   Button,
   Select,
@@ -15,9 +9,6 @@ import {
   Modal,
   useModal,
   Loading
-  // useInput - Check UI Lib
-  // useToasts - Check UI Lib
-  // useTheme - Check Pallete in UI Lib
 } from "@verto/ui";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -381,6 +372,7 @@ export default function App() {
         {(!loggedIn && (
           <>
             <h1>Sign In</h1>
+            <Spacer y={0.5} />
             {(type === "connect" && (
               <p>
                 {(appInfo.name && (
@@ -417,9 +409,9 @@ export default function App() {
               ))}
             {type === "connect" && (
               <>
-                <p className={styles.SelectLabel}>Select wallet</p>
-                <Spacer y={0.8} />
                 <Select
+                  small
+                  label="SELECT WALLET"
                   className={styles.SelectWallet}
                   onChange={(val) => switchWallet(val as unknown as string)}
                 >
@@ -432,17 +424,19 @@ export default function App() {
                 <Spacer y={0.67} />
               </>
             )}
-            <Spacer y={0.5} />
-            <p className={styles.SelectLabel}>password</p>
+            <Spacer y={1} />
             <Input
               {...passwordInput.bindings}
               small
+              className={styles.PasswordInput}
+              label="PASSWORD"
               type="password"
               status={passwordStatus}
               placeholder="Password..."
               onKeyPressHandler={(e) => {
                 if (e.key === "Enter") login();
               }}
+              style={{ width: "100%" }}
             />
             <Spacer y={1.5} />
             <div className={styles.Allowance}>
@@ -480,6 +474,7 @@ export default function App() {
           (type === "connect" && (
             <>
               <h1>Permissions</h1>
+              <Spacer y={0.5} />
               {(alreadyHasPermissions && (
                 <p>This site wants to access more permissions:</p>
               )) || <p>Please allow these permissions for this site</p>}
@@ -503,9 +498,9 @@ export default function App() {
                       />
                       <p
                         style={{
-                          display: "block",
                           textAlign: "left",
-                          paddingTop: "1em"
+                          paddingTop: "1em",
+                          fontSize: "0.85em"
                         }}
                       >
                         {getPermissionDescription(permission)}
