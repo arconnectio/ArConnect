@@ -252,6 +252,12 @@ export async function getActiveTab(returnFromCache = true) {
   return activeTab;
 }
 
+export async function getCurrentActiveTab() {
+  const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+  if (!tabs[0]) throw new Error("No tabs opened");
+  return tabs[0];
+}
+
 /**
  * Get the custom Arweave config from the
  * browser's storage

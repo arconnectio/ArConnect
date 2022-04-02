@@ -16,6 +16,7 @@ import {
 import {
   checkPermissions,
   getActiveTab,
+  getCurrentActiveTab,
   getArweaveConfig,
   getPermissions,
   getStoreData,
@@ -58,9 +59,11 @@ browser.windows.onFocusChanged.addListener(async (windowId) => {
   if (!(await walletsStored())) return;
 
   if (windowId === browser.windows.WINDOW_ID_NONE) {
+    console.log("Lost");
     handleBrowserLostFocus();
   } else {
-    const activeTab = await getActiveTab();
+    console.log("Gained");
+    const activeTab = await getCurrentActiveTab();
     const txId = await checkCommunityContract(activeTab.url!);
     if (txId) handleBrowserGainedFocus(activeTab.id!, txId);
   }
@@ -81,11 +84,12 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete") {
     const txId = await checkCommunityContract(tab.url!);
     if (txId) {
-      handleArweaveTabOpened(tabId, txId);
+      handleArweaveTabOpened(tabId, txId, tab.url);
     } else {
       if (tabId === (await getArweaveActiveTab())) {
         // It looks like user just entered or opened another web site on the same tab,
         // where Arweave resource was loaded previously. Hence it needs to be closed.
+        console.log("New web page?");
         handleArweaveTabClosed(tabId);
       }
     }
@@ -97,7 +101,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 browser.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
   if (!(await walletsStored())) return;
 
-  const activeTab = await getActiveTab();
+  const activeTab = await getCurrentActiveTab();
   if (await checkCommunityContract(activeTab.url!))
     handleArweaveTabClosed(tabId);
 });

@@ -1,78 +1,107 @@
 import * as websocket from "websocket";
 
-let socketQueueId: number = 0;
-let socketQueue: any = {};
+const ERROR_MSG_ID: number = 0; // reserve for error callback
+const INITIAL_MSG_ID: number = 1;
 
 const makeCallbackId = (id: number): string => "i_" + id;
 
-const W3CWebSocket = websocket.w3cwebsocket;
-const client = new W3CWebSocket("ws://localhost:5555/arc");
+// TODO: This instance must live from browser start to the end.
+let globalClientConn: websocket.w3cwebsocket;
 
-const handleError = () => {
-  const callbackId = makeCallbackId(0);
-  const callback = socketQueue[callbackId];
-  if (callback) {
-    callback();
-  }
-};
+export class NativeAppClient {
+  private static instance: NativeAppClient;
 
-client.onerror = () => {
-  handleError();
-};
+  private msgQueue: any = {};
+  private msgId: number = INITIAL_MSG_ID;
 
-client.onclose = () => {
-  handleError();
-};
-
-client.onmessage = (e) => {
-  if (typeof e.data === "string") {
-    const data = JSON.parse(e.data);
-
-    if (data.hasOwnProperty("id")) {
-      const callbackId = makeCallbackId(data["id"]);
-      const callback = socketQueue[callbackId];
-      if (callback) {
-        callback(data["payload"]);
-        delete socketQueue[callbackId];
+  public static getInstance(): NativeAppClient | undefined {
+    if (
+      !NativeAppClient.instance ||
+      globalClientConn.readyState !== globalClientConn.OPEN
+    ) {
+      try {
+        NativeAppClient.instance = new NativeAppClient();
+      } catch {
+        return undefined;
       }
-      return;
     }
+
+    return NativeAppClient.instance;
   }
-};
 
-export function isSocketOpened() {
-  return client.readyState === client.OPEN;
-}
+  public initialize() {
+    globalClientConn = new websocket.w3cwebsocket("ws://localhost:5555/arc");
 
-export function setNativeMessageErrorHandler(callback: () => void) {
-  if (callback) {
-    socketQueue[makeCallbackId(0)] = callback;
-  }
-}
+    globalClientConn.onopen = () => {};
 
-export function sendNativeMessage(
-  action: string,
-  message?: any,
-  callback?: (response: any) => void
-): void {
-  try {
-    if (!isSocketOpened()) {
-      handleError();
-    }
-
-    // Implementation details - https://stackoverflow.com/a/24145135
-    ++socketQueueId;
-    if (callback) {
-      socketQueue[makeCallbackId(socketQueueId)] = callback;
-    }
-
-    const data = {
-      id: socketQueueId,
-      action: action,
-      payload: message
+    globalClientConn.onerror = () => {
+      this.handleError();
     };
-    client.send(JSON.stringify(data));
-  } catch (e) {
-    handleError();
+
+    globalClientConn.onclose = () => {
+      this.handleError();
+    };
+
+    globalClientConn.onmessage = (e) => {
+      if (typeof e.data === "string") {
+        const data = JSON.parse(e.data);
+
+        if (data.hasOwnProperty("id")) {
+          const callbackId = makeCallbackId(data["id"]);
+          const callback = this.msgQueue[callbackId];
+          if (callback && data.hasOwnProperty("payload")) {
+            callback(data["payload"]);
+            delete this.msgQueue[callbackId];
+          }
+        }
+      }
+    };
+  }
+
+  public isConnected(): boolean {
+    return globalClientConn.readyState === globalClientConn.OPEN;
+  }
+
+  public send(
+    action: string,
+    message?: any,
+    callback?: (response: any) => void
+  ): void {
+    try {
+      if (!this.isConnected()) {
+        this.handleError();
+      }
+
+      // Implementation details - https://stackoverflow.com/a/24145135
+      ++this.msgId;
+      if (callback) {
+        this.msgQueue[makeCallbackId(this.msgId)] = callback;
+      }
+
+      const data = {
+        id: this.msgId,
+        action: action,
+        payload: message
+      };
+      globalClientConn.send(JSON.stringify(data));
+    } catch (e) {
+      this.handleError();
+    }
+  }
+
+  public setErrorHandler(callback: () => void) {
+    this.msgQueue[makeCallbackId(ERROR_MSG_ID)] = callback;
+  }
+
+  private constructor() {
+    this.initialize();
+  }
+
+  private handleError(): void {
+    const callbackId = makeCallbackId(0);
+    const callback = this.msgQueue[callbackId];
+    if (callback) {
+      callback();
+    }
   }
 }
