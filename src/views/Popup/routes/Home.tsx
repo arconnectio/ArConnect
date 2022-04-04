@@ -32,7 +32,7 @@ import copy from "copy-to-clipboard";
 import QRIcon from "../../../assets/QR.svg";
 import GlobeIcon from "../../../assets/globe.svg";
 import AssetCard from "../../../components/AssetCard";
-import CollectibleCard from "../../../components/CollectibleCard";
+import { CollectibleCard } from "../../../components/CollectibleCard";
 import styles from "../../../styles/views/Popup/home.module.sass";
 
 export default function Home() {

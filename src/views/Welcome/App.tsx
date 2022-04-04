@@ -12,8 +12,6 @@ import { formatAddress } from "../../utils/url";
 import {
   Button,
   Input,
-  useTheme,
-  Tooltip,
   Spacer,
   Modal,
   useModal,
@@ -27,8 +25,7 @@ import logo from "../../assets/logo.png";
 import styles from "../../styles/views/Welcome/view.module.sass";
 
 export default function App() {
-  const theme = useTheme(),
-    fileInput = useRef<HTMLInputElement>(null),
+  const fileInput = useRef<HTMLInputElement>(null),
     loadWalletsModal = useModal(false),
     [seed, setSeed] = useState<string>(),
     [setupConfig, setSetupConfig] = useState<SetupConfigProps>({

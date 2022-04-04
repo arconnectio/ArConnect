@@ -15,6 +15,7 @@ import WalletManager from "../../../components/WalletManager";
 import AssetCard from "../../../components/AssetCard";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
+import { ArtsAndCollectiblesCard } from "../../../components/CollectibleCard";
 import styles from "../../../styles/views/Popup/explore.module.sass";
 
 dayjs.extend(localizedFormat);
@@ -158,19 +159,28 @@ const Explore = () => {
 
         <p className={styles.SectionHeader}>art & collectibles</p>
         <div>
-          {/* TODO: Implement with styled-components */}
-          <div>
-            <p>Bark Blocks #18</p>
-          </div>
-          <div>
-            <p>Sweets</p>
-          </div>
-          <div>
-            <p>Sweets</p>
-          </div>
-          <div>
-            <p>Bark Blocks #17</p>
-          </div>
+          {/* TODO: style and implement functionality */}
+          <ArtsAndCollectiblesCard
+            // test data
+            image="https://blwqk6ddsbpgkrjz6p4blotko36lm5ohamvfyyxdmzcwyz2cqxqa.arweave.net/Cu0FeGOQXmVFOfP4Fbpqdvy2dccDKlxi42ZFbGdCheA/"
+            name="Bark Blocks #18"
+          />
+          "
+          <ArtsAndCollectiblesCard
+            // test data
+            image="https://wtpc7bpgogwaei5ie7n3g4ydovsnpa6gxhwjkdokrkaof3bl2y.arweave.net/tN4vheZxrAIjqCfbs3MDdWTXg8a_57JUNyoqA4uwr1k"
+            name="Sweets"
+          />
+          <ArtsAndCollectiblesCard
+            // test data
+            image="https://wtpc7bpgogwaei5ie7n3g4ydovsnpa6gxhwjkdokrkaof3bl2y.arweave.net/tN4vheZxrAIjqCfbs3MDdWTXg8a_57JUNyoqA4uwr1k"
+            name="Sweets"
+          />
+          <ArtsAndCollectiblesCard
+            // test data
+            image="https://blwqk6ddsbpgkrjz6p4blotko36lm5ohamvfyyxdmzcwyz2cqxqa.arweave.net/Cu0FeGOQXmVFOfP4Fbpqdvy2dccDKlxi42ZFbGdCheA/"
+            name="Bark Blocks #17"
+          />
         </div>
 
         <p className={styles.SectionHeader}>communities</p>
