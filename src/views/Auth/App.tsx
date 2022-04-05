@@ -500,7 +500,7 @@ export default function App() {
                         style={{
                           textAlign: "left",
                           paddingTop: "1em",
-                          fontSize: "0.85em"
+                          fontSize: "0.875em"
                         }}
                       >
                         {getPermissionDescription(permission)}
