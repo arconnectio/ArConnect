@@ -13,8 +13,9 @@ jobs:
         browser: [chrome, firefox]
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - run: |
+          git config --global url."https://github.com/".insteadOf git://github.com/
 
       - name: Setup Node
         uses: actions/setup-node@v2

@@ -8,7 +8,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
+      - run: |
+          git config --global url."https://github.com/".insteadOf git://github.com/
+
       - uses: actions/setup-node@v1
         with:
           node-version: "14"
