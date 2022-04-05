@@ -123,7 +123,7 @@ declare global {
       signature(
         data: Uint8Array,
         // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/sign#parameters
-        algorithm: any
+        algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams
       ): Promise<Uint8Array>;
 
       /**
