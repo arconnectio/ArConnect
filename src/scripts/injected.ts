@@ -332,7 +332,10 @@ const WalletAPI = {
       throw new Error(e);
     }
   },
-  async signature(data: Uint8Array, algorithm: any): Promise<Uint8Array> {
+  async signature(
+    data: Uint8Array,
+    algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams
+  ): Promise<Uint8Array> {
     try {
       const result = await callAPI({
         type: "signature",
