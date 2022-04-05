@@ -8,6 +8,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Git
+        run: git config --global url."https://github.com/".insteadOf git://github.com/
+
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
