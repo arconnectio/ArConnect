@@ -4,6 +4,26 @@
   background-color: variables.$background-color
   padding: .65em .7em
 
+  .ArtsCollectibles
+    display: grid
+    grid-template-columns: 33% 33% 33%
+    grid-template-rows: repeat(2, 7.3em)
+
+    div
+      margin: 0.4em
+      padding-bottom: 0.4em
+      border-radius: 9px
+    
+    div:nth-child(1)
+      grid-column-end: span 2
+
+    div:nth-child(3)
+      grid-row-start: 2
+
+    div:nth-child(4)
+      grid-column-start: 2 
+      grid-column-end: span 3
+
   .SectionHeader
     font-size: .77em
     font-weight: 600

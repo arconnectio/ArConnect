@@ -5,8 +5,8 @@ import { goTo } from "react-chrome-extension-router";
 import Token from "../views/Popup/routes/Token";
 import styles from "../styles/components/CollectibleCard.module.sass";
 
-const ArtsAndCollectiblesWrapper = styled(Card)<ArtsProps>`
-  height: 5rem;
+const ArtsAndCollectiblesWrapper = styled.div<ArtsProps>`
+  display: flex;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -14,11 +14,12 @@ const ArtsAndCollectiblesWrapper = styled(Card)<ArtsProps>`
 
   p {
     color: #fff;
-    font-family: "Poppins", sans-serif;
-    font-size: 13px;
+    font-size: 14px;
+    margin-bottom: 0;
     font-weight: 500;
-    bottom: 0.1em;
-    position: absolute;
+    padding-left: 0.4em;
+    align-self: flex-end;
+    font-family: "Poppins", sans-serif;
   }
 `;
 

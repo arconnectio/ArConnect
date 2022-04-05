@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import {
   fetchRandomCommunitiesWithMetadata,
-  RandomCommunities
+  RandomCommunities,
+  UserBalance
 } from "verto-cache-interface";
 import { Spacer, useTheme, Loading } from "@verto/ui";
 import { AnimatePresence, motion } from "framer-motion";
 import { cardListAnimation } from "verto-internals/utils";
 import { Line } from "react-chartjs-2";
+import { RootState } from "../../../stores/reducers";
 import { GraphOptions } from "../../../utils/graph";
+import { fetchBalancesForAddress } from "verto-cache-interface";
+import { ArtsAndCollectiblesCard } from "../../../components/CollectibleCard";
 import vertoLogo from "../../../assets/verto_dark.png";
 import arweaveNewsLogo from "../../../assets/arweave_news.png";
 import axios from "axios";
@@ -15,7 +20,6 @@ import WalletManager from "../../../components/WalletManager";
 import AssetCard from "../../../components/AssetCard";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import { ArtsAndCollectiblesCard } from "../../../components/CollectibleCard";
 import styles from "../../../styles/views/Popup/explore.module.sass";
 
 dayjs.extend(localizedFormat);
@@ -23,7 +27,24 @@ dayjs.extend(localizedFormat);
 const Explore = () => {
   const theme = useTheme(),
     [communities, setCommunities] = useState<RandomCommunities[]>(),
-    [currentPage, setCurrentPage] = useState<1 | 2 | 3>(1);
+    [currentPage, setCurrentPage] = useState<1 | 2 | 3>(1),
+    profile = useSelector((state: RootState) => state.profile),
+    [collectibles, setCollectibles] = useState<UserBalance[]>();
+
+  // load collectibles
+  useEffect(() => {
+    const CACHE_NAME = "collectibles_cache";
+    const val = localStorage.getItem(CACHE_NAME);
+
+    if (val) setCollectibles(JSON.parse(val));
+
+    (async () => {
+      const res = await fetchBalancesForAddress(profile, "art");
+
+      setCollectibles(res);
+      localStorage.setItem(CACHE_NAME, JSON.stringify(res));
+    })();
+  }, [profile]);
 
   useEffect(() => {
     try {
@@ -56,6 +77,8 @@ const Explore = () => {
       );
     })();
   }, []);
+
+  console.log(collectibles);
 
   return (
     <>
@@ -158,29 +181,49 @@ const Explore = () => {
         </div>
 
         <p className={styles.SectionHeader}>art & collectibles</p>
-        <div>
-          {/* TODO: style and implement functionality */}
-          <ArtsAndCollectiblesCard
-            // test data
+        <div
+          className={
+            collectibles && collectibles.length ? styles.ArtsCollectibles : ""
+          }
+        >
+          {/* FOR DEMO PURPOSES ONLY */}
+          {/* <ArtsAndCollectiblesCard
             image="https://blwqk6ddsbpgkrjz6p4blotko36lm5ohamvfyyxdmzcwyz2cqxqa.arweave.net/Cu0FeGOQXmVFOfP4Fbpqdvy2dccDKlxi42ZFbGdCheA/"
             name="Bark Blocks #18"
           />
-          "
           <ArtsAndCollectiblesCard
-            // test data
-            image="https://wtpc7bpgogwaei5ie7n3g4ydovsnpa6gxhwjkdokrkaof3bl2y.arweave.net/tN4vheZxrAIjqCfbs3MDdWTXg8a_57JUNyoqA4uwr1k"
+            image="https://b5vdxb27d7igox5rfguwufwtfw3tlrq3vwxctma7wit5edtfta.arweave.net/D2o7h18f0GdfsSmpahb-TLbc1xhutrimwH7In0g5lmA"
             name="Sweets"
           />
           <ArtsAndCollectiblesCard
-            // test data
-            image="https://wtpc7bpgogwaei5ie7n3g4ydovsnpa6gxhwjkdokrkaof3bl2y.arweave.net/tN4vheZxrAIjqCfbs3MDdWTXg8a_57JUNyoqA4uwr1k"
+            image="https://b5vdxb27d7igox5rfguwufwtfw3tlrq3vwxctma7wit5edtfta.arweave.net/D2o7h18f0GdfsSmpahb-TLbc1xhutrimwH7In0g5lmA"
             name="Sweets"
           />
           <ArtsAndCollectiblesCard
-            // test data
             image="https://blwqk6ddsbpgkrjz6p4blotko36lm5ohamvfyyxdmzcwyz2cqxqa.arweave.net/Cu0FeGOQXmVFOfP4Fbpqdvy2dccDKlxi42ZFbGdCheA/"
             name="Bark Blocks #17"
-          />
+          /> */}
+
+          {(collectibles &&
+            ((collectibles.length &&
+              collectibles
+                .slice(0, 4)
+                .sort((a, b) => b.balance - a.balance)
+                .map((collectible, i) => (
+                  <motion.div
+                    className={styles.SectionItem}
+                    {...cardListAnimation(i)}
+                    key={i}
+                  >
+                    <ArtsAndCollectiblesCard
+                      image={`https://arweave.net/${collectible.contractId}`}
+                      name={collectible.name || ""}
+                    />
+                  </motion.div>
+                ))) ||
+              "No Arts & Collectibles so far")) || (
+            <Loading.Spinner style={{ margin: "0 auto" }} />
+          )}
         </div>
 
         <p className={styles.SectionHeader}>communities</p>
