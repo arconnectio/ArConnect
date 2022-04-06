@@ -56,6 +56,9 @@
 
   .FeaturedWrapper 
     padding: 1em
+    height: 115px
+    overflow: hidden
+    position: relative
     color: variables.$background-color
     border-radius: 12px
     background-color: variables.$foreground-color
@@ -63,9 +66,10 @@
 
     .FeaturedItem
       display: flex
-      flex-direction: column
-      justify-content: center
+      position: absolute
       align-items: center
+      flex-direction: column
+      justify-content: space-between
 
       span
         display: flex

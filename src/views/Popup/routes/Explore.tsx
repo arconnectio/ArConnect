@@ -13,7 +13,8 @@ import { RootState } from "../../../stores/reducers";
 import { GraphOptions } from "../../../utils/graph";
 import { fetchBalancesForAddress } from "verto-cache-interface";
 import { ArtsAndCollectiblesCard } from "../../../components/CollectibleCard";
-import vertoLogo from "../../../assets/verto_dark.png";
+import vertoDarkModeLogo from "../../../assets/verto_light.png";
+import vertoLightModeLogo from "../../../assets/verto_dark.png";
 import arweaveNewsLogo from "../../../assets/arweave_news.png";
 import axios from "axios";
 import WalletManager from "../../../components/WalletManager";
@@ -78,6 +79,7 @@ const Explore = () => {
     })();
   }, []);
 
+  console.log(theme);
   return (
     <>
       <WalletManager pageTitle="Explore" />
@@ -138,7 +140,13 @@ const Explore = () => {
                 }}
               >
                 <span>
-                  <img src={vertoLogo} alt="token-logo" draggable={false} />
+                  <img
+                    src={
+                      theme === "Dark" ? vertoDarkModeLogo : vertoLightModeLogo
+                    }
+                    alt="token-logo"
+                    draggable={false}
+                  />
                   erto
                 </span>
                 <p className={styles.FeaturedItemInfo}>
@@ -183,6 +191,7 @@ const Explore = () => {
           className={
             collectibles && collectibles.length ? styles.ArtsCollectibles : ""
           }
+          // className={styles.ArtsCollectibles}
         >
           {/* FOR DEMO PURPOSES ONLY */}
           {/* <ArtsAndCollectiblesCard
