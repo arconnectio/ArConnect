@@ -78,8 +78,6 @@ const Explore = () => {
     })();
   }, []);
 
-  console.log(collectibles);
-
   return (
     <>
       <WalletManager pageTitle="Explore" />
@@ -126,18 +124,18 @@ const Explore = () => {
         <p className={styles.SectionHeader}>news & updates</p>
         <div>
           <div className={styles.FeaturedWrapper}>
+            {/* TODO: FIX ISSUE WITH TRANSITION */}
             <AnimatePresence>
               <motion.div
                 className={styles.FeaturedItem}
                 key={currentPage}
-                // TODO: Fix Exit Transition
-                // initial={{ x: 1000, opacity: 0, translateY: "-50%" }}
-                // animate={{ x: 0, opacity: 1, translateY: "-50%" }}
-                // exit={{ x: -1000, opacity: 0, translateY: "-50%" }}
-                // transition={{
-                //   x: { type: "spring", stiffness: 300, damping: 30 },
-                //   opacity: { duration: 0.2 }
-                // }}
+                initial={{ x: 1000, opacity: 0, translateY: "0%" }}
+                animate={{ x: 0, opacity: 1, translateY: "0%" }}
+                exit={{ x: -1000, opacity: 0, translateY: "0%" }}
+                transition={{
+                  x: { type: "spring", stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.2 }
+                }}
               >
                 <span>
                   <img src={vertoLogo} alt="token-logo" draggable={false} />
