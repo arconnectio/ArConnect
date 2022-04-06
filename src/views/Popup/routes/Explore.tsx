@@ -79,7 +79,6 @@ const Explore = () => {
     })();
   }, []);
 
-  console.log(theme);
   return (
     <>
       <WalletManager pageTitle="Explore" />
