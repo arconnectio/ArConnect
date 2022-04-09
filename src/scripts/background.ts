@@ -73,9 +73,18 @@ browser.windows.onFocusChanged.addListener(async (windowId) => {
 browser.tabs.onActivated.addListener(async (activeInfo) => {
   if (!(await walletsStored())) return;
 
-  handleArweaveTabActivated(activeInfo.tabId);
-
-  handleTabUpdate();
+  try {
+    const activeTab = await getCurrentActiveTab();
+    const txId = await checkCommunityContract(activeTab.url!);
+    if (activeTab.url) {
+      console.log(`${activeTab.url} activated`);
+    } else {
+      console.log("Open new tab");
+    }
+    handleArweaveTabActivated(activeTab.id!, activeTab.url, txId);
+  } finally {
+    handleTabUpdate();
+  }
 });
 
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {

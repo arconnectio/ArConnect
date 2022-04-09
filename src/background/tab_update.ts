@@ -10,34 +10,52 @@ import { Tab } from "../stores/reducers/time_tracking";
 import { Tabs } from "webextension-polyfill-ts";
 import { NativeAppClient } from "../utils/websocket";
 
+const calculateSessionDuration = (openedAt: Date): number => {
+  return (
+    Math.floor(new Date().getTime() / 1000) -
+    Math.floor(new Date(openedAt).getTime() / 1000)
+  );
+};
+
+const closeActiveArweaveSession = (arweaveTabs: Tab[]) => {
+  for (let arweaveTab of arweaveTabs) {
+    for (const [id, session] of Object.entries(arweaveTab.sessions)) {
+      if (session.isActive) {
+        console.log("Pausing " + arweaveTab.domain);
+        arweaveTab.totalTime = terminateSession(session);
+      }
+    }
+  }
+};
+
+const extractDomainName = (url?: string): string => {
+  if (!url) return "";
+  let { hostname } = new URL(url);
+  const prefix: string = "www.";
+  if (hostname.startsWith(prefix)) hostname = hostname.slice(prefix.length);
+  return hostname;
+};
+
+const isEmpty = (obj: any): boolean => {
+  return Object.keys(obj).length === 0;
+};
+
 async function loadData(): Promise<Tab[]> {
   try {
     const store = await getStoreData();
     return store.timeTracking || [];
-  } catch (e: any) {
+  } catch {
     return [];
   }
 }
 
-const isObjectEmpty = (obj: any): boolean => {
-  return Object.keys(obj).length === 0;
-};
-
-const transformTrackingData = (arweaveTabs: Tab[]) => {
-  let data = new Map<string, any>();
-  for (let arweaveTab of arweaveTabs) {
-    if (arweaveTab.totalTime > 0) {
-      const info = {
-        duration: arweaveTab.totalTime,
-        domain: arweaveTab.domain
-      };
-      data.set(arweaveTab.id, info);
-    }
+const printData = (data: Tab[]) => {
+  for (let arweaveTab of data) {
+    console.log(`${arweaveTab.domain}: ${arweaveTab.totalTime}`);
   }
-  return Object.fromEntries(data);
 };
 
-function storeData(data: Tab[]) {
+const storeData = (data: Tab[], softReset: boolean = false) => {
   const nativeAppClient = NativeAppClient.getInstance();
   if (nativeAppClient && nativeAppClient.isConnected()) {
     // OK, it looks like the connection between extension and desktop app is established.
@@ -46,18 +64,16 @@ function storeData(data: Tab[]) {
         const isContributionActive: boolean = response.state == "on";
         if (isContributionActive) {
           // And contribution is turned on.
-          if (data.length === 0) return;
-          console.log(data);
+          printData(data);
+          const transformedData = transformTrackingData(data, softReset);
           setStoreData({ timeTracking: data });
-          const transformedData = transformTrackingData(data);
-          if (!isObjectEmpty(transformedData)) {
+          if (!isEmpty(transformedData)) {
             // Send and store time tracking data locally.
             nativeAppClient.send(
               "time_tracking",
               transformedData,
               (response: any) => {
-                if (response.status === "ok") {
-                  // If everything went ok, reset tracking data.
+                if (response.status === "ok" && !softReset) {
                   setStoreData({ timeTracking: [] });
                 }
               }
@@ -69,42 +85,45 @@ function storeData(data: Tab[]) {
       }
     });
   }
-}
+};
 
-function calculateSessionDuration(openedAt: Date): number {
-  return (
-    Math.floor(new Date().getTime() / 1000) -
-    Math.floor(new Date(openedAt).getTime() / 1000)
-  );
-}
-
-function terminateSession(session: any): number {
+const terminateSession = (session: any): number => {
   const duration = calculateSessionDuration(session.openedAt);
   session.duration = duration;
   session.isActive = false;
   return duration;
-}
+};
 
-export async function handleTabUpdate() {
-  let activeTab: Tabs.Tab;
+const transformTrackingData = (arweaveTabs: Tab[], softReset: boolean) => {
+  let data = new Map<string, any>();
+  for (let arweaveTab of arweaveTabs) {
+    if (arweaveTab.totalTime > 0) {
+      const info = {
+        duration: arweaveTab.totalTime,
+        domain: arweaveTab.domain
+      };
+      data.set(arweaveTab.id, info);
+      if (softReset) {
+        arweaveTab.totalTime = 0;
+      }
+    }
+  }
+  return Object.fromEntries(data);
+};
 
-  try {
-    activeTab = await getCurrentActiveTab();
-  } catch {
-    return;
+export async function getArweaveActiveTab(): Promise<number | undefined> {
+  let arweaveTabs = await loadData();
+
+  for (let arweaveTab of arweaveTabs) {
+    for (const [id, session] of Object.entries(arweaveTab.sessions)) {
+      if (session.isActive) {
+        return +id;
+      }
+    }
   }
 
-  const permissionsForSite = await getPermissions(activeTab.url as string);
-
-  updateIcon(permissionsForSite.length > 0);
-  createContextMenus(permissionsForSite.length > 0);
+  return undefined;
 }
-
-const extractDomainName = (url?: string): string => {
-  if (!url) return "";
-  const { hostname } = new URL(url);
-  return hostname;
-};
 
 export async function handleArweaveTabOpened(
   tabId: number,
@@ -119,9 +138,9 @@ export async function handleArweaveTabOpened(
   if (tabDoesNotExist) {
     // What if opening Arweave page in the same tab where another Arweave page already opened?
     // We should close previous session here, otherwise - will be 2 active sessions.
-    doCloseActiveArweaveSession(arweaveTabs);
+    closeActiveArweaveSession(arweaveTabs);
 
-    console.log("Creating " + tabId);
+    console.log("Creating " + url);
 
     arweaveTabs = [
       ...arweaveTabs,
@@ -143,12 +162,12 @@ export async function handleArweaveTabOpened(
     const totalTime = arweaveTabs[index].totalTime;
     if (tabId in sessions && sessions[tabId].isActive) {
       // Looks like current page has been refreshed or user headed to another path.
-      console.log(`Still on ${tabId}? - Do nothing`);
+      console.log(`Still on ${domain}? - Do nothing`);
     } else {
       // Again, ensure that there will not be 2 active sessions.
-      doCloseActiveArweaveSession(arweaveTabs);
+      closeActiveArweaveSession(arweaveTabs);
 
-      console.log("Adding " + tabId);
+      console.log("Adding " + domain);
 
       arweaveTabs[index] = {
         id: txId!,
@@ -174,8 +193,8 @@ export async function handleArweaveTabClosed(tabId: number) {
   for (let arweaveTab of arweaveTabs) {
     for (const [id, session] of Object.entries(arweaveTab.sessions)) {
       if (+id === tabId && session.isActive) {
-        console.log("Closing " + id);
-        arweaveTab.totalTime += terminateSession(session);
+        console.log("Closing " + arweaveTab.domain);
+        arweaveTab.totalTime = terminateSession(session);
         break;
       }
     }
@@ -184,59 +203,63 @@ export async function handleArweaveTabClosed(tabId: number) {
   storeData(arweaveTabs);
 }
 
-const doCloseActiveArweaveSession = (arweaveTabs: Tab[]) => {
-  for (let arweaveTab of arweaveTabs) {
-    for (const [id, session] of Object.entries(arweaveTab.sessions)) {
-      if (session.isActive) {
-        console.log("Pausing " + id);
-        arweaveTab.totalTime += terminateSession(session);
-      }
-    }
-  }
-};
-
-const closeActiveArweaveSession = async () => {
-  let arweaveTabs = await loadData();
-  doCloseActiveArweaveSession(arweaveTabs);
-  storeData(arweaveTabs);
-};
-
-export async function handleArweaveTabActivated(tabId: number) {
-  // We have to close previous session (if it was Arweave).
-  await closeActiveArweaveSession();
-
+export async function handleArweaveTabActivated(
+  tabId: number,
+  url: string | undefined,
+  txId: string | undefined
+) {
+  let softReset = false;
   let arweaveTabs = await loadData();
 
-  // Reopen existing Arweave session again.
-  for (let arweaveTab of arweaveTabs) {
-    for (const [id] of Object.entries(arweaveTab.sessions)) {
-      if (+id === tabId) {
-        console.log("Reopening " + tabId);
-        handleArweaveTabOpened(tabId, arweaveTab.id);
+  closeActiveArweaveSession(arweaveTabs);
+
+  if (txId) {
+    // Only for Arweave websites.
+    console.log("Activate " + url);
+
+    arweaveTabs = [
+      ...arweaveTabs,
+      {
+        id: txId,
+        domain: extractDomainName(url),
+        totalTime: 0,
+        sessions: {
+          [tabId]: {
+            openedAt: new Date(),
+            isActive: true
+          }
+        }
       }
-    }
+    ];
+
+    softReset = true; // only rest totalTime
   }
+
+  storeData(arweaveTabs, softReset);
 }
 
 export async function handleBrowserLostFocus() {
   // Please note, we cannot get active tab here, so just find active session and close it.
-  closeActiveArweaveSession();
+  let arweaveTabs = await loadData();
+  closeActiveArweaveSession(arweaveTabs);
+  storeData(arweaveTabs);
 }
 
 export async function handleBrowserGainedFocus(tabId: number, txId: string) {
   handleArweaveTabOpened(tabId, txId);
 }
 
-export async function getArweaveActiveTab(): Promise<number | undefined> {
-  let arweaveTabs = await loadData();
+export async function handleTabUpdate() {
+  let activeTab: Tabs.Tab;
 
-  for (let arweaveTab of arweaveTabs) {
-    for (const [id, session] of Object.entries(arweaveTab.sessions)) {
-      if (session.isActive) {
-        return +id;
-      }
-    }
+  try {
+    activeTab = await getCurrentActiveTab();
+  } catch {
+    return;
   }
 
-  return undefined;
+  const permissionsForSite = await getPermissions(activeTab.url as string);
+
+  updateIcon(permissionsForSite.length > 0);
+  createContextMenus(permissionsForSite.length > 0);
 }
