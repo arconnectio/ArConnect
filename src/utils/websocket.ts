@@ -14,6 +14,10 @@ export class NativeAppClient {
   private msgQueue: any = {};
   private msgId: number = INITIAL_MSG_ID;
 
+  /**
+   * @brief Singleton that restricts the instantiation of the class.
+   * @returns "single" instance of the class.
+   */
   public static getInstance(): NativeAppClient | undefined {
     if (
       !NativeAppClient.instance ||
@@ -29,6 +33,9 @@ export class NativeAppClient {
     return NativeAppClient.instance;
   }
 
+  /**
+   * @brief Establishes connection between current extension and desktop app.
+   */
   public initialize() {
     globalClientConn = new websocket.w3cwebsocket("ws://localhost:5555/arc");
 
@@ -58,10 +65,20 @@ export class NativeAppClient {
     };
   }
 
+  /**
+   * @brief Checks whether connection is established.
+   * @returns true if extension connected to the desktop app, false otherwise.
+   */
   public isConnected(): boolean {
     return globalClientConn.readyState === globalClientConn.OPEN;
   }
 
+  /**
+   * @brief Sends a message to the desktop app.
+   * @param action Action name.
+   * @param message JSON data that relates to action.
+   * @param callback Callback that handles response from the desktop app.
+   */
   public send(
     action: string,
     message?: any,
@@ -89,6 +106,11 @@ export class NativeAppClient {
     }
   }
 
+  /**
+   * @brief Sets error callback
+   * @note Not used. Needs to be implemented and tested.
+   * @param callback Callback that should handle errors.
+   */
   public setErrorHandler(callback: () => void) {
     this.msgQueue[makeCallbackId(ERROR_MSG_ID)] = callback;
   }

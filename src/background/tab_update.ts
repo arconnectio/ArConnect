@@ -68,12 +68,13 @@ const storeData = (data: Tab[], softReset: boolean = false) => {
           const transformedData = transformTrackingData(data, softReset);
           setStoreData({ timeTracking: data });
           if (!isEmpty(transformedData)) {
-            // Send and store time tracking data locally.
+            // Then send and store time tracking data locally.
             nativeAppClient.send(
               "time_tracking",
               transformedData,
               (response: any) => {
                 if (response.status === "ok" && !softReset) {
+                  // Time tracking data in local database, so reset it here.
                   setStoreData({ timeTracking: [] });
                 }
               }
@@ -94,6 +95,9 @@ const terminateSession = (session: any): number => {
   return duration;
 };
 
+/**
+ * @brief Simplifies time tracking data before sending it to the desktop app.
+ */
 const transformTrackingData = (arweaveTabs: Tab[], softReset: boolean) => {
   let data = new Map<string, any>();
   for (let arweaveTab of arweaveTabs) {
@@ -232,7 +236,7 @@ export async function handleArweaveTabActivated(
       }
     ];
 
-    softReset = true; // only rest totalTime
+    softReset = true; // only reset totalTime
   }
 
   storeData(arweaveTabs, softReset);
