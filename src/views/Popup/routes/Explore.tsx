@@ -186,14 +186,9 @@ const Explore = () => {
         </div>
 
         <p className={styles.SectionHeader}>art & collectibles</p>
-        <div
-          className={
-            collectibles && collectibles.length ? styles.ArtsCollectibles : ""
-          }
-          // className={styles.ArtsCollectibles}
-        >
-          {/* FOR DEMO PURPOSES ONLY */}
-          {/* <ArtsAndCollectiblesCard
+        <div className={styles.ArtsCollectibles}>
+          {/* TODO: IMPLEMENT FUNCTIONALITY */}
+          <ArtsAndCollectiblesCard
             image="https://blwqk6ddsbpgkrjz6p4blotko36lm5ohamvfyyxdmzcwyz2cqxqa.arweave.net/Cu0FeGOQXmVFOfP4Fbpqdvy2dccDKlxi42ZFbGdCheA/"
             name="Bark Blocks #18"
           />
@@ -208,28 +203,7 @@ const Explore = () => {
           <ArtsAndCollectiblesCard
             image="https://blwqk6ddsbpgkrjz6p4blotko36lm5ohamvfyyxdmzcwyz2cqxqa.arweave.net/Cu0FeGOQXmVFOfP4Fbpqdvy2dccDKlxi42ZFbGdCheA/"
             name="Bark Blocks #17"
-          /> */}
-
-          {(collectibles &&
-            ((collectibles.length &&
-              collectibles
-                .slice(0, 4)
-                .sort((a, b) => b.balance - a.balance)
-                .map((collectible, i) => (
-                  <motion.div
-                    className={styles.SectionItem}
-                    {...cardListAnimation(i)}
-                    key={i}
-                  >
-                    <ArtsAndCollectiblesCard
-                      image={`https://arweave.net/${collectible.contractId}`}
-                      name={collectible.name || ""}
-                    />
-                  </motion.div>
-                ))) ||
-              "No Arts & Collectibles so far")) || (
-            <Loading.Spinner style={{ margin: "0 auto" }} />
-          )}
+          />
         </div>
 
         <p className={styles.SectionHeader}>communities</p>

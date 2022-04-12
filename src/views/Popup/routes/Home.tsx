@@ -27,11 +27,13 @@ import axios from "axios";
 import WalletManager from "../../../components/WalletManager";
 import Send from "./Send";
 import Explore from "./Explore";
+import Verto from "@verto/lib";
 import Arweave from "arweave";
 import copy from "copy-to-clipboard";
 import QRIcon from "../../../assets/QR.svg";
 import GlobeIcon from "../../../assets/globe.svg";
 import AssetCard from "../../../components/AssetCard";
+import TransactionCard from "../../../components/TransactionCard";
 import { CollectibleCard } from "../../../components/CollectibleCard";
 import styles from "../../../styles/views/Popup/home.module.sass";
 
@@ -47,11 +49,27 @@ export default function Home() {
       "page" | "pdf" | undefined
     >("page"),
     [showQRCode, setShowQRCode] = useState(false),
+    [loading, setLoading] = useState({ psts: true, txs: true }),
+    [transactions, setTransactions] = useState<
+      {
+        id: string;
+        amount: number;
+        type: string;
+        status: string;
+        timestamp: number;
+      }[]
+    >([]),
     [, setToast] = useToasts();
 
   useEffect(() => {
     loadBalance();
     loadContentType();
+    loadTransactions();
+    // eslint-disable-next-line
+  }, [currency, profile]);
+
+  useEffect(() => {
+    loadBalance();
     // eslint-disable-next-line
   }, [currency, profile]);
 
@@ -76,6 +94,16 @@ export default function Home() {
     } catch {}
 
     dispatch(setBalance({ address: profile, arBalance, fiatBalance }));
+  }
+
+  async function loadTransactions() {
+    const verto = new Verto();
+    setLoading((val) => ({ ...val, txs: true }));
+
+    try {
+      setTransactions(await verto.getTransactions(profile));
+    } catch {}
+    setLoading((val) => ({ ...val, txs: false }));
   }
 
   function balance() {
@@ -377,6 +405,36 @@ export default function Home() {
             )}
           </AnimatePresence>
         </div>
+      </div>
+
+      <div className={styles.Section}>
+        <div className={styles.Title}>
+          <h1>Transactions</h1>
+          <h1
+            className={styles.Link}
+            onClick={() =>
+              browser.tabs.create({
+                url: `https://www.verto.exchange/@${profile}/owns`
+              })
+            }
+          >
+            View all
+          </h1>
+        </div>
+        {(transactions.length > 0 &&
+          transactions.map((tx, i) => (
+            <TransactionCard
+              type={tx.type}
+              status={tx.status}
+              amount={tx.amount}
+              txID={tx.id}
+            />
+          ))) ||
+          (loading.txs && (
+            <div className={styles.TransactionSpinner}>
+              <Loading.Spinner />
+            </div>
+          )) || <p className={styles.EmptyIndicatorText}>No transactions</p>}
       </div>
 
       <AnimatePresence>
