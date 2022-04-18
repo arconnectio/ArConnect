@@ -21,7 +21,6 @@ const closeActiveArweaveSession = (arweaveTabs: Tab[]) => {
   for (let arweaveTab of arweaveTabs) {
     for (const [id, session] of Object.entries(arweaveTab.sessions)) {
       if (session.isActive) {
-        console.log("Pausing " + arweaveTab.domain);
         arweaveTab.totalTime = terminateSession(session);
       }
     }
@@ -49,12 +48,6 @@ async function loadData(): Promise<Tab[]> {
   }
 }
 
-const printData = (data: Tab[]) => {
-  for (let arweaveTab of data) {
-    console.log(`${arweaveTab.domain}: ${arweaveTab.totalTime}`);
-  }
-};
-
 const storeData = (data: Tab[], softReset: boolean = false) => {
   const nativeAppClient = NativeAppClient.getInstance();
   if (nativeAppClient && nativeAppClient.isConnected()) {
@@ -64,7 +57,6 @@ const storeData = (data: Tab[], softReset: boolean = false) => {
         const isContributionActive: boolean = response.state == "on";
         if (isContributionActive) {
           // And contribution is turned on.
-          printData(data);
           const transformedData = transformTrackingData(data, softReset);
           setStoreData({ timeTracking: data });
           if (!isEmpty(transformedData)) {
@@ -144,8 +136,6 @@ export async function handleArweaveTabOpened(
     // We should close previous session here, otherwise - will be 2 active sessions.
     closeActiveArweaveSession(arweaveTabs);
 
-    console.log("Creating " + url);
-
     arweaveTabs = [
       ...arweaveTabs,
       {
@@ -166,12 +156,9 @@ export async function handleArweaveTabOpened(
     const totalTime = arweaveTabs[index].totalTime;
     if (tabId in sessions && sessions[tabId].isActive) {
       // Looks like current page has been refreshed or user headed to another path.
-      console.log(`Still on ${domain}? - Do nothing`);
     } else {
       // Again, ensure that there will not be 2 active sessions.
       closeActiveArweaveSession(arweaveTabs);
-
-      console.log("Adding " + domain);
 
       arweaveTabs[index] = {
         id: txId!,
@@ -197,7 +184,6 @@ export async function handleArweaveTabClosed(tabId: number) {
   for (let arweaveTab of arweaveTabs) {
     for (const [id, session] of Object.entries(arweaveTab.sessions)) {
       if (+id === tabId && session.isActive) {
-        console.log("Closing " + arweaveTab.domain);
         arweaveTab.totalTime = terminateSession(session);
         break;
       }
@@ -219,8 +205,6 @@ export async function handleArweaveTabActivated(
 
   if (txId) {
     // Only for Arweave websites.
-    console.log("Activate " + url);
-
     arweaveTabs = [
       ...arweaveTabs,
       {
