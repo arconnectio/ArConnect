@@ -360,9 +360,17 @@ export default function App() {
           <Spacer y={1} />
           {withSetupMode ? (
             <div className={styles.SetupMode}>
-              <div onClick={() => loadWalletsModal.setState(true)}>
+              <div
+                onClick={() =>
+                  setSetupConfig({
+                    ...setupConfig,
+                    welcome: false,
+                    setupMode: true
+                  })
+                }
+              >
                 <WalletIcon />
-                <h5>Load wallet</h5>
+                <h5>Load or create wallets</h5>
                 <p>I'm new, I want to create a new profile</p>
               </div>
 
@@ -388,9 +396,11 @@ export default function App() {
     );
   };
 
+  console.log(setupConfig);
+
   return (
     <>
-      {setupConfig.welcome ? (
+      {setupConfig.setupMode ? (
         <div className={styles.Welcome}>
           {(passwordGiven && (
             <>
@@ -398,16 +408,7 @@ export default function App() {
               <h1 className={styles.header}>Welcome to ArConnect</h1>
               <p className={styles.intro}>Load or create a new wallet.</p>
               <div className={styles.loadwallets}>
-                <Button
-                  onClick={() => {
-                    setSetupConfig({
-                      ...setupConfig,
-                      welcome: false,
-                      setupMode: true
-                    });
-                  }}
-                  small
-                >
+                <Button onClick={() => loadWalletsModal.setState(true)} small>
                   Load Wallet
                 </Button>
                 <Button
@@ -481,23 +482,27 @@ export default function App() {
               >
                 {walletsStore.length === 0 ? "Create" : "Login"}
               </Button>
-
-              {/* {walletsStore.length === 0 && (
-                <>
-                  <span className={styles.OR}>OR</span>
-                  <Button
-                    type="secondary"
-                    small
-                    style={{ width: "14%" }}
-                  >
-                    Load Config File
-                  </Button>
-                </>
-              )} */}
+              <>
+                <span className={styles.OR}>OR</span>
+                <Button
+                  type="secondary"
+                  small
+                  style={{ width: "14%" }}
+                  onClick={() =>
+                    setSetupConfig({
+                      ...setupConfig,
+                      welcome: false,
+                      setupMode: false
+                    })
+                  }
+                >
+                  Cancel
+                </Button>
+              </>
             </>
           )}
         </div>
-      ) : setupConfig.setupMode ? (
+      ) : setupConfig.welcome ? (
         <SetupPage withSetupMode />
       ) : (
         <SetupPage />
