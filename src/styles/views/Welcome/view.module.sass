@@ -35,12 +35,42 @@
   flex-direction: column
   justify-content: center
 
-  div
+  .SetupContent
     display: flex
     align-items: center
     flex-direction: column
     color: variables.$background-color
     +SetupIntro
+  
+  .SetupMode
+    text-align: center
+    display: flex
+    justify-content: center
+    gap: 2em
+    font-family: 'Poppins', sans-serif
+
+    >div
+      display: flex
+      flex-direction: column
+      align-items: center
+      color: #000
+      width: 40%
+
+      >svg
+        background: #fff
+        width: 60px
+        height: 60px
+        padding: 1em
+        cursor: pointer
+        border-radius: 9px
+        box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1)
+
+      >h5
+        margin-top: .5em
+
+      >p
+        width: 80%
+        margin-top: 0
 
 .Welcome
   width: 100%
@@ -82,7 +112,7 @@
 
 .FileContent
   cursor: pointer
-  border: 1px dashed #eaeaea
+  border: 1px dashed #dbdada
   border-radius: 10px
   padding: .9em 1.25em
 
@@ -99,6 +129,10 @@
 
     svg
       margin-right: 1em
+
+.FilenamePW
+  input
+    text-align: center !important
 
 .Textarea
   +Textarea.TextArea

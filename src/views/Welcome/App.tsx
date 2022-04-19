@@ -18,6 +18,8 @@ import {
   useInput,
   useToasts
 } from "@verto/ui";
+import WalletIcon from "../../assets/wallet.svg";
+import ImportIcon from "../../assets/import.svg";
 import bip39 from "bip39-web-crypto";
 import CryptoES from "crypto-es";
 import Arweave from "arweave";
@@ -30,7 +32,7 @@ export default function App() {
     [seed, setSeed] = useState<string>(),
     [setupConfig, setSetupConfig] = useState<SetupConfigProps>({
       welcome: false,
-      password: false
+      setupMode: false
     }),
     [keyfiles, setKeyfiles] = useState<
       {
@@ -344,25 +346,43 @@ export default function App() {
     };
   }
 
-  const SetupPage = () => {
+  const SetupPage = ({ withSetupMode }: { withSetupMode?: boolean }) => {
     return (
       <section className={styles.SetupPage}>
-        <div>
+        <div className={styles.SetupContent}>
           <img src={logo} alt="arconnect logo" className={styles.logo} />
           <h1 className={styles.header}>Welcome to ArConnect</h1>
           <p className={styles.intro}>
-            A simple and secure way to authorize transactions and manage your
-            Arweave assets
+            {withSetupMode
+              ? "Load your ArConnect config file"
+              : "A simple and secure way to authorize transactions and manage your Arweave assets"}
           </p>
-          <Button
-            small
-            onClick={() => {
-              setSetupConfig({ ...setupConfig, welcome: true });
-            }}
-            style={{ marginTop: "2rem" }}
-          >
-            Get Started
-          </Button>
+          <Spacer y={1} />
+          {withSetupMode ? (
+            <div className={styles.SetupMode}>
+              <div onClick={() => loadWalletsModal.setState(true)}>
+                <WalletIcon />
+                <h5>Load wallet</h5>
+                <p>I'm new, I want to create a new profile</p>
+              </div>
+
+              <div onClick={() => loadConfigModal.setState(true)}>
+                <ImportIcon />
+                <h5>Import settings</h5>
+                <p>I’m just moving my stuff, I want to load my profile</p>
+              </div>
+            </div>
+          ) : (
+            <Button
+              small
+              onClick={() => {
+                setSetupConfig({ ...setupConfig, welcome: true });
+              }}
+              style={{ marginTop: "2rem" }}
+            >
+              Get Started
+            </Button>
+          )}
         </div>
       </section>
     );
@@ -380,11 +400,15 @@ export default function App() {
               <div className={styles.loadwallets}>
                 <Button
                   onClick={() => {
-                    loadWalletsModal.setState(true);
+                    setSetupConfig({
+                      ...setupConfig,
+                      welcome: false,
+                      setupMode: true
+                    });
                   }}
                   small
                 >
-                  Load Wallet(s)
+                  Load Wallet
                 </Button>
                 <Button
                   onClick={createWallet}
@@ -458,22 +482,23 @@ export default function App() {
                 {walletsStore.length === 0 ? "Create" : "Login"}
               </Button>
 
-              {walletsStore.length === 0 && (
+              {/* {walletsStore.length === 0 && (
                 <>
                   <span className={styles.OR}>OR</span>
                   <Button
                     type="secondary"
                     small
                     style={{ width: "14%" }}
-                    onClick={() => loadConfigModal.setState(true)}
                   >
                     Load Config File
                   </Button>
                 </>
-              )}
+              )} */}
             </>
           )}
         </div>
+      ) : setupConfig.setupMode ? (
+        <SetupPage withSetupMode />
       ) : (
         <SetupPage />
       )}
@@ -492,7 +517,7 @@ export default function App() {
           loadWalletsModal.setState(false);
         }}
       >
-        <Modal.Title>Load wallet(s)</Modal.Title>
+        <Modal.Title>Load wallet</Modal.Title>
         <Modal.Content>
           <h4 className={styles.ModalSubtitle}>
             Use your{" "}
@@ -635,7 +660,7 @@ export default function App() {
       </Modal>
 
       <Modal {...loadConfigModal.bindings}>
-        <Modal.Title>Load config file</Modal.Title>
+        <Modal.Title>Import settings</Modal.Title>
         <h4 className={styles.ModalSubtitle}>
           Import your settings and wallets from a generated config
         </h4>
@@ -653,21 +678,26 @@ export default function App() {
             <div className={styles.items}>
               <FileIcon size={24} />
               <p className={styles.Filename}>
-                {formatAddress(configFilenameDisplay, 18)}
+                {configFilenameDisplay === "Click to load"
+                  ? "Click to load"
+                  : formatAddress(configFilenameDisplay, 18)}
               </p>
             </div>
           </div>
-          <Spacer />
+          <Spacer y={2} />
           <Input
+            small
+            type="password"
+            className={styles.FilenamePW}
+            style={{ width: "50%", margin: "0 auto" }}
+            placeholder="Enter password to decrypt"
             {...configPasswordInput.bindings}
             onKeyPressHandler={(e) => {
               if (e.key === "Enter") loadConfig();
             }}
-            type="password"
-            placeholder="Enter password to decrypt"
-            small
           />
         </Modal.Content>
+        <Spacer y={2} />
         <Button
           type="filled"
           small
@@ -692,5 +722,5 @@ export default function App() {
 }
 interface SetupConfigProps {
   welcome: boolean;
-  password: boolean;
+  setupMode: boolean;
 }
