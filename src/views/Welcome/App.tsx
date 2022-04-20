@@ -396,11 +396,9 @@ export default function App() {
     );
   };
 
-  console.log(setupConfig);
-
   return (
     <>
-      {setupConfig.setupMode ? (
+      {setupConfig.setupMode || walletsStore.length > 0 ? (
         <div className={styles.Welcome}>
           {(passwordGiven && (
             <>
@@ -482,27 +480,29 @@ export default function App() {
               >
                 {walletsStore.length === 0 ? "Create" : "Login"}
               </Button>
-              <>
-                <span className={styles.OR}>OR</span>
-                <Button
-                  type="secondary"
-                  small
-                  style={{ width: "14%" }}
-                  onClick={() =>
-                    setSetupConfig({
-                      ...setupConfig,
-                      welcome: false,
-                      setupMode: false
-                    })
-                  }
-                >
-                  Cancel
-                </Button>
-              </>
+              {walletsStore.length === 0 && (
+                <>
+                  <span className={styles.OR}>OR</span>
+                  <Button
+                    type="secondary"
+                    small
+                    style={{ width: "14%" }}
+                    onClick={() =>
+                      setSetupConfig({
+                        ...setupConfig,
+                        welcome: true,
+                        setupMode: false
+                      })
+                    }
+                  >
+                    Cancel
+                  </Button>
+                </>
+              )}
             </>
           )}
         </div>
-      ) : setupConfig.welcome ? (
+      ) : setupConfig.welcome && walletsStore.length === 0 ? (
         <SetupPage withSetupMode />
       ) : (
         <SetupPage />
