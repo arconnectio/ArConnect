@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { goTo } from "react-chrome-extension-router";
 
-import { Spacer, Tooltip, useToasts } from "@geist-ui/react";
+import { Spacer, Tooltip } from "@geist-ui/react";
 import { ArrowLeftIcon } from "@primer/octicons-react";
 
 import { browser } from "webextension-polyfill-ts";
@@ -15,14 +15,6 @@ import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass"
 
 export default function Support() {
   const [connectionStatus, setConnectionStatus] = useState<string>("Undefined");
-  const [, setToast] = useToasts();
-
-  //if (nativeAppClient) {
-  //  nativeAppClient.setErrorHandler(() => {
-  //    setToast({ text: "Connection aborted", type: "error" });
-  //    updateStatus();
-  //  });
-  //}
 
   const updateStatus = () => {
     const nativeAppClient = NativeAppClient.getInstance();
@@ -43,6 +35,10 @@ export default function Support() {
   };
 
   useEffect((): void => {
+    NativeAppClient.getInstance()!.setErrorHandler(() => {
+      updateStatus();
+    });
+
     updateStatus();
   }, []);
 

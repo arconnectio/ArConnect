@@ -107,12 +107,14 @@ export class NativeAppClient {
   }
 
   /**
-   * @brief Sets error callback
-   * @note Not used. Needs to be implemented and tested.
-   * @param callback Callback that should handle errors.
+   * @brief Sets error handler that is executed when the connection is aborted.
+   * @param callback Callback that handles error case.
    */
   public setErrorHandler(callback: () => void) {
-    this.msgQueue[makeCallbackId(ERROR_MSG_ID)] = callback;
+    const callbackId = makeCallbackId(ERROR_MSG_ID);
+    if (!this.msgQueue[callbackId]) {
+      this.msgQueue[callbackId] = callback;
+    }
   }
 
   private constructor() {
@@ -120,10 +122,11 @@ export class NativeAppClient {
   }
 
   private handleError(): void {
-    const callbackId = makeCallbackId(0);
+    const callbackId = makeCallbackId(ERROR_MSG_ID);
     const callback = this.msgQueue[callbackId];
     if (callback) {
       callback();
+      delete this.msgQueue[callbackId];
     }
   }
 }
