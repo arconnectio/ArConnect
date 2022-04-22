@@ -63,7 +63,7 @@ browser.windows.onFocusChanged.addListener(async (windowId) => {
   } else {
     const activeTab = await getCurrentActiveTab();
     const txId = await checkCommunityContract(activeTab.url!);
-    if (txId) handleBrowserGainedFocus(activeTab.id!, txId);
+    if (txId) handleBrowserGainedFocus(activeTab.id!, txId, activeTab.url);
   }
 });
 

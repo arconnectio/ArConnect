@@ -233,8 +233,12 @@ export async function handleBrowserLostFocus() {
   storeData(arweaveTabs);
 }
 
-export async function handleBrowserGainedFocus(tabId: number, txId: string) {
-  handleArweaveTabOpened(tabId, txId);
+export async function handleBrowserGainedFocus(
+  tabId: number,
+  txId: string,
+  url: string | undefined
+) {
+  handleArweaveTabOpened(tabId, txId, url);
 }
 
 export async function handleTabUpdate() {
