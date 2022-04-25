@@ -305,9 +305,9 @@ export default function Settings() {
         {(!setting && (
           <>
             <SettingsItem
-              header="Apps"
+              header="Events"
               currSetting="events"
-              headerText="View settings for connected dApps"
+              headerText="View security events"
             />
 
             <SettingsItem header="Theme" headerText="Set display theme">

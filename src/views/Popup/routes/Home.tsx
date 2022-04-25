@@ -422,14 +422,16 @@ export default function Home() {
           </h1>
         </div>
         {(transactions.length > 0 &&
-          transactions.map((tx, i) => (
-            <TransactionCard
-              type={tx.type}
-              status={tx.status}
-              amount={tx.amount}
-              txID={tx.id}
-            />
-          ))) ||
+          transactions
+            .slice(0, 12)
+            .map((tx, i) => (
+              <TransactionCard
+                type={tx.type}
+                status={tx.status}
+                amount={tx.amount}
+                txID={tx.id}
+              />
+            ))) ||
           (loading.txs && (
             <div className={styles.TransactionSpinner}>
               <Loading.Spinner />
