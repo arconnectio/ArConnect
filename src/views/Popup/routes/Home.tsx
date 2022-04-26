@@ -264,9 +264,6 @@ export default function Home() {
             })}{" "}
             AR{" "}
           </h1>
-          <span onClick={() => goTo(Explore)}>
-            <ChevronRightIcon size={20} className={styles.ChevronBalance} />
-          </span>
         </div>
         <h2>
           {getSymbol(currency)}
@@ -284,16 +281,6 @@ export default function Home() {
             <DownloadIcon size={24} />
             <span>Send</span>
           </div>
-          <Tooltip text="Not available yet">
-            <div
-              className={
-                styles.Item + " " + styles.SwapItem + " " + styles.Unavailable
-              }
-            >
-              <ArrowSwitchIcon size={24} />
-              <span>Swap</span>
-            </div>
-          </Tooltip>
           <div
             onClick={() => goTo(Explore)}
             className={styles.Item + " " + styles.SwapItem}
