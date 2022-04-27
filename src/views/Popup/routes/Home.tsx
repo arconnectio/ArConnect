@@ -1,15 +1,8 @@
 import React, { PropsWithChildren, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
-import {
-  ChevronRightIcon,
-  ArrowSwitchIcon,
-  ArchiveIcon,
-  CopyIcon,
-  DownloadIcon
-} from "@primer/octicons-react";
-import { Tooltip, Spacer, Loading } from "@verto/ui";
-import { useToasts } from "@geist-ui/react";
+import { ArchiveIcon, CopyIcon, DownloadIcon } from "@primer/octicons-react";
+import { Tooltip, Spacer, Loading, useToasts } from "@verto/ui";
 import { setBalance } from "../../../stores/actions";
 import { goTo } from "react-chrome-extension-router";
 import { useColorScheme } from "use-color-scheme";
@@ -59,7 +52,7 @@ export default function Home() {
         timestamp: number;
       }[]
     >([]),
-    [, setToast] = useToasts();
+    { setToast } = useToasts();
 
   useEffect(() => {
     loadBalance();
@@ -248,8 +241,9 @@ export default function Home() {
             onClick={() => {
               copy(profile);
               setToast({
-                text: "Copied address to clipboard",
-                type: "success"
+                description: "Copied address to clipboard",
+                type: "success",
+                duration: 2000
               });
             }}
           >
