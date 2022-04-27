@@ -481,7 +481,7 @@ export default function App() {
               {(requestedPermissions.length > 0 && (
                 <>
                   {requestedPermissions.map((permission, i) => (
-                    <li key={i} className={styles.Check + " " + styles.Checked}>
+                    <li key={i} className={styles.Check}>
                       <Checkbox
                         checked
                         onChange={(e) => {
@@ -496,20 +496,12 @@ export default function App() {
                             ]);
                         }}
                       />
-                      <p
-                        style={{
-                          textAlign: "left",
-                          paddingTop: "1em",
-                          fontSize: "0.875em"
-                        }}
-                      >
-                        {getPermissionDescription(permission)}
-                      </p>
+                      {getPermissionDescription(permission)}
                     </li>
                   ))}
                 </>
               )) || <p>No permissions requested.</p>}
-              <Spacer y={1} />
+              <Spacer y={2} />
               <Button small onClick={accept} type="filled">
                 Accept
               </Button>
