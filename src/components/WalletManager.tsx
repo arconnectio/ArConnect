@@ -40,6 +40,7 @@ import toastStyles from "../styles/components/SmallToast.module.sass";
 import logo from "../assets/logo.png";
 import styles from "../styles/components/WalletManager.module.sass";
 import Verto from "@verto/js";
+import "animate.css";
 import "../styles/components/Tooltip.sass";
 
 export default function WalletManager({
@@ -56,6 +57,7 @@ export default function WalletManager({
     [open, setOpen] = useState(false),
     { scheme } = useColorScheme(),
     logoutModal = useModal(false),
+    [onStartApp, setOnStartApp] = useState<string | boolean>("inactive"),
     [showSwitch, setShowSwitch] = useState(false),
     [verifiedAddresses, setVerifiedAddresses] = useState<string[]>([]),
     [showQRCode, setShowQRCode] = useState(false),
@@ -152,7 +154,22 @@ export default function WalletManager({
           onClick={backAction || (() => goBack())}
         >
           {(pageTitle && <ChevronLeftIcon size={24} />) || (
-            <img src={logo} alt="logo" />
+            <img
+              src={logo}
+              alt="logo"
+              onClick={() => {
+                onStartApp === "inactive"
+                  ? setOnStartApp(true)
+                  : setOnStartApp(!onStartApp);
+              }}
+              className={`animate__animated ${
+                onStartApp === "inactive"
+                  ? "animate__rollIn"
+                  : onStartApp
+                  ? "animate__rubberBand"
+                  : "animate__swing"
+              }`}
+            />
           )}
         </div>
         <h1>
