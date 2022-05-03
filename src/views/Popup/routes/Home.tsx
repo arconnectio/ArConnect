@@ -395,7 +395,7 @@ export default function Home() {
             className={styles.Link}
             onClick={() =>
               browser.tabs.create({
-                url: `https://www.verto.exchange/@${profile}/owns`
+                url: `https://viewblock.io/arweave/address/${profile}`
               })
             }
           >
