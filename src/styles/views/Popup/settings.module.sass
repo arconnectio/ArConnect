@@ -145,6 +145,7 @@
       height: 6px
       border-radius: 100%
       margin-left: .55em
+      background-color: variables.$border-light
 
     h1, h2, h3
       display: flex
@@ -186,6 +187,9 @@
 
       &:not(.Active), &:not(.Inactive), &:not(.Pending)
         border-color: variables.$border-dark
+
+        .Status
+          background-color: variables.$border-dark
 
       &:hover
         background-color: #101010

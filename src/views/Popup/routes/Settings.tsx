@@ -50,6 +50,7 @@ import CryptoES from "crypto-es";
 import dayjs from "dayjs";
 import Home from "./Home";
 import Arweave from "arweave";
+import axios from "axios";
 import manifest from "../../../../public/manifest.json";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
@@ -344,13 +345,17 @@ export default function Settings() {
 
   async function checkGatewayStatus(gateway: SuggestedGateway) {
     try {
-      await fetch(`${gateway.protocol}://${gateway.host}:${gateway.port}`);
+      const { data } = await axios.get<{ network?: string }>(
+        `${gateway.protocol}://${gateway.host}:${gateway.port}`
+      );
 
       setGateways((val) => {
         const gw = val.find((g) => g.host === gateway.host);
 
         if (!gw) return val;
         gw.status = "online";
+
+        if (data?.network?.includes("arlocal")) gw.note = "TESTNET";
 
         return val;
       });
@@ -880,7 +885,9 @@ export default function Settings() {
                             <span className={styles.Selected}>Selected</span>
                           )}
                         </h1>
-                        <h2>:{gateway.port}</h2>
+                        <h2>
+                          :{gateway.port} {gateway.note && `(${gateway.note})`}
+                        </h2>
                         <h3>
                           Status: {gateway.status}
                           <span className={styles.Status} />
