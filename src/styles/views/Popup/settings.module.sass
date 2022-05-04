@@ -122,6 +122,12 @@
     cursor: pointer
     transition: all .23s ease-in-out
 
+    @media (prefers-color-scheme: dark)
+      border-color: variables.$border-dark
+
+      .Status
+        background-color: variables.$border-dark
+
     &.Active
       border-color: #18d40e
 
@@ -147,6 +153,9 @@
       margin-left: .55em
       background-color: variables.$border-light
 
+      @media (prefers-color-scheme: dark)
+        background-color: variables.$border-dark
+
     h1, h2, h3
       display: flex
       align-items: center
@@ -154,6 +163,7 @@
       font-weight: 500
       text-align: left
       margin: 0
+      color: #000
 
     h1
       display: flex
@@ -185,14 +195,14 @@
     @media (prefers-color-scheme: dark)
       background-color: #000
 
-      &:not(.Active), &:not(.Inactive), &:not(.Pending)
-        border-color: variables.$border-dark
+      h1
+        color: #fff
 
-        .Status
-          background-color: variables.$border-dark
+      h2, h3
+        color: variables.$secondary-text-dark
 
       &:hover
-        background-color: #101010
+        background-color: #1b1b1b
 
 .EventItem
   padding:
