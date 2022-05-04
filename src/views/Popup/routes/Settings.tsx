@@ -15,6 +15,7 @@ import {
   Modal,
   Radio,
   Spacer,
+  Tabs,
   Toggle,
   useInput,
   useModal,
@@ -59,7 +60,7 @@ export default function Settings() {
       | "currency"
       | "psts"
       | "sites"
-      | "arweave"
+      | "gateway"
       | "arverify"
       | "allowances"
       | "about"
@@ -319,7 +320,7 @@ export default function Settings() {
             (setting === "currency" && "Currency") ||
             (setting === "psts" && "Removed PSTs") ||
             (setting === "sites" && "Blocked Sites") ||
-            (setting === "arweave" && "Arweave Config") ||
+            (setting === "gateway" && "Gateway Config") ||
             (setting === "arverify" && "ArVerify Config") ||
             (setting === "allowances" && "Allowances") ||
             (setting === "about" && "About ArConnect") ||
@@ -381,6 +382,18 @@ export default function Settings() {
             </div>
             <div
               className={styles.Setting}
+              onClick={() => setCurrSetting("gateway")}
+            >
+              <div>
+                <h1>Gateway</h1>
+                <p>Select your gateway</p>
+              </div>
+              <div className={styles.Arrow}>
+                <ChevronRightIcon />
+              </div>
+            </div>
+            <div
+              className={styles.Setting}
               onClick={() => setCurrSetting("fee")}
             >
               <div>
@@ -422,18 +435,6 @@ export default function Settings() {
               <div>
                 <h1>Blocked Sites</h1>
                 <p>Limit access from sites to ArConnect</p>
-              </div>
-              <div className={styles.Arrow}>
-                <ChevronRightIcon />
-              </div>
-            </div>
-            <div
-              className={styles.Setting}
-              onClick={() => setCurrSetting("arweave")}
-            >
-              <div>
-                <h1>Arweave Config</h1>
-                <p>Edit the arweave config variables</p>
               </div>
               <div className={styles.Arrow}>
                 <ChevronRightIcon />
@@ -768,44 +769,66 @@ export default function Settings() {
                 ))) || <p>No events</p>}
             </>
           )) ||
-          (setting === "arweave" && (
+          (setting === "gateway" && (
             <div className={styles.OptionContent}>
-              <Spacer />
-              <Input
-                {...arweaveHostInput.bindings}
-                placeholder="Host..."
-                type={arweaveHostInput.state === "" ? "error" : "default"}
-              />
-              <Spacer />
-              <Input
-                {...arweavePortInput.bindings}
-                placeholder="Port..."
-                htmlType="number"
-                type={arweavePortInput.state === "" ? "error" : "default"}
-              />
-              <Spacer />
-              <Input
-                {...arweaveProtocolInput.bindings}
-                placeholder="Protocol..."
-                type={arweaveProtocolInput.state === "" ? "error" : "default"}
-              />
-              <Spacer />
-              <Button
-                style={{ width: "100%", marginTop: ".5em" }}
-                onClick={updateConfig}
-              >
-                Set config
-              </Button>
-              <Spacer />
-              <Button
-                style={{ width: "100%", marginTop: ".5em" }}
-                onClick={() => {
-                  dispatch(resetArweaveConfig());
-                  setCurrSetting(undefined);
-                }}
-              >
-                Reset
-              </Button>
+              <Tabs initialValue="1" className={styles.Tabs}>
+                <Tabs.Item label="Suggested" value="1">
+                  <Spacer />
+                  <div className={styles.Gateway + " " + styles.Active}>
+                    <h1>
+                      Arweave.net
+                      <span className={styles.Selected}>Selected</span>
+                    </h1>
+                    <h2>:443</h2>
+                    <h3>
+                      Status: Online
+                      <span className={styles.Status} />
+                    </h3>
+                  </div>
+                  <Spacer />
+                </Tabs.Item>
+                <Tabs.Item label="Custom" value="2">
+                  <Spacer />
+                  <Input
+                    {...arweaveHostInput.bindings}
+                    placeholder="Host..."
+                    type={arweaveHostInput.state === "" ? "error" : "default"}
+                  />
+                  <Spacer />
+                  <Input
+                    {...arweavePortInput.bindings}
+                    placeholder="Port..."
+                    htmlType="number"
+                    type={arweavePortInput.state === "" ? "error" : "default"}
+                  />
+                  <Spacer />
+                  <Input
+                    {...arweaveProtocolInput.bindings}
+                    placeholder="Protocol..."
+                    type={
+                      arweaveProtocolInput.state === "" ? "error" : "default"
+                    }
+                  />
+                  <Spacer />
+                  <Button
+                    style={{ width: "100%", marginTop: ".5em" }}
+                    onClick={updateConfig}
+                  >
+                    Set gateway
+                  </Button>
+                  <Spacer height={0.5} />
+                  <Button
+                    style={{ width: "100%", marginTop: ".5em" }}
+                    onClick={() => {
+                      dispatch(resetArweaveConfig());
+                      setCurrSetting(undefined);
+                    }}
+                  >
+                    Reset
+                  </Button>
+                  <Spacer />
+                </Tabs.Item>
+              </Tabs>
             </div>
           )) ||
           (setting === "arverify" && (
