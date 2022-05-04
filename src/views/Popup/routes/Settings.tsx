@@ -303,43 +303,35 @@ export default function Settings({
     }))
   );
 
-  async function checkGatewayStatus(gateway: SuggestedGateway) {
-    try {
-      const { data, status } = await axios.get<{ network?: string }>(
-        `${gateway.protocol}://${gateway.host}:${gateway.port}`
-      );
-
-      if (status !== 200) throw new Error();
-
-      setGateways((val) => {
-        const gw = val.find((g) => g.host === gateway.host);
-
-        if (!gw) return val;
-        gw.status = "online";
-
-        if (data?.network?.includes("arlocal")) gw.note = "TESTNET";
-
-        return val;
-      });
-    } catch {
-      setGateways((val) => {
-        const gw = val.find((g) => g.host === gateway.host);
-
-        if (!gw) return val;
-        gw.status = "offline";
-
-        return val;
-      });
-    }
-  }
-
   useEffect(() => {
     (async () => {
+      if (setting !== "gateway") return;
+
+      const gatewaysWithStatuses: Gateway[] = [];
+
       for (const gateway of suggestedGateways) {
-        checkGatewayStatus(gateway);
+        try {
+          const { data, status } = await axios.get<{ network?: string }>(
+            `${gateway.protocol}://${gateway.host}:${gateway.port}`
+          );
+
+          if (status !== 200) throw new Error();
+
+          gatewaysWithStatuses.push({
+            ...gateway,
+            status: "online",
+            note: data?.network?.includes("arlocal")
+              ? "TESTNET"
+              : gateway.note ?? undefined
+          });
+        } catch {
+          gatewaysWithStatuses.push({ ...gateway, status: "offline" });
+        }
       }
+
+      setGateways(gatewaysWithStatuses);
     })();
-  }, []);
+  }, [setting]);
 
   return (
     <>
