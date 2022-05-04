@@ -42,9 +42,12 @@ import {
   toggleAllowance,
   setAllowanceLimit,
   removeAllowance,
-  resetAllowanceSpent
+  resetAllowanceSpent,
+  updateGatewayForApp
 } from "../../../stores/actions";
 import { suggestedGateways, SuggestedGateway } from "../../../utils/gateways";
+import { IGatewayConfig } from "../../../stores/reducers/arweave";
+import { getActiveTab } from "../../../utils/background";
 import CryptoES from "crypto-es";
 import dayjs from "dayjs";
 import Home from "./Home";
@@ -147,23 +150,32 @@ export default function Settings({
     );
   }
 
-  function updateConfig() {
-    if (
-      arweaveProtocolInput.state === "" ||
-      arweavePortInput.state === "" ||
-      arweaveHostInput.state === ""
-    )
-      return;
-    dispatch(
-      updateArweaveConfig({
-        host: arweaveHostInput.state,
-        port: Number(arweavePortInput.state),
-        protocol: arweaveProtocolInput.state as "http" | "https"
-      })
-    );
+  async function updateGatewayConfig(config: IGatewayConfig) {
+    // update global config
+    dispatch(updateArweaveConfig(config));
+
+    try {
+      // get active tab
+      const activeTab = await getActiveTab();
+
+      if (activeTab.url) {
+        // get root url
+        const activeTabRealURL = getRealURL(activeTab.url as string);
+
+        // update config for the current app
+        dispatch(
+          updateGatewayForApp({
+            url: activeTabRealURL,
+            gatewayConfig: config
+          })
+        );
+      }
+    } catch {}
+
+    // notify user
     setToast({
       type: "success",
-      text: "Gateway updated"
+      text: "Gateway updated for current app"
     });
   }
 
@@ -819,19 +831,15 @@ export default function Settings({
                           (gateway.status === "pending" && styles.Pending) ||
                           ""
                         }
-                        onClick={() => {
+                        onClick={() =>
                           dispatch(
-                            updateArweaveConfig({
+                            updateGatewayConfig({
                               host: gateway.host,
                               port: gateway.port,
                               protocol: gateway.protocol
                             })
-                          );
-                          setToast({
-                            type: "success",
-                            text: "Gateway updated"
-                          });
-                        }}
+                          )
+                        }
                       >
                         <h1>
                           {gateway.host}
@@ -876,7 +884,21 @@ export default function Settings({
                   <Spacer />
                   <Button
                     style={{ width: "100%", marginTop: ".5em" }}
-                    onClick={updateConfig}
+                    onClick={() => {
+                      if (
+                        arweaveProtocolInput.state === "" ||
+                        arweavePortInput.state === "" ||
+                        arweaveHostInput.state === ""
+                      )
+                        return;
+
+                      updateGatewayConfig({
+                        host: arweaveHostInput.state,
+                        port: Number(arweavePortInput.state),
+                        // @ts-expect-error
+                        protocol: arweaveProtocolInput.state
+                      });
+                    }}
                   >
                     Set gateway
                   </Button>

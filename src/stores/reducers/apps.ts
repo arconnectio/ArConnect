@@ -21,8 +21,8 @@ export default function appsReducer(
     case "UPDATE_GATEWAY":
       const app = state.find((app) => app.url === action.payload.url);
 
-      if (!app) break;
-      app.gatewayConfig = action.payload.gatewayConfig;
+      if (!app) state.push(action.payload);
+      else app.gatewayConfig = action.payload.gatewayConfig;
 
       return state;
   }
