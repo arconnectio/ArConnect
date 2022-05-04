@@ -261,7 +261,8 @@ export default function Home() {
     (async () => {
       try {
         const { status } = await axios.get(
-          `${arweaveConfig.protocol}://${arweaveConfig.host}:${arweaveConfig.port}`
+          `${arweaveConfig.protocol}://${arweaveConfig.host}:${arweaveConfig.port}`,
+          { timeout: 10000 }
         );
 
         if (status !== 200) throw new Error();

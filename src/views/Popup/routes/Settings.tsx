@@ -42,8 +42,7 @@ import {
   toggleAllowance,
   setAllowanceLimit,
   removeAllowance,
-  resetAllowanceSpent,
-  resetArweaveConfig
+  resetAllowanceSpent
 } from "../../../stores/actions";
 import { suggestedGateways, SuggestedGateway } from "../../../utils/gateways";
 import CryptoES from "crypto-es";
