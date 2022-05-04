@@ -20,6 +20,7 @@ import { arToFiat, getSymbol } from "../../../utils/currency";
 import { validateMessage } from "../../../utils/messenger";
 import { browser } from "webextension-polyfill-ts";
 import { getActiveTab } from "../../../utils/background";
+import { concatGatewayURL } from "../../../utils/gateways";
 import mime from "mime-types";
 import axios from "axios";
 import PST from "./PST";
@@ -159,7 +160,7 @@ export default function Home() {
     else if (pst.ticker === "VRT") {
       if (scheme === "dark") return verto_dark_logo;
       else return verto_light_logo;
-    } else return `https://arweave.net/${pst.logo}`;
+    } else return `${concatGatewayURL(arweaveConfig)}/${pst.logo}`;
   }
 
   function balance() {
@@ -444,7 +445,7 @@ export default function Home() {
                     }
                   >
                     <img
-                      src={`https://arweave.net/${token.id}`}
+                      src={`${concatGatewayURL(arweaveConfig)}/${token.id}`}
                       alt="preview"
                     />
                     <div className={styles.CollectibleInfo}>

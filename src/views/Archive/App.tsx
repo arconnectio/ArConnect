@@ -26,7 +26,6 @@ import {
   defaultArDriveMinimumTipAR
 } from "../../utils/archive";
 import { useColorScheme } from "use-color-scheme";
-import { run } from "ar-gql";
 import { useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
 import { FileDirectoryIcon, LockIcon, PlusIcon } from "@primer/octicons-react";
@@ -35,6 +34,11 @@ import { checkPassword } from "../../utils/auth";
 import { JWKInterface } from "arweave/web/lib/wallet";
 import { motion, AnimatePresence } from "framer-motion";
 import { browser } from "webextension-polyfill-ts";
+import {
+  getArDriveTipPercentage,
+  getWinstonPriceForByteCount
+} from "../../utils/pst";
+import { concatGatewayURL, gql } from "../../utils/gateways";
 import manifest from "../../../public/manifest.json";
 import axios from "axios";
 import prettyBytes from "pretty-bytes";
@@ -42,10 +46,6 @@ import Arweave from "arweave";
 import ardriveLogoLight from "../../assets/ardrive_light.svg";
 import ardriveLogoDark from "../../assets/ardrive_dark.svg";
 import styles from "../../styles/views/Archive/view.module.sass";
-import {
-  getArDriveTipPercentage,
-  getWinstonPriceForByteCount
-} from "../../utils/pst";
 
 export default function App() {
   const [safeMode, setSafeMode] = useState(true),
@@ -294,7 +294,7 @@ export default function App() {
     setSelectedDrive(undefined);
 
     const res = (
-      await run(
+      await gql(
         `
         query ($addr: String!) {
           transactions(
@@ -330,7 +330,9 @@ export default function App() {
 
     const loadedDrives: Drive[] = await Promise.all(
       res.map(async ({ txid, id, isPrivate, arFsVersion }) => {
-        const { data }: any = await axios.get(`https://arweave.net/${txid}`),
+        const { data }: any = await axios.get(
+            `${concatGatewayURL(arweaveConfig)}/${txid}`
+          ),
           rootFolderName = await getRootFolderName({
             arFs: arFsVersion,
             driveID: id,
@@ -363,7 +365,7 @@ export default function App() {
     driveID: string;
     folderID: string;
   }): Promise<string> {
-    const rootFolderNameQuery = await run(
+    const rootFolderNameQuery = await gql(
         `
         query ($arFs: [String!]!, $driveID: [String!]!, $folderID: [String!]!) {
           transactions(
@@ -386,7 +388,9 @@ export default function App() {
         props
       ),
       { data }: any = await axios.get(
-        `https://arweave.net/${rootFolderNameQuery.data.transactions.edges[0].node.id}`
+        `${concatGatewayURL(arweaveConfig)}/${
+          rootFolderNameQuery.data.transactions.edges[0].node.id
+        }`
       );
 
     return data.name;

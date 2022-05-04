@@ -7,7 +7,7 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import { getRealURL } from "./url";
 import { browser } from "webextension-polyfill-ts";
 import type { DataItem } from "arbundles";
-import { run } from "ar-gql";
+import { gql } from "../utils/gateways";
 import axios from "axios";
 import limestone from "@limestonefi/api";
 import Arweave from "arweave";
@@ -125,7 +125,7 @@ export async function setStoreData(updatedData: StoreData) {
  * @returns Fee amount in string
  */
 export async function getFeeAmount(address: string, arweave: Arweave) {
-  const res = await run(
+  const res = await gql(
     `
       query($address: String!) {
         transactions(

@@ -145,6 +145,8 @@ const WalletAPI = {
     transaction: Transaction,
     options?: SignatureOptions
   ): Promise<Transaction> {
+    // we don't need the custom gateway config here
+    // because we are only converting tx objects
     const arweave = new Arweave({
       host: "arweave.net",
       port: 443,
