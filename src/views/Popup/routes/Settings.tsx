@@ -55,21 +55,14 @@ import manifest from "../../../../public/manifest.json";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
 
-export default function Settings() {
-  const [setting, setCurrSetting] = useState<
-      | "events"
-      | "permissions"
-      | "currency"
-      | "psts"
-      | "sites"
-      | "gateway"
-      | "arverify"
-      | "allowances"
-      | "about"
-      | "password"
-      | "config_file"
-      | "fee"
-    >(),
+export default function Settings({
+  initialSetting
+}: {
+  initialSetting?: SettingTypes;
+}) {
+  const [setting, setCurrSetting] = useState<SettingTypes | undefined>(
+      initialSetting
+    ),
     permissions = useSelector((state: RootState) => state.permissions),
     [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
     dispatch = useDispatch(),
@@ -313,9 +306,11 @@ export default function Settings() {
 
   async function checkGatewayStatus(gateway: SuggestedGateway) {
     try {
-      const { data } = await axios.get<{ network?: string }>(
+      const { data, status } = await axios.get<{ network?: string }>(
         `${gateway.protocol}://${gateway.host}:${gateway.port}`
       );
+
+      if (status !== 200) throw new Error();
 
       setGateways((val) => {
         const gw = val.find((g) => g.host === gateway.host);
@@ -1163,3 +1158,17 @@ export interface ArConnectEvent {
 interface Gateway extends SuggestedGateway {
   status: "online" | "pending" | "offline";
 }
+
+type SettingTypes =
+  | "events"
+  | "permissions"
+  | "currency"
+  | "psts"
+  | "sites"
+  | "gateway"
+  | "arverify"
+  | "allowances"
+  | "about"
+  | "password"
+  | "config_file"
+  | "fee";

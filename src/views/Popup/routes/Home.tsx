@@ -25,6 +25,7 @@ import axios from "axios";
 import PST from "./PST";
 import WalletManager from "../../../components/WalletManager";
 import Send from "./Send";
+import Settings from "./Settings";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
 import arweaveLogo from "../../../assets/arweave.png";
@@ -251,10 +252,41 @@ export default function Home() {
 
   const [showAll, setShowAll] = useState(false);
 
+  // gateway status
+  const [gatewayStatus, setGatewayStatus] = useState<"online" | "offline">(
+    "online"
+  );
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { status } = await axios.get(
+          `${arweaveConfig.protocol}://${arweaveConfig.host}:${arweaveConfig.port}`
+        );
+
+        if (status !== 200) throw new Error();
+        setGatewayStatus("online");
+      } catch {
+        setGatewayStatus("offline");
+      }
+    })();
+  }, [arweaveConfig]);
+
   return (
     <div className={styles.Home}>
       <WalletManager />
       <div className={styles.Balance}>
+        <Tooltip text={`Gateway is ${gatewayStatus}`}>
+          <div
+            className={
+              styles.Gateway + " " + styles[`GatewayStatus_${gatewayStatus}`]
+            }
+            onClick={() => goTo(Settings, { initialSetting: "gateway" })}
+          >
+            <span className={styles.GatewayStatusIndicator} />
+            {arweaveConfig.host.replace("www.", "")}
+          </div>
+        </Tooltip>
         <h1>
           {formatBalance(balance()?.arBalance)}
           <span>AR</span>
