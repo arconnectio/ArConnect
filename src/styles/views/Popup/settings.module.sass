@@ -134,6 +134,12 @@
       .Status
         background-color: #ff0000
 
+    &.Pending
+      border-color: #ffc107
+
+      .Status
+        background-color: #ffc107
+
     .Status
       width: 6px
       height: 6px
@@ -169,6 +175,7 @@
       color: variables.$secondary-text-light
 
     h3
+      text-transform: capitalize
       font-size: .8em
 
     &:hover
@@ -177,7 +184,7 @@
     @media (prefers-color-scheme: dark)
       background-color: #000
 
-      &:not(.Active), &:not(.Inactive)
+      &:not(.Active), &:not(.Inactive), &:not(.Pending)
         border-color: variables.$border-dark
 
       &:hover

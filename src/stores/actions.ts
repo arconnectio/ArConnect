@@ -3,7 +3,7 @@ import { IPermissionsAction } from "./reducers/permissions";
 import { IProfileAction } from "./reducers/profile";
 import { IWalletsAction, Wallet } from "./reducers/wallets";
 import { IBlockedAction } from "./reducers/blocked_sites";
-import { IArweaveAction, IArweave } from "./reducers/arweave";
+import { IGatewayConfigAction, IGatewayConfig } from "./reducers/arweave";
 
 import { PermissionType } from "../utils/permissions";
 import { IAllowancesAction } from "./reducers/allowances";
@@ -101,14 +101,16 @@ export function unblockURL(url: string): IBlockedAction {
   };
 }
 
-export function updateArweaveConfig(config: IArweave): IArweaveAction {
+export function updateArweaveConfig(
+  config: IGatewayConfig
+): IGatewayConfigAction {
   return {
     type: "SET_ARWEAVE_CONFIG",
     payload: config
   };
 }
 
-export function resetArweaveConfig(): IArweaveAction {
+export function resetArweaveConfig(): IGatewayConfigAction {
   return {
     type: "RESET_ARWEAVE_CONFIG"
   };

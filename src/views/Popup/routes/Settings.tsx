@@ -45,6 +45,7 @@ import {
   resetAllowanceSpent,
   resetArweaveConfig
 } from "../../../stores/actions";
+import { IGatewayConfig } from "../../../stores/reducers/arweave";
 import CryptoES from "crypto-es";
 import dayjs from "dayjs";
 import Home from "./Home";
@@ -167,7 +168,10 @@ export default function Settings() {
         protocol: arweaveProtocolInput.state as "http" | "https"
       })
     );
-    setCurrSetting(undefined);
+    setToast({
+      type: "success",
+      text: "Gateway updated"
+    });
   }
 
   async function updatePassword() {
@@ -298,6 +302,77 @@ export default function Settings() {
     setToast({ text: "Downloaded keyfile", type: "success", delay: 3000 });
     configFileModal.setVisible(false);
   }
+
+  // gateways
+  const suggestedGateways: SuggestedGateway[] = [
+    {
+      host: "arweave.net",
+      port: 443,
+      protocol: "https"
+    },
+    {
+      host: "arweave.dev",
+      port: 443,
+      protocol: "https"
+    },
+    {
+      host: "arweave.live",
+      port: 443,
+      protocol: "https",
+      note: "WIP"
+    },
+    {
+      host: "www.arweave.run",
+      port: 443,
+      protocol: "https",
+      note: "TESTNET"
+    },
+    {
+      host: "testnet.redstone.tools",
+      port: 443,
+      protocol: "https",
+      note: "TESTNET"
+    }
+  ];
+
+  const [gateways, setGateways] = useState<Gateway[]>(
+    suggestedGateways.map((val) => ({
+      ...val,
+      status: "pending"
+    }))
+  );
+
+  async function checkGatewayStatus(gateway: SuggestedGateway) {
+    try {
+      await fetch(`${gateway.protocol}://${gateway.host}:${gateway.port}`);
+
+      setGateways((val) => {
+        const gw = val.find((g) => g.host === gateway.host);
+
+        if (!gw) return val;
+        gw.status = "online";
+
+        return val;
+      });
+    } catch {
+      setGateways((val) => {
+        const gw = val.find((g) => g.host === gateway.host);
+
+        if (!gw) return val;
+        gw.status = "offline";
+
+        return val;
+      });
+    }
+  }
+
+  useEffect(() => {
+    (async () => {
+      for (const gateway of suggestedGateways) {
+        checkGatewayStatus(gateway);
+      }
+    })();
+  }, []);
 
   return (
     <>
@@ -774,18 +849,46 @@ export default function Settings() {
               <Tabs initialValue="1" className={styles.Tabs}>
                 <Tabs.Item label="Suggested" value="1">
                   <Spacer />
-                  <div className={styles.Gateway + " " + styles.Active}>
-                    <h1>
-                      Arweave.net
-                      <span className={styles.Selected}>Selected</span>
-                    </h1>
-                    <h2>:443</h2>
-                    <h3>
-                      Status: Online
-                      <span className={styles.Status} />
-                    </h3>
-                  </div>
-                  <Spacer />
+                  {gateways.map((gateway, i) => (
+                    <div key={i}>
+                      <div
+                        className={
+                          styles.Gateway +
+                            " " +
+                            (gateway.status === "online" && styles.Active) ||
+                          (gateway.status === "offline" && styles.Inactive) ||
+                          (gateway.status === "pending" && styles.Pending) ||
+                          ""
+                        }
+                        onClick={() => {
+                          dispatch(
+                            updateArweaveConfig({
+                              host: gateway.host,
+                              port: gateway.port,
+                              protocol: gateway.protocol
+                            })
+                          );
+                          setToast({
+                            type: "success",
+                            text: "Gateway updated"
+                          });
+                        }}
+                      >
+                        <h1>
+                          {gateway.host}
+                          {arweaveConfig.host === gateway.host && (
+                            <span className={styles.Selected}>Selected</span>
+                          )}
+                        </h1>
+                        <h2>:{gateway.port}</h2>
+                        <h3>
+                          Status: {gateway.status}
+                          <span className={styles.Status} />
+                        </h3>
+                      </div>
+                      <Spacer />
+                    </div>
+                  ))}
                 </Tabs.Item>
                 <Tabs.Item label="Custom" value="2">
                   <Spacer />
@@ -815,16 +918,6 @@ export default function Settings() {
                     onClick={updateConfig}
                   >
                     Set gateway
-                  </Button>
-                  <Spacer height={0.5} />
-                  <Button
-                    style={{ width: "100%", marginTop: ".5em" }}
-                    onClick={() => {
-                      dispatch(resetArweaveConfig());
-                      setCurrSetting(undefined);
-                    }}
-                  >
-                    Reset
                   </Button>
                   <Spacer />
                 </Tabs.Item>
@@ -1090,4 +1183,12 @@ export interface ArConnectEvent {
   event: MessageType;
   url: string;
   date: number;
+}
+
+interface SuggestedGateway extends IGatewayConfig {
+  note?: string;
+}
+
+interface Gateway extends SuggestedGateway {
+  status: "online" | "pending" | "offline";
 }

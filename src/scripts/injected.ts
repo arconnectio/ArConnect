@@ -1,7 +1,7 @@
 import { comparePermissions, PermissionType } from "../utils/permissions";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { getRealURL } from "../utils/url";
-import { IArweave } from "../stores/reducers/arweave";
+import { IGatewayConfig } from "../stores/reducers/arweave";
 import { splitTxToChunks } from "../utils/chunks";
 import { DispatchResult } from "../utils/background";
 import {
@@ -275,7 +275,7 @@ const WalletAPI = {
       throw new Error(e);
     }
   },
-  async getArweaveConfig(): Promise<IArweave> {
+  async getArweaveConfig(): Promise<IGatewayConfig> {
     try {
       const data = await callAPI({
         type: "get_arweave_config",
