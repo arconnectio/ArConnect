@@ -45,7 +45,7 @@ import {
   resetAllowanceSpent,
   resetArweaveConfig
 } from "../../../stores/actions";
-import { IGatewayConfig } from "../../../stores/reducers/arweave";
+import { suggestedGateways, SuggestedGateway } from "../../../utils/gateways";
 import CryptoES from "crypto-es";
 import dayjs from "dayjs";
 import Home from "./Home";
@@ -303,38 +303,6 @@ export default function Settings() {
     setToast({ text: "Downloaded keyfile", type: "success", delay: 3000 });
     configFileModal.setVisible(false);
   }
-
-  // gateways
-  const suggestedGateways: SuggestedGateway[] = [
-    {
-      host: "arweave.net",
-      port: 443,
-      protocol: "https"
-    },
-    {
-      host: "arweave.dev",
-      port: 443,
-      protocol: "https"
-    },
-    {
-      host: "arweave.live",
-      port: 443,
-      protocol: "https",
-      note: "WIP"
-    },
-    {
-      host: "www.arweave.run",
-      port: 443,
-      protocol: "https",
-      note: "TESTNET"
-    },
-    {
-      host: "testnet.redstone.tools",
-      port: 443,
-      protocol: "https",
-      note: "TESTNET"
-    }
-  ];
 
   const [gateways, setGateways] = useState<Gateway[]>(
     suggestedGateways.map((val) => ({
@@ -1190,10 +1158,6 @@ export interface ArConnectEvent {
   event: MessageType;
   url: string;
   date: number;
-}
-
-interface SuggestedGateway extends IGatewayConfig {
-  note?: string;
 }
 
 interface Gateway extends SuggestedGateway {
