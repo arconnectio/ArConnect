@@ -10,6 +10,7 @@ import { IAllowancesAction } from "./reducers/allowances";
 import { ISettings, ISettingsAction } from "./reducers/settings";
 import { IBalanceAction, Balance } from "./reducers/balances";
 import { ITabAction } from "./reducers/time_tracking";
+import { App, IAppAction } from "./reducers/apps";
 
 export function addWallet(wallet: Wallet): IWalletsAction {
   return {
@@ -195,5 +196,19 @@ export function closeSession(tabId: number): ITabAction {
   return {
     type: "CLOSE_SESSION",
     payload: { tabId }
+  };
+}
+
+export function addApp(app: App): IAppAction {
+  return {
+    type: "ADD_APP",
+    payload: app
+  };
+}
+
+export function updateGatewayForApp(app: App): IAppAction {
+  return {
+    type: "UPDATE_GATEWAY",
+    payload: app
   };
 }
