@@ -19,7 +19,8 @@ const WalletAPI = {
   walletName: "ArConnect",
   async connect(
     permissions: PermissionType[],
-    appInfo: { name?: string; logo?: string } = {}
+    appInfo: { name?: string; logo?: string } = {},
+    gateway?: IGatewayConfig
   ) {
     const requestPermissionOverlay = createOverlay(
       "This page is requesting permission to connect to your wallet...<br />Please review them in the popup."
@@ -48,7 +49,8 @@ const WalletAPI = {
         ext: "arconnect",
         sender: "api",
         permissions,
-        appInfo
+        appInfo,
+        gateway
       });
       document.body.removeChild(requestPermissionOverlay);
     } catch (e: any) {
