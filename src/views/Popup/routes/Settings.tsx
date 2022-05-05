@@ -150,22 +150,48 @@ export default function Settings({
     );
   }
 
-  async function updateGatewayConfig(config: IGatewayConfig) {
+  // active tab's URL
+  // undefined if the current tab is not connected
+  const [activeAppURL, setActiveAppURL] = useState<string>();
+
+  useEffect(() => {
+    (async () => {
+      const res = await getActiveTab();
+
+      if (!res.url) return setActiveAppURL(undefined);
+
+      const url = getRealURL(res.url);
+
+      if (!permissions.find((p) => p.url === url))
+        return setActiveAppURL(undefined);
+
+      setActiveAppURL(url);
+    })();
+  }, []);
+
+  // confirmation modal
+  const gatewayForAppModal = useModal();
+  const [gatewayToConfig, setGatewayToConfig] = useState<IGatewayConfig>();
+
+  /**
+   * Update gateway config
+   *
+   * @param config Gateway config
+   * @param currentApp Update config for the current app?
+   */
+  async function updateGatewayConfig(
+    config: IGatewayConfig,
+    currentApp = false
+  ) {
     // update global config
     dispatch(updateArweaveConfig(config));
 
     try {
-      // get active tab
-      const activeTab = await getActiveTab();
-
-      if (activeTab.url) {
-        // get root url
-        const activeTabRealURL = getRealURL(activeTab.url as string);
-
+      if (activeAppURL && currentApp) {
         // update config for the current app
         dispatch(
           updateGatewayForApp({
-            url: activeTabRealURL,
+            url: activeAppURL,
             gatewayConfig: config
           })
         );
@@ -175,8 +201,9 @@ export default function Settings({
     // notify user
     setToast({
       type: "success",
-      text: "Gateway updated for current app"
+      text: "Gateway updated"
     });
+    gatewayForAppModal.setVisible(false);
   }
 
   async function updatePassword() {
@@ -831,15 +858,19 @@ export default function Settings({
                           (gateway.status === "pending" && styles.Pending) ||
                           ""
                         }
-                        onClick={() =>
-                          dispatch(
-                            updateGatewayConfig({
-                              host: gateway.host,
-                              port: gateway.port,
-                              protocol: gateway.protocol
-                            })
-                          )
-                        }
+                        onClick={() => {
+                          const config: IGatewayConfig = {
+                            host: gateway.host,
+                            port: gateway.port,
+                            protocol: gateway.protocol
+                          };
+                          if (activeAppURL) {
+                            setGatewayToConfig(config);
+                            gatewayForAppModal.setVisible(true);
+                          } else {
+                            updateGatewayConfig(config);
+                          }
+                        }}
                       >
                         <h1>
                           {gateway.host}
@@ -892,12 +923,19 @@ export default function Settings({
                       )
                         return;
 
-                      updateGatewayConfig({
+                      const config: IGatewayConfig = {
                         host: arweaveHostInput.state,
                         port: Number(arweavePortInput.state),
                         // @ts-expect-error
                         protocol: arweaveProtocolInput.state
-                      });
+                      };
+
+                      if (activeAppURL) {
+                        setGatewayToConfig(config);
+                        gatewayForAppModal.setVisible(true);
+                      } else {
+                        updateGatewayConfig(config);
+                      }
                     }}
                   >
                     Set gateway
@@ -1156,6 +1194,27 @@ export default function Settings({
           loading={generatingConfig}
         >
           Ok
+        </Modal.Action>
+      </Modal>
+      <Modal {...gatewayForAppModal.bindings}>
+        <Modal.Title>Update gateway</Modal.Title>
+        <Modal.Content>
+          Would you like to update the gateway for the current app as well?
+        </Modal.Content>
+        <Modal.Action
+          passive
+          onClick={() =>
+            updateGatewayConfig(gatewayToConfig as IGatewayConfig, true)
+          }
+        >
+          No
+        </Modal.Action>
+        <Modal.Action
+          onClick={() =>
+            updateGatewayConfig(gatewayToConfig as IGatewayConfig, true)
+          }
+        >
+          Yes
         </Modal.Action>
       </Modal>
     </>
