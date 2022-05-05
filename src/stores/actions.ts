@@ -10,7 +10,7 @@ import { IAllowancesAction } from "./reducers/allowances";
 import { ISettings, ISettingsAction } from "./reducers/settings";
 import { IBalanceAction, Balance } from "./reducers/balances";
 import { ITabAction } from "./reducers/time_tracking";
-import { App, IAppAction } from "./reducers/apps";
+import { IAppGateway, IGatewayAction } from "./reducers/gateways";
 
 export function addWallet(wallet: Wallet): IWalletsAction {
   return {
@@ -199,16 +199,9 @@ export function closeSession(tabId: number): ITabAction {
   };
 }
 
-export function addApp(app: App): IAppAction {
+export function updateAppGateway(data: IAppGateway): IGatewayAction {
   return {
-    type: "ADD_APP",
-    payload: app
-  };
-}
-
-export function updateGatewayForApp(app: App): IAppAction {
-  return {
-    type: "UPDATE_GATEWAY",
-    payload: app
+    type: "UPDATE_APP_GATEWAY",
+    payload: data
   };
 }

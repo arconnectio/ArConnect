@@ -10,7 +10,7 @@ import allowances from "./reducers/allowances";
 import settings from "./reducers/settings";
 import balances from "./reducers/balances";
 import timeTracking from "./reducers/time_tracking";
-import apps from "./reducers/apps";
+import gateways from "./reducers/gateways";
 
 export const plainReducers = {
   wallets,
@@ -23,7 +23,7 @@ export const plainReducers = {
   settings,
   balances,
   timeTracking,
-  apps
+  gateways
 };
 const reducers = combineReducers(plainReducers);
 

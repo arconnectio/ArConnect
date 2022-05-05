@@ -55,20 +55,18 @@ export async function handleTabUpdate() {
   updateIcon(permissionsForSite.length > 0);
   createContextMenus(permissionsForSite.length > 0);
 
-  // update gateway if needed
-  if (permissionsForSite.length > 0 && activeTab.url) {
-    const apps = (await getStoreData())?.apps;
-    const gatewayForURL = apps?.find(
-      ({ url }) => url === getRealURL(activeTab.url as string)
-    );
+  // update gateway
+  const gateways = (await getStoreData())?.gateways;
+  const gatewayForURL = gateways?.find(
+    ({ url }) => url === getRealURL(activeTab.url || "")
+  );
 
-    // if the app has a specific gateway set, use it
-    // if the app doesn't have a specific gateway
-    // set, set and use the default one
-    setStoreData({
-      arweave: gatewayForURL?.gatewayConfig ?? defaultGatewayConfig
-    });
-  }
+  // if the app has a specific gateway set, use it
+  // if the app doesn't have a specific gateway
+  // set, set and use the default one
+  await setStoreData({
+    arweave: gatewayForURL?.gateway ?? defaultGatewayConfig
+  });
 }
 
 export async function handleArweaveTabOpened(tabId: number, txId: string) {

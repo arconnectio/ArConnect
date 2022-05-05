@@ -43,7 +43,7 @@ import {
   setAllowanceLimit,
   removeAllowance,
   resetAllowanceSpent,
-  updateGatewayForApp
+  updateAppGateway
 } from "../../../stores/actions";
 import { suggestedGateways, SuggestedGateway } from "../../../utils/gateways";
 import { IGatewayConfig } from "../../../stores/reducers/arweave";
@@ -65,38 +65,22 @@ export default function Settings({
   const [setting, setCurrSetting] = useState<SettingTypes | undefined>(
       initialSetting
     ),
-    permissions = useSelector((state: RootState) => state.permissions),
-    [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
-    dispatch = useDispatch(),
-    psts = useSelector((state: RootState) => state.assets),
-    currentAddress = useSelector((state: RootState) => state.profile),
-    blockedURLs = useSelector((state: RootState) => state.blockedSites),
-    addURLInput = useInput(""),
-    [events, setEvents] = useState<ArConnectEvent[]>([]),
-    arweaveConfig = useSelector((state: RootState) => state.arweave),
-    otherSettings = useSelector((state: RootState) => state.settings),
-    allowances = useSelector((state: RootState) => state.allowances),
-    arweaveHostInput = useInput(arweaveConfig.host),
-    arweavePortInput = useInput(arweaveConfig.port.toString()),
-    arweaveProtocolInput = useInput(arweaveConfig.protocol),
-    [arweave, setArweave] = useState<Arweave>(new Arweave(arweaveConfig)),
-    [editingAllowance, setEditingAllowance] = useState<{
-      id: number;
-      val: number;
-    }>(),
-    theme = useTheme(),
-    passwords = {
-      new: useInput(""),
-      newAgain: useInput(""),
-      old: useInput("")
-    },
     [, setToast] = useToasts(),
     configFileModal = useModal(),
     configPasswordInput = useInput(""),
     [generatingConfig, setGeneratingConfig] = useState(false),
-    feeMultiplier = useInput((otherSettings?.feeMultiplier || 1).toString()),
     wallets = useSelector((state: RootState) => state.wallets),
     [downloadWallet, setDownloadWallet] = useState<string>();
+
+  const dispatch = useDispatch();
+
+  const permissions = useSelector((state: RootState) => state.permissions);
+  const [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]);
+
+  const otherSettings = useSelector((state: RootState) => state.settings);
+  const feeMultiplier = useInput(
+    (otherSettings?.feeMultiplier || 1).toString()
+  );
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
@@ -107,8 +91,22 @@ export default function Settings({
     // eslint-disable-next-line
   }, []);
 
-  // update instance on config changes
-  useEffect(() => setArweave(new Arweave(arweaveConfig)), [arweaveConfig]);
+  const gatewayConfig = useSelector((state: RootState) => state.arweave);
+  const [arweave, setArweave] = useState<Arweave>(new Arweave(gatewayConfig));
+
+  const arweaveHostInput = useInput("");
+  const arweavePortInput = useInput("0");
+  const arweaveProtocolInput = useInput("");
+
+  // update instance & inputs on config changes
+  useEffect(() => {
+    setArweave(new Arweave(gatewayConfig));
+
+    arweaveHostInput.setState(gatewayConfig.host);
+    arweavePortInput.setState(gatewayConfig.port.toString());
+    arweaveProtocolInput.setState(gatewayConfig.protocol);
+    // eslint-disable-next-line
+  }, [gatewayConfig]);
 
   function open(url: string) {
     setOpened((val) => [
@@ -130,6 +128,9 @@ export default function Settings({
     );
   }
 
+  const psts = useSelector((state: RootState) => state.assets);
+  const currentAddress = useSelector((state: RootState) => state.profile);
+
   function removedPSTs() {
     return (
       psts
@@ -138,9 +139,13 @@ export default function Settings({
     );
   }
 
+  const addURLInput = useInput("");
+
   function blockInputUrl() {
     dispatch(blockURL(addURLInput.state));
   }
+
+  const [events, setEvents] = useState<ArConnectEvent[]>([]);
 
   function loadEvents() {
     const evs = localStorage.getItem("arweave_events");
@@ -153,6 +158,7 @@ export default function Settings({
   // active tab's URL
   // undefined if the current tab is not connected
   const [activeAppURL, setActiveAppURL] = useState<string>();
+  const appGateways = useSelector((state: RootState) => state.gateways);
 
   useEffect(() => {
     (async () => {
@@ -166,6 +172,10 @@ export default function Settings({
         return setActiveAppURL(undefined);
 
       setActiveAppURL(url);
+
+      const appConfig = appGateways.find((g) => g.url === url)?.gateway;
+
+      if (appConfig) dispatch(updateArweaveConfig(appConfig));
     })();
   }, []);
 
@@ -190,9 +200,9 @@ export default function Settings({
       if (activeAppURL && currentApp) {
         // update config for the current app
         dispatch(
-          updateGatewayForApp({
+          updateAppGateway({
             url: activeAppURL,
-            gatewayConfig: config
+            gateway: config
           })
         );
       }
@@ -205,6 +215,12 @@ export default function Settings({
     });
     gatewayForAppModal.setVisible(false);
   }
+
+  const passwords = {
+    new: useInput(""),
+    newAgain: useInput(""),
+    old: useInput("")
+  };
 
   async function updatePassword() {
     if (
@@ -371,6 +387,19 @@ export default function Settings({
       setGateways(gatewaysWithStatuses);
     })();
   }, [setting]);
+
+  // blocked sites
+  const blockedURLs = useSelector((state: RootState) => state.blockedSites);
+
+  // allowance data
+  const allowances = useSelector((state: RootState) => state.allowances);
+  const [editingAllowance, setEditingAllowance] = useState<{
+    id: number;
+    val: number;
+  }>();
+
+  // ui theme
+  const theme = useTheme();
 
   return (
     <>
@@ -874,7 +903,7 @@ export default function Settings({
                       >
                         <h1>
                           {gateway.host}
-                          {arweaveConfig.host === gateway.host && (
+                          {gatewayConfig.host === gateway.host && (
                             <span className={styles.Selected}>Selected</span>
                           )}
                         </h1>
