@@ -70,9 +70,9 @@ browser.windows.onFocusChanged.addListener(async (windowId) => {
 browser.tabs.onActivated.addListener(async (activeInfo) => {
   if (!(await walletsStored())) return;
 
-  handleArweaveTabActivated(activeInfo.tabId);
+  await handleArweaveTabActivated(activeInfo.tabId);
 
-  handleTabUpdate();
+  await handleTabUpdate();
 });
 
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
@@ -81,17 +81,16 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete") {
     const txId = await checkCommunityContract(tab.url!);
     if (txId) {
-      handleArweaveTabOpened(tabId, txId);
+      await handleArweaveTabOpened(tabId, txId);
     } else {
       if (tabId === (await getArweaveActiveTab())) {
         // It looks like user just entered or opened another web site on the same tab,
         // where Arweave resource was loaded previously. Hence it needs to be closed.
-        handleArweaveTabClosed(tabId);
+        await handleArweaveTabClosed(tabId);
       }
     }
+    await handleTabUpdate();
   }
-
-  handleTabUpdate();
 });
 
 browser.tabs.onRemoved.addListener(async (tabId, removeInfo) => {

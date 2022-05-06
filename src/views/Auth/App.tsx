@@ -11,7 +11,8 @@ import {
   Note,
   useTheme,
   useToasts,
-  Select
+  Select,
+  Tooltip
 } from "@geist-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,10 +23,12 @@ import {
   setAllowanceLimit,
   setPermissions,
   switchProfile,
-  toggleAllowance
+  toggleAllowance,
+  updateAppGateway,
+  updateArweaveConfig
 } from "../../stores/actions";
 import { getRealURL, shortenURL, formatAddress } from "../../utils/url";
-import { ChevronRightIcon } from "@primer/octicons-react";
+import { ChevronRightIcon, VerifiedIcon } from "@primer/octicons-react";
 import { Allowance } from "../../stores/reducers/allowances";
 import { checkPassword } from "../../utils/auth";
 import { browser } from "webextension-polyfill-ts";
@@ -33,6 +36,8 @@ import {
   PermissionType,
   PermissionDescriptions
 } from "../../utils/permissions";
+import { IGatewayConfig } from "../../stores/reducers/arweave";
+import { suggestedGateways } from "../../utils/gateways";
 import toastStyles from "../../styles/components/SmallToast.module.sass";
 import styles from "../../styles/views/Auth/view.module.sass";
 
@@ -68,6 +73,8 @@ export default function App() {
     wallets = useSelector((state: RootState) => state.wallets),
     [showSwitch, setShowSwitch] = useState(false);
 
+  const [gatewayConfig, setGatewayConfig] = useState<IGatewayConfig>();
+
   useEffect(() => {
     // get the auth param from the url
     const authVal = new URL(window.location.href).searchParams.get("auth");
@@ -85,9 +92,11 @@ export default function App() {
       type?: AuthType;
       url?: string;
       spendingLimitReached?: boolean;
+      gateway?: IGatewayConfig;
     } = JSON.parse(decodeURIComponent(authVal));
 
     if (decodedAuthParam.appInfo) setAppInfo(decodedAuthParam.appInfo);
+    if (decodedAuthParam.gateway) setGatewayConfig(decodedAuthParam.gateway);
 
     // if the type does not exist, this is an invalid call
     if (!decodedAuthParam.type) {
@@ -250,6 +259,16 @@ export default function App() {
     if (!currentURL) return urlError();
 
     dispatch(setPermissions(currentURL, allowedPermissions));
+
+    if (gatewayConfig) {
+      dispatch(
+        updateAppGateway({
+          url: currentURL,
+          gateway: gatewayConfig
+        })
+      );
+      dispatch(updateArweaveConfig(gatewayConfig));
+    }
 
     // give time for the state to update
     setTimeout(successCall, 500);
@@ -503,6 +522,24 @@ export default function App() {
                   ))}
                 </ul>
               )) || <p>No permissions requested.</p>}
+              {gatewayConfig && (
+                <>
+                  <Spacer />
+                  <p className={styles.GatewayConfig}>
+                    Gateway:
+                    <span>
+                      {gatewayConfig.host}
+                      {suggestedGateways.find(
+                        (g) => g.host === gatewayConfig.host
+                      ) && (
+                        <Tooltip text="Verified gateway">
+                          <VerifiedIcon />
+                        </Tooltip>
+                      )}
+                    </span>
+                  </p>
+                </>
+              )}
               <Spacer />
               <Button style={{ width: "100%" }} onClick={accept} type="success">
                 Accept

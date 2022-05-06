@@ -3,13 +3,14 @@ import { IPermissionsAction } from "./reducers/permissions";
 import { IProfileAction } from "./reducers/profile";
 import { IWalletsAction, Wallet } from "./reducers/wallets";
 import { IBlockedAction } from "./reducers/blocked_sites";
-import { IArweaveAction, IArweave } from "./reducers/arweave";
+import { IGatewayConfigAction, IGatewayConfig } from "./reducers/arweave";
 
 import { PermissionType } from "../utils/permissions";
 import { IAllowancesAction } from "./reducers/allowances";
 import { ISettings, ISettingsAction } from "./reducers/settings";
 import { IBalanceAction, Balance } from "./reducers/balances";
 import { ITabAction } from "./reducers/time_tracking";
+import { IAppGateway, IGatewayAction } from "./reducers/gateways";
 
 export function addWallet(wallet: Wallet): IWalletsAction {
   return {
@@ -101,14 +102,16 @@ export function unblockURL(url: string): IBlockedAction {
   };
 }
 
-export function updateArweaveConfig(config: IArweave): IArweaveAction {
+export function updateArweaveConfig(
+  config: IGatewayConfig
+): IGatewayConfigAction {
   return {
     type: "SET_ARWEAVE_CONFIG",
     payload: config
   };
 }
 
-export function resetArweaveConfig(): IArweaveAction {
+export function resetArweaveConfig(): IGatewayConfigAction {
   return {
     type: "RESET_ARWEAVE_CONFIG"
   };
@@ -193,5 +196,12 @@ export function closeSession(tabId: number): ITabAction {
   return {
     type: "CLOSE_SESSION",
     payload: { tabId }
+  };
+}
+
+export function updateAppGateway(data: IAppGateway): IGatewayAction {
+  return {
+    type: "UPDATE_APP_GATEWAY",
+    payload: data
   };
 }

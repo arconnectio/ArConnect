@@ -58,6 +58,7 @@ export const connect = (
     createAuthPopup({
       permissions: message.permissions,
       appInfo: message.appInfo,
+      gateway: message.gateway,
       type: "connect",
       url: tabURL
     });
@@ -77,6 +78,9 @@ export const disconnect = (tabURL: string) =>
       await setStoreData({
         permissions: (store.permissions ?? []).filter(
           (sitePerms: IPermissionState) => sitePerms.url !== getRealURL(tabURL)
+        ),
+        gateways: (store.gateways ?? []).filter(
+          (gateway) => gateway.url !== getRealURL(tabURL)
         )
       });
       updateIcon(false);

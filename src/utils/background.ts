@@ -1,13 +1,13 @@
 import { MessageType, validateMessage } from "../utils/messenger";
 import { RootState } from "../stores/reducers";
 import { IPermissionState } from "../stores/reducers/permissions";
-import { IArweave, defaultConfig } from "../stores/reducers/arweave";
+import { IGatewayConfig, defaultConfig } from "../stores/reducers/arweave";
 import { PermissionType } from "./permissions";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { getRealURL } from "./url";
 import { browser } from "webextension-polyfill-ts";
 import type { DataItem } from "arbundles";
-import { run } from "ar-gql";
+import { gql } from "../utils/gateways";
 import axios from "axios";
 import limestone from "@limestonefi/api";
 import Arweave from "arweave";
@@ -125,7 +125,7 @@ export async function setStoreData(updatedData: StoreData) {
  * @returns Fee amount in string
  */
 export async function getFeeAmount(address: string, arweave: Arweave) {
-  const res = await run(
+  const res = await gql(
     `
       query($address: String!) {
         transactions(
@@ -258,7 +258,7 @@ export async function getActiveTab(returnFromCache = true) {
  *
  * @returns Arweave config object
  */
-export async function getArweaveConfig(): Promise<IArweave> {
+export async function getArweaveConfig(): Promise<IGatewayConfig> {
   try {
     const storage = await getStoreData();
     return storage.arweave ?? defaultConfig;

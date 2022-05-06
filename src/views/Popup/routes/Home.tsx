@@ -20,11 +20,13 @@ import { arToFiat, getSymbol } from "../../../utils/currency";
 import { validateMessage } from "../../../utils/messenger";
 import { browser } from "webextension-polyfill-ts";
 import { getActiveTab } from "../../../utils/background";
+import { concatGatewayURL } from "../../../utils/gateways";
 import mime from "mime-types";
 import axios from "axios";
 import PST from "./PST";
 import WalletManager from "../../../components/WalletManager";
 import Send from "./Send";
+import Settings from "./Settings";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
 import arweaveLogo from "../../../assets/arweave.png";
@@ -158,7 +160,7 @@ export default function Home() {
     else if (pst.ticker === "VRT") {
       if (scheme === "dark") return verto_dark_logo;
       else return verto_light_logo;
-    } else return `https://arweave.net/${pst.logo}`;
+    } else return `${concatGatewayURL(arweaveConfig)}/${pst.logo}`;
   }
 
   function balance() {
@@ -251,10 +253,42 @@ export default function Home() {
 
   const [showAll, setShowAll] = useState(false);
 
+  // gateway status
+  const [gatewayStatus, setGatewayStatus] = useState<"online" | "offline">(
+    "online"
+  );
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { status } = await axios.get(
+          `${arweaveConfig.protocol}://${arweaveConfig.host}:${arweaveConfig.port}`,
+          { timeout: 10000 }
+        );
+
+        if (status !== 200) throw new Error();
+        setGatewayStatus("online");
+      } catch {
+        setGatewayStatus("offline");
+      }
+    })();
+  }, [arweaveConfig]);
+
   return (
     <div className={styles.Home}>
       <WalletManager />
       <div className={styles.Balance}>
+        <Tooltip text={`Gateway is ${gatewayStatus}`}>
+          <div
+            className={
+              styles.Gateway + " " + styles[`GatewayStatus_${gatewayStatus}`]
+            }
+            onClick={() => goTo(Settings, { initialSetting: "gateway" })}
+          >
+            <span className={styles.GatewayStatusIndicator} />
+            {arweaveConfig.host.replace("www.", "")}
+          </div>
+        </Tooltip>
         <h1>
           {formatBalance(balance()?.arBalance)}
           <span>AR</span>
@@ -411,7 +445,7 @@ export default function Home() {
                     }
                   >
                     <img
-                      src={`https://arweave.net/${token.id}`}
+                      src={`${concatGatewayURL(arweaveConfig)}/${token.id}`}
                       alt="preview"
                     />
                     <div className={styles.CollectibleInfo}>
