@@ -1,19 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Card,
-  useTheme,
-  Button,
-  useModal,
-  Modal,
-  Textarea,
-  useToasts,
-  Tooltip,
-  useInput,
-  Input,
-  Spacer,
-  Code
-} from "@geist-ui/react";
-import { FileIcon } from "@primer/octicons-react";
+import { FileIcon, TrashIcon } from "@primer/octicons-react";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { getKeyFromMnemonic } from "arweave-mnemonic-keys";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,6 +8,18 @@ import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
 import { checkPassword as checkPw, setPassword } from "../../utils/auth";
 import { browser } from "webextension-polyfill-ts";
+import { formatAddress } from "../../utils/url";
+import {
+  Button,
+  Input,
+  Spacer,
+  Modal,
+  useModal,
+  useInput,
+  useToasts
+} from "@verto/ui";
+import WalletIcon from "../../assets/wallet.svg";
+import ImportIcon from "../../assets/import.svg";
 import bip39 from "bip39-web-crypto";
 import CryptoES from "crypto-es";
 import Arweave from "arweave";
@@ -29,11 +27,13 @@ import logo from "../../assets/logo.png";
 import styles from "../../styles/views/Welcome/view.module.sass";
 
 export default function App() {
-  const theme = useTheme(),
-    fileInput = useRef<HTMLInputElement>(null),
+  const fileInput = useRef<HTMLInputElement>(null),
     loadWalletsModal = useModal(false),
     [seed, setSeed] = useState<string>(),
-    [, setToast] = useToasts(),
+    [setupConfig, setSetupConfig] = useState<SetupConfigProps>({
+      welcome: false,
+      setupMode: false
+    }),
     [keyfiles, setKeyfiles] = useState<
       {
         keyfile: JWKInterface;
@@ -50,12 +50,12 @@ export default function App() {
     }>(),
     arweaveConfig = useSelector((state: RootState) => state.arweave),
     arweave = new Arweave(arweaveConfig),
-    passwordInput = useInput(""),
-    passwordInputAgain = useInput(""),
+    passwordInput = useInput<string>(""),
+    passwordInputAgain = useInput<string>(""),
     [passwordGiven, setPasswordGiven] = useState(false),
     feeModal = useModal(false),
     loadConfigModal = useModal(),
-    configPasswordInput = useInput(""),
+    configPasswordInput = useInput<string>(""),
     configFileInput = useRef<HTMLInputElement>(null),
     [configFilenameDisplay, setConfigFilenameDisplay] =
       useState("Click to load"),
@@ -89,6 +89,8 @@ export default function App() {
     // eslint-disable-next-line
   }, [configFileInput.current]);
 
+  const { setToast } = useToasts();
+
   function loadFiles() {
     if (fileInput.current?.files)
       for (const file of fileInput.current.files) {
@@ -99,15 +101,24 @@ export default function App() {
           reader.readAsText(file);
         } catch {
           setToast({
-            text: `There was an error when loading ${file.name}`,
-            type: "error"
+            description: `There was an error when loading ${file.name}`,
+            type: "error",
+            duration: 3400
           });
         }
 
         reader.onabort = () =>
-          setToast({ text: "File reading was aborted", type: "error" });
+          setToast({
+            description: "File reading was aborted",
+            type: "error",
+            duration: 3000
+          });
         reader.onerror = () =>
-          setToast({ text: "File reading has failed", type: "error" });
+          setToast({
+            description: "File reading has failed",
+            type: "error",
+            duration: 3000
+          });
         reader.onload = (e) => {
           try {
             const keyfile: JWKInterface = JSON.parse(
@@ -116,8 +127,9 @@ export default function App() {
             setKeyfiles((val) => [...val, { keyfile, filename: file.name }]);
           } catch {
             setToast({
-              text: "There was an error when loading a keyfile",
-              type: "error"
+              description: "There was an error when loading a keyfile",
+              type: "error",
+              duration: 3000
             });
           }
         };
@@ -149,11 +161,15 @@ export default function App() {
     dispatch(setWallets([...walletsStore, ...wallets]));
     if (walletsStoreEmpty) dispatch(switchProfile(wallets[0].address));
     setLoading(false);
-    loadWalletsModal.setVisible(false);
-    setToast({ text: "Loaded wallets", type: "success" });
+    loadWalletsModal.setState(false);
+    setToast({
+      description: "Loaded wallets",
+      type: "success",
+      duration: 2300
+    });
     // allow time to save the wallets
     setTimeout(() => {
-      loadWalletsModal.setVisible(false);
+      loadWalletsModal.setState(false);
       setKeyfiles([]);
       if (fileInput.current) fileInput.current.value = "";
     }, 600);
@@ -169,7 +185,7 @@ export default function App() {
 
     setSeed(mnemonic);
     setSeedKeyfile({ address, keyfile });
-    seedModal.setVisible(true);
+    seedModal.setState(true);
     dispatch(
       setWallets([
         ...walletsStore,
@@ -204,15 +220,23 @@ export default function App() {
 
   async function createPassword() {
     if (passwordInput.state === "" || passwordInputAgain.state === "") {
-      setToast({ text: "Please fill both password fields", type: "error" });
+      setToast({
+        description: "Please fill both password fields",
+        type: "error",
+        duration: 3000
+      });
       return;
     }
     if (passwordInput.state !== passwordInputAgain.state) {
-      setToast({ text: "The two passwords are not the same", type: "error" });
+      setToast({
+        description: "The two passwords are not the same",
+        type: "error",
+        duration: 3000
+      });
       return;
     }
     if (passwordInputAgain.state.length < 5) {
-      setToast({ text: "Weak password", type: "error" });
+      setToast({ description: "Weak password", type: "error", duration: 3000 });
       return;
     }
 
@@ -227,9 +251,13 @@ export default function App() {
       if (!res) throw new Error();
 
       setPasswordGiven(true);
-      setToast({ text: "Logged in", type: "success" });
+      setToast({ description: "Logged in", type: "success", duration: 2300 });
     } catch {
-      setToast({ text: "Wrong password", type: "error" });
+      setToast({
+        description: "Wrong password",
+        type: "error",
+        duration: 3000
+      });
     }
     setLoading(false);
   }
@@ -239,13 +267,21 @@ export default function App() {
       !configFileInput.current?.files ||
       configFileInput.current.files.length === 0
     )
-      return setToast({ text: "Please load your config file", type: "error" });
+      return setToast({
+        description: "Please load your config file",
+        type: "error",
+        duration: 3000
+      });
 
     // read config
     const file = configFileInput.current.files[0];
 
     if (file.type !== "text/plain")
-      return setToast({ text: "Invalid file format", type: "error" });
+      return setToast({
+        description: "Invalid file format",
+        type: "error",
+        duration: 3000
+      });
 
     const reader = new FileReader();
 
@@ -253,18 +289,31 @@ export default function App() {
       reader.readAsText(file);
     } catch {
       setToast({
-        text: `There was an error when loading ${file.name}`,
-        type: "error"
+        description: `There was an error when loading ${file.name}`,
+        type: "error",
+        duration: 3000
       });
     }
 
     reader.onabort = () =>
-      setToast({ text: "File reading was aborted", type: "error" });
+      setToast({
+        description: "File reading was aborted",
+        type: "error",
+        duration: 3000
+      });
     reader.onerror = () =>
-      setToast({ text: "File reading has failed", type: "error" });
+      setToast({
+        description: "File reading has failed",
+        type: "error",
+        duration: 3000
+      });
     reader.onload = async (e) => {
       if (!e.target?.result)
-        return setToast({ text: "Error reading the file", type: "error" });
+        return setToast({
+          description: "Error reading the file",
+          type: "error",
+          duration: 3000
+        });
 
       setLoadingConfig(true);
       // decrypt config and apply settings
@@ -279,110 +328,185 @@ export default function App() {
           "persist:root": decrypted.toString(CryptoES.enc.Utf8),
           decryptionKey: false
         });
-        setToast({ text: "Loaded config", type: "success" });
+        setToast({
+          description: "Loaded config",
+          type: "success",
+          duration: 2300
+        });
         setTimeout(() => window.location.reload(), 1300);
       } catch {
-        setToast({ text: "Invalid password", type: "error" });
+        setToast({
+          description: "Invalid password",
+          type: "error",
+          duration: 3000
+        });
       }
       setLoadingConfig(false);
-      loadConfigModal.setVisible(false);
+      loadConfigModal.setState(false);
     };
   }
 
+  const SetupPage = ({ withSetupMode }: { withSetupMode?: boolean }) => {
+    return (
+      <section className={styles.SetupPage}>
+        <div className={styles.SetupContent}>
+          <img src={logo} alt="arconnect logo" className={styles.logo} />
+          <h1 className={styles.header}>Welcome to ArConnect</h1>
+          <p className={styles.intro}>
+            {withSetupMode
+              ? "Load your ArConnect config file"
+              : "A simple and secure way to authorize transactions and manage your Arweave assets"}
+          </p>
+          <Spacer y={1} />
+          {withSetupMode ? (
+            <div className={styles.SetupMode}>
+              <div
+                onClick={() =>
+                  setSetupConfig({
+                    ...setupConfig,
+                    welcome: false,
+                    setupMode: true
+                  })
+                }
+              >
+                <WalletIcon />
+                <h5>Load or create wallets</h5>
+                <p>I'm new, I want to create a new profile</p>
+              </div>
+
+              <div onClick={() => loadConfigModal.setState(true)}>
+                <ImportIcon />
+                <h5>Import settings</h5>
+                <p>I’m just moving my stuff, I want to load my profile</p>
+              </div>
+            </div>
+          ) : (
+            <Button
+              small
+              onClick={() => {
+                setSetupConfig({ ...setupConfig, welcome: true });
+              }}
+              style={{ marginTop: "2rem" }}
+            >
+              Get Started
+            </Button>
+          )}
+        </div>
+      </section>
+    );
+  };
+
   return (
     <>
-      <div className={styles.Welcome}>
-        <Card className={styles.Card}>
-          <img src={logo} alt="logo" className={styles.Logo} />
-          <h1>
-            Welcome{" "}
-            {(walletsStore.length === 0 && (
-              <>
-                to{" "}
-                <span style={{ color: theme.palette.success }}>ArConnect</span>
-              </>
-            )) ||
-              "back! :)"}
-          </h1>
-          <p style={{ color: theme.palette.accents_4 }}>
-            Secure wallet management for Arweave
-            {!passwordGiven && (
-              <>
-                <br />
-                {walletsStore.length === 0
-                  ? "Please create a password to encrypt your keyfiles"
-                  : "Please enter your password"}
-              </>
-            )}
-          </p>
+      {setupConfig.setupMode || walletsStore.length > 0 ? (
+        <div className={styles.Welcome}>
           {(passwordGiven && (
-            <div className={styles.Actions}>
-              <Button onClick={() => loadWalletsModal.setVisible(true)}>
-                Load wallet(s)
-              </Button>
-              <Button onClick={createWallet} loading={loading}>
-                New wallet
-              </Button>
-            </div>
+            <>
+              <img src={logo} alt="arconnect logo" className={styles.logo} />
+              <h1 className={styles.header}>Welcome to ArConnect</h1>
+              <p className={styles.intro}>Load or create a new wallet.</p>
+              <div className={styles.loadwallets}>
+                <Button onClick={() => loadWalletsModal.setState(true)} small>
+                  Load Wallet
+                </Button>
+                <Button
+                  onClick={createWallet}
+                  small
+                  loading={loading}
+                  type="secondary"
+                >
+                  New Wallet
+                </Button>
+              </div>
+              <p style={{ marginTop: "1.75em" }} className={styles.fees}>
+                Read more about our{" "}
+                <span onClick={() => feeModal.setState(true)}>fees</span>.
+              </p>
+            </>
           )) || (
             <>
-              <Input.Password
+              <img src={logo} alt="arconnect logo" className={styles.logo} />
+              <h1 className={styles.header}>Welcome to ArConnect</h1>
+              <p className={styles.intro}>
+                {walletsStore.length === 0
+                  ? "Please create a password to use for authentication"
+                  : "Login with your password"}
+              </p>
+              <Spacer y={1} />
+              <Input
                 {...passwordInput.bindings}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter" && walletsStore.length > 0)
+                onKeyPressHandler={(e) => {
+                  if (e.key === "Enter" && walletsStore.length > 0) {
                     checkPassword();
+                  } else if (e.key === "Enter" && walletsStore.length === 0) {
+                    setToast({
+                      description: "Please fill both password fields",
+                      type: "error",
+                      duration: 3000
+                    });
+                  }
                 }}
-                placeholder="Password..."
+                small
+                type="password"
+                placeholder="*********"
+                label="Password"
               />
+              <Spacer y={1.3} />
               {walletsStore.length === 0 && (
                 <>
-                  <Spacer />
-                  <Input.Password
+                  <Input
+                    small
                     {...passwordInputAgain.bindings}
-                    placeholder="Password again..."
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") createPassword();
+                    onKeyPressHandler={(e) => {
+                      if (e.key === "Enter") {
+                        createPassword();
+                      }
                     }}
+                    type="password"
+                    placeholder="*********"
+                    label="Repeat Password"
                   />
+                  <Spacer y={2} />
                 </>
               )}
               <Spacer />
               <Button
+                small
                 onClick={() => {
                   if (walletsStore.length === 0) createPassword();
                   else checkPassword();
                 }}
-                loading={loading}
+                style={{ width: "15%" }}
               >
                 {walletsStore.length === 0 ? "Create" : "Login"}
               </Button>
               {walletsStore.length === 0 && (
                 <>
-                  <span
-                    className={styles.OR}
-                    style={{ width: "50%", margin: "1em auto" }}
+                  <span className={styles.OR}>OR</span>
+                  <Button
+                    type="secondary"
+                    small
+                    style={{ width: "14%" }}
+                    onClick={() =>
+                      setSetupConfig({
+                        ...setupConfig,
+                        welcome: true,
+                        setupMode: false
+                      })
+                    }
                   >
-                    OR
-                  </span>
-                  <Button onClick={() => loadConfigModal.setVisible(true)}>
-                    Load config file
+                    Cancel
                   </Button>
                 </>
               )}
             </>
           )}
-          <p style={{ marginTop: "1.75em" }}>
-            Read more about our{" "}
-            <span
-              onClick={() => feeModal.setVisible(true)}
-              style={{ color: theme.palette.link, cursor: "pointer" }}
-            >
-              fees
-            </span>
-            .
-          </p>
-        </Card>
-      </div>
+        </div>
+      ) : setupConfig.welcome && walletsStore.length === 0 ? (
+        <SetupPage withSetupMode />
+      ) : (
+        <SetupPage />
+      )}
       <a
         className={styles.th8ta}
         href="https://th8ta.org"
@@ -391,55 +515,59 @@ export default function App() {
       >
         th<span>8</span>ta
       </a>
-      <Modal {...loadWalletsModal.bindings}>
-        <Modal.Title>Load wallet(s)</Modal.Title>
-        <Modal.Subtitle>
-          Use your{" "}
-          <a
-            href="https://www.arweave.org/wallet"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Arweave keyfile
-          </a>{" "}
-          or seedphrase to continue.
-        </Modal.Subtitle>
+      <Modal
+        {...loadWalletsModal.bindings}
+        open={loadWalletsModal.bindings.open}
+        onClose={() => {
+          loadWalletsModal.setState(false);
+        }}
+      >
+        <Modal.Title>Load wallet</Modal.Title>
         <Modal.Content>
-          <Textarea
+          <h4 className={styles.ModalSubtitle}>
+            Use your{" "}
+            <a
+              href="https://www.arweave.org/wallet"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Arweave keyfile
+            </a>{" "}
+            or seedphrase to continue.
+          </h4>
+          <Spacer y={0.8} />
+          <textarea
             placeholder="Enter 12 word seedphrase..."
             onChange={(e) => setSeed(e.target.value)}
-            className={styles.Seed}
-          ></Textarea>
+            className={styles.Textarea}
+          ></textarea>
           <span className={styles.OR}>OR</span>
           {keyfiles.map(
             (file, i) =>
               file.filename && (
-                <Tooltip
-                  text="Click to remove."
-                  placement="right"
-                  key={i}
-                  style={{ width: "100%" }}
-                >
-                  <Card
+                <>
+                  <div
                     className={styles.FileContent}
                     onClick={() =>
                       setKeyfiles((val) =>
                         val.filter(({ filename }) => filename !== file.filename)
                       )
                     }
-                    style={{ display: "flex", alignItems: "center" }}
                   >
                     <div className={styles.items}>
-                      <p className={styles.Filename}>{file.filename}</p>
+                      <TrashIcon size={24} />
+                      <p className={styles.Filename}>
+                        {formatAddress(file.filename, 18)}
+                      </p>
                     </div>
-                  </Card>
-                </Tooltip>
+                  </div>
+                  <Spacer y={1} />
+                </>
               )
           )}
-          <Card
+          <div
             className={styles.FileContent}
             onClick={() => fileInput.current?.click()}
-            style={{ display: "flex", alignItems: "center" }}
           >
             <div className={styles.items}>
               <FileIcon size={24} />
@@ -447,39 +575,55 @@ export default function App() {
                 ? "Add more keyfile(s)"
                 : "Load keyfile(s) from filesystem"}
             </div>
-          </Card>
+          </div>
+          <Spacer y={1.65} />
+          <Button
+            small
+            type="filled"
+            onClick={login}
+            loading={loading}
+            style={{ margin: "0 auto" }}
+          >
+            Load
+          </Button>
         </Modal.Content>
-        <Modal.Action
-          passive
-          onClick={() => loadWalletsModal.setVisible(false)}
-        >
-          Cancel
-        </Modal.Action>
-        <Modal.Action onClick={login} loading={loading}>
-          Load
-        </Modal.Action>
       </Modal>
       <Modal {...seedModal.bindings}>
         <Modal.Title>Generated a wallet</Modal.Title>
-        <Modal.Subtitle>Make sure to remember this seedphrase</Modal.Subtitle>
+        <h4 className={styles.ModalSubtitle}>
+          Make sure to remember this seedphrase
+        </h4>
         <Modal.Content>
-          <Textarea
+          <textarea
             value={seed}
             readOnly
-            className={styles.Seed + " " + styles.NewSeed}
-          ></Textarea>
-          <p style={{ textAlign: "center" }}>...and download your keyfile.</p>
-          <Button onClick={downloadSeedWallet} style={{ width: "100%" }}>
+            className={styles.Textarea}
+          ></textarea>
+          <p style={{ textAlign: "center" }} className={styles.KeyFileText}>
+            ...and download your keyfile.
+          </p>
+          <Button
+            small
+            type="filled"
+            onClick={downloadSeedWallet}
+            className={styles.OROptionButton}
+          >
             Download
           </Button>
+          <span className={styles.OR}>OR</span>
+          <Button
+            small
+            type="secondary"
+            onClick={() => seedModal.setState(false)}
+            className={styles.OROptionButton}
+          >
+            Dismiss
+          </Button>
         </Modal.Content>
-        <Modal.Action onClick={() => seedModal.setVisible(false)}>
-          Ok
-        </Modal.Action>
       </Modal>
-      <Modal {...feeModal.bindings}>
+      <Modal {...feeModal.bindings} open={feeModal.bindings.open}>
         <Modal.Title>Tips</Modal.Title>
-        <Modal.Content>
+        <Modal.Content className={styles.FeesModal}>
           <p style={{ textAlign: "justify" }}>
             We at{" "}
             <a
@@ -492,16 +636,16 @@ export default function App() {
             are working hard to bring you the best experiences on the permaweb.
             Because of this, we take a small tip whenever a 3rd-party
             application utilizes ArConnect. This tip goes to a randomly-selected{" "}
-            <Code>VRT</Code> token holder:
+            <span className={styles.CodeStyle}>VRT</span> token holder:
           </p>
           <ul>
             <li>
-              <Code>$0.03</Code> USD-equivalent of AR for the first 10
-              transactions
+              <span className={styles.CodeStyle}>$0.03</span> USD-equivalent of
+              AR for the first 10 transactions
             </li>
             <li>
-              <Code>$0.01</Code> USD-equivalent of AR for all subsequent
-              transactions
+              <span className={styles.CodeStyle}>$0.01</span> USD-equivalent of
+              AR for all subsequent transactions
             </li>
           </ul>
           <p>
@@ -510,46 +654,66 @@ export default function App() {
             the transaction.
           </p>
         </Modal.Content>
-        <Modal.Action onClick={() => feeModal.setVisible(false)}>
-          Ok
-        </Modal.Action>
+        <Button
+          small
+          type="filled"
+          onClick={() => feeModal.setState(false)}
+          style={{ margin: "0 auto" }}
+        >
+          Dismiss
+        </Button>
       </Modal>
+
       <Modal {...loadConfigModal.bindings}>
-        <Modal.Title>Load config file</Modal.Title>
-        <Modal.Subtitle>
+        <Modal.Title>Import settings</Modal.Title>
+        <h4 className={styles.ModalSubtitle}>
           Import your settings and wallets from a generated config
-        </Modal.Subtitle>
+        </h4>
         <Modal.Content>
-          <Spacer h={0.5} />
+          <Spacer y={0.5} />
           <p style={{ fontWeight: 500, textAlign: "center" }}>
             Important: this is for ArConnect config files,{" "}
             <b>NOT ARWEAVE KEYFILES</b>
           </p>
-          <Spacer h={0.5} />
-          <Card
+          <Spacer y={0.5} />
+          <div
             className={styles.FileContent}
             onClick={() => configFileInput.current?.click()}
-            style={{ display: "flex", alignItems: "center" }}
           >
             <div className={styles.items}>
               <FileIcon size={24} />
-              <p className={styles.Filename}>{configFilenameDisplay}</p>
+              <p className={styles.Filename}>
+                {configFilenameDisplay === "Click to load"
+                  ? "Click to load"
+                  : formatAddress(configFilenameDisplay, 18)}
+              </p>
             </div>
-          </Card>
-          <Spacer />
-          <Input.Password
+          </div>
+          <Spacer y={2} />
+          <Input
+            small
+            type="password"
+            className={styles.FilenamePW}
+            style={{ width: "50%", margin: "0 auto" }}
+            placeholder="Enter password to decrypt"
             {...configPasswordInput.bindings}
-            placeholder="Enter your password to decrypt..."
-            width="100%"
+            onKeyPressHandler={(e) => {
+              if (e.key === "Enter") loadConfig();
+            }}
           />
         </Modal.Content>
-        <Modal.Action onClick={() => loadConfigModal.setVisible(false)} passive>
-          Cancel
-        </Modal.Action>
-        <Modal.Action onClick={loadConfig} loading={loadingConfig}>
+        <Spacer y={2} />
+        <Button
+          type="filled"
+          small
+          style={{ margin: "0 auto" }}
+          onClick={loadConfig}
+          loading={loadingConfig}
+        >
           Load
-        </Modal.Action>
+        </Button>
       </Modal>
+
       <input
         type="file"
         className={styles.FileInput}
@@ -560,4 +724,8 @@ export default function App() {
       <input type="file" className={styles.FileInput} ref={configFileInput} />
     </>
   );
+}
+interface SetupConfigProps {
+  welcome: boolean;
+  setupMode: boolean;
 }

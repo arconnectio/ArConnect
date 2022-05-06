@@ -1,0 +1,35 @@
+@use '../variables'
+
+.Wrapper 
+  display: flex
+  margin: 0 0.9em
+  align-items: center
+  justify-content: space-between
+  font-family: "Poppins", sans-serif
+
+  .Details
+    display: flex
+    align-items: center
+    gap: 0.5em
+
+    .CardType
+      width: 21px
+      color: variables.$background-color
+      background: variables.$foreground-color
+      padding: 2px 8px
+      display: flex
+      align-items: center
+      justify-content: center
+      border-radius: 5px
+      font-size: 12px
+      font-weight: 500
+      font-family: inherit
+
+    .TransactionID
+      font-size: 12px
+      font-family: inherit
+
+  .Amount
+    color: variables.$foreground-color
+    font-size: 12px
+    font-family: inherit

@@ -10,6 +10,7 @@ import { IAllowancesAction } from "./reducers/allowances";
 import { ISettings, ISettingsAction } from "./reducers/settings";
 import { IBalanceAction, Balance } from "./reducers/balances";
 import { ITabAction } from "./reducers/time_tracking";
+import { IThemeAction, UserTheme } from "./reducers/theme";
 
 export function addWallet(wallet: Wallet): IWalletsAction {
   return {
@@ -193,5 +194,12 @@ export function closeSession(tabId: number): ITabAction {
   return {
     type: "CLOSE_SESSION",
     payload: { tabId }
+  };
+}
+
+export function updateTheme(theme: UserTheme): IThemeAction {
+  return {
+    type: "SET_USER_THEME",
+    payload: theme
   };
 }

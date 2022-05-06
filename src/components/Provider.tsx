@@ -1,10 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { CssBaseline, GeistProvider, Themes } from "@geist-ui/react";
-import { Provider as ReduxProvider } from "react-redux";
+import { Provider as ReduxProvider, useSelector } from "react-redux";
 import { useColorScheme } from "use-color-scheme";
 import { PersistGate } from "redux-persist/integration/react";
 import { fixupPasswords } from "../utils/auth";
+import { VertoProvider } from "@verto/ui";
+import { DisplayTheme } from "@verto/ui/dist/types";
+import { RootState } from "../stores/reducers";
 import setupStores from "../stores";
+import "../styles/index.sass";
 
 const themeCommon = {
   success: "#AB9DF2",
@@ -46,24 +50,53 @@ const darkTheme = Themes.createFromDark({
   }
 });
 
-export default function Provider({ children }: Props) {
-  const { scheme } = useColorScheme(),
-    { store, persistor } = setupStores();
+function Provider({ children }: Props) {
+  const theme = useSelector((state: RootState) => state.theme);
+  const { scheme } = useColorScheme();
+  const [displayTheme, setDisplayTheme] = useState<DisplayTheme>("Light");
+
+  useEffect(() => {
+    if (theme === "Auto") {
+      setDisplayTheme(
+        (scheme[0].toUpperCase() +
+          scheme.slice(1, scheme.length)) as DisplayTheme
+      );
+    } else setDisplayTheme(theme);
+  }, [scheme, theme]);
 
   useEffect(() => {
     fixupPasswords();
   }, []);
 
+  useEffect(() => {
+    const html = document.querySelector("html");
+
+    if (!html) return;
+    if (displayTheme === "Dark") html.style.backgroundColor = "#000";
+    else html.style.backgroundColor = "#fff";
+  }, [displayTheme]);
+
+  return (
+    <VertoProvider theme={displayTheme}>
+      <GeistProvider
+        themeType={"arconnect" + scheme}
+        themes={[darkTheme, lightTheme]}
+      >
+        <CssBaseline />
+        {children}
+      </GeistProvider>
+    </VertoProvider>
+  );
+}
+
+/** Wrapps the provider */
+export default function StoreWrapper({ children }: Props) {
+  const { store, persistor } = setupStores();
+
   return (
     <ReduxProvider store={store}>
       <PersistGate persistor={persistor}>
-        <GeistProvider
-          themeType={"arconnect" + scheme}
-          themes={[darkTheme, lightTheme]}
-        >
-          <CssBaseline />
-          {children}
-        </GeistProvider>
+        <Provider>{children}</Provider>
       </PersistGate>
     </ReduxProvider>
   );

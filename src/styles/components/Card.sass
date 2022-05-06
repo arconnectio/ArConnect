@@ -1,0 +1,35 @@
+@use "../variables"
+
+$card-padding: .6em
+$card-border-radius: 14px
+$full-width: 27vw
+$width: calc(#{$full-width} - #{$card-padding} * 2)
+
+=SmallCard($interactive: true)
+  padding: $card-padding !important
+  width: $width !important
+  border-radius: $card-border-radius !important
+  min-width: unset !important
+  box-shadow: variables.$standard-shadow !important
+  transition: all .23s ease-in-out
+
+  @if $interactive
+    cursor: pointer
+
+    &:active
+      transform: scale(.97)
+
+=SmallCardTexts
+  h1, h2
+    font-weight: 500
+    margin: 0
+    line-height: 1.18em
+    white-space: nowrap
+
+  h1
+    font-size: 1.1em
+    color: variables.$foreground-color
+
+  h2
+    font-size: .7em
+    color: variables.$light-text

@@ -1,26 +1,13 @@
 import React, { useEffect, useState } from "react";
 import {
   ArrowLeftIcon,
-  CheckIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   DownloadIcon,
-  PencilIcon,
   XIcon
 } from "@primer/octicons-react";
-import {
-  Button,
-  Code,
-  Input,
-  Modal,
-  Radio,
-  Spacer,
-  Toggle,
-  useInput,
-  useModal,
-  useTheme,
-  useToasts
-} from "@geist-ui/react";
+import { Modal, Radio, useInput, useModal, useToasts } from "@geist-ui/react";
+import { Spacer, Input, Button, Checkbox, Select } from "@verto/ui";
 import { goTo } from "react-chrome-extension-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
@@ -32,37 +19,27 @@ import { updateIcon } from "../../../background/icon";
 import { checkPassword, setPassword } from "../../../utils/auth";
 import { browser } from "webextension-polyfill-ts";
 import {
-  readdAsset,
   removePermissions,
-  unblockURL,
-  blockURL,
   updateArweaveConfig,
   updateSettings,
-  toggleAllowance,
-  setAllowanceLimit,
   removeAllowance,
-  resetAllowanceSpent,
-  resetArweaveConfig
+  resetArweaveConfig,
+  updateTheme
 } from "../../../stores/actions";
 import CryptoES from "crypto-es";
 import dayjs from "dayjs";
 import Home from "./Home";
 import Arweave from "arweave";
-import manifest from "../../../../public/manifest.json";
-import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
+import WalletManager from "../../../components/WalletManager";
 
 export default function Settings() {
   const [setting, setCurrSetting] = useState<
-      | "events"
+      | "events" // change to apps
       | "permissions"
       | "currency"
-      | "psts"
-      | "sites"
       | "arweave"
       | "arverify"
-      | "allowances"
-      | "about"
       | "password"
       | "config_file"
       | "fee"
@@ -70,23 +47,14 @@ export default function Settings() {
     permissions = useSelector((state: RootState) => state.permissions),
     [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
     dispatch = useDispatch(),
-    psts = useSelector((state: RootState) => state.assets),
-    currentAddress = useSelector((state: RootState) => state.profile),
-    blockedURLs = useSelector((state: RootState) => state.blockedSites),
     addURLInput = useInput(""),
     [events, setEvents] = useState<ArConnectEvent[]>([]),
     arweaveConfig = useSelector((state: RootState) => state.arweave),
     otherSettings = useSelector((state: RootState) => state.settings),
-    allowances = useSelector((state: RootState) => state.allowances),
     arweaveHostInput = useInput(arweaveConfig.host),
     arweavePortInput = useInput(arweaveConfig.port.toString()),
     arweaveProtocolInput = useInput(arweaveConfig.protocol),
     [arweave, setArweave] = useState<Arweave>(new Arweave(arweaveConfig)),
-    [editingAllowance, setEditingAllowance] = useState<{
-      id: number;
-      val: number;
-    }>(),
-    theme = useTheme(),
     passwords = {
       new: useInput(""),
       newAgain: useInput(""),
@@ -130,18 +98,6 @@ export default function Settings() {
     return permissions.filter(
       (permissionGroup) => permissionGroup.permissions.length > 0
     );
-  }
-
-  function removedPSTs() {
-    return (
-      psts
-        .find(({ address }) => address === currentAddress)
-        ?.assets.filter(({ removed }) => removed) ?? []
-    );
-  }
-
-  function blockInputUrl() {
-    dispatch(blockURL(addURLInput.state));
   }
 
   function loadEvents() {
@@ -298,199 +254,124 @@ export default function Settings() {
     configFileModal.setVisible(false);
   }
 
+  const SettingsItem = ({
+    header,
+    headerText,
+    currSetting,
+    children
+  }: SettingsItemProps) => (
+    <div
+      className={styles.Setting}
+      onClick={() => {
+        if (!children && currSetting) setCurrSetting(currSetting);
+      }}
+    >
+      <div>
+        <h1>{header}</h1>
+        <p>{headerText}</p>
+      </div>
+      <div className={styles.Arrow}>
+        {children || <ChevronRightIcon size={18} />}
+      </div>
+    </div>
+  );
+
+  const theme = useSelector((state: RootState) => state.theme);
+
   return (
     <>
-      <div className={SubPageTopStyles.Head}>
-        <div
-          className={SubPageTopStyles.Back}
-          onClick={() => {
-            if (setting) {
+      <WalletManager
+        pageTitle={
+          (setting === "events" && "Events") ||
+          (setting === "permissions" && "Permissions") ||
+          (setting === "password" && "Password") ||
+          (setting === "currency" && "Currency") ||
+          (setting === "arweave" && "Arweave Config") ||
+          (setting === "arverify" && "ArVerify Config") ||
+          (setting === "config_file" && "Download Config") ||
+          (setting === "fee" && "Fee multiplier") ||
+          "Settings"
+        }
+        backAction={
+          (setting &&
+            (() => {
               setCurrSetting(undefined);
               clearInputs();
-            } else goTo(Home);
-          }}
-        >
-          <ArrowLeftIcon />
-        </div>
-        <h1>
-          {(setting === "events" && "Events") ||
-            (setting === "permissions" && "Permissions") ||
-            (setting === "password" && "Password") ||
-            (setting === "currency" && "Currency") ||
-            (setting === "psts" && "Removed PSTs") ||
-            (setting === "sites" && "Blocked Sites") ||
-            (setting === "arweave" && "Arweave Config") ||
-            (setting === "arverify" && "ArVerify Config") ||
-            (setting === "allowances" && "Allowances") ||
-            (setting === "about" && "About ArConnect") ||
-            (setting === "config_file" && "Download Config") ||
-            (setting === "fee" && "Fee multiplier") ||
-            "Settings"}
-        </h1>
-      </div>
+            })) ||
+          undefined
+        }
+      />
       <div className={styles.Settings}>
         {(!setting && (
           <>
-            <div
-              className={styles.Setting}
-              onClick={() => setCurrSetting("events")}
+            <SettingsItem
+              header="Events"
+              currSetting="events"
+              headerText="View security events"
+            />
+
+            <SettingsItem header="Theme" headerText="Set display theme">
+              <Select
+                small
+                //@ts-ignore
+                onChange={(ev) => dispatch(updateTheme(ev.target.value))}
+                // @ts-ignore
+                value={theme}
+                className={styles.NoramlizeVertoComponent}
+              >
+                <option value="Auto">Auto</option>
+                <option value="Dark">Dark</option>
+                <option value="Light">Light</option>
+              </Select>
+            </SettingsItem>
+
+            <SettingsItem
+              header="Password"
+              currSetting="password"
+              headerText="Update your password"
+            />
+
+            <SettingsItem
+              header="Fee multiplier"
+              currSetting="fee"
+              headerText="Change default fee multiplier"
+            />
+
+            <SettingsItem
+              header="Currency"
+              currSetting="currency"
+              headerText="Set your local currency"
+            />
+
+            <SettingsItem
+              header="Arweave Config"
+              currSetting="arweave"
+              headerText="Update Arweave gateway config"
+            />
+
+            <SettingsItem
+              header="ArVerify Config"
+              currSetting="arverify"
+              headerText="Set the verification threshold"
+            />
+
+            <SettingsItem
+              header="Confetti effect"
+              headerText="Show confetti animation on transaction signing"
             >
-              <div>
-                <h1>Events</h1>
-                <p>View security events</p>
-              </div>
-              <div className={styles.Arrow}>
-                <ChevronRightIcon />
-              </div>
-            </div>
-            <div
-              className={styles.Setting}
-              onClick={() => setCurrSetting("permissions")}
-            >
-              <div>
-                <h1>Permissions</h1>
-                <p>Manage site permissions</p>
-              </div>
-              <div className={styles.Arrow}>
-                <ChevronRightIcon />
-              </div>
-            </div>
-            <div
-              className={styles.Setting}
-              onClick={() => setCurrSetting("password")}
-            >
-              <div>
-                <h1>Password</h1>
-                <p>Update your password</p>
-              </div>
-              <div className={styles.Arrow}>
-                <ChevronRightIcon />
-              </div>
-            </div>
-            <div
-              className={styles.Setting}
-              onClick={() => setCurrSetting("allowances")}
-            >
-              <div>
-                <h1>Allowances</h1>
-                <p>Manage spending limits</p>
-              </div>
-              <div className={styles.Arrow}>
-                <ChevronRightIcon />
-              </div>
-            </div>
-            <div
-              className={styles.Setting}
-              onClick={() => setCurrSetting("fee")}
-            >
-              <div>
-                <h1>Fee multiplier</h1>
-                <p>Change default fee multiplier</p>
-              </div>
-              <div className={styles.Arrow}>
-                <ChevronRightIcon />
-              </div>
-            </div>
-            <div
-              className={styles.Setting}
-              onClick={() => setCurrSetting("currency")}
-            >
-              <div>
-                <h1>Currency</h1>
-                <p>Set your local currency</p>
-              </div>
-              <div className={styles.Arrow}>
-                <ChevronRightIcon />
-              </div>
-            </div>
-            <div
-              className={styles.Setting}
-              onClick={() => setCurrSetting("psts")}
-            >
-              <div>
-                <h1>Removed PSTs</h1>
-                <p>Manage removed PSTs</p>
-              </div>
-              <div className={styles.Arrow}>
-                <ChevronRightIcon />
-              </div>
-            </div>
-            <div
-              className={styles.Setting}
-              onClick={() => setCurrSetting("sites")}
-            >
-              <div>
-                <h1>Blocked Sites</h1>
-                <p>Limit access from sites to ArConnect</p>
-              </div>
-              <div className={styles.Arrow}>
-                <ChevronRightIcon />
-              </div>
-            </div>
-            <div
-              className={styles.Setting}
-              onClick={() => setCurrSetting("arweave")}
-            >
-              <div>
-                <h1>Arweave Config</h1>
-                <p>Edit the arweave config variables</p>
-              </div>
-              <div className={styles.Arrow}>
-                <ChevronRightIcon />
-              </div>
-            </div>
-            <div
-              className={styles.Setting}
-              onClick={() => setCurrSetting("arverify")}
-            >
-              <div>
-                <h1>ArVerify Config</h1>
-                <p>Set the verification threshold used</p>
-              </div>
-              <div className={styles.Arrow}>
-                <ChevronRightIcon />
-              </div>
-            </div>
-            <div className={styles.Setting}>
-              <div>
-                <h1>ARConfetti effect</h1>
-                <p>Show animation on wallet usage</p>
-              </div>
-              <div className={styles.Arrow}>
-                <Toggle
-                  checked={otherSettings.arConfetti}
-                  onChange={() =>
-                    dispatch(
-                      updateSettings({ arConfetti: !otherSettings.arConfetti })
-                    )
-                  }
-                />
-              </div>
-            </div>
-            <div
-              className={styles.Setting}
-              onClick={() => setCurrSetting("config_file")}
-            >
-              <div>
-                <h1>Download config</h1>
-                <p>Generate an ArConnect config file</p>
-              </div>
-              <div className={styles.Arrow}>
-                <ChevronRightIcon />
-              </div>
-            </div>
-            <div
-              className={styles.Setting}
-              onClick={() => setCurrSetting("about")}
-            >
-              <div>
-                <h1>About</h1>
-                <p>Information about ArConnect</p>
-              </div>
-              <div className={styles.Arrow}>
-                <ChevronRightIcon />
-              </div>
-            </div>
+              <Checkbox
+                checked={otherSettings.arConfetti}
+                onChange={(e) =>
+                  dispatch(updateSettings({ arConfetti: e.target.checked }))
+                }
+              />
+            </SettingsItem>
+
+            <SettingsItem
+              header="Download config"
+              currSetting="config_file"
+              headerText="Generate an ArConnect config file"
+            />
           </>
         )) ||
           (setting === "permissions" && (
@@ -576,153 +457,6 @@ export default function Settings() {
               </Radio.Group>
             </div>
           )) ||
-          (setting === "psts" && (
-            <>
-              {(removedPSTs().length > 0 &&
-                removedPSTs().map((pst, i) => (
-                  <div
-                    className={styles.Setting + " " + styles.SubSetting}
-                    key={i}
-                  >
-                    <h1>
-                      {pst.name} ({pst.ticker})
-                    </h1>
-                    <div
-                      className={styles.Arrow}
-                      onClick={() =>
-                        dispatch(readdAsset(currentAddress, pst.id))
-                      }
-                    >
-                      <XIcon />
-                    </div>
-                  </div>
-                ))) || <p>No removed PSTs</p>}
-            </>
-          )) ||
-          (setting === "allowances" && (
-            <>
-              {allowances.map((allowance, i) => (
-                <div
-                  className={
-                    styles.Setting +
-                    " " +
-                    styles.NoFlex +
-                    " " +
-                    styles.SubSetting
-                  }
-                  key={i}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between"
-                    }}
-                  >
-                    <h1 title={allowance.url}>{shortenURL(allowance.url)}</h1>
-                    <p>
-                      <Toggle
-                        checked={allowance.enabled}
-                        onChange={() =>
-                          dispatch(
-                            toggleAllowance(allowance.url, !allowance.enabled)
-                          )
-                        }
-                      />
-                    </p>
-                  </div>
-                  <p style={{ marginBottom: ".2em", marginTop: ".25em" }}>
-                    Spent:{" "}
-                    {arweave.ar.winstonToAr((allowance.spent ?? 0).toString())}{" "}
-                    AR
-                    {allowance.spent !== 0 && (
-                      <span
-                        style={{
-                          textDecoration: "underline",
-                          marginLeft: ".6em"
-                        }}
-                        onClick={() =>
-                          dispatch(resetAllowanceSpent(allowance.url))
-                        }
-                      >
-                        Reset
-                      </span>
-                    )}
-                  </p>
-                  <p style={{ display: "flex", alignItems: "center" }}>
-                    Limit:{" "}
-                    {(editingAllowance && editingAllowance.id === i && (
-                      <input
-                        className={styles.ClearInput}
-                        type="number"
-                        value={editingAllowance.val}
-                        autoFocus
-                        onChange={(e) =>
-                          setEditingAllowance({
-                            id: i,
-                            val: Number(e.target.value)
-                          })
-                        }
-                      />
-                    )) ||
-                      allowance.limit}{" "}
-                    AR
-                    <span
-                      className={styles.EditAllowance}
-                      onClick={() => {
-                        if (!editingAllowance)
-                          setEditingAllowance({ id: i, val: allowance.limit });
-                        else {
-                          setEditingAllowance(undefined);
-                          dispatch(
-                            setAllowanceLimit(
-                              allowance.url,
-                              editingAllowance.val
-                            )
-                          );
-                        }
-                      }}
-                    >
-                      {(editingAllowance && editingAllowance.id === i && (
-                        <CheckIcon />
-                      )) || <PencilIcon />}
-                    </span>
-                  </p>
-                </div>
-              ))}
-            </>
-          )) ||
-          (setting === "sites" && (
-            <>
-              {blockedURLs.length > 0 &&
-                blockedURLs.map((url, i) => (
-                  <div
-                    className={styles.Setting + " " + styles.SubSetting}
-                    key={i}
-                  >
-                    <h1>{url}</h1>
-                    <div
-                      className={styles.Arrow}
-                      onClick={() => dispatch(unblockURL(url))}
-                    >
-                      <XIcon />
-                    </div>
-                  </div>
-                ))}
-              <div className={styles.OptionContent}>
-                <Input
-                  {...addURLInput.bindings}
-                  placeholder="Enter url (site.com)..."
-                />
-                <Button
-                  style={{ width: "100%", marginTop: ".5em" }}
-                  onClick={blockInputUrl}
-                >
-                  Block url
-                </Button>
-              </div>
-            </>
-          )) ||
           (setting === "events" && (
             <>
               {events.length > 0 && (
@@ -770,35 +504,39 @@ export default function Settings() {
           )) ||
           (setting === "arweave" && (
             <div className={styles.OptionContent}>
-              <Spacer />
+              <Spacer y={1} />
               <Input
                 {...arweaveHostInput.bindings}
                 placeholder="Host..."
-                type={arweaveHostInput.state === "" ? "error" : "default"}
+                status={arweaveHostInput.state === "" ? "error" : undefined}
               />
-              <Spacer />
+              <Spacer y={1} />
               <Input
                 {...arweavePortInput.bindings}
                 placeholder="Port..."
-                htmlType="number"
-                type={arweavePortInput.state === "" ? "error" : "default"}
+                type="number"
+                status={arweavePortInput.state === "" ? "error" : undefined}
               />
-              <Spacer />
+              <Spacer y={1} />
               <Input
                 {...arweaveProtocolInput.bindings}
                 placeholder="Protocol..."
-                type={arweaveProtocolInput.state === "" ? "error" : "default"}
+                status={arweaveProtocolInput.state === "" ? "error" : undefined}
               />
-              <Spacer />
+              <Spacer y={1} />
               <Button
-                style={{ width: "100%", marginTop: ".5em" }}
+                small
+                type="filled"
+                style={{ width: "85%", marginTop: ".5em" }}
                 onClick={updateConfig}
               >
                 Set config
               </Button>
-              <Spacer />
+              <Spacer y={1} />
               <Button
-                style={{ width: "100%", marginTop: ".5em" }}
+                small
+                type="filled"
+                style={{ width: "85%", marginTop: ".5em" }}
                 onClick={() => {
                   dispatch(resetArweaveConfig());
                   setCurrSetting(undefined);
@@ -806,6 +544,7 @@ export default function Settings() {
               >
                 Reset
               </Button>
+              <Spacer y={1} />
             </div>
           )) ||
           (setting === "arverify" && (
@@ -843,95 +582,49 @@ export default function Settings() {
               </Radio.Group>
             </div>
           )) ||
-          (setting === "about" && (
-            <div className={styles.OptionContent + " " + styles.About}>
-              <h1>
-                {manifest.name}
-                <sup>{manifest.version}</sup>
-              </h1>
-              <p>{manifest.description}</p>
-              <Spacer h={1} />
-              <p>
-                Used permissions:
-                <ul>
-                  {manifest.permissions.map((permission, i) => (
-                    <li key={i}>
-                      <Code>{permission}</Code>
-                    </li>
-                  ))}
-                </ul>
-              </p>
-              <div className={styles.Branding}>
-                <div className={styles.Links}>
-                  <p
-                    onClick={() =>
-                      browser.tabs.create({ url: "https://arconnect.io/faq" })
-                    }
-                    style={{ color: theme.palette.success }}
-                  >
-                    FAQ
-                  </p>
-                  <p
-                    onClick={() =>
-                      browser.tabs.create({ url: "https://arconnect.io" })
-                    }
-                    style={{ color: theme.palette.success }}
-                  >
-                    arconnect.io
-                  </p>
-                  <p
-                    onClick={() =>
-                      browser.tabs.create({ url: "https://arconnect.io/docs" })
-                    }
-                    style={{ color: theme.palette.success }}
-                  >
-                    Docs
-                  </p>
-                </div>
-                <p
-                  onClick={() =>
-                    browser.tabs.create({ url: "https://th8ta.org" })
-                  }
-                  className={styles.Th8ta}
-                >
-                  th<span>8</span>ta
-                </p>
-              </div>
-            </div>
-          )) ||
           (setting === "password" && (
+            //  STARTING HERE
             <div className={styles.OptionContent}>
-              <Spacer />
-              <Input.Password
+              <Spacer y={1.2} />
+              <Input
+                small
+                type="password"
+                {...passwords.old.bindings}
+                placeholder="Current password..."
+                onKeyPressHandler={(e) => {
+                  if (e.key === "Enter") updatePassword();
+                }}
+              />
+              <Spacer y={1.2} />
+              <Input
+                small
+                type="password"
                 {...passwords.new.bindings}
                 placeholder="New password..."
-                onKeyPress={(e) => {
+                onKeyPressHandler={(e) => {
                   if (e.key === "Enter") updatePassword();
                 }}
               />
-              <Spacer />
-              <Input.Password
+              <Spacer y={1.2} />
+              <Input
+                small
+                type="password"
                 {...passwords.newAgain.bindings}
-                placeholder="New password again..."
-                onKeyPress={(e) => {
+                placeholder="Confirm password..."
+                onKeyPressHandler={(e) => {
                   if (e.key === "Enter") updatePassword();
                 }}
               />
-              <Spacer />
-              <Input.Password
-                {...passwords.old.bindings}
-                placeholder="Old password..."
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") updatePassword();
-                }}
-              />
-              <Spacer />
+              <Spacer y={1.2} />
               <Button
-                style={{ width: "100%", marginTop: ".5em" }}
+                small
+                type="filled"
+                style={{ width: "85%", marginTop: ".5em" }}
                 onClick={updatePassword}
               >
                 Change password
               </Button>
+              <Spacer y={1.2} />
             </div>
           )) ||
           (setting === "fee" && (
@@ -943,19 +636,22 @@ export default function Settings() {
               </p>
               <Spacer />
               <Input
+                small
                 {...feeMultiplier.bindings}
                 placeholder="Fee multiplier"
-                onKeyPress={(e) => {
+                onKeyPressHandler={(e) => {
                   if (e.key === "Enter") updateFeeMultiplier();
                 }}
               />
-              <Spacer />
+              <Spacer y={1.2} />
               <Button
-                style={{ width: "100%", marginTop: ".5em" }}
+                small
+                style={{ width: "85%", marginTop: ".5em" }}
                 onClick={updateFeeMultiplier}
               >
                 Update
               </Button>
+              <Spacer y={1.2} />
             </div>
           )) ||
           (setting === "config_file" && (
@@ -981,16 +677,18 @@ export default function Settings() {
                 By doing so, you risk losing your funds.
               </p>
               <Button
-                style={{ width: "100%", marginTop: ".5em" }}
+                small
+                type="filled"
+                style={{ width: "85%", marginTop: ".5em" }}
                 onClick={() => {
                   setDownloadWallet(undefined);
                   configFileModal.setVisible(true);
                 }}
-                type="success"
+                // state="success"
               >
                 I understand; download file
               </Button>
-              <Spacer h={1.5} />
+              <Spacer y={1.5} />
               <div className={styles.Wallets}>
                 {wallets.map(({ address }, i) => (
                   <div className={styles.Wallet} key={i}>
@@ -1015,10 +713,10 @@ export default function Settings() {
           {downloadWallet ? "Download wallet" : "Generate config file"}
         </Modal.Title>
         <Modal.Content>
-          <Input.Password
+          <Input
+            small
             {...configPasswordInput.bindings}
             placeholder="Enter your password to continue..."
-            width="100%"
           />
           <p style={{ textAlign: "center", marginBottom: 0 }}>
             <b style={{ display: "block" }}>
@@ -1063,6 +761,22 @@ export default function Settings() {
   );
 }
 
+interface SettingsItemProps {
+  header: string;
+  headerText: string;
+  currSetting?: React.SetStateAction<
+    | "events" // change to apps
+    | "permissions"
+    | "currency"
+    | "arweave"
+    | "arverify"
+    | "password"
+    | "config_file"
+    | "fee"
+    | undefined
+  >;
+  children?: React.ReactNode;
+}
 export interface ArConnectEvent {
   event: MessageType;
   url: string;

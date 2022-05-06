@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from "react";
+import { useInput, Note, useTheme, useToasts } from "@geist-ui/react";
 import {
   Button,
+  Select,
   Input,
-  Spacer,
-  useInput,
-  Loading,
   Checkbox,
+  Spacer,
   Modal,
   useModal,
-  Note,
-  useTheme,
-  useToasts,
-  Select
-} from "@geist-ui/react";
+  Loading
+} from "@verto/ui";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { RootState } from "../../stores/reducers";
@@ -39,7 +36,7 @@ import styles from "../../styles/views/Auth/view.module.sass";
 export default function App() {
   const passwordInput = useInput(""),
     [passwordStatus, setPasswordStatus] = useState<
-      "default" | "secondary" | "success" | "warning" | "error"
+      undefined | "success" | "warning" | "error"
     >(),
     [loading, setLoading] = useState(false),
     [loggedIn, setLoggedIn] = useState(false),
@@ -375,6 +372,7 @@ export default function App() {
         {(!loggedIn && (
           <>
             <h1>Sign In</h1>
+            <Spacer y={0.5} />
             {(type === "connect" && (
               <p>
                 {(appInfo.name && (
@@ -411,36 +409,40 @@ export default function App() {
               ))}
             {type === "connect" && (
               <>
-                <p className={styles.SelectLabel}>Select wallet</p>
                 <Select
-                  placeholder="Select wallet"
-                  value={proflie}
+                  small
+                  label="SELECT WALLET"
                   className={styles.SelectWallet}
-                  onChange={(val) => switchWallet(val as string)}
+                  onChange={(val) => switchWallet(val as unknown as string)}
                 >
                   {wallets.map((wallet, i) => (
-                    <Select.Option value={wallet.address} key={i}>
+                    <option value={wallet.address} key={i}>
                       {formatAddress(wallet.address)}
-                    </Select.Option>
+                    </option>
                   ))}
                 </Select>
-                <Spacer h={0.67} />
+                <Spacer y={0.67} />
               </>
             )}
-            <Input.Password
+            <Spacer y={1} />
+            <Input
               {...passwordInput.bindings}
-              type={passwordStatus}
+              small
+              className={styles.PasswordInput}
+              label="PASSWORD"
+              type="password"
+              status={passwordStatus}
               placeholder="Password..."
-              onKeyPress={(e) => {
+              onKeyPressHandler={(e) => {
                 if (e.key === "Enter") login();
               }}
+              style={{ width: "100%" }}
             />
-            <Spacer />
+            <Spacer y={1.5} />
             <div className={styles.Allowance}>
               <div className={styles.Check + " " + styles.Checked}>
                 <Checkbox
                   checked={currentAllowance?.enabled}
-                  scale={1.5}
                   onChange={(e) => {
                     if (!currentURL) return e.preventDefault();
                     dispatch(toggleAllowance(currentURL, e.target.checked));
@@ -449,25 +451,21 @@ export default function App() {
               </div>
               <div
                 className={styles.AllowanceAction}
-                onClick={() => allowanceModal.setVisible(true)}
+                onClick={() => allowanceModal.setState(true)}
               >
                 <p>Use allowance limit</p>
                 <ChevronRightIcon />
               </div>
             </div>
-            <Spacer />
-            <Button
-              style={{ width: "100%" }}
-              onClick={login}
-              loading={loading}
-              type="success"
-            >
+            <Spacer y={1.5} />
+            <Button small onClick={login} loading={loading} type="filled">
               Log In
             </Button>
-            <Spacer h={0.73} />
-            <Button style={{ width: "100%" }} onClick={cancel}>
+            <Spacer y={1} />
+            <Button small onClick={cancel} type="secondary">
               Cancel
             </Button>
+            <Spacer y={4} />
             <h2 className={styles.th8ta}>
               th<span>8</span>ta
             </h2>
@@ -476,16 +474,16 @@ export default function App() {
           (type === "connect" && (
             <>
               <h1>Permissions</h1>
+              <Spacer y={0.5} />
               {(alreadyHasPermissions && (
                 <p>This site wants to access more permissions:</p>
               )) || <p>Please allow these permissions for this site</p>}
               {(requestedPermissions.length > 0 && (
-                <ul>
+                <>
                   {requestedPermissions.map((permission, i) => (
-                    <li key={i} className={styles.Check + " " + styles.Checked}>
+                    <li key={i} className={styles.Check}>
                       <Checkbox
                         checked
-                        scale={1.5}
                         onChange={(e) => {
                           if (!e.target.checked)
                             setAllowedPermissions((val) =>
@@ -501,14 +499,14 @@ export default function App() {
                       {getPermissionDescription(permission)}
                     </li>
                   ))}
-                </ul>
+                </>
               )) || <p>No permissions requested.</p>}
-              <Spacer />
-              <Button style={{ width: "100%" }} onClick={accept} type="success">
+              <Spacer y={2} />
+              <Button small onClick={accept} type="filled">
                 Accept
               </Button>
-              <Spacer />
-              <Button style={{ width: "100%" }} onClick={cancel}>
+              <Spacer y={1.5} />
+              <Button small onClick={cancel} type="secondary">
                 Cancel
               </Button>
               <div className={styles.AppInfo}>
@@ -536,7 +534,7 @@ export default function App() {
                 width: "75%"
               }}
             >
-              <Loading style={{ display: "block", margin: "0 auto" }} />
+              <Loading.Spinner style={{ display: "block", margin: "0 auto" }} />
               {type === "sign_auth" && "Signing a transaction."}
               {type === "encrypt_auth" && "Encrypting some data."}
               {type === "decrypt_auth" && "Decrypting some data."}
@@ -555,32 +553,35 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
-      <Modal {...allowanceModal.bindings}>
-        <Modal.Title>Allowance limit</Modal.Title>
+      <Modal {...allowanceModal.bindings} style={{ width: "auto" }}>
+        <Modal.Title>Allowance Limit</Modal.Title>
         <Modal.Content className={styles.AllowanceModal}>
-          <p>
+          <p style={{ width: "320px" }}>
             Warn me again to set a new allowance once the app has sent more than{" "}
             {allowanceAmount.state} AR
           </p>
+          <Spacer y={1} />
           <Input
             {...allowanceAmount.bindings}
-            htmlType="number"
+            type="number"
             placeholder="Signing limit"
-            labelRight="AR"
+            inlineLabel="AR"
+            style={{ margin: "auto" }}
           />
         </Modal.Content>
-        <Modal.Action passive onClick={() => allowanceModal.setVisible(false)}>
-          Cancel
-        </Modal.Action>
-        <Modal.Action
+        <Spacer y={2} />
+        <Button
+          small
+          className={styles.OkButton}
+          style={{ width: "30%", margin: "auto" }}
           onClick={() => {
             if (!currentURL) return;
             setUpdateAllowance(Number(allowanceAmount.state));
-            allowanceModal.setVisible(false);
+            allowanceModal.setState(false);
           }}
         >
           Ok
-        </Modal.Action>
+        </Button>
       </Modal>
     </>
   );

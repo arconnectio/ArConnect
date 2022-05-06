@@ -7,8 +7,9 @@
   padding: 1.8em 3em
 
 .Head
-  .ArDrive
-    height: 2em
+  .ArDrive svg
+    width: 8em
+    height: 3em
 
   .SafeMode
     display: flex
@@ -86,12 +87,9 @@
 
     .RootFolder
       font-size: .63em
-      color: variables.$secondary-text-light
+      color: variables.$light-text
       align-self: flex-end
       line-height: 1.75em
-
-      @media (prefers-color-scheme: dark)
-        color: variables.$secondary-text-dark
 
     svg
       font-size: 1em
@@ -104,6 +102,3 @@
         right: calc(#{$sidePadding} + 1px)
         top: 50%
         transform: translateY(-50%)
-
-        @media (prefers-color-scheme: dark)
-          color: variables.$secondary-text-dark
