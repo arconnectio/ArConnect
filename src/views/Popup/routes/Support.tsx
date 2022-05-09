@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { goTo } from "react-chrome-extension-router";
 
 import { Spacer, Tooltip } from "@geist-ui/react";
-import { ArrowLeftIcon } from "@primer/octicons-react";
 
 import { browser } from "webextension-polyfill-ts";
-
-import Home from "./Home";
 
 import { NativeAppClient } from "../../../utils/websocket";
 
 import styles from "../../../styles/views/Popup/support.module.sass";
-import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 
 export default function Support() {
   const [connectionStatus, setConnectionStatus] = useState<string>("Undefined");
@@ -44,17 +39,6 @@ export default function Support() {
 
   return (
     <>
-      <div className={SubPageTopStyles.Head}>
-        <div
-          className={SubPageTopStyles.Back}
-          onClick={() => {
-            goTo(Home);
-          }}
-        >
-          <ArrowLeftIcon />
-        </div>
-        <h1>{"Support"}</h1>
-      </div>
       <div className={styles.Support}>
         <p>
           By running{" "}
