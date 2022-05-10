@@ -1,0 +1,155 @@
+@use "../../variables"
+@use "../../components/PeriodMenu"
+  
+$sidePadding: .7em
+
+.Token
+  position: relative
+  padding: 1em $sidePadding
+  background-color: variables.$background-color
+
+  .TokenName, .Price
+    display: flex
+    align-items: flex-end
+    font-size: 2.4em
+    font-weight: 500
+    color: variables.$foreground-color
+    line-height: 1.1em
+    margin: 0 auto
+      bottom: .04em
+
+    span
+      color: variables.$light-text
+      font-size: .55em
+      line-height: 1.4em
+      margin-left: .35em
+      text-transform: uppercase
+
+  .Price
+    font-size: 2.7em
+    font-weight: 600
+    margin-bottom: .35em
+
+  .PeriodMenu
+    +PeriodMenu.periodMenu
+    margin-bottom: 1em
+
+  .PriceGraph
+    position: relative
+    height: 180px
+    padding-bottom: 1.25em
+
+    .NoPrice
+      position: absolute
+      top: -4px
+      left: 0
+      right: 0
+      bottom: -4px
+      background-color: rgba(#fff, .4)
+      backdrop-filter: blur(4px)
+
+      display: flex
+      align-items: center
+      justify-content: center
+      text-align: center
+      color: variables.$light-text
+      font-weight: 500
+      font-size: .93em
+
+      &.DarkNoPrice
+        background-color: rgba(#000, .4)
+
+  .AboutToken
+    .AboutMenu
+      display: flex
+      align-items: center
+      justify-content: space-between
+      margin-bottom: .85em
+
+      span
+        font-size: .84em
+        font-weight: 500
+        color: variables.$light-text
+        cursor: pointer
+        transition: all .23s ease-in-out
+
+        &.Selected
+          color: variables.$foreground-color
+
+    .Description
+      margin-bottom: .35em
+
+      p
+        font-weight: 500
+        font-size: .88em
+        text-align: justify
+        color: variables.$light-text
+
+      a
+        color: variables.$foreground-color
+        text-decoration: none
+
+    ul 
+      margin-bottom: 1em
+
+      li
+        position: relative
+        list-style: none
+        font-size: .84em
+        font-weight: 500
+
+        &:last-child
+          margin-bottom: 0
+
+        &::before
+          content: "-"
+          position: absolute
+          left: -1.25em
+          color: variables.$foreground-color
+          margin-left: 0
+
+        a
+          color: variables.$foreground-color
+          text-decoration: underline
+
+    .TokenLinkIcons
+      display: flex
+      align-items: center
+
+      img
+        display: block
+        cursor: pointer
+        height: 1.4em
+        margin: 0 .3em
+        transition: all .23s ease-in-out
+
+        &:first-child
+          margin-left: 0
+
+        &:hover
+          opacity: .8
+
+  .ArtPreview
+    width: 100%
+    box-shadow: variables.$lighter-shadow
+    border-radius: 15px
+    margin-bottom: 1.2em
+    user-select: none
+
+  .Owned
+    font-size: 1.7em
+    font-weight: 500
+    color: variables.$foreground-color
+    line-height: 1.1em
+    margin: 0
+
+    span
+      font-size: .7em
+      margin-left: .3em
+      text-transform: uppercase
+
+  .ArtPrice
+    font-size: .95em
+    color: variables.$light-text
+    font-weight: 500
+    margin: 0

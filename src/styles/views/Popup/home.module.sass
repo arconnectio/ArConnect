@@ -3,10 +3,7 @@
 $sidePaddingTransactions: .7em
   
 .Home
-  background-color: variables.$lighter-bg-light
-
-  @media (prefers-color-scheme: dark)
-    background-color: variables.$lighter-bg-dark
+  background-color: variables.$background-color
 
 .Balance
   position: relative
@@ -21,9 +18,8 @@ $sidePaddingTransactions: .7em
     margin: 0 auto
     font-size: .8em
     font-weight: 500
-    border: 1px solid variables.$border-light
-    background-color: variables.$border-light
-    color: variables.$secondary-text-light
+    border: 1px solid
+    color: variables.$light-text
     padding: .1em .65em
     border-radius: 16px
     margin-bottom: .8em
@@ -54,89 +50,102 @@ $sidePaddingTransactions: .7em
 
     &:hover
       opacity: .8
+  padding: 2.4em 0 2.45em
+  color: variables.$foreground-color
+
+  .ArBalance 
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 0.4em
+    color: variables.$foreground-color
+
+    .ChevronBalance
+      cursor: pointer
+      color: variables.$foreground-color
+      transition: all 300ms ease-in-out
+
+      &:active
+        transform: scale(0.8)
+
+  .Address
+    display: flex
+    align-items: center
+    justify-content: center
+    font-size: .75em
+    font-weight: 600
+    color: variables.$light-text
+    margin-bottom: 0
+
+    button
+      display: flex
+      align-items: center
+      text-align: center
+      justify-content: center
+      background-color: transparent
+      font-size: 1em
+      padding: 0
+      outline: none
+      border: none
+      cursor: pointer
+      margin: 0 .23em 0 0
+      transition: all .23s ease-in-out
+      color: variables.$light-text
+
+      .QRIcon, svg
+        font-size: 1em
+        width: 1em
+        height: 1em
+
+      &:hover
+        opacity: .77
 
   h1, h2
     margin: 0
+    color: variables.$foreground-color
     font-weight: 600
+    text-align: center
+    font-family: 'Poppins', sans-serif
 
   h1
-    font-size: 2.2em
+    font-size: 2.625em
     line-height: 1.1em
-    margin-bottom: .16em
-
-    span
-      font-size: .6em
+    font-weight: normal
+    margin: .16em 0
 
   h2
-    font-size: 1.36em
-    font-weight: 400
+    font-size: 1.06em
+    font-weight: 500
     line-height: 1.1em
-    color: variables.$secondary-text-light
 
     svg
       width: .54em
       height: .54em
       vertical-align: middle !important
 
-    @media (prefers-color-scheme: dark)
-      color: variables.$secondary-text-dark
-
-  .Note
-    position: absolute
-    display: flex
-    align-items: center
-    top: 1em
-    left: 1em
-    right: 1em
-
-    img
-      display: block
-      width: 2em
-      height: 2em
-      border-radius: 100%
-      margin-right: .75em
-
-    span
-      text-decoration: underline
-      display: flex
-      width: max-content
-      align-items: center
-      margin-left: auto
-      cursor: pointer
-
-      svg
-        font-size: 1em
-        width: 1em
-        height: 1em
-        margin-left: .33em
-
   .Menu
     display: flex
     align-items: center
     justify-content: center
-    margin:
-      top: 2.5em
-      bottom: .25em
+    margin: 2.5em 0 .75em
 
     .Item
-      color: variables.$secondary-text-light
+      color: variables.$light-text
       text-align: center
       cursor: pointer
       font-size: .9em
       margin: 0 .95em
+      font-family: "Poppins", sans-serif
       transition: all .23s ease-in-out
 
       &.Unavailable
         cursor: default
 
       &:hover:not(.Unavailable)
-        color: #000
+        color: variables.$foreground-color
 
-      @media (prefers-color-scheme: dark)
-        color: variables.$secondary-text-dark
-
-        &:hover:not(.Unavailable)
-          color: #fff
+      &:active:not(.Unavailable)
+        transform: scale(.94)
 
       svg
         font-size: 1.4em
@@ -144,255 +153,110 @@ $sidePaddingTransactions: .7em
         width: 1.4em
         height: 1.4em
         display: block
+        margin: 0 auto
 
-      &.SwapItem svg
-        transform: rotate(90deg)
+      &.SendItem svg
+        transform: rotate(180deg)
 
       span
         display: block
         font-size: .8em
 
-.Tabs
-  header
-    div[role=button]
-      width: 50%
-      margin: 0
-      padding: .25em 0 .75em
-      text-align: center
-      justify-content: center
+.Section
+  $sidePadding: .9em
+  padding-top: .4em
 
-  div[class~=content]
-    padding-top: 0 !important
-
-.Transaction, .PST
-  position: relative
-  border-bottom: 1px solid variables.$border-light
-  padding: .7em $sidePaddingTransactions .3em
-  cursor: pointer
-  color: variables.$secondary-text-light
-  transition: all .23s ease-in-out
-
-  &.ViewMore
-    padding: .65em $sidePaddingTransactions
-    text-align: center
-    color: #000
-    font-size: 1.22em
-    font-weight: 600
-
-    @media (prefers-color-scheme: dark)
-      color: #fff
-
-  @media (prefers-color-scheme: dark)
-    border-bottom-color: variables.$border-dark
-    color: variables.$secondary-text-dark
-
-  &:hover
-    background-color: #f5f5f5
-
-    @media (prefers-color-scheme: dark)
-      background-color: #000
-
-  .Details
+  .Title
     display: flex
     align-items: center
-    width: 74%
-
-    .Direction
-      position: relative
-      display: block
-      width: 4.3em
-      height: 1.85em
-      margin-right: .3em
-
-      svg
-        position: absolute
-        top: 0
-        left: 0
-        right: 0
-        bottom: 0
-
-    .Data
-      overflow: hidden
-
-      h1
-        font-size: 1.3em
-        line-height: 1em
-        margin: 0
-          bottom: .1em
-        font-weight: 600
-        color: #000
-
-        @media (prefers-color-scheme: dark)
-          color: #fff
-
-      p
-        font-size: 1.05em
-        margin: 0
-        font-weight: 500
-        width: 100%
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
-
-        .Status
-          text-transform: capitalize
-
-  .Cost
-    position: absolute
-    right: $sidePaddingTransactions
-    top: 50%
-    text-align: right
-    transform: translateY(-50%)
-
-    h1, h2
-      font-weight: 500
-      margin: 0
-      line-height: 1em
+    justify-content: space-between
+    padding: 0 $sidePadding
 
     h1
-      font-size: 1.35em
-      margin-bottom: .22em
+      line-height: 1em
+      font-size: .945em
+      margin: 0
+      font-weight: 500
+      color: variables.$foreground-color
 
-    h2
-      font-size: .95em
+      &.Link
+        display: flex
+        align-items: center
+        cursor: pointer
+        color: variables.$light-text
+        transition: all .23s ease-in-out
 
-.EmptyIndicatorText, .ShowAll
-  color: variables.$secondary-text-light
-  margin: 0
-  padding: 1em 0
-  text-align: center
+        span
+          display: flex
+          align-items: center
+          text-align: center
+          justify-content: center
+          margin-left: .7em
+          background-color: variables.$skeleton
+          font-size: .75em
+          height: 1em
+          padding: .2em .5em
+          border-radius: 5px
 
-  &.ShowAll
+        &:hover
+          opacity: .9
+  
+  .TransactionSpinner
+    margin-top: 1em
     display: flex
-    align-items: center
     justify-content: center
-    cursor: pointer
 
-    svg
-      margin-left: .3em
-      font-size: 1em
-      width: 1em
-      height: 1em
+  .EmptyIndicatorText
+    text-align: center
+    font-size: 12px
+    font-family: "Poppins", sans-serif
 
-  @media (prefers-color-scheme: dark)
-    color: variables.$secondary-text-dark
-
-.Title
-  font-size: 1.8em
-  margin: 0
-    left: .3em
-
-.PST
-  display: flex
-  align-items: center
-  position: relative
-  padding: .9em $sidePaddingTransactions .7em
-
-  .Logo
-    position: relative
-    border-radius: 100%
-    overflow: hidden
-    width: 2.2em
-    height: 2.2em
-    background-color: #e2e2e2
-    margin-right: .5em
-
-    &.NoOutline
-      overflow: visible
-      border-radius: 0
-
-    @media (prefers-color-scheme: dark)
-      background-color: #1a1a1a
-
-      &.NoOutline
-        background-color: transparent
-
-    img
-      position: absolute
-      top: 50%
-      left: 50%
-      width: 85%
-      height: 85%
-      transform: translate(-50%, -50%)
-
-  h1
-    font-size: 1.3em
-    line-height: 1em
-    margin: 0
-      bottom: .1em
-    font-weight: 600
-    color: #000
-
-    @media (prefers-color-scheme: dark)
-      color: #fff
-
-  h2
-    font-size: 1.05em
-    font-weight: 500
-    margin: 0
-    line-height: 1em
-
-  .Arrow
-    position: absolute
-    right: $sidePaddingTransactions
-    top: 50%
-    font-size: 1.45em
+  .Items
     display: flex
     align-items: center
-    transform: translateY(-50%)
+    overflow-x: auto
+    overflow-x: -moz-scrollbars-none
+    -ms-overflow-style: none
+    scrollbar-width: none
+    padding:
+      top: 1em
+      bottom: 2em
+      left: $sidePadding
+      right: $sidePadding
 
-.Collectibles
-  display: flex
-  align-items: stretch
-  overflow: auto
-  width: 100%
-  padding-bottom: 1em
-  -ms-overflow-style: none
-  scrollbar-width: none
+    &::-webkit-scrollbar
+      display: none
 
-  &::-webkit-scrollbar
-    display: none
+    .SectionItem
+      margin-right: 1.5em
 
-  .Collectible
-    $collectibleWidth: 185px
-    margin: 0 1em
-    width: $collectibleWidth
-    overflow-x: hidden
-    border: 1px solid variables.$border-light
-    border-radius: 8px
-    flex: 0 0 $collectibleWidth
-    cursor: pointer
-    transition: all .23s ease-in-out
+.QROverlay
+  position: fixed
+  top: 0
+  left: 0
+  right: 0
+  bottom: 0
+  background-color: rgba(#000, .8)
+  z-index: 1000
 
-    &:hover
-      opacity: .84
+  .Wrapper
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
 
-    @media (prefers-color-scheme: dark)
-      border-color: variables.$border-dark
+    p
+      font-size: 1em
+      max-width: 90%
+      overflow-wrap: break-word
+      text-align: center
+      color: #fff
+      margin: 0 auto
+        top: 1em
 
-    img
+    .QRCode
+      width: 195px
+      height: 195px
       display: block
       margin: 0 auto
-      max-width: $collectibleWidth
-      max-height: $collectibleWidth
-
-    .CollectibleInfo
-      padding: .34em .3em
-
-      h1, span
-        margin: 0
-        line-height: 1.1em
-        white-space: nowrap
-
-      .CollectibleTitle
-        font-size: 1.85em
-        font-weight: 600
-
-      .CollectibleBalance
-        font-size: 1.1em
-        font-weight: 500
-        color: variables.$secondary-text-light
-        text-transform: uppercase
-
-        @media (prefers-color-scheme: dark)
-          color: variables.$secondary-text-dark
+      box-shadow: 0px 0px 14px 1px rgb(0, 0, 0, .93)

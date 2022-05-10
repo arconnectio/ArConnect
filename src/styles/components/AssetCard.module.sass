@@ -1,0 +1,25 @@
+@use "../variables"
+@use "./Card"
+
+.AssetCard
+  display: flex
+  flex-direction: column
+  justify-content: space-between
+  height: Card.$width
+  overflow: hidden
+  +Card.SmallCard
+
+  +Card.SmallCardTexts
+
+  .Head
+    display: flex
+    align-items: center
+
+    .Logo
+      max-height: 1.3em
+      max-width: 1.3em
+      user-select: none
+      margin-right: .35em
+
+  .Body h1
+    margin-bottom: .13em

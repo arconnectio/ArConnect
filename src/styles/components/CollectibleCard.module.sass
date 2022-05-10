@@ -1,0 +1,18 @@
+@use "../variables"
+@use "./Card"
+
+.CollectibleCard
+  overflow: hidden
+  +Card.SmallCard
+
+  .Preview
+    display: block
+    max-width: 100%
+    height: Card.$width
+    user-select: none
+    border-radius: Card.$card-border-radius
+    box-shadow: variables.$standard-shadow
+    margin: 0 auto
+      bottom: Card.$card-padding
+
+  +Card.SmallCardTexts

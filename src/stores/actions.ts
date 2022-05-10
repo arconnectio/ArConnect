@@ -11,6 +11,7 @@ import { ISettings, ISettingsAction } from "./reducers/settings";
 import { IBalanceAction, Balance } from "./reducers/balances";
 import { ITabAction } from "./reducers/time_tracking";
 import { IAppGateway, IGatewayAction } from "./reducers/gateways";
+import { IThemeAction, UserTheme } from "./reducers/theme";
 
 export function addWallet(wallet: Wallet): IWalletsAction {
   return {
@@ -203,5 +204,12 @@ export function updateAppGateway(data: IAppGateway): IGatewayAction {
   return {
     type: "UPDATE_APP_GATEWAY",
     payload: data
+  };
+}
+
+export function updateTheme(theme: UserTheme): IThemeAction {
+  return {
+    type: "SET_USER_THEME",
+    payload: theme
   };
 }

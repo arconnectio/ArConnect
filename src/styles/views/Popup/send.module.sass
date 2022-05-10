@@ -1,11 +1,10 @@
 @use "../../variables"
+@use "../../components/Textarea"
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap')
 
 .View
-  background-color: variables.$lighter-bg-light
+  background-color: variables.$background-color
   padding: .65em .7em
-
-  @media (prefers-color-scheme: dark)
-    background-color: variables.$lighter-bg-dark
 
   div[class~=with-label]
     width: 100%
@@ -13,33 +12,29 @@
     div
       width: 100%
 
-  .Amount
-    +variables.flexInput
-    
-    &.Target
-      +variables.flexInput(true)
-
   .FeeDisplay
-    display: flex
-    align-items: center
-
-    div[class~=tooltip]
-      position: relative
-
-      svg
-        position: absolute
-        top: 50%
-        left: .3em
-        width: .67em
-        height: .67em
-        transform: translateY(-50%)
+    margin: 0
+    font-size: .85em
+    font-weight: 500
+    color: variables.$light-text
 
 .InputInfo
   margin: 0
   font-size: .83em
+  font-weight: 500
   display: flex
   justify-content: space-between
-  color: variables.$secondary-text-light
+  color: variables.$light-text
 
-  @media (prefers-color-scheme: dark)
-    color: variables.$secondary-text-dark
+.MessageInput
+  +Textarea.TextArea
+
+.Label
+  font-size: .9em
+  font-weight: 500
+  text-transform: uppercase
+  color: variables.$light-text
+  margin: 1em 0 .2em
+
+.TokenSelect
+  margin-left: .35em

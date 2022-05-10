@@ -1,19 +1,21 @@
 @use "../../variables"
   
 .Settings
+  margin: 1em
   position: relative
-  background-color: variables.$lighter-bg-light
   text-align: center
-
-  @media (prefers-color-scheme: dark)
-    background-color: variables.$lighter-bg-dark
+  border-radius: 14px
+  box-shadow: variables.$standard-shadow
+  overflow: hidden
 
 .Setting
   position: relative
-  border-bottom: 1px solid variables.$border-light
+  border-bottom: 1px solid variables.$skeleton
+  background-color: variables.$component-background
   padding: .9em .7em .7em
   cursor: pointer
-  color: variables.$secondary-text-light
+  padding: 1.3em
+  color: variables.$light-text
   transition: all .23s ease-in-out
 
   &:not(.NoFlex)
@@ -21,33 +23,20 @@
     align-items: center
     justify-content: space-between
 
-  @media (prefers-color-scheme: dark)
-    border-bottom-color: variables.$border-dark
-    color: variables.$secondary-text-dark
-
-  &:hover
-    background-color: #f5f5f5
-
-    @media (prefers-color-scheme: dark)
-      background-color: #000
-
   &:last-child
     border-bottom: none
 
   h1
-    font-size: 1.3em
+    font-size: 1.45em
     line-height: 1em
     margin: 0
-      bottom: .1em
+      bottom: .2em
     text-align: left
-    font-weight: 600
-    color: #000
-
-    @media (prefers-color-scheme: dark)
-      color: #fff
+    font-weight: 500
+    color: variables.$foreground-color
 
   p
-    font-size: 1.05em
+    font-size: 0.95em
     font-weight: 500
     margin: 0
     text-align: left
@@ -103,11 +92,8 @@
 
     .RemoveOption
       font-size: .8em
-      color: variables.$secondary-text-light
+      color: variables.$light-text
       cursor: pointer
-      
-      @media (prefers-color-scheme: dark)
-        color: variables.$secondary-text-dark
 
   div[class~=with-label]
     width: 100%
@@ -116,17 +102,18 @@
       width: 100%
 
   .Gateway
-    border-left: 4px solid variables.$border-light
+    border-left: 4px solid #e6e6e6
     padding: .4em .8em
     background-color: #fff
     cursor: pointer
     transition: all .23s ease-in-out
 
     @media (prefers-color-scheme: dark)
-      border-color: variables.$border-dark
+      border-color: #333
+      border-color: green
 
       .Status
-        background-color: variables.$border-dark
+        // background-color: variables.$border-dark
 
     &.Active
       border-color: #18d40e
@@ -151,10 +138,10 @@
       height: 6px
       border-radius: 100%
       margin-left: .55em
-      background-color: variables.$border-light
+      // background-color: variables.$border-light
 
       @media (prefers-color-scheme: dark)
-        background-color: variables.$border-dark
+        // background-color: variables.$border-dark
 
     h1, h2, h3
       display: flex
@@ -183,23 +170,23 @@
 
     h2, h3
       font-size: 1em
-      color: variables.$secondary-text-light
+      color: #666
 
     h3
       text-transform: capitalize
       font-size: .8em
 
     &:hover
-      background-color: #f5f5f5
+      // background-color: #f5f5f5
 
     @media (prefers-color-scheme: dark)
-      background-color: #000
+      // background-color: #000
 
       h1
         color: #fff
 
       h2, h3
-        color: variables.$secondary-text-dark
+        color: variables.$light-text
 
       &:hover
         background-color: #1b1b1b
@@ -213,10 +200,7 @@
     display: block
     font-size: .55em
     font-weight: 500
-    color: variables.$secondary-text-light
-
-    @media (prefers-color-scheme: dark)
-      color: variables.$secondary-text-dark
+    color: variables.$light-text
 
 .Radio
   span
@@ -256,10 +240,7 @@
     sup
       font-size: .65em
       margin-left: .22em
-      color: variables.$secondary-text-light
-
-      @media (prefers-color-scheme: dark)
-        color: variables.$secondary-text-dark
+      color: variables.$light-text
 
   p
     margin: 0
@@ -287,10 +268,7 @@
         font-weight: 700
         margin: 0
         text-decoration: none
-        color: #000
-
-        @media (prefers-color-scheme: dark)
-          color: #fff
+        color: variables.$foreground-color
 
         span
           background: linear-gradient(142.25deg, #fc9867 23.99%, #ab9df2 73.9%)
@@ -307,7 +285,7 @@
     justify-content: space-between
     align-items: center
     font-size: 1em
-    color: variables.$secondary-text-light
+    color: variables.$light-text
     margin-bottom: .25em
 
     &:last-child
@@ -315,7 +293,7 @@
 
     span
       cursor: pointer
-      color: #000
+      color: variables.$foreground-color
       transition: all .23s ease-in-out
 
       svg
@@ -326,8 +304,10 @@
       &:hover
         opacity: .8
 
-    @media (prefers-color-scheme: dark)
-      color: variables.$secondary-text-dark
-
       span
-        color: #fff
+        color: variables.$foreground-reverse-color
+
+.NoramlizeVertoComponent
+  font-size: 1rem
+
+  // TODO: FIX VARIABLES IN UI LIB

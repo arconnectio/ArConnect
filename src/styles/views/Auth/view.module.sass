@@ -6,34 +6,30 @@
   flex-direction: column
   justify-content: center
   height: 100vh
-  background-color: #fff
+  background-color: variables.$background-color
   padding: 0 1.3em
   
-  @media (prefers-color-scheme: dark)
-    background-color: #000
-
   h1
     text-align: center
     margin: 0
     line-height: 1em
     font-size: 2.2em
-    font-weight: 600
+    font-weight: 500
+    color: variables.$foreground-color
 
   p
     text-align: center
     font-size: 1.05em
-    color: variables.$secondary-text-light
+    color: variables.$light-text
     font-weight: 500
     margin: .5em 0 1.6em
-
-    @media (prefers-color-scheme: dark)
-      color: variables.$secondary-text-dark
 
     &.GatewayConfig
       text-align: center
       font-size: 1em
       font-weight: 500
-      color: variables.$secondary-text-light
+      // color: variables.$secondary-text-light
+      color: orangered
       margin: .5em 0
 
       [class~=tooltip]
@@ -53,9 +49,10 @@
           height: 1em
 
     &.SelectLabel
-      font-size: .93em
-      font-weight: 400
+      font-size: .83em
+      font-weight: 500
       text-align: left
+      text-transform: uppercase
       margin: 0
         bottom: .1em
 
@@ -85,10 +82,7 @@
 
       svg
         font-size: .75em
-        color: variables.$secondary-text-light
-        
-        @media (prefers-color-scheme: dark)
-          color: variables.$secondary-text-dark
+        color: variables.$light-text
 
   .th8ta
     margin: 0
@@ -99,16 +93,19 @@
     bottom: 1.35em
     left: 50%
     transform: translateX(-50%)
+    color: variables.$foreground-color
 
     span
       background: linear-gradient(142.25deg, #fc9867 23.99%, #ab9df2 73.9%)
       -webkit-background-clip: text
       -webkit-text-fill-color: transparent
 
-.Check.Checked
-  svg
-    path:first-child
-      fill: #AB9DF2 !important
+.Check
+    display: flex
+    align-items: center
+    list-style: none
+    font-size: 0.875em
+    margin: .8em 0
 
 .AppInfo
   display: flex
@@ -117,10 +114,7 @@
   margin-top: 3em
   text-align: center
   font-size: 1em
-  color: variables.$secondary-text-light
-        
-  @media (prefers-color-scheme: dark)
-    color: variables.$secondary-text-dark
+  color: variables.$light-text
 
   img
     height: 1.5em
@@ -136,6 +130,22 @@
 
   p
     text-align: center
+    color: variables.$foreground-color
 
 .SelectWallet
-  max-width: unset !important
+
+  div
+    width: 100% !important
+    border-radius: 13px !important
+
+  select
+    padding: 0.7em !important
+
+.PasswordInput
+
+  span
+    font-size: .8em
+
+
+.OkButton 
+  background: orangered variables.$background-color

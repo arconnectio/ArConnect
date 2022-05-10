@@ -2,7 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./Popup/App";
 import Provider from "../components/Provider";
-import "../styles/index.sass";
 
 ReactDOM.render(
   <React.StrictMode>

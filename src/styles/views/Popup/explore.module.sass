@@ -1,0 +1,163 @@
+@use "../../variables"
+
+.Explore
+  background-color: variables.$background-color
+  padding: .65em .7em
+
+  .ArtsCollectibles
+    display: grid
+    grid-template-columns: 33% 33% 33%
+    grid-template-rows: repeat(2, 7.3em)
+
+    div
+      margin: 0.4em
+      padding-bottom: 0.4em
+      border-radius: 9px
+    
+    div:nth-child(1)
+      grid-column-end: span 2
+
+    div:nth-child(3)
+      grid-row-start: 2
+
+    div:nth-child(4)
+      grid-column-start: 2 
+      grid-column-end: span 3
+
+  .SectionHeader
+    font-size: .77em
+    font-weight: 600
+    text-transform: uppercase
+    color: variables.$light-text
+    margin: 1em 0
+
+  .TokenPrice
+    display: flex
+    align-items: center
+    justify-content: space-between
+
+    .TokenInfo
+      h2, h3
+        color: variables.$foreground-color
+        line-height: 1.1em
+        margin: 0
+
+      h2
+        font-weight: 600
+        font-size: 2.8em
+
+      h3
+        font-weight: 500
+        font-size: 1.9em
+
+    .Graph
+      position: relative
+      width: 52%
+
+  .FeaturedWrapper 
+    padding: 1em
+    height: 115px
+    overflow: hidden
+    position: relative
+    color: variables.$background-color
+    border-radius: 12px
+    background-color: variables.$foreground-color
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1)
+
+    .FeaturedItem
+      display: flex
+      position: absolute
+      align-items: center
+      flex-direction: column
+      justify-content: space-between
+
+      span
+        display: flex
+        font-size: 1.5em
+        font-weight: 600
+        letter-spacing: 0.5em
+        align-items: center
+        text-transform: uppercase
+        
+        img
+          width: 25px
+          height: 25px
+          margin-right: 0.5em
+      
+      .FeaturedItemInfo
+        width: 70%
+        font-size: 0.7em
+        font-weight: 600
+        text-align: center
+        text-transform: uppercase
+      
+      .Paginator
+        display: flex
+        bottom: 1.2em
+
+        span
+          margin: 0 .3em
+          border: 1.5px solid variables.$background-color
+          border-radius: 100%
+          width: 5px
+          height: 5px
+          cursor: pointer
+          transition: all .23s ease-in-out
+
+          &.ActivePage
+            background-color: variables.$background-color
+
+          &:hover
+            opacity: .8
+
+          &:active
+            transform: scale(.9)
+
+  .ArweaveNewsWrapper
+    display: grid
+    grid-template-columns: 48% 48%
+    justify-content: space-between
+    margin-top: .7em
+
+    .ArweaveNewsItem
+      display: flex
+      flex-direction: column
+      justify-content: space-between
+      background: variables.$component-background
+      min-height: 7.5em
+      border-radius: 12px
+      padding: .5em .65em
+      box-shadow: variables.$standard-shadow
+      cursor: pointer
+      transition: all .23s ease-in-out
+
+      &:active
+        transform: scale(.95)
+      
+      >p
+        color: variables.$foreground-color
+        font-size: .8em
+        font-weight: 500
+        text-transform: uppercase
+        margin: 0
+      
+      >div
+        display: flex
+        align-items: center
+        justify-content: space-between
+
+        p
+          color: variables.$light-text
+          font-size: .8em
+          font-weight: 500
+          margin: 0
+
+        img
+          width: 25px
+          height: 25px
+
+  .CollectionCardsWrapper
+    display: grid
+    grid-template-columns: auto auto auto
+    justify-content: space-between
+    row-gap: 1em
