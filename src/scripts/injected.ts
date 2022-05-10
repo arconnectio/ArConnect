@@ -1,7 +1,7 @@
 import { comparePermissions, PermissionType } from "../utils/permissions";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { getRealURL } from "../utils/url";
-import { IArweave } from "../stores/reducers/arweave";
+import { IGatewayConfig } from "../stores/reducers/arweave";
 import { splitTxToChunks } from "../utils/chunks";
 import { DispatchResult } from "../utils/background";
 import {
@@ -19,7 +19,8 @@ const WalletAPI = {
   walletName: "ArConnect",
   async connect(
     permissions: PermissionType[],
-    appInfo: { name?: string; logo?: string } = {}
+    appInfo: { name?: string; logo?: string } = {},
+    gateway?: IGatewayConfig
   ) {
     const requestPermissionOverlay = createOverlay(
       "This page is requesting permission to connect to your wallet...<br />Please review them in the popup."
@@ -48,7 +49,8 @@ const WalletAPI = {
         ext: "arconnect",
         sender: "api",
         permissions,
-        appInfo
+        appInfo,
+        gateway
       });
       document.body.removeChild(requestPermissionOverlay);
     } catch (e: any) {
@@ -145,6 +147,8 @@ const WalletAPI = {
     transaction: Transaction,
     options?: SignatureOptions
   ): Promise<Transaction> {
+    // we don't need the custom gateway config here
+    // because we are only converting tx objects
     const arweave = new Arweave({
       host: "arweave.net",
       port: 443,
@@ -275,7 +279,7 @@ const WalletAPI = {
       throw new Error(e);
     }
   },
-  async getArweaveConfig(): Promise<IArweave> {
+  async getArweaveConfig(): Promise<IGatewayConfig> {
     try {
       const data = await callAPI({
         type: "get_arweave_config",

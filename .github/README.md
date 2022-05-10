@@ -53,12 +53,13 @@ ArConnect supports much more with it's powerful API. These features are not inte
 
 All of these functions are asynchronous, so you will need to `await` them. If you are using Typescript, read [this](#typescript-types) for type declarations.
 
-### `connect(permissions, appInfo?)`
+### `connect(permissions, appInfo?, gateway?)`
 
 Connect to ArConnect and request permissions. This function can always be called again if you want to request more permissions for your site. See the available permissions [here](#permissions).
 
 - `permissions`: An array of [permissions](#permissions)
 - `appInfo`: Optional information about your application (see the [format](#app-info))
+- `gateway`: Optional gateway configuration (see the [format](#gateway-config))
 
 #### App info
 
@@ -66,6 +67,16 @@ Connect to ArConnect and request permissions. This function can always be called
 {
   name?: string; // optional application name
   logo?: string; // optional application logo
+}
+```
+
+#### Gateway config
+
+```ts
+{
+  host: string;
+  port: number;
+  protocol: "http" | "https";
 }
 ```
 

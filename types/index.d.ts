@@ -19,7 +19,11 @@ declare global {
        * @param permissions
        * @param appInfo
        */
-      connect(permissions: PermissionType[], appInfo?: AppInfo): Promise<void>;
+      connect(
+        permissions: PermissionType[],
+        appInfo?: AppInfo,
+        gateway?: GatewayConfig
+      ): Promise<void>;
 
       /**
        * Disconnect from ArConnect. Removes all permissions from your site.
@@ -177,6 +181,12 @@ export interface DispatchResult {
 export interface AppInfo {
   name?: string;
   logo?: string;
+}
+
+export interface GatewayConfig {
+  host: string;
+  port: number;
+  protocol: "http" | "https";
 }
 
 export {};

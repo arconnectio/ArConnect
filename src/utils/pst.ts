@@ -1,3 +1,4 @@
+import { gatewayURL } from "./gateways";
 import axios from "axios";
 
 // ArDrive Profit Sharing Community Smart Contract
@@ -79,7 +80,8 @@ export function weightedRandom(
 export async function getWinstonPriceForByteCount(
   byteCount: number
 ): Promise<number> {
-  const response = await fetch(`https://arweave.net/price/${byteCount}`);
+  const gateway = await gatewayURL();
+  const response = await fetch(`${gateway}/price/${byteCount}`);
   const winstonAsString = await response.text();
   return +winstonAsString;
 }

@@ -1,6 +1,5 @@
-import { IPermissionState } from "../stores/reducers/permissions";
-import { getStoreData, setStoreData, walletsStored } from "../utils/background";
-import { getRealURL } from "../utils/url";
+import { getStoreData, walletsStored } from "../utils/background";
+import { disconnect } from "./api/connection";
 import { browser } from "webextension-polyfill-ts";
 
 /**
@@ -44,21 +43,9 @@ export async function createContextMenus(hasPerms: boolean) {
       contexts: ["browser_action", "page"],
       async onclick(_, tab) {
         try {
-          const store = await getStoreData(),
-            url = tab.url,
-            id = tab.id;
+          const id = tab.id;
 
-          if (
-            !url ||
-            !id ||
-            !store?.permissions?.find((val) => val.url === getRealURL(url))
-          )
-            return;
-          await setStoreData({
-            permissions: (store.permissions ?? []).filter(
-              (sitePerms: IPermissionState) => sitePerms.url !== getRealURL(url)
-            )
-          });
+          if (tab.url) await disconnect(tab.url);
 
           // reload tab
           browser.tabs.executeScript(id, {

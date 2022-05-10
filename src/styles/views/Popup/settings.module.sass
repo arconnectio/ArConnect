@@ -115,6 +115,95 @@
     div
       width: 100%
 
+  .Gateway
+    border-left: 4px solid variables.$border-light
+    padding: .4em .8em
+    background-color: #fff
+    cursor: pointer
+    transition: all .23s ease-in-out
+
+    @media (prefers-color-scheme: dark)
+      border-color: variables.$border-dark
+
+      .Status
+        background-color: variables.$border-dark
+
+    &.Active
+      border-color: #18d40e
+
+      .Status
+        background-color: #18d40e
+
+    &.Inactive
+      border-color: #ff0000
+
+      .Status
+        background-color: #ff0000
+
+    &.Pending
+      border-color: #ffc107
+
+      .Status
+        background-color: #ffc107
+
+    .Status
+      width: 6px
+      height: 6px
+      border-radius: 100%
+      margin-left: .55em
+      background-color: variables.$border-light
+
+      @media (prefers-color-scheme: dark)
+        background-color: variables.$border-dark
+
+    h1, h2, h3
+      display: flex
+      align-items: center
+      width: max-content
+      font-weight: 500
+      text-align: left
+      margin: 0
+      color: #000
+
+    h1
+      display: flex
+      align-items: center
+      font-size: 1.25em
+      color: #000
+
+      .Selected
+        color: #fff
+        background-color: #AB9DF2
+        padding: .18em .5em
+        border-radius: 4px
+        font-size: .45em
+        font-weight: 400
+        text-transform: uppercase
+        margin-left: .55em
+
+    h2, h3
+      font-size: 1em
+      color: variables.$secondary-text-light
+
+    h3
+      text-transform: capitalize
+      font-size: .8em
+
+    &:hover
+      background-color: #f5f5f5
+
+    @media (prefers-color-scheme: dark)
+      background-color: #000
+
+      h1
+        color: #fff
+
+      h2, h3
+        color: variables.$secondary-text-dark
+
+      &:hover
+        background-color: #1b1b1b
+
 .EventItem
   padding:
     top: .64em

@@ -4,10 +4,12 @@ import {
   getStoreData,
   setStoreData
 } from "../utils/background";
+import { defaultConfig as defaultGatewayConfig } from "../stores/reducers/arweave";
 import { createContextMenus } from "./context_menus";
 import { updateIcon } from "./icon";
 import { Tab } from "../stores/reducers/time_tracking";
 import { Tabs } from "webextension-polyfill-ts";
+import { getRealURL } from "../utils/url";
 import { NativeAppClient } from "../utils/websocket";
 
 const calculateSessionDuration = (openedAt: Date): number => {
@@ -250,8 +252,24 @@ export async function handleTabUpdate() {
     return;
   }
 
+  // change icon to "connected" status if
+  // the site is connected and add the
+  // context menus
   const permissionsForSite = await getPermissions(activeTab.url as string);
 
   updateIcon(permissionsForSite.length > 0);
   createContextMenus(permissionsForSite.length > 0);
+
+  // update gateway
+  const gateways = (await getStoreData())?.gateways;
+  const gatewayForURL = gateways?.find(
+    ({ url }) => url === getRealURL(activeTab.url || "")
+  );
+
+  // if the app has a specific gateway set, use it
+  // if the app doesn't have a specific gateway
+  // set, set and use the default one
+  await setStoreData({
+    arweave: gatewayForURL?.gateway ?? defaultGatewayConfig
+  });
 }

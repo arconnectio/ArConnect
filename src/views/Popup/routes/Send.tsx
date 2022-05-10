@@ -18,6 +18,7 @@ import { arToFiat, getSymbol } from "../../../utils/currency";
 import { Threshold, getVerification } from "arverify";
 import { AnimatePresence, motion } from "framer-motion";
 import { checkPassword } from "../../../utils/auth";
+import { concatGatewayURL } from "../../../utils/gateways";
 import manifest from "../../../../public/manifest.json";
 import Home from "./Home";
 import Arweave from "arweave";
@@ -87,7 +88,9 @@ export default function Send() {
     try {
       const messageSize = new TextEncoder().encode(messageInput.state).length,
         { data } = await axios.get(
-          `https://arweave.net/price/${messageSize}/${targetInput.state}`
+          `${concatGatewayURL(arweaveConfig)}/price/${messageSize}/${
+            targetInput.state
+          }`
         );
       if (
         feeMultiplier < 1 ||

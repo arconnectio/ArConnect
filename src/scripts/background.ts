@@ -74,9 +74,9 @@ browser.tabs.onActivated.addListener(async (activeInfo) => {
   try {
     const activeTab = await getCurrentActiveTab();
     const txId = await checkCommunityContract(activeTab.url!);
-    handleArweaveTabActivated(activeTab.id!, activeTab.url, txId);
+    await handleArweaveTabActivated(activeTab.id!, activeTab.url, txId);
   } finally {
-    handleTabUpdate();
+    await handleTabUpdate();
   }
 });
 
@@ -86,17 +86,16 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete") {
     const txId = await checkCommunityContract(tab.url!);
     if (txId) {
-      handleArweaveTabOpened(tabId, txId, tab.url);
+      await handleArweaveTabOpened(tabId, txId, tab.url);
     } else {
       if (tabId === (await getArweaveActiveTab())) {
         // It looks like user just entered or opened another web site on the same tab,
         // where Arweave resource was loaded previously. Hence it needs to be closed.
-        handleArweaveTabClosed(tabId);
+        await handleArweaveTabClosed(tabId);
       }
     }
+    await handleTabUpdate();
   }
-
-  handleTabUpdate();
 });
 
 browser.tabs.onRemoved.addListener(async (tabId, removeInfo) => {

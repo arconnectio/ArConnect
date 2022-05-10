@@ -15,6 +15,7 @@ import {
   Modal,
   Radio,
   Spacer,
+  Tabs,
   Toggle,
   useInput,
   useModal,
@@ -42,63 +43,44 @@ import {
   setAllowanceLimit,
   removeAllowance,
   resetAllowanceSpent,
-  resetArweaveConfig
+  updateAppGateway
 } from "../../../stores/actions";
+import { suggestedGateways, SuggestedGateway } from "../../../utils/gateways";
+import { IGatewayConfig } from "../../../stores/reducers/arweave";
+import { getActiveTab } from "../../../utils/background";
 import CryptoES from "crypto-es";
 import dayjs from "dayjs";
 import Home from "./Home";
 import Arweave from "arweave";
+import axios from "axios";
 import manifest from "../../../../public/manifest.json";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
 
-export default function Settings() {
-  const [setting, setCurrSetting] = useState<
-      | "events"
-      | "permissions"
-      | "currency"
-      | "psts"
-      | "sites"
-      | "arweave"
-      | "arverify"
-      | "allowances"
-      | "about"
-      | "password"
-      | "config_file"
-      | "fee"
-    >(),
-    permissions = useSelector((state: RootState) => state.permissions),
-    [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]),
-    dispatch = useDispatch(),
-    psts = useSelector((state: RootState) => state.assets),
-    currentAddress = useSelector((state: RootState) => state.profile),
-    blockedURLs = useSelector((state: RootState) => state.blockedSites),
-    addURLInput = useInput(""),
-    [events, setEvents] = useState<ArConnectEvent[]>([]),
-    arweaveConfig = useSelector((state: RootState) => state.arweave),
-    otherSettings = useSelector((state: RootState) => state.settings),
-    allowances = useSelector((state: RootState) => state.allowances),
-    arweaveHostInput = useInput(arweaveConfig.host),
-    arweavePortInput = useInput(arweaveConfig.port.toString()),
-    arweaveProtocolInput = useInput(arweaveConfig.protocol),
-    [arweave, setArweave] = useState<Arweave>(new Arweave(arweaveConfig)),
-    [editingAllowance, setEditingAllowance] = useState<{
-      id: number;
-      val: number;
-    }>(),
-    theme = useTheme(),
-    passwords = {
-      new: useInput(""),
-      newAgain: useInput(""),
-      old: useInput("")
-    },
+export default function Settings({
+  initialSetting
+}: {
+  initialSetting?: SettingTypes;
+}) {
+  const [setting, setCurrSetting] = useState<SettingTypes | undefined>(
+      initialSetting
+    ),
     [, setToast] = useToasts(),
     configFileModal = useModal(),
     configPasswordInput = useInput(""),
     [generatingConfig, setGeneratingConfig] = useState(false),
-    feeMultiplier = useInput((otherSettings?.feeMultiplier || 1).toString()),
     wallets = useSelector((state: RootState) => state.wallets),
     [downloadWallet, setDownloadWallet] = useState<string>();
+
+  const dispatch = useDispatch();
+
+  const permissions = useSelector((state: RootState) => state.permissions);
+  const [opened, setOpened] = useState<{ url: string; opened: boolean }[]>([]);
+
+  const otherSettings = useSelector((state: RootState) => state.settings);
+  const feeMultiplier = useInput(
+    (otherSettings?.feeMultiplier || 1).toString()
+  );
 
   useEffect(() => {
     setOpened(permissions.map(({ url }) => ({ url, opened: false })));
@@ -109,8 +91,22 @@ export default function Settings() {
     // eslint-disable-next-line
   }, []);
 
-  // update instance on config changes
-  useEffect(() => setArweave(new Arweave(arweaveConfig)), [arweaveConfig]);
+  const gatewayConfig = useSelector((state: RootState) => state.arweave);
+  const [arweave, setArweave] = useState<Arweave>(new Arweave(gatewayConfig));
+
+  const arweaveHostInput = useInput("");
+  const arweavePortInput = useInput("0");
+  const arweaveProtocolInput = useInput("");
+
+  // update instance & inputs on config changes
+  useEffect(() => {
+    setArweave(new Arweave(gatewayConfig));
+
+    arweaveHostInput.setState(gatewayConfig.host);
+    arweavePortInput.setState(gatewayConfig.port.toString());
+    arweaveProtocolInput.setState(gatewayConfig.protocol);
+    // eslint-disable-next-line
+  }, [gatewayConfig]);
 
   function open(url: string) {
     setOpened((val) => [
@@ -132,6 +128,9 @@ export default function Settings() {
     );
   }
 
+  const psts = useSelector((state: RootState) => state.assets);
+  const currentAddress = useSelector((state: RootState) => state.profile);
+
   function removedPSTs() {
     return (
       psts
@@ -140,9 +139,13 @@ export default function Settings() {
     );
   }
 
+  const addURLInput = useInput("");
+
   function blockInputUrl() {
     dispatch(blockURL(addURLInput.state));
   }
+
+  const [events, setEvents] = useState<ArConnectEvent[]>([]);
 
   function loadEvents() {
     const evs = localStorage.getItem("arweave_events");
@@ -152,22 +155,72 @@ export default function Settings() {
     );
   }
 
-  function updateConfig() {
-    if (
-      arweaveProtocolInput.state === "" ||
-      arweavePortInput.state === "" ||
-      arweaveHostInput.state === ""
-    )
-      return;
-    dispatch(
-      updateArweaveConfig({
-        host: arweaveHostInput.state,
-        port: Number(arweavePortInput.state),
-        protocol: arweaveProtocolInput.state as "http" | "https"
-      })
-    );
-    setCurrSetting(undefined);
+  // active tab's URL
+  // undefined if the current tab is not connected
+  const [activeAppURL, setActiveAppURL] = useState<string>();
+  const appGateways = useSelector((state: RootState) => state.gateways);
+
+  useEffect(() => {
+    (async () => {
+      const res = await getActiveTab();
+
+      if (!res.url) return setActiveAppURL(undefined);
+
+      const url = getRealURL(res.url);
+
+      if (!permissions.find((p) => p.url === url))
+        return setActiveAppURL(undefined);
+
+      setActiveAppURL(url);
+
+      const appConfig = appGateways.find((g) => g.url === url)?.gateway;
+
+      if (appConfig) dispatch(updateArweaveConfig(appConfig));
+    })();
+  }, []);
+
+  // confirmation modal
+  const gatewayForAppModal = useModal();
+  const [gatewayToConfig, setGatewayToConfig] = useState<IGatewayConfig>();
+
+  /**
+   * Update gateway config
+   *
+   * @param config Gateway config
+   * @param currentApp Update config for the current app?
+   */
+  async function updateGatewayConfig(
+    config: IGatewayConfig,
+    currentApp = false
+  ) {
+    // update global config
+    dispatch(updateArweaveConfig(config));
+
+    try {
+      if (activeAppURL && currentApp) {
+        // update config for the current app
+        dispatch(
+          updateAppGateway({
+            url: activeAppURL,
+            gateway: config
+          })
+        );
+      }
+    } catch {}
+
+    // notify user
+    setToast({
+      type: "success",
+      text: "Gateway updated"
+    });
+    gatewayForAppModal.setVisible(false);
   }
+
+  const passwords = {
+    new: useInput(""),
+    newAgain: useInput(""),
+    old: useInput("")
+  };
 
   async function updatePassword() {
     if (
@@ -298,6 +351,56 @@ export default function Settings() {
     configFileModal.setVisible(false);
   }
 
+  const [gateways, setGateways] = useState<Gateway[]>(
+    suggestedGateways.map((val) => ({
+      ...val,
+      status: "pending"
+    }))
+  );
+
+  useEffect(() => {
+    (async () => {
+      if (setting !== "gateway") return;
+
+      const gatewaysWithStatuses: Gateway[] = [];
+
+      for (const gateway of suggestedGateways) {
+        try {
+          const { data, status } = await axios.get<{ network?: string }>(
+            `${gateway.protocol}://${gateway.host}:${gateway.port}`
+          );
+
+          if (status !== 200) throw new Error();
+
+          gatewaysWithStatuses.push({
+            ...gateway,
+            status: "online",
+            note: data?.network?.includes("arlocal")
+              ? "TESTNET"
+              : gateway.note ?? undefined
+          });
+        } catch {
+          gatewaysWithStatuses.push({ ...gateway, status: "offline" });
+        }
+      }
+
+      setGateways(gatewaysWithStatuses);
+    })();
+  }, [setting]);
+
+  // blocked sites
+  const blockedURLs = useSelector((state: RootState) => state.blockedSites);
+
+  // allowance data
+  const allowances = useSelector((state: RootState) => state.allowances);
+  const [editingAllowance, setEditingAllowance] = useState<{
+    id: number;
+    val: number;
+  }>();
+
+  // ui theme
+  const theme = useTheme();
+
   return (
     <>
       <div className={SubPageTopStyles.Head}>
@@ -319,7 +422,7 @@ export default function Settings() {
             (setting === "currency" && "Currency") ||
             (setting === "psts" && "Removed PSTs") ||
             (setting === "sites" && "Blocked Sites") ||
-            (setting === "arweave" && "Arweave Config") ||
+            (setting === "gateway" && "Gateway Config") ||
             (setting === "arverify" && "ArVerify Config") ||
             (setting === "allowances" && "Allowances") ||
             (setting === "about" && "About ArConnect") ||
@@ -381,6 +484,18 @@ export default function Settings() {
             </div>
             <div
               className={styles.Setting}
+              onClick={() => setCurrSetting("gateway")}
+            >
+              <div>
+                <h1>Gateway</h1>
+                <p>Select your gateway</p>
+              </div>
+              <div className={styles.Arrow}>
+                <ChevronRightIcon />
+              </div>
+            </div>
+            <div
+              className={styles.Setting}
               onClick={() => setCurrSetting("fee")}
             >
               <div>
@@ -422,18 +537,6 @@ export default function Settings() {
               <div>
                 <h1>Blocked Sites</h1>
                 <p>Limit access from sites to ArConnect</p>
-              </div>
-              <div className={styles.Arrow}>
-                <ChevronRightIcon />
-              </div>
-            </div>
-            <div
-              className={styles.Setting}
-              onClick={() => setCurrSetting("arweave")}
-            >
-              <div>
-                <h1>Arweave Config</h1>
-                <p>Edit the arweave config variables</p>
               </div>
               <div className={styles.Arrow}>
                 <ChevronRightIcon />
@@ -768,44 +871,107 @@ export default function Settings() {
                 ))) || <p>No events</p>}
             </>
           )) ||
-          (setting === "arweave" && (
+          (setting === "gateway" && (
             <div className={styles.OptionContent}>
-              <Spacer />
-              <Input
-                {...arweaveHostInput.bindings}
-                placeholder="Host..."
-                type={arweaveHostInput.state === "" ? "error" : "default"}
-              />
-              <Spacer />
-              <Input
-                {...arweavePortInput.bindings}
-                placeholder="Port..."
-                htmlType="number"
-                type={arweavePortInput.state === "" ? "error" : "default"}
-              />
-              <Spacer />
-              <Input
-                {...arweaveProtocolInput.bindings}
-                placeholder="Protocol..."
-                type={arweaveProtocolInput.state === "" ? "error" : "default"}
-              />
-              <Spacer />
-              <Button
-                style={{ width: "100%", marginTop: ".5em" }}
-                onClick={updateConfig}
-              >
-                Set config
-              </Button>
-              <Spacer />
-              <Button
-                style={{ width: "100%", marginTop: ".5em" }}
-                onClick={() => {
-                  dispatch(resetArweaveConfig());
-                  setCurrSetting(undefined);
-                }}
-              >
-                Reset
-              </Button>
+              <Tabs initialValue="1" className={styles.Tabs}>
+                <Tabs.Item label="Suggested" value="1">
+                  <Spacer />
+                  {gateways.map((gateway, i) => (
+                    <div key={i}>
+                      <div
+                        className={
+                          styles.Gateway +
+                            " " +
+                            (gateway.status === "online" && styles.Active) ||
+                          (gateway.status === "offline" && styles.Inactive) ||
+                          (gateway.status === "pending" && styles.Pending) ||
+                          ""
+                        }
+                        onClick={() => {
+                          const config: IGatewayConfig = {
+                            host: gateway.host,
+                            port: gateway.port,
+                            protocol: gateway.protocol
+                          };
+                          if (activeAppURL) {
+                            setGatewayToConfig(config);
+                            gatewayForAppModal.setVisible(true);
+                          } else {
+                            updateGatewayConfig(config);
+                          }
+                        }}
+                      >
+                        <h1>
+                          {gateway.host}
+                          {gatewayConfig.host === gateway.host && (
+                            <span className={styles.Selected}>Selected</span>
+                          )}
+                        </h1>
+                        <h2>
+                          :{gateway.port} {gateway.note && `(${gateway.note})`}
+                        </h2>
+                        <h3>
+                          Status: {gateway.status}
+                          <span className={styles.Status} />
+                        </h3>
+                      </div>
+                      <Spacer />
+                    </div>
+                  ))}
+                </Tabs.Item>
+                <Tabs.Item label="Custom" value="2">
+                  <Spacer />
+                  <Input
+                    {...arweaveHostInput.bindings}
+                    placeholder="Host..."
+                    type={arweaveHostInput.state === "" ? "error" : "default"}
+                  />
+                  <Spacer />
+                  <Input
+                    {...arweavePortInput.bindings}
+                    placeholder="Port..."
+                    htmlType="number"
+                    type={arweavePortInput.state === "" ? "error" : "default"}
+                  />
+                  <Spacer />
+                  <Input
+                    {...arweaveProtocolInput.bindings}
+                    placeholder="Protocol..."
+                    type={
+                      arweaveProtocolInput.state === "" ? "error" : "default"
+                    }
+                  />
+                  <Spacer />
+                  <Button
+                    style={{ width: "100%", marginTop: ".5em" }}
+                    onClick={() => {
+                      if (
+                        arweaveProtocolInput.state === "" ||
+                        arweavePortInput.state === "" ||
+                        arweaveHostInput.state === ""
+                      )
+                        return;
+
+                      const config: IGatewayConfig = {
+                        host: arweaveHostInput.state,
+                        port: Number(arweavePortInput.state),
+                        // @ts-expect-error
+                        protocol: arweaveProtocolInput.state
+                      };
+
+                      if (activeAppURL) {
+                        setGatewayToConfig(config);
+                        gatewayForAppModal.setVisible(true);
+                      } else {
+                        updateGatewayConfig(config);
+                      }
+                    }}
+                  >
+                    Set gateway
+                  </Button>
+                  <Spacer />
+                </Tabs.Item>
+              </Tabs>
             </div>
           )) ||
           (setting === "arverify" && (
@@ -1059,6 +1225,27 @@ export default function Settings() {
           Ok
         </Modal.Action>
       </Modal>
+      <Modal {...gatewayForAppModal.bindings}>
+        <Modal.Title>Update gateway</Modal.Title>
+        <Modal.Content>
+          Would you like to update the gateway for the current app as well?
+        </Modal.Content>
+        <Modal.Action
+          passive
+          onClick={() =>
+            updateGatewayConfig(gatewayToConfig as IGatewayConfig, true)
+          }
+        >
+          No
+        </Modal.Action>
+        <Modal.Action
+          onClick={() =>
+            updateGatewayConfig(gatewayToConfig as IGatewayConfig, true)
+          }
+        >
+          Yes
+        </Modal.Action>
+      </Modal>
     </>
   );
 }
@@ -1068,3 +1255,21 @@ export interface ArConnectEvent {
   url: string;
   date: number;
 }
+
+interface Gateway extends SuggestedGateway {
+  status: "online" | "pending" | "offline";
+}
+
+type SettingTypes =
+  | "events"
+  | "permissions"
+  | "currency"
+  | "psts"
+  | "sites"
+  | "gateway"
+  | "arverify"
+  | "allowances"
+  | "about"
+  | "password"
+  | "config_file"
+  | "fee";

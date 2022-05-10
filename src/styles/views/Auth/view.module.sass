@@ -29,6 +29,29 @@
     @media (prefers-color-scheme: dark)
       color: variables.$secondary-text-dark
 
+    &.GatewayConfig
+      text-align: center
+      font-size: 1em
+      font-weight: 500
+      color: variables.$secondary-text-light
+      margin: .5em 0
+
+      [class~=tooltip]
+        display: flex !important
+        align-items: center !important
+
+      span
+        display: inline-flex
+        align-items: center
+        margin-left: .3em
+        color: #AB9DF2
+
+        svg
+          margin-left: .3em
+          font-size: .75em
+          width: 1em
+          height: 1em
+
     &.SelectLabel
       font-size: .93em
       font-weight: 400

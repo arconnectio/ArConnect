@@ -11,7 +11,49 @@ $sidePaddingTransactions: .7em
 .Balance
   position: relative
   text-align: center
-  padding: 3em 0 1.84em
+  padding: 2.6em 0 1.84em
+
+  .Gateway
+    display: flex
+    align-items: center
+    justify-content: center
+    width: max-content
+    margin: 0 auto
+    font-size: .8em
+    font-weight: 500
+    border: 1px solid variables.$border-light
+    background-color: variables.$border-light
+    color: variables.$secondary-text-light
+    padding: .1em .65em
+    border-radius: 16px
+    margin-bottom: .8em
+    cursor: pointer
+    transition: all .23s ease-in-out
+
+    .GatewayStatusIndicator
+      width: 6px
+      height: 6px
+      border-radius: 100%
+      margin-right: .45em
+
+    &.GatewayStatus_online
+      color: #18d40e
+      background-color: rgba(#18d40e, .04)
+      border-color: #18d40e
+
+      .GatewayStatusIndicator
+        background-color: #18d40e
+
+    &.GatewayStatus_offline
+      color: #ff0000
+      background-color: rgba(#ff0000, .04)
+      border-color: #ff0000
+
+      .GatewayStatusIndicator
+        background-color: #ff0000
+
+    &:hover
+      opacity: .8
 
   h1, h2
     margin: 0
