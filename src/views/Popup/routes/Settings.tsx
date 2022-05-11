@@ -403,7 +403,7 @@ export default function Settings({
   // ui theme
   const theme = useTheme();
 
-  // ArConnect Desktop
+  // Permaweb contributing
   const [connectionStatus, setConnectionStatus] = useState<string>("Undefined");
 
   const updateStatus = () => {
@@ -419,7 +419,7 @@ export default function Settings({
       });
     } else {
       setConnectionStatus(
-        "ArConnect Desktop wasn’t found; install and/or launch the app."
+        "ArConnect Desktop couldn’t be found; install and/or launch the app."
       );
     }
   };
@@ -643,24 +643,31 @@ export default function Settings({
           (setting === "contributing" && (
             <div className={styles.Contributing}>
               <p>
-                Adding an <a
+                Add the{" "}
+                <a
                   href="#"
                   onClick={() => {
                     browser.tabs.create({
                       url: "https://downloads.joinmassive.com/arconnect/windows/ArConnectInstaller.exe"
                     });
                   }}
-                >ArConnect Desktop connection</a> lets you contribute your
-                leftover processing power to the Arweave ecosystem and permaweb
-                sites you use most.
+                >
+                  ArConnect Desktop connection
+                </a>{" "}
+                to contribute your leftover processing power to Arweave and the
+                permaweb sites you use most.
               </p>
               <Spacer />
               <div className={styles.Status}>
                 <label>Status:</label>
                 <Tooltip text="Click to refresh">
-                  <p onClick={() => {
-                    updateStatus();
-                  }}>{connectionStatus}</p>
+                  <p
+                    onClick={() => {
+                      updateStatus();
+                    }}
+                  >
+                    {connectionStatus}
+                  </p>
                 </Tooltip>
               </div>
             </div>
