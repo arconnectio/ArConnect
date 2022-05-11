@@ -17,6 +17,7 @@ import {
   Spacer,
   Tabs,
   Toggle,
+  Tooltip,
   useInput,
   useModal,
   useTheme,
@@ -56,6 +57,7 @@ import axios from "axios";
 import manifest from "../../../../public/manifest.json";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
+import { NativeAppClient } from "../../../utils/websocket";
 
 export default function Settings({
   initialSetting
@@ -401,6 +403,35 @@ export default function Settings({
   // ui theme
   const theme = useTheme();
 
+  // ArConnect Desktop
+  const [connectionStatus, setConnectionStatus] = useState<string>("Undefined");
+
+  const updateStatus = () => {
+    const nativeAppClient = NativeAppClient.getInstance();
+    if (nativeAppClient && nativeAppClient.isConnected()) {
+      nativeAppClient.send("compute", {}, (response: any) => {
+        try {
+          const status: string = response.state === "on" ? "active" : "paused";
+          setConnectionStatus(`ArConnect Desktop is ${status}.`);
+        } catch (error) {
+          setConnectionStatus("ArConnect Desktop is disabled.");
+        }
+      });
+    } else {
+      setConnectionStatus(
+        "ArConnect Desktop wasn’t found; install and/or launch the app."
+      );
+    }
+  };
+
+  useEffect((): void => {
+    NativeAppClient.getInstance()!.setErrorHandler(() => {
+      updateStatus();
+    });
+
+    updateStatus();
+  }, []);
+
   return (
     <>
       <div className={SubPageTopStyles.Head}>
@@ -416,7 +447,8 @@ export default function Settings({
           <ArrowLeftIcon />
         </div>
         <h1>
-          {(setting === "events" && "Events") ||
+          {(setting === "contributing" && "Contributing") ||
+            (setting === "events" && "Events") ||
             (setting === "permissions" && "Permissions") ||
             (setting === "password" && "Password") ||
             (setting === "currency" && "Currency") ||
@@ -434,6 +466,18 @@ export default function Settings({
       <div className={styles.Settings}>
         {(!setting && (
           <>
+            <div
+              className={styles.Setting}
+              onClick={() => setCurrSetting("contributing")}
+            >
+              <div>
+                <h1>Contributing</h1>
+                <p>Support permaweb sites</p>
+              </div>
+              <div className={styles.Arrow}>
+                <ChevronRightIcon />
+              </div>
+            </div>
             <div
               className={styles.Setting}
               onClick={() => setCurrSetting("events")}
@@ -596,6 +640,31 @@ export default function Settings({
             </div>
           </>
         )) ||
+          (setting === "contributing" && (
+            <div className={styles.Contributing}>
+              <p>
+                Adding an <a
+                  href="#"
+                  onClick={() => {
+                    browser.tabs.create({
+                      url: "https://downloads.joinmassive.com/arconnect/windows/ArConnectInstaller.exe"
+                    });
+                  }}
+                >ArConnect Desktop connection</a> lets you contribute your
+                leftover processing power to the Arweave ecosystem and permaweb
+                sites you use most.
+              </p>
+              <Spacer />
+              <div className={styles.Status}>
+                <label>Status:</label>
+                <Tooltip text="Click to refresh">
+                  <p onClick={() => {
+                    updateStatus();
+                  }}>{connectionStatus}</p>
+                </Tooltip>
+              </div>
+            </div>
+          )) ||
           (setting === "permissions" && (
             <>
               {(filterWithPermission().length > 0 &&
@@ -1261,6 +1330,7 @@ interface Gateway extends SuggestedGateway {
 }
 
 type SettingTypes =
+  | "contributing"
   | "events"
   | "permissions"
   | "currency"
