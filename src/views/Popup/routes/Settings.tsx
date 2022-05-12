@@ -860,7 +860,6 @@ export default function Settings({
             </div>
           )) ||
           (setting === "password" && (
-            //  STARTING HERE
             <div className={styles.OptionContent}>
               <Spacer y={1.2} />
               <Input
