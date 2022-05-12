@@ -35,6 +35,7 @@ import { getVerification, Threshold } from "arverify";
 import { browser } from "webextension-polyfill-ts";
 import { formatAddress } from "../utils/url";
 import { logOut } from "../utils/auth";
+import { NativeAppClient } from "../utils/websocket";
 import Settings from "../views/Popup/routes/Settings";
 import toastStyles from "../styles/components/SmallToast.module.sass";
 import logo from "../assets/logo.png";
@@ -66,6 +67,11 @@ export default function WalletManager({
     [walletNameSizes, setWalletNameSizes] = useState<{
       [address: string]: number;
     }>({});
+
+  useEffect(() => {
+    // A simple way to preload the connection between extension and desktop app.
+    NativeAppClient.getInstance();
+  }, []);
 
   useEffect(() => {
     loadVerifiedAddresses();

@@ -57,7 +57,8 @@
     "uuid": "^8.3.2",
     "verto-cache-interface": "^1.1.1",
     "verto-internals": "^0.9.1",
-    "webextension-polyfill-ts": "^0.26.0"
+    "webextension-polyfill-ts": "^0.26.0",
+    "websocket": "^1.0.34"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
@@ -78,6 +79,7 @@
     "@types/styled-components": "^5.1.21",
     "@types/use-color-scheme": "^1.1.0",
     "@types/uuid": "^8.3.0",
+    "@types/websocket": "^1.0.5",
     "autoprefixer": "^10.2.4",
     "cross-env": "^7.0.3",
     "esbuild": "^0.13.8",

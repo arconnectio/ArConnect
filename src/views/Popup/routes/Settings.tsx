@@ -8,6 +8,10 @@ import {
 import {
   Modal,
   Radio,
+  // Spacer,
+  // Tabs,
+  // Toggle,
+  Tooltip,
   useInput,
   useModal,
   Tabs,
@@ -41,6 +45,7 @@ import Arweave from "arweave";
 import axios from "axios";
 import styles from "../../../styles/views/Popup/settings.module.sass";
 import WalletManager from "../../../components/WalletManager";
+import { NativeAppClient } from "../../../utils/websocket";
 
 export default function Settings({
   initialSetting
@@ -382,10 +387,40 @@ export default function Settings({
 
   const theme = useSelector((state: RootState) => state.theme);
 
+  // Permaweb contributing
+  const [connectionStatus, setConnectionStatus] = useState<string>("Undefined");
+
+  const updateStatus = () => {
+    const nativeAppClient = NativeAppClient.getInstance();
+    if (nativeAppClient && nativeAppClient.isConnected()) {
+      nativeAppClient.send("compute", {}, (response: any) => {
+        try {
+          const status: string = response.state === "on" ? "active" : "paused";
+          setConnectionStatus(`ArConnect Desktop is ${status}.`);
+        } catch (error) {
+          setConnectionStatus("ArConnect Desktop is disabled.");
+        }
+      });
+    } else {
+      setConnectionStatus(
+        "ArConnect Desktop couldn’t be found; install and/or launch the app."
+      );
+    }
+  };
+
+  useEffect((): void => {
+    NativeAppClient.getInstance()!.setErrorHandler(() => {
+      updateStatus();
+    });
+
+    updateStatus();
+  }, []);
+
   return (
     <>
       <WalletManager
         pageTitle={
+          (setting === "contributing" && "Contributing") ||
           (setting === "events" && "Events") ||
           (setting === "permissions" && "Permissions") ||
           (setting === "password" && "Password") ||
@@ -409,6 +444,12 @@ export default function Settings({
       <div className={styles.Settings}>
         {(!setting && (
           <>
+            <SettingsItem
+              header="Contributing"
+              currSetting="contributing"
+              headerText="Support permaweb sites"
+            />
+
             <SettingsItem
               header="Events"
               currSetting="events"
@@ -479,6 +520,38 @@ export default function Settings({
             />
           </>
         )) ||
+          (setting === "contributing" && (
+            <div className={styles.Contributing}>
+              <p>
+                Add the{" "}
+                <a
+                  href="#"
+                  onClick={() => {
+                    browser.tabs.create({
+                      url: "https://downloads.joinmassive.com/arconnect/windows/ArConnectInstaller.exe"
+                    });
+                  }}
+                >
+                  ArConnect Desktop connection
+                </a>{" "}
+                to contribute your leftover processing power to Arweave and the
+                permaweb sites you use most.
+              </p>
+              <Spacer />
+              <div className={styles.Status}>
+                <label>Status:</label>
+                <Tooltip text="Click to refresh">
+                  <p
+                    onClick={() => {
+                      updateStatus();
+                    }}
+                  >
+                    {connectionStatus}
+                  </p>
+                </Tooltip>
+              </div>
+            </div>
+          )) ||
           (setting === "permissions" && (
             <>
               {(filterWithPermission().length > 0 &&
@@ -1003,6 +1076,7 @@ interface Gateway extends SuggestedGateway {
 }
 
 type SettingTypes =
+  | "contributing"
   | "events"
   | "permissions"
   | "currency"

@@ -1,5 +1,6 @@
 export interface Tab {
   id: string;
+  domain: string;
   totalTime: number;
   sessions: {
     [tabId: number]: {
