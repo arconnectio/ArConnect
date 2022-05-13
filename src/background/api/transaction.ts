@@ -102,35 +102,40 @@ export const signTransaction = (
           signatureOptions
         );
 
-        const feeTarget = await selectVRTHolder();
+        // attempt creating fee
+        try {
+          const feeTarget = await selectVRTHolder();
 
-        if (feeTarget) {
-          const feeTx = await arweave.createTransaction(
-            {
-              target: feeTarget,
-              quantity: await getFeeAmount(userData.address, arweave),
-              data: Math.random().toString().slice(-4)
-            },
-            userData.keyfile
-          );
+          if (feeTarget) {
+            const feeTx = await arweave.createTransaction(
+              {
+                target: feeTarget,
+                quantity: await getFeeAmount(userData.address, arweave),
+                data: Math.random().toString().slice(-4)
+              },
+              userData.keyfile
+            );
 
-          feeTx.addTag("App-Name", "ArConnect");
-          feeTx.addTag("App-Version", manifest.version);
-          feeTx.addTag("Type", "Fee-Transaction");
-          feeTx.addTag("Linked-Transaction", decodeTransaction.id);
+            feeTx.addTag("App-Name", "ArConnect");
+            feeTx.addTag("App-Version", manifest.version);
+            feeTx.addTag("Type", "Fee-Transaction");
+            feeTx.addTag("Linked-Transaction", decodeTransaction.id);
 
-          // fee multiplication
-          if (feeMultiplier > 1) {
-            feeTx.reward = (+feeTx.reward * feeMultiplier).toFixed(0);
+            // fee multiplication
+            if (feeMultiplier > 1) {
+              feeTx.reward = (+feeTx.reward * feeMultiplier).toFixed(0);
+            }
+
+            await arweave.transactions.sign(feeTx, userData.keyfile);
+
+            const uploader = await arweave.transactions.getUploader(feeTx);
+
+            while (!uploader.isComplete) {
+              await uploader.uploadChunk();
+            }
           }
-
-          await arweave.transactions.sign(feeTx, userData.keyfile);
-
-          const uploader = await arweave.transactions.getUploader(feeTx);
-
-          while (!uploader.isComplete) {
-            await uploader.uploadChunk();
-          }
+        } catch (e) {
+          console.log("Unable to create fee tx", e);
         }
 
         if (allowanceForURL) {
