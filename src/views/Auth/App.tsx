@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useInput, Note, useTheme, useToasts, Tooltip } from "@geist-ui/react";
+import {
+  useInput,
+  Note,
+  useTheme,
+  // useToasts,
+  Tooltip
+} from "@geist-ui/react";
 import {
   Button,
   Select,
@@ -8,7 +14,8 @@ import {
   Spacer,
   Modal,
   useModal,
-  Loading
+  Loading,
+  useToasts
 } from "@verto/ui";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -63,7 +70,7 @@ export default function App() {
     ),
     [appInfo, setAppInfo] = useState<IAppInfo>({}),
     theme = useTheme(),
-    [, setToast] = useToasts(),
+    { setToast } = useToasts(),
     [quickAdd, setQuickAdd] = useState(true),
     proflie = useSelector((state: RootState) => state.profile),
     wallets = useSelector((state: RootState) => state.wallets),
@@ -376,8 +383,10 @@ export default function App() {
                     allowanceAmount.setState(updateTo.toString());
                     setQuickAdd(false);
                     setToast({
-                      text: "The added allowance will be applied after you enter you password",
-                      type: "success"
+                      description:
+                        "The added allowance will be applied after you enter you password",
+                      type: "success",
+                      duration: 2000
                     });
                   }}
                 >

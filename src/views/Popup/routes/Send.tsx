@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
-import { useToasts, Progress, useTheme } from "@geist-ui/react";
+import {
+  // useToasts,
+  Progress,
+  useTheme
+} from "@geist-ui/react";
 import { VerifiedIcon, FileSubmoduleIcon } from "@primer/octicons-react";
-import { Button, Input, Select, Spacer, useInput } from "@verto/ui";
+import { Button, Input, Select, Spacer, useInput, useToasts } from "@verto/ui";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { arToFiat, getSymbol } from "../../../utils/currency";
 import { Threshold, getVerification } from "arverify";
@@ -30,7 +34,7 @@ export default function Send() {
     [balance, setBalance] = useState("0"),
     [submitted, setSubmitted] = useState(false),
     [loading, setLoading] = useState(false),
-    [, setToast] = useToasts(),
+    { setToast } = useToasts(),
     [arPriceFiat, setArPriceFiat] = useState(1),
     [verified, setVerified] = useState<{
       verified: boolean;
@@ -114,7 +118,11 @@ export default function Send() {
       Number(amountInput.state) > 1 &&
       !(await checkPassword(passwordInput.state))
     )
-      return setToast({ text: "Invalid password", type: "error" });
+      return setToast({
+        description: "Invalid password",
+        type: "error",
+        duration: 2000
+      });
 
     setLoading(true);
 
@@ -148,7 +156,11 @@ export default function Send() {
       const res = await arweave.transactions.post(transaction);
 
       if (res.status === 200)
-        setToast({ text: "Sent transaction", type: "success" });
+        setToast({
+          description: "Sent transaction",
+          type: "success",
+          duration: 2000
+        });
       else throw new Error("");
 
       targetInput.setState("");
@@ -157,7 +169,11 @@ export default function Send() {
       setMessage("");
       setSubmitted(false);
     } catch {
-      setToast({ text: "Error sending transaction", type: "error" });
+      setToast({
+        description: "Error sending transaction",
+        type: "error",
+        duration: 2000
+      });
     }
     setLoading(false);
   }
@@ -280,11 +296,11 @@ export default function Send() {
         </AnimatePresence>
         <Button
           small
+          style={{ width: "86%" }}
           type="filled"
           onClick={send}
           loading={loading}
           className={styles.Button}
-          fullWidth
         >
           Send
         </Button>

@@ -10,10 +10,10 @@ import {
   Radio,
   useInput,
   useModal,
-  Tabs,
-  useToasts
+  Tabs
+  // useToasts
 } from "@geist-ui/react";
-import { Spacer, Input, Button, Checkbox, Select } from "@verto/ui";
+import { Spacer, Input, Button, Checkbox, Select, useToasts } from "@verto/ui";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
 import { formatAddress, getRealURL, shortenURL } from "../../../utils/url";
@@ -50,7 +50,7 @@ export default function Settings({
   const [setting, setCurrSetting] = useState<SettingTypes | undefined>(
       initialSetting
     ),
-    [, setToast] = useToasts(),
+    { setToast } = useToasts(),
     configFileModal = useModal(),
     configPasswordInput = useInput(""),
     [generatingConfig, setGeneratingConfig] = useState(false),
@@ -180,8 +180,9 @@ export default function Settings({
 
     // notify user
     setToast({
+      description: "Gateway updated",
       type: "success",
-      text: "Gateway updated"
+      duration: 2000
     });
     gatewayForAppModal.setVisible(false);
   }
@@ -198,37 +199,55 @@ export default function Settings({
       passwords.newAgain.state === "" ||
       passwords.old.state === ""
     ) {
-      setToast({ text: "Please fill all password fields", type: "error" });
+      setToast({
+        description: "Please fill all password fields",
+        type: "error",
+        duration: 2000
+      });
       return;
     }
     if (passwords.new.state !== passwords.newAgain.state) {
       setToast({
-        text: "The two new passwords are not the same",
-        type: "error"
+        description: "The two new passwords are not the same",
+        type: "error",
+        duration: 2000
       });
       return;
     }
     if (passwords.new.state.length < 5) {
-      setToast({ text: "Weak password", type: "error" });
+      setToast({ description: "Weak password", type: "error", duration: 2000 });
       return;
     }
 
     try {
       const res = await checkPassword(passwords.old.state);
       if (!res)
-        return setToast({ text: "Old password is wrong", type: "error" });
+        if (passwords.old.state === passwords.new.state)
+          return setToast({
+            description: "Old password is wrong",
+            type: "error",
+            duration: 2000
+          });
 
-      if (passwords.old.state === passwords.new.state)
-        return setToast({
-          text: "You are already using this password",
-          type: "error"
-        });
+      return setToast({
+        description: "You are already using this password",
+        type: "error",
+        duration: 2000
+      });
 
       await setPassword(passwords.new.state);
-      setToast({ text: "Updated password", type: "success" });
+      setToast({
+        description: "Updated password",
+        type: "success",
+        duration: 2000
+      });
       clearInputs();
     } catch {
-      setToast({ text: "Error while updating password", type: "error" });
+      setToast({
+        description: "Error while updating password",
+        type: "error",
+        duration: 2000
+      });
     }
   }
 
@@ -249,7 +268,11 @@ export default function Settings({
     ];
 
     if (!storedData || storedData === "")
-      return setToast({ text: "Could not get stored data", type: "error" });
+      return setToast({
+        description: "Could not get stored data",
+        type: "error",
+        duration: 2000
+      });
 
     const encrypted = CryptoES.AES.encrypt(storedData, password);
 
@@ -272,7 +295,11 @@ export default function Settings({
     el.click();
     document.body.removeChild(el);
 
-    setToast({ text: "Created config", type: "success" });
+    setToast({
+      description: "Created config",
+      type: "success",
+      duration: 2000
+    });
     configFileModal.setVisible(false);
   }
 
@@ -299,9 +326,9 @@ export default function Settings({
 
     if (!walletJWK)
       return setToast({
-        text: "Error finding keyfile",
+        description: "Error finding keyfile",
         type: "error",
-        delay: 2000
+        duration: 2000
       });
 
     el.setAttribute(
@@ -317,7 +344,11 @@ export default function Settings({
     el.click();
     document.body.removeChild(el);
 
-    setToast({ text: "Downloaded keyfile", type: "success", delay: 3000 });
+    setToast({
+      description: "Downloaded keyfile",
+      type: "success",
+      duration: 3000
+    });
     configFileModal.setVisible(false);
   }
 
@@ -946,7 +977,11 @@ export default function Settings({
             setGeneratingConfig(true);
 
             if (!(await checkPassword(password))) {
-              setToast({ text: "Invalid password", type: "error" });
+              setToast({
+                description: "Invalid password",
+                type: "error",
+                duration: 2000
+              });
               setGeneratingConfig(false);
               return;
             }
