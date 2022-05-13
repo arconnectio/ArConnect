@@ -610,7 +610,11 @@ export default function Settings({
           (setting === "gateway" && (
             <div className={styles.OptionContent}>
               <Tabs initialValue="1" className={styles.Tabs}>
-                <Tabs.Item label="Suggested" value="1">
+                <Tabs.Item
+                  label="Suggested"
+                  value="1"
+                  className={styles.TabItem}
+                >
                   <Spacer />
                   {gateways.map((gateway, i) => (
                     <div key={i}>

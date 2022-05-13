@@ -76,6 +76,22 @@
       width: 1em
       height: 1em
 
+.Contributing
+  padding:
+    right: .75em
+    left: .75em
+
+  .Status
+    display: flex
+
+    label
+      padding-right: .25em
+      font-weight: bold
+
+    p
+      margin-top: 0
+      cursor: pointer
+
 .OptionContent
   padding: .33em 1em
 
@@ -102,18 +118,11 @@
       width: 100%
 
   .Gateway
-    border-left: 4px solid #e6e6e6
+    border-left: 4px solid variables.$border
     padding: .4em .8em
-    background-color: #fff
+    background-color: variables.$background-color
     cursor: pointer
     transition: all .23s ease-in-out
-
-    @media (prefers-color-scheme: dark)
-      border-color: #333
-      border-color: green
-
-      .Status
-        // background-color: variables.$border-dark
 
     &.Active
       border-color: #18d40e
@@ -138,10 +147,7 @@
       height: 6px
       border-radius: 100%
       margin-left: .55em
-      // background-color: variables.$border-light
-
-      @media (prefers-color-scheme: dark)
-        // background-color: variables.$border-dark
+      background-color: variables.$border
 
     h1, h2, h3
       display: flex
@@ -150,13 +156,12 @@
       font-weight: 500
       text-align: left
       margin: 0
-      color: #000
 
     h1
       display: flex
       align-items: center
       font-size: 1.25em
-      color: #000
+      color: variables.$foreground-color
 
       .Selected
         color: #fff
@@ -170,26 +175,14 @@
 
     h2, h3
       font-size: 1em
-      color: #666
+      color: variables.$light-text
 
     h3
       text-transform: capitalize
       font-size: .8em
 
     &:hover
-      // background-color: #f5f5f5
-
-    @media (prefers-color-scheme: dark)
-      // background-color: #000
-
-      h1
-        color: #fff
-
-      h2, h3
-        color: variables.$light-text
-
-      &:hover
-        background-color: #1b1b1b
+      background-color: variables.$hover-background
 
 .EventItem
   padding:
@@ -309,5 +302,3 @@
 
 .NoramlizeVertoComponent
   font-size: 1rem
-
-  // TODO: FIX VARIABLES IN UI LIB
