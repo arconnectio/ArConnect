@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Button,
+  // Button,
   Input,
   Loading,
   Modal,
@@ -9,13 +9,14 @@ import {
   Select,
   Spacer,
   Spinner,
-  Toggle,
+  // Toggle,
   Tooltip,
   useInput,
   useModal,
   useTheme,
   useToasts
 } from "@geist-ui/react";
+import { Checkbox, Button } from "@verto/ui";
 import {
   getSizeBytes,
   createArchiveTransaction,
@@ -619,12 +620,12 @@ export default function App() {
             style={{ opacity: archiveData.type === "pdf" ? 0.5 : 1 }}
           >
             Safe mode
-            <Toggle
+            {/* <Toggle
               checked={safeMode}
               disabled={archiveData.type === "pdf"}
               initialChecked
               onChange={(val) => setSafeMode(val.target.checked)}
-            />
+            /> */}
           </div>
         </Tooltip>
       </div>
@@ -687,7 +688,7 @@ export default function App() {
           for the original code.
         </p>
         <Button
-          type="success"
+          type="filled"
           loading={fetching}
           onClick={() => {
             if (fetching) return;
