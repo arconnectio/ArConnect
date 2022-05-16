@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  useInput,
-  Note,
-  useTheme,
-  // useToasts,
-  Tooltip
-} from "@geist-ui/react";
+import { useInput, Note, useTheme, Tooltip } from "@geist-ui/react";
 import {
   Button,
   Select,
