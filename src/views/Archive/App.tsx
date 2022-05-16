@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  // Button,
   Input,
   Loading,
   Modal,
@@ -9,7 +8,6 @@ import {
   Select,
   Spacer,
   Spinner,
-  // Toggle,
   Tooltip,
   useInput,
   useModal,
@@ -620,12 +618,11 @@ export default function App() {
             style={{ opacity: archiveData.type === "pdf" ? 0.5 : 1 }}
           >
             Safe mode
-            {/* <Toggle
+            <Checkbox
               checked={safeMode}
               disabled={archiveData.type === "pdf"}
-              initialChecked
               onChange={(val) => setSafeMode(val.target.checked)}
-            /> */}
+            />
           </div>
         </Tooltip>
       </div>
