@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Page, Progress, useTheme } from "@geist-ui/react";
+import { Page, Progress } from "@geist-ui/react";
 import {
   Checkbox,
   Button,
@@ -11,7 +11,8 @@ import {
   Input,
   useInput,
   Modal,
-  useModal
+  useModal,
+  useTheme
 } from "@verto/ui";
 import {
   getSizeBytes,
@@ -22,7 +23,6 @@ import {
   sendArDriveFee,
   defaultArDriveMinimumTipAR
 } from "../../utils/archive";
-import { useColorScheme } from "use-color-scheme";
 import { useSelector } from "react-redux";
 import { RootState } from "../../stores/reducers";
 import { FileDirectoryIcon, LockIcon, PlusIcon } from "@primer/octicons-react";
@@ -57,7 +57,6 @@ export default function App() {
     }),
     [previewHeight, setPreviewHeight] = useState(0),
     previewItem = useRef<HTMLIFrameElement>(),
-    { scheme } = useColorScheme(),
     [previewHTML, setPreviewHTML] = useState(""),
     { setToast } = useToasts(),
     [fetching, setFetching] = useState(false),
@@ -629,7 +628,7 @@ export default function App() {
     <>
       <div className={styles.Head}>
         <div className={styles.ArDrive}>
-          {(scheme === "dark" && <ArdriveLogoDark />) || <ArdriveLogoLight />}
+          {(theme === "Dark" && <ArdriveLogoDark />) || <ArdriveLogoLight />}
         </div>
         <Tooltip
           text={
@@ -830,7 +829,8 @@ export default function App() {
               <p>
                 No drives for this address. Please create one{" "}
                 <span
-                  style={{ color: theme.palette.success, cursor: "pointer" }}
+                  // TODO: switch success palette
+                  style={{ color: "#AB9DF2", cursor: "pointer" }}
                   onClick={() => {
                     driveNameModal.setState(true);
                     archiveModal.setState(false);
