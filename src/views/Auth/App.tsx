@@ -540,12 +540,17 @@ export default function App() {
                   </p>
                 </>
               )}
-              <Spacer />
-              <Button style={{ width: "100%" }} onClick={accept}>
+              <Spacer y={1.5} />
+              <Button small onClick={accept} style={{ width: "100%" }}>
                 Accept
               </Button>
               <Spacer y={1.5} />
-              <Button small onClick={cancel} type="secondary">
+              <Button
+                small
+                onClick={cancel}
+                type="secondary"
+                style={{ width: "100%" }}
+              >
                 Cancel
               </Button>
               <div className={styles.AppInfo}>
