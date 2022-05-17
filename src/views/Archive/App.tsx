@@ -11,10 +11,9 @@ import {
   Tooltip,
   useInput,
   useModal,
-  useTheme,
-  useToasts
+  useTheme
 } from "@geist-ui/react";
-import { Checkbox, Button } from "@verto/ui";
+import { Checkbox, Button, useToasts } from "@verto/ui";
 import {
   getSizeBytes,
   createArchiveTransaction,
@@ -61,7 +60,7 @@ export default function App() {
     previewItem = useRef<HTMLIFrameElement>(),
     { scheme } = useColorScheme(),
     [previewHTML, setPreviewHTML] = useState(""),
-    [, setToast] = useToasts(),
+    { setToast } = useToasts(),
     [fetching, setFetching] = useState(false),
     archiveModal = useModal(),
     profile = useSelector((state: RootState) => state.profile),
@@ -143,7 +142,11 @@ export default function App() {
       const { data }: any = await axios.get(archiveData.url);
       setPreviewHTML(data);
     } catch {
-      setToast({ text: "Error fetching PDF", type: "error" });
+      setToast({
+        description: "Error fetching PDF",
+        type: "error",
+        duration: 2000
+      });
     }
 
     setFetching(false);
@@ -159,8 +162,10 @@ export default function App() {
     setFetching(true);
     if (!embed)
       setToast({
-        text: "Page size is larger, trying with embedded images disabled",
-        type: "warning"
+        description:
+          "Page size is larger, trying with embedded images disabled",
+        type: "warning",
+        duration: 2000
       });
 
     const parser = new DOMParser(),
@@ -214,8 +219,9 @@ export default function App() {
           )
           .catch(() =>
             setToast({
-              text: "A stylesheet could not be fetched",
-              type: "error"
+              description: "A stylesheet could not be fetched",
+              type: "error",
+              duration: 2000
             })
           )
       );
@@ -242,7 +248,11 @@ export default function App() {
             })
           )
           .catch(() =>
-            setToast({ text: "An image could not be fetched", type: "error" })
+            setToast({
+              description: "An image could not be fetched",
+              type: "error",
+              duration: 2000
+            })
           )
       );
     });
@@ -420,8 +430,9 @@ export default function App() {
 
     if (!encryptedJWK) {
       setToast({
-        text: "Error finding encrypted keyfile for address",
-        type: "error"
+        description: "Error finding encrypted keyfile for address",
+        type: "error",
+        duration: 2000
       });
       return undefined;
     }
@@ -431,14 +442,22 @@ export default function App() {
 
   async function archive() {
     if (!(await checkPassword(passwordInput.state)))
-      return setToast({ text: "Invalid password", type: "error" });
+      return setToast({
+        description: "Invalid password",
+        type: "error",
+        duration: 2000
+      });
 
     setArchiving(true);
 
     if (archiveData.type === "pdf") await loadPdfContent();
 
     if (!selectedDrive) {
-      setToast({ text: "Please select a drive", type: "error" });
+      setToast({
+        description: "Please select a drive",
+        type: "error",
+        duration: 2000
+      });
       return setArchiving(false);
     }
 
@@ -477,8 +496,9 @@ export default function App() {
       await sendArDriveFee(useJWK, arPrice, arweave);
     } catch {
       setToast({
-        text: "There was an error while uploading the site",
-        type: "error"
+        description: "There was an error while uploading the site",
+        type: "error",
+        duration: 2000
       });
       setUploadStatus(undefined);
       return setArchiving(false);
@@ -489,8 +509,10 @@ export default function App() {
     // check if the selected drive exists
     if (!driveToSave) {
       setToast({
-        text: "Site was archived, but there was an error with the selected drive",
-        type: "error"
+        description:
+          "Site was archived, but there was an error with the selected drive",
+        type: "error",
+        duration: 2000
       });
       setUploadStatus(undefined);
       return setArchiving(false);
@@ -528,14 +550,16 @@ export default function App() {
       }
 
       setToast({
-        text: `Archived ${archiveData.type}. It should appear in the selected drive shortly.`,
+        description: `Archived ${archiveData.type}. It should appear in the selected drive shortly.`,
         type: "success",
-        delay: 5500
+        duration: 5500
       });
     } catch {
       setToast({
-        text: "There was an error while creating the ArDrive transaction",
-        type: "error"
+        description:
+          "There was an error while creating the ArDrive transaction",
+        type: "error",
+        duration: 2000
       });
     }
 
@@ -586,11 +610,16 @@ export default function App() {
       driveNameModal.setVisible(false);
       archiveModal.setVisible(true);
       setToast({
-        text: `Created new public drive ${drive.name}`,
-        type: "success"
+        description: `Created new public drive ${drive.name}`,
+        type: "success",
+        duration: 2000
       });
     } catch {
-      setToast({ text: "Error creating drive", type: "error" });
+      setToast({
+        description: "Error creating drive",
+        type: "error",
+        duration: 2000
+      });
     }
 
     setUploadStatus(undefined);
@@ -690,8 +719,9 @@ export default function App() {
           onClick={() => {
             if (fetching) return;
             setToast({
-              text: "This feature is still in beta",
-              type: "warning"
+              description: "This feature is still in beta",
+              type: "warning",
+              duration: 2000
             });
             archiveModal.setVisible(true);
           }}
