@@ -1,19 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Page, Progress, useTheme } from "@geist-ui/react";
 import {
-  Input,
-  Loading,
-  Modal,
-  Page,
-  Progress,
-  Select,
+  Checkbox,
+  Button,
+  useToasts,
   Spacer,
-  Spinner,
   Tooltip,
+  Loading,
+  Select,
+  Input,
   useInput,
-  useModal,
-  useTheme
-} from "@geist-ui/react";
-import { Checkbox, Button, useToasts } from "@verto/ui";
+  Modal,
+  useModal
+} from "@verto/ui";
 import {
   getSizeBytes,
   createArchiveTransaction,
@@ -152,7 +151,7 @@ export default function App() {
     setFetching(false);
 
     // open modal for pdfs immediately
-    archiveModal.setVisible(true);
+    archiveModal.setState(true);
 
     return data;
   }
@@ -566,7 +565,7 @@ export default function App() {
     setArchiving(false);
     setUploadStatus(undefined);
     setSelectedDrive(undefined);
-    archiveModal.setVisible(false);
+    archiveModal.setState(false);
   }
 
   function upperCaseFirst(val: string) {
@@ -607,8 +606,8 @@ export default function App() {
       });
 
       setDrives((val) => [...(val ?? []), drive]);
-      driveNameModal.setVisible(false);
-      archiveModal.setVisible(true);
+      driveNameModal.setState(false);
+      archiveModal.setState(true);
       setToast({
         description: `Created new public drive ${drive.name}`,
         type: "success",
@@ -640,7 +639,7 @@ export default function App() {
                 : "This removes tracking and sensitive information"}
             </p>
           }
-          placement="bottomEnd"
+          position="bottom"
         >
           <div
             className={styles.SafeMode}
@@ -656,7 +655,7 @@ export default function App() {
         </Tooltip>
       </div>
       <Page scale={2} className={styles.Preview}>
-        {fetching && <Spinner className={styles.Fetching} scale={2} />}
+        {fetching && <Loading.Spinner className={styles.Fetching} />}
         {(archiveData.type === "page" && (
           <iframe
             title={title}
@@ -723,13 +722,17 @@ export default function App() {
               type: "warning",
               duration: 2000
             });
-            archiveModal.setVisible(true);
+            archiveModal.setState(true);
           }}
         >
           Archive
         </Button>
       </div>
-      <Modal {...driveNameModal.bindings}>
+      <Modal
+        {...driveNameModal.bindings}
+        open={driveNameModal.state}
+        onClose={() => driveNameModal.setState(false)}
+      >
         <Modal.Title>Create a Drive</Modal.Title>
         <Modal.Content className={styles.Modal}>
           <p style={{ textAlign: "center" }}>
@@ -745,9 +748,10 @@ export default function App() {
           </p>
           <h2>Drive name</h2>
           <Input
+            small
+            style={{ width: "100%" }}
             placeholder="Enter drive name..."
             {...driveNameInput.bindings}
-            width="100%"
           />
           <AnimatePresence>
             {uploadStatus && (
@@ -757,25 +761,28 @@ export default function App() {
                 exit={{ opacity: 0, scaleY: 0.35 }}
                 transition={{ duration: 0.23, ease: "easeInOut" }}
               >
-                <Spacer h={1} />
+                <Spacer y={1} />
                 <p>{uploadStatus.text}</p>
                 <Progress value={uploadStatus.percentage} type="success" />
               </motion.div>
             )}
           </AnimatePresence>
         </Modal.Content>
-        <Modal.Action passive onClick={() => driveNameModal.setVisible(false)}>
-          Cancel
-        </Modal.Action>
-        <Modal.Action
+        <Spacer y={2} />
+        <Button
+          style={{ width: "81%" }}
           onClick={createDrive}
-          disabled={driveNameInput.state === ""}
+          disabled={driveNameInput.state === "ArConnect Archives"}
           loading={creatingDrive}
         >
           Create
-        </Modal.Action>
+        </Button>
       </Modal>
-      <Modal {...archiveModal.bindings}>
+      <Modal
+        {...archiveModal.bindings}
+        open={archiveModal.state}
+        onClose={() => archiveModal.setState(false)}
+      >
         <Modal.Title>Archive {archiveData.type}</Modal.Title>
         <Modal.Content className={styles.Modal}>
           <h2>Please select a drive</h2>
@@ -810,8 +817,8 @@ export default function App() {
                 <div
                   className={styles.Drive}
                   onClick={() => {
-                    driveNameModal.setVisible(true);
-                    archiveModal.setVisible(false);
+                    driveNameModal.setState(true);
+                    archiveModal.setState(false);
                   }}
                   style={{ justifyContent: "center" }}
                 >
@@ -825,16 +832,16 @@ export default function App() {
                 <span
                   style={{ color: theme.palette.success, cursor: "pointer" }}
                   onClick={() => {
-                    driveNameModal.setVisible(true);
-                    archiveModal.setVisible(false);
+                    driveNameModal.setState(true);
+                    archiveModal.setState(false);
                   }}
                 >
                   here
                 </span>
                 .
               </p>
-            ))) || <Loading />}
-          <Spacer h={1} />
+            ))) || <Loading.Spinner />}
+          <Spacer y={1} />
           <h2>Notice</h2>
           <p>
             This will archive the{" "}
@@ -850,17 +857,16 @@ export default function App() {
           </p>
           <h2>Wallet</h2>
           <Select
-            value={usedAddress}
-            onChange={(val) => setUsedAddress(val as string)}
-            style={{ width: "100%" }}
+            onChange={(val) => setUsedAddress(val as unknown as string)}
+            className={styles.ArchiveSelectWallet}
           >
             {wallets.map((wallet, i) => (
-              <Select.Option key={i} value={wallet.address}>
+              <option key={i} value={wallet.address}>
                 {formatAddress(wallet.address)}
-              </Select.Option>
+              </option>
             ))}
           </Select>
-          <Spacer h={1} />
+          <Spacer y={1} />
           <h2>{upperCaseFirst(archiveData.type)} title</h2>
           <p>{title}</p>
           <h2>{upperCaseFirst(archiveData.type)} URL</h2>
@@ -889,27 +895,28 @@ export default function App() {
               >
                 <p>{uploadStatus.text}</p>
                 <Progress value={uploadStatus.percentage} type="success" />
-                <Spacer h={1} />
+                <Spacer y={1} />
               </motion.div>
             )}
           </AnimatePresence>
           <h2>Password</h2>
-          <Input.Password
+          <Input
+            small
+            type="password"
+            style={{ width: "100%" }}
             placeholder="Enter your password..."
             {...passwordInput.bindings}
-            width="100%"
           />
         </Modal.Content>
-        <Modal.Action passive onClick={() => archiveModal.setVisible(false)}>
-          Cancel
-        </Modal.Action>
-        <Modal.Action
+        <Spacer y={2} />
+        <Button
           onClick={archive}
           disabled={!selectedDrive || passwordInput.state === ""}
           loading={archiving}
+          style={{ width: "81%" }}
         >
           Submit
-        </Modal.Action>
+        </Button>
       </Modal>
     </>
   );
