@@ -5,14 +5,7 @@ import {
   DownloadIcon,
   XIcon
 } from "@primer/octicons-react";
-import {
-  Modal,
-  Radio,
-  useInput,
-  useModal,
-  Tabs
-  // useToasts
-} from "@geist-ui/react";
+import { Modal, Radio, useInput, useModal, Tabs } from "@geist-ui/react";
 import { Spacer, Input, Button, Checkbox, Select, useToasts } from "@verto/ui";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
@@ -641,11 +634,7 @@ export default function Settings({
           (setting === "gateway" && (
             <div className={styles.OptionContent}>
               <Tabs initialValue="1" className={styles.Tabs}>
-                <Tabs.Item
-                  label="Suggested"
-                  value="1"
-                  className={styles.TabItem}
-                >
+                <Tabs.Item label="Suggested" value="1">
                   <Spacer />
                   {gateways.map((gateway, i) => (
                     <div key={i}>
