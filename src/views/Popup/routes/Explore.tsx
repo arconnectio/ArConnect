@@ -22,6 +22,7 @@ import AssetCard from "../../../components/AssetCard";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import styles from "../../../styles/views/Popup/explore.module.sass";
+import "animate.css";
 
 dayjs.extend(localizedFormat);
 
@@ -154,7 +155,7 @@ const Explore = () => {
                   opacity: { duration: 0.2 }
                 }}
               >
-                <span>
+                <span className="animate__animated animate__bounceInLeft">
                   <img
                     src={theme === "Dark" ? arweaveDarkLogo : arweaveLightLogo}
                     alt="token-logo"
