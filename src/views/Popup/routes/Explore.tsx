@@ -89,6 +89,11 @@ const Explore = () => {
     })();
   }, []);
 
+  const limitTitleText = (title: string, limit: number): string =>
+    title.split(" ").length > limit
+      ? title.split(" ").slice(0, limit).join(" ") + " ..."
+      : title;
+
   console.log("YOLO", arweaveNews);
 
   return (
@@ -159,11 +164,12 @@ const Explore = () => {
                 </span>
                 <>
                   <p className={styles.FeaturedItemInfo}>
-                    {arweaveNews.length > 1 ? (
-                      arweaveNews[currentPage].title.rendered
-                    ) : (
-                      <Loading.Spinner />
-                    )}
+                    {arweaveNews.length > 1
+                      ? limitTitleText(
+                          arweaveNews[currentPage].title.rendered,
+                          7
+                        )
+                      : null}
                   </p>
                   <div className={styles.Paginator}>
                     {new Array(3).fill("_").map((_, i) => (
@@ -187,7 +193,7 @@ const Explore = () => {
               <>
                 {arweaveNews.slice(3, 5).map((item) => (
                   <div className={styles.ArweaveNewsItem} key={item.id}>
-                    <p>{item.title.rendered}</p>
+                    <p>{limitTitleText(item.title.rendered, 10)}</p>
                     <div>
                       <p>{dayjs(item.date).format("MMM DD, YYYY")}</p>
                       <img src={arweaveNewsLogo} alt="arweave news logo" />
@@ -252,3 +258,9 @@ const Explore = () => {
 };
 
 export default Explore;
+
+/*
+TODO
+- add functionality for collectibles
+- try fixing pricing stuff
+*/
