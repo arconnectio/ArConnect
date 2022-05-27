@@ -59,6 +59,7 @@
     height: 115px
     overflow: hidden
     position: relative
+    cursor: pointer
     color: variables.$background-color
     border-radius: 12px
     background-color: variables.$foreground-color
@@ -73,15 +74,15 @@
 
       span
         display: flex
-        font-size: 1.5em
+        font-size: 1.55em
         font-weight: 600
         letter-spacing: 0.5em
         align-items: center
         text-transform: uppercase
         
         img
-          width: 25px
-          height: 25px
+          width: 30px
+          height: 30px
           margin-right: 0.5em
       
       .FeaturedItemInfo
@@ -130,6 +131,14 @@
       box-shadow: variables.$standard-shadow
       cursor: pointer
       transition: all .23s ease-in-out
+
+      .LoadingSpinner
+        @extend ArweaveNewsItems !optional
+        align-items: center
+        justify-content: center !important
+
+      //   align-items: center 
+      //   justify-content: center
 
       &:active
         transform: scale(.95)

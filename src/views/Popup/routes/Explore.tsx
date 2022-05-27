@@ -13,8 +13,8 @@ import { RootState } from "../../../stores/reducers";
 import { GraphOptions } from "../../../utils/graph";
 import { fetchBalancesForAddress } from "verto-cache-interface";
 import { ArtsAndCollectiblesCard } from "../../../components/CollectibleCard";
-import vertoDarkModeLogo from "../../../assets/verto_light.png";
-import vertoLightModeLogo from "../../../assets/verto_dark.png";
+import arweaveLightLogo from "../../../assets/arweave_light.png";
+import arweaveDarkLogo from "../../../assets/arweave_dark.png";
 import arweaveNewsLogo from "../../../assets/arweave_news.png";
 import axios from "axios";
 import WalletManager from "../../../components/WalletManager";
@@ -27,6 +27,7 @@ dayjs.extend(localizedFormat);
 
 const Explore = () => {
   const theme = useTheme(),
+    [arweaveNews, setArweaveNews] = useState<any[]>([]),
     [communities, setCommunities] = useState<RandomCommunities[]>(),
     [currentPage, setCurrentPage] = useState<1 | 2 | 3>(1),
     profile = useSelector((state: RootState) => state.profile),
@@ -79,6 +80,17 @@ const Explore = () => {
     })();
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      const { data }: { data: any[] } = await axios.get(
+        "https://arweave.news/wp-json/wp/v2/posts/"
+      );
+      setArweaveNews(data.slice(0, 6));
+    })();
+  }, []);
+
+  console.log("YOLO", arweaveNews);
+
   return (
     <>
       <WalletManager pageTitle="Explore" />
@@ -125,7 +137,6 @@ const Explore = () => {
         <p className={styles.SectionHeader}>news & updates</p>
         <div>
           <div className={styles.FeaturedWrapper}>
-            {/* TODO: FIX ISSUE WITH TRANSITION */}
             <AnimatePresence>
               <motion.div
                 className={styles.FeaturedItem}
@@ -140,48 +151,55 @@ const Explore = () => {
               >
                 <span>
                   <img
-                    src={
-                      theme === "Dark" ? vertoDarkModeLogo : vertoLightModeLogo
-                    }
+                    src={theme === "Dark" ? arweaveDarkLogo : arweaveLightLogo}
                     alt="token-logo"
                     draggable={false}
                   />
-                  erto
+                  news
                 </span>
-                <p className={styles.FeaturedItemInfo}>
-                  Not A Single Week Passed, And Verto Team Is Killing It In
-                  September
-                </p>
-
-                <div className={styles.Paginator}>
-                  {new Array(3).fill("_").map((_, i) => (
-                    <span
-                      className={currentPage === i + 1 ? styles.ActivePage : ""}
-                      // @ts-ignore
-                      onClick={() => setCurrentPage(i + 1)}
-                      key={i}
-                    />
-                  ))}
-                </div>
+                <>
+                  <p className={styles.FeaturedItemInfo}>
+                    {arweaveNews.length > 1 ? (
+                      arweaveNews[currentPage].title.rendered
+                    ) : (
+                      <Loading.Spinner />
+                    )}
+                  </p>
+                  <div className={styles.Paginator}>
+                    {new Array(3).fill("_").map((_, i) => (
+                      <span
+                        className={
+                          currentPage === i + 1 ? styles.ActivePage : ""
+                        }
+                        // @ts-ignore
+                        onClick={() => setCurrentPage(i + 1)}
+                        key={i}
+                      />
+                    ))}
+                  </div>
+                </>
               </motion.div>
             </AnimatePresence>
           </div>
 
           <div className={styles.ArweaveNewsWrapper}>
-            <div className={styles.ArweaveNewsItem}>
-              <p>AR/USDT Swap Now Available Via everFinance’s everPay DEX</p>
-              <div>
-                <p>Sep 16, 2021</p>
-                <img src={arweaveNewsLogo} alt="arweave news logo" />
+            {arweaveNews ? (
+              <>
+                {arweaveNews.slice(3, 5).map((item) => (
+                  <div className={styles.ArweaveNewsItem} key={item.id}>
+                    <p>{item.title.rendered}</p>
+                    <div>
+                      <p>{dayjs(item.date).format("MMM DD, YYYY")}</p>
+                      <img src={arweaveNewsLogo} alt="arweave news logo" />
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <div className={styles.LoadingSpinner}>
+                <Loading.Spinner />
               </div>
-            </div>
-            <div className={styles.ArweaveNewsItem}>
-              <p>Why NFTs on Arweave and Solana Took Off This Summer</p>
-              <div>
-                <p>Sep 16, 2021</p>
-                <img src={arweaveNewsLogo} alt="arweave news logo" />
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
