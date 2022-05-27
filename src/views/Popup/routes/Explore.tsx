@@ -163,14 +163,20 @@ const Explore = () => {
                   news
                 </span>
                 <>
-                  <p className={styles.FeaturedItemInfo}>
-                    {arweaveNews.length > 1
-                      ? limitTitleText(
-                          arweaveNews[currentPage].title.rendered,
-                          7
-                        )
-                      : null}
-                  </p>
+                  {arweaveNews.length > 1 ? (
+                    <p className={styles.FeaturedItemInfo}>
+                      {limitTitleText(
+                        arweaveNews[currentPage].title.rendered,
+                        7
+                      )}
+                    </p>
+                  ) : (
+                    <>
+                      <Loading.Spinner className={styles.Loading} />
+                      <Spacer y={0.5} />
+                    </>
+                  )}
+                  <Spacer y={0.15} />
                   <div className={styles.Paginator}>
                     {new Array(3).fill("_").map((_, i) => (
                       <span
@@ -189,7 +195,7 @@ const Explore = () => {
           </div>
 
           <div className={styles.ArweaveNewsWrapper}>
-            {arweaveNews ? (
+            {arweaveNews.length > 1 ? (
               <>
                 {arweaveNews.slice(3, 5).map((item) => (
                   <div className={styles.ArweaveNewsItem} key={item.id}>
@@ -202,7 +208,7 @@ const Explore = () => {
                 ))}
               </>
             ) : (
-              <div className={styles.LoadingSpinner}>
+              <div className={styles.LoadingWrapper}>
                 <Loading.Spinner />
               </div>
             )}

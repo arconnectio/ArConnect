@@ -64,6 +64,12 @@
     border-radius: 12px
     background-color: variables.$foreground-color
     box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1)
+    display: flex
+    align-items: center
+    justify-content: center
+
+    .Loading
+      color: green variables.$background-color
 
     .FeaturedItem
       display: flex
@@ -120,6 +126,11 @@
     justify-content: space-between
     margin-top: .7em
 
+    .LoadingWrapper
+      width: 360px
+      display: flex
+      justify-content: center
+
     .ArweaveNewsItem
       display: flex
       flex-direction: column
@@ -131,14 +142,6 @@
       box-shadow: variables.$standard-shadow
       cursor: pointer
       transition: all .23s ease-in-out
-
-      .LoadingSpinner
-        @extend ArweaveNewsItems !optional
-        align-items: center
-        justify-content: center !important
-
-      //   align-items: center 
-      //   justify-content: center
 
       &:active
         transform: scale(.95)
