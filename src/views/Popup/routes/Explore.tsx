@@ -95,8 +95,6 @@ const Explore = () => {
       ? title.split(" ").slice(0, limit).join(" ") + " ..."
       : title;
 
-  console.log("YOLO", arweaveNews);
-
   return (
     <>
       <WalletManager pageTitle="Explore" />
@@ -165,12 +163,19 @@ const Explore = () => {
                 </span>
                 <>
                   {arweaveNews.length > 1 ? (
-                    <p className={styles.FeaturedItemInfo}>
-                      {limitTitleText(
-                        arweaveNews[currentPage].title.rendered,
-                        7
-                      )}
-                    </p>
+                    <>
+                      <a
+                        className={styles.FeaturedItemInfo}
+                        href={arweaveNews[currentPage].link}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {limitTitleText(
+                          arweaveNews[currentPage].title.rendered,
+                          7
+                        )}
+                      </a>
+                    </>
                   ) : (
                     <>
                       <Loading.Spinner className={styles.Loading} />
@@ -198,7 +203,7 @@ const Explore = () => {
           <div className={styles.ArweaveNewsWrapper}>
             {arweaveNews.length > 1 ? (
               <>
-                {arweaveNews.slice(3, 5).map((item) => (
+                {arweaveNews.slice(4, 6).map((item) => (
                   <div className={styles.ArweaveNewsItem} key={item.id}>
                     <p>{limitTitleText(item.title.rendered, 10)}</p>
                     <div>
@@ -269,5 +274,4 @@ export default Explore;
 /*
 TODO
 - add functionality for collectibles
-- try fixing pricing stuff
 */
