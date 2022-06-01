@@ -95,6 +95,12 @@ const Explore = () => {
       ? title.split(" ").slice(0, limit).join(" ") + " ..."
       : title;
 
+  const createMarkup = (markup: string) => {
+    return {
+      __html: markup
+    };
+  };
+
   return (
     <>
       <WalletManager pageTitle="Explore" />
@@ -169,12 +175,13 @@ const Explore = () => {
                         href={arweaveNews[currentPage].link}
                         target="_blank"
                         rel="noreferrer"
-                      >
-                        {limitTitleText(
-                          arweaveNews[currentPage].title.rendered,
-                          7
+                        dangerouslySetInnerHTML={createMarkup(
+                          limitTitleText(
+                            arweaveNews[currentPage].title.rendered,
+                            7
+                          )
                         )}
-                      </a>
+                      />
                     </>
                   ) : (
                     <>
@@ -205,7 +212,11 @@ const Explore = () => {
               <>
                 {arweaveNews.slice(4, 6).map((item) => (
                   <div className={styles.ArweaveNewsItem} key={item.id}>
-                    <p>{limitTitleText(item.title.rendered, 10)}</p>
+                    <p
+                      dangerouslySetInnerHTML={createMarkup(
+                        limitTitleText(item.title.rendered, 10)
+                      )}
+                    />
                     <div>
                       <p>{dayjs(item.date).format("MMM DD, YYYY")}</p>
                       <img src={arweaveNewsLogo} alt="arweave news logo" />
