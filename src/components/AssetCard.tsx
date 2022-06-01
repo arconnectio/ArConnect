@@ -1,14 +1,10 @@
 import React from "react";
 import { Card, useTheme } from "@verto/ui";
 import { goTo } from "react-chrome-extension-router";
-import { getSymbol } from "../utils/currency";
-import { useSelector } from "react-redux";
-import { RootState } from "../stores/reducers";
 import Token from "../views/Popup/routes/Token";
 import styles from "../styles/components/AssetCard.module.sass";
 
 export default function AssetCard({ ticker, display, fiat, id }: Props) {
-  const { currency } = useSelector((state: RootState) => state.settings);
   const theme = useTheme();
 
   return (
@@ -30,14 +26,6 @@ export default function AssetCard({ ticker, display, fiat, id }: Props) {
             })) ||
             display}
         </h1>
-        <h2>
-          {getSymbol(currency)}
-          {/** TODO: convert to currency */}
-          {fiat.toLocaleString(undefined, {
-            maximumFractionDigits: 2
-          })}{" "}
-          {currency}
-        </h2>
       </div>
     </Card>
   );
