@@ -8,7 +8,7 @@ import styles from "../styles/components/CollectibleCard.module.sass";
 const ArtsAndCollectiblesWrapper = styled.div<ArtsProps>`
   display: flex;
   background-size: cover;
-  background-position: center;
+  background-position: top;
   background-repeat: no-repeat;
   background-image: url(${(props) => props.imageUrl});
 

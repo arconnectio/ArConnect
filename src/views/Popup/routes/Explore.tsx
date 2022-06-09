@@ -11,7 +11,10 @@ import { cardListAnimation } from "verto-internals/utils";
 import { Line } from "react-chartjs-2";
 import { RootState } from "../../../stores/reducers";
 import { GraphOptions } from "../../../utils/graph";
-import { fetchBalancesForAddress } from "verto-cache-interface";
+import {
+  fetchBalancesForAddress,
+  fetchRandomArtworkWithUser
+} from "verto-cache-interface";
 import { ArtsAndCollectiblesCard } from "../../../components/CollectibleCard";
 import arweaveLightLogo from "../../../assets/arweave_light.png";
 import arweaveDarkLogo from "../../../assets/arweave_dark.png";
@@ -29,10 +32,17 @@ dayjs.extend(localizedFormat);
 const Explore = () => {
   const theme = useTheme(),
     [arweaveNews, setArweaveNews] = useState<any[]>([]),
+    [randomArtwork, setRandomArtwork] = useState<any[]>([]),
     [communities, setCommunities] = useState<RandomCommunities[]>(),
     [currentPage, setCurrentPage] = useState<1 | 2 | 3>(1),
     profile = useSelector((state: RootState) => state.profile),
-    [collectibles, setCollectibles] = useState<UserBalance[]>();
+    [collectibles, setCollectibles] = useState<UserBalance[]>(),
+    fallBackArtwork = [
+      "deXX5M_oTr02soT217ZYH1WjotUadFbAb48JddyYmf4",
+      "Cu0FeGOQXmVFOfP4Fbpqdvy2dccDKlxi42ZFbGdCheA",
+      "jKPlhtYF-by5eLJkNjTn97gVCLW_MAuDqxaypn2f6Lo",
+      "D2o7h18f0GdfsSmpahb-TLbc1xhutrimwH7In0g5lmA"
+    ];
 
   // load collectibles
   useEffect(() => {
@@ -90,6 +100,19 @@ const Explore = () => {
     })();
   }, []);
 
+  useEffect(() => {
+    fetchRandomArtworkWithUser()
+      .then((arts) => {
+        const filteredArtwork = arts.filter(
+          (a) => a.images.length > 0 || a.owner.image
+        );
+        setRandomArtwork(filteredArtwork);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
   const limitTitleText = (title: string, limit: number): string =>
     title.split(" ").length > limit
       ? title.split(" ").slice(0, limit).join(" ") + " ..."
@@ -100,6 +123,8 @@ const Explore = () => {
       __html: markup
     };
   };
+
+  console.log("ALL ARTWORK", randomArtwork);
 
   return (
     <>
@@ -235,22 +260,46 @@ const Explore = () => {
         <p className={styles.SectionHeader}>art & collectibles</p>
         <div className={styles.ArtsCollectibles}>
           {/* TODO: IMPLEMENT FUNCTIONALITY */}
-          <ArtsAndCollectiblesCard
-            image="https://blwqk6ddsbpgkrjz6p4blotko36lm5ohamvfyyxdmzcwyz2cqxqa.arweave.net/Cu0FeGOQXmVFOfP4Fbpqdvy2dccDKlxi42ZFbGdCheA/"
-            name="Bark Blocks #18"
-          />
-          <ArtsAndCollectiblesCard
-            image="https://b5vdxb27d7igox5rfguwufwtfw3tlrq3vwxctma7wit5edtfta.arweave.net/D2o7h18f0GdfsSmpahb-TLbc1xhutrimwH7In0g5lmA"
-            name="Sweets"
-          />
-          <ArtsAndCollectiblesCard
-            image="https://b5vdxb27d7igox5rfguwufwtfw3tlrq3vwxctma7wit5edtfta.arweave.net/D2o7h18f0GdfsSmpahb-TLbc1xhutrimwH7In0g5lmA"
-            name="Sweets"
-          />
-          <ArtsAndCollectiblesCard
-            image="https://blwqk6ddsbpgkrjz6p4blotko36lm5ohamvfyyxdmzcwyz2cqxqa.arweave.net/Cu0FeGOQXmVFOfP4Fbpqdvy2dccDKlxi42ZFbGdCheA/"
-            name="Bark Blocks #17"
-          />
+          {randomArtwork.length === 4 ? (
+            <>
+              <ArtsAndCollectiblesCard
+                image={`https://arweave.net/${
+                  randomArtwork[0].images.length === 0
+                    ? randomArtwork[0].owner.image
+                    : randomArtwork[0].images[0]
+                }`}
+                name={randomArtwork[0].name}
+              />
+              <ArtsAndCollectiblesCard
+                image={`https://arweave.net/${
+                  randomArtwork[1].images.length === 0
+                    ? randomArtwork[1].owner.image
+                    : randomArtwork[1].images[0]
+                }`}
+                name={randomArtwork[1].name}
+              />
+              <ArtsAndCollectiblesCard
+                image={`https://arweave.net/${
+                  randomArtwork[2].images.length === 0
+                    ? randomArtwork[2].owner.image
+                    : randomArtwork[2].images[0]
+                }`}
+                name={randomArtwork[2].name}
+              />
+              <ArtsAndCollectiblesCard
+                image={`https://arweave.net/${
+                  randomArtwork[3].images.length === 0
+                    ? randomArtwork[3].owner.image
+                    : randomArtwork[3].images[0]
+                }`}
+                name={randomArtwork[3].name}
+              />
+            </>
+          ) : (
+            <div>
+              <p>Not available. Check back later</p>
+            </div>
+          )}
         </div>
 
         <p className={styles.SectionHeader}>communities</p>
@@ -281,8 +330,3 @@ const Explore = () => {
 };
 
 export default Explore;
-
-/*
-TODO
-- add functionality for collectibles
-*/
