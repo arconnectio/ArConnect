@@ -37,12 +37,8 @@ const Explore = () => {
     [currentPage, setCurrentPage] = useState<1 | 2 | 3>(1),
     profile = useSelector((state: RootState) => state.profile),
     [collectibles, setCollectibles] = useState<UserBalance[]>(),
-    fallBackArtwork = [
-      "deXX5M_oTr02soT217ZYH1WjotUadFbAb48JddyYmf4",
-      "Cu0FeGOQXmVFOfP4Fbpqdvy2dccDKlxi42ZFbGdCheA",
-      "jKPlhtYF-by5eLJkNjTn97gVCLW_MAuDqxaypn2f6Lo",
-      "D2o7h18f0GdfsSmpahb-TLbc1xhutrimwH7In0g5lmA"
-    ];
+    arweaveNet = "https://arweave.net",
+    fallBackArt = "deXX5M_oTr02soT217ZYH1WjotUadFbAb48JddyYmf4";
 
   // load collectibles
   useEffect(() => {
@@ -259,45 +255,25 @@ const Explore = () => {
 
         <p className={styles.SectionHeader}>art & collectibles</p>
         <div className={styles.ArtsCollectibles}>
-          {/* TODO: IMPLEMENT FUNCTIONALITY */}
-          {randomArtwork.length === 4 ? (
+          {randomArtwork.length > 0 ? (
             <>
-              <ArtsAndCollectiblesCard
-                image={`https://arweave.net/${
-                  randomArtwork[0].images.length === 0
-                    ? randomArtwork[0].owner.image
-                    : randomArtwork[0].images[0]
-                }`}
-                name={randomArtwork[0].name}
-              />
-              <ArtsAndCollectiblesCard
-                image={`https://arweave.net/${
-                  randomArtwork[1].images.length === 0
-                    ? randomArtwork[1].owner.image
-                    : randomArtwork[1].images[0]
-                }`}
-                name={randomArtwork[1].name}
-              />
-              <ArtsAndCollectiblesCard
-                image={`https://arweave.net/${
-                  randomArtwork[2].images.length === 0
-                    ? randomArtwork[2].owner.image
-                    : randomArtwork[2].images[0]
-                }`}
-                name={randomArtwork[2].name}
-              />
-              <ArtsAndCollectiblesCard
-                image={`https://arweave.net/${
-                  randomArtwork[3].images.length === 0
-                    ? randomArtwork[3].owner.image
-                    : randomArtwork[3].images[0]
-                }`}
-                name={randomArtwork[3].name}
-              />
+              {randomArtwork.map((art) => (
+                <ArtsAndCollectiblesCard
+                  image={
+                    art.images.length > 0
+                      ? `${arweaveNet}/${art.images[0]}`
+                      : `${arweaveNet}/${fallBackArt}`
+                  }
+                  name={art.name}
+                  key={art.id}
+                />
+              ))}
             </>
           ) : (
             <div>
-              <p>Not available. Check back later</p>
+              <p className={styles.collectiblesText}>
+                No Art available at the moment. Check back later.
+              </p>
             </div>
           )}
         </div>
