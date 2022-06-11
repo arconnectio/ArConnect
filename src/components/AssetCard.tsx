@@ -4,7 +4,7 @@ import { goTo } from "react-chrome-extension-router";
 import Token from "../views/Popup/routes/Token";
 import styles from "../styles/components/AssetCard.module.sass";
 
-export default function AssetCard({ ticker, display, fiat, id }: Props) {
+export default function AssetCard({ ticker, display, id }: Props) {
   const theme = useTheme();
 
   return (
@@ -36,6 +36,4 @@ interface Props {
   ticker: string;
   /** Token name or total balance of the token (e.g. 100 VRT) */
   display: string | number;
-  /** Total balance of a specific token in fiat currency or price of the token in usd */
-  fiat: number;
 }

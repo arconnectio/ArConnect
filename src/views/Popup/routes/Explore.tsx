@@ -285,12 +285,10 @@ const Explore = () => {
             {(communities &&
               communities.map((community, i) => (
                 <motion.div {...cardListAnimation(i)} key={i}>
-                  {/** TODO: price here */}
                   <AssetCard
                     id={community.id}
                     ticker={community.ticker}
                     display={community.name}
-                    fiat={35.435}
                   />
                 </motion.div>
               ))) || (
