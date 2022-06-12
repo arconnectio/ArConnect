@@ -99,9 +99,9 @@ const Explore = () => {
   useEffect(() => {
     fetchRandomArtworkWithUser()
       .then((arts) => {
-        const filteredArtwork = arts.filter(
-          (a) => a.images.length > 0 || a.owner.image
-        );
+        const filteredArtwork = arts
+          .filter((a) => a.images.length > 0 || a.owner.image)
+          .slice(0, 4);
         setRandomArtwork(filteredArtwork);
       })
       .catch((error) => {
@@ -262,29 +262,28 @@ const Explore = () => {
         </div>
 
         <p className={styles.SectionHeader}>art & collectibles</p>
-        <div className={styles.ArtsCollectibles}>
-          {randomArtwork.length > 0 ? (
-            <>
-              {randomArtwork.map((art) => (
-                <ArtsAndCollectiblesCard
-                  image={
-                    art.images.length > 0
-                      ? `${arweaveNet}/${art.images[0]}`
-                      : `${arweaveNet}/${fallBackArt}`
-                  }
-                  name={art.name}
-                  key={art.id}
-                />
-              ))}
-            </>
-          ) : (
-            <div>
-              <p className={styles.collectiblesText}>
-                No Art available at the moment. Check back later.
-              </p>
-            </div>
-          )}
-        </div>
+        {randomArtwork.length > 0 ? (
+          <div className={styles.ArtsCollectibles}>
+            {randomArtwork.map((art) => (
+              <ArtsAndCollectiblesCard
+                image={
+                  art.images.length > 0
+                    ? `${arweaveNet}/${art.images[0]}`
+                    : `${arweaveNet}/${fallBackArt}`
+                }
+                name={art.name}
+                key={art.id}
+                ownerID={art.owner.username}
+              />
+            ))}
+          </div>
+        ) : (
+          <div>
+            <p className={styles.CollectiblesText}>
+              Art & Collectibles unavailable at the moment. Check back later
+            </p>
+          </div>
+        )}
 
         <p className={styles.SectionHeader}>communities</p>
 

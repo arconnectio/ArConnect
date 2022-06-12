@@ -7,6 +7,7 @@ import styles from "../styles/components/CollectibleCard.module.sass";
 
 const ArtsAndCollectiblesWrapper = styled.div<ArtsProps>`
   display: flex;
+  cursor: pointer;
   background-size: cover;
   background-position: top;
   background-repeat: no-repeat;
@@ -50,13 +51,24 @@ const CollectibleCard = ({ id, image, name, ticker, balance }: Props) => {
 
 const ArtsAndCollectiblesCard = ({
   name,
-  image
+  image,
+  ownerID
 }: {
   name: string;
   image?: string;
+  ownerID: string;
 }) => {
   return (
-    <ArtsAndCollectiblesWrapper imageUrl={image}>
+    <ArtsAndCollectiblesWrapper
+      imageUrl={image}
+      onClick={() =>
+        window.open(
+          `https://verto.exchange/@${ownerID}`,
+          "_blank",
+          "noreferrer"
+        )
+      }
+    >
       <p>{name}</p>
     </ArtsAndCollectiblesWrapper>
   );
