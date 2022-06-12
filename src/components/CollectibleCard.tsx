@@ -14,11 +14,12 @@ const ArtsAndCollectiblesWrapper = styled.div<ArtsProps>`
 
   p {
     color: #fff;
-    font-size: 14px;
+    font-size: 13px;
     margin-bottom: 0;
-    font-weight: 500;
+    font-weight: 600;
     padding-left: 0.4em;
     align-self: flex-end;
+    text-overflow: ellipsis;
     font-family: "Poppins", sans-serif;
   }
 `;
