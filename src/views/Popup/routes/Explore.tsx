@@ -120,8 +120,6 @@ const Explore = () => {
     };
   };
 
-  console.log("ALL ARTWORK", randomArtwork);
-
   return (
     <>
       <WalletManager pageTitle="Explore" />
@@ -191,11 +189,15 @@ const Explore = () => {
                 <>
                   {arweaveNews.length > 1 ? (
                     <>
-                      <a
+                      <p
                         className={styles.FeaturedItemInfo}
-                        href={arweaveNews[currentPage].link}
-                        target="_blank"
-                        rel="noreferrer"
+                        onClick={() =>
+                          window.open(
+                            arweaveNews[currentPage].link,
+                            "_blank",
+                            "noreferrer"
+                          )
+                        }
                         dangerouslySetInnerHTML={createMarkup(
                           limitTitleText(
                             arweaveNews[currentPage].title.rendered,
@@ -232,7 +234,13 @@ const Explore = () => {
             {arweaveNews.length > 1 ? (
               <>
                 {arweaveNews.slice(4, 6).map((item) => (
-                  <div className={styles.ArweaveNewsItem} key={item.id}>
+                  <div
+                    className={styles.ArweaveNewsItem}
+                    key={item.id}
+                    onClick={() =>
+                      window.open(item.link, "_blank", "noreferrer")
+                    }
+                  >
                     <p
                       dangerouslySetInnerHTML={createMarkup(
                         limitTitleText(item.title.rendered, 10)
