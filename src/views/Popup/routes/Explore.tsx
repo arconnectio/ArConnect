@@ -16,6 +16,7 @@ import {
   fetchRandomArtworkWithUser
 } from "verto-cache-interface";
 import { ArtsAndCollectiblesCard } from "../../../components/CollectibleCard";
+import { getSymbol } from "../../../utils/currency";
 import arweaveLightLogo from "../../../assets/arweave_light.png";
 import arweaveDarkLogo from "../../../assets/arweave_dark.png";
 import arweaveNewsLogo from "../../../assets/arweave_news.png";
@@ -36,6 +37,7 @@ const Explore = () => {
     [communities, setCommunities] = useState<RandomCommunities[]>(),
     [currentPage, setCurrentPage] = useState<1 | 2 | 3>(1),
     profile = useSelector((state: RootState) => state.profile),
+    { currency } = useSelector((state: RootState) => state.settings),
     [collectibles, setCollectibles] = useState<UserBalance[]>(),
     arweaveNet = "https://arweave.net",
     fallBackArt = "deXX5M_oTr02soT217ZYH1WjotUadFbAb48JddyYmf4";
@@ -75,7 +77,7 @@ const Explore = () => {
   useEffect(() => {
     (async () => {
       const { data } = await axios.get<{ prices: [number, number][] }>(
-        "https://api.coingecko.com/api/v3/coins/arweave/market_chart?vs_currency=usd&days=1&interval=hourly"
+        `https://api.coingecko.com/api/v3/coins/arweave/market_chart?vs_currency=${currency.toLowerCase()}&days=1&interval=hourly`
       );
 
       setArweavePrice(
@@ -85,7 +87,7 @@ const Explore = () => {
         }))
       );
     })();
-  }, []);
+  }, [currency]);
 
   useEffect(() => {
     (async () => {
@@ -129,7 +131,7 @@ const Explore = () => {
           <div className={styles.TokenInfo}>
             <h3>Arweave</h3>
             <h2>
-              $
+              {getSymbol(currency)}
               {(
                 arweavePrices[arweavePrices.length - 1]?.price || 0
               ).toLocaleString(undefined, {

@@ -366,7 +366,6 @@ export default function Home() {
                         id={asset.contractId}
                         ticker={asset.ticker || ""}
                         display={asset.balance}
-                        fiat={asset.arPrice}
                       />
                     </motion.div>
                   ))) ||
