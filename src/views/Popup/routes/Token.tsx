@@ -4,6 +4,7 @@ import { goTo } from "react-chrome-extension-router";
 import { fetchContract } from "verto-cache-interface";
 import { browser } from "webextension-polyfill-ts";
 import { useTheme, Spacer } from "@verto/ui";
+import { getSymbol } from "../../../utils/currency";
 import { GraphOptions } from "../../../utils/graph";
 import { Line } from "react-chartjs-2";
 import { marked } from "marked";
@@ -22,6 +23,7 @@ export default function Token({ id }: { id: string }) {
   // load token type and state
   const [tokenType, setTokenType] = useState<"community" | "art">();
   const [tokenState, setTokenState] = useState<TokenState>();
+  const { currency } = useSelector((state: RootState) => state.settings);
   const [communitySettings, setCommunitySettings] = useState<Map<string, any>>(
     new Map([])
   );
@@ -92,7 +94,7 @@ export default function Token({ id }: { id: string }) {
                 </h1>
                 <h1 className={styles.Price}>
                   {/** TODO: price */}
-                  $--.--
+                  {getSymbol(currency)}--.--
                 </h1>
                 <div className={styles.PeriodMenu}>
                   {periods.map((per, i) => (
