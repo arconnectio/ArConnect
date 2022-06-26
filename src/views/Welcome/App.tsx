@@ -11,7 +11,8 @@ import {
   useInput,
   Input,
   Spacer,
-  Code
+  Code,
+  Note
 } from "@geist-ui/react";
 import { FileIcon } from "@primer/octicons-react";
 import { JWKInterface } from "arweave/node/lib/wallet";
@@ -323,6 +324,15 @@ export default function App() {
               <Button onClick={createWallet} loading={loading}>
                 New wallet
               </Button>
+              {loading && (
+                <>
+                  <Spacer h={1} />
+                  <Note type="success" filled>
+                    Generating super secure keys for you. This will take a
+                    couple of minutes, so grab a coffee! ☕️
+                  </Note>
+                </>
+              )}
             </div>
           )) || (
             <>
