@@ -435,22 +435,31 @@ export default function Home() {
             View all
           </h1>
         </div>
-        {(transactions.length > 0 &&
-          transactions
-            .slice(0, 12)
-            .map((tx, i) => (
-              <TransactionCard
-                type={tx.type}
-                status={tx.status}
-                amount={tx.amount}
-                txID={tx.id}
-              />
+        <Spacer y={1} />
+        <AnimatePresence>
+          {(transactions.length > 0 &&
+            transactions.slice(0, 12).map((tx, i) => (
+              <motion.div
+                className={styles.SectionItem}
+                {...cardListAnimation(i)}
+                key={i}
+              >
+                <TransactionCard
+                  type={tx.type}
+                  status={tx.status}
+                  amount={tx.amount}
+                  txID={tx.id}
+                  key={i}
+                />
+                <Spacer y={0.55} />
+              </motion.div>
             ))) ||
-          (loading.txs && (
-            <div className={styles.TransactionSpinner}>
-              <Loading.Spinner />
-            </div>
-          )) || <p className={styles.EmptyIndicatorText}>No transactions</p>}
+            (loading.txs && (
+              <div className={styles.TransactionSpinner}>
+                <Loading.Spinner />
+              </div>
+            )) || <p className={styles.EmptyIndicatorText}>No transactions</p>}
+        </AnimatePresence>
       </div>
 
       <AnimatePresence>

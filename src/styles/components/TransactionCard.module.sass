@@ -6,6 +6,11 @@
   align-items: center
   justify-content: space-between
   font-family: "Poppins", sans-serif
+  cursor: pointer
+  transition: all .23s ease-in-out
+
+  &:hover
+    opacity: .8
 
   .Details
     display: flex
@@ -16,7 +21,7 @@
       width: 21px
       color: variables.$background-color
       background: variables.$foreground-color
-      padding: 2px 8px
+      padding: 1px 4px
       display: flex
       align-items: center
       justify-content: center
@@ -33,3 +38,6 @@
     color: variables.$foreground-color
     font-size: 12px
     font-family: inherit
+
+  p
+    margin: 0

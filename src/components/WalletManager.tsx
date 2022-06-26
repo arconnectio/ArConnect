@@ -162,13 +162,6 @@ export default function WalletManager({
                   ? setOnStartApp(true)
                   : setOnStartApp(!onStartApp);
               }}
-              className={`animate__animated ${
-                onStartApp === "inactive"
-                  ? "animate__rollIn"
-                  : onStartApp
-                  ? "animate__rubberBand"
-                  : "animate__swing"
-              }`}
             />
           )}
         </div>
