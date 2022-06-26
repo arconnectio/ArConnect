@@ -1047,7 +1047,9 @@ export default function Settings({
                   </p>
                   <p
                     onClick={() =>
-                      browser.tabs.create({ url: "https://arconnect.io/docs" })
+                      browser.tabs.create({
+                        url: "https://docs.th8ta.org/arconnect"
+                      })
                     }
                     style={{ color: theme.palette.success }}
                   >
