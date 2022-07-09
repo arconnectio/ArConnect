@@ -680,30 +680,33 @@ export default function Settings({
                   ))}
                 </Tabs.Item>
                 <Tabs.Item label="Custom" value="2">
-                  <Spacer />
                   <Input
                     {...arweaveHostInput.bindings}
                     placeholder="Host..."
                     status={arweaveHostInput.state === "" ? "error" : undefined}
+                    small
                   />
-                  <Spacer />
+                  <Spacer y={1} />
                   <Input
                     {...arweavePortInput.bindings}
                     placeholder="Port..."
                     type="number"
                     status={arweavePortInput.state === "" ? "error" : undefined}
+                    small
                   />
-                  <Spacer />
+                  <Spacer y={1} />
                   <Input
                     {...arweaveProtocolInput.bindings}
                     placeholder="Protocol..."
                     status={
                       arweaveProtocolInput.state === "" ? "error" : undefined
                     }
+                    small
                   />
-                  <Spacer />
+                  <Spacer y={1} />
                   <Button
-                    style={{ width: "100%", marginTop: ".5em" }}
+                    className="FullWidthButton"
+                    small
                     onClick={() => {
                       if (
                         arweaveProtocolInput.state === "" ||
@@ -729,50 +732,9 @@ export default function Settings({
                   >
                     Set gateway
                   </Button>
-                  <Spacer />
+                  <Spacer y={1} />
                 </Tabs.Item>
               </Tabs>
-              <Spacer y={1} />
-              <Input
-                {...arweaveHostInput.bindings}
-                placeholder="Host..."
-                status={arweaveHostInput.state === "" ? "error" : undefined}
-              />
-              <Spacer y={1} />
-              <Input
-                {...arweavePortInput.bindings}
-                placeholder="Port..."
-                type="number"
-                status={arweavePortInput.state === "" ? "error" : undefined}
-              />
-              <Spacer y={1} />
-              <Input
-                {...arweaveProtocolInput.bindings}
-                placeholder="Protocol..."
-                status={arweaveProtocolInput.state === "" ? "error" : undefined}
-              />
-              <Spacer y={1} />
-              <Button
-                small
-                type="filled"
-                style={{ width: "85%", marginTop: ".5em" }}
-                // onClick={updateConfig}
-              >
-                Set config
-              </Button>
-              <Spacer y={1} />
-              <Button
-                small
-                type="filled"
-                style={{ width: "85%", marginTop: ".5em" }}
-                onClick={() => {
-                  dispatch(resetArweaveConfig());
-                  setCurrSetting(undefined);
-                }}
-              >
-                Reset
-              </Button>
-              <Spacer y={1} />
             </div>
           )) ||
           (setting === "arverify" && (

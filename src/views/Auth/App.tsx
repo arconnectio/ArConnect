@@ -526,22 +526,19 @@ export default function App() {
                 <>
                   <Spacer />
                   <p className={styles.GatewayConfig}>
-                    Gateway:
-                    <span>
-                      {gatewayConfig.host}
-                      {suggestedGateways.find(
-                        (g) => g.host === gatewayConfig.host
-                      ) && (
-                        <Tooltip text="Verified gateway">
-                          <VerifiedIcon />
-                        </Tooltip>
-                      )}
-                    </span>
+                    {gatewayConfig.host}
+                    {suggestedGateways.find(
+                      (g) => g.host === gatewayConfig.host
+                    ) && (
+                      <Tooltip text="Verified gateway">
+                        <VerifiedIcon />
+                      </Tooltip>
+                    )}
                   </p>
                 </>
               )}
               <Spacer y={1.5} />
-              <Button small onClick={accept} style={{ width: "100%" }}>
+              <Button small onClick={accept} className="FullWidthButton">
                 Accept
               </Button>
               <Spacer y={1.5} />
@@ -549,7 +546,7 @@ export default function App() {
                 small
                 onClick={cancel}
                 type="secondary"
-                style={{ width: "100%" }}
+                className="FullWidthButton Bordered"
               >
                 Cancel
               </Button>
