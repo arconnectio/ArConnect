@@ -2592,6 +2592,11 @@
   resolved "https://registry.yarnpkg.com/@types/html-minifier-terser/-/html-minifier-terser-5.1.2.tgz#693b316ad323ea97eed6b38ed1a3cc02b1672b57"
   integrity sha512-h4lTMgMJctJybDp8CQrxTUiiYmedihHWkjnF/8Pxseu2S6Nlfcy8kwboQ8yejh456rP2yWoEVm1sS/FVsfM48w==
 
+"@types/human-crypto-keys@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@types/human-crypto-keys/-/human-crypto-keys-0.1.0.tgz#5b93ca4ba701fec24a166eb48e43465a6b5dc268"
+  integrity sha512-5gHgkmAKb8eE/RbT3OMvtqS7AXQTsd42sYPCVobNSoakix01JyDbOJ58OGiKHmBroOZ3Kis8ZgyGUKzhgddpKQ==
+
 "@types/inquirer@^7.3.1":
   version "7.3.3"
   resolved "https://registry.yarnpkg.com/@types/inquirer/-/inquirer-7.3.3.tgz#92e6676efb67fa6925c69a2ee638f67a822952ac"
