@@ -329,7 +329,7 @@ export default function App() {
                   <Spacer h={1} />
                   <Note type="success" filled>
                     Generating super secure keys for you. This will take a
-                    couple of minutes, so grab a coffee! ☕️
+                    second, so grab a coffee! ☕️
                   </Note>
                 </>
               )}
