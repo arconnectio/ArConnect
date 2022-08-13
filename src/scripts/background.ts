@@ -16,6 +16,7 @@ import {
 import {
   checkPermissions,
   getActiveTab,
+  getCurrentActiveTab,
   getArweaveConfig,
   getPermissions,
   getStoreData,
@@ -60,9 +61,9 @@ browser.windows.onFocusChanged.addListener(async (windowId) => {
   if (windowId === browser.windows.WINDOW_ID_NONE) {
     handleBrowserLostFocus();
   } else {
-    const activeTab = await getActiveTab();
+    const activeTab = await getCurrentActiveTab();
     const txId = await checkCommunityContract(activeTab.url!);
-    if (txId) handleBrowserGainedFocus(activeTab.id!, txId);
+    if (txId) handleBrowserGainedFocus(activeTab.id!, txId, activeTab.url);
   }
 });
 
@@ -70,9 +71,13 @@ browser.windows.onFocusChanged.addListener(async (windowId) => {
 browser.tabs.onActivated.addListener(async (activeInfo) => {
   if (!(await walletsStored())) return;
 
-  await handleArweaveTabActivated(activeInfo.tabId);
-
-  await handleTabUpdate();
+  try {
+    const activeTab = await getCurrentActiveTab();
+    const txId = await checkCommunityContract(activeTab.url!);
+    await handleArweaveTabActivated(activeTab.id!, activeTab.url, txId);
+  } finally {
+    await handleTabUpdate();
+  }
 });
 
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
@@ -81,7 +86,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete") {
     const txId = await checkCommunityContract(tab.url!);
     if (txId) {
-      await handleArweaveTabOpened(tabId, txId);
+      await handleArweaveTabOpened(tabId, txId, tab.url);
     } else {
       if (tabId === (await getArweaveActiveTab())) {
         // It looks like user just entered or opened another web site on the same tab,
@@ -96,7 +101,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 browser.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
   if (!(await walletsStored())) return;
 
-  const activeTab = await getActiveTab();
+  const activeTab = await getCurrentActiveTab();
   if (await checkCommunityContract(activeTab.url!))
     handleArweaveTabClosed(tabId);
 });

@@ -30,6 +30,7 @@ import copy from "copy-to-clipboard";
 import "../styles/components/Tooltip.sass";
 import toastStyles from "../styles/components/SmallToast.module.sass";
 import styles from "../styles/components/WalletManager.module.sass";
+import { NativeAppClient } from "../utils/websocket";
 
 export default function WalletManager() {
   const profile = useSelector((state: RootState) => state.profile),
@@ -46,6 +47,11 @@ export default function WalletManager() {
       [address: string]: number;
     }>({}),
     [, setToast] = useToasts();
+
+  useEffect(() => {
+    // A simple way to preload the connection between extension and desktop app.
+    NativeAppClient.getInstance();
+  }, []);
 
   useEffect(() => {
     loadVerifiedAddresses();
