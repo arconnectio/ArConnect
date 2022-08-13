@@ -16,13 +16,13 @@ import {
 } from "@geist-ui/react";
 import { FileIcon } from "@primer/octicons-react";
 import { JWKInterface } from "arweave/node/lib/wallet";
-import { getKeyFromMnemonic } from "arweave-mnemonic-keys";
 import { useDispatch, useSelector } from "react-redux";
 import { Wallet } from "../../stores/reducers/wallets";
 import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
 import { checkPassword as checkPw, setPassword } from "../../utils/auth";
 import { browser } from "webextension-polyfill-ts";
+import { jwkFromMnemonic } from "../../utils/wallet";
 import bip39 from "bip39-web-crypto";
 import CryptoES from "crypto-es";
 import Arweave from "arweave";
@@ -135,7 +135,7 @@ export default function App() {
       walletsStoreEmpty = walletsStore.length < 1;
 
     if (seed) {
-      const keyFromSeed: JWKInterface = await getKeyFromMnemonic(seed);
+      const keyFromSeed = await jwkFromMnemonic(seed);
       keyfilesToLoad.push(keyFromSeed);
     }
 
@@ -163,10 +163,10 @@ export default function App() {
   async function createWallet() {
     setLoading(true);
 
-    const mnemonic = await bip39.generateMnemonic(),
-      keyfile: JWKInterface = await getKeyFromMnemonic(mnemonic),
-      address = await arweave.wallets.jwkToAddress(keyfile),
-      encryptedKeyfile = btoa(JSON.stringify(keyfile));
+    const mnemonic = await bip39.generateMnemonic();
+    const keyfile = await jwkFromMnemonic(mnemonic);
+    const address = await arweave.wallets.jwkToAddress(keyfile);
+    const encryptedKeyfile = btoa(JSON.stringify(keyfile));
 
     setSeed(mnemonic);
     setSeedKeyfile({ address, keyfile });

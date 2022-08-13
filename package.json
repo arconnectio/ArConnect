@@ -23,7 +23,6 @@
     "arbundles": "^0.6.14",
     "arverify": "^0.0.11",
     "arweave": "^1.10.18",
-    "arweave-mnemonic-keys": "^0.0.9",
     "axios": "^0.23.0",
     "bcryptjs": "^2.4.3",
     "bip39-web-crypto": "^4.0.1",
