@@ -2182,14 +2182,6 @@
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
 
-"@limestonefi/api@^0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@limestonefi/api/-/api-0.1.3.tgz#404bb050f1042a2458646068e7ab7da8d839a902"
-  integrity sha512-L9m5zZwl5Q53x3f91ZYwtGD14SBhIdquEnNYmPpw9O5wLm71Ose3vV5w31OmrbxWqYiLztp8j3u85oExwpkKUA==
-  dependencies:
-    ar-gql "^0.0.6"
-    arweave "^1.10.0"
-
 "@lordvlad/asn1.js@^5.1.1":
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/@lordvlad/asn1.js/-/asn1.js-5.1.1.tgz#468d5ff5f9045e0951a7d0e89a33e5f26a252df3"
@@ -2752,11 +2744,6 @@
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@types/jwk-to-pem/-/jwk-to-pem-2.0.1.tgz#ba6949f447e02cb7bebf101551e3a4dea5f4fde4"
   integrity sha512-QXmRPhR/LPzvXBHTPfG2BBfMTkNLUD7NyRcPft8m5xFCeANa1BZyLgT0Gw+OxdWx6i1WCpT27EqyggP4UUHMrA==
-
-"@types/limestonefi__api@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@types/limestonefi__api/-/limestonefi__api-0.1.0.tgz#4dac7831ac13177d18295b385aa43a05b3a980b4"
-  integrity sha512-K/Sju973RNI6TTu1MV/0+XdBTspJOVH53m3n+dJ/W8g/xHNs2Fha4kOXuR73Zg6Di2RhHWKQ+X7MasVKcgPYyA==
 
 "@types/lodash@^4.14.159":
   version "4.14.178"
@@ -3749,7 +3736,7 @@ arweave-stream-tx@^1.1.0:
     exponential-backoff "^3.1.0"
     stream-chunker "^1.2.8"
 
-arweave@^1.10.0, arweave@^1.10.11, arweave@^1.10.13, arweave@^1.10.15, arweave@^1.10.16, arweave@^1.10.18, arweave@^1.9.1:
+arweave@^1.10.11, arweave@^1.10.13, arweave@^1.10.15, arweave@^1.10.16, arweave@^1.10.18, arweave@^1.9.1:
   version "1.10.18"
   resolved "https://registry.yarnpkg.com/arweave/-/arweave-1.10.18.tgz#3042edd1afa52b7c3caeacf88271758232c7b866"
   integrity sha512-i3pKBkLtU1Jl9RtJ9A6zgz8QqF5FZy7YA+qGQ9i2Zug171p29FTDZhN+KlRcVBg8sEgd1DKyecCCYJZ3K6Jdfg==
@@ -13102,6 +13089,19 @@ recursive-readdir@2.2.2:
   integrity sha512-nRCcW9Sj7NuZwa2XvH9co8NPeXUBhZP7CRKJtU+cS6PW9FpCIFoI5ib0NT1ZrbNuPoRy0ylyCaUL8Gih4LSyFg==
   dependencies:
     minimatch "3.0.4"
+
+redstone-api@^0.4.11:
+  version "0.4.11"
+  resolved "https://registry.yarnpkg.com/redstone-api/-/redstone-api-0.4.11.tgz#103530e7a23138bb24332ce4d893eb72e61109bd"
+  integrity sha512-X0gj7UU5aLQPmNjdnhBUCvi6tkj5SpQJ7heT6+TIPx7Od707n4oqKHoJa41V8QOGjudbxaM1BIv6+2+hp0wFGQ==
+  dependencies:
+    ar-gql "^0.0.6"
+    arweave "^1.10.16"
+    arweave-multihost "^0.1.0"
+    axios "^0.21.1"
+    deep-sort-object "^1.0.2"
+    lodash "^4.17.21"
+    pako "^2.0.3"
 
 redstone-api@^0.4.4, redstone-api@^0.4.6:
   version "0.4.6"

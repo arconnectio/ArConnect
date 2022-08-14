@@ -4,7 +4,7 @@ import { getActiveKeyfile, getArweaveConfig, getStoreData } from "./background";
 import { gql } from "./gateways";
 import Arweave from "arweave";
 import manifest from "../../public/manifest.json";
-import limestone from "@limestonefi/api";
+import redstone from "redstone-api";
 import axios from "axios";
 
 /**
@@ -154,9 +154,12 @@ export async function getFeeAmount(address: string, arweave: Arweave) {
   let arPrice = 0;
 
   try {
-    const res = await limestone.getPrice("AR");
-    arPrice = res.price;
+    // grab price from redstone API
+    const { value } = await redstone.getPrice("AR");
+
+    arPrice = value;
   } catch {
+    // fallback price API
     const { data: res }: any = await axios.get(
       "https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=usd"
     );
