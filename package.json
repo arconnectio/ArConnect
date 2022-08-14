@@ -50,6 +50,7 @@
     "smartweave": "^0.4.45",
     "use-color-scheme": "^1.1.1",
     "uuid": "^8.3.2",
+    "verto-cache-interface": "^1.2.6",
     "webextension-polyfill-ts": "^0.26.0"
   },
   "devDependencies": {
