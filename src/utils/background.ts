@@ -7,10 +7,7 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import { getRealURL } from "./url";
 import { browser } from "webextension-polyfill-ts";
 import type { DataItem } from "arbundles";
-import { gql } from "../utils/gateways";
 import axios from "axios";
-import limestone from "@limestonefi/api";
-import Arweave from "arweave";
 
 /**
  * Create an authenticator popup
@@ -114,58 +111,6 @@ export async function setStoreData(updatedData: StoreData) {
   await browser.storage.local.set({
     "persist:root": JSON.stringify(encodedData)
   });
-}
-
-/**
- * Calculate the fee amount needed for a signing
- *
- * @param address The address to base off the calculation
- * @param arweave Arweave client
- *
- * @returns Fee amount in string
- */
-export async function getFeeAmount(address: string, arweave: Arweave) {
-  const res = await gql(
-    `
-      query($address: String!) {
-        transactions(
-          owners: [$address]
-          tags: [
-            { name: "App-Name", values: "ArConnect" }
-            { name: "Type", values: "Fee-Transaction" }
-          ]
-          first: 11
-        ) {
-          edges {
-            node {
-              id
-            }
-          }
-        }
-      }
-    `,
-    { address }
-  );
-
-  let arPrice = 0;
-
-  try {
-    const res = await limestone.getPrice("AR");
-    arPrice = res.price;
-  } catch {
-    const { data: res }: any = await axios.get(
-      "https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=usd"
-    );
-    arPrice = res.arweave.usd;
-  }
-
-  const usdPrice = 1 / arPrice; // 1 USD how much AR
-
-  if (res.data.transactions.edges.length) {
-    const usd = res.data.transactions.edges.length >= 10 ? 0.01 : 0.03;
-
-    return arweave.ar.arToWinston((usdPrice * usd).toString());
-  } else return arweave.ar.arToWinston((usdPrice * 0.01).toString());
 }
 
 /**
