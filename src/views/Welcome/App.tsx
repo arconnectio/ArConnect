@@ -12,21 +12,23 @@ import {
   Input,
   Spacer,
   Code,
-  Note
+  Loading,
+  Divider
 } from "@geist-ui/react";
-import { FileIcon } from "@primer/octicons-react";
+import { CopyIcon, FileIcon } from "@primer/octicons-react";
 import { JWKInterface } from "arweave/node/lib/wallet";
-import { getKeyFromMnemonic } from "arweave-mnemonic-keys";
 import { useDispatch, useSelector } from "react-redux";
 import { Wallet } from "../../stores/reducers/wallets";
 import { setWallets, switchProfile } from "../../stores/actions";
 import { RootState } from "../../stores/reducers";
 import { checkPassword as checkPw, setPassword } from "../../utils/auth";
 import { browser } from "webextension-polyfill-ts";
+import { jwkFromMnemonic } from "../../utils/wallet";
 import bip39 from "bip39-web-crypto";
 import CryptoES from "crypto-es";
 import Arweave from "arweave";
 import logo from "../../assets/logo.png";
+import copy from "copy-to-clipboard";
 import styles from "../../styles/views/Welcome/view.module.sass";
 
 export default function App() {
@@ -44,7 +46,6 @@ export default function App() {
     [loading, setLoading] = useState(false),
     dispatch = useDispatch(),
     walletsStore = useSelector((state: RootState) => state.wallets),
-    seedModal = useModal(false),
     [seedKeyfile, setSeedKeyfile] = useState<{
       address: string;
       keyfile: JWKInterface;
@@ -135,7 +136,7 @@ export default function App() {
       walletsStoreEmpty = walletsStore.length < 1;
 
     if (seed) {
-      const keyFromSeed: JWKInterface = await getKeyFromMnemonic(seed);
+      const keyFromSeed = await jwkFromMnemonic(seed);
       keyfilesToLoad.push(keyFromSeed);
     }
 
@@ -163,14 +164,15 @@ export default function App() {
   async function createWallet() {
     setLoading(true);
 
-    const mnemonic = await bip39.generateMnemonic(),
-      keyfile: JWKInterface = await getKeyFromMnemonic(mnemonic),
-      address = await arweave.wallets.jwkToAddress(keyfile),
-      encryptedKeyfile = btoa(JSON.stringify(keyfile));
+    const mnemonic = await bip39.generateMnemonic();
 
     setSeed(mnemonic);
+
+    const keyfile = await jwkFromMnemonic(mnemonic);
+    const address = await arweave.wallets.jwkToAddress(keyfile);
+    const encryptedKeyfile = btoa(JSON.stringify(keyfile));
+
     setSeedKeyfile({ address, keyfile });
-    seedModal.setVisible(true);
     dispatch(
       setWallets([
         ...walletsStore,
@@ -318,19 +320,53 @@ export default function App() {
           </p>
           {(passwordGiven && (
             <div className={styles.Actions}>
-              <Button onClick={() => loadWalletsModal.setVisible(true)}>
-                Load wallet(s)
-              </Button>
-              <Button onClick={createWallet} loading={loading}>
-                New wallet
-              </Button>
-              {loading && (
+              {(!seed && (
+                <div className={styles.WelcomeActions}>
+                  <Button onClick={() => loadWalletsModal.setVisible(true)}>
+                    Load wallet(s)
+                  </Button>
+                  <Button onClick={createWallet} loading={loading}>
+                    New wallet
+                  </Button>
+                </div>
+              )) || (
                 <>
+                  <p style={{ color: theme.palette.accents_4 }}>
+                    Write down your seedphrase and keep it safe!
+                    <span
+                      className={styles.CopySeedphrase}
+                      onClick={() => copy(seed as string)}
+                    >
+                      <CopyIcon />
+                    </span>
+                  </p>
+                  <div className={styles.Seedphrase}>
+                    {seed?.split(" ").map((word, i) => (
+                      <Card className={styles.Word} key={i}>
+                        <Card.Content className={styles.WordContent}>
+                          {i + 1}.
+                        </Card.Content>
+                        <Divider w="3px" className={styles.WordDivider} />
+                        <Card.Content className={styles.WordContent}>
+                          {word}
+                        </Card.Content>
+                      </Card>
+                    ))}
+                  </div>
                   <Spacer h={1} />
-                  <Note type="success" filled>
-                    Generating super secure keys for you. This will take a
-                    couple of minutes, so grab a coffee! ☕️
-                  </Note>
+                  {(loading && (
+                    <>
+                      <Loading style={{ margin: "0 auto" }} />
+                      <p style={{ color: theme.palette.accents_4, margin: 0 }}>
+                        Your wallet is still being generated. This won't take
+                        long.
+                      </p>
+                    </>
+                  )) || (
+                    <Button onClick={downloadSeedWallet} width="100%">
+                      Download keyfile
+                    </Button>
+                  )}
                 </>
               )}
             </div>
@@ -467,24 +503,6 @@ export default function App() {
         </Modal.Action>
         <Modal.Action onClick={login} loading={loading}>
           Load
-        </Modal.Action>
-      </Modal>
-      <Modal {...seedModal.bindings}>
-        <Modal.Title>Generated a wallet</Modal.Title>
-        <Modal.Subtitle>Make sure to remember this seedphrase</Modal.Subtitle>
-        <Modal.Content>
-          <Textarea
-            value={seed}
-            readOnly
-            className={styles.Seed + " " + styles.NewSeed}
-          ></Textarea>
-          <p style={{ textAlign: "center" }}>...and download your keyfile.</p>
-          <Button onClick={downloadSeedWallet} style={{ width: "100%" }}>
-            Download
-          </Button>
-        </Modal.Content>
-        <Modal.Action onClick={() => seedModal.setVisible(false)}>
-          Ok
         </Modal.Action>
       </Modal>
       <Modal {...feeModal.bindings}>
