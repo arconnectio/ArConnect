@@ -37,6 +37,7 @@ import { fixupPasswords } from "../utils/auth";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { Chunk } from "../utils/chunks";
 import Transaction, { Tag } from "arweave/web/lib/transaction";
+import handleFeeAlarm from "../utils/fee";
 
 // stored transactions and their chunks
 let transactions: {
@@ -109,6 +110,9 @@ browser.runtime.onConnect.addListener((connection) => {
     connection.postMessage({ ...res, ext: "arconnect" });
   });
 });
+
+// add fee event listeners
+browser.alarms.onAlarm.addListener(handleFeeAlarm);
 
 // listen for messages from the content script
 const handleApiCalls = async (

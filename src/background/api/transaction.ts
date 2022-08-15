@@ -4,10 +4,8 @@ import { Allowance } from "../../stores/reducers/allowances";
 import {
   createAuthPopup,
   DispatchResult,
-  generateBundlrAnchor,
   getActiveKeyfile,
   getArweaveConfig,
-  getFeeAmount,
   getStoreData,
   setStoreData,
   uploadDataToBundlr
@@ -19,7 +17,6 @@ import { browser } from "webextension-polyfill-ts";
 import Transaction, { Tag } from "arweave/web/lib/transaction";
 import Arweave from "arweave";
 import manifest from "../../../public/manifest.json";
-import axios from "axios";
 
 const arConnectTags = [
   { name: "Signing-Client", value: "ArConnect" },
@@ -102,41 +99,10 @@ export const signTransaction = (
           signatureOptions
         );
 
-        // attempt creating fee
-        try {
-          const feeTarget = await selectVRTHolder();
-
-          if (feeTarget) {
-            const feeTx = await arweave.createTransaction(
-              {
-                target: feeTarget,
-                quantity: await getFeeAmount(userData.address, arweave),
-                data: Math.random().toString().slice(-4)
-              },
-              userData.keyfile
-            );
-
-            feeTx.addTag("App-Name", "ArConnect");
-            feeTx.addTag("App-Version", manifest.version);
-            feeTx.addTag("Type", "Fee-Transaction");
-            feeTx.addTag("Linked-Transaction", decodeTransaction.id);
-
-            // fee multiplication
-            if (feeMultiplier > 1) {
-              feeTx.reward = (+feeTx.reward * feeMultiplier).toFixed(0);
-            }
-
-            await arweave.transactions.sign(feeTx, userData.keyfile);
-
-            const uploader = await arweave.transactions.getUploader(feeTx);
-
-            while (!uploader.isComplete) {
-              await uploader.uploadChunk();
-            }
-          }
-        } catch (e) {
-          console.log("Unable to create fee tx", e);
-        }
+        // create the fee later
+        browser.alarms.create(`scheduled-fee-${decodeTransaction.id}`, {
+          when: 1000
+        });
 
         if (allowanceForURL) {
           await setStoreData({
@@ -326,56 +292,5 @@ export async function dispatch(tx: object): Promise<{
         message: e as string
       };
     }
-  }
-}
-
-async function selectVRTHolder() {
-  try {
-    const res: any = (
-      await axios.get(
-        "https://v2.cache.verto.exchange/usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
-      )
-    ).data;
-    const balances = res.state.balances;
-    const vault = res.state.vault;
-    let totalTokens = 0;
-
-    for (const addr of Object.keys(balances)) {
-      totalTokens += balances[addr];
-    }
-
-    for (const addr of Object.keys(vault)) {
-      if (!vault[addr].length) continue;
-
-      const vaultBalance = vault[addr]
-        // @ts-ignore
-        .map((a) => a.balance)
-        // @ts-ignore
-        .reduce((a, b) => a + b, 0);
-      totalTokens += vaultBalance;
-
-      if (addr in balances) balances[addr] += vaultBalance;
-      else balances[addr] = vaultBalance;
-    }
-
-    const weighted: { [addr: string]: number } = {};
-
-    for (const addr of Object.keys(balances)) {
-      weighted[addr] = balances[addr] / totalTokens;
-    }
-
-    let sum = 0;
-    const r = Math.random();
-
-    for (const addr of Object.keys(weighted)) {
-      sum += weighted[addr];
-      if (r <= sum && weighted[addr] > 0) {
-        return addr;
-      }
-    }
-
-    return undefined;
-  } catch {
-    return undefined;
   }
 }
