@@ -12,6 +12,16 @@ import {
 import Transaction from "arweave/web/lib/transaction";
 import Arweave from "arweave";
 
+import modules from "../api";
+
+window.testModules = {};
+
+for (const mod of modules) {
+  window.testModules[mod.functionName] = async (...params: any[]) => {
+    console.log(await mod.injected(...params));
+  };
+}
+
 /** Maximum size (in bytes) sponsored for bundles using the Bundlr Network */
 const ACCEPTED_DISPATCH_SIZE = 120 * Math.pow(10, 3);
 
