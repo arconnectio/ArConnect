@@ -1,10 +1,17 @@
 {
   "manifest_version": 2,
   "name": "ArConnect",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "author": "th8ta",
   "description": "Secure wallet management for Arweave",
-  "permissions": ["activeTab", "tabs", "storage", "contextMenus", "<all_urls>"],
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage",
+    "contextMenus",
+    "<all_urls>",
+    "alarms"
+  ],
   "background": {
     "scripts": ["build/scripts/background.js"]
   },

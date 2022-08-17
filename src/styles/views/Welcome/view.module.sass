@@ -38,8 +38,11 @@
     .Actions
       margin-top: 1em
 
-      button
-        margin: 0 1em
+      .WelcomeActions
+        display: flex
+        gap: 1em
+        flex-wrap: wrap
+        justify-content: center
 
     .Logo
       display: block
@@ -132,3 +135,42 @@
     background: linear-gradient(142.25deg, #fc9867 23.99%, #ab9df2 73.9%)
     -webkit-background-clip: text
     -webkit-text-fill-color: transparent
+
+.CopySeedphrase
+  display: inline-flex
+  cursor: pointer
+  margin-left: .55rem
+  transition: all .23s ease-in-out
+
+  svg
+    width: 1em
+    height: 1em
+    font-size: .8em
+
+  &:hover
+    opacity: .86
+
+  &:active
+    transform: scale(.94)
+
+.Seedphrase
+  display: flex
+  flex-wrap: wrap
+  gap: .5rem
+  justify-content: center
+
+  .Word
+    display: inline-flex
+    align-items: stretch
+    font-size: 1rem
+    line-height: 1.1em
+    border-radius: 5px
+
+    .WordContent
+      padding: .3rem .45rem !important
+
+    .WordDivider
+      height: unset !important
+      width: 3px !important
+      margin: 0 !important
+      padding: 0 !important
