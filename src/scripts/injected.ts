@@ -12,13 +12,13 @@ import {
 import Transaction from "arweave/web/lib/transaction";
 import Arweave from "arweave";
 
-import modules from "../api";
+import modules from "../api/foreground";
 
 window.testModules = {};
 
 for (const mod of modules) {
   window.testModules[mod.functionName] = async (...params: any[]) => {
-    console.log(await mod.injected(...params));
+    console.log(await mod.function(...params));
   };
 }
 

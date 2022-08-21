@@ -1,18 +1,18 @@
 import { PermissionType } from "../utils/permissions";
 
 /**
- * Basic API module interface
- * @param T The return type of the API function result
+ * Basic API module props interface
  */
-export interface Module<ResultType> {
+export interface ModuleProperties {
   /** The name the function will be injected with into the API */
   functionName: string;
   /** Permissions required to execute this function */
   permissions: PermissionType[];
-  /** The background script function of this module (back-end) */
-  background: ModuleFunction<ResultType>;
-  /** The injected script function of this module (front-end) */
-  injected: ModuleFunction<ResultType>;
+}
+
+/** Full API module (background/foreground) */
+export interface Module<T> extends ModuleProperties {
+  function: ModuleFunction<T>;
 }
 
 /**
