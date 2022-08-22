@@ -38,8 +38,8 @@ for (const mod of modules) {
         type: `api_${mod.functionName}`,
         origin: "injected",
         ext: "arconnect",
+        callID,
         data: {
-          callID,
           params: foregroundResult
         }
       };
@@ -59,7 +59,7 @@ for (const mod of modules) {
           return;
 
         // only resolve when the result matching our callID is deleivered
-        if (data.data.callID !== res.data.callID) return;
+        if (data.callID !== res.callID) return;
 
         window.removeEventListener("message", callback);
 
@@ -74,7 +74,7 @@ for (const mod of modules) {
         }
 
         // resolve promise
-        resolve(res);
+        resolve(res.data);
       }
     });
 }

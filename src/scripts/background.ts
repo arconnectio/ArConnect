@@ -93,7 +93,7 @@ browser.runtime.onConnect.addListener((connection) => {
   if (connection.name !== "backgroundConnection") return;
 
   connection.onMessage.addListener(
-    async (msg: MessageFormat<{ callID: number; params: any }>, port) => {
+    async (msg: MessageFormat<{ params: any }>, port) => {
       // only handle API functions from the injected script
       if (!validateMessage(msg, "injected")) return;
 
@@ -102,7 +102,8 @@ browser.runtime.onConnect.addListener((connection) => {
       const responseTemplate: MessageFormat = {
         type: `${msg.type}_result`,
         origin: "background",
-        ext: "arconnect"
+        ext: "arconnect",
+        callID: msg.callID
       };
 
       // if we cannot find the module, we return with an error
