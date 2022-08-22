@@ -146,18 +146,23 @@ export const authenticateUser = (action: MessageType, tabURL: string) =>
         type: action,
         url: tabURL
       });
-      browser.runtime.onMessage.addListener(async (msg) => {
-        if (
-          !validateMessage(msg, {
-            sender: "popup",
-            type: `${action}_result` as MessageType
-          }) ||
-          !msg.decryptionKey ||
-          !msg.res
-        )
-          reject();
-        else resolve();
-      });
+
+      // wait for connection result
+      const listener = async (message: any) => {
+        // remove this listener first
+        browser.runtime.onMessage.removeListener(listener);
+
+        if (!validateMessage(message, "popup", `${action}_result`))
+          return reject();
+
+        // check the result
+        // TODO: move message.decryptionKey to message.data.decryptionKey
+        if (message.error || !message.data.decryptionKey) return reject();
+
+        resolve();
+      };
+
+      browser.runtime.onMessage.addListener(listener);
     } catch (e: any) {
       reject(e);
     }

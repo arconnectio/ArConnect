@@ -220,13 +220,7 @@ export default function Home() {
           sender: "popup"
         });
 
-        if (
-          !validateMessage(res, {
-            sender: "content",
-            type: "archive_page_content"
-          })
-        )
-          return;
+        if (!validateMessage(res, "content", "archive_page_content")) return;
 
         await browser.storage.local.set({
           lastArchive: {

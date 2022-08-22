@@ -8,11 +8,7 @@ import {
 } from "../background/api/address";
 import { addToken, walletNames } from "../background/api/utility";
 import { signTransaction, dispatch } from "../background/api/transaction";
-import {
-  MessageFormat,
-  MessageType,
-  validateMessage
-} from "../utils/messenger";
+import { MessageFormat, validateMessage } from "../utils/messenger";
 import {
   checkPermissions,
   getActiveTab,
