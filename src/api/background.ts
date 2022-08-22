@@ -1,12 +1,16 @@
 import { Runtime } from "webextension-polyfill-ts";
 import { Module } from "./module";
 
+// import modules
 import permissionsModule from "./modules/permissions";
 import permissions from "./modules/permissions/permissions.background";
+import activeAddressModule from "./modules/active_address";
+import activeAddress from "./modules/active_address/active_address.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
-  { ...permissionsModule, function: permissions }
+  { ...permissionsModule, function: permissions },
+  { ...activeAddressModule, function: activeAddress }
 ];
 
 export default modules;
