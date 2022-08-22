@@ -1,6 +1,15 @@
 import { PermissionType } from "../utils/permissions";
 
 /**
+ * Why do we need separate modules?
+ * We don't want to include background functions in the injected
+ * script or functions from the injected script in the backgroud
+ * script. Tree shaking is not going to separate these functions,
+ * so instead we are handling them in two different files (foreground
+ * and background module files) so we can import them separately.
+ */
+
+/**
  * Basic API module props interface
  */
 export interface ModuleProperties {
