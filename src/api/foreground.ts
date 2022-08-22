@@ -1,10 +1,12 @@
 import { Module, ModuleFunction } from "./module";
 
-import testModule from "./modules/test";
-import test from "./modules/test/test.foreground";
+import permissionsModule from "./modules/permissions";
+import permissions from "./modules/permissions/permissions.foreground";
 
 /** Foreground modules */
-const modules: ForegroundModule<any>[] = [{ ...testModule, function: test }];
+const modules: ForegroundModule<any>[] = [
+  { ...permissionsModule, function: permissions }
+];
 
 export default modules;
 

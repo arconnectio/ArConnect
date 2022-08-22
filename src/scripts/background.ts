@@ -120,14 +120,16 @@ browser.runtime.onConnect.addListener((connection) => {
       const tabURL = activeTab.url as string;
 
       // check permissions
-      const hasPermissions = await checkPermissions(mod.permissions, tabURL);
+      if (mod.permissions.length > 0) {
+        const hasPermissions = await checkPermissions(mod.permissions, tabURL);
 
-      if (!hasPermissions) {
-        return connection.postMessage({
-          ...responseTemplate,
-          error: true,
-          data: `Insufficient permissions to access "${functionName}"`
-        });
+        if (!hasPermissions) {
+          return connection.postMessage({
+            ...responseTemplate,
+            error: true,
+            data: `Insufficient permissions to access "${functionName}"`
+          });
+        }
       }
 
       // check if the site is blocked
