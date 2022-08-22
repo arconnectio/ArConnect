@@ -1,9 +1,9 @@
-export interface MessageFormat {
+export interface MessageFormat<T = any> {
   type: string;
   origin: MessageOrigin;
   ext: "arconnect";
   error?: boolean;
-  data?: any;
+  data?: T;
 }
 
 type MessageOrigin = "popup" | "background" | "content" | "injected";

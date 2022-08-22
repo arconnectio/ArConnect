@@ -40,7 +40,7 @@ for (const mod of modules) {
         ext: "arconnect",
         data: {
           callID,
-          ...foregroundResult
+          params: foregroundResult
         }
       };
 

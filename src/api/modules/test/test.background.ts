@@ -1,6 +1,6 @@
-import { ModuleFunction } from "../../module";
+import { ModuleFunction } from "../../background";
 
-const background: ModuleFunction<string> = async (test: string) => {
+const background: ModuleFunction<string> = async (port, test: string) => {
   return test;
 };
 
