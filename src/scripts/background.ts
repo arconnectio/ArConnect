@@ -171,11 +171,24 @@ browser.runtime.onConnect.addListener((connection) => {
         })
       );
 
-      // handle function
-      const functionResult = await mod.function(
-        port,
-        ...(msg.data?.params || [])
-      );
+      try {
+        // handle function
+        const functionResult = await mod.function(
+          port,
+          ...(msg.data?.params || [])
+        );
+
+        return connection.postMessage({
+          ...responseTemplate,
+          data: functionResult
+        });
+      } catch (e) {
+        return connection.postMessage({
+          ...responseTemplate,
+          error: true,
+          data: e
+        });
+      }
     }
   );
 });

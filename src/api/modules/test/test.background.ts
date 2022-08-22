@@ -1,7 +1,7 @@
 import { ModuleFunction } from "../../background";
 
 const background: ModuleFunction<string> = async (port, test: string) => {
-  return test;
+  return "fffff";
 };
 
 export default background;
