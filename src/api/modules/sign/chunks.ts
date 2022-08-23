@@ -8,7 +8,7 @@ export interface Chunk {
   collectionID: string; // unique ID for the collection, that is the parent of this chunk
   type: "tag" | "data" | "start";
   index: number; // index of the chunk, to make sure it is not in the wrong order
-  value: Uint8Array | Tag; // Uint8Array converted to number array or a tag
+  value?: Uint8Array | Tag; // Uint8Array converted to number array or a tag
 }
 
 /**
