@@ -15,6 +15,10 @@ import arweaveConfigModule from "./modules/arweave_config";
 import arweaveConfig from "./modules/arweave_config/arweave_config.foreground";
 import disconnectModule from "./modules/disconnect";
 import disconnect from "./modules/disconnect/disconnect.foreground";
+import connectModule from "./modules/connect";
+import connect, {
+  finalizer as connectFinalizer
+} from "./modules/connect/connect.foreground";
 
 /** Foreground modules */
 const modules: ForegroundModule<any>[] = [
@@ -24,7 +28,8 @@ const modules: ForegroundModule<any>[] = [
   { ...publicKeyModule, function: publicKey },
   { ...walletNamesModule, function: walletNames },
   { ...arweaveConfigModule, function: arweaveConfig },
-  { ...disconnectModule, function: disconnect }
+  { ...disconnectModule, function: disconnect },
+  { ...connectModule, function: connect, finalizer: connectFinalizer }
 ];
 
 export default modules;
