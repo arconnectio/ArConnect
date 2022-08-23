@@ -41,5 +41,16 @@ interface ForegroundModule extends Module<any[] | void> {
    * returned from the background script.
    * This is optional and will be ignored if not set.
    */
-  finalizer?: ModuleFunction<any>;
+  finalizer?: ModuleFunction<any> | TransformFinalizer<any, any>;
 }
+
+/**
+ * @param result The result from the background script
+ * @param params The params the background script received
+ * @param originalParams The params the injected function was called with
+ */
+export type TransformFinalizer<ResultType, ParamsType, OriginalParamsType> = (
+  result: ResultType,
+  params: ParamsType,
+  originalParams: OriginalParamsType
+) => any;

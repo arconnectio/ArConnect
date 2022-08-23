@@ -12,6 +12,11 @@ export interface Chunk {
 }
 
 /**
+ * Transaction object **without** it's data or tags
+ */
+export type SplitTransaction = Partial<Transaction>;
+
+/**
  * Split the tags and the data of a transaction in
  * chunks and remove them from the transaction object
  *
@@ -53,7 +58,7 @@ export function splitTxToChunks(
   // so it can be sent in one. the data and the tag
   // objects are the only parts of the tx that can
   // become potentially large
-  const tx = {
+  const tx: SplitTransaction = {
     ...transaction,
     data: undefined,
     tags: undefined

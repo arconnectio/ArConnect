@@ -54,7 +54,9 @@ for (const mod of modules) {
       window.addEventListener("message", callback);
 
       async function callback(e: MessageEvent<MessageFormat>) {
-        const { data: res } = e;
+        let { data: res } = e;
+
+        // validate return message
         if (!validateMessage(res, undefined, `${data.type}_result`) || !data)
           return;
 
@@ -65,7 +67,17 @@ for (const mod of modules) {
 
         // call the finalizer function if it exists
         if (mod.finalizer) {
-          await mod.finalizer(res);
+          const finalizerResult = await mod.finalizer(
+            res,
+            foregroundResult,
+            params
+          );
+
+          // if the finalizer transforms data
+          // update the result
+          if (finalizerResult) {
+            res = finalizerResult;
+          }
         }
 
         // check for errors

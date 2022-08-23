@@ -1,9 +1,15 @@
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { ModuleFunction } from "../../module";
-import { sendChunk, splitTxToChunks } from "./chunks";
+import { sendChunk, SplitTransaction, splitTxToChunks } from "./chunks";
+import { TransformFinalizer } from "../../foreground";
+import { createCoinWithAnimation } from "./animation";
 import Transaction from "arweave/web/lib/transaction";
+import Arweave from "arweave";
 
-const foreground: ModuleFunction<[Record<any, any>, SignatureOptions]> = async (
+type ReturnParams = [SplitTransaction, SignatureOptions];
+type OriginalParams = [Transaction, SignatureOptions];
+
+const foreground: ModuleFunction<ReturnParams> = async (
   transaction: Transaction,
   options: SignatureOptions
 ) => {
@@ -72,6 +78,48 @@ const foreground: ModuleFunction<[Record<any, any>, SignatureOptions]> = async (
    * parameters.
    */
   return [tx, options];
+};
+
+/**
+ * After we receive the signature, we need to reconstruct the transaction
+ */
+export const finalizer: TransformFinalizer<
+  {
+    transaction: SplitTransaction;
+    arConfetti: boolean;
+  },
+  Transaction,
+  OriginalParams
+> = (result, params) => {
+  if (!result) throw new Error("No transaction returned");
+
+  // we don't need the custom gateway config here
+  // because we are only converting tx objects
+  const arweave = new Arweave({
+    host: "arweave.net",
+    port: 443,
+    protocol: "https"
+  });
+
+  // Reconstruct the transaction
+  // Since the tags and the data are not sent
+  // back, we need to add them back manually
+  const decodeTransaction = arweave.transactions.fromRaw({
+    ...result.transaction,
+    // some arconnect tags are sent back, so we need to concat them
+    tags: [...(params.tags || []), ...(result.transaction.tags || [])],
+    data: params.data
+  });
+
+  // show a nice confetti eeffect, if enabled
+  if (result.arConfetti) {
+    for (let i = 0; i < 8; i++) {
+      setTimeout(() => createCoinWithAnimation(), i * 150);
+    }
+  }
+
+  // return the constructed transaction
+  return decodeTransaction;
 };
 
 export default foreground;
