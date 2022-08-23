@@ -5,11 +5,14 @@ import permissionsModule from "./modules/permissions";
 import permissions from "./modules/permissions/permissions.foreground";
 import activeAddressModule from "./modules/active_address";
 import activeAddress from "./modules/active_address/active_address.foreground";
+import allAddressesModule from "./modules/all_addresses";
+import allAddresses from "./modules/all_addresses/all_addresses.foreground";
 
 /** Foreground modules */
 const modules: ForegroundModule<any>[] = [
   { ...permissionsModule, function: permissions },
-  { ...activeAddressModule, function: activeAddress }
+  { ...activeAddressModule, function: activeAddress },
+  { ...allAddressesModule, function: allAddresses }
 ];
 
 export default modules;

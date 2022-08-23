@@ -6,11 +6,14 @@ import permissionsModule from "./modules/permissions";
 import permissions from "./modules/permissions/permissions.background";
 import activeAddressModule from "./modules/active_address";
 import activeAddress from "./modules/active_address/active_address.background";
+import allAddressesModule from "./modules/all_addresses";
+import allAddresses from "./modules/all_addresses/all_addresses.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
   { ...permissionsModule, function: permissions },
-  { ...activeAddressModule, function: activeAddress }
+  { ...activeAddressModule, function: activeAddress },
+  { ...allAddressesModule, function: allAddresses }
 ];
 
 export default modules;
