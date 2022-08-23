@@ -138,13 +138,6 @@ declare global {
       getActivePublicKey(): Promise<string>;
 
       /**
-       * Add a token to ArConnect (if it is not already present)
-       *
-       * @param id Token contract ID
-       */
-      addToken(id: string): Promise<void>;
-
-      /**
        * Dispatch an Arweave transaction (preferably bundled)
        *
        * @param transaction Transaction to dispatch
