@@ -10,13 +10,16 @@ import allAddressesModule from "./modules/all_addresses";
 import allAddresses from "./modules/all_addresses/all_addresses.background";
 import publicKeyModule from "./modules/public_key";
 import publicKey from "./modules/public_key/public_key.background";
+import walletNamesModule from "./modules/wallet_names";
+import walletNames from "./modules/wallet_names/wallet_names.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
   { ...permissionsModule, function: permissions },
   { ...activeAddressModule, function: activeAddress },
   { ...allAddressesModule, function: allAddresses },
-  { ...publicKeyModule, function: publicKey }
+  { ...publicKeyModule, function: publicKey },
+  { ...walletNamesModule, function: walletNames }
 ];
 
 export default modules;
