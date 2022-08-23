@@ -15,7 +15,7 @@ import walletNames from "./modules/wallet_names/wallet_names.background";
 import arweaveConfigModule from "./modules/arweave_config";
 import arweaveConfig from "./modules/arweave_config/arweave_config.background";
 import disconnectModule from "./modules/disconnect";
-import disconnect from "./modules/disconnect/disconnect.foreground";
+import disconnect from "./modules/disconnect/disconnect.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
