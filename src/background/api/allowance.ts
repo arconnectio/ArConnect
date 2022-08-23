@@ -13,7 +13,7 @@ import Arweave from "arweave";
  *
  * @returns Whether the allowance is enough or not
  */
-export async function checkAllowance(price: string) {
+export async function checkAllowance(price: number) {
   // grab tab url
   const activeTab = await getActiveTab();
   const tabURL = getRealURL(activeTab.url as string);
@@ -40,7 +40,7 @@ export async function checkAllowance(price: string) {
   );
 
   // spent amount after this transaction
-  const total = allowance.spent + parseInt(price);
+  const total = allowance.spent + price;
 
   // check if the price goes over the allowed total limit
   return allowanceWinston >= total;

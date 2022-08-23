@@ -1,9 +1,11 @@
 import { ModuleFunction } from "../../background";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { checkAllowance } from "../../../background/api/allowance";
-import { constructTransaction } from "./transaction_builder";
+import { calculateReward, constructTransaction } from "./transaction_builder";
+import { getArweaveConfig } from "../../../utils/background";
 import { cleanUpChunks, getChunks } from "./chunks";
 import Transaction from "arweave/web/lib/transaction";
+import Arweave from "arweave";
 
 const background: ModuleFunction<void> = async (
   _,
@@ -20,20 +22,20 @@ const background: ModuleFunction<void> = async (
   // clean up chunks
   cleanUpChunks(chunkCollectionID);
 
-  // fetch the price of the transaction
+  // append fee multiplier to the transaction
+  transaction.reward = await calculateReward(transaction);
 
   // validate the user's allowance for this app
   // if it is not enough, we need the user to
   // raise it or cancel the transaction
-  const hasEnoughAllowance = await checkAllowance();
+  const price = +transaction.reward + parseInt(transaction.quantity);
+  const hasEnoughAllowance = await checkAllowance(price);
 
   if (!hasEnoughAllowance) {
     // authenticate user
   }
 
   // add ArConnect tags to the transaction
-
-  // append fee multiplier to the transaction
 
   // sign the transaction
 
