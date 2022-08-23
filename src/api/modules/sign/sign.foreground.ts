@@ -6,7 +6,7 @@ import { createCoinWithAnimation } from "./animation";
 import Transaction from "arweave/web/lib/transaction";
 import Arweave from "arweave";
 
-type ReturnParams = [SplitTransaction, SignatureOptions];
+type ReturnParams = [SplitTransaction, SignatureOptions, string];
 type OriginalParams = [Transaction, SignatureOptions];
 
 const foreground: ModuleFunction<ReturnParams> = async (
@@ -77,7 +77,7 @@ const foreground: ModuleFunction<ReturnParams> = async (
    * "sign_transaction" call, without the chunked
    * parameters.
    */
-  return [tx, options];
+  return [tx, options, chunkCollectionID];
 };
 
 /**

@@ -178,5 +178,6 @@ export function handleChunk(chunk: Chunk, port: Runtime.Port): number {
     chunks[collectionID].rawChunks.push(chunk);
   }
 
+  // return chunk index for confirmation
   return chunk.index;
 }
