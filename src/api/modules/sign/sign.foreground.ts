@@ -2,6 +2,7 @@ import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { ModuleFunction } from "../../module";
 import { splitTxToChunks } from "./chunks";
 import Transaction from "arweave/web/lib/transaction";
+import Arweave from "arweave";
 
 const foreground: ModuleFunction<Transaction> = async (
   transaction: Transaction,

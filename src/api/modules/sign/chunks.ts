@@ -1,3 +1,4 @@
+import { MessageFormat, validateMessage } from "../../../utils/messenger";
 import Transaction, { Tag } from "arweave/web/lib/transaction";
 
 /**
@@ -5,7 +6,7 @@ import Transaction, { Tag } from "arweave/web/lib/transaction";
  */
 export interface Chunk {
   collectionID: string; // unique ID for the collection, that is the parent of this chunk
-  type: "tag" | "data";
+  type: "tag" | "data" | "start";
   index: number; // index of the chunk, to make sure it is not in the wrong order
   value: Uint8Array | Tag; // Uint8Array converted to number array or a tag
 }
@@ -69,3 +70,52 @@ export function splitTxToChunks(
  * SIze of a chunk in bytes
  */
 export const CHUNK_SIZE = 500000;
+
+/**
+ * Send a chunk to the background script
+ *
+ * @param chunk Chunk to send
+ * @returns Response from the background
+ */
+export const sendChunk = (chunk: Chunk) =>
+  new Promise<void>((resolve, reject) => {
+    // construct message
+    const message: MessageFormat = {
+      type: "chunk",
+      origin: "injected",
+      ext: "arconnect",
+      data: chunk
+    };
+
+    // send message
+    window.postMessage(message, window.location.origin);
+
+    // wait for the background to accept the chunk
+    window.addEventListener("message", callback);
+
+    // callback for the message
+    function callback(e: MessageEvent<MessageFormat<Chunk | string>>) {
+      const { data: res } = e;
+
+      // ensure we are getting the result of the chunk sent
+      // in this instance / call of the function
+      if (
+        !validateMessage(res, "background", "chunk_result") ||
+        (typeof res.data !== "string" && res.data?.index !== chunk.index)
+      )
+        return;
+
+      // check for errors in the background
+      if (
+        (res.error && typeof res.data === "string") ||
+        typeof res.data === "string"
+      ) {
+        reject(res.data);
+      } else {
+        resolve();
+      }
+
+      // remove listener
+      window.removeEventListener("message", callback);
+    }
+  });
