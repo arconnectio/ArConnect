@@ -213,9 +213,8 @@ export default function App() {
     browser.runtime.sendMessage({
       type: getReturnType(),
       ext: "arconnect",
-      res: true,
-      message: "Success",
-      sender: "popup"
+      origin: "popup",
+      data: "Success"
     });
     closeWindow();
   }
@@ -224,9 +223,9 @@ export default function App() {
     browser.runtime.sendMessage({
       type: getReturnType(),
       ext: "arconnect",
-      res: false,
-      message: "Invalid auth call",
-      sender: "popup"
+      error: true,
+      origin: "popup",
+      data: "Invalid auth call"
     });
     closeWindow();
   }
@@ -236,9 +235,9 @@ export default function App() {
     browser.runtime.sendMessage({
       type: getReturnType(),
       ext: "arconnect",
-      res: false,
-      message: "No tab selected",
-      sender: "popup"
+      error: true,
+      origin: "popup",
+      data: "No tab selected"
     });
     closeWindow();
   }
@@ -279,9 +278,9 @@ export default function App() {
     browser.runtime.sendMessage({
       type: getReturnType(),
       ext: "arconnect",
-      res: false,
-      message: "User cancelled the login",
-      sender: "popup"
+      error: true,
+      origin: "popup",
+      data: "User cancelled the login"
     });
     closeWindow();
   }
@@ -296,10 +295,9 @@ export default function App() {
     browser.runtime.sendMessage({
       type: getReturnType(),
       ext: "arconnect",
-      res: false,
-      message:
-        "The site does not have the required permissions for this action",
-      sender: "popup"
+      error: true,
+      origin: "popup",
+      data: "The site does not have the required permissions for this action"
     });
   }
 
@@ -331,6 +329,7 @@ export default function App() {
 
   function switchWallet(address: string) {
     dispatch(switchProfile(address));
+    // TODO: adjust format of the message
     browser.runtime.sendMessage({
       type: "switch_wallet_event",
       ext: "arconnect",
