@@ -12,6 +12,8 @@ import publicKeyModule from "./modules/public_key";
 import publicKey from "./modules/public_key/public_key.background";
 import walletNamesModule from "./modules/wallet_names";
 import walletNames from "./modules/wallet_names/wallet_names.background";
+import arweaveConfigModule from "./modules/arweave_config";
+import arweaveConfig from "./modules/arweave_config/arweave_config.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
@@ -19,7 +21,8 @@ const modules: BackgroundModule<any>[] = [
   { ...activeAddressModule, function: activeAddress },
   { ...allAddressesModule, function: allAddresses },
   { ...publicKeyModule, function: publicKey },
-  { ...walletNamesModule, function: walletNames }
+  { ...walletNamesModule, function: walletNames },
+  { ...arweaveConfigModule, function: arweaveConfig }
 ];
 
 export default modules;
