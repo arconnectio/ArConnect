@@ -1,6 +1,8 @@
 import { ModuleFunction } from "../../background";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { checkAllowance } from "../../../background/api/allowance";
+import { constructTransaction } from "./transaction_builder";
+import { cleanUpChunks, getChunks } from "./chunks";
 import Transaction from "arweave/web/lib/transaction";
 
 const background: ModuleFunction<void> = async (
@@ -9,7 +11,14 @@ const background: ModuleFunction<void> = async (
   options: SignatureOptions,
   chunkCollectionID: string
 ) => {
+  // get chunks for transaction
+  const chunks = getChunks(chunkCollectionID);
+
   // reconstruct the transaction from the chunks
+  const transaction = constructTransaction(tx, chunks || []);
+
+  // clean up chunks
+  cleanUpChunks(chunkCollectionID);
 
   // fetch the price of the transaction
 

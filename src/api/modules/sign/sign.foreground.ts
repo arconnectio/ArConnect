@@ -1,6 +1,10 @@
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
+import {
+  deconstructTransaction,
+  SplitTransaction
+} from "./transaction_builder";
 import { ModuleFunction } from "../../module";
-import { sendChunk, SplitTransaction, splitTxToChunks } from "./chunks";
+import { sendChunk } from "./chunks";
 import { TransformFinalizer } from "../../foreground";
 import { createCoinWithAnimation } from "./animation";
 import Transaction from "arweave/web/lib/transaction";
@@ -27,7 +31,7 @@ const foreground: ModuleFunction<ReturnParams> = async (
     transaction: tx, // transaction without data and tags
     dataChunks,
     tagChunks
-  } = splitTxToChunks(transaction, chunkCollectionID);
+  } = deconstructTransaction(transaction, chunkCollectionID);
 
   /**
    * Part two, send the chunks to the background script

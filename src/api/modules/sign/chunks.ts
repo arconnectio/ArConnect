@@ -13,74 +13,22 @@ export interface Chunk {
 }
 
 /**
- * Transaction object **without** it's data or tags
- */
-export type SplitTransaction = Partial<Transaction>;
-
-/**
- * Split the tags and the data of a transaction in
- * chunks and remove them from the transaction object
- *
- * @param transaction The transaction to split
- *
- * @returns The transaction (without data and tags) + tag chunks
- * and data chunks
- */
-export function splitTxToChunks(
-  transaction: Transaction,
-  collectionID: string
-) {
-  // create tag chunks
-  const tagChunks: Chunk[] = transaction.tags.map((value, index) => ({
-    collectionID,
-    type: "tag",
-    index,
-    value
-  }));
-
-  // the data array is split into chunks of 0.5 mb
-  const dataChunks: Chunk[] = [];
-
-  // map data into chunks of 0.5 mb = 500000 bytes
-  for (let i = 0; i < Math.ceil(transaction.data.length / CHUNK_SIZE); i++) {
-    const sliceFrom = i * CHUNK_SIZE;
-
-    dataChunks.push({
-      collectionID,
-      type: "data",
-      // the index has to be added to the already
-      // existing indexes of the tag chunks
-      index: i + (tagChunks.length - 1),
-      value: transaction.data.slice(sliceFrom, sliceFrom + CHUNK_SIZE)
-    });
-  }
-
-  // remove data and tag values from the tx object
-  // so it can be sent in one. the data and the tag
-  // objects are the only parts of the tx that can
-  // become potentially large
-  const tx: SplitTransaction = {
-    ...transaction,
-    data: undefined,
-    tags: undefined
-  };
-
-  return {
-    transaction: tx,
-    tagChunks,
-    dataChunks
-  };
-}
-
-/**
  * Size of a chunk in bytes
  */
 export const CHUNK_SIZE = 500000;
+
+// stored chunks
+const chunks: {
+  chunkCollectionID: string; // unique ID for this collection
+  origin: string; // tabID for verification
+  rawChunks: Chunk[]; // raw chunks to be reconstructed
+}[] = [];
 
 /**
  * Send a chunk to the background script
  *
  * @param chunk Chunk to send
+ *
  * @returns Response from the background
  */
 export const sendChunk = (chunk: Chunk) =>
@@ -128,13 +76,6 @@ export const sendChunk = (chunk: Chunk) =>
     }
   });
 
-// stored chunks
-const chunks: {
-  chunkCollectionID: string; // unique ID for this collection
-  origin: string; // tabID for verification
-  rawChunks: Chunk[]; // raw chunks to be reconstructed
-}[] = [];
-
 /**
  * Handle incoming chunks and add them to the chunk storage
  *
@@ -180,4 +121,32 @@ export function handleChunk(chunk: Chunk, port: Runtime.Port): number {
 
   // return chunk index for confirmation
   return chunk.index;
+}
+
+/**
+ * Get chunks for a collectionID
+ *
+ * @param collectionID ID of the chunk collection to retrieve
+ *
+ * @returns Chunk collection
+ */
+export function getChunks(collectionID: string) {
+  // find collection
+  const collection = chunks.find(
+    ({ chunkCollectionID }) => chunkCollectionID === collectionID
+  );
+
+  return collection?.rawChunks;
+}
+
+/**
+ * Remove a chunk collection
+ *
+ * @param collectionID ID of the chunk collection to remove
+ */
+export function cleanUpChunks(collectionID: string) {
+  const index = chunks.findIndex(
+    ({ chunkCollectionID }) => chunkCollectionID === collectionID
+  );
+  chunks.splice(index, 1);
 }
