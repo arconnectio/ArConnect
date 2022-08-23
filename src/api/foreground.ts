@@ -21,7 +21,7 @@ import connect, {
 } from "./modules/connect/connect.foreground";
 
 /** Foreground modules */
-const modules: ForegroundModule<any>[] = [
+const modules: ForegroundModule[] = [
   { ...permissionsModule, function: permissions },
   { ...activeAddressModule, function: activeAddress },
   { ...allAddressesModule, function: allAddresses },
@@ -35,11 +35,11 @@ const modules: ForegroundModule<any>[] = [
 export default modules;
 
 /** Extended module interface */
-interface ForegroundModule<T> extends Module<T> {
+interface ForegroundModule extends Module<any[] | void> {
   /**
    * A function that runs after results were
    * returned from the background script.
    * This is optional and will be ignored if not set.
    */
-  finalizer?: ModuleFunction<T>;
+  finalizer?: ModuleFunction<any>;
 }

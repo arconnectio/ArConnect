@@ -1,15 +1,11 @@
-import { AppInfo } from ".";
+import { AppInfo } from "./index";
 import { IGatewayConfig } from "../../../stores/reducers/arweave";
 import { PermissionType } from "../../../utils/permissions";
 import { getRealURL } from "../../../utils/url";
 import { ModuleFunction } from "../../module";
 import createOverlay, { OVERLAY_CLASS } from "./overlay";
 
-const foreground: ModuleFunction<{
-  permissions: PermissionType[];
-  appInfo: AppInfo;
-  gateway?: IGatewayConfig;
-}> = async (
+const foreground: ModuleFunction<any[]> = async (
   permissions: PermissionType[],
   appInfo: AppInfo = {},
   gateway?: IGatewayConfig
@@ -18,6 +14,11 @@ const foreground: ModuleFunction<{
   const overlay = createOverlay(
     "This page is requesting permission to connect to your wallet...<br />Please review them in the popup."
   );
+
+  // check permissions
+  if (!permissions || permissions.length === 0) {
+    throw new Error("No permissions requested");
+  }
 
   // construct app info if not provided
   if (!appInfo.logo) {
@@ -41,11 +42,7 @@ const foreground: ModuleFunction<{
   // add overlay to the document body
   document.body.appendChild(overlay);
 
-  return {
-    permissions,
-    appInfo,
-    gateway
-  };
+  return [permissions, appInfo, gateway];
 };
 
 /**
