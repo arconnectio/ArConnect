@@ -7,12 +7,15 @@ import activeAddressModule from "./modules/active_address";
 import activeAddress from "./modules/active_address/active_address.foreground";
 import allAddressesModule from "./modules/all_addresses";
 import allAddresses from "./modules/all_addresses/all_addresses.foreground";
+import publicKeyModule from "./modules/public_key";
+import publicKey from "./modules/public_key/public_key.foreground";
 
 /** Foreground modules */
 const modules: ForegroundModule<any>[] = [
   { ...permissionsModule, function: permissions },
   { ...activeAddressModule, function: activeAddress },
-  { ...allAddressesModule, function: allAddresses }
+  { ...allAddressesModule, function: allAddresses },
+  { ...publicKeyModule, function: publicKey }
 ];
 
 export default modules;

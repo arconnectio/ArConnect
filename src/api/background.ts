@@ -8,12 +8,15 @@ import activeAddressModule from "./modules/active_address";
 import activeAddress from "./modules/active_address/active_address.background";
 import allAddressesModule from "./modules/all_addresses";
 import allAddresses from "./modules/all_addresses/all_addresses.background";
+import publicKeyModule from "./modules/public_key";
+import publicKey from "./modules/public_key/public_key.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
   { ...permissionsModule, function: permissions },
   { ...activeAddressModule, function: activeAddress },
-  { ...allAddressesModule, function: allAddresses }
+  { ...allAddressesModule, function: allAddresses },
+  { ...publicKeyModule, function: publicKey }
 ];
 
 export default modules;
