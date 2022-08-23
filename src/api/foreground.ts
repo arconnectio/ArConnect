@@ -19,6 +19,10 @@ import connectModule from "./modules/connect";
 import connect, {
   finalizer as connectFinalizer
 } from "./modules/connect/connect.foreground";
+import signModule from "./modules/sign";
+import sign, {
+  finalizer as signFinalizer
+} from "./modules/sign/sign.foreground";
 
 /** Foreground modules */
 const modules: ForegroundModule[] = [
@@ -29,7 +33,8 @@ const modules: ForegroundModule[] = [
   { ...walletNamesModule, function: walletNames },
   { ...arweaveConfigModule, function: arweaveConfig },
   { ...disconnectModule, function: disconnect },
-  { ...connectModule, function: connect, finalizer: connectFinalizer }
+  { ...connectModule, function: connect, finalizer: connectFinalizer },
+  { ...signModule, function: sign, finalizer: signFinalizer }
 ];
 
 export default modules;
@@ -41,7 +46,7 @@ interface ForegroundModule extends Module<any[] | void> {
    * returned from the background script.
    * This is optional and will be ignored if not set.
    */
-  finalizer?: ModuleFunction<any> | TransformFinalizer<any, any>;
+  finalizer?: ModuleFunction<any> | TransformFinalizer<any, any, any>;
 }
 
 /**

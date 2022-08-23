@@ -1,4 +1,5 @@
 import { MessageFormat, validateMessage } from "../../../utils/messenger";
+import { Runtime } from "webextension-polyfill-ts";
 import Transaction, { Tag } from "arweave/web/lib/transaction";
 
 /**
@@ -72,7 +73,7 @@ export function splitTxToChunks(
 }
 
 /**
- * SIze of a chunk in bytes
+ * Size of a chunk in bytes
  */
 export const CHUNK_SIZE = 500000;
 
@@ -99,21 +100,23 @@ export const sendChunk = (chunk: Chunk) =>
     window.addEventListener("message", callback);
 
     // callback for the message
-    function callback(e: MessageEvent<MessageFormat<Chunk | string>>) {
+    function callback(e: MessageEvent<MessageFormat<number | string>>) {
       const { data: res } = e;
+      // returned chunk index
+      const index = res.data;
 
       // ensure we are getting the result of the chunk sent
       // in this instance / call of the function
       if (
         !validateMessage(res, "background", "chunk_result") ||
-        (typeof res.data !== "string" && res.data?.index !== chunk.index)
+        (typeof res.data !== "string" && index !== chunk.index)
       )
         return;
 
       // check for errors in the background
       if (
-        (res.error && typeof res.data === "string") ||
-        typeof res.data === "string"
+        (res.error && typeof index === "string") ||
+        typeof index === "string"
       ) {
         reject(res.data);
       } else {
@@ -124,3 +127,56 @@ export const sendChunk = (chunk: Chunk) =>
       window.removeEventListener("message", callback);
     }
   });
+
+// stored chunks
+const chunks: {
+  chunkCollectionID: string; // unique ID for this collection
+  origin: string; // tabID for verification
+  rawChunks: Chunk[]; // raw chunks to be reconstructed
+}[] = [];
+
+/**
+ * Handle incoming chunks and add them to the chunk storage
+ *
+ * @param chunk Chunk object to handle
+ */
+export function handleChunk(chunk: Chunk, port: Runtime.Port): number {
+  // handle start chunk
+  if (chunk.type === "start") {
+    // @ts-ignore
+    console.log("port.sender.origin", port.sender.origin);
+    // begin listening for chunks
+    // this initializes a new array element
+    // with all the data for a future signing
+    // the content of the chunks will get pushed
+    // here
+    chunks.push({
+      chunkCollectionID: chunk.collectionID,
+      // @ts-ignore
+      origin: port.sender.origin,
+      rawChunks: []
+    });
+    // handle other chunks
+  } else {
+    // find the key of the chunk collection that the
+    // chunk belongs to
+    // also check if the origin of the chunk matches
+    // the origin of the tx creation
+    const collectionID = chunks.findIndex(
+      ({ chunkCollectionID, origin }) =>
+        chunkCollectionID === chunk.collectionID &&
+        // @ts-expect-error
+        origin === port.sender.origin
+    );
+
+    // check if the chunk has a valid origin
+    if (collectionID < 0) {
+      throw new Error("Invalid origin or collection ID for chunk");
+    }
+
+    // push valid chunk for evaluation in the future
+    chunks[collectionID].rawChunks.push(chunk);
+  }
+
+  return chunk.index;
+}

@@ -18,6 +18,8 @@ import disconnectModule from "./modules/disconnect";
 import disconnect from "./modules/disconnect/disconnect.background";
 import connectModule from "./modules/connect";
 import connect from "./modules/connect/connect.background";
+import signModule from "./modules/sign";
+import sign from "./modules/sign/sign.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
@@ -28,7 +30,8 @@ const modules: BackgroundModule<any>[] = [
   { ...walletNamesModule, function: walletNames },
   { ...arweaveConfigModule, function: arweaveConfig },
   { ...disconnectModule, function: disconnect },
-  { ...connectModule, function: connect }
+  { ...connectModule, function: connect },
+  { ...signModule, function: sign }
 ];
 
 export default modules;

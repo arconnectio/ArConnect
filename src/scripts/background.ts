@@ -18,21 +18,10 @@ import {
 import { browser } from "webextension-polyfill-ts";
 import { fixupPasswords } from "../utils/auth";
 import { ArConnectEvent } from "../views/Popup/routes/Settings";
-import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
-import { Chunk } from "../api/modules/sign/chunks";
+import { Chunk, handleChunk } from "../api/modules/sign/chunks";
 import { getRealURL } from "../utils/url";
-import Transaction from "arweave/web/lib/transaction";
 import handleFeeAlarm from "../utils/fee";
 import modules from "../api/background";
-
-// stored transactions and their chunks
-let transactions: {
-  chunkCollectionID: string; // unique ID for this collection
-  transaction: Transaction;
-  signatureOptions: SignatureOptions;
-  origin: string; // tabID for verification
-  rawChunks: Chunk[]; // raw chunks to be reconstructed
-}[] = [];
 
 // open the welcome page
 browser.runtime.onInstalled.addListener(async () => {
@@ -93,9 +82,38 @@ browser.runtime.onConnect.addListener((connection) => {
   if (connection.name !== "backgroundConnection") return;
 
   connection.onMessage.addListener(
-    async (msg: MessageFormat<{ params: any }>, port) => {
+    async (msg: MessageFormat<{ params?: any }>, port) => {
       // only handle API functions from the injected script
       if (!validateMessage(msg, "injected")) return;
+
+      // handle chunks
+      if (msg.type === "chunk") {
+        // construct basic response to chunks
+        const response: MessageFormat = {
+          type: "chunk_result",
+          origin: "background",
+          ext: "arconnect"
+        };
+
+        // try to handle the chunk
+        try {
+          const res = handleChunk(msg.data as Chunk, port);
+
+          // confirmation that the chunk was handled
+          // for the injected script
+          return connection.postMessage({
+            ...response,
+            data: res
+          });
+        } catch (e: any) {
+          // send error back to the injected script
+          return connection.postMessage({
+            ...response,
+            error: true,
+            data: e.message || e
+          });
+        }
+      }
 
       const functionName = msg.type.replace("api_", "");
       const mod = modules.find((mod) => mod.functionName === functionName);
