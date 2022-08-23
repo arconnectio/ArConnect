@@ -19,7 +19,7 @@ import { browser } from "webextension-polyfill-ts";
 import { fixupPasswords } from "../utils/auth";
 import { ArConnectEvent } from "../views/Popup/routes/Settings";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
-import { Chunk } from "../utils/chunks";
+import { Chunk } from "../api/modules/sign/chunks";
 import { getRealURL } from "../utils/url";
 import Transaction from "arweave/web/lib/transaction";
 import handleFeeAlarm from "../utils/fee";
