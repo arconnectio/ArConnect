@@ -5,11 +5,16 @@ import {
   constructTransaction,
   deconstructSignedTransaction
 } from "./transaction_builder";
-import { getActiveKeyfile, getArweaveConfig } from "../../../utils/background";
+import {
+  getActiveKeyfile,
+  getActiveTab,
+  getArweaveConfig
+} from "../../../utils/background";
 import { cleanUpChunks, getChunks } from "./chunks";
 import { browser } from "webextension-polyfill-ts";
 import { arConfettiEnabled } from "./animation";
-import { allowanceAuth } from "./allowance";
+import { getRealURL } from "../../../utils/url";
+import { allowanceAuth, updateAllowance } from "./allowance";
 import { BackgroundResult } from "./index";
 import { signedTxTags } from "./tags";
 import Transaction from "arweave/web/lib/transaction";
@@ -23,6 +28,10 @@ const background: ModuleFunction<BackgroundResult> = async (
 ) => {
   // create arweave client
   const arweave = new Arweave(await getArweaveConfig());
+
+  // grab tab url
+  const activeTab = await getActiveTab();
+  const tabURL = getRealURL(activeTab.url as string);
 
   // grab the user's keyfile
   const { keyfile } = await getActiveKeyfile().catch(() => {
@@ -52,7 +61,7 @@ const background: ModuleFunction<BackgroundResult> = async (
   // raise it or cancel the transaction
   const price = +transaction.reward + parseInt(transaction.quantity);
 
-  await allowanceAuth(price);
+  await allowanceAuth(tabURL, price);
 
   // add ArConnect tags to the transaction
   for (const tag of signedTxTags) {
@@ -60,6 +69,7 @@ const background: ModuleFunction<BackgroundResult> = async (
   }
 
   // sign the transaction
+  await arweave.transactions.sign(transaction, keyfile, options);
 
   // schedule fee transaction for later execution
   // this is needed for a faster transaction signing
@@ -68,6 +78,7 @@ const background: ModuleFunction<BackgroundResult> = async (
   });
 
   // update allowance spent amount (in winstons)
+  await updateAllowance(tabURL, price);
 
   // de-construct the transaction:
   // remove "tags" and "data", so we don't have to

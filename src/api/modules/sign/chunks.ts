@@ -1,6 +1,6 @@
 import { MessageFormat, validateMessage } from "../../../utils/messenger";
 import { Runtime } from "webextension-polyfill-ts";
-import Transaction, { Tag } from "arweave/web/lib/transaction";
+import { Tag } from "arweave/web/lib/transaction";
 
 /**
  * The chunk of the transaction signing
