@@ -1,7 +1,7 @@
 import { ModuleFunction } from "../../background";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
+import { arConfettiEnabled, calculateReward } from "./utils";
 import {
-  calculateReward,
   constructTransaction,
   deconstructSignedTransaction
 } from "./transaction_builder";
@@ -12,7 +12,6 @@ import {
 } from "../../../utils/background";
 import { cleanUpChunks, getChunks } from "./chunks";
 import { browser } from "webextension-polyfill-ts";
-import { arConfettiEnabled } from "./animation";
 import { getRealURL } from "../../../utils/url";
 import { allowanceAuth, updateAllowance } from "./allowance";
 import { BackgroundResult } from "./index";
