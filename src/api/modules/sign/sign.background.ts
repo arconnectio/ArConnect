@@ -49,8 +49,6 @@ const background: ModuleFunction<BackgroundResult> = async (
     owner: keyfile.n
   });
 
-  console.log(transaction);
-
   // clean up chunks
   cleanUpChunks(chunkCollectionID);
 
@@ -61,6 +59,9 @@ const background: ModuleFunction<BackgroundResult> = async (
   // if it is not enough, we need the user to
   // raise it or cancel the transaction
   const price = +transaction.reward + parseInt(transaction.quantity);
+
+  throw new Error("test");
+  // TODO: fix from here
 
   await allowanceAuth(tabURL, price);
 

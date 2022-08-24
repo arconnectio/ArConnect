@@ -203,11 +203,11 @@ browser.runtime.onConnect.addListener((connection) => {
           ...responseTemplate,
           data: functionResult
         });
-      } catch (e) {
+      } catch (e: any) {
         return connection.postMessage({
           ...responseTemplate,
           error: true,
-          data: e
+          data: e.message
         });
       }
     }
