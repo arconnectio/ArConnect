@@ -49,6 +49,8 @@ const background: ModuleFunction<BackgroundResult> = async (
     owner: keyfile.n
   });
 
+  console.log(transaction);
+
   // clean up chunks
   cleanUpChunks(chunkCollectionID);
 

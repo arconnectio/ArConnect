@@ -36,14 +36,18 @@ export function deconstructTransaction(
   // map data into chunks of 0.5 mb = 500000 bytes
   for (let i = 0; i < Math.ceil(transaction.data.length / CHUNK_SIZE); i++) {
     const sliceFrom = i * CHUNK_SIZE;
+    const chunkValue = transaction.data.slice(
+      sliceFrom,
+      sliceFrom + CHUNK_SIZE
+    );
 
     dataChunks.push({
       collectionID,
       type: "data",
       // the index has to be added to the already
       // existing indexes of the tag chunks
-      index: i + (tagChunks.length - 1),
-      value: transaction.data.slice(sliceFrom, sliceFrom + CHUNK_SIZE)
+      index: i + tagChunks.length,
+      value: Array.from(chunkValue)
     });
   }
 
@@ -81,7 +85,6 @@ export function constructTransaction(
   const transaction = splitTransaction;
 
   transaction.tags = [];
-  transaction.data = new Uint8Array();
 
   // sort the chunks by their indexes to make sure
   // that we are not loading them in the wrong order
@@ -89,7 +92,7 @@ export function constructTransaction(
 
   // create a Uint8Array to reconstruct the data to
   const reconstructedData = new Uint8Array(
-    parseFloat(splitTransaction.transaction.data_size ?? "0")
+    parseFloat(splitTransaction.data_size ?? "0")
   );
 
   // previous buffer length in bytes (gets updated
@@ -102,7 +105,7 @@ export function constructTransaction(
     if (chunk.type === "data") {
       // handle data chunks
       // create a Uint8Array from the chunk value
-      const chunkBuffer = new Uint8Array(chunk.value as Uint8Array);
+      const chunkBuffer = new Uint8Array(chunk.value as number[]);
 
       // append the value of the chunk after the
       // previous array (using the currently filled
