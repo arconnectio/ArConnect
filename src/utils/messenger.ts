@@ -4,7 +4,7 @@ export interface MessageFormat<T = any> {
   ext: "arconnect";
   error?: boolean;
   data?: T;
-  callID?: number;
+  callID?: number | string;
 }
 
 type MessageOrigin = "popup" | "background" | "content" | "injected";

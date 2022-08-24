@@ -60,9 +60,6 @@ const background: ModuleFunction<BackgroundResult> = async (
   // raise it or cancel the transaction
   const price = +transaction.reward + parseInt(transaction.quantity);
 
-  throw new Error("test");
-  // TODO: fix from here
-
   await allowanceAuth(tabURL, price);
 
   // add ArConnect tags to the transaction

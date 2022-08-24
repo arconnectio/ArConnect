@@ -1,5 +1,6 @@
-import { browser } from "webextension-polyfill-ts";
 import { MessageFormat, validateMessage } from "../../../utils/messenger";
+import { browser } from "webextension-polyfill-ts";
+import { nanoid } from "nanoid";
 
 interface AuthData {
   type: string;
@@ -15,10 +16,10 @@ interface AuthData {
  */
 export default async function authenticate(data: AuthData) {
   // create the popup
-  createAuthPopup(data);
+  const authID = await createAuthPopup(data);
 
   // wait for the results from the popup
-  return await result(data.type);
+  return await result(data.type, authID);
 }
 
 /**
@@ -26,34 +27,48 @@ export default async function authenticate(data: AuthData) {
  *
  * @param data The data sent to the popup
  *
- * @returns AuthPopup window
+ * @returns ID of the authentication
  */
-const createAuthPopup = (data: AuthData) =>
-  browser.windows.create({
+async function createAuthPopup(data: AuthData) {
+  // generate an unique id for the authentication
+  // to be checked later
+  const authID = nanoid();
+
+  // create auth window
+  await browser.windows.create({
     url: `${browser.runtime.getURL("auth.html")}?auth=${encodeURIComponent(
-      JSON.stringify(data)
+      JSON.stringify({
+        ...data,
+        authID
+      })
     )}`,
     focused: true,
     type: "popup",
     width: 385,
     height: 635
   });
+  // TODO: return auth id from auth UI
+  return authID;
+}
 
 /**
  * Await for a browser message from the popup
  */
-const result = (type: string) =>
+const result = (type: string, authID: string) =>
   new Promise<MessageFormat>((resolve, reject) => {
     const listener = (message: MessageFormat) => {
       if (!validateMessage(message, "popup", `${type}_result`)) return;
+      if (message.callID !== authID) return;
+
+      // remove listener
+      browser.runtime.onMessage.removeListener(listener);
 
       // if the result is an error, throw it
       if (message.error) {
-        reject(message.data);
+        return reject(message.data);
       }
 
-      browser.runtime.onMessage.removeListener(listener);
-      resolve(message);
+      return resolve(message);
     };
 
     browser.runtime.onMessage.addListener(listener);

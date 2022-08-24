@@ -7,6 +7,7 @@ import { ModuleFunction } from "../../module";
 import { sendChunk } from "./chunks";
 import { TransformFinalizer } from "../../foreground";
 import { createCoinWithAnimation } from "./animation";
+import { nanoid } from "nanoid";
 import Transaction from "arweave/web/lib/transaction";
 import Arweave from "arweave";
 
@@ -19,9 +20,7 @@ const foreground: ModuleFunction<ReturnParams> = async (
 ) => {
   // generate a unique ID for this transaction's chunks
   // since the transaction does not have an ID yet
-  const chunkCollectionID = (
-    Date.now() * Math.floor(Math.random() * 100)
-  ).toString();
+  const chunkCollectionID = nanoid();
 
   /**
    * Part one, create chunks from the tags
