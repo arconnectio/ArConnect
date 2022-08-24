@@ -65,6 +65,11 @@ for (const mod of modules) {
 
         window.removeEventListener("message", callback);
 
+        // check for errors
+        if (res.error) {
+          return reject(res.data);
+        }
+
         // call the finalizer function if it exists
         if (mod.finalizer) {
           const finalizerResult = await mod.finalizer(
@@ -80,13 +85,13 @@ for (const mod of modules) {
           }
         }
 
-        // check for errors
+        // check for errors after the finalizer
         if (res.error) {
-          reject(res.data);
+          return reject(res.data);
         }
 
         // resolve promise
-        resolve(res.data);
+        return resolve(res.data);
       }
     });
 }

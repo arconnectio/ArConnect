@@ -84,8 +84,6 @@ export const sendChunk = (chunk: Chunk) =>
 export function handleChunk(chunk: Chunk, port: Runtime.Port): number {
   // handle start chunk
   if (chunk.type === "start") {
-    // @ts-ignore
-    console.log("port.sender.origin", port.sender.origin);
     // begin listening for chunks
     // this initializes a new array element
     // with all the data for a future signing
