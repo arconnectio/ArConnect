@@ -1,6 +1,7 @@
 import { Chunk, CHUNK_SIZE } from "./chunks";
-import { Tag } from "arweave/node/lib/transaction";
 import { getStoreData } from "../../../utils/background";
+import { Tag } from "arweave/web/lib/transaction";
+import { signedTxTags } from "./tags";
 import Transaction from "arweave/web/lib/transaction";
 
 /**
@@ -119,7 +120,7 @@ export function constructTransaction(
   transaction.data = reconstructedData;
 
   // return the built tx
-  return transaction as Transaction;
+  return transaction;
 }
 
 /**
@@ -147,4 +148,26 @@ export async function calculateReward({ reward }: Transaction) {
   const fee = +reward * multiplier;
 
   return fee.toFixed(0);
+}
+
+/**
+ * Remove data and non-arconnect tags from a signed transaction
+ *
+ * @param transaction Transaction to deconstruct
+ *
+ * @returns Transaction without data and non-arconnect tags
+ */
+export function deconstructSignedTransaction(transaction: Transaction) {
+  // @ts-expect-error | filter tags
+  const tags = transaction.get("tags").filter((tag: Tag) => {
+    const tagName = tag.get("name", { string: true, decode: true });
+
+    return signedTxTags.find(({ name }) => name === tagName);
+  });
+
+  return {
+    ...transaction,
+    data: undefined,
+    tags
+  };
 }

@@ -1,3 +1,4 @@
+import { getStoreData } from "../../../utils/background";
 import arweaveLogo from "../../../assets/arweave.png";
 
 /**
@@ -36,4 +37,17 @@ export function createCoinWithAnimation() {
     arCoin.style.transform = `translate(-${pos.x}px, -${pos.y}px)`;
     arCoin.style.opacity = `${visibility / 100}`;
   }, 100);
+}
+
+/**
+ * Check if the arconfetti animation is enabled
+ */
+export async function arConfettiEnabled() {
+  try {
+    const storeData = await getStoreData();
+
+    return !!storeData.settings?.arConfetti;
+  } catch {
+    return true;
+  }
 }
