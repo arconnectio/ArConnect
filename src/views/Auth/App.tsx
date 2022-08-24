@@ -17,7 +17,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { RootState } from "../../stores/reducers";
-import { MessageType } from "../../utils/messenger";
 import {
   addAllowance,
   setAllowanceLimit,
@@ -68,7 +67,6 @@ export default function App() {
     [appInfo, setAppInfo] = useState<IAppInfo>({}),
     theme = useTheme(),
     [, setToast] = useToasts(),
-    [quickAdd, setQuickAdd] = useState(true),
     proflie = useSelector((state: RootState) => state.profile),
     wallets = useSelector((state: RootState) => state.wallets),
     [showSwitch, setShowSwitch] = useState(false);
@@ -186,14 +184,23 @@ export default function App() {
       await browser.storage.local.set({ decryptionKey: true });
       setLoggedIn(true);
 
-      if (updateAllowance && currentURL)
+      // handle allowance update
+      if (updateAllowance && currentURL) {
         dispatch(setAllowanceLimit(currentURL, updateAllowance));
+      }
 
       // any event that needs authentication, but not the connect event
       if (type !== "connect") {
         if (!currentURL) {
           return urlError();
         } else {
+          // if the user reached their allowance limit,
+          // we reset it here, after authentication
+          if (spendingLimitReached && !updateAllowance) {
+            // reset
+            dispatch(setAllowanceLimit(currentURL, 0));
+          }
+
           successCall();
           return;
         }
@@ -243,7 +250,7 @@ export default function App() {
   }
 
   // get the type that needs to be returned in the message
-  function getReturnType(): MessageType {
+  function getReturnType() {
     if (type === "connect") return "connect_result";
     else if (type === "sign_auth") return "sign_auth_result";
     else if (type === "encrypt_auth") return "encrypt_auth_result";
@@ -366,33 +373,12 @@ export default function App() {
               </span>
             )) ||
               " this site"}{" "}
-            . Please update it or cancel.
-            {quickAdd && (
-              <>
-                <br />
-                <span
-                  style={{ textDecoration: "underline", cursor: "pointer" }}
-                  onClick={() => {
-                    const updateTo = (currentAllowance?.limit ?? 0) + 0.1;
-
-                    setUpdateAllowance(updateTo);
-                    allowanceAmount.setState(updateTo.toString());
-                    setQuickAdd(false);
-                    setToast({
-                      text: "The added allowance will be applied after you enter you password",
-                      type: "success"
-                    });
-                  }}
-                >
-                  Quick add 0.1 AR
-                </span>
-              </>
-            )}
+            . Please reset it or cancel.
           </Note>
         )}
         {(!loggedIn && (
           <>
-            <h1>Sign In</h1>
+            <h1>{(spendingLimitReached && "Reset Allowance") || "Sign In"}</h1>
             {(type === "connect" && (
               <p>
                 {(appInfo.name && (
@@ -480,7 +466,7 @@ export default function App() {
               loading={loading}
               type="success"
             >
-              Log In
+              {(spendingLimitReached && "Reset limit") || "Log In"}
             </Button>
             <Spacer h={0.73} />
             <Button style={{ width: "100%" }} onClick={cancel}>
