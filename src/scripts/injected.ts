@@ -73,7 +73,7 @@ for (const mod of modules) {
         // call the finalizer function if it exists
         if (mod.finalizer) {
           const finalizerResult = await mod.finalizer(
-            res,
+            res.data,
             foregroundResult,
             params
           );
