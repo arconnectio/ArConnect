@@ -91,9 +91,9 @@ export const finalizer: TransformFinalizer<
     transaction: SplitTransaction;
     arConfetti: boolean;
   },
-  Transaction,
+  any,
   OriginalParams
-> = (result, params) => {
+> = (result, params, [originalTransaction]) => {
   if (!result) throw new Error("No transaction returned");
 
   // we don't need the custom gateway config here
@@ -110,7 +110,10 @@ export const finalizer: TransformFinalizer<
   const decodeTransaction = arweave.transactions.fromRaw({
     ...result.transaction,
     // some arconnect tags are sent back, so we need to concat them
-    tags: [...(params.tags || []), ...(result.transaction.tags || [])],
+    tags: [
+      ...(originalTransaction.tags || []),
+      ...(result.transaction.tags || [])
+    ],
     data: params.data
   });
 

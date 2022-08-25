@@ -81,7 +81,7 @@ for (const mod of modules) {
           // if the finalizer transforms data
           // update the result
           if (finalizerResult) {
-            res = finalizerResult;
+            res.data = finalizerResult;
           }
         }
 
