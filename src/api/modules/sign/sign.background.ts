@@ -22,7 +22,7 @@ import Arweave from "arweave";
 const background: ModuleFunction<BackgroundResult> = async (
   _,
   tx: Transaction,
-  options: SignatureOptions,
+  options: SignatureOptions | undefined | null,
   chunkCollectionID: string
 ) => {
   // create arweave client
@@ -66,6 +66,11 @@ const background: ModuleFunction<BackgroundResult> = async (
   for (const tag of signedTxTags) {
     transaction.addTag(tag.name, tag.value);
   }
+
+  // fixup signature options
+  // if it is null, the arweave-js webcrypto driver
+  // will error
+  if (options === null) options = undefined;
 
   // sign the transaction
   await arweave.transactions.sign(transaction, keyfile, options);
