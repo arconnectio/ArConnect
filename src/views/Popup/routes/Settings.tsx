@@ -14,6 +14,7 @@ import {
   Input,
   Modal,
   Radio,
+  Select,
   Spacer,
   Tabs,
   Toggle,
@@ -560,14 +561,66 @@ export default function Settings({
                 <p>Show animation on wallet usage</p>
               </div>
               <div className={styles.Arrow}>
-                <Toggle
-                  checked={otherSettings.arConfetti}
-                  onChange={() =>
+                <Select
+                  placeholder="Icon"
+                  value={(() => {
+                    if (typeof otherSettings.arConfetti === "string")
+                      return otherSettings.arConfetti;
+                    else if (otherSettings.arConfetti) return "arweave";
+                    else return "false";
+                  })()}
+                  onChange={(val) => {
+                    let newValue: string | boolean = val as string;
+
+                    if (val === "false") newValue = false;
+
                     dispatch(
-                      updateSettings({ arConfetti: !otherSettings.arConfetti })
-                    )
-                  }
-                />
+                      updateSettings({
+                        arConfetti: newValue
+                      })
+                    );
+                  }}
+                  style={{
+                    width: "100px",
+                    minWidth: "unset"
+                  }}
+                >
+                  <Select.Option value="false">Off</Select.Option>
+                  <Select.Option divider />
+                  <Select.Option value="arweave">
+                    <div className={styles.ConfettiOption}>
+                      <img
+                        src={browser.runtime.getURL("assets/arweave.png")}
+                        alt=""
+                        className={styles.ConfettiIcon}
+                        draggable={false}
+                      />
+                      Arweave
+                    </div>
+                  </Select.Option>
+                  <Select.Option value="hedgehog">
+                    <div className={styles.ConfettiOption}>
+                      <img
+                        src={browser.runtime.getURL("assets/hedgehog.png")}
+                        alt=""
+                        className={styles.ConfettiIcon}
+                        draggable={false}
+                      />
+                      Hedgehog
+                    </div>
+                  </Select.Option>
+                  <Select.Option value="usd">
+                    <div className={styles.ConfettiOption}>
+                      <img
+                        src={browser.runtime.getURL("assets/usd.png")}
+                        alt=""
+                        className={styles.ConfettiIcon}
+                        draggable={false}
+                      />
+                      USD
+                    </div>
+                  </Select.Option>
+                </Select>
               </div>
             </div>
             <div
