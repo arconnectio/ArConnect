@@ -72,6 +72,7 @@ export default function App() {
     [showSwitch, setShowSwitch] = useState(false);
 
   const [gatewayConfig, setGatewayConfig] = useState<IGatewayConfig>();
+  const [authID, setAuthID] = useState<string | number>();
 
   useEffect(() => {
     // get the auth param from the url
@@ -91,7 +92,10 @@ export default function App() {
       url?: string;
       spendingLimitReached?: boolean;
       gateway?: IGatewayConfig;
+      authID: string | number;
     } = JSON.parse(decodeURIComponent(authVal));
+
+    setAuthID(decodedAuthParam.authID);
 
     if (decodedAuthParam.appInfo) setAppInfo(decodedAuthParam.appInfo);
     if (decodedAuthParam.gateway) setGatewayConfig(decodedAuthParam.gateway);
@@ -221,7 +225,8 @@ export default function App() {
       type: getReturnType(),
       ext: "arconnect",
       origin: "popup",
-      data: "Success"
+      data: "Success",
+      callID: authID
     });
     closeWindow();
   }
@@ -232,7 +237,8 @@ export default function App() {
       ext: "arconnect",
       error: true,
       origin: "popup",
-      data: "Invalid auth call"
+      data: "Invalid auth call",
+      callID: authID
     });
     closeWindow();
   }
@@ -244,7 +250,8 @@ export default function App() {
       ext: "arconnect",
       error: true,
       origin: "popup",
-      data: "No tab selected"
+      data: "No tab selected",
+      callID: authID
     });
     closeWindow();
   }
@@ -287,7 +294,8 @@ export default function App() {
       ext: "arconnect",
       error: true,
       origin: "popup",
-      data: "User cancelled the login"
+      data: "User cancelled the login",
+      callID: authID
     });
     closeWindow();
   }
@@ -304,7 +312,8 @@ export default function App() {
       ext: "arconnect",
       error: true,
       origin: "popup",
-      data: "The site does not have the required permissions for this action"
+      data: "The site does not have the required permissions for this action",
+      callID: authID
     });
   }
 

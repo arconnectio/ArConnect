@@ -47,7 +47,7 @@ async function createAuthPopup(data: AuthData) {
     width: 385,
     height: 635
   });
-  // TODO: return auth id from auth UI
+
   return authID;
 }
 
