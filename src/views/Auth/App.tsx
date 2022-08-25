@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { RootState } from "../../stores/reducers";
 import {
   addAllowance,
+  resetAllowanceSpent,
   setAllowanceLimit,
   setPermissions,
   switchProfile,
@@ -202,10 +203,11 @@ export default function App() {
           // we reset it here, after authentication
           if (spendingLimitReached && !updateAllowance) {
             // reset
-            dispatch(setAllowanceLimit(currentURL, 0));
+            dispatch(resetAllowanceSpent(currentURL));
           }
 
-          successCall();
+          // wait for the state to update
+          setTimeout(successCall, 200);
           return;
         }
 
