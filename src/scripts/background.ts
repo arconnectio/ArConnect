@@ -207,7 +207,7 @@ browser.runtime.onConnect.addListener((connection) => {
         return connection.postMessage({
           ...responseTemplate,
           error: true,
-          data: e.message
+          data: e.message || e
         });
       }
     }
