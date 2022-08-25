@@ -103,8 +103,9 @@ export async function signNotification(price: number, id: string) {
       url: `${gateway.protocol}://${gateway.host}/${id}`
     });
 
-    // remove notification after click
+    // remove notification & event listener after click
     browser.notifications.clear(clickedID);
+    browser.notifications.onClicked.removeListener(listener);
   };
 
   // listen for notification click
