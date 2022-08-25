@@ -7,6 +7,7 @@ export interface ISettings {
   arConfetti: string | boolean;
   arVerifyTreshold: Threshold;
   feeMultiplier: number;
+  signNotification: boolean;
 }
 
 export interface ISettingsAction {
@@ -18,7 +19,8 @@ const defaultConfig: ISettings = {
   currency: "USD",
   arConfetti: browser.runtime.getURL("assets/arweave.png"),
   arVerifyTreshold: Threshold.MEDIUM,
-  feeMultiplier: 1
+  feeMultiplier: 1,
+  signNotification: false
 };
 
 export default function settingsReducer(

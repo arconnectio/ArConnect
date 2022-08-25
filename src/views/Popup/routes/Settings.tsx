@@ -623,6 +623,24 @@ export default function Settings({
                 </Select>
               </div>
             </div>
+            <div className={styles.Setting}>
+              <div>
+                <h1>Sign notification</h1>
+                <p>Notify when signing a transaction</p>
+              </div>
+              <div className={styles.Arrow}>
+                <Toggle
+                  checked={otherSettings.signNotification}
+                  onChange={() =>
+                    dispatch(
+                      updateSettings({
+                        signNotification: !otherSettings.signNotification
+                      })
+                    )
+                  }
+                />
+              </div>
+            </div>
             <div
               className={styles.Setting}
               onClick={() => setCurrSetting("config_file")}

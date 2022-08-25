@@ -1,6 +1,6 @@
 import { ModuleFunction } from "../../background";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
-import { arconfettiIcon, calculateReward } from "./utils";
+import { arconfettiIcon, calculateReward, signNotification } from "./utils";
 import {
   constructTransaction,
   deconstructSignedTransaction
@@ -80,6 +80,9 @@ const background: ModuleFunction<BackgroundResult> = async (
   browser.alarms.create(`scheduled-fee-${transaction.id}`, {
     when: 1000
   });
+
+  // notify the user of the signing
+  await signNotification(price);
 
   // update allowance spent amount (in winstons)
   await updateAllowance(tabURL, price);

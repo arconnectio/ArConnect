@@ -10,7 +10,8 @@
     "storage",
     "contextMenus",
     "<all_urls>",
-    "alarms"
+    "alarms",
+    "notifications"
   ],
   "background": {
     "scripts": ["build/scripts/background.js"]

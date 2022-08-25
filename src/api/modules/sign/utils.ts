@@ -1,6 +1,7 @@
 import { getStoreData } from "../../../utils/background";
 import Transaction from "arweave/web/lib/transaction";
 import { browser } from "webextension-polyfill-ts";
+import Arweave from "arweave";
 
 /**
  * Fetch current arconfetti icon
@@ -56,4 +57,38 @@ export async function calculateReward({ reward }: Transaction) {
   const fee = +reward * multiplier;
 
   return fee.toFixed(0);
+}
+
+/**
+ * Notify the user of a transaction signing event
+ *
+ * @param price Price of the transaction in winston
+ * @param id ID of the transaction
+ */
+export async function signNotification(price: number) {
+  // fetch if notification is enabled
+  const storeData = await getStoreData();
+  const enabled = storeData.settings?.signNotification || false;
+
+  if (!enabled) return;
+
+  // create a client, gateway doesn't matter
+  const arweave = new Arweave({
+    host: "arweave.net",
+    port: 443,
+    protocol: "https"
+  });
+
+  // calculate price in AR
+  const arPrice = parseFloat(arweave.ar.winstonToAr(price.toString()));
+
+  // create the notification
+  await browser.notifications.create(undefined, {
+    iconUrl: browser.runtime.getURL("icons/logo256.png"),
+    type: "basic",
+    title: "Transaction signed",
+    message: `It cost a total of ${arPrice.toLocaleString(undefined, {
+      maximumFractionDigits: 4
+    })} AR`
+  });
 }
