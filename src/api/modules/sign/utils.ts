@@ -87,7 +87,7 @@ export async function signNotification(price: number) {
     iconUrl: browser.runtime.getURL("icons/logo256.png"),
     type: "basic",
     title: "Transaction signed",
-    message: `It cost a total of ${arPrice.toLocaleString(undefined, {
+    message: `It cost a total of ~${arPrice.toLocaleString(undefined, {
       maximumFractionDigits: 4
     })} AR`
   });
