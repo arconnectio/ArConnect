@@ -1,16 +1,33 @@
 import { getStoreData } from "../../../utils/background";
 import Transaction from "arweave/web/lib/transaction";
+import { browser } from "webextension-polyfill-ts";
 
 /**
- * Check if the arconfetti animation is enabled
+ * Fetch current arconfetti icon
+ *
+ * @returns Location to icon or false if it is disabled
  */
-export async function arConfettiEnabled() {
+export async function arconfettiIcon(): Promise<string | false> {
+  const defaultIcon = browser.runtime.getURL("assets/arweave.png");
+
   try {
     const storeData = await getStoreData();
+    const iconName = storeData.settings?.arConfetti;
 
-    return !!storeData.settings?.arConfetti;
+    if (!iconName) return false;
+
+    // if iconName === true, that means the user is using the old
+    // config for the arconfetti icon.
+    // in this case we return the default icon
+    if (iconName === true) {
+      return defaultIcon;
+    }
+
+    // return icon location
+    return browser.runtime.getURL(`assets/${iconName}.png`);
   } catch {
-    return true;
+    // return the default icon
+    return defaultIcon;
   }
 }
 

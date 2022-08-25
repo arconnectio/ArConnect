@@ -34,7 +34,8 @@
     "archive.html",
     "auth.html",
     "build/scripts/injected.js",
-    "*.js.map"
+    "*.js.map",
+    "assets/*.png"
   ],
   "content_scripts": [
     {

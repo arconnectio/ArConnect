@@ -29,7 +29,6 @@ import Send from "./Send";
 import Settings from "./Settings";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
-import arweaveLogo from "../../../assets/arweave.png";
 import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
@@ -154,9 +153,9 @@ export default function Home() {
   }
 
   function logo(id: string) {
-    if (!psts) return arweaveLogo;
+    if (!psts) return browser.runtime.getURL("assets/arweave.png");
     const pst = psts.find((pst) => pst.id === id);
-    if (!pst || !pst.logo) return arweaveLogo;
+    if (!pst || !pst.logo) return browser.runtime.getURL("assets/arweave.png");
     else if (pst.ticker === "VRT") {
       if (scheme === "dark") return verto_dark_logo;
       else return verto_light_logo;

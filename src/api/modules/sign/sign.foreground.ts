@@ -89,7 +89,7 @@ const foreground: ModuleFunction<ReturnParams> = async (
 export const finalizer: TransformFinalizer<
   {
     transaction: SplitTransaction;
-    arConfetti: boolean;
+    arConfetti: string;
   },
   any,
   OriginalParams
@@ -119,8 +119,9 @@ export const finalizer: TransformFinalizer<
 
   // show a nice confetti eeffect, if enabled
   if (result.arConfetti) {
+    console.log(result.arConfetti);
     for (let i = 0; i < 8; i++) {
-      setTimeout(() => createCoinWithAnimation(), i * 150);
+      setTimeout(() => createCoinWithAnimation(result.arConfetti), i * 150);
     }
   }
 

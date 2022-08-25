@@ -13,5 +13,5 @@ export default sign;
 
 export interface BackgroundResult {
   transaction: SplitTransaction;
-  arConfetti: boolean;
+  arConfetti: string | false;
 }

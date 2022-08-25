@@ -1,6 +1,6 @@
 import { ModuleFunction } from "../../background";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
-import { arConfettiEnabled, calculateReward } from "./utils";
+import { arconfettiIcon, calculateReward } from "./utils";
 import {
   constructTransaction,
   deconstructSignedTransaction
@@ -94,7 +94,7 @@ const background: ModuleFunction<BackgroundResult> = async (
   // return de-constructed transaction
   return {
     transaction: returnTransaction,
-    arConfetti: await arConfettiEnabled()
+    arConfetti: await arconfettiIcon()
   };
 };
 

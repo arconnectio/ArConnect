@@ -1,9 +1,9 @@
-import arweaveLogo from "../../../assets/arweave.png";
-
 /**
  * Create an animation for transactions
+ *
+ * @param elementSrc Location pointing to the image to animate
  */
-export function createCoinWithAnimation() {
+export function createCoinWithAnimation(elementSrc: string) {
   const arCoin = document.createElement("img"),
     pos = { x: 0, y: 0 },
     id = `ar-coin-animation-${
@@ -11,7 +11,7 @@ export function createCoinWithAnimation() {
     }`;
   let visibility = 100;
 
-  arCoin.setAttribute("src", arweaveLogo);
+  arCoin.setAttribute("src", elementSrc);
   arCoin.setAttribute("alt", "a");
   arCoin.style.position = "fixed";
   arCoin.style.bottom = "0";
