@@ -20,6 +20,8 @@ import connectModule from "./modules/connect";
 import connect from "./modules/connect/connect.background";
 import signModule from "./modules/sign";
 import sign from "./modules/sign/sign.background";
+import dispatchModule from "./modules/dispatch";
+import dispatch from "./modules/dispatch/dispatch.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
@@ -31,7 +33,8 @@ const modules: BackgroundModule<any>[] = [
   { ...arweaveConfigModule, function: arweaveConfig },
   { ...disconnectModule, function: disconnect },
   { ...connectModule, function: connect },
-  { ...signModule, function: sign }
+  { ...signModule, function: sign },
+  { ...dispatchModule, function: dispatch }
 ];
 
 export default modules;

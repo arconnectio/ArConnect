@@ -287,11 +287,6 @@ export async function getActiveKeyfile() {
   };
 }
 
-export interface DispatchResult {
-  id: string;
-  type?: "BASE" | "BUNDLED";
-}
-
 export function generateBundlrAnchor() {
   const randomBytes = crypto.getRandomValues(new Uint8Array(32));
   // we can do this, because we know that the randomBytes buffer

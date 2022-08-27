@@ -23,6 +23,8 @@ import signModule from "./modules/sign";
 import sign, {
   finalizer as signFinalizer
 } from "./modules/sign/sign.foreground";
+import dispatchModule from "./modules/dispatch";
+import dispatch from "./modules/dispatch/dispatch.foreground";
 
 /** Foreground modules */
 const modules: ForegroundModule[] = [
@@ -34,13 +36,14 @@ const modules: ForegroundModule[] = [
   { ...arweaveConfigModule, function: arweaveConfig },
   { ...disconnectModule, function: disconnect },
   { ...connectModule, function: connect, finalizer: connectFinalizer },
-  { ...signModule, function: sign, finalizer: signFinalizer }
+  { ...signModule, function: sign, finalizer: signFinalizer },
+  { ...dispatchModule, function: dispatch }
 ];
 
 export default modules;
 
 /** Extended module interface */
-interface ForegroundModule extends Module<any[] | void> {
+interface ForegroundModule extends Module<any> {
   /**
    * A function that runs after results were
    * returned from the background script.
