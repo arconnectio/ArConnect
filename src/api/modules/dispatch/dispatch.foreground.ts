@@ -15,7 +15,7 @@ const foreground: ModuleFunction<Record<any, any>> = (
     );
   }
 
-  return transaction.toJSON();
+  return [transaction.toJSON()];
 };
 
 export default foreground;
