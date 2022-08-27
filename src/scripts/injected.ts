@@ -3,25 +3,17 @@ import { MessageFormat, validateMessage } from "../utils/messenger";
 import modules from "../api/foreground";
 
 /* Listen to wallet switch event and dispatch it */
-window.addEventListener("message", (e) => {
+window.addEventListener("message", ({ data }) => {
   if (
-    !e.data ||
-    !e.data.type ||
-    e.data.type !== "switch_wallet_event_forward" ||
-    !e.data.address
-  )
-    return;
-
-  if (
-    !validateMessage(e.data, undefined, "switch_wallet_event_forward") ||
-    e.data?.data?.address
+    !validateMessage(data, "popup", "switch_wallet_event_forward") ||
+    !data?.data?.address
   ) {
     return;
   }
 
   dispatchEvent(
     new CustomEvent("walletSwitch", {
-      detail: { address: e.data.data.address }
+      detail: { address: data.data.address }
     })
   );
 });

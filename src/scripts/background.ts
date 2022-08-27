@@ -241,7 +241,7 @@ browser.runtime.onMessage.addListener(async (message: MessageFormat) => {
       )
         return;
 
-      browser.tabs.sendMessage(activeTab.id as number, {
+      await browser.tabs.sendMessage(activeTab.id as number, {
         ...message,
         type: "switch_wallet_event_forward"
       });
