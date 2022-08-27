@@ -1,5 +1,7 @@
+import { ACCEPTED_DISPATCH_SIZE, DispatchResult } from "./index";
+import { createCoinWithAnimation } from "../sign/animation";
+import { TransformFinalizer } from "../../foreground";
 import { ModuleFunction } from "../../module";
-import { ACCEPTED_DISPATCH_SIZE } from "./index";
 import Transaction from "arweave/web/lib/transaction";
 
 const foreground: ModuleFunction<Record<any, any>> = (
@@ -16,6 +18,20 @@ const foreground: ModuleFunction<Record<any, any>> = (
   }
 
   return [transaction.toJSON()];
+};
+
+export const finalizer: TransformFinalizer<{
+  arConfetti: string;
+  res: DispatchResult;
+}> = (result) => {
+  // show a nice confetti eeffect, if enabled
+  if (result.arConfetti) {
+    for (let i = 0; i < 8; i++) {
+      setTimeout(() => createCoinWithAnimation(result.arConfetti), i * 150);
+    }
+  }
+
+  return result.res;
 };
 
 export default foreground;

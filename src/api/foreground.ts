@@ -24,7 +24,9 @@ import sign, {
   finalizer as signFinalizer
 } from "./modules/sign/sign.foreground";
 import dispatchModule from "./modules/dispatch";
-import dispatch from "./modules/dispatch/dispatch.foreground";
+import dispatch, {
+  finalizer as dispatchFinalizer
+} from "./modules/dispatch/dispatch.foreground";
 
 /** Foreground modules */
 const modules: ForegroundModule[] = [
@@ -37,7 +39,7 @@ const modules: ForegroundModule[] = [
   { ...disconnectModule, function: disconnect },
   { ...connectModule, function: connect, finalizer: connectFinalizer },
   { ...signModule, function: sign, finalizer: signFinalizer },
-  { ...dispatchModule, function: dispatch }
+  { ...dispatchModule, function: dispatch, finalizer: dispatchFinalizer }
 ];
 
 export default modules;
@@ -57,7 +59,11 @@ interface ForegroundModule extends Module<any> {
  * @param params The params the background script received
  * @param originalParams The params the injected function was called with
  */
-export type TransformFinalizer<ResultType, ParamsType, OriginalParamsType> = (
+export type TransformFinalizer<
+  ResultType,
+  ParamsType = any,
+  OriginalParamsType = any
+> = (
   result: ResultType,
   params: ParamsType,
   originalParams: OriginalParamsType

@@ -2,13 +2,18 @@ import { getActiveKeyfile, getArweaveConfig } from "../../../utils/background";
 import { createData, signers } from "../../../../bin/arbundles/bundle";
 import { browser } from "webextension-polyfill-ts";
 import { ModuleFunction } from "../../background";
-import { signNotification } from "../sign/utils";
+import { arconfettiIcon, signNotification } from "../sign/utils";
 import { uploadDataToBundlr } from "./uploader";
 import { signedTxTags } from "../sign/tags";
 import { DispatchResult } from "./index";
 import Arweave from "arweave";
 
-const background: ModuleFunction<DispatchResult> = async (
+type ReturnType = {
+  arConfetti: string | false;
+  res: DispatchResult;
+};
+
+const background: ModuleFunction<ReturnType> = async (
   _,
   tx: Record<any, any>
 ) => {
@@ -49,8 +54,11 @@ const background: ModuleFunction<DispatchResult> = async (
     await signNotification(0, dataEntry.id, "dispatch");
 
     return {
-      id: dataEntry.id,
-      type: "BUNDLED"
+      arConfetti: await arconfettiIcon(),
+      res: {
+        id: dataEntry.id,
+        type: "BUNDLED"
+      }
     };
   } catch {
     // sign & post if there is something wrong with the bundlr
@@ -83,8 +91,11 @@ const background: ModuleFunction<DispatchResult> = async (
     await signNotification(price, transaction.id);
 
     return {
-      id: transaction.id,
-      type: "BASE"
+      arConfetti: await arconfettiIcon(),
+      res: {
+        id: transaction.id,
+        type: "BASE"
+      }
     };
   }
 };
