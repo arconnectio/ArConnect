@@ -16,7 +16,6 @@ import {
   getArweaveActiveTab
 } from "./background/tab_update";
 import { browser } from "webextension-polyfill-ts";
-import { fixupPasswords } from "../utils/auth";
 import { ArConnectEvent } from "../views/Popup/routes/Settings";
 import { Chunk, handleChunk } from "../api/modules/sign/chunks";
 import { getRealURL } from "../utils/url";
@@ -25,9 +24,8 @@ import modules from "../api/background";
 
 // open the welcome page
 browser.runtime.onInstalled.addListener(async () => {
-  if (!(await walletsStored()))
-    browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
-  else await fixupPasswords();
+  if (await walletsStored()) return;
+  await browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
 });
 
 browser.windows.onFocusChanged.addListener(async (windowId) => {
