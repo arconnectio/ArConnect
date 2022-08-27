@@ -31,6 +31,8 @@ import encryptModule from "./modules/encrypt";
 import encrypt, {
   finalizer as encryptFinalizer
 } from "./modules/encrypt/encrypt.foreground";
+import decryptModule from "./modules/decrypt";
+import decrypt from "./modules/decrypt/decrypt.foreground";
 
 /** Foreground modules */
 const modules: ForegroundModule[] = [
@@ -44,7 +46,8 @@ const modules: ForegroundModule[] = [
   { ...connectModule, function: connect, finalizer: connectFinalizer },
   { ...signModule, function: sign, finalizer: signFinalizer },
   { ...dispatchModule, function: dispatch, finalizer: dispatchFinalizer },
-  { ...encryptModule, function: encrypt, finalizer: encryptFinalizer }
+  { ...encryptModule, function: encrypt, finalizer: encryptFinalizer },
+  { ...decryptModule, function: decrypt }
 ];
 
 export default modules;

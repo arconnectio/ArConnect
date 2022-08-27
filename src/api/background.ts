@@ -22,6 +22,10 @@ import signModule from "./modules/sign";
 import sign from "./modules/sign/sign.background";
 import dispatchModule from "./modules/dispatch";
 import dispatch from "./modules/dispatch/dispatch.background";
+import encryptModule from "./modules/encrypt";
+import encrypt from "./modules/encrypt/encrypt.background";
+import decryptModule from "./modules/decrypt";
+import decrypt from "./modules/decrypt/decrypt.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
@@ -34,7 +38,9 @@ const modules: BackgroundModule<any>[] = [
   { ...disconnectModule, function: disconnect },
   { ...connectModule, function: connect },
   { ...signModule, function: sign },
-  { ...dispatchModule, function: dispatch }
+  { ...dispatchModule, function: dispatch },
+  { ...encryptModule, function: encrypt },
+  { ...decryptModule, function: decrypt }
 ];
 
 export default modules;
