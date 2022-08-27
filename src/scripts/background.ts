@@ -14,7 +14,7 @@ import {
   handleBrowserLostFocus,
   handleBrowserGainedFocus,
   getArweaveActiveTab
-} from "../background/tab_update";
+} from "./background/tab_update";
 import { browser } from "webextension-polyfill-ts";
 import { fixupPasswords } from "../utils/auth";
 import { ArConnectEvent } from "../views/Popup/routes/Settings";

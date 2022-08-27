@@ -30,7 +30,7 @@ import { formatAddress, getRealURL, shortenURL } from "../../../utils/url";
 import { Currency } from "../../../stores/reducers/settings";
 import { Threshold } from "arverify";
 import { MessageType } from "../../../utils/messenger";
-import { updateIcon } from "../../../background/icon";
+import { updateIcon } from "../../../scripts/background/icon";
 import { checkPassword, setPassword } from "../../../utils/auth";
 import { browser } from "webextension-polyfill-ts";
 import {

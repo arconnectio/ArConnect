@@ -1,11 +1,11 @@
+import { createContextMenus } from "../../../scripts/background/context_menus";
 import { IGatewayConfig } from "../../../stores/reducers/arweave";
-import { getActiveTab } from "../../../utils/background";
+import { updateIcon } from "../../../scripts/background/icon";
 import { PermissionType } from "../../../utils/permissions";
-import { getRealURL } from "../../../utils/url";
+import { getActiveTab } from "../../../utils/background";
 import { ModuleFunction } from "../../background";
+import { getRealURL } from "../../../utils/url";
 import { AppInfo } from "./index";
-import { updateIcon } from "../../../background/icon";
-import { createContextMenus } from "../../../background/context_menus";
 import validatePermissions from "./permissions";
 import authenticate from "./auth";
 

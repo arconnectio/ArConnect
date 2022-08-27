@@ -3,13 +3,13 @@ import {
   getPermissions,
   getStoreData,
   setStoreData
-} from "../utils/background";
-import { defaultConfig as defaultGatewayConfig } from "../stores/reducers/arweave";
+} from "../../utils/background";
+import { defaultConfig as defaultGatewayConfig } from "../../stores/reducers/arweave";
 import { createContextMenus } from "./context_menus";
 import { updateIcon } from "./icon";
-import { Tab } from "../stores/reducers/time_tracking";
+import { Tab } from "../../stores/reducers/time_tracking";
 import { Tabs } from "webextension-polyfill-ts";
-import { getRealURL } from "../utils/url";
+import { getRealURL } from "../../utils/url";
 
 async function loadData(): Promise<Tab[]> {
   try {

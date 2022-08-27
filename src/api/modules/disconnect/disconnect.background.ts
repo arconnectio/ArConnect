@@ -1,36 +1,14 @@
-import { updateIcon } from "../../../background/icon";
-import {
-  getActiveTab,
-  getStoreData,
-  setStoreData
-} from "../../../utils/background";
-import { getRealURL } from "../../../utils/url";
+import { getActiveTab } from "../../../utils/background";
 import { ModuleFunction } from "../../background";
+import { getRealURL } from "../../../utils/url";
+import { disconnectFromApp } from "./utils";
 
 const background: ModuleFunction<void> = async () => {
   // grab tab url
   const activeTab = await getActiveTab();
   const tabURL = getRealURL(activeTab.url as string);
 
-  // fetch app data from storage
-  const store = await getStoreData();
-
-  // filter out the app from the storage
-  const updatedPermissionsObj = (store.permissions || []).filter(
-    ({ url }) => url !== tabURL
-  );
-  const updatedGatewaysObj = (store.gateways || []).filter(
-    ({ url }) => url !== tabURL
-  );
-
-  // update storage
-  await setStoreData({
-    permissions: updatedPermissionsObj,
-    gateways: updatedGatewaysObj
-  });
-
-  // remove connected icon
-  updateIcon(false);
+  await disconnectFromApp(tabURL);
 };
 
 export default background;
