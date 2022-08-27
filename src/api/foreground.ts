@@ -27,6 +27,10 @@ import dispatchModule from "./modules/dispatch";
 import dispatch, {
   finalizer as dispatchFinalizer
 } from "./modules/dispatch/dispatch.foreground";
+import encryptModule from "./modules/encrypt";
+import encrypt, {
+  finalizer as encryptFinalizer
+} from "./modules/encrypt/encrypt.foreground";
 
 /** Foreground modules */
 const modules: ForegroundModule[] = [
@@ -39,7 +43,8 @@ const modules: ForegroundModule[] = [
   { ...disconnectModule, function: disconnect },
   { ...connectModule, function: connect, finalizer: connectFinalizer },
   { ...signModule, function: sign, finalizer: signFinalizer },
-  { ...dispatchModule, function: dispatch, finalizer: dispatchFinalizer }
+  { ...dispatchModule, function: dispatch, finalizer: dispatchFinalizer },
+  { ...encryptModule, function: encrypt, finalizer: encryptFinalizer }
 ];
 
 export default modules;
