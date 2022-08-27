@@ -66,7 +66,11 @@ export async function calculateReward({ reward }: Transaction) {
  * @param price Price of the transaction in winston
  * @param id ID of the transaction
  */
-export async function signNotification(price: number, id: string) {
+export async function signNotification(
+  price: number,
+  id: string,
+  type: "sign" | "dispatch" = "sign"
+) {
   // fetch if notification is enabled
   const storeData = await getStoreData();
   const enabled = storeData.settings?.signNotification || false;
@@ -83,14 +87,20 @@ export async function signNotification(price: number, id: string) {
   // give an ID to the notification
   const notificationID = nanoid();
 
+  // transaction message
+  const message =
+    type === "sign"
+      ? `It cost a total of ~${arPrice.toLocaleString(undefined, {
+          maximumFractionDigits: 4
+        })} AR`
+      : "It was submitted to The Bundlr Network";
+
   // create the notification
   await browser.notifications.create(notificationID, {
     iconUrl: browser.runtime.getURL("icons/logo256.png"),
     type: "basic",
-    title: "Transaction signed",
-    message: `It cost a total of ~${arPrice.toLocaleString(undefined, {
-      maximumFractionDigits: 4
-    })} AR`
+    title: `Transaction ${type === "sign" ? "signed" : "dispatched"}`,
+    message
   });
 
   // listener for clicks

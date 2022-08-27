@@ -2,6 +2,7 @@ import { getActiveKeyfile, getArweaveConfig } from "../../../utils/background";
 import { createData, signers } from "../../../../bin/arbundles/bundle";
 import { browser } from "webextension-polyfill-ts";
 import { ModuleFunction } from "../../background";
+import { signNotification } from "../sign/utils";
 import { uploadDataToBundlr } from "./uploader";
 import { signedTxTags } from "../sign/tags";
 import { DispatchResult } from "./index";
@@ -44,6 +45,9 @@ const background: ModuleFunction<DispatchResult> = async (
     await dataEntry.sign(dataSigner);
     await uploadDataToBundlr(dataEntry);
 
+    // show notification
+    await signNotification(0, dataEntry.id, "dispatch");
+
     return {
       id: dataEntry.id,
       type: "BUNDLED"
@@ -71,6 +75,12 @@ const background: ModuleFunction<DispatchResult> = async (
     while (!uploader.isComplete) {
       await uploader.uploadChunk();
     }
+
+    // calculate price
+    const price = +transaction.reward + parseInt(transaction.quantity);
+
+    // show notification
+    await signNotification(price, transaction.id);
 
     return {
       id: transaction.id,
