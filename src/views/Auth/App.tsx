@@ -38,6 +38,7 @@ import {
 } from "../../utils/permissions";
 import { IGatewayConfig } from "../../stores/reducers/arweave";
 import { suggestedGateways } from "../../utils/gateways";
+import { MessageFormat } from "../../utils/messenger";
 import toastStyles from "../../styles/components/SmallToast.module.sass";
 import styles from "../../styles/views/Auth/view.module.sass";
 
@@ -347,15 +348,16 @@ export default function App() {
 
   function switchWallet(address: string) {
     dispatch(switchProfile(address));
-    // TODO: adjust format of the message
-    browser.runtime.sendMessage({
+
+    const message: MessageFormat = {
       type: "switch_wallet_event",
       ext: "arconnect",
-      res: true,
-      message: "",
-      address,
-      sender: "popup"
-    });
+      data: { address },
+      origin: "popup"
+    };
+
+    browser.runtime.sendMessage(message);
+
     setShowSwitch(true);
     setTimeout(() => setShowSwitch(false), 1700);
   }

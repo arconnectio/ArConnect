@@ -11,8 +11,18 @@ window.addEventListener("message", (e) => {
     !e.data.address
   )
     return;
+
+  if (
+    !validateMessage(e.data, undefined, "switch_wallet_event_forward") ||
+    e.data?.data?.address
+  ) {
+    return;
+  }
+
   dispatchEvent(
-    new CustomEvent("walletSwitch", { detail: { address: e.data.address } })
+    new CustomEvent("walletSwitch", {
+      detail: { address: e.data.data.address }
+    })
   );
 });
 

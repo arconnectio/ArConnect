@@ -17,7 +17,7 @@ import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
 import { useColorScheme } from "use-color-scheme";
 import { arToFiat, getSymbol } from "../../../utils/currency";
-import { validateMessage } from "../../../utils/messenger";
+import { MessageFormat, validateMessage } from "../../../utils/messenger";
 import { browser } from "webextension-polyfill-ts";
 import { getActiveTab } from "../../../utils/background";
 import { concatGatewayURL } from "../../../utils/gateways";
@@ -213,11 +213,12 @@ export default function Home() {
 
       if (!currentTabContentType || !currentTab.url) return;
       if (currentTabContentType === "page") {
-        const res = await browser.runtime.sendMessage({
+        const message: MessageFormat = {
           type: "archive_page",
           ext: "arconnect",
-          sender: "popup"
-        });
+          origin: "popup"
+        };
+        const res = await browser.runtime.sendMessage(message);
 
         if (!validateMessage(res, "content", "archive_page_content")) return;
 

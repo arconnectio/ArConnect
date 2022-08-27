@@ -38,14 +38,9 @@ window.addEventListener("message", async (e) => {
   const listener = async (res: any) => {
     // only resolve when the result matching our message.id is delivered
     if (res.id !== e.data.id) return;
-
-    if (
-      !res.ext ||
-      res.ext !== "arconnect" ||
-      !res.type ||
-      res.type !== `${e.data.type}_result`
-    )
+    if (!validateMessage(res, undefined, `${e.data.type}_result`)) {
       return;
+    }
 
     window.postMessage(res, window.location.origin);
     connection.onMessage.removeListener(listener);
@@ -58,12 +53,14 @@ window.addEventListener("message", async (e) => {
 browser.runtime.onMessage.addListener(async (message: MessageFormat) => {
   // return archive page content if requested
   if (validateMessage(message, "popup", "archive_page")) {
-    return {
+    const message: MessageFormat = {
       type: "archive_page_content",
       ext: "arconnect",
-      sender: "content",
+      origin: "content",
       data: document.documentElement.innerHTML
     };
+
+    return message;
   }
 
   // handle wallet switch event
