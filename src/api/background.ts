@@ -26,6 +26,8 @@ import encryptModule from "./modules/encrypt";
 import encrypt from "./modules/encrypt/encrypt.background";
 import decryptModule from "./modules/decrypt";
 import decrypt from "./modules/decrypt/decrypt.background";
+import signatureModule from "./modules/signature";
+import signature from "./modules/signature/signature.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
@@ -40,7 +42,8 @@ const modules: BackgroundModule<any>[] = [
   { ...signModule, function: sign },
   { ...dispatchModule, function: dispatch },
   { ...encryptModule, function: encrypt },
-  { ...decryptModule, function: decrypt }
+  { ...decryptModule, function: decrypt },
+  { ...signatureModule, function: signature }
 ];
 
 export default modules;
