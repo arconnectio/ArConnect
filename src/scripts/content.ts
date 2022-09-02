@@ -32,19 +32,15 @@ const connection = browser.runtime.connect(browser.runtime.id, {
 
 // forward messages from the api to the background script
 window.addEventListener("message", async (e) => {
-  if (!validateMessage(e.data, {}) || !e.data.type) return;
+  if (!validateMessage(e.data, "injected")) return;
 
+  // listener for the function result
   const listener = async (res: any) => {
     // only resolve when the result matching our message.id is delivered
-    if (res.id != e.data.id) return;
-
-    if (
-      !res.ext ||
-      res.ext !== "arconnect" ||
-      !res.type ||
-      res.type !== `${e.data.type}_result`
-    )
+    if (res.id !== e.data.id) return;
+    if (!validateMessage(res, undefined, `${e.data.type}_result`)) {
       return;
+    }
 
     window.postMessage(res, window.location.origin);
     connection.onMessage.removeListener(listener);
@@ -54,22 +50,21 @@ window.addEventListener("message", async (e) => {
   connection.onMessage.addListener(listener);
 });
 
-// wallet switch event
 browser.runtime.onMessage.addListener(async (message: MessageFormat) => {
-  if (validateMessage(message, { sender: "popup", type: "archive_page" }))
-    return {
+  // return archive page content if requested
+  if (validateMessage(message, "popup", "archive_page")) {
+    const message: MessageFormat = {
       type: "archive_page_content",
       ext: "arconnect",
-      sender: "content",
+      origin: "content",
       data: document.documentElement.innerHTML
     };
 
-  if (
-    validateMessage(message, {
-      sender: "popup",
-      type: "switch_wallet_event_forward"
-    })
-  )
+    return message;
+  }
+
+  // handle wallet switch event
+  if (validateMessage(message, "popup", "switch_wallet_event_forward"))
     window.postMessage(message, window.location.origin);
 });
 

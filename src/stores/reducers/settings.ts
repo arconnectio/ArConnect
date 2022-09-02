@@ -1,11 +1,13 @@
 import { Threshold } from "arverify";
+import { browser } from "webextension-polyfill-ts";
 
 export type Currency = "USD" | "EUR" | "GBP";
 export interface ISettings {
   currency: Currency;
-  arConfetti: boolean;
+  arConfetti: string | boolean;
   arVerifyTreshold: Threshold;
   feeMultiplier: number;
+  signNotification: boolean;
 }
 
 export interface ISettingsAction {
@@ -15,9 +17,10 @@ export interface ISettingsAction {
 
 const defaultConfig: ISettings = {
   currency: "USD",
-  arConfetti: true,
+  arConfetti: browser.runtime.getURL("assets/arweave.png"),
   arVerifyTreshold: Threshold.MEDIUM,
-  feeMultiplier: 1
+  feeMultiplier: 1,
+  signNotification: false
 };
 
 export default function settingsReducer(

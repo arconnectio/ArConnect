@@ -35,6 +35,7 @@
     "framer-motion": "^3.10.6",
     "human-crypto-keys": "^0.1.4",
     "mime-types": "^2.1.30",
+    "nanoid": "^4.0.0",
     "pretty-bytes": "^5.6.0",
     "react": "^17.0.1",
     "react-chartjs-2": "^2.11.1",
@@ -84,16 +85,6 @@
   },
   "gitHooks": {
     "pre-commit": "prettier --write . && git add -A"
-  },
-  "eslintConfig": {
-    "extends": "react-app",
-    "env": {
-      "browser": true,
-      "commonjs": true,
-      "es6": true,
-      "node": true,
-      "webextensions": true
-    }
   },
   "browserslist": {
     "production": [

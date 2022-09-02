@@ -196,12 +196,6 @@ Get the user's custom [Arweave config](#arweave-config) set in the extension
 
 Requires the `ACCESS_ARWEAVE_CONFIG` [permission](#permissions).
 
-### `addToken(id)`
-
-Add a token to ArConnect (if it is not already present)
-
-- `id`: Token contract ID
-
 ## Permissions
 
 There are 8 permissions currently available. When calling `connect`, you need to specify at least one of them, commonly `ACCESS_ADDRESS`.

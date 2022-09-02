@@ -17,7 +17,7 @@ import { goTo } from "react-chrome-extension-router";
 import { Asset } from "../../../stores/reducers/assets";
 import { useColorScheme } from "use-color-scheme";
 import { arToFiat, getSymbol } from "../../../utils/currency";
-import { validateMessage } from "../../../utils/messenger";
+import { MessageFormat, validateMessage } from "../../../utils/messenger";
 import { browser } from "webextension-polyfill-ts";
 import { getActiveTab } from "../../../utils/background";
 import { concatGatewayURL } from "../../../utils/gateways";
@@ -29,7 +29,6 @@ import Send from "./Send";
 import Settings from "./Settings";
 import Arweave from "arweave";
 import Verto from "@verto/lib";
-import arweaveLogo from "../../../assets/arweave.png";
 import verto_light_logo from "../../../assets/verto_light.png";
 import verto_dark_logo from "../../../assets/verto_dark.png";
 import styles from "../../../styles/views/Popup/home.module.sass";
@@ -154,9 +153,9 @@ export default function Home() {
   }
 
   function logo(id: string) {
-    if (!psts) return arweaveLogo;
+    if (!psts) return browser.runtime.getURL("assets/arweave.png");
     const pst = psts.find((pst) => pst.id === id);
-    if (!pst || !pst.logo) return arweaveLogo;
+    if (!pst || !pst.logo) return browser.runtime.getURL("assets/arweave.png");
     else if (pst.ticker === "VRT") {
       if (scheme === "dark") return verto_dark_logo;
       else return verto_light_logo;
@@ -214,19 +213,14 @@ export default function Home() {
 
       if (!currentTabContentType || !currentTab.url) return;
       if (currentTabContentType === "page") {
-        const res = await browser.runtime.sendMessage({
+        const message: MessageFormat = {
           type: "archive_page",
           ext: "arconnect",
-          sender: "popup"
-        });
+          origin: "popup"
+        };
+        const res = await browser.runtime.sendMessage(message);
 
-        if (
-          !validateMessage(res, {
-            sender: "content",
-            type: "archive_page_content"
-          })
-        )
-          return;
+        if (!validateMessage(res, "content", "archive_page_content")) return;
 
         await browser.storage.local.set({
           lastArchive: {
