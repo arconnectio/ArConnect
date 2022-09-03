@@ -62,7 +62,12 @@ const background: ModuleFunction<string> = async (
     new Uint8Array(symmetricKey)
   );
 
-  return arweave.utils.bufferToString(res).split(options.salt || "")[0];
+  // if a salt is present, split it from the decrypted string
+  if (options.salt) {
+    return arweave.utils.bufferToString(res).split(options.salt)[0];
+  }
+
+  return arweave.utils.bufferToString(res);
 };
 
 export default background;
