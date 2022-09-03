@@ -1,5 +1,6 @@
 import { ModuleFunction } from "../../module";
 
-const foreground: ModuleFunction<any[]> = (...params) => params;
+// no need to transform anything in the foreground
+const foreground: ModuleFunction<void> = () => {};
 
 export default foreground;
