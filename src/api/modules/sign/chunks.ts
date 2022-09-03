@@ -135,7 +135,6 @@ export function getChunks(collectionID: string, tabID: string) {
     ({ chunkCollectionID, origin }) =>
       chunkCollectionID === collectionID && origin === tabID
   );
-  console.log(tabID, collection?.origin);
 
   return collection?.rawChunks;
 }
