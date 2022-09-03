@@ -4,7 +4,7 @@ import { ModuleFunction } from "../../background";
 
 const background: ModuleFunction<number[]> = async (
   _,
-  data: Uint8Array,
+  data: number[],
   algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams
 ) => {
   // grab the user's keyfile
@@ -33,10 +33,10 @@ const background: ModuleFunction<number[]> = async (
   const signature = await crypto.subtle.sign(
     algorithm,
     cryptoKey,
-    new Uint8Array(Object.values(data))
+    new Uint8Array(data)
   );
 
-  return Object.values(signature);
+  return Array.from(new Uint8Array(signature));
 };
 
 export default background;
