@@ -20,7 +20,7 @@ import Transaction from "arweave/web/lib/transaction";
 import Arweave from "arweave";
 
 const background: ModuleFunction<BackgroundResult> = async (
-  _,
+  port,
   tx: Transaction,
   options: SignatureOptions | undefined | null,
   chunkCollectionID: string
@@ -41,7 +41,8 @@ const background: ModuleFunction<BackgroundResult> = async (
   });
 
   // get chunks for transaction
-  const chunks = getChunks(chunkCollectionID);
+  // @ts-expect-error
+  const chunks = getChunks(chunkCollectionID, port.sender.origin);
 
   // reconstruct the transaction from the chunks
   const transaction = arweave.transactions.fromRaw({

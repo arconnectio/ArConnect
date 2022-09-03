@@ -125,14 +125,17 @@ export function handleChunk(chunk: Chunk, port: Runtime.Port): number {
  * Get chunks for a collectionID
  *
  * @param collectionID ID of the chunk collection to retrieve
+ * @param tabID ID of the tab the chunks originate from
  *
  * @returns Chunk collection
  */
-export function getChunks(collectionID: string) {
+export function getChunks(collectionID: string, tabID: string) {
   // find collection
   const collection = chunks.find(
-    ({ chunkCollectionID }) => chunkCollectionID === collectionID
+    ({ chunkCollectionID, origin }) =>
+      chunkCollectionID === collectionID && origin === tabID
   );
+  console.log(tabID, collection?.origin);
 
   return collection?.rawChunks;
 }
