@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Storage } from "@plasmohq/storage";
 import { encryptWallet, readWalletFromFile } from "../utils/wallet";
@@ -37,7 +37,12 @@ const App = () => {
         accept=".json,application/json"
         multiple
       />
-      <input type="password" placeholder="Password..." value={password} onChange={e => setPassword(e.target.value)} />
+      <input
+        type="password"
+        placeholder="Password..."
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
       <button onClick={addWallets}>Add</button>
     </>
   );

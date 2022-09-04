@@ -6,13 +6,17 @@ const IV_LENGTH = 12;
 
 /**
  * Create a PBKDF2 key and use it to derive an AES-GCM key.
- * 
+ *
  * @param password Password to create the key from
  * @param salt Salt used for the derivation
  * @param keyUsages What the derived key will be used for
  * @returns AES-GCM key to use for encryption/decryption
  */
-async function deriveKey(password: string, salt: BufferSource, keyUsages: KeyUsage[]) {
+async function deriveKey(
+  password: string,
+  salt: BufferSource,
+  keyUsages: KeyUsage[]
+) {
   const passwordKey = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(password),
@@ -26,7 +30,7 @@ async function deriveKey(password: string, salt: BufferSource, keyUsages: KeyUsa
       name: "PBKDF2",
       salt,
       iterations: 250000,
-      hash: "SHA-256",
+      hash: "SHA-256"
     },
     passwordKey,
     { name: "AES-GCM", length: 256 },
@@ -39,7 +43,7 @@ async function deriveKey(password: string, salt: BufferSource, keyUsages: KeyUsa
 
 /**
  * Encrypt an Arweave wallet to securely store in the browser
- * 
+ *
  * @param wallet Wallet in Json Web Key format
  * @param password Password to encrypt with
  * @returns Encrypted wallet as a base64 encoded string
@@ -82,7 +86,7 @@ export async function encryptWallet(wallet: JWKInterface, password: string) {
 
 /**
  * Decrypt an Arweave wallet from the browser's storage
- * 
+ *
  * @param wallet Base64 encoded string of the encrypted wallet
  * @param password Passoword to decrypt the wallet with
  * @return Wallet Json Web Key
@@ -117,27 +121,29 @@ export async function decryptWallet(wallet: string, password: string) {
 
 /**
  * Read an Arweave wallet from a file
- * 
+ *
  * @param file File to read from
  * @returns JWK key
  */
-export const readWalletFromFile = (file: File) => new Promise<JWKInterface>((resolve, reject) => {
-  const reader = new FileReader();
+export const readWalletFromFile = (file: File) =>
+  new Promise<JWKInterface>((resolve, reject) => {
+    const reader = new FileReader();
 
-  reader.readAsText(file);
-  reader.onerror = (e) => reject(e);
-  reader.onabort = () => reject("Aborted reading");
-  reader.onload = async (e) => {
-    const res = e!.target!.result;
+    reader.readAsText(file);
+    reader.onerror = (e) => reject(e);
+    reader.onabort = () => reject("Aborted reading");
+    reader.onload = async (e) => {
+      const res = e!.target!.result;
 
-    if (!res || typeof res !== "string") return reject("Invalid result from reader");
-    
-    try {
-      const jwk = JSON.parse(res);
+      if (!res || typeof res !== "string")
+        return reject("Invalid result from reader");
 
-      resolve(jwk);
-    } catch (e) {
-      reject(e.message || e);
-    }
-  };
-});
+      try {
+        const jwk = JSON.parse(res);
+
+        resolve(jwk);
+      } catch (e) {
+        reject(e.message || e);
+      }
+    };
+  });
