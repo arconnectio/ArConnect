@@ -1,11 +1,17 @@
 import { useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { Storage } from "@plasmohq/storage";
-import { encryptWallet, readWalletFromFile } from "../utils/wallet";
+import { Storage, useStorage } from "@plasmohq/storage";
+import { encryptWallet, readWalletFromFile } from "~utils/security";
+import type { StoredWallet } from "~utils/wallet"
 
 const App = () => {
   const [password, setPassword] = useState<string>("");
   const fileInput = useRef<HTMLInputElement>();
+  const [wallets, setWallets] = useStorage<StoredWallet[]>({
+    key: "wallets",
+    area: "local",
+    isSecret: true
+  });
 
   async function addWallets() {
     if (!fileInput.current?.files) return;
