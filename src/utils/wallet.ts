@@ -1,7 +1,8 @@
+import { checkPassword, decryptWallet, encryptWallet } from "./security";
 import type { JWKInterface } from "arweave/node/lib/wallet";
 import { useStorage, Storage } from "@plasmohq/storage";
+import { getStorageConfig } from "./storage";
 import { useEffect, useState } from "react";
-import { checkPassword, decryptWallet, encryptWallet } from "./security";
 import Arweave from "arweave/web/common";
 
 /**
@@ -12,10 +13,7 @@ export interface StoredWallet {
   keyfile: string;
 }
 
-const storage = new Storage({
-  area: "local",
-  secretKeyList: ["shield-modulation"]
-});
+const storage = new Storage(getStorageConfig());
 
 /**
  * Get wallets from storage

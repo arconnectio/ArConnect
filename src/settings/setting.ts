@@ -1,5 +1,6 @@
 import { Storage } from "@plasmohq/storage";
 import { PREFIX } from "~settings";
+import { getStorageConfig } from "~utils/storage";
 
 export default class Setting {
   /** Name of the setting */
@@ -44,9 +45,7 @@ export default class Setting {
     this.storageName = `${PREFIX}${name}`;
 
     // init storage
-    this.#storage = new Storage({
-      area: "local"
-    });
+    this.#storage = new Storage(getStorageConfig());
 
     // add options
     if (type === "pick") {
