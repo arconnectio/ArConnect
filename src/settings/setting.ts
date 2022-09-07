@@ -59,8 +59,12 @@ export default class Setting {
   /**
    * Get the current value of the setting
    */
-  public async getValue(): Promise<ValueType | Setting[]> {
+  public async getValue(): Promise<ValueType> {
     const value = await this.#storage.get(this.storageName);
+
+    if (typeof value === "string" && value.startsWith("boolean_")) {
+      return value.replace("boolean_", "") === "true";
+    }
 
     return value || this.defaultValue;
   }
@@ -77,6 +81,10 @@ export default class Setting {
     // ensure the submitted value's type is correct
     else if (this.type !== "pick" && typeof value !== this.type) {
       throw new Error("Invalid value submitted");
+    }
+
+    if (typeof value === "boolean") {
+      value = `boolean_${value}`;
     }
 
     // update value

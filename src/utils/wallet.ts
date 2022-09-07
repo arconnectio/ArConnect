@@ -129,7 +129,7 @@ export async function setActiveWallet(address: string) {
 export async function addWallet(wallet: JWKInterface, password: string) {
   // check password
   if (!(await checkPassword(password))) {
-    return;
+    throw new Error("Invalid password");
   }
 
   const arweave = new Arweave({

@@ -3,11 +3,14 @@ import { getSetting, PREFIX } from "~settings";
 
 const useSetting = <T = any>(name: string) => {
   const setting = getSetting(name);
-  const hook = useStorage<T>({
-    key: `${PREFIX}${name}`,
-    area: "local"
-  // @ts-expect-error
-  }, (val) => val || setting.defaultValue);
+  const hook = useStorage<T>(
+    {
+      key: `${PREFIX}${name}`,
+      area: "local"
+    },
+    // @ts-expect-error
+    (val) => val || setting.defaultValue
+  );
 
   return hook;
 };

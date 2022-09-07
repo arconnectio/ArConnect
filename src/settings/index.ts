@@ -1,5 +1,7 @@
 import Setting from "./setting";
 
+export const PREFIX = "setting_";
+
 /** All settings */
 const settings: Setting[] = [
   new Setting({
@@ -40,7 +42,5 @@ const settings: Setting[] = [
 export function getSetting(name: string) {
   return settings.find((setting) => setting.name === name);
 }
-
-export const PREFIX = "setting_";
 
 export default settings;
