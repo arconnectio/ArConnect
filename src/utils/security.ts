@@ -1,4 +1,6 @@
 import type { JWKInterface } from "arweave/node/lib/wallet";
+import { Storage } from "@plasmohq/storage";
+import { getWallets } from "./wallet";
 
 // salt and iv lengths
 const SALT_LENGTH = 16;
@@ -119,31 +121,31 @@ export async function decryptWallet(wallet: string, password: string) {
   return jwk;
 }
 
-/**
- * Read an Arweave wallet from a file
- *
- * @param file File to read from
- * @returns JWK key
- */
-export const readWalletFromFile = (file: File) =>
-  new Promise<JWKInterface>((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.readAsText(file);
-    reader.onerror = (e) => reject(e);
-    reader.onabort = () => reject("Aborted reading");
-    reader.onload = async (e) => {
-      const res = e!.target!.result;
-
-      if (!res || typeof res !== "string")
-        return reject("Invalid result from reader");
-
-      try {
-        const jwk = JSON.parse(res);
-
-        resolve(jwk);
-      } catch (e) {
-        reject(e.message || e);
-      }
-    };
+export async function checkPassword(password: string) {
+  // try to check it agains the decryption key
+  const storage = new Storage({
+    area: "local",
+    secretKeyList: ["shield-modulation"]
   });
+
+  const decryptionKey = await storage.get("decryption_key");
+
+  if (!!decryptionKey) {
+    return decryptionKey === password;
+  }
+
+  // try decrypting
+  const wallets = await getWallets();
+
+  if (wallets.length === 0) {
+    throw new Error("No wallets added yet");
+  }
+
+  try {
+    await decryptWallet(wallets[0].keyfile, password);
+
+    return true;
+  } catch {
+    return false;
+  }
+}

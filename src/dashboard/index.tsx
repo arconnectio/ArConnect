@@ -1,42 +1,33 @@
+import { useStorage } from "@plasmohq/storage"
 import { useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { Storage, useStorage } from "@plasmohq/storage";
-import { encryptWallet, readWalletFromFile } from "~utils/security";
-import type { StoredWallet } from "~utils/wallet";
+import { checkPassword } from "~utils/security"
+import { addWallet, readWalletFromFile } from "~utils/wallet";
 
 const App = () => {
   const [password, setPassword] = useState<string>("");
   const fileInput = useRef<HTMLInputElement>();
-  const [wallets, setWallets] = useStorage<StoredWallet[]>({
-    key: "wallets",
-    area: "local",
-    isSecret: true
+
+  // active wallet's address
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    area: "local"
   });
 
   async function addWallets() {
     if (!fileInput.current?.files) return;
 
-    const keyfiles: string[] = [];
-
     // read keyfiles
     for (const file of fileInput.current.files) {
       const wallet = await readWalletFromFile(file);
 
-      keyfiles.push(await encryptWallet(wallet, password));
+      await addWallet(wallet, password);
     }
-
-    // save encrypted wallets
-    const storage = new Storage({
-      area: "local",
-      secretKeyList: ["shield-modulation"]
-    });
-
-    await storage.set("wallets", JSON.stringify(keyfiles));
   }
 
   return (
     <>
-      <h2>Wallet:</h2>
+      <h2>Wallet: (active: {activeAddress})</h2>
       <input
         type="file"
         ref={fileInput}
@@ -50,6 +41,9 @@ const App = () => {
         onChange={(e) => setPassword(e.target.value)}
       />
       <button onClick={addWallets}>Add</button>
+      <button onClick={async () => {
+        console.log(await checkPassword(password));
+      }}>test</button>
     </>
   );
 };
