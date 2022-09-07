@@ -1,9 +1,9 @@
 import { useStorage } from "@plasmohq/storage";
 import { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import settings, { getSetting } from "~settings"
-import type { ValueType } from "~settings/setting"
-import type Setting from "~settings/setting"
+import settings, { getSetting } from "~settings";
+import type { ValueType } from "~settings/setting";
+import type Setting from "~settings/setting";
 import { addWallet, readWalletFromFile } from "~utils/wallet";
 
 const App = () => {
@@ -62,13 +62,16 @@ const SettingEl = ({ setting }: { setting: Setting }) => {
   useEffect(() => {
     (async () => {
       const val = await setting.getValue();
-console.log(val)
+      console.log(val);
       setVal(val);
     })();
   }, [setting]);
 
   async function updateSetting(newVal: ValueType) {
-    if (setting.type === "boolean" || ["true", "false"].includes(newVal as any)) {
+    if (
+      setting.type === "boolean" ||
+      ["true", "false"].includes(newVal as any)
+    ) {
       newVal = newVal === "true";
     }
 
@@ -79,18 +82,39 @@ console.log(val)
   return (
     <>
       {(setting.type === "boolean" && (
-        <input type="checkbox" checked={!!val} onChange={(e) => updateSetting(e.target.checked)} />
-      )) || (setting.type === "number" && (
-        <input type="number" value={val as number} onChange={(e) => updateSetting(Number(e.target.value))} />
-      )) || (setting.type === "string" && (
-        <input type="text" value={val as string} onChange={(e) => updateSetting(e.target.value)} />
-      )) || (setting.type === "pick" && (
-        <select onChange={(e) => updateSetting(e.target.value)}>
-          {setting.options.map((option, i) => (
-            <option value={option.toString()} key={i} selected={option.toString() === val.toString()}>{option === false ? "off" : option}</option>
-          ))}
-        </select>
-      ))}
+        <input
+          type="checkbox"
+          checked={!!val}
+          onChange={(e) => updateSetting(e.target.checked)}
+        />
+      )) ||
+        (setting.type === "number" && (
+          <input
+            type="number"
+            value={val as number}
+            onChange={(e) => updateSetting(Number(e.target.value))}
+          />
+        )) ||
+        (setting.type === "string" && (
+          <input
+            type="text"
+            value={val as string}
+            onChange={(e) => updateSetting(e.target.value)}
+          />
+        )) ||
+        (setting.type === "pick" && (
+          <select onChange={(e) => updateSetting(e.target.value)}>
+            {setting.options.map((option, i) => (
+              <option
+                value={option.toString()}
+                key={i}
+                selected={option.toString() === val.toString()}
+              >
+                {option === false ? "off" : option}
+              </option>
+            ))}
+          </select>
+        ))}
     </>
   );
 };
