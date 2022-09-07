@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Storage, useStorage } from "@plasmohq/storage";
 import { encryptWallet, readWalletFromFile } from "~utils/security";
-import type { StoredWallet } from "~utils/wallet"
+import type { StoredWallet } from "~utils/wallet";
 
 const App = () => {
   const [password, setPassword] = useState<string>("");
