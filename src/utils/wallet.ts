@@ -128,7 +128,7 @@ export async function setActiveWallet(address: string) {
  */
 export async function addWallet(wallet: JWKInterface, password: string) {
   // check password
-  if (!await checkPassword(password)) {
+  if (!(await checkPassword(password))) {
     return;
   }
 
@@ -210,12 +210,12 @@ export const readWalletFromFile = (file: File) =>
 
 /**
  * Unlock wallets and save decryption key
- * 
+ *
  * @param password Password for unlocking
  */
 export async function unlock(password: string) {
   // validate password
-  if (!await checkPassword(password)) {
+  if (!(await checkPassword(password))) {
     return false;
   }
 
