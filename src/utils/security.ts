@@ -95,7 +95,7 @@ export async function encryptWallet(wallet: JWKInterface, password: string) {
  */
 export async function decryptWallet(wallet: string, password: string) {
   // re-construct buffer of data + info for decryption
-  const buffer = new TextEncoder().encode(atob(wallet));
+  const buffer = Uint8Array.from(atob(wallet), (c) => c.charCodeAt(null));
 
   // get salt, iv and data
   const iv = buffer.slice(0, IV_LENGTH);

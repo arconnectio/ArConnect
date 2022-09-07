@@ -23,7 +23,9 @@ const storage = new Storage({
  * @returns Wallets in storage
  */
 export async function getWallets() {
-  let wallets: StoredWallet[] = JSON.parse(await storage.get("wallets") || "[]");
+  let wallets: StoredWallet[] = JSON.parse(
+    (await storage.get("wallets")) || "[]"
+  );
 
   return wallets;
 }
@@ -103,7 +105,7 @@ export async function getActiveWallet() {
 
 /**
  * Update active address
- * 
+ *
  * @param address Updated active address
  */
 export async function setActiveWallet(address: string) {
@@ -179,24 +181,24 @@ export async function removeWallet(address: string) {
  * @returns JWK key
  */
 export const readWalletFromFile = (file: File) =>
- new Promise<JWKInterface>((resolve, reject) => {
-   const reader = new FileReader();
+  new Promise<JWKInterface>((resolve, reject) => {
+    const reader = new FileReader();
 
-   reader.readAsText(file);
-   reader.onerror = (e) => reject(e);
-   reader.onabort = () => reject("Aborted reading");
-   reader.onload = async (e) => {
-     const res = e!.target!.result;
+    reader.readAsText(file);
+    reader.onerror = (e) => reject(e);
+    reader.onabort = () => reject("Aborted reading");
+    reader.onload = async (e) => {
+      const res = e!.target!.result;
 
-     if (!res || typeof res !== "string")
-       return reject("Invalid result from reader");
+      if (!res || typeof res !== "string")
+        return reject("Invalid result from reader");
 
-     try {
-       const jwk = JSON.parse(res);
+      try {
+        const jwk = JSON.parse(res);
 
-       resolve(jwk);
-     } catch (e) {
-       reject(e.message || e);
-     }
-   };
- });
+        resolve(jwk);
+      } catch (e) {
+        reject(e.message || e);
+      }
+    };
+  });
