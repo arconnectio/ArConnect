@@ -1,7 +1,7 @@
 import type { JWKInterface } from "arweave/node/lib/wallet";
 import { useStorage, Storage } from "@plasmohq/storage";
 import { useEffect, useState } from "react";
-import { decryptWallet, encryptWallet } from "./security";
+import { checkPassword, decryptWallet, encryptWallet } from "./security";
 import Arweave from "arweave/web/common";
 
 /**
@@ -127,6 +127,11 @@ export async function setActiveWallet(address: string) {
  * @param password Password to encrypt with
  */
 export async function addWallet(wallet: JWKInterface, password: string) {
+  // check password
+  if (!await checkPassword(password)) {
+    return;
+  }
+
   const arweave = new Arweave({
     host: "arweave.net",
     port: 443,
@@ -202,3 +207,23 @@ export const readWalletFromFile = (file: File) =>
       }
     };
   });
+
+/**
+ * Unlock wallets and save decryption key
+ * 
+ * @param password Password for unlocking
+ */
+export async function unlock(password: string) {
+  // validate password
+  if (!await checkPassword(password)) {
+    return false;
+  }
+
+  // save decryption key
+  await storage.set("decryption_key", password);
+
+  // TODO: schedule removal of the key for
+  // security reasons
+
+  return true;
+}

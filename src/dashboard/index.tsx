@@ -1,7 +1,6 @@
 import { useStorage } from "@plasmohq/storage";
 import { useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { checkPassword } from "~utils/security";
 import { addWallet, readWalletFromFile } from "~utils/wallet";
 
 const App = () => {
@@ -41,13 +40,6 @@ const App = () => {
         onChange={(e) => setPassword(e.target.value)}
       />
       <button onClick={addWallets}>Add</button>
-      <button
-        onClick={async () => {
-          console.log(await checkPassword(password));
-        }}
-      >
-        test
-      </button>
     </>
   );
 };
