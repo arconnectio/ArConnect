@@ -14,8 +14,8 @@ export default class Setting {
   /** Type of the setting */
   public type: SettingType;
 
-  /** Subsettings for list types */
-  public subsettings?: Setting[];
+  /** Default value of the setting */
+  public defaultValue: ValueType;
 
   /** Pickable options */
   public options?: ValueType[];
@@ -26,11 +26,19 @@ export default class Setting {
   /** Storage to fetch from */
   #storage: Storage;
 
-  constructor({ name, displayName, description, type, subsettings, options }: InitParams) {
+  constructor({
+    name,
+    displayName,
+    description,
+    type,
+    defaultValue,
+    options
+  }: InitParams) {
     this.name = name;
     this.displayName = displayName;
     this.description = description;
     this.type = type;
+    this.defaultValue = defaultValue;
 
     // set storage name
     this.storageName = `${PREFIX}${name}`;
@@ -39,13 +47,6 @@ export default class Setting {
     this.#storage = new Storage({
       area: "local"
     });
-
-    // add subsettings
-    if (type === "list") {
-      if (!subsettings) throw new Error("Subsettings not defined");
-
-      this.subsettings = subsettings;
-    }
 
     // add options
     if (type === "pick") {
@@ -59,33 +60,22 @@ export default class Setting {
    * Get the current value of the setting
    */
   public async getValue(): Promise<ValueType | Setting[]> {
-    // return the subsettings for a list setting type
-    if (this.type === "list") {
-      return this.subsettings;
-    }
+    const value = await this.#storage.get(this.storageName);
 
-    return await this.#storage.get(this.storageName);
+    return value || this.defaultValue;
   }
 
   /**
    * Set the value of the setting
    */
   public async setValue(value: ValueType) {
-    // the value of list types is read only
-    if (this.type === "list") {
-      throw new Error(
-        "List settings are read only. Modify the subsettings instead"
-      );
-    } else 
     // ensure the picked option is from the
     // defined options
     if (this.type === "pick" && !this.options.includes(value)) {
-      throw new Error(
-        "Selected option is not included in the defined options"
-      );
-    } else 
+      throw new Error("Selected option is not included in the defined options");
+    }
     // ensure the submitted value's type is correct
-    if (this.type !== "pick" && typeof value !== this.type) {
+    else if (this.type !== "pick" && typeof value !== this.type) {
       throw new Error("Invalid value submitted");
     }
 
@@ -95,11 +85,10 @@ export default class Setting {
 }
 
 /**
- * signle - Single setting, can be string / boolean / number
+ * string / number / boolean
  * pick - Pick from a list
- * list - List / array of settings
  */
-type SettingType = "string" | "number" | "boolean" | "pick" | "list";
+type SettingType = "string" | "number" | "boolean" | "pick";
 export type ValueType = string | number | boolean;
 
 interface InitParams {
@@ -107,6 +96,6 @@ interface InitParams {
   displayName: string;
   description?: string;
   type: SettingType;
-  subsettings?: Setting[];
+  defaultValue: ValueType;
   options?: ValueType[];
 }
