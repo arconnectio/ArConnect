@@ -31,7 +31,7 @@ export async function unlock(password: string) {
  *
  * @param password Password to check
  */
- export async function checkPassword(password: string) {
+export async function checkPassword(password: string) {
   // try to check it agains the decryption key
   const storage = new Storage(getStorageConfig());
 
