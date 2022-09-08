@@ -2,7 +2,7 @@ import { Allowance, defaultAllowance } from "./allowance";
 import type { PermissionType } from "./permissions";
 import { defaultGateway, Gateway } from "./gateway";
 import { getStorageConfig } from "~utils/storage";
-import { Storage } from "@plasmohq/storage";
+import { Storage, useStorage } from "@plasmohq/storage";
 
 export const PREFIX = "app_";
 
@@ -17,11 +17,13 @@ export default class Application {
     this.#storage = new Storage(getStorageConfig());
   }
 
-  /** 
-   * Get all settings for the app 
+  /**
+   * Get all settings for the app
    */
   async #getSettings() {
-    const settings = await this.#storage.get<Record<string, any>>(`${PREFIX}${this.url}`);
+    const settings = await this.#storage.get<Record<string, any>>(
+      `${PREFIX}${this.url}`
+    );
 
     return settings || {};
   }
@@ -74,13 +76,31 @@ export default class Application {
     return settings.allowance || defaultAllowance;
   }
 
-  /** 
+  /**
    * Blocked from interacting with ArConnect
    */
   async isBlocked(): Promise<boolean> {
     const settings = await this.#getSettings();
 
     return !!settings.blocked;
+  }
+
+  hook() {
+    return useStorage<InitAppParams>(
+      {
+        key: `${PREFIX}${this.url}`,
+        area: "local"
+      },
+      (val) => {
+        if (typeof val === "undefined") return val;
+
+        // define default values
+        if (!val.allowance) val.allowance = defaultAllowance;
+        if (!val.gateway) val.gateway = defaultGateway;
+
+        return val;
+      }
+    );
   }
 }
 

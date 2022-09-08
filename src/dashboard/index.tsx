@@ -1,6 +1,10 @@
 import { useStorage } from "@plasmohq/storage";
-import { useEffect, useRef, useState } from "react";
+import Arweave from "arweave/web/common";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { addApp } from "~applications";
+import Application from "~applications/application";
+import { defaultGateway } from "~applications/gateway";
 import settings, { getSetting } from "~settings";
 import type { ValueType } from "~settings/setting";
 import type Setting from "~settings/setting";
@@ -36,6 +40,19 @@ const App = () => {
   }
 
   const [activeSetting, setActiveSetting] = useState(settings[0].name);
+
+  const [apps] = useStorage<string[]>(
+    {
+      key: "apps",
+      area: "local"
+    },
+    []
+  );
+  const [activeApp, setActiveApp] = useState<string>();
+  const app = useMemo<Application | undefined>(
+    () => (activeApp ? new Application(activeApp) : undefined),
+    [activeApp]
+  );
 
   return (
     <>
@@ -73,6 +90,21 @@ const App = () => {
         </button>
       ))}
       <SettingEl setting={getSetting(activeSetting)} />
+      <h2>Applications</h2>
+      {apps.length === 0 && <p>No apps connected yet...</p>}
+      {apps.map((url, i) => (
+        <div key={i} onClick={() => setActiveApp(url)}>
+          <button>{url}</button>
+          <br />
+        </div>
+      ))}
+      {app && <ApplicationEl app={app} />}
+      {/**<button onClick={() => addApp({
+        url: "https://verto.exchange",
+        name: "Verto",
+        logo: "https://www.verto.exchange/logo_light.svg",
+        permissions: ["ACCESS_ADDRESS", "ACCESS_ALL_ADDRESSES"]
+      })}>add</button>**/}
     </>
   );
 };
@@ -134,6 +166,117 @@ const SettingEl = ({ setting }: { setting: Setting }) => {
             ))}
           </select>
         ))}
+    </>
+  );
+};
+
+const ApplicationEl = ({ app }: { app: Application }) => {
+  const [settings, updateSettings] = app.hook();
+  const arweave = new Arweave(defaultGateway);
+
+  if (!settings) return <></>;
+
+  return (
+    <>
+      <img width={120} src={settings.logo} />
+      <h3>{settings.name}</h3>
+      <p>{settings.url}</p>
+      <h4>Permissions</h4>
+      <ul>
+        {settings.permissions.map((permission, i) => (
+          <li key={i}>
+            {permission}
+            <button
+              onClick={() =>
+                updateSettings({
+                  ...settings,
+                  permissions: settings.permissions.filter(
+                    (val) => val !== permission
+                  )
+                })
+              }
+            >
+              x
+            </button>
+          </li>
+        ))}
+      </ul>
+      <h4>Gateway</h4>
+      <input
+        type="text"
+        placeholder="protocol"
+        onChange={(e) =>
+          updateSettings({
+            ...settings,
+            gateway: {
+              ...settings.gateway,
+              protocol: e.target.value as "http" | "https"
+            }
+          })
+        }
+        value={settings.gateway.protocol}
+      />
+      <input
+        type="text"
+        placeholder="host"
+        onChange={(e) =>
+          updateSettings({
+            ...settings,
+            gateway: {
+              ...settings.gateway,
+              host: e.target.value
+            }
+          })
+        }
+        value={settings.gateway.host}
+      />
+      <input
+        type="number"
+        placeholder="port"
+        onChange={(e) =>
+          updateSettings({
+            ...settings,
+            gateway: {
+              ...settings.gateway,
+              port: parseInt(e.target.value)
+            }
+          })
+        }
+        value={settings.gateway.port}
+      />
+      <h4>Allowance</h4>
+      <p>
+        Spent: {arweave.ar.winstonToAr(settings.allowance.spent.toString())} AR
+      </p>
+      <input
+        type="number"
+        placeholder="port"
+        onChange={(e) =>
+          updateSettings({
+            ...settings,
+            allowance: {
+              ...settings.allowance,
+              limit: parseInt(arweave.ar.arToWinston(e.target.value))
+            }
+          })
+        }
+        value={arweave.ar.winstonToAr(settings.allowance.limit.toString())}
+      />
+      AR
+      <br />
+      <label>
+        <input
+          type="checkbox"
+          checked={settings.blocked}
+          onChange={(e) =>
+            updateSettings({
+              ...settings,
+              blocked: e.target.checked
+            })
+          }
+        />
+        Blocked
+      </label>
     </>
   );
 };

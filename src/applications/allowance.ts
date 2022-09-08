@@ -4,6 +4,6 @@ export interface Allowance {
 }
 
 export const defaultAllowance: Allowance = {
-  limit: 1,
+  limit: 1000000000000,
   spent: 0
 };

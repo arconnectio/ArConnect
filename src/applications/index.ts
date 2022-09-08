@@ -9,7 +9,7 @@ const storage = new Storage(getStorageConfig());
  */
 export async function getApps() {
   // fetch app urls
-  const appUrls: string[] = await storage.get("apps") || [];
+  const appUrls: string[] = (await storage.get("apps")) || [];
   const apps: Application[] = [];
 
   // init all apps
@@ -23,12 +23,9 @@ export async function getApps() {
 /**
  * Add an application
  */
-export async function addApp({
-  url,
-  ...rest
-}: InitAppParams) {
+export async function addApp({ url, ...rest }: InitAppParams) {
   // add app url
-  const storedApps: string[] = await storage.get("apps") || [];
+  const storedApps: string[] = (await storage.get("apps")) || [];
 
   await storage.set("apps", [...storedApps, url]);
 
