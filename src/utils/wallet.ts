@@ -21,11 +21,9 @@ const storage = new Storage(getStorageConfig());
  * @returns Wallets in storage
  */
 export async function getWallets() {
-  let wallets: StoredWallet[] = JSON.parse(
-    (await storage.get("wallets")) || "[]"
-  );
+  let wallets: StoredWallet[] = await storage.get("wallets");
 
-  return wallets;
+  return wallets || [];
 }
 
 /**
@@ -144,7 +142,7 @@ export async function addWallet(wallet: JWKInterface, password: string) {
   const wallets = await getWallets();
 
   wallets.push({ address, keyfile: encrypted });
-  await storage.set("wallets", JSON.stringify(wallets));
+  await storage.set("wallets", wallets);
 
   // set active address if this was the first wallet added
   if (wallets.length === 1) {
@@ -165,7 +163,7 @@ export async function removeWallet(address: string) {
   wallets = wallets.filter((wallet) => wallet.address !== address);
 
   // save updated wallets array
-  await storage.set("wallets", JSON.stringify(wallets));
+  await storage.set("wallets", wallets);
 
   // handle active address change
   const activeAddress = await storage.get("active_address");

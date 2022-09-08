@@ -4,17 +4,22 @@ import { createRoot } from "react-dom/client";
 import settings, { getSetting } from "~settings";
 import type { ValueType } from "~settings/setting";
 import type Setting from "~settings/setting";
-import { addWallet, readWalletFromFile } from "~utils/wallet";
+import { addWallet, readWalletFromFile, StoredWallet } from "~utils/wallet";
 
 const App = () => {
   const [password, setPassword] = useState<string>("");
   const fileInput = useRef<HTMLInputElement>();
 
   // active wallet's address
-  const [activeAddress] = useStorage<string>({
+  const [activeAddress, setActiveAddress] = useStorage<string>({
     key: "active_address",
     area: "local"
   });
+  const [wallets] = useStorage<StoredWallet[]>({
+    key: "wallets",
+    area: "local",
+    isSecret: true
+  }, []);
 
   async function addWallets() {
     if (!fileInput.current?.files) return;
@@ -31,7 +36,17 @@ const App = () => {
 
   return (
     <>
-      <h2>Wallet: (active: {activeAddress})</h2>
+      <h2>
+        Wallet: (active: 
+          <select onChange={(e) => setActiveAddress(e.target.value)} value={activeAddress}>
+            {wallets.map((wallet, i) => (
+              <option key={i} value={wallet.address}>
+                {wallet.address}
+              </option>
+            ))}
+          </select>
+        )
+      </h2>
       <input
         type="file"
         ref={fileInput}
@@ -62,7 +77,6 @@ const SettingEl = ({ setting }: { setting: Setting }) => {
   useEffect(() => {
     (async () => {
       const val = await setting.getValue();
-      console.log(val);
       setVal(val);
     })();
   }, [setting]);
@@ -103,12 +117,11 @@ const SettingEl = ({ setting }: { setting: Setting }) => {
           />
         )) ||
         (setting.type === "pick" && (
-          <select onChange={(e) => updateSetting(e.target.value)}>
+          <select onChange={(e) => updateSetting(e.target.value)} value={val.toString()}>
             {setting.options.map((option, i) => (
               <option
                 value={option.toString()}
                 key={i}
-                selected={option.toString() === val.toString()}
               >
                 {option === false ? "off" : option}
               </option>

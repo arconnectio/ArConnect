@@ -1,12 +1,12 @@
-/** 
- * Storage values protected from leaking 
- * into window.localStorage 
+/**
+ * Storage values protected from leaking
+ * into window.localStorage
  */
 const protected_stores = ["wallets", "decryption_key"];
 
 /**
  * Get a secure config for the storage module.
- * This prevents wallets leaking into 
+ * This prevents wallets leaking into
  * window.localStorage
  */
 export const getStorageConfig = (): {

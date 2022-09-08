@@ -123,9 +123,9 @@ export async function decryptWallet(wallet: string, password: string) {
 }
 
 /**
- * Check password against decryption key 
+ * Check password against decryption key
  * or try to decrypt with it.
- * 
+ *
  * @param password Password to check
  */
 export async function checkPassword(password: string) {
@@ -141,8 +141,9 @@ export async function checkPassword(password: string) {
   // try decrypting
   const wallets = await getWallets();
 
+  // if there are no wallets, this is a new password
   if (wallets.length === 0) {
-    throw new Error("No wallets added yet");
+    return true;
   }
 
   try {
