@@ -4,7 +4,7 @@ import { createRoot } from "react-dom/client";
 import settings, { getSetting } from "~settings";
 import type { ValueType } from "~settings/setting";
 import type Setting from "~settings/setting";
-import { addWallet, readWalletFromFile, StoredWallet } from "~utils/wallet";
+import { addWallet, readWalletFromFile, StoredWallet } from "~wallets";
 
 const App = () => {
   const [password, setPassword] = useState<string>("");
@@ -15,11 +15,14 @@ const App = () => {
     key: "active_address",
     area: "local"
   });
-  const [wallets] = useStorage<StoredWallet[]>({
-    key: "wallets",
-    area: "local",
-    isSecret: true
-  }, []);
+  const [wallets] = useStorage<StoredWallet[]>(
+    {
+      key: "wallets",
+      area: "local",
+      isSecret: true
+    },
+    []
+  );
 
   async function addWallets() {
     if (!fileInput.current?.files) return;
@@ -37,14 +40,17 @@ const App = () => {
   return (
     <>
       <h2>
-        Wallet: (active: 
-          <select onChange={(e) => setActiveAddress(e.target.value)} value={activeAddress}>
-            {wallets.map((wallet, i) => (
-              <option key={i} value={wallet.address}>
-                {wallet.address}
-              </option>
-            ))}
-          </select>
+        Wallet: (active:
+        <select
+          onChange={(e) => setActiveAddress(e.target.value)}
+          value={activeAddress}
+        >
+          {wallets.map((wallet, i) => (
+            <option key={i} value={wallet.address}>
+              {wallet.address}
+            </option>
+          ))}
+        </select>
         )
       </h2>
       <input
@@ -117,12 +123,12 @@ const SettingEl = ({ setting }: { setting: Setting }) => {
           />
         )) ||
         (setting.type === "pick" && (
-          <select onChange={(e) => updateSetting(e.target.value)} value={val.toString()}>
+          <select
+            onChange={(e) => updateSetting(e.target.value)}
+            value={val.toString()}
+          >
             {setting.options.map((option, i) => (
-              <option
-                value={option.toString()}
-                key={i}
-              >
+              <option value={option.toString()} key={i}>
                 {option === false ? "off" : option}
               </option>
             ))}
