@@ -37,7 +37,8 @@ export const useActiveWallet = () => {
   // active wallet's address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
-    area: "local"
+    area: "local",
+    isSecret: true
   });
 
   // stored decryption key

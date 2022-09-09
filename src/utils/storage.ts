@@ -2,7 +2,7 @@
  * Storage values protected from leaking
  * into window.localStorage
  */
-const protected_stores = ["wallets", "decryption_key"];
+const protected_stores = ["wallets", "decryption_key", "active_address"];
 
 /**
  * Get a secure config for the storage module.

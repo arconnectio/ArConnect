@@ -17,7 +17,8 @@ const App = () => {
   // active wallet's address
   const [activeAddress, setActiveAddress] = useStorage<string>({
     key: "active_address",
-    area: "local"
+    area: "local",
+    isSecret: true
   });
   const [wallets] = useStorage<StoredWallet[]>(
     {
