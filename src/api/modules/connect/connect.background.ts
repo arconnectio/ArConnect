@@ -38,11 +38,11 @@ const background: ModuleFunction<void> = async (
     });
 
     // add features available after connection
-    updateIcon(true);
+    await updateIcon(true);
     createContextMenus(true);
   } catch (e: any) {
-    updateIcon(false);
-    updateIcon(false);
+    await updateIcon(false);
+    createContextMenus(false);
 
     throw new Error(e);
   }
