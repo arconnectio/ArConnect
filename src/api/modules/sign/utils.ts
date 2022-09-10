@@ -1,4 +1,4 @@
-import { getAppURL } from "~applications";
+import { getActiveAppURL } from "~applications";
 import { getSetting } from "~settings";
 import { nanoid } from "nanoid";
 import type Transaction from "arweave/web/lib/transaction";
@@ -73,7 +73,7 @@ export async function signNotification(
   if (!(await notificationSetting.getValue())) return;
 
   // get gateway config
-  const app = new Application(await getAppURL());
+  const app = new Application(await getActiveAppURL());
   const gateway = await app.getGatewayConfig();
 
   // create a client

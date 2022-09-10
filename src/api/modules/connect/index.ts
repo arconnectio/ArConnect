@@ -9,8 +9,3 @@ const connect: ModuleProperties = {
 };
 
 export default connect;
-
-export interface AppInfo {
-  name?: string;
-  logo?: string;
-}

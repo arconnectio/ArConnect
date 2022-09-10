@@ -1,5 +1,5 @@
-import { getPermissions } from "../../../utils/background";
-import { PermissionType } from "../../../utils/permissions";
+import type { PermissionType } from "~applications/permissions";
+import Application from "~applications/application";
 
 /**
  * Validate requested permissions
@@ -16,9 +16,11 @@ export default async function validatePermissions(
     throw new Error("No permissions requested");
   }
 
-  // compare existing permissions
-  const existingPermissions = await getPermissions(tabURL);
+  // get permissions
+  const app = new Application(tabURL);
+  const existingPermissions = await app.getPermissions();
 
+  // compare existing permissions
   if (existingPermissions) {
     // the permissions the dApp does not have yet
     const requiredPermissions = permissions.filter(

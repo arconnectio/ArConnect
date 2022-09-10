@@ -61,14 +61,32 @@ export async function removeApp(url: string) {
 }
 
 /**
- * Get the URL of the app, active in the current tab
+ * Get app URL from any link
+ *
+ * @param link Link to get the app url from
  */
-export async function getAppURL() {
-  const active = await browser.tabs.query({
-    active: true,
-    currentWindow: true
-  });
-  const url = new URL(active[0].url);
+export function getAppURL(link: string) {
+  const url = new URL(link);
 
   return url.hostname;
+}
+
+/**
+ * Get the active tab object
+ */
+export const getActiveTab = async () =>
+  (
+    await browser.tabs.query({
+      active: true,
+      currentWindow: true
+    })
+  )[0];
+
+/**
+ * Get the URL of the app, active in the current tab
+ */
+export async function getActiveAppURL() {
+  const active = await getActiveTab();
+
+  return getAppURL(active.url);
 }

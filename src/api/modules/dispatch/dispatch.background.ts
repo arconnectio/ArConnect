@@ -1,7 +1,7 @@
-// @ts-expect-error
 import {
   createData,
   signers
+  // @ts-expect-error
 } from "https://arweave.net/D7edPT58C-eAhOwurzB_NvDuYR5W6J7Oj1PssDn4ZIM";
 import { arconfettiIcon, signNotification } from "../sign/utils";
 import type { ModuleFunction } from "~api/background";
@@ -9,7 +9,7 @@ import { uploadDataToBundlr } from "./uploader";
 import type { DispatchResult } from "./index";
 import { signedTxTags } from "../sign/tags";
 import { getActiveKeyfile } from "~wallets";
-import { getAppURL } from "~applications";
+import { getActiveAppURL } from "~applications";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
@@ -24,7 +24,7 @@ const background: ModuleFunction<ReturnType> = async (
   tx: Record<any, any>
 ) => {
   // create client
-  const app = new Application(await getAppURL());
+  const app = new Application(await getActiveAppURL());
   const arweave = new Arweave(await app.getGatewayConfig());
 
   // build tx

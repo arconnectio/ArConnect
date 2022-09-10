@@ -1,11 +1,10 @@
-import { createContextMenus } from "../../../scripts/background/context_menus";
-import { IGatewayConfig } from "../../../stores/reducers/arweave";
-import { updateIcon } from "../../../scripts/background/icon";
-import { PermissionType } from "../../../utils/permissions";
-import { getActiveTab } from "../../../utils/background";
+import type { PermissionType } from "~applications/permissions";
+import { createContextMenus } from "~utils/context_menus";
+import type { AppInfo } from "~applications/application";
+import { getActiveTab, getAppURL } from "~applications";
 import type { ModuleFunction } from "~api/background";
-import { getRealURL } from "../../../utils/url";
-import { AppInfo } from "./index";
+import type { Gateway } from "~applications/gateway";
+import { updateIcon } from "~utils/icon";
 import validatePermissions from "./permissions";
 import authenticate from "./auth";
 
@@ -13,11 +12,11 @@ const background: ModuleFunction<void> = async (
   _,
   permissions: PermissionType[],
   appInfo: AppInfo = {},
-  gateway?: IGatewayConfig
+  gateway?: Gateway
 ) => {
   // grab tab url
   const activeTab = await getActiveTab();
-  const tabURL = getRealURL(activeTab.url as string);
+  const tabURL = getAppURL(activeTab.url);
 
   // validate requested permissions
   await validatePermissions(permissions, tabURL);

@@ -1,14 +1,14 @@
-import { AppInfo } from "./index";
-import { IGatewayConfig } from "../../../stores/reducers/arweave";
-import { PermissionType } from "../../../utils/permissions";
-import { getRealURL } from "../../../utils/url";
-import type { ModuleFunction } from "~api/module";
+import type { PermissionType } from "~applications/permissions";
+import type { AppInfo } from "~applications/application";
 import createOverlay, { OVERLAY_CLASS } from "./overlay";
+import type { Gateway } from "~applications/gateway";
+import type { ModuleFunction } from "~api/module";
+import { getAppURL } from "~applications";
 
 const foreground: ModuleFunction<any[]> = async (
   permissions: PermissionType[],
   appInfo: AppInfo = {},
-  gateway?: IGatewayConfig
+  gateway?: Gateway
 ) => {
   // create popup overlay
   const overlay = createOverlay(
@@ -33,7 +33,7 @@ const foreground: ModuleFunction<any[]> = async (
   if (!appInfo.name) {
     // grab site title
     const siteTitle = document.title;
-    const tabURL = getRealURL(window.location.href);
+    const tabURL = getAppURL(window.location.href);
 
     // use site title if it is < than 11 chars
     appInfo.name = siteTitle.length < 11 ? siteTitle : tabURL;
