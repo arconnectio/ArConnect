@@ -1,6 +1,6 @@
-import { getActiveKeyfile } from "../../../utils/background";
-import { browser } from "webextension-polyfill-ts";
-import { ModuleFunction } from "../../background";
+import type { ModuleFunction } from "~api/background";
+import { getActiveKeyfile } from "~wallets";
+import browser from "webextension-polyfill";
 
 const background: ModuleFunction<number[]> = async (
   _,
@@ -8,7 +8,7 @@ const background: ModuleFunction<number[]> = async (
   algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams
 ) => {
   // grab the user's keyfile
-  const { keyfile } = await getActiveKeyfile().catch(() => {
+  const keyfile = await getActiveKeyfile().catch(() => {
     // if there are no wallets added, open the welcome page
     browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
 

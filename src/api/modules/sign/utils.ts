@@ -1,8 +1,9 @@
-import { getArweaveConfig, getStoreData } from "../../../utils/background";
-import Transaction from "arweave/web/lib/transaction";
-import { browser } from "webextension-polyfill-ts";
 import { nanoid } from "nanoid";
+import type Transaction from "arweave/web/lib/transaction";
+import browser from "webextension-polyfill";
 import Arweave from "arweave";
+import { defaultGateway } from "~applications/gateway";
+import { getSetting } from "~settings";
 
 /**
  * Fetch current arconfetti icon
@@ -72,14 +73,12 @@ export async function signNotification(
   type: "sign" | "dispatch" = "sign"
 ) {
   // fetch if notification is enabled
-  const storeData = await getStoreData();
-  const enabled = storeData.settings?.signNotification || false;
+  const notificationSetting = getSetting("sign_notification");
 
-  if (!enabled) return;
+  if (!(await notificationSetting.getValue())) return;
 
   // create a client
-  const gateway = await getArweaveConfig();
-  const arweave = new Arweave(gateway);
+  const arweave = new Arweave(defaultGateway);
 
   // calculate price in AR
   const arPrice = parseFloat(arweave.ar.winstonToAr(price.toString()));

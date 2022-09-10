@@ -2,7 +2,7 @@ import { AppInfo } from "./index";
 import { IGatewayConfig } from "../../../stores/reducers/arweave";
 import { PermissionType } from "../../../utils/permissions";
 import { getRealURL } from "../../../utils/url";
-import type { ModuleFunction } from "~api/background";
+import type { ModuleFunction } from "~api/module";
 import createOverlay, { OVERLAY_CLASS } from "./overlay";
 
 const foreground: ModuleFunction<any[]> = async (

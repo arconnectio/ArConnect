@@ -33,6 +33,13 @@ const settings: Setting[] = [
     type: "pick",
     options: [false, "arweave", "hedgehog", "usd"],
     defaultValue: "arweave"
+  }),
+  new Setting({
+    name: "sign_notification",
+    displayName: "Sign notification",
+    description: "Notify when signing a transaction",
+    type: "boolean",
+    defaultValue: true
   })
 ];
 

@@ -120,6 +120,23 @@ export async function setActiveWallet(address: string) {
 }
 
 /**
+ * Get the active wallets JWK
+ *
+ * @returns Active JWK
+ */
+export async function getActiveKeyfile() {
+  const activeWallet = await getActiveWallet();
+
+  // TODO: open auth window to unlock the wallet if the decryption key is undefined
+
+  // decrypt keyfile
+  const decryptionKey = await storage.get("decryption_key");
+  const decrypted = await decryptWallet(activeWallet.keyfile, decryptionKey);
+
+  return decrypted;
+}
+
+/**
  * Add a wallet for the user
  *
  * @param wallet Wallet JWK object

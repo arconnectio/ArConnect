@@ -153,13 +153,6 @@ const SettingEl = ({ setting }: { setting: Setting }) => {
   }, [setting]);
 
   async function updateSetting(newVal: ValueType) {
-    if (
-      setting.type === "boolean" ||
-      ["true", "false"].includes(newVal as any)
-    ) {
-      newVal = newVal === "true";
-    }
-
     setVal(newVal);
     await setting.setValue(newVal);
   }
@@ -169,7 +162,7 @@ const SettingEl = ({ setting }: { setting: Setting }) => {
       {(setting.type === "boolean" && (
         <input
           type="checkbox"
-          checked={!!val}
+          checked={val as boolean}
           onChange={(e) => updateSetting(e.target.checked)}
         />
       )) ||

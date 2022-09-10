@@ -1,5 +1,5 @@
-import { TransformFinalizer } from "../../foreground";
-import { ModuleFunction } from "../../module";
+import type { TransformFinalizer } from "~api/foreground";
+import type { ModuleFunction } from "~api/module";
 
 // no need to transform anything in the foreground
 const foreground: ModuleFunction<any[]> = (
