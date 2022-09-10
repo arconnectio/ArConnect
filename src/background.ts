@@ -1,9 +1,14 @@
-import Arweave from "arweave/web/common";
+import { onMessage } from "webext-bridge";
 
-const arweave = new Arweave({
-  host: "arweave.net",
-  port: 443,
-  protocol: "https"
+// watch for API calls
+onMessage("api_call", async ({ data }) => {
+  // TODO: check if the data.type is a valid api function
+
+  return {
+    type: data.type + "_response",
+    data: "test",
+    callID: data.callID
+  };
 });
 
 export {};
