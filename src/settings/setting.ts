@@ -58,12 +58,13 @@ export default class Setting {
   /**
    * Get the current value of the setting
    */
-  public async getValue(): Promise<ValueType> {
-    const value = await this.#storage.get(this.storageName);
+  public async getValue<T = ValueType>(): Promise<T> {
+    const value = await this.#storage.get<T>(this.storageName);
 
     // if the setting is not yet set,
     // return the default value
     if (typeof value === "undefined") {
+      // @ts-expect-error
       return this.defaultValue;
     }
 

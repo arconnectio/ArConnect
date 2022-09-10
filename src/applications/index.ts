@@ -6,11 +6,18 @@ import browser from "webextension-polyfill";
 const storage = new Storage(getStorageConfig());
 
 /**
+ * Get all connected app keys
+ */
+async function getStoredApps(): Promise<string[]> {
+  return (await storage.get("apps")) || [];
+}
+
+/**
  * Get all applications connected
  */
 export async function getApps() {
   // fetch app urls
-  const appUrls: string[] = (await storage.get("apps")) || [];
+  const appUrls = await getStoredApps();
   const apps: Application[] = [];
 
   // init all apps
@@ -26,7 +33,7 @@ export async function getApps() {
  */
 export async function addApp({ url, ...rest }: InitAppParams) {
   // add app url
-  const storedApps: string[] = (await storage.get("apps")) || [];
+  const storedApps = await getStoredApps();
 
   await storage.set("apps", [...storedApps, url]);
 
@@ -35,6 +42,22 @@ export async function addApp({ url, ...rest }: InitAppParams) {
     url,
     ...rest
   });
+}
+
+/**
+ * Remove an application (disconnect)
+ */
+export async function removeApp(url: string) {
+  const storedApps = await getStoredApps();
+
+  // remove app key
+  await storage.set(
+    "apps",
+    storedApps.filter((val) => val !== url)
+  );
+
+  // remove app settings
+  await storage.remove(`${PREFIX}${url}`);
 }
 
 /**

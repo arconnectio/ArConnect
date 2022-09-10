@@ -1,4 +1,4 @@
-import { version } from "../../../../public/manifest.json";
+import { version } from "../../../../package.json";
 
 export const signedTxTags = [
   { name: "Signing-Client", value: "ArConnect" },

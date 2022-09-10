@@ -6,12 +6,12 @@ declare module "webext-bridge" {
   }
 }
 
-interface ApiCall {
+interface ApiCall<DataType = any> {
   type: string;
-  data?: any;
+  data?: DataType;
   callID: number | string;
 }
 
-interface ApiResponse extends ApiCall {
+interface ApiResponse<DataType = any> extends ApiCall<DataType> {
   error?: boolean;
 }

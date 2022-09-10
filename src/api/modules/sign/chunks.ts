@@ -1,6 +1,7 @@
-import { MessageFormat, validateMessage } from "../../../utils/messenger";
-import { Runtime } from "webextension-polyfill-ts";
-import { Tag } from "arweave/web/lib/transaction";
+import type { Tag } from "arweave/web/lib/transaction";
+import type { Runtime } from "webextension-polyfill";
+import type { ApiCall, ApiResponse } from "shim";
+import { nanoid } from "nanoid";
 
 /**
  * The chunk of the transaction signing
@@ -33,12 +34,13 @@ const chunks: {
  */
 export const sendChunk = (chunk: Chunk) =>
   new Promise<void>((resolve, reject) => {
+    const callID = nanoid();
     // construct message
-    const message: MessageFormat = {
+    const message: ApiCall & { ext: "arconnect" } = {
       type: "chunk",
-      origin: "injected",
       ext: "arconnect",
-      data: chunk
+      data: chunk,
+      callID
     };
 
     // send message
@@ -48,24 +50,17 @@ export const sendChunk = (chunk: Chunk) =>
     window.addEventListener("message", callback);
 
     // callback for the message
-    function callback(e: MessageEvent<MessageFormat<number | string>>) {
+    function callback(e: MessageEvent<ApiResponse<number | string>>) {
       const { data: res } = e;
       // returned chunk index
       const index = res.data;
 
       // ensure we are getting the result of the chunk sent
       // in this instance / call of the function
-      if (
-        !validateMessage(res, "background", "chunk_result") ||
-        (typeof res.data !== "string" && index !== chunk.index)
-      )
-        return;
+      if (res.callID !== callID) return;
 
       // check for errors in the background
-      if (
-        (res.error && typeof index === "string") ||
-        typeof index === "string"
-      ) {
+      if (res.error || typeof index === "string") {
         reject(res.data);
       } else {
         resolve();

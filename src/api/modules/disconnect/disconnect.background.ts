@@ -1,14 +1,15 @@
-import { getActiveTab } from "../../../utils/background";
-import { ModuleFunction } from "../../background";
-import { getRealURL } from "../../../utils/url";
-import { disconnectFromApp } from "./utils";
+import type { ModuleFunction } from "~api/background";
+import { getAppURL, removeApp } from "~applications";
 
 const background: ModuleFunction<void> = async () => {
   // grab tab url
-  const activeTab = await getActiveTab();
-  const tabURL = getRealURL(activeTab.url as string);
+  const tabURL = await getAppURL();
 
-  await disconnectFromApp(tabURL);
+  // remove app
+  await removeApp(tabURL);
+
+  // remove connected icon
+  updateIcon(false);
 };
 
 export default background;

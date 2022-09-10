@@ -1,6 +1,6 @@
 import { getActiveKeyfile, getArweaveConfig } from "../../../utils/background";
-import { browser } from "webextension-polyfill-ts";
-import { ModuleFunction } from "../../background";
+import browser from "webextension-polyfill";
+import type { ModuleFunction } from "~api/background";
 import Arweave from "arweave";
 
 const background: ModuleFunction<Uint8Array> = async (

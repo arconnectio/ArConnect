@@ -1,7 +1,7 @@
 import { ACCEPTED_DISPATCH_SIZE, DispatchResult } from "./index";
 import { createCoinWithAnimation } from "../sign/animation";
 import { TransformFinalizer } from "../../foreground";
-import { ModuleFunction } from "../../module";
+import type { ModuleFunction } from "~api/module";
 import Transaction from "arweave/web/lib/transaction";
 
 const foreground: ModuleFunction<Record<any, any>> = (

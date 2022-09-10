@@ -1,4 +1,4 @@
-import { ModuleFunction } from "../../background";
+import type { ModuleFunction } from "~api/background";
 import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { arconfettiIcon, calculateReward, signNotification } from "./utils";
 import {
@@ -11,7 +11,7 @@ import {
   getArweaveConfig
 } from "../../../utils/background";
 import { cleanUpChunks, getChunks } from "./chunks";
-import { browser } from "webextension-polyfill-ts";
+import browser from "webextension-polyfill";
 import { getRealURL } from "../../../utils/url";
 import { allowanceAuth, updateAllowance } from "./allowance";
 import { BackgroundResult } from "./index";

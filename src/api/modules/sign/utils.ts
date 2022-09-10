@@ -1,9 +1,10 @@
+import { getAppURL } from "~applications";
+import { getSetting } from "~settings";
 import { nanoid } from "nanoid";
 import type Transaction from "arweave/web/lib/transaction";
+import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
-import { defaultGateway } from "~applications/gateway";
-import { getSetting } from "~settings";
 
 /**
  * Fetch current arconfetti icon
@@ -14,8 +15,8 @@ export async function arconfettiIcon(): Promise<string | false> {
   const defaultIcon = browser.runtime.getURL("assets/arweave.png");
 
   try {
-    const storeData = await getStoreData();
-    const iconName = storeData.settings?.arConfetti;
+    const arConfettiSetting = getSetting("arconfetti");
+    const iconName = await arConfettiSetting.getValue();
 
     if (!iconName) return false;
 
@@ -44,13 +45,7 @@ export async function arconfettiIcon(): Promise<string | false> {
  */
 export async function calculateReward({ reward }: Transaction) {
   // fetch fee multiplier
-  const stored = await getStoreData();
-  const settings = stored.settings;
-
-  if (!stored) throw new Error("Error accessing storage");
-  if (!settings) throw new Error("No settings saved");
-
-  const multiplier = settings.feeMultiplier || 1;
+  const multiplier = await getSetting("fee_multiplier").getValue<number>();
 
   // if the multiplier is 1, we don't do anything
   if (multiplier === 1) return reward;
@@ -77,8 +72,12 @@ export async function signNotification(
 
   if (!(await notificationSetting.getValue())) return;
 
+  // get gateway config
+  const app = new Application(await getAppURL());
+  const gateway = await app.getGatewayConfig();
+
   // create a client
-  const arweave = new Arweave(defaultGateway);
+  const arweave = new Arweave(gateway);
 
   // calculate price in AR
   const arPrice = parseFloat(arweave.ar.winstonToAr(price.toString()));

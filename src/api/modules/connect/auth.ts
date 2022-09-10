@@ -1,5 +1,5 @@
 import { MessageFormat, validateMessage } from "../../../utils/messenger";
-import { browser } from "webextension-polyfill-ts";
+import browser from "webextension-polyfill";
 import { nanoid } from "nanoid";
 
 interface AuthData {

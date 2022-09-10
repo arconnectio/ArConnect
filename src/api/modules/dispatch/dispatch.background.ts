@@ -1,7 +1,7 @@
 import { getActiveKeyfile, getArweaveConfig } from "../../../utils/background";
 import { createData, signers } from "../../../../bin/arbundles/bundle";
-import { browser } from "webextension-polyfill-ts";
-import { ModuleFunction } from "../../background";
+import browser from "webextension-polyfill";
+import type { ModuleFunction } from "~api/background";
 import { arconfettiIcon, signNotification } from "../sign/utils";
 import { uploadDataToBundlr } from "./uploader";
 import { signedTxTags } from "../sign/tags";

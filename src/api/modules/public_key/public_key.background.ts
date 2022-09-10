@@ -1,6 +1,6 @@
 import { JWKInterface } from "arweave/web/lib/wallet";
 import { getStoreData } from "../../../utils/background";
-import { ModuleFunction } from "../../background";
+import type { ModuleFunction } from "~api/background";
 
 const background: ModuleFunction<string> = async () => {
   const stored = await getStoreData();

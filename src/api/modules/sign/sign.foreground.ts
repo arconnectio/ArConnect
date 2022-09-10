@@ -1,14 +1,14 @@
-import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
+import type { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
+import type { TransformFinalizer } from "~api/foreground";
+import { createCoinWithAnimation } from "./animation";
+import type { ModuleFunction } from "~api/module";
+import { sendChunk } from "./chunks";
+import { nanoid } from "nanoid";
 import {
   deconstructTransaction,
   SplitTransaction
 } from "./transaction_builder";
-import { ModuleFunction } from "../../module";
-import { sendChunk } from "./chunks";
-import { TransformFinalizer } from "../../foreground";
-import { createCoinWithAnimation } from "./animation";
-import { nanoid } from "nanoid";
-import Transaction from "arweave/web/lib/transaction";
+import type Transaction from "arweave/web/lib/transaction";
 import Arweave from "arweave";
 
 type ReturnParams = [SplitTransaction, SignatureOptions, string];

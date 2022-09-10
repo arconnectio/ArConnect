@@ -1,9 +1,3 @@
-import {
-  getArweaveConfig,
-  getStoreData,
-  setStoreData
-} from "../../../utils/background";
-import { getRealURL } from "../../../utils/url";
 import authenticate from "../connect/auth";
 import Arweave from "arweave";
 

@@ -1,6 +1,6 @@
 import { getActiveTab, getPermissions } from "../../../utils/background";
 import { PermissionType } from "../../../utils/permissions";
-import { ModuleFunction } from "../../background";
+import type { ModuleFunction } from "~api/background";
 
 const background: ModuleFunction<PermissionType[]> = async () => {
   // grab tab url

@@ -1,7 +1,7 @@
+import type Transaction from "arweave/web/lib/transaction";
+import type { Tag } from "arweave/web/lib/transaction";
 import { Chunk, CHUNK_SIZE } from "./chunks";
-import { Tag } from "arweave/web/lib/transaction";
 import { signedTxTags } from "./tags";
-import Transaction from "arweave/web/lib/transaction";
 
 /**
  * Transaction object **without** it's data or tags
