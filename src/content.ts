@@ -23,27 +23,26 @@ window.addEventListener("load", () => {
 });
 
 // receive API calls
-window.addEventListener("message", async ({ data }: MessageEvent<ApiCall & { ext: "arconnect" }>) => {
-  // verify that the call is meant for the extension
-  if (data.ext !== "arconnect") {
-    return;
+window.addEventListener(
+  "message",
+  async ({ data }: MessageEvent<ApiCall & { ext: "arconnect" }>) => {
+    // verify that the call is meant for the extension
+    if (data.ext !== "arconnect") {
+      return;
+    }
+
+    // verify that the call has an ID
+    if (!data.callID) {
+      throw new Error("The call does not have a callID");
+    }
+
+    // send call to the background
+    const res = await sendMessage("api_call", data, "background");
+
+    // send the response to the injected script
+    window.postMessage(res, window.location.origin);
   }
-
-  // verify that the call has an ID
-  if (!data.callID) {
-    throw new Error("The call does not have a callID");
-  }
-
-  // send call to the background
-  const res = await sendMessage(
-    "api_call",
-    data,
-    "background"
-  );
-
-  // send the response to the injected script
-  window.postMessage(res, window.location.origin);
-});
+);
 
 // inject Inter font for the ArConnect overlay
 window.addEventListener("load", () => {
@@ -51,6 +50,6 @@ window.addEventListener("load", () => {
 
   interFont.rel = "stylesheet";
   interFont.href =
-    "https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap";  
+    "https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap";
   document.head.appendChild(interFont);
 });
