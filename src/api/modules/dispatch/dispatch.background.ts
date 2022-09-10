@@ -1,11 +1,17 @@
-import { getActiveKeyfile, getArweaveConfig } from "../../../utils/background";
-import { createData, signers } from "../../../../bin/arbundles/bundle";
-import browser from "webextension-polyfill";
-import type { ModuleFunction } from "~api/background";
+// @ts-expect-error
+import {
+  createData,
+  signers
+} from "https://arweave.net/D7edPT58C-eAhOwurzB_NvDuYR5W6J7Oj1PssDn4ZIM";
 import { arconfettiIcon, signNotification } from "../sign/utils";
+import type { ModuleFunction } from "~api/background";
 import { uploadDataToBundlr } from "./uploader";
+import type { DispatchResult } from "./index";
 import { signedTxTags } from "../sign/tags";
-import { DispatchResult } from "./index";
+import { getActiveKeyfile } from "~wallets";
+import { getAppURL } from "~applications";
+import Application from "~applications/application";
+import browser from "webextension-polyfill";
 import Arweave from "arweave";
 
 type ReturnType = {
@@ -17,12 +23,15 @@ const background: ModuleFunction<ReturnType> = async (
   _,
   tx: Record<any, any>
 ) => {
+  // create client
+  const app = new Application(await getAppURL());
+  const arweave = new Arweave(await app.getGatewayConfig());
+
   // build tx
-  const arweave = new Arweave(await getArweaveConfig());
   const transaction = arweave.transactions.fromRaw(tx);
 
   // grab the user's keyfile
-  const { keyfile, address } = await getActiveKeyfile().catch(() => {
+  const keyfile = await getActiveKeyfile().catch(() => {
     // if there are no wallets added, open the welcome page
     browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
 
@@ -62,16 +71,6 @@ const background: ModuleFunction<ReturnType> = async (
     };
   } catch {
     // sign & post if there is something wrong with the bundlr
-    // check wallet balance
-    const balance = parseFloat(await arweave.wallets.getBalance(address));
-    const cost = parseFloat(
-      await arweave.transactions.getPrice(parseFloat(transaction.data_size))
-    );
-
-    if (balance < cost) {
-      throw new Error(`Insufficient funds in wallet ${address}`);
-    }
-
     // add ArConnect tags to the tx object
     for (const arcTag of signedTxTags) {
       transaction.addTag(arcTag.name, arcTag.value);
