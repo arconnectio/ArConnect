@@ -61,7 +61,7 @@ export default class Application {
   /**
    * Gateway config for each individual app
    */
-  async getGatewayConfig(): Promise<Gateway[]> {
+  async getGatewayConfig(): Promise<Gateway> {
     const settings = await this.#getSettings();
 
     return settings.gateway || defaultGateway;
