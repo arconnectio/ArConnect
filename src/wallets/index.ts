@@ -10,6 +10,7 @@ import Arweave from "arweave/web/common";
  * Wallet stored in the localstorage
  */
 export interface StoredWallet {
+  nickname: string;
   address: string;
   keyfile: string;
 }
@@ -143,7 +144,15 @@ export async function addWallet(wallet: JWKInterface, password: string) {
   // save data
   const wallets = await getWallets();
 
-  wallets.push({ address, keyfile: encrypted });
+  if (wallets.find((val) => val.address === address)) {
+    throw new Error("Wallet already added");
+  }
+
+  wallets.push({
+    nickname: `Account ${wallets.length + 1}`,
+    address,
+    keyfile: encrypted
+  });
   await storage.set("wallets", wallets);
 
   // set active address if this was the first wallet added

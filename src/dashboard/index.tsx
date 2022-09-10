@@ -8,7 +8,12 @@ import { defaultGateway } from "~applications/gateway";
 import settings, { getSetting } from "~settings";
 import type { ValueType } from "~settings/setting";
 import type Setting from "~settings/setting";
-import { addWallet, readWalletFromFile, StoredWallet } from "~wallets";
+import {
+  addWallet,
+  readWalletFromFile,
+  removeWallet,
+  StoredWallet
+} from "~wallets";
 
 const App = () => {
   const [password, setPassword] = useState<string>("");
@@ -20,7 +25,7 @@ const App = () => {
     area: "local",
     isSecret: true
   });
-  const [wallets] = useStorage<StoredWallet[]>(
+  const [wallets, setWallets] = useStorage<StoredWallet[]>(
     {
       key: "wallets",
       area: "local",
@@ -71,6 +76,33 @@ const App = () => {
         </select>
         )
       </h2>
+      <h2>Manage Wallets</h2>
+      {wallets.map((wallet, i) => (
+        <div key={i}>
+          <b>{wallet.address}</b>:
+          <label style={{ marginLeft: ".3em" }}>
+            Nickname:{" "}
+            <input
+              type="text"
+              value={wallet.nickname}
+              onChange={(e) => {
+                setWallets(
+                  wallets.map((val) => {
+                    if (val.address !== wallet.address) return val;
+                    else
+                      return {
+                        ...val,
+                        nickname: e.target.value
+                      };
+                  })
+                );
+              }}
+            />
+          </label>
+          <button onClick={() => removeWallet(wallet.address)}>Remove</button>
+        </div>
+      ))}
+      <h3>Add</h3>
       <input
         type="file"
         ref={fileInput}
