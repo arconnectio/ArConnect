@@ -90,6 +90,15 @@ export const useActiveWallet = () => {
 };
 
 /**
+ * Get the active address
+ */
+export async function getActiveAddress() {
+  const activeAddress = await storage.get("active_address");
+
+  return activeAddress;
+}
+
+/**
  * Get active wallet
  *
  * @returns Used wallet
@@ -97,7 +106,7 @@ export const useActiveWallet = () => {
 export async function getActiveWallet() {
   // fetch data from storage
   const wallets = await getWallets();
-  const activeAddress = await storage.get("active_address");
+  const activeAddress = await getActiveAddress();
 
   return wallets.find((wallet) => wallet.address === activeAddress);
 }
@@ -194,7 +203,7 @@ export async function removeWallet(address: string) {
   await storage.set("wallets", wallets);
 
   // handle active address change
-  const activeAddress = await storage.get("active_address");
+  const activeAddress = await getActiveAddress();
 
   if (activeAddress === address) {
     const newActiveAddress = wallets[0]?.address;

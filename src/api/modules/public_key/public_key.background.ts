@@ -1,24 +1,18 @@
-import { JWKInterface } from "arweave/web/lib/wallet";
-import { getStoreData } from "../../../utils/background";
 import type { ModuleFunction } from "~api/background";
+import { getActiveKeyfile } from "~wallets";
+import browser from "webextension-polyfill";
 
 const background: ModuleFunction<string> = async () => {
-  const stored = await getStoreData();
+  // grab the user's keyfile
+  const keyfile = await getActiveKeyfile().catch(() => {
+    // if there are no wallets added, open the welcome page
+    browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
 
-  if (!stored) throw new Error("Error accessing storage");
-  if (!stored.profile) throw new Error("No profile selected");
-  if (!stored.wallets) throw new Error("No wallets added");
+    throw new Error("No wallets added");
+  });
 
-  // find keyfile to get the public key for
-  const keyfileToDecrypt = stored.wallets.find(
-    ({ address }) => address === stored.profile
-  );
-
-  if (!keyfileToDecrypt) throw new Error("Could not find active keyfile");
-
-  // parse encoded jwk and get the public key
-  const jwk: JWKInterface = JSON.parse(atob(keyfileToDecrypt.keyfile));
-  const { n: publicKey } = jwk;
+  // get public key
+  const { n: publicKey } = keyfile;
 
   return publicKey;
 };

@@ -1,6 +1,7 @@
-import { getActiveKeyfile, getArweaveConfig } from "../../../utils/background";
-import browser from "webextension-polyfill";
+import { defaultGateway } from "~applications/gateway";
 import type { ModuleFunction } from "~api/background";
+import { getActiveKeyfile } from "~wallets";
+import browser from "webextension-polyfill";
 import Arweave from "arweave";
 
 const background: ModuleFunction<Uint8Array> = async (
@@ -13,7 +14,7 @@ const background: ModuleFunction<Uint8Array> = async (
   }
 ) => {
   // grab the user's keyfile
-  const { keyfile } = await getActiveKeyfile().catch(() => {
+  const keyfile = await getActiveKeyfile().catch(() => {
     // if there are no wallets added, open the welcome page
     browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
 
@@ -50,7 +51,7 @@ const background: ModuleFunction<Uint8Array> = async (
   const keyBuf = array;
 
   // create arweave client
-  const arweave = new Arweave(await getArweaveConfig());
+  const arweave = new Arweave(defaultGateway);
 
   // encrypt data
   const encryptedData = await arweave.crypto.encrypt(dataBuf, keyBuf);
