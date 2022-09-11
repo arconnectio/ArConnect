@@ -1,9 +1,14 @@
+import Arweave from "arweave/web/common";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import type { AuthResult } from "shim";
 import { sendMessage } from "webext-bridge";
 import type { AuthDataWithID, AuthType } from "~api/modules/connect/auth";
 import { objectFromUrlParams } from "~api/modules/connect/url";
+import Application from "~applications/application";
+import { defaultGateway } from "~applications/gateway";
+import { permissionData, PermissionType } from "~applications/permissions";
+import { unlock } from "~wallets/auth";
 
 const App = () => {
   // fetch data sent to process with the auth
@@ -59,19 +64,201 @@ const App = () => {
     window.close();
   }
 
+  const [password, setPassword] = useState<string>();
+  const [authenticated, setAuthenticated] = useState(false);
+
+  // authenticate the user
+  async function auth() {
+    const res = await unlock(password);
+
+    setAuthenticated(res);
+
+    if (!res) {
+      return console.log("Invalid password");
+    }
+
+    if (initParmas.type === "unlock") {
+      await sendResponse();
+    }
+  }
+
   if (!initParmas) return <>Loading...</>;
+
+  if (!authenticated) {
+    return (
+      <>
+        <h2>Auth - {initParmas.type}</h2>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{ width: "100%", display: "block" }}
+        />
+        <button
+          onClick={auth}
+          style={{
+            display: "block",
+            width: "100%",
+            textAlign: "center",
+            paddingLeft: 0,
+            paddingRight: 0
+          }}
+        >
+          {(initParmas.type === "connect" && "Connect") || "Sign In"}
+        </button>
+        <button
+          onClick={cancel}
+          style={{
+            display: "block",
+            width: "100%",
+            textAlign: "center",
+            paddingLeft: 0,
+            paddingRight: 0
+          }}
+        >
+          Cancel
+        </button>
+      </>
+    );
+  }
+
+  if (initParmas.type === "allowance") {
+    return (
+      <>
+        <AllowanceManager app={new Application(initParmas.url)} />
+        <button
+          onClick={() => sendResponse()}
+          style={{
+            display: "block",
+            width: "100%",
+            textAlign: "center",
+            paddingLeft: 0,
+            paddingRight: 0
+          }}
+        >
+          Ok
+        </button>
+      </>
+    );
+  }
+
+  if (initParmas.type === "connect") {
+    return (
+      <>
+        <h2>Allow these permissions</h2>
+        <PermissionsManager
+          app={new Application(initParmas.url)}
+          callback={sendResponse}
+        />
+      </>
+    );
+  }
+
+  return <></>;
+};
+
+const AllowanceManager = ({ app }: { app: Application }) => {
+  const [settings, updateSettings] = app.hook();
+  const arweave = new Arweave(defaultGateway);
 
   return (
     <>
-      <h2>Auth - {initParmas.type}</h2>
+      <h2>Update your allowance</h2>
+      <label>
+        Limit
+        <input
+          type="number"
+          value={arweave.ar.winstonToAr(settings.allowance.limit.toString())}
+          onChange={(e) =>
+            updateSettings({
+              ...settings,
+              allowance: {
+                ...settings.allowance,
+                limit: parseInt(arweave.ar.arToWinston(e.target.value))
+              }
+            })
+          }
+          style={{ width: "100%", display: "block" }}
+        />
+      </label>
       <button
-        onClick={() => {
-          sendResponse();
+        onClick={() =>
+          updateSettings({
+            ...settings,
+            allowance: {
+              ...settings.allowance,
+              spent: 0
+            }
+          })
+        }
+      >
+        Reset spent AR
+      </button>
+      <br />
+    </>
+  );
+};
+
+const PermissionsManager = ({
+  app,
+  callback
+}: {
+  app: Application;
+  callback: any;
+}) => {
+  const [settings] = app.hook();
+  const [permissions, setPermissions] = useState<PermissionType[]>([]);
+
+  useEffect(() => setPermissions(settings.permissions), [settings.permissions]);
+
+  async function ok() {
+    await app.updateSettings((val) => ({
+      ...val,
+      permissions
+    }));
+    await callback();
+  }
+
+  return (
+    <>
+      {Object.keys(permissionData).map((permission, i) => (
+        <>
+          <label key={i}>
+            <input
+              type="checkbox"
+              checked={permissions.includes(permission as PermissionType)}
+              onChange={(e) => {
+                if (
+                  e.target.checked &&
+                  !permissions.includes(permission as PermissionType)
+                ) {
+                  setPermissions(
+                    (val) => [...val, permission] as PermissionType[]
+                  );
+                } else if (!e.target.checked) {
+                  setPermissions((val) =>
+                    val.filter((perm) => perm !== permission)
+                  );
+                }
+              }}
+            />
+            {" " + permissionData[permission]}
+          </label>
+          <br key={i} />
+        </>
+      ))}
+      <button
+        onClick={ok}
+        style={{
+          display: "block",
+          width: "100%",
+          textAlign: "center",
+          paddingLeft: 0,
+          paddingRight: 0
         }}
       >
-        Test
+        Ok
       </button>
-      <button onClick={cancel}>Cancel</button>
     </>
   );
 };
