@@ -1,20 +1,5 @@
+import Application from "~applications/application";
 import authenticate from "../connect/auth";
-import Arweave from "arweave";
-
-/**
- * Get all allowances
- */
-async function getAllowances() {
-  // fetch storage
-  const storeData = await getStoreData();
-  const allowances = storeData.allowances;
-
-  if (!allowances) {
-    throw new Error("No allowances object in storage");
-  }
-
-  return allowances;
-}
 
 /**
  * Get allowance for an app
@@ -22,12 +7,32 @@ async function getAllowances() {
  * @param tabURL URL of the dApp
  */
 export async function getAllowance(tabURL: string) {
-  const allowances = await getAllowances();
+  // construct app
+  const app = new Application(tabURL);
 
   // allowance for the dApp
-  const allowance = allowances.find(({ url }) => url === getRealURL(tabURL));
+  const allowance = await app.getAllowance();
 
   return allowance;
+}
+
+/**
+ * Update allowance for the current site
+ *
+ * @param price Price to update the allowance spent amount
+ * with (quantity + reward)
+ */
+export async function updateAllowance(tabURL: string, price: number) {
+  // construct application
+  const app = new Application(tabURL);
+
+  // update allowance spent value
+  await app.updateSettings(({ allowance }) => ({
+    allowance: {
+      ...allowance,
+      spent: allowance.spent + price
+    }
+  }));
 }
 
 /**
@@ -42,20 +47,13 @@ export async function checkAllowance(tabURL: string, price: number) {
   const allowance = await getAllowance(tabURL);
 
   // return if the allowance is not enabled
-  if (!allowance || !allowance.enabled) return true;
-
-  const arweave = new Arweave(await getArweaveConfig());
-
-  // allowance in winston
-  const allowanceWinston = parseInt(
-    arweave.ar.arToWinston(allowance.limit.toString())
-  );
+  if (!allowance.enabled) return true;
 
   // spent amount after this transaction
   const total = allowance.spent + price;
 
   // check if the price goes over the allowed total limit
-  return allowanceWinston >= total;
+  return allowance.limit >= total;
 }
 
 /**
@@ -82,30 +80,4 @@ export async function allowanceAuth(tabURL: string, price: number) {
   // call this function again, to check if the allowance
   // was reset or updated
   await allowanceAuth(tabURL, price);
-}
-
-/**
- * Update allowance for the current site
- *
- * @param price Price to update the allowance spent amount
- * with (quantity + reward)
- */
-export async function updateAllowance(tabURL: string, price: number) {
-  const allowances = await getAllowances();
-
-  // re-map the allowance array with the new spent amount
-  const updated = allowances.map((app) => {
-    // only handle the given app
-    if (app.url !== tabURL) return app;
-
-    return {
-      ...app,
-      spent: app.spent + price
-    };
-  });
-
-  // update store data
-  await setStoreData({
-    allowances: updated
-  });
 }

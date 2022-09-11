@@ -271,6 +271,22 @@ const ApplicationEl = ({ app }: { app: Application }) => {
         value={settings.gateway.port}
       />
       <h4>Allowance</h4>
+      <label>
+        <input
+          type="checkbox"
+          checked={settings.allowance?.enabled}
+          onChange={(e) =>
+            updateSettings({
+              ...settings,
+              allowance: {
+                ...settings.allowance,
+                enabled: e.target.checked
+              }
+            })
+          }
+        />
+        Enabled
+      </label>
       <p>
         Spent: {arweave.ar.winstonToAr(settings.allowance.spent.toString())} AR
       </p>

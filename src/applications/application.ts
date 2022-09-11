@@ -29,6 +29,35 @@ export default class Application {
   }
 
   /**
+   * Update settings for the app
+   *
+   * @param val Object of settings to update to
+   */
+  async updateSettings(
+    val:
+      | Partial<InitAppParams>
+      | ((
+          current: Record<string, any>
+        ) => Partial<InitAppParams> | Promise<Partial<InitAppParams>>)
+  ) {
+    const settings = await this.#getSettings();
+
+    if (typeof val === "function") {
+      val = await val(settings);
+    }
+
+    // update keys
+    for (const key in val) {
+      settings[key] = val[key];
+    }
+
+    // save settings
+    const res = await this.#storage.set(`${PREFIX}${this.url}`, settings);
+
+    return res;
+  }
+
+  /**
    * App name and logo
    */
   async getAppData(): Promise<AppInfo> {
@@ -70,7 +99,7 @@ export default class Application {
   /**
    * Allowance limit and spent qty
    */
-  async getAllowance(): Promise<Allowance[]> {
+  async getAllowance(): Promise<Allowance> {
     const settings = await this.#getSettings();
 
     return settings.allowance || defaultAllowance;
