@@ -3,15 +3,21 @@ import { onMessage } from "webext-bridge";
 import type { AuthResult } from "shim";
 import { nanoid } from "nanoid";
 import browser from "webextension-polyfill";
-import auth from "url:./auth/index.html";
+import auth from "url:../../../auth/index.html";
 
-interface AuthData {
+export type AuthType = "connect" | "allowance" | "unlock";
+
+export interface AuthData {
   // type of auth to request from the user
   // connect - allow permissions for the app, select address, enter password
   // allowance - update allowance for the app (update / reset), enter password
   // unlock - enter password to decrypt wallets
-  type: "connect" | "allowance" | "unlock";
+  type: AuthType;
   [key: string]: any;
+}
+
+export interface AuthDataWithID extends AuthData {
+  authID: string;
 }
 
 /**
@@ -40,10 +46,11 @@ async function createAuthPopup(data: AuthData) {
   // generate an unique id for the authentication
   // to be checked later
   const authID = nanoid();
+  const authData: AuthDataWithID = { ...data, authID };
 
   // create auth window
   await browser.windows.create({
-    url: `${auth}?${objectToUrlParams({ ...data, authID })}`,
+    url: `${auth}?${objectToUrlParams(authData)}`,
     focused: true,
     type: "popup",
     width: 385,
@@ -65,7 +72,7 @@ const result = (authID: string) =>
       // ensure the auth ID and the auth type
       // matches the requested ones
       if (data.authID !== authID) {
-        return false;
+        return;
       }
 
       // check the result
@@ -74,7 +81,5 @@ const result = (authID: string) =>
       } else {
         resolve(data);
       }
-
-      return true;
     })
   );

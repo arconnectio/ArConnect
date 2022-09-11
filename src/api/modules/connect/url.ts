@@ -21,9 +21,12 @@ export function objectToUrlParams(object: Record<string | number, any>) {
  *
  * @param params URL search params to transform into an object
  */
-export function objectFromUrlParams(params: string) {
+export function objectFromUrlParams<T = Record<string | number, any>>(
+  params: string
+) {
   const urlParams = new URLSearchParams(params);
-  const obj: Record<string | number, any> = {};
+  // @ts-expect-error
+  const obj: T = {};
 
   for (const [key, value] of urlParams) {
     obj[key] = JSON.parse(decodeURIComponent(value));
