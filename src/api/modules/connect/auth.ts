@@ -29,10 +29,10 @@ export interface AuthDataWithID extends AuthData {
  */
 export default async function authenticate(data: AuthData) {
   // create the popup
-  const authID = await createAuthPopup(data);
+  const { authID, tabId } = await createAuthPopup(data);
 
   // wait for the results from the popup
-  return await result(authID);
+  return await result(authID, tabId);
 }
 
 /**
@@ -49,7 +49,7 @@ async function createAuthPopup(data: AuthData) {
   const authData: AuthDataWithID = { ...data, authID };
 
   // create auth window
-  await browser.windows.create({
+  const window = await browser.windows.create({
     url: `${auth}?${objectToUrlParams(authData)}`,
     focused: true,
     type: "popup",
@@ -57,17 +57,19 @@ async function createAuthPopup(data: AuthData) {
     height: 635
   });
 
-  return authID;
+  return { authID, tabId: window.tabs?.[0]?.id };
 }
 
 /**
  * Await for a browser message from the popup
  */
-const result = (authID: string) =>
+const result = (authID: string, tabId: number) =>
   new Promise<AuthResult>((resolve, reject) =>
     onMessage("auth_result", ({ sender, data }) => {
-      // TODO: validate sender
-      console.log(sender);
+      // validate sender by it's tabId
+      if (sender.tabId !== tabId) {
+        return;
+      }
 
       // ensure the auth ID and the auth type
       // matches the requested ones
