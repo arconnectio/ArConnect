@@ -4,6 +4,7 @@ import { useStorage, Storage } from "@plasmohq/storage";
 import { getStorageConfig } from "~utils/storage";
 import { useEffect, useState } from "react";
 import { checkPassword } from "./auth";
+import authenticate from "~api/modules/connect/auth";
 import Arweave from "arweave/web/common";
 
 /**
@@ -136,10 +137,19 @@ export async function setActiveWallet(address: string) {
 export async function getActiveKeyfile() {
   const activeWallet = await getActiveWallet();
 
-  // TODO: open auth window to unlock the wallet if the decryption key is undefined
+  // get decryption key
+  const decryptionKey = await storage.get("decryption_key");
+
+  // unlock ArConnect if the decryption key is undefined
+  // this means that the user has to enter their decryption
+  // key so it can be used later
+  if (!decryptionKey) {
+    await authenticate({
+      type: "unlock"
+    });
+  }
 
   // decrypt keyfile
-  const decryptionKey = await storage.get("decryption_key");
   const decrypted = await decryptWallet(activeWallet.keyfile, decryptionKey);
 
   return decrypted;

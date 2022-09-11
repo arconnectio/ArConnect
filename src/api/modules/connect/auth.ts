@@ -1,8 +1,16 @@
+import { objectToUrlParams } from "./url";
+import { onMessage } from "webext-bridge";
+import type { AuthResult } from "shim";
 import { nanoid } from "nanoid";
 import browser from "webextension-polyfill";
+import auth from "url:./auth/index.html";
 
 interface AuthData {
-  type: string;
+  // type of auth to request from the user
+  // connect - allow permissions for the app, select address, enter password
+  // allowance - update allowance for the app (update / reset), enter password
+  // unlock - enter password to decrypt wallets
+  type: "connect" | "allowance" | "unlock";
   [key: string]: any;
 }
 
@@ -18,7 +26,7 @@ export default async function authenticate(data: AuthData) {
   const authID = await createAuthPopup(data);
 
   // wait for the results from the popup
-  return await result(data.type, authID);
+  return await result(authID);
 }
 
 /**
@@ -35,12 +43,7 @@ async function createAuthPopup(data: AuthData) {
 
   // create auth window
   await browser.windows.create({
-    url: `${browser.runtime.getURL("auth.html")}?auth=${encodeURIComponent(
-      JSON.stringify({
-        ...data,
-        authID
-      })
-    )}`,
+    url: `${auth}?${objectToUrlParams({ ...data, authID })}`,
     focused: true,
     type: "popup",
     width: 385,
@@ -53,22 +56,25 @@ async function createAuthPopup(data: AuthData) {
 /**
  * Await for a browser message from the popup
  */
-const result = (type: string, authID: string) =>
-  new Promise<MessageFormat>((resolve, reject) => {
-    const listener = (message: MessageFormat) => {
-      if (!validateMessage(message, "popup", `${type}_result`)) return;
-      if (message.callID !== authID) return;
+const result = (authID: string) =>
+  new Promise<AuthResult>((resolve, reject) =>
+    onMessage("auth_result", ({ sender, data }) => {
+      // TODO: validate sender
+      console.log(sender);
 
-      // remove listener
-      browser.runtime.onMessage.removeListener(listener);
-
-      // if the result is an error, throw it
-      if (message.error) {
-        return reject(message.data);
+      // ensure the auth ID and the auth type
+      // matches the requested ones
+      if (data.authID !== authID) {
+        return false;
       }
 
-      return resolve(message);
-    };
+      // check the result
+      if (data.error) {
+        reject(data.data);
+      } else {
+        resolve(data);
+      }
 
-    browser.runtime.onMessage.addListener(listener);
-  });
+      return true;
+    })
+  );

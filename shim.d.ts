@@ -3,6 +3,7 @@ import type { ProtocolWithReturn } from "webext-bridge";
 declare module "webext-bridge" {
   export interface ProtocolMap {
     api_call: ProtocolWithReturn<ApiCall, ApiResponse>;
+    auth_result: ProtocolWithReturn<AuthResult, boolean>;
   }
 }
 
@@ -14,4 +15,12 @@ interface ApiCall<DataType = any> {
 
 interface ApiResponse<DataType = any> extends ApiCall<DataType> {
   error?: boolean;
+}
+
+// TODO
+interface AuthResult {
+  type: string;
+  authID: string;
+  error?: boolean;
+  data?: any;
 }

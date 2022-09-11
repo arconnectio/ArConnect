@@ -74,7 +74,7 @@ export async function allowanceAuth(tabURL: string, price: number) {
 
   // try to authenticate to raise the allowance amount
   await authenticate({
-    type: "sign_auth",
+    type: "allowance",
     url: tabURL,
     spendingLimitReached: !hasEnoughAllowance
   });
