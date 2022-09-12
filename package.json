@@ -17,6 +17,9 @@
   "manifest": {
     "host_permissions": [
       "https://*/*"
+    ],
+    "permissions": [
+      "alarms"
     ]
   },
   "dependencies": {

@@ -250,23 +250,3 @@ export const readWalletFromFile = (file: File) =>
       }
     };
   });
-
-/**
- * Unlock wallets and save decryption key
- *
- * @param password Password for unlocking
- */
-export async function unlock(password: string) {
-  // validate password
-  if (!(await checkPassword(password))) {
-    return false;
-  }
-
-  // save decryption key
-  await storage.set("decryption_key", password);
-
-  // TODO: schedule removal of the key for
-  // security reasons
-
-  return true;
-}
