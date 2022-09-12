@@ -2,6 +2,7 @@ import { getStorageConfig } from "~utils/storage";
 import { decryptWallet } from "./encryption";
 import { Storage } from "@plasmohq/storage";
 import { getWallets } from "./index";
+import browser, { Alarms } from "webextension-polyfill";
 
 const storage = new Storage(getStorageConfig());
 
@@ -19,8 +20,28 @@ export async function unlock(password: string) {
   // save decryption key
   await storage.set("decryption_key", password);
 
-  // TODO: schedule removal of the key for
-  // security reasons
+  // handle key remove alarm event
+  const keyRemoveAlarmListener = async (alarm: Alarms.Alarm) => {
+    if (alarm.name !== "remove_decryption_key_scheduled") return;
+    await keyRemover();
+  };
+
+  // remove decyrption key and listeners
+  const keyRemover = async () => {
+    await storage.remove("decryption_key");
+    browser.windows.onRemoved.removeListener(keyRemover);
+    browser.alarms.onAlarm.removeListener(keyRemoveAlarmListener);
+    await browser.alarms.clear("remove_decryption_key_scheduled");
+  };
+
+  // remove the key on window close events
+  browser.windows.onRemoved.addListener(keyRemover);
+
+  // schedule removal of the key for security reasons
+  browser.alarms.create("remove_decryption_key_scheduled", {
+    when: 24 * 60 * 60 * 1000 // 1 day
+  });
+  browser.alarms.onAlarm.addListener(keyRemoveAlarmListener);
 
   return true;
 }
