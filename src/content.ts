@@ -1,5 +1,5 @@
 import type { PlasmoContentScript } from "plasmo";
-import { sendMessage } from "webext-bridge";
+import { onMessage, sendMessage } from "webext-bridge";
 import type { ApiCall } from "shim";
 import injectedScript from "url:./injected.ts";
 
@@ -54,6 +54,14 @@ window.addEventListener("load", () => {
   document.head.appendChild(interFont);
 });
 
-setTimeout(() => {
-  sendMessage("api_call", { type: "test", callID: "test" }, "background");
-}, 3000);
+// listen for wallet switches
+onMessage("switch_wallet_event", ({ data, sender }) => {
+  if (sender.context !== "background") return;
+
+  // dispatch custom event
+  dispatchEvent(
+    new CustomEvent("walletSwitch", {
+      detail: { address: data }
+    })
+  );
+});

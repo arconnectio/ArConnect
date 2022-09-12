@@ -4,6 +4,7 @@ declare module "webext-bridge" {
   export interface ProtocolMap {
     api_call: ProtocolWithReturn<ApiCall, ApiResponse>;
     auth_result: AuthResult;
+    switch_wallet_event: string;
   }
 }
 

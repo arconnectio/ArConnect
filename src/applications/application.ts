@@ -79,6 +79,23 @@ export default class Application {
   }
 
   /**
+   * Check if the app has the provided permissions
+   *
+   * @param permissions Permissions to check for
+   */
+  async hasPermissions(permissions: PermissionType[]) {
+    const existingPermissions = await this.getPermissions();
+
+    for (const permission of permissions) {
+      if (!existingPermissions.includes(permission)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
    * Get if the app is connected to ArConnect
    */
   async isConnected() {
