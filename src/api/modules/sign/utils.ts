@@ -1,4 +1,3 @@
-import { getActiveAppURL } from "~applications";
 import { getSetting } from "~settings";
 import { nanoid } from "nanoid";
 import type Transaction from "arweave/web/lib/transaction";
@@ -61,10 +60,13 @@ export async function calculateReward({ reward }: Transaction) {
  *
  * @param price Price of the transaction in winston
  * @param id ID of the transaction
+ * @param appURL URL of the current app
+ * @param type Signed transaction type
  */
 export async function signNotification(
   price: number,
   id: string,
+  appURL: string,
   type: "sign" | "dispatch" = "sign"
 ) {
   // fetch if notification is enabled
@@ -73,7 +75,7 @@ export async function signNotification(
   if (!(await notificationSetting.getValue())) return;
 
   // get gateway config
-  const app = new Application(await getActiveAppURL());
+  const app = new Application(appURL);
   const gateway = await app.getGatewayConfig();
 
   // create a client

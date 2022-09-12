@@ -1,10 +1,10 @@
 import type { ModuleFunction } from "~api/background";
 import type { Gateway } from "~applications/gateway";
-import { getActiveAppURL } from "~applications";
+import { getAppURL } from "~applications";
 import Application from "~applications/application";
 
-const background: ModuleFunction<Gateway> = async () => {
-  const app = new Application(await getActiveAppURL());
+const background: ModuleFunction<Gateway> = async (tab) => {
+  const app = new Application(getAppURL(tab.url));
   const gateway = await app.getGatewayConfig();
 
   return gateway;

@@ -81,12 +81,3 @@ export const getActiveTab = async () =>
       currentWindow: true
     })
   )[0];
-
-/**
- * Get the URL of the app, active in the current tab
- */
-export async function getActiveAppURL() {
-  const active = await getActiveTab();
-
-  return getAppURL(active.url);
-}

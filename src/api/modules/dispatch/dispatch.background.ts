@@ -9,7 +9,7 @@ import { uploadDataToBundlr } from "./uploader";
 import type { DispatchResult } from "./index";
 import { signedTxTags } from "../sign/tags";
 import { getActiveKeyfile } from "~wallets";
-import { getActiveAppURL } from "~applications";
+import { getAppURL } from "~applications";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
@@ -20,11 +20,12 @@ type ReturnType = {
 };
 
 const background: ModuleFunction<ReturnType> = async (
-  _,
+  tab,
   tx: Record<any, any>
 ) => {
   // create client
-  const app = new Application(await getActiveAppURL());
+  const appURL = getAppURL(tab.url);
+  const app = new Application(appURL);
   const arweave = new Arweave(await app.getGatewayConfig());
 
   // build tx
@@ -60,7 +61,7 @@ const background: ModuleFunction<ReturnType> = async (
     await uploadDataToBundlr(dataEntry);
 
     // show notification
-    await signNotification(0, dataEntry.id, "dispatch");
+    await signNotification(0, dataEntry.id, appURL, "dispatch");
 
     return {
       arConfetti: await arconfettiIcon(),
@@ -87,7 +88,7 @@ const background: ModuleFunction<ReturnType> = async (
     const price = +transaction.reward + parseInt(transaction.quantity);
 
     // show notification
-    await signNotification(price, transaction.id);
+    await signNotification(price, transaction.id, appURL);
 
     return {
       arConfetti: await arconfettiIcon(),

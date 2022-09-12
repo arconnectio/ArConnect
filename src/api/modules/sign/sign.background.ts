@@ -1,20 +1,20 @@
-import type { ModuleFunction } from "~api/background";
 import type { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { arconfettiIcon, calculateReward, signNotification } from "./utils";
+import { allowanceAuth, updateAllowance } from "./allowance";
+import type { ModuleFunction } from "~api/background";
+import { cleanUpChunks, getChunks } from "./chunks";
+import type { BackgroundResult } from "./index";
+import { getActiveKeyfile } from "~wallets";
+import { getAppURL } from "~applications";
+import { signedTxTags } from "./tags";
 import {
   constructTransaction,
   deconstructSignedTransaction
 } from "./transaction_builder";
-import { getActiveKeyfile, getArweaveConfig } from "../../../utils/background";
-import { cleanUpChunks, getChunks } from "./chunks";
-import browser from "webextension-polyfill";
-import { getRealURL } from "../../../utils/url";
-import { allowanceAuth, updateAllowance } from "./allowance";
-import type { BackgroundResult } from "./index";
-import { signedTxTags } from "./tags";
 import type Transaction from "arweave/web/lib/transaction";
+import Application from "~applications/application";
+import browser from "webextension-polyfill";
 import Arweave from "arweave";
-import { getAppURL } from "~applications";
 
 const background: ModuleFunction<BackgroundResult> = async (
   tab,
@@ -22,19 +22,22 @@ const background: ModuleFunction<BackgroundResult> = async (
   options: SignatureOptions | undefined | null,
   chunkCollectionID: string
 ) => {
-  // create arweave client
-  const arweave = new Arweave(await getArweaveConfig());
-
   // grab tab url
   const tabURL = getAppURL(tab.url);
 
   // grab the user's keyfile
-  const { keyfile } = await getActiveKeyfile().catch(() => {
+  const keyfile = await getActiveKeyfile().catch(() => {
     // if there are no wallets added, open the welcome page
     browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
 
     throw new Error("No wallets added");
   });
+
+  // app instance
+  const app = new Application(tabURL);
+
+  // create arweave client
+  const arweave = new Arweave(await app.getGatewayConfig());
 
   // get chunks for transaction
   const chunks = getChunks(chunkCollectionID, getAppURL(tab.url));
@@ -78,7 +81,7 @@ const background: ModuleFunction<BackgroundResult> = async (
   });
 
   // notify the user of the signing
-  await signNotification(price, transaction.id);
+  await signNotification(price, transaction.id, tabURL);
 
   // update allowance spent amount (in winstons)
   await updateAllowance(tabURL, price);
