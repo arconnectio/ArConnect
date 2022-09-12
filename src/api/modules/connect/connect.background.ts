@@ -1,7 +1,7 @@
 import type { PermissionType } from "~applications/permissions";
 import { createContextMenus } from "~utils/context_menus";
 import type { AppInfo } from "~applications/application";
-import { getActiveTab, getAppURL } from "~applications";
+import { getAppURL } from "~applications";
 import type { ModuleFunction } from "~api/background";
 import type { Gateway } from "~applications/gateway";
 import { updateIcon } from "~utils/icon";
@@ -9,21 +9,20 @@ import validatePermissions from "./permissions";
 import authenticate from "./auth";
 
 const background: ModuleFunction<void> = async (
-  _,
+  tab,
   permissions: PermissionType[],
   appInfo: AppInfo = {},
   gateway?: Gateway
 ) => {
   // grab tab url
-  const activeTab = await getActiveTab();
-  const tabURL = getAppURL(activeTab.url);
+  const tabURL = getAppURL(tab.url);
 
   // validate requested permissions
   await validatePermissions(permissions, tabURL);
 
   // add app logo if there isn't one
   if (!appInfo.logo) {
-    appInfo.logo = activeTab.favIconUrl;
+    appInfo.logo = tab.favIconUrl;
   }
 
   try {

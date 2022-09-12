@@ -1,6 +1,7 @@
 import type { Tag } from "arweave/web/lib/transaction";
-import type { Runtime } from "webextension-polyfill";
+import type { Tabs } from "webextension-polyfill";
 import type { ApiCall, ApiResponse } from "shim";
+import { getAppURL } from "~applications";
 import { nanoid } from "nanoid";
 
 /**
@@ -76,7 +77,7 @@ export const sendChunk = (chunk: Chunk) =>
  *
  * @param chunk Chunk object to handle
  */
-export function handleChunk(chunk: Chunk, port: Runtime.Port): number {
+export function handleChunk(chunk: Chunk, tab: Tabs.Tab): number {
   // handle start chunk
   if (chunk.type === "start") {
     // begin listening for chunks
@@ -86,8 +87,7 @@ export function handleChunk(chunk: Chunk, port: Runtime.Port): number {
     // here
     chunks.push({
       chunkCollectionID: chunk.collectionID,
-      // @ts-ignore
-      origin: port.sender.origin,
+      origin: getAppURL(tab.url),
       rawChunks: []
     });
     // handle other chunks
@@ -99,8 +99,7 @@ export function handleChunk(chunk: Chunk, port: Runtime.Port): number {
     const collectionID = chunks.findIndex(
       ({ chunkCollectionID, origin }) =>
         chunkCollectionID === chunk.collectionID &&
-        // @ts-expect-error
-        origin === port.sender.origin
+        origin === getAppURL(tab.url)
     );
 
     // check if the chunk has a valid origin

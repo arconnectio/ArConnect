@@ -66,7 +66,7 @@ export async function checkPassword(password: string) {
  * Schedule removing the decryption key.
  * Removal occurs after one day or on window close event.
  */
-export async function scheduleKeyRemoval() {
+async function scheduleKeyRemoval() {
   // fetch current tab (auth window) for later verification
   const tab = await getActiveTab();
 

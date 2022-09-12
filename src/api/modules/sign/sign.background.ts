@@ -1,26 +1,23 @@
 import type { ModuleFunction } from "~api/background";
-import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
+import type { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { arconfettiIcon, calculateReward, signNotification } from "./utils";
 import {
   constructTransaction,
   deconstructSignedTransaction
 } from "./transaction_builder";
-import {
-  getActiveKeyfile,
-  getActiveTab,
-  getArweaveConfig
-} from "../../../utils/background";
+import { getActiveKeyfile, getArweaveConfig } from "../../../utils/background";
 import { cleanUpChunks, getChunks } from "./chunks";
 import browser from "webextension-polyfill";
 import { getRealURL } from "../../../utils/url";
 import { allowanceAuth, updateAllowance } from "./allowance";
-import { BackgroundResult } from "./index";
+import type { BackgroundResult } from "./index";
 import { signedTxTags } from "./tags";
-import Transaction from "arweave/web/lib/transaction";
+import type Transaction from "arweave/web/lib/transaction";
 import Arweave from "arweave";
+import { getAppURL } from "~applications";
 
 const background: ModuleFunction<BackgroundResult> = async (
-  port,
+  tab,
   tx: Transaction,
   options: SignatureOptions | undefined | null,
   chunkCollectionID: string
@@ -29,8 +26,7 @@ const background: ModuleFunction<BackgroundResult> = async (
   const arweave = new Arweave(await getArweaveConfig());
 
   // grab tab url
-  const activeTab = await getActiveTab();
-  const tabURL = getRealURL(activeTab.url as string);
+  const tabURL = getAppURL(tab.url);
 
   // grab the user's keyfile
   const { keyfile } = await getActiveKeyfile().catch(() => {
@@ -41,8 +37,7 @@ const background: ModuleFunction<BackgroundResult> = async (
   });
 
   // get chunks for transaction
-  // @ts-expect-error
-  const chunks = getChunks(chunkCollectionID, port.sender.origin);
+  const chunks = getChunks(chunkCollectionID, getAppURL(tab.url));
 
   // reconstruct the transaction from the chunks
   const transaction = arweave.transactions.fromRaw({

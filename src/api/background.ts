@@ -1,4 +1,4 @@
-import type { Runtime } from "webextension-polyfill";
+import type { Runtime, Tabs } from "webextension-polyfill";
 import type { Module } from "./module";
 
 // import modules
@@ -57,6 +57,6 @@ interface BackgroundModule<T> extends Module<T> {
  * Extended module function
  */
 export type ModuleFunction<ResultType> = (
-  port: Runtime.Port,
+  tab: Tabs.Tab,
   ...params: any[]
 ) => Promise<ResultType> | ResultType;
