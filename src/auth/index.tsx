@@ -45,7 +45,7 @@ const App = () => {
     // send the response message
     await sendMessage("auth_result", response, "background");
 
-    //closeWindow();
+    closeWindow();
   }
 
   /**
