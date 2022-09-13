@@ -5,7 +5,7 @@ import type { ModuleFunction } from "~api/background";
 import { cleanUpChunks, getChunks } from "./chunks";
 import type { BackgroundResult } from "./index";
 import { getActiveKeyfile } from "~wallets";
-import { getAppURL } from "~applications";
+import { getAppURL } from "~utils/format";
 import { signedTxTags } from "./tags";
 import {
   constructTransaction,

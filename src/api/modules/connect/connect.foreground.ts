@@ -3,7 +3,7 @@ import type { AppInfo } from "~applications/application";
 import createOverlay, { OVERLAY_CLASS } from "./overlay";
 import type { Gateway } from "~applications/gateway";
 import type { ModuleFunction } from "~api/module";
-import { getAppURL } from "~applications";
+import { getAppURL } from "~utils/format";
 
 const foreground: ModuleFunction<any[]> = async (
   permissions: PermissionType[],

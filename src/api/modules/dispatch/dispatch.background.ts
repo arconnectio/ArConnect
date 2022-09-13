@@ -9,7 +9,7 @@ import { uploadDataToBundlr } from "./uploader";
 import type { DispatchResult } from "./index";
 import { signedTxTags } from "../sign/tags";
 import { getActiveKeyfile } from "~wallets";
-import { getAppURL } from "~applications";
+import { getAppURL } from "~utils/format";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";

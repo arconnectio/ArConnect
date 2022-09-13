@@ -1,7 +1,7 @@
 import { onMessage, sendMessage } from "webext-bridge";
 import { getStorageConfig } from "~utils/storage";
 import { Storage } from "@plasmohq/storage";
-import { getAppURL } from "~applications";
+import { getAppURL } from "~utils/format";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 

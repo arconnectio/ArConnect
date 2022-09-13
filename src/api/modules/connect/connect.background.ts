@@ -1,7 +1,7 @@
 import type { PermissionType } from "~applications/permissions";
 import { createContextMenus } from "~utils/context_menus";
 import type { AppInfo } from "~applications/application";
-import { getAppURL } from "~applications";
+import { getAppURL } from "~utils/format";
 import type { ModuleFunction } from "~api/background";
 import type { Gateway } from "~applications/gateway";
 import { updateIcon } from "~utils/icon";
