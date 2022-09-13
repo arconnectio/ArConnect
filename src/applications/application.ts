@@ -1,8 +1,8 @@
 import { Allowance, defaultAllowance } from "./allowance";
+import { Storage, useStorage } from "@plasmohq/storage";
 import type { PermissionType } from "./permissions";
 import { defaultGateway, Gateway } from "./gateway";
 import { getStorageConfig } from "~utils/storage";
-import { Storage, useStorage } from "@plasmohq/storage";
 
 export const PREFIX = "app_";
 

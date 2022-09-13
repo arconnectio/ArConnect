@@ -1,28 +1,18 @@
+import { onMessage, sendMessage } from "webext-bridge";
 import { getStorageConfig } from "~utils/storage";
 import { Storage } from "@plasmohq/storage";
-import { onMessage, sendMessage } from "webext-bridge";
 import { getAppURL } from "~applications";
-import authenticate from "~api/modules/connect/auth";
-import browser from "webextension-polyfill";
 import Application from "~applications/application";
+import browser from "webextension-polyfill";
 
 const storage = new Storage(getStorageConfig());
 
 // watch for API calls
-onMessage("api_call", async ({ data, ...rest }) => {
-  console.log(rest);
-  // TODO: check if the data.type is a valid api function
-
-  try {
-    await authenticate({
-      type: "unlock"
-    });
-  } catch (e) {
-    console.log(e);
-  }
+onMessage("api_call", async ({ data }) => {
+  console.log(data);
 
   return {
-    type: data.type + "_response",
+    type: data.type + "_result",
     data: "test",
     callID: data.callID
   };
