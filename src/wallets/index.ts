@@ -78,7 +78,7 @@ export const useActiveWallet = () => {
         }
 
         // decrypt wallet
-        const decrypted = await decryptWallet(active, decryptionKey);
+        const decrypted = await decryptWallet(active, atob(decryptionKey));
 
         setActiveWallet(decrypted);
       } catch {
@@ -138,7 +138,7 @@ export async function getActiveKeyfile() {
   const activeWallet = await getActiveWallet();
 
   // get decryption key
-  const decryptionKey = await storage.get("decryption_key");
+  const decryptionKey = atob(await storage.get("decryption_key"));
 
   // unlock ArConnect if the decryption key is undefined
   // this means that the user has to enter their decryption

@@ -21,7 +21,7 @@ export async function unlock(password: string) {
   }
 
   // save decryption key
-  await storage.set("decryption_key", password);
+  await storage.set("decryption_key", btoa(password));
 
   // schedule the key for removal
   await scheduleKeyRemoval();
@@ -39,7 +39,7 @@ export async function checkPassword(password: string) {
   // try to check it agains the decryption key
   const storage = new Storage(getStorageConfig());
 
-  const decryptionKey = await storage.get("decryption_key");
+  const decryptionKey = atob(await storage.get("decryption_key"));
 
   if (!!decryptionKey) {
     return decryptionKey === password;
