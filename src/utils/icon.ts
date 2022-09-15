@@ -1,10 +1,10 @@
-import offline64 from "url:~assets/icons/offline/logo64.png";
-import offline128 from "url:~assets/icons/offline/logo128.png";
-import offline256 from "url:~assets/icons/offline/logo256.png";
+import offline64 from "url:../assets/icons/offline/logo64.png";
+import offline128 from "url:../assets/icons/offline/logo128.png";
+import offline256 from "url:../assets/icons/offline/logo256.png";
 
-import online64 from "url:~assets/icons/online/logo64.png";
-import online128 from "url:~assets/icons/online/logo128.png";
-import online256 from "url:~assets/icons/online/logo256.png";
+import online64 from "url:../assets/icons/online/logo64.png";
+import online128 from "url:../assets/icons/online/logo128.png";
+import online256 from "url:../assets/icons/online/logo256.png";
 
 import browser from "webextension-polyfill";
 

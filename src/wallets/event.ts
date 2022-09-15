@@ -25,9 +25,12 @@ export async function addressChangeListener({
     const app = new Application(getAppURL(tab.url));
 
     // check required permissions
-    if (
-      !(await app.hasPermissions(["ACCESS_ALL_ADDRESSES", "ACCESS_ADDRESS"]))
-    ) {
+    const permissionCheck = await app.hasPermissions([
+      "ACCESS_ALL_ADDRESSES",
+      "ACCESS_ADDRESS"
+    ]);
+
+    if (!permissionCheck.result) {
       continue;
     }
 

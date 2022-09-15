@@ -46,6 +46,8 @@ export async function addApp({ url, ...rest }: InitAppParams) {
 
 /**
  * Remove an application (disconnect)
+ *
+ * @param url URL of the tab to remove
  */
 export async function removeApp(url: string) {
   const storedApps = await getStoredApps();
@@ -70,3 +72,15 @@ export const getActiveTab = async () =>
       currentWindow: true
     })
   )[0];
+
+/**
+ * Get a browser tab by id
+ *
+ * @param id ID of the tab to get
+ */
+export async function getTab(id: number) {
+  // get all tabs
+  const tabs = await browser.tabs.query({});
+
+  return tabs.find((tab) => tab.id === id);
+}

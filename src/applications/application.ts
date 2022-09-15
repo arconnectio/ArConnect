@@ -83,16 +83,25 @@ export default class Application {
    *
    * @param permissions Permissions to check for
    */
-  async hasPermissions(permissions: PermissionType[]) {
+  async hasPermissions(permissions: PermissionType[]): Promise<{
+    /** App has permissions or not */
+    result: boolean;
+    /** Missing permissions */
+    missing: PermissionType[];
+  }> {
     const existingPermissions = await this.getPermissions();
+    const missing: PermissionType[] = [];
 
     for (const permission of permissions) {
       if (!existingPermissions.includes(permission)) {
-        return false;
+        missing.push(permission);
       }
     }
 
-    return true;
+    return {
+      result: missing.length === 0,
+      missing
+    };
   }
 
   /**

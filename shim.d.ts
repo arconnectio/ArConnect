@@ -8,7 +8,7 @@ declare module "webext-bridge" {
   }
 }
 
-interface ApiCall<DataType = any> {
+interface ApiCall<DataType = any> extends JsonValue {
   type: string;
   data?: DataType;
   callID: number | string;

@@ -1,4 +1,4 @@
-import type { Runtime, Tabs } from "webextension-polyfill";
+import type { Tabs } from "webextension-polyfill";
 import type { Module } from "./module";
 
 // import modules
