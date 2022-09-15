@@ -1,5 +1,6 @@
 import { getActiveAddress, getWallets } from "~wallets";
-import { getAppURL, removeApp } from "~applications";
+import { removeApp } from "~applications";
+import { getAppURL } from "./format";
 import browser from "webextension-polyfill";
 
 /**

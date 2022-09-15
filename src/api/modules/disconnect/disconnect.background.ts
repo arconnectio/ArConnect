@@ -1,5 +1,6 @@
 import type { ModuleFunction } from "~api/background";
-import { getAppURL, removeApp } from "~applications";
+import { removeApp } from "~applications";
+import { getAppURL } from "~utils/format";
 import { updateIcon } from "~utils/icon";
 
 const background: ModuleFunction<void> = async (tab) => {
