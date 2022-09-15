@@ -65,3 +65,15 @@ onMessage("switch_wallet_event", ({ data, sender }) => {
     })
   );
 });
+
+// listen for disconnect
+onMessage("disconnect_app_event", ({ sender }) => {
+  if (sender.context !== "background") return;
+
+  // dispatch custom event
+  dispatchEvent(
+    new CustomEvent("disconnect", {
+      detail: {}
+    })
+  );
+});

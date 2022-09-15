@@ -19,7 +19,8 @@
       "https://*/*"
     ],
     "permissions": [
-      "alarms"
+      "alarms",
+      "contextMenus"
     ]
   },
   "dependencies": {

@@ -1,4 +1,5 @@
 import { addressChangeListener } from "~wallets/event";
+import { appsChangeListener } from "~applications";
 import { getStorageConfig } from "~utils/storage";
 import { Storage } from "@plasmohq/storage";
 import { onMessage } from "webext-bridge";
@@ -27,9 +28,13 @@ onMessage("api_call", handleApiCalls);
 // create storage client
 const storage = new Storage(getStorageConfig());
 
-// watch for active address changes
+// watch for active address changes / app
+// list changes
 // and send them to the content script to
 // fire the wallet switch event
-storage.watch({ active_address: addressChangeListener });
+storage.watch({
+  active_address: addressChangeListener,
+  apps: appsChangeListener
+});
 
 export {};
