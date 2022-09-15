@@ -58,7 +58,7 @@ const background: ModuleFunction<ReturnType> = async (
 
     // sign and upload bundler tx
     await dataEntry.sign(dataSigner);
-    await uploadDataToBundlr(dataEntry);
+    await uploadDataToBundlr(dataEntry, await app.getBundler());
 
     // show notification
     await signNotification(0, dataEntry.id, appURL, "dispatch");

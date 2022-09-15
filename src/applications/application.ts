@@ -5,6 +5,7 @@ import { defaultGateway, Gateway } from "./gateway";
 import { getStorageConfig } from "~utils/storage";
 
 export const PREFIX = "app_";
+export const defaultBundler = "https://node2.bundlr.network";
 
 export default class Application {
   /** Root URL of the app */
@@ -123,6 +124,16 @@ export default class Application {
   }
 
   /**
+   * Get the URL of the service for submitting data
+   * to Arweave instead of using a gateway
+   */
+  async getBundler(): Promise<string> {
+    const settings = await this.#getSettings();
+
+    return settings.bundler || defaultBundler;
+  }
+
+  /**
    * Allowance limit and spent qty
    */
   async getAllowance(): Promise<Allowance> {
@@ -149,11 +160,15 @@ export default class Application {
       (val) => {
         if (typeof val === "undefined") return val;
 
-        // define default values
-        if (!val.allowance) val.allowance = defaultAllowance;
-        if (!val.gateway) val.gateway = defaultGateway;
+        // assign with default values
+        const values = {
+          allowance: defaultAllowance,
+          gateway: defaultGateway,
+          bundler: defaultBundler,
+          ...val
+        };
 
-        return val;
+        return values;
       }
     );
   }
@@ -176,4 +191,5 @@ export interface InitAppParams extends AppInfo {
   gateway?: Gateway;
   allowance?: Allowance;
   blocked?: boolean;
+  bundler?: string;
 }

@@ -270,6 +270,18 @@ const ApplicationEl = ({ app }: { app: Application }) => {
         }
         value={settings.gateway.port}
       />
+      <h4>Bundler URL</h4>
+      <input
+        type="text"
+        placeholder="Bundler"
+        onChange={(e) =>
+          updateSettings({
+            ...settings,
+            bundler: e.target.value
+          })
+        }
+        value={settings.bundler}
+      />
       <h4>Allowance</h4>
       <label>
         <input
