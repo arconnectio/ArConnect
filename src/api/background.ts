@@ -38,12 +38,12 @@ const modules: BackgroundModule<any>[] = [
   { ...walletNamesModule, function: walletNames },
   { ...arweaveConfigModule, function: arweaveConfig },
   { ...disconnectModule, function: disconnect },
-  { ...connectModule, function: connect },
-  { ...signModule, function: sign },
+  { ...connectModule, function: connect }
+  /*{ ...signModule, function: sign },
   { ...dispatchModule, function: dispatch },
   { ...encryptModule, function: encrypt },
   { ...decryptModule, function: decrypt },
-  { ...signatureModule, function: signature }
+  { ...signatureModule, function: signature }*/
 ];
 
 export default modules;

@@ -5,6 +5,7 @@ import type { AuthResult } from "shim";
 import { sendMessage } from "webext-bridge";
 import type { AuthDataWithID, AuthType } from "~api/modules/connect/auth";
 import { objectFromUrlParams } from "~api/modules/connect/url";
+import { addApp } from "~applications";
 import Application from "~applications/application";
 import { defaultGateway } from "~applications/gateway";
 import { permissionData, PermissionType } from "~applications/permissions";
@@ -79,6 +80,14 @@ const App = () => {
 
     if (initParmas.type === "unlock") {
       await sendResponse();
+    } else if (initParmas.type === "connect") {
+      await addApp({
+        url: initParmas.url,
+        permissions: [],
+        name: initParmas.appInfo?.name,
+        logo: initParmas.appInfo?.logo,
+        gateway: initParmas.gateway || defaultGateway
+      });
     }
   }
 
@@ -149,6 +158,7 @@ const App = () => {
         <PermissionsManager
           app={new Application(initParmas.url)}
           callback={sendResponse}
+          requestedPermissions={initParmas.permissions}
         />
       </>
     );
@@ -201,32 +211,28 @@ const AllowanceManager = ({ app }: { app: Application }) => {
 
 const PermissionsManager = ({
   app,
+  requestedPermissions,
   callback
 }: {
   app: Application;
+  requestedPermissions: PermissionType[];
   callback: any;
 }) => {
-  const [settings] = app.hook();
-  const [permissions, setPermissions] = useState<PermissionType[]>([]);
-
-  useEffect(() => setPermissions(settings.permissions), [settings.permissions]);
+  const [permissions, setPermissions] = useState(requestedPermissions);
 
   async function ok() {
-    await app.updateSettings((val) => ({
-      ...val,
-      permissions
-    }));
+    await app.updateSettings({ permissions });
     await callback();
   }
 
   return (
     <>
-      {Object.keys(permissionData).map((permission, i) => (
-        <>
-          <label key={i}>
+      {requestedPermissions.map((permission, i) => (
+        <div key={i}>
+          <label>
             <input
               type="checkbox"
-              checked={permissions.includes(permission as PermissionType)}
+              defaultChecked
               onChange={(e) => {
                 if (
                   e.target.checked &&
@@ -244,8 +250,7 @@ const PermissionsManager = ({
             />
             {" " + permissionData[permission]}
           </label>
-          <br key={i} />
-        </>
+        </div>
       ))}
       <button
         onClick={ok}

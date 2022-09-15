@@ -32,9 +32,12 @@ export async function getApps() {
  * Add an application
  */
 export async function addApp({ url, ...rest }: InitAppParams) {
-  // add app url
   const storedApps = await getStoredApps();
 
+  // check if app is already added
+  if (storedApps.includes(url)) return;
+
+  // add app url
   await storage.set("apps", [...storedApps, url]);
 
   // save app settings

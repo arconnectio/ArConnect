@@ -26,7 +26,13 @@ export async function updateIcon(hasPerms: boolean) {
   };
 
   // set logos if connected / if not connected
-  await browser.browserAction.setIcon({
-    path: hasPerms ? onlineLogos : offlineLogos
-  });
+  if (browser.runtime.getManifest().manifest_version === 3) {
+    await browser.action.setIcon({
+      path: hasPerms ? onlineLogos : offlineLogos
+    });
+  } else {
+    await browser.browserAction.setIcon({
+      path: hasPerms ? onlineLogos : offlineLogos
+    });
+  }
 }

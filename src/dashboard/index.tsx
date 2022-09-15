@@ -2,7 +2,7 @@ import { useStorage } from "@plasmohq/storage";
 import Arweave from "arweave/web/common";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { addApp } from "~applications";
+import { addApp, removeApp } from "~applications";
 import Application from "~applications/application";
 import { defaultGateway } from "~applications/gateway";
 import settings, { getSetting } from "~settings";
@@ -319,6 +319,8 @@ const ApplicationEl = ({ app }: { app: Application }) => {
         />
         Blocked
       </label>
+      <br />
+      <button onClick={() => removeApp(app.url)}>Remove app</button>
     </>
   );
 };
