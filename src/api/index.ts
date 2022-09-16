@@ -1,8 +1,8 @@
 import type { OnMessageCallback } from "webext-bridge";
 import { checkTypes, getAppURL } from "~utils/format";
 import type { ApiCall, ApiResponse } from "shim";
+import { getTab } from "~applications/tab";
 import { pushEvent } from "~utils/events";
-import { getTab } from "~applications";
 import Application from "~applications/application";
 import modules from "./background";
 
