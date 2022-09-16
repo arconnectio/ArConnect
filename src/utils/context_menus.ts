@@ -27,7 +27,7 @@ export async function createContextMenus(hasPerms: boolean) {
       id: "copy_address_context_menu",
       title: "Copy current address",
       contexts: [actionContext],
-      onclick: onCopyAddressClicked
+      onclick: !isManifestv3() ? onCopyAddressClicked : undefined
     });
   }
 
@@ -39,7 +39,9 @@ export async function createContextMenus(hasPerms: boolean) {
       id: "disconnect_context_menu",
       title: "Disconnect from current site",
       contexts: [actionContext, "page"],
-      onclick: (_, tab) => onDisconnectClicked(tab)
+      onclick: !isManifestv3()
+        ? (_, tab) => onDisconnectClicked(tab)
+        : undefined
     });
   }
 
@@ -90,10 +92,11 @@ async function onCopyAddressClicked() {
 async function onDisconnectClicked(tab: Tabs.Tab) {
   const id = tab.id;
 
-  if (tab.url) {
-    await removeApp(getAppURL(tab.url));
-  }
+  if (!tab.url) return;
 
+  await removeApp(getAppURL(tab.url));
+
+  // TODO: fix manifest v3
   // reload tab
   await browser.tabs.executeScript(id, {
     code: "window.location.reload()"

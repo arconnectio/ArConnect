@@ -1,8 +1,10 @@
 import type { Storage as BrowserStorage } from "webextension-polyfill";
+import { createContextMenus } from "~utils/context_menus";
 import { getStorageConfig } from "~utils/storage";
 import { Storage } from "@plasmohq/storage";
 import { sendMessage } from "webext-bridge";
 import { getAppURL } from "~utils/format";
+import { updateIcon } from "~utils/icon";
 import Application, { InitAppParams, PREFIX } from "./application";
 import browser from "webextension-polyfill";
 
@@ -35,6 +37,8 @@ export async function getApps() {
  * Add an application
  */
 export async function addApp({ url, ...rest }: InitAppParams) {
+  if (url === "") return;
+
   const storedApps = await getStoredApps();
 
   // check if app is already added
@@ -114,4 +118,12 @@ export async function appsChangeListener({
       await triggerEvent(tab.id);
     }
   }
+
+  // update icon and context menus
+  const activeTab = await getActiveTab();
+  const app = new Application(getAppURL(activeTab.url));
+  const connected = await app.isConnected();
+
+  await updateIcon(connected);
+  await createContextMenus(connected);
 }
