@@ -91,15 +91,9 @@ async function onCopyAddressClicked() {
  * Handle disconnect context menu click
  */
 async function onDisconnectClicked(tab: Tabs.Tab) {
-  const id = tab.id;
-
   if (!tab.url) return;
 
+  // remove the app and reload the tab
   await removeApp(getAppURL(tab.url));
-
-  // TODO: fix manifest v3
-  // reload tab
-  await browser.tabs.executeScript(id, {
-    code: "window.location.reload()"
-  });
+  await browser.tabs.reload(tab.id);
 }

@@ -2,7 +2,6 @@ import type { PlasmoContentScript } from "plasmo";
 import { onMessage, sendMessage } from "webext-bridge";
 import type { ApiCall } from "shim";
 import injectedScript from "url:./injected.ts";
-import browser from "webextension-polyfill";
 
 export const config: PlasmoContentScript = {
   matches: ["file://*/*", "http://*/*", "https://*/*"],
