@@ -2,6 +2,7 @@ import type { PlasmoContentScript } from "plasmo";
 import { onMessage, sendMessage } from "webext-bridge";
 import type { ApiCall } from "shim";
 import injectedScript from "url:./injected.ts";
+import browser from "webextension-polyfill";
 
 export const config: PlasmoContentScript = {
   matches: ["file://*/*", "http://*/*", "https://*/*"],
@@ -76,4 +77,19 @@ onMessage("disconnect_app_event", ({ sender }) => {
       detail: {}
     })
   );
+});
+
+// copy address in the content script
+// (not possible in the background)
+onMessage("copy_address", async ({ sender, data: addr }) => {
+  if (sender.context !== "background") return;
+
+  const input = document.createElement("input");
+
+  input.value = addr;
+
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand("Copy");
+  document.body.removeChild(input);
 });

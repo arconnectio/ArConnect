@@ -1,5 +1,6 @@
 import { getActiveAddress, getWallets } from "~wallets";
-import { removeApp } from "~applications";
+import { getActiveTab, removeApp } from "~applications";
+import { sendMessage } from "webext-bridge";
 import { isManifestv3 } from "./runtime";
 import { getAppURL } from "./format";
 import browser, { Menus, Tabs } from "webextension-polyfill";
@@ -10,7 +11,7 @@ import browser, { Menus, Tabs } from "webextension-polyfill";
  * @param hasPerms Does the active site have any permissions?
  */
 export async function createContextMenus(hasPerms: boolean) {
-  browser.contextMenus.removeAll();
+  await browser.contextMenus.removeAll();
 
   // remove previous event listener
   if (isManifestv3()) {
@@ -73,17 +74,17 @@ async function contextClickListener(info: Menus.OnClickData, tab: Tabs.Tab) {
  * Handle copy address click
  */
 async function onCopyAddressClicked() {
-  const input = document.createElement("input");
   const activeAddress = await getActiveAddress();
 
   if (!activeAddress || activeAddress === "") return;
 
-  input.value = activeAddress;
+  const activeTab = await getActiveTab();
 
-  document.body.appendChild(input);
-  input.select();
-  document.execCommand("Copy");
-  document.body.removeChild(input);
+  await sendMessage(
+    "copy_address",
+    activeAddress,
+    `content-script@${activeTab.id}`
+  );
 }
 
 /**

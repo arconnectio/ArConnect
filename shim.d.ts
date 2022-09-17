@@ -5,6 +5,7 @@ declare module "webext-bridge" {
     api_call: ProtocolWithReturn<ApiCall, ApiResponse>;
     auth_result: AuthResult;
     switch_wallet_event: string;
+    copy_address: string;
   }
 }
 
