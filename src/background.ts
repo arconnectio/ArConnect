@@ -4,13 +4,12 @@ import { appsChangeListener } from "~applications";
 import { getStorageConfig } from "~utils/storage";
 import { Storage } from "@plasmohq/storage";
 import { onMessage } from "webext-bridge";
+import handleFeeAlarm from "~api/modules/sign/fee";
 import browser from "webextension-polyfill";
 import handleApiCalls from "~api";
 
 // TODO: handle chunks
 // move chunks to a different message from "api_call"
-
-// TODO: handle fee alarm (send fees asyncronously)
 
 // TODO: open welcome page on extension install
 
@@ -26,6 +25,9 @@ browser.tabs.onActivated.addListener(({ tabId }) => handleTabUpdate(tabId));
 
 // watch for API calls
 onMessage("api_call", handleApiCalls);
+
+// handle fee alarm (send fees asyncronously)
+browser.alarms.onAlarm.addListener(handleFeeAlarm);
 
 // create storage client
 const storage = new Storage(getStorageConfig());

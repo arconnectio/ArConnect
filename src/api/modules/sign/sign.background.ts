@@ -76,7 +76,7 @@ const background: ModuleFunction<BackgroundResult> = async (
 
   // schedule fee transaction for later execution
   // this is needed for a faster transaction signing
-  browser.alarms.create(`scheduled-fee-${transaction.id}`, {
+  browser.alarms.create(`scheduled-fee_${transaction.id}_${tabURL}`, {
     when: 1000
   });
 
