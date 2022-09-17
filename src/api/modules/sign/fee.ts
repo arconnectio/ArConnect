@@ -6,7 +6,7 @@ import { getSetting } from "~settings";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave/web/common";
-import redstone from "redstone-api";
+//import redstone from "redstone-api";
 import axios from "axios";
 
 /**
@@ -158,7 +158,11 @@ export async function getFeeAmount(address: string, app: Application) {
   const arweave = new Arweave(defaultGateway);
   let arPrice = 0;
 
-  try {
+  // TODO: figure out a way to use redstone here
+  // problem: the redstone-api package uses the
+  // window object, which is undefined in the
+  // manifest v3 service workers
+  /*try {
     // grab price from redstone API
     const { value } = await redstone.getPrice("AR");
 
@@ -169,7 +173,11 @@ export async function getFeeAmount(address: string, app: Application) {
       "https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=usd"
     );
     arPrice = res.arweave.usd;
-  }
+  }*/
+  const { data: priceData }: any = await axios.get(
+    "https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=usd"
+  );
+  arPrice = priceData.arweave.usd;
 
   const usdPrice = 1 / arPrice; // 1 USD how much AR
 

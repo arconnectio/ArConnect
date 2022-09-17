@@ -13,10 +13,6 @@ import handleApiCalls from "~api";
 
 // TODO: open welcome page on extension install
 
-// handle tab change (icon, context menus)
-browser.tabs.onUpdated.addListener((tabId) => handleTabUpdate(tabId));
-browser.tabs.onActivated.addListener(({ tabId }) => handleTabUpdate(tabId));
-
 // TODO: save decryption key here if the extension is
 // running in firefox. firefox still uses manifest v2,
 // so it should allow us, to store the decryption key
@@ -25,6 +21,10 @@ browser.tabs.onActivated.addListener(({ tabId }) => handleTabUpdate(tabId));
 
 // watch for API calls
 onMessage("api_call", handleApiCalls);
+
+// handle tab change (icon, context menus)
+browser.tabs.onUpdated.addListener((tabId) => handleTabUpdate(tabId));
+browser.tabs.onActivated.addListener(({ tabId }) => handleTabUpdate(tabId));
 
 // handle fee alarm (send fees asyncronously)
 browser.alarms.onAlarm.addListener(handleFeeAlarm);
