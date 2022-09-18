@@ -2,7 +2,7 @@ import { useState } from "react";
 import browser from "webextension-polyfill";
 import dashboard from "url:./dashboard/index.html";
 
-function Popup() {
+export default function Popup() {
   const [data, setData] = useState("");
 
   function createDashboard() {
@@ -28,5 +28,3 @@ function Popup() {
     </div>
   );
 }
-
-export default Popup;
