@@ -1,3 +1,4 @@
+import { handleApiCalls, handleChunkCalls } from "~api";
 import { addressChangeListener } from "~wallets/event";
 import { handleTabUpdate } from "~applications/tab";
 import { appsChangeListener } from "~applications";
@@ -6,10 +7,6 @@ import { Storage } from "@plasmohq/storage";
 import { onMessage } from "webext-bridge";
 import handleFeeAlarm from "~api/modules/sign/fee";
 import browser from "webextension-polyfill";
-import handleApiCalls from "~api";
-
-// TODO: handle chunks
-// move chunks to a different message from "api_call"
 
 // TODO: open welcome page on extension install
 
@@ -21,6 +18,9 @@ import handleApiCalls from "~api";
 
 // watch for API calls
 onMessage("api_call", handleApiCalls);
+
+// watch for chunks
+onMessage("chunk", handleChunkCalls);
 
 // handle tab change (icon, context menus)
 browser.tabs.onUpdated.addListener((tabId) => handleTabUpdate(tabId));

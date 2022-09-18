@@ -1,4 +1,5 @@
 import type { ProtocolWithReturn } from "webext-bridge";
+import type { Chunk } from "~api/modules/sign/chunks";
 
 declare module "webext-bridge" {
   export interface ProtocolMap {
@@ -6,6 +7,7 @@ declare module "webext-bridge" {
     auth_result: AuthResult;
     switch_wallet_event: string;
     copy_address: string;
+    chunk: ProtocolWithReturn<ApiCall<Chunk>, ApiResponse<number>>;
   }
 }
 

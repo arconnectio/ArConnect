@@ -1,3 +1,4 @@
+import { Chunk, handleChunk } from "./modules/sign/chunks";
 import type { OnMessageCallback } from "webext-bridge";
 import { checkTypes, getAppURL } from "~utils/format";
 import type { ApiCall, ApiResponse } from "shim";
@@ -6,12 +7,12 @@ import { pushEvent } from "~utils/events";
 import Application from "~applications/application";
 import modules from "./background";
 
-const handleApiCalls: OnMessageCallback<
+export const handleApiCalls: OnMessageCallback<
   // @ts-expect-error
   ApiCall<{ params: any[] }>,
   ApiResponse
 > = async ({ data, sender }) => {
-  // contruct base message to extend and return
+  // construct base message to extend and return
   const baseMessage: ApiResponse = {
     type: data.type + "_result",
     callID: data.callID
@@ -89,4 +90,46 @@ const handleApiCalls: OnMessageCallback<
   }
 };
 
-export default handleApiCalls;
+export const handleChunkCalls: OnMessageCallback<
+  // @ts-expect-error
+  ApiCall<Chunk>,
+  ApiResponse<number>
+> = async ({ data, sender }) => {
+  // construct base message to extend and return
+  const baseMessage: ApiResponse = {
+    type: "chunk_result",
+    callID: data.callID
+  };
+
+  try {
+    // check if the call is from the content-script
+    if (sender.context !== "content-script") {
+      throw new Error(
+        "Chunk calls are only accepted from the injected-script -> content-script"
+      );
+    }
+
+    // grab the tab where the chunk came
+    const tab = await getTab(sender.tabId);
+
+    // if the tab is not found, reject the call
+    if (!tab || !tab.url) {
+      throw new Error("Call coming from invalid tab");
+    }
+
+    // call the chunk handler
+    const index = handleChunk(data.data, tab);
+
+    return {
+      ...baseMessage,
+      data: index
+    };
+  } catch (e) {
+    // return error
+    return {
+      ...baseMessage,
+      error: true,
+      data: e?.message || e
+    };
+  }
+};

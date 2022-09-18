@@ -37,7 +37,11 @@ window.addEventListener(
     }
 
     // send call to the background
-    const res = await sendMessage("api_call", data, "background");
+    const res = await sendMessage(
+      data.type === "chunk" ? "chunk" : "api_call",
+      data,
+      "background"
+    );
 
     // send the response to the injected script
     window.postMessage(res, window.location.origin);

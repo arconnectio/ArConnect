@@ -1,9 +1,9 @@
-import browser from "webextension-polyfill";
+import { version } from "../../../../package.json";
 
 export const signedTxTags = [
   { name: "Signing-Client", value: "ArConnect" },
   {
     name: "Signing-Client-Version",
-    value: browser.runtime.getManifest().version
+    value: version
   }
 ];
