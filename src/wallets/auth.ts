@@ -39,10 +39,10 @@ export async function checkPassword(password: string) {
   // try to check it agains the decryption key
   const storage = new Storage(getStorageConfig());
 
-  const decryptionKey = atob(await storage.get("decryption_key"));
+  let decryptionKey = await storage.get("decryption_key");
 
   if (!!decryptionKey) {
-    return decryptionKey === password;
+    return atob(decryptionKey) === password;
   }
 
   // try decrypting

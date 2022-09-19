@@ -1,7 +1,12 @@
 import panelHTML from "url:./devtools/index.html";
 import browser from "webextension-polyfill";
+import icon from "url:./assets/icon512.png";
 
-browser.devtools.panels.create("ArConnect", "", panelHTML.split("/").pop());
+browser.devtools.panels.create(
+  "ArConnect",
+  icon.split("/").pop(),
+  panelHTML.split("/").pop()
+);
 
 export default function Devtools() {
   return (
