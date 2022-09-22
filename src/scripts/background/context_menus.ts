@@ -1,6 +1,6 @@
-import { getStoreData, walletsStored } from "../utils/background";
-import { disconnect } from "./api/connection";
+import { getStoreData, walletsStored } from "../../utils/background";
 import { browser } from "webextension-polyfill-ts";
+import { disconnectFromApp } from "../../api/modules/disconnect/utils";
 
 /**
  * Create context menus (right click actions)
@@ -45,7 +45,7 @@ export async function createContextMenus(hasPerms: boolean) {
         try {
           const id = tab.id;
 
-          if (tab.url) await disconnect(tab.url);
+          if (tab.url) await disconnectFromApp(tab.url);
 
           // reload tab
           browser.tabs.executeScript(id, {

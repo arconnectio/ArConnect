@@ -22,6 +22,7 @@ import { QRCode } from "react-qr-svg";
 import { motion, AnimatePresence } from "framer-motion";
 import { goTo } from "react-chrome-extension-router";
 import { getVerification, Threshold } from "arverify";
+import { MessageFormat } from "../utils/messenger";
 import { browser } from "webextension-polyfill-ts";
 import { formatAddress } from "../utils/url";
 import { logOut } from "../utils/auth";
@@ -101,14 +102,16 @@ export default function WalletManager() {
   function switchWallet(address: string) {
     dispatch(switchProfile(address));
     setOpen(false);
-    browser.runtime.sendMessage({
+
+    const message: MessageFormat = {
       type: "switch_wallet_event",
       ext: "arconnect",
-      res: true,
-      message: "",
-      address,
-      sender: "popup"
-    });
+      data: { address },
+      origin: "popup"
+    };
+
+    browser.runtime.sendMessage(message);
+
     setShowSwitch(true);
     setTimeout(() => setShowSwitch(false), 1700);
   }

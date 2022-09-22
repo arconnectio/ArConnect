@@ -17,9 +17,9 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { RootState } from "../../stores/reducers";
-import { MessageType } from "../../utils/messenger";
 import {
   addAllowance,
+  resetAllowanceSpent,
   setAllowanceLimit,
   setPermissions,
   switchProfile,
@@ -38,6 +38,7 @@ import {
 } from "../../utils/permissions";
 import { IGatewayConfig } from "../../stores/reducers/arweave";
 import { suggestedGateways } from "../../utils/gateways";
+import { MessageFormat } from "../../utils/messenger";
 import toastStyles from "../../styles/components/SmallToast.module.sass";
 import styles from "../../styles/views/Auth/view.module.sass";
 
@@ -68,12 +69,12 @@ export default function App() {
     [appInfo, setAppInfo] = useState<IAppInfo>({}),
     theme = useTheme(),
     [, setToast] = useToasts(),
-    [quickAdd, setQuickAdd] = useState(true),
     proflie = useSelector((state: RootState) => state.profile),
     wallets = useSelector((state: RootState) => state.wallets),
     [showSwitch, setShowSwitch] = useState(false);
 
   const [gatewayConfig, setGatewayConfig] = useState<IGatewayConfig>();
+  const [authID, setAuthID] = useState<string | number>();
 
   useEffect(() => {
     // get the auth param from the url
@@ -93,7 +94,10 @@ export default function App() {
       url?: string;
       spendingLimitReached?: boolean;
       gateway?: IGatewayConfig;
+      authID: string | number;
     } = JSON.parse(decodeURIComponent(authVal));
+
+    setAuthID(decodedAuthParam.authID);
 
     if (decodedAuthParam.appInfo) setAppInfo(decodedAuthParam.appInfo);
     if (decodedAuthParam.gateway) setGatewayConfig(decodedAuthParam.gateway);
@@ -186,15 +190,25 @@ export default function App() {
       await browser.storage.local.set({ decryptionKey: true });
       setLoggedIn(true);
 
-      if (updateAllowance && currentURL)
+      // handle allowance update
+      if (updateAllowance && currentURL) {
         dispatch(setAllowanceLimit(currentURL, updateAllowance));
+      }
 
       // any event that needs authentication, but not the connect event
       if (type !== "connect") {
         if (!currentURL) {
           return urlError();
         } else {
-          successCall();
+          // if the user reached their allowance limit,
+          // we reset it here, after authentication
+          if (spendingLimitReached && !updateAllowance) {
+            // reset
+            dispatch(resetAllowanceSpent(currentURL));
+          }
+
+          // wait for the state to update
+          setTimeout(successCall, 200);
           return;
         }
 
@@ -213,9 +227,9 @@ export default function App() {
     browser.runtime.sendMessage({
       type: getReturnType(),
       ext: "arconnect",
-      res: true,
-      message: "Success",
-      sender: "popup"
+      origin: "popup",
+      data: "Success",
+      callID: authID
     });
     closeWindow();
   }
@@ -224,9 +238,10 @@ export default function App() {
     browser.runtime.sendMessage({
       type: getReturnType(),
       ext: "arconnect",
-      res: false,
-      message: "Invalid auth call",
-      sender: "popup"
+      error: true,
+      origin: "popup",
+      data: "Invalid auth call",
+      callID: authID
     });
     closeWindow();
   }
@@ -236,15 +251,16 @@ export default function App() {
     browser.runtime.sendMessage({
       type: getReturnType(),
       ext: "arconnect",
-      res: false,
-      message: "No tab selected",
-      sender: "popup"
+      error: true,
+      origin: "popup",
+      data: "No tab selected",
+      callID: authID
     });
     closeWindow();
   }
 
   // get the type that needs to be returned in the message
-  function getReturnType(): MessageType {
+  function getReturnType() {
     if (type === "connect") return "connect_result";
     else if (type === "sign_auth") return "sign_auth_result";
     else if (type === "encrypt_auth") return "encrypt_auth_result";
@@ -279,9 +295,10 @@ export default function App() {
     browser.runtime.sendMessage({
       type: getReturnType(),
       ext: "arconnect",
-      res: false,
-      message: "User cancelled the login",
-      sender: "popup"
+      error: true,
+      origin: "popup",
+      data: "User cancelled the login",
+      callID: authID
     });
     closeWindow();
   }
@@ -296,10 +313,10 @@ export default function App() {
     browser.runtime.sendMessage({
       type: getReturnType(),
       ext: "arconnect",
-      res: false,
-      message:
-        "The site does not have the required permissions for this action",
-      sender: "popup"
+      error: true,
+      origin: "popup",
+      data: "The site does not have the required permissions for this action",
+      callID: authID
     });
   }
 
@@ -331,14 +348,16 @@ export default function App() {
 
   function switchWallet(address: string) {
     dispatch(switchProfile(address));
-    browser.runtime.sendMessage({
+
+    const message: MessageFormat = {
       type: "switch_wallet_event",
       ext: "arconnect",
-      res: true,
-      message: "",
-      address,
-      sender: "popup"
-    });
+      data: { address },
+      origin: "popup"
+    };
+
+    browser.runtime.sendMessage(message);
+
     setShowSwitch(true);
     setTimeout(() => setShowSwitch(false), 1700);
   }
@@ -367,33 +386,12 @@ export default function App() {
               </span>
             )) ||
               " this site"}{" "}
-            . Please update it or cancel.
-            {quickAdd && (
-              <>
-                <br />
-                <span
-                  style={{ textDecoration: "underline", cursor: "pointer" }}
-                  onClick={() => {
-                    const updateTo = (currentAllowance?.limit ?? 0) + 0.1;
-
-                    setUpdateAllowance(updateTo);
-                    allowanceAmount.setState(updateTo.toString());
-                    setQuickAdd(false);
-                    setToast({
-                      text: "The added allowance will be applied after you enter you password",
-                      type: "success"
-                    });
-                  }}
-                >
-                  Quick add 0.1 AR
-                </span>
-              </>
-            )}
+            . Please reset it or cancel.
           </Note>
         )}
         {(!loggedIn && (
           <>
-            <h1>Sign In</h1>
+            <h1>{(spendingLimitReached && "Reset Allowance") || "Sign In"}</h1>
             {(type === "connect" && (
               <p>
                 {(appInfo.name && (
@@ -481,7 +479,7 @@ export default function App() {
               loading={loading}
               type="success"
             >
-              Log In
+              {(spendingLimitReached && "Reset limit") || "Log In"}
             </Button>
             <Spacer h={0.73} />
             <Button style={{ width: "100%" }} onClick={cancel}>

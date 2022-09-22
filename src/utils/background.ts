@@ -6,7 +6,6 @@ import { PermissionType } from "./permissions";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { getRealURL } from "./url";
 import { browser } from "webextension-polyfill-ts";
-import type { DataItem } from "arbundles";
 import axios from "axios";
 
 /**
@@ -146,18 +145,23 @@ export const authenticateUser = (action: MessageType, tabURL: string) =>
         type: action,
         url: tabURL
       });
-      browser.runtime.onMessage.addListener(async (msg) => {
-        if (
-          !validateMessage(msg, {
-            sender: "popup",
-            type: `${action}_result` as MessageType
-          }) ||
-          !msg.decryptionKey ||
-          !msg.res
-        )
-          reject();
-        else resolve();
-      });
+
+      // wait for connection result
+      const listener = async (message: any) => {
+        // remove this listener first
+        browser.runtime.onMessage.removeListener(listener);
+
+        if (!validateMessage(message, "popup", `${action}_result`))
+          return reject();
+
+        // check the result
+        // TODO: move message.decryptionKey to message.data.decryptionKey
+        if (message.error || !message.data.decryptionKey) return reject();
+
+        resolve();
+      };
+
+      browser.runtime.onMessage.addListener(listener);
     } catch (e: any) {
       reject(e);
     }
@@ -282,11 +286,6 @@ export async function getActiveKeyfile() {
   };
 }
 
-export interface DispatchResult {
-  id: string;
-  type?: "BASE" | "BUNDLED";
-}
-
 export function generateBundlrAnchor() {
   const randomBytes = crypto.getRandomValues(new Uint8Array(32));
   // we can do this, because we know that the randomBytes buffer
@@ -295,28 +294,4 @@ export function generateBundlrAnchor() {
   const base64str = btoa(String.fromCharCode(...randomBytes)).slice(0, 32);
 
   return base64str;
-}
-
-/**
- * Upload a data entry to a Bundlr node
- *
- * @param dataItem Data entry to upload
- * @returns Bundlr node response
- */
-export async function uploadDataToBundlr(dataItem: DataItem) {
-  const res = await axios.post(
-    "https://node2.bundlr.network/tx",
-    dataItem.getRaw(),
-    {
-      headers: {
-        "Content-Type": "application/octet-stream"
-      },
-      maxBodyLength: Infinity
-    }
-  );
-
-  if (res.status >= 400)
-    throw new Error(
-      `Error uploading DataItem: ${res.status} ${res.statusText}`
-    );
 }

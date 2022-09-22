@@ -1,5 +1,4 @@
 import { browser } from "webextension-polyfill-ts";
-import { walletsStored } from "./background";
 import bcrypt from "bcryptjs";
 
 /**
@@ -25,26 +24,6 @@ export async function setPassword(password: string) {
   await browser.storage.local.set({
     hash: await bcrypt.hash(password, 10)
   });
-}
-
-/**
- * This function checks if the user is still using
- * the old password system. If it does, it updates
- * the stores to use the new one
- */
-export async function fixupPasswords() {
-  const data = await browser.storage.local.get(["hash", "decryptionKey"]);
-
-  if (
-    !data.hash &&
-    (await walletsStored()) &&
-    typeof data.decryptionKey !== "boolean"
-  ) {
-    await browser.storage.local.set({
-      decryptionKey: false,
-      hash: await bcrypt.hash(data.decryptionKey, 10)
-    });
-  }
 }
 
 /**
