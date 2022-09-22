@@ -470,6 +470,11 @@
     protobufjs "^7.0.0"
     yargs "^16.2.0"
 
+"@iconicicons/react@^1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@iconicicons/react/-/react-1.5.0.tgz#906c1c8d5114be2c6bd9e4b31be3eb1123801a7d"
+  integrity sha512-WEPtx5uYyz1zSpRSrdpBIY6Wdq2T46vHWedIJQDoSnFZ+BsL1Sk2Sggp0nShetUm7yImtINiPD3To5okGoDprQ==
+
 "@jridgewell/gen-mapping@^0.3.0":
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/@jridgewell/gen-mapping/-/gen-mapping-0.3.2.tgz#c1aedc61e853f2bb9f5dfe6d4442d3b565b253b9"

@@ -1,6 +1,6 @@
+import { getStorageConfig } from "~utils/storage";
 import { Storage } from "@plasmohq/storage";
 import { PREFIX } from "~settings";
-import { getStorageConfig } from "~utils/storage";
 
 export default class Setting {
   /** Name of the setting */
@@ -100,6 +100,7 @@ export type ValueType = string | number | boolean;
 interface InitParams {
   name: string;
   displayName: string;
+  icon: (props: React.ComponentProps<"svg">) => JSX.Element;
   description?: string;
   type: SettingType;
   defaultValue: ValueType;

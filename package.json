@@ -25,6 +25,7 @@
     ]
   },
   "dependencies": {
+    "@iconicicons/react": "^1.5.0",
     "@peculiar/webcrypto": "^1.4.0",
     "@plasmohq/storage": "^0.9.0",
     "ar-gql": "^0.0.6",

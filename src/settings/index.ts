@@ -1,3 +1,10 @@
+import {
+  BellIcon,
+  CheckIcon,
+  DollarIcon,
+  PercentageIcon,
+  StarIcon
+} from "@iconicicons/react";
 import Setting from "./setting";
 
 export const PREFIX = "setting_";
@@ -7,6 +14,7 @@ const settings: Setting[] = [
   new Setting({
     name: "fee_multiplier",
     displayName: "Fee multiplier",
+    icon: PercentageIcon,
     description: "Control the fees payed after transactions",
     type: "number",
     defaultValue: 1
@@ -14,6 +22,7 @@ const settings: Setting[] = [
   new Setting({
     name: "currency",
     displayName: "Currency",
+    icon: DollarIcon,
     description: "Fiat display currency",
     type: "pick",
     options: ["usd", "eur", "gbp"],
@@ -22,6 +31,7 @@ const settings: Setting[] = [
   new Setting({
     name: "arverify",
     displayName: "ArVerify treshold",
+    icon: CheckIcon,
     description: "Set the verification threshold used",
     type: "number",
     defaultValue: 60
@@ -29,6 +39,7 @@ const settings: Setting[] = [
   new Setting({
     name: "arconfetti",
     displayName: "ArConfetti effect",
+    icon: StarIcon,
     description: "Show animation on wallet usage",
     type: "pick",
     options: [false, "arweave", "hedgehog", "usd"],
@@ -37,6 +48,7 @@ const settings: Setting[] = [
   new Setting({
     name: "sign_notification",
     displayName: "Sign notification",
+    icon: BellIcon,
     description: "Notify when signing a transaction",
     type: "boolean",
     defaultValue: true
