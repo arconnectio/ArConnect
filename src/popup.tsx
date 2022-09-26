@@ -22,6 +22,7 @@ export default function Popup() {
       <h1>
         Welcome to your <a href="https://www.plasmo.com">Plasmo</a> Extension!
       </h1>
+      <h2>{chrome.i18n.getMessage("popup")}</h2>
       {data}
       <input onChange={(e) => setData(e.target.value)} value={data} />
       <button onClick={createDashboard}>Test</button>

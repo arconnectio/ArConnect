@@ -1,0 +1,10 @@
+{
+  "extensionDescription": {
+    "message": "Example using i18n!",
+    "description": "Secure wallet management for Arweave"
+  },
+  "popup": {
+    "message": "This is showing the power of i18n!",
+    "description": "Popup message."
+  }
+}

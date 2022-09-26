@@ -2,7 +2,7 @@
   "name": "arconnect",
   "displayName": "ArConnect",
   "version": "1.0.0",
-  "description": "Secure wallet management for Arweave",
+  "description": "__MSG_extensionDescription__",
   "author": "th8ta",
   "packageManager": "yarn@1.22.18",
   "scripts": {
@@ -18,10 +18,10 @@
     "host_permissions": [
       "https://*/*"
     ],
+    "default_locale": "en",
     "permissions": [
       "alarms",
-      "contextMenus",
-      "clipboardWrite"
+      "contextMenus"
     ]
   },
   "dependencies": {
