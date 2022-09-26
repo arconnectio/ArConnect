@@ -1,6 +1,6 @@
 import Application from "~applications/application";
 import browser, { Storage } from "webextension-polyfill";
-import { sendMessage } from "webext-bridge";
+import { sendMessage } from "@arconnect/webext-bridge";
 import { getAppURL } from "~utils/format";
 
 /**

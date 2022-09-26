@@ -1,7 +1,7 @@
-import type { ProtocolWithReturn } from "webext-bridge";
+import type { ProtocolWithReturn } from "@arconnect/webext-bridge";
 import type { Chunk } from "~api/modules/sign/chunks";
 
-declare module "webext-bridge" {
+declare module "@arconnect/webext-bridge" {
   export interface ProtocolMap {
     api_call: ProtocolWithReturn<ApiCall, ApiResponse>;
     auth_result: AuthResult;

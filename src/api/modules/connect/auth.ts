@@ -1,5 +1,5 @@
 import { objectToUrlParams } from "./url";
-import { onMessage } from "webext-bridge";
+import { onMessage } from "@arconnect/webext-bridge";
 import type { AuthResult } from "shim";
 import { nanoid } from "nanoid";
 import browser from "webextension-polyfill";

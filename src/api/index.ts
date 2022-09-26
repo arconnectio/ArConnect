@@ -1,5 +1,5 @@
 import { Chunk, handleChunk } from "./modules/sign/chunks";
-import type { OnMessageCallback } from "webext-bridge";
+import type { OnMessageCallback } from "@arconnect/webext-bridge";
 import { checkTypes, getAppURL } from "~utils/format";
 import type { ApiCall, ApiResponse } from "shim";
 import { getTab } from "~applications/tab";

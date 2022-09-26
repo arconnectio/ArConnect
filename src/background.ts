@@ -4,7 +4,7 @@ import { handleTabUpdate } from "~applications/tab";
 import { appsChangeListener } from "~applications";
 import { getStorageConfig } from "~utils/storage";
 import { Storage } from "@plasmohq/storage";
-import { onMessage } from "webext-bridge";
+import { onMessage } from "@arconnect/webext-bridge";
 import handleFeeAlarm from "~api/modules/sign/fee";
 import browser from "webextension-polyfill";
 

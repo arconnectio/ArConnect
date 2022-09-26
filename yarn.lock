@@ -2,6 +2,17 @@
 # yarn lockfile v1
 
 
+"@arconnect/webext-bridge@^5.0.6":
+  version "5.0.6"
+  resolved "https://registry.yarnpkg.com/@arconnect/webext-bridge/-/webext-bridge-5.0.6.tgz#edcc28d0d7e215fba2e5a3c832cf7842f7046b9d"
+  integrity sha512-Zxflrgmb5iZzpqUEqVc+FkfHnW18txORS5ERLLyeeE+2j7sNVmmdjP2tbW7ypmeyyHZ5yu4WBJP6AHOuf5AoSg==
+  dependencies:
+    "@types/webextension-polyfill" "^0.8.3"
+    nanoevents "^6.0.2"
+    serialize-error "^9.0.0"
+    tiny-uid "^1.1.1"
+    webextension-polyfill "^0.9.0"
+
 "@babel/code-frame@^7.0.0":
   version "7.18.6"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.18.6.tgz#3b25d38c89600baa2dcc219edfa88a74eb2c427a"
@@ -5306,17 +5317,6 @@ webcrypto-core@^1.7.4:
     asn1js "^3.0.1"
     pvtsutils "^1.3.2"
     tslib "^2.4.0"
-
-webext-bridge@^5.0.5:
-  version "5.0.5"
-  resolved "https://registry.yarnpkg.com/webext-bridge/-/webext-bridge-5.0.5.tgz#1465135343fbe5ee944323294ac90cd97b663304"
-  integrity sha512-STCv6pLfQtUHmZQ96Tmov+CrdGjjc08xG6o/VH7TlDvchAPmXEG7faPdHfIzkcs0qp0sedDkq7oDzXAei19vtw==
-  dependencies:
-    "@types/webextension-polyfill" "^0.8.3"
-    nanoevents "^6.0.2"
-    serialize-error "^9.0.0"
-    tiny-uid "^1.1.1"
-    webextension-polyfill "^0.9.0"
 
 webextension-polyfill@0.10.0, webextension-polyfill@^0.10.0:
   version "0.10.0"

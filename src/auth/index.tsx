@@ -2,7 +2,7 @@ import Arweave from "arweave/web/common";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import type { AuthResult } from "shim";
-import { sendMessage } from "webext-bridge";
+import { sendMessage } from "@arconnect/webext-bridge";
 import type { AuthDataWithID, AuthType } from "~api/modules/connect/auth";
 import { objectFromUrlParams } from "~api/modules/connect/url";
 import { addApp } from "~applications";

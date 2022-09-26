@@ -1,6 +1,6 @@
 import { getActiveAddress, getWallets } from "~wallets";
 import { getActiveTab, removeApp } from "~applications";
-import { sendMessage } from "webext-bridge";
+import { sendMessage } from "@arconnect/webext-bridge";
 import { isManifestv3 } from "./runtime";
 import { getAppURL } from "./format";
 import browser, { Menus, Tabs } from "webextension-polyfill";

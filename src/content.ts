@@ -1,5 +1,5 @@
 import type { PlasmoContentScript } from "plasmo";
-import { onMessage, sendMessage } from "webext-bridge";
+import { onMessage, sendMessage } from "@arconnect/webext-bridge";
 import type { ApiCall } from "shim";
 import injectedScript from "url:./injected.ts";
 

@@ -2,7 +2,7 @@ import type { Storage as BrowserStorage } from "webextension-polyfill";
 import { createContextMenus } from "~utils/context_menus";
 import { getStorageConfig } from "~utils/storage";
 import { Storage } from "@plasmohq/storage";
-import { sendMessage } from "webext-bridge";
+import { sendMessage } from "@arconnect/webext-bridge";
 import { getAppURL } from "~utils/format";
 import { updateIcon } from "~utils/icon";
 import Application, { InitAppParams, PREFIX } from "./application";
