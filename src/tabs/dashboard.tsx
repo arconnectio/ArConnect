@@ -1,4 +1,4 @@
-import { useStorage } from "@plasmohq/storage";
+import { useStorage } from "@plasmohq/storage/hook";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import Application from "~applications/application";
@@ -11,9 +11,9 @@ import {
   removeWallet,
   StoredWallet
 } from "~wallets";
-import ApplicationEl from "./Application";
+import ApplicationEl from "~components/Application";
 
-const App = () => {
+export default function App() {
   const [password, setPassword] = useState<string>("");
   const fileInput = useRef<HTMLInputElement>();
 
@@ -48,7 +48,8 @@ const App = () => {
   const [apps] = useStorage<string[]>(
     {
       key: "apps",
-      area: "local"
+      area: "local",
+      isSecret: true
     },
     []
   );
@@ -138,7 +139,7 @@ const App = () => {
       })}>add</button>**/}
     </>
   );
-};
+}
 
 const SettingEl = ({ setting }: { setting: Setting }) => {
   const [val, setVal] = useState(setting.defaultValue);
@@ -193,6 +194,3 @@ const SettingEl = ({ setting }: { setting: Setting }) => {
     </>
   );
 };
-
-const root = createRoot(document.getElementById("root"));
-root.render(<App />);

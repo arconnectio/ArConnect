@@ -1,4 +1,4 @@
-import { useStorage } from "@plasmohq/storage";
+import { useStorage } from "@plasmohq/storage/hook";
 import { getSetting, PREFIX } from "~settings";
 
 const useSetting = <T = any>(name: string) => {
@@ -6,7 +6,8 @@ const useSetting = <T = any>(name: string) => {
   const hook = useStorage<T>(
     {
       key: `${PREFIX}${name}`,
-      area: "local"
+      area: "local",
+      isSecret: true
     },
     // @ts-expect-error
     (val) => val || setting.defaultValue

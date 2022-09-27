@@ -1,13 +1,12 @@
 import { useState } from "react";
 import browser from "webextension-polyfill";
-import dashboard from "url:./dashboard/index.html";
 
 export default function Popup() {
   const [data, setData] = useState("");
 
   function createDashboard() {
     browser.tabs.create({
-      url: dashboard
+      url: browser.runtime.getURL("tabs/dashboard.html")
     });
   }
 

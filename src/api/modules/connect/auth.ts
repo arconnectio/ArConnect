@@ -3,7 +3,6 @@ import { onMessage } from "@arconnect/webext-bridge";
 import type { AuthResult } from "shim";
 import { nanoid } from "nanoid";
 import browser from "webextension-polyfill";
-import auth from "url:../../../auth/index.html";
 
 export type AuthType = "connect" | "allowance" | "unlock";
 
@@ -50,7 +49,9 @@ async function createAuthPopup(data: AuthData) {
 
   // create auth window
   const window = await browser.windows.create({
-    url: `${auth}?${objectToUrlParams(authData)}`,
+    url: `${browser.runtime.getURL("tabs/auth.html")}?${objectToUrlParams(
+      authData
+    )}`,
     focused: true,
     type: "popup",
     width: 385,

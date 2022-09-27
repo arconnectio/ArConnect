@@ -1,7 +1,8 @@
 import { decryptWallet, encryptWallet } from "./encryption";
 import type { JWKInterface } from "arweave/node/lib/wallet";
-import { useStorage, Storage } from "@plasmohq/storage";
+import { useStorage } from "@plasmohq/storage/hook";
 import { getStorageConfig } from "~utils/storage";
+import { Storage } from "@plasmohq/storage";
 import { useEffect, useState } from "react";
 import { checkPassword } from "./auth";
 import authenticate from "~api/modules/connect/auth";

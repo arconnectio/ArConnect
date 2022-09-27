@@ -1,5 +1,6 @@
 import { Allowance, defaultAllowance } from "./allowance";
-import { Storage, useStorage } from "@plasmohq/storage";
+import { useStorage } from "@plasmohq/storage/hook";
+import { Storage } from "@plasmohq/storage";
 import type { PermissionType } from "./permissions";
 import { defaultGateway, Gateway } from "./gateway";
 import { getStorageConfig } from "~utils/storage";
@@ -155,7 +156,8 @@ export default class Application {
     return useStorage<InitAppParams>(
       {
         key: `${PREFIX}${this.url}`,
-        area: "local"
+        area: "local",
+        isSecret: true
       },
       (val) => {
         if (typeof val === "undefined") return val;

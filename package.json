@@ -6,7 +6,7 @@
   "author": "th8ta",
   "packageManager": "yarn@1.22.18",
   "scripts": {
-    "dev:chrom": "plasmo dev",
+    "dev:chrome": "plasmo dev",
     "build:chrome": "plasmo build",
     "dev:firefox": "plasmo dev --target=firefox-mv2",
     "build:firefox": "plasmo build --target=firefox-mv2",
@@ -28,7 +28,7 @@
     "@arconnect/webext-bridge": "^5.0.6",
     "@iconicicons/react": "^1.5.0",
     "@peculiar/webcrypto": "^1.4.0",
-    "@plasmohq/storage": "^0.9.0",
+    "@plasmohq/storage": "^0.12.1",
     "ar-gql": "^0.0.6",
     "arbundles": "^0.6.21",
     "arweave": "^1.11.6",
@@ -49,7 +49,7 @@
     "constants-browserify": "^1.0.0",
     "crypto-browserify": "^3.12.0",
     "husky": "^8.0.0",
-    "plasmo": "0.47.2",
+    "plasmo": "^0.55.0",
     "prettier": "^2.2.1",
     "stream-browserify": "^3.0.0",
     "typescript": "^4.8.2"

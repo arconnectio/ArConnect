@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { createRoot } from "react-dom/client";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import { getTab } from "~applications/tab";
 import { getAppURL } from "~utils/format";
-import ApplicationEl from "~dashboard/Application";
+import ApplicationEl from "~components/Application";
 import { permissionData, PermissionType } from "~applications/permissions";
 import { addApp } from "~applications";
 
@@ -15,6 +14,7 @@ export default function Devtools() {
   useEffect(() => {
     (async () => {
       const tab = await getTab(browser.devtools.inspectedWindow.tabId);
+      console.log(tab);
       const appURL = getAppURL(tab.url);
       const app = new Application(appURL);
 
@@ -76,6 +76,3 @@ export default function Devtools() {
     </>
   );
 }
-
-const root = createRoot(document.getElementById("root"));
-root.render(<Devtools />);

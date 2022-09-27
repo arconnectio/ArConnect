@@ -1,6 +1,5 @@
 import Arweave from "arweave/web/common";
 import { useEffect, useState } from "react";
-import { createRoot } from "react-dom/client";
 import type { AuthResult } from "shim";
 import { sendMessage } from "@arconnect/webext-bridge";
 import type { AuthDataWithID, AuthType } from "~api/modules/connect/auth";
@@ -11,7 +10,7 @@ import { defaultGateway } from "~applications/gateway";
 import { permissionData, PermissionType } from "~applications/permissions";
 import { unlock } from "~wallets/auth";
 
-const App = () => {
+export default function App() {
   // fetch data sent to process with the auth
   const [initParmas, setInitParams] = useState<AuthDataWithID>();
 
@@ -165,7 +164,7 @@ const App = () => {
   }
 
   return <></>;
-};
+}
 
 const AllowanceManager = ({ app }: { app: Application }) => {
   const [settings, updateSettings] = app.hook();
@@ -267,6 +266,3 @@ const PermissionsManager = ({
     </>
   );
 };
-
-const root = createRoot(document.getElementById("root"));
-root.render(<App />);
