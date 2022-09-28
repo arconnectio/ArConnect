@@ -20,7 +20,9 @@ const background: ModuleFunction<void> = async (
   const tabURL = getRealURL(activeTab.url as string);
 
   // validate requested permissions
-  await validatePermissions(permissions, tabURL);
+  const hasAllPermissions = await validatePermissions(permissions, tabURL);
+
+  if (hasAllPermissions) return;
 
   // add app logo if there isn't one
   if (!appInfo.logo) {
