@@ -34,6 +34,12 @@ export const suggestedGateways: SuggestedGateway[] = [
     port: 443,
     protocol: "https",
     note: "TESTNET"
+  },
+  {
+    host: "localhost",
+    port: 1984,
+    protocol: "http",
+    note: "ARLOCAL"
   }
 ];
 
