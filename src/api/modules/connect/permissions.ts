@@ -6,7 +6,7 @@ import { PermissionType } from "../../../utils/permissions";
  *
  * @param permissions The permissions requested to allow
  * @param tabURL URL of the application
- * 
+ *
  * @returns true if all permissions are already granted
  */
 export default async function validatePermissions(
