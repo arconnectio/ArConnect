@@ -1,5 +1,6 @@
 import type { ProtocolWithReturn } from "@arconnect/webext-bridge";
 import type { Chunk } from "~api/modules/sign/chunks";
+import "styled-components";
 
 declare module "@arconnect/webext-bridge" {
   export interface ProtocolMap {
@@ -26,4 +27,14 @@ interface AuthResult {
   authID: string;
   error?: boolean;
   data?: any;
+}
+
+declare module "styled-components" {
+  export interface DefaultTheme {
+    theme: string;
+    primaryText: string;
+    secondaryText: string;
+    background: string;
+    cardBorder: string;
+  }
 }

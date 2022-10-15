@@ -3,7 +3,8 @@ import {
   CheckIcon,
   DollarIcon,
   PercentageIcon,
-  StarIcon
+  StarIcon,
+  SunIcon
 } from "@iconicicons/react";
 import Setting from "./setting";
 
@@ -52,6 +53,15 @@ const settings: Setting[] = [
     description: "Notify when signing a transaction",
     type: "boolean",
     defaultValue: true
+  }),
+  new Setting({
+    name: "display_theme",
+    displayName: "Theme",
+    icon: SunIcon,
+    description: "The theme of the extension UI",
+    type: "pick",
+    options: ["light", "dark", "system"],
+    defaultValue: "system"
   })
 ];
 
