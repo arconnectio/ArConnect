@@ -119,6 +119,25 @@ export default function WalletSwitcher({ open }: Props) {
   // edit mode status
   const [editMode, setEditMode] = useState(false);
 
+  // fixup wallet names
+  useEffect(() => {
+    if (editMode) return;
+
+    setStoredWallets((val) =>
+      val.map((wallet, i) => {
+        if (wallet.nickname !== "") {
+          return wallet;
+        }
+
+        return {
+          ...wallet,
+          nickname: `Account ${i + 1}`
+        };
+      })
+    );
+  }, [editMode]);
+
+  // disable edit mode on close
   useEffect(() => {
     if (!open) setEditMode(false);
   }, [open]);
