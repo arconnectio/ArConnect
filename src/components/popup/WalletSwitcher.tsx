@@ -1,26 +1,23 @@
-import { ChevronDownIcon, GridIcon, UserIcon } from "@iconicicons/react";
-import { defaultGateway, concatGatewayURL } from "~applications/gateway";
-import { MouseEventHandler, useEffect, useMemo, useState } from "react";
-import { Section, Text, Tooltip } from "@arconnect/components";
-import type { AnsUser, AnsUsers } from "~utils/faces";
+import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { motion, AnimatePresence } from "framer-motion";
 import { useStorage } from "@plasmohq/storage/hook";
-import { formatAddress } from "~utils/format";
+import { AnsUser, getAnsProfile } from "~utils/ans";
 import type { StoredWallet } from "~wallets";
-import Squircle from "~components/Squircle";
+import { Card } from "@arconnect/components";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
-import copy from "copy-to-clipboard";
-import axios from "axios";
+import Arweave from "arweave";
 
-export default function WalletSwitcher() {
+export default function WalletSwitcher({ open }: Props) {
   // current address
-  const [activeAddress] = useStorage<string>({
+  const [activeAddress, setActiveAddress] = useStorage<string>({
     key: "active_address",
     area: "local",
     isSecret: true
   });
 
   // all wallets added
-  const [wallets] = useStorage<StoredWallet[]>(
+  const [storedWallets] = useStorage<StoredWallet[]>(
     {
       key: "wallets",
       area: "local",
@@ -29,143 +26,157 @@ export default function WalletSwitcher() {
     []
   );
 
-  // is the wallet selector open
-  const [isOpen, setOpen] = useState(false);
+  // load wallet datas
+  const [wallets, setWallets] = useState<DisplayedWallet[]>([]);
 
-  // copy current address
-  const copyAddress: MouseEventHandler = (e) => {
-    e.stopPropagation();
-    copy(activeAddress);
-  };
+  // load default wallets array
+  useEffect(
+    () =>
+      setWallets(
+        storedWallets.map((wallet) => ({
+          name: wallet.nickname,
+          address: wallet.address,
+          balance: 0
+        }))
+      ),
+    [storedWallets]
+  );
 
-  // fetch ANS name (cached in storage)
-  const [ans, setAns] = useStorage<AnsUser>({
-    key: "ans_data",
-    area: "local",
-    isSecret: true
-  });
-
+  // load ANS data for wallet
   useEffect(() => {
     (async () => {
-      const { data } = await axios.get<AnsUsers>(
-        "https://ans-stats.decent.land/users"
+      if (wallets.length === 0) return;
+
+      const profiles = (await getAnsProfile(
+        wallets.map((val) => val.address)
+      )) as AnsUser[];
+
+      setWallets((val) =>
+        val.map((wallet) => {
+          const profile = profiles.find(({ user }) => user === wallet.address);
+
+          return {
+            ...wallet,
+            name: profile?.currentLabel || wallet.name,
+            avatar: profile?.avatar
+              ? concatGatewayURL(defaultGateway) + "/" + profile.avatar
+              : undefined
+          };
+        })
       );
-
-      setAns(data.res.find(({ user }) => user === activeAddress));
     })();
-  }, [activeAddress]);
+  }, [wallets]);
 
-  // wallet name
-  const walletName = useMemo(() => {
-    if (!ans?.currentLabel) {
-      const wallet = wallets.find(({ address }) => address === activeAddress);
+  // load wallet balances
+  useEffect(() => {
+    (async () => {
+      if (wallets.length === 0) return;
 
-      return wallet?.nickname || "Wallet";
-    }
+      const arweave = new Arweave(defaultGateway);
 
-    return ans.currentLabel + ".ar";
-  }, [wallets, ans, activeAddress]);
+      for (const { address } of wallets) {
+        // fetch balance
+        const balance = arweave.ar.winstonToAr(
+          await arweave.wallets.getBalance(address)
+        );
 
-  // profile picture
-  const avatar = useMemo(() => {
-    if (!!ans?.avatar) {
-      return concatGatewayURL(defaultGateway) + "/" + ans.avatar;
-    }
+        // update wallets
+        setWallets((val) =>
+          val.map((wallet) => {
+            if (wallet.address !== address) {
+              return wallet;
+            }
 
-    return undefined;
-  }, [ans]);
+            return {
+              ...wallet,
+              balance: Number(balance)
+            };
+          })
+        );
+      }
+    })();
+  }, [wallets]);
 
   return (
-    <Wrapper onClick={() => setOpen((val) => !val)}>
-      <Wallet>
-        <WalletIcon />
-        <Text noMargin>{walletName}</Text>
-        <WithArrow>
-          <Tooltip content="Click to copy" position="bottom">
-            <WalletAddress onClick={copyAddress}>
-              (
-              {formatAddress(
-                activeAddress ?? "",
-                walletName.length > 14 ? 3 : 6
-              )}
-              )
-            </WalletAddress>
-          </Tooltip>
-          <ExpandArrow expanded={isOpen} />
-        </WithArrow>
-      </Wallet>
-      <Avatar img={avatar}>{!avatar && <NoAvatarIcon />}</Avatar>
-    </Wrapper>
+    <AnimatePresence>
+      {open && (
+        <SwitcherPopover>
+          <Card smallPadding>
+            {wallets.map((wallet, i) => (
+              <motion.div
+                variants={walletAnimation}
+                animate={open ? "open" : "closed"}
+                key={i}
+              >
+                {wallet.name}
+              </motion.div>
+            ))}
+          </Card>
+        </SwitcherPopover>
+      )}
+    </AnimatePresence>
   );
 }
 
-const Wrapper = styled(Section)`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 2.2rem;
-  padding-bottom: 1.75rem;
-  cursor: pointer;
-`;
-
-const Wallet = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.36rem;
-
-  p {
-    color: rgb(${(props) => props.theme.primaryText});
+const openAnimation = {
+  open: {
+    clipPath: "inset(0% 0% 0% 0% round 10px)",
+    transition: {
+      type: "spring",
+      bounce: 0,
+      duration: 0.7,
+      delayChildren: 0.3,
+      staggerChildren: 0.05
+    }
+  },
+  closed: {
+    clipPath: "inset(10% 50% 90% 50% round 10px)",
+    transition: {
+      type: "spring",
+      bounce: 0,
+      duration: 0.3
+    }
   }
-`;
+};
 
-const WalletIcon = styled(GridIcon)`
-  font-size: 1.35rem;
-  width: 1em;
-  height: 1em;
-  color: rgb(${(props) => props.theme.primaryText});
-`;
-
-const WithArrow = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const WalletAddress = styled(Text).attrs(() => ({ noMargin: true }))`
-  color: rgb(${(props) => props.theme.secondaryText}) !important;
-  transition: all 0.23s ease-in-out;
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  &:active {
-    opacity: 0.4;
-  }
-`;
-
-const ExpandArrow = styled(ChevronDownIcon)<{ expanded: boolean }>`
-  color: rgb(${(props) => props.theme.secondaryText});
-  font-size: 1.2rem;
-  width: 1em;
-  height: 1em;
-  transition: all 0.23s ease-in-out;
-
-  transform: ${(props) => (props.expanded ? "rotate(180deg)" : "rotate(0)")};
-`;
-
-const Avatar = styled(Squircle)`
-  position: relative;
-  width: 2.1rem;
-  height: 2.1rem;
-`;
-
-const NoAvatarIcon = styled(UserIcon)`
+const SwitcherPopover = styled(motion.div).attrs({
+  variants: openAnimation,
+  initial: "closed",
+  animate: "open",
+  exit: "closed"
+})`
   position: absolute;
-  font-size: 1.4rem;
-  width: 1em;
-  height: 1em;
-  color: #fff;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 100%;
+  left: 0;
+  right: 0;
 `;
+
+const walletAnimation = {
+  open: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 24
+    }
+  },
+  closed: {
+    opacity: 0,
+    y: 20,
+    transition: {
+      duration: 0.2
+    }
+  }
+};
+
+interface Props {
+  open: boolean;
+}
+
+interface DisplayedWallet {
+  name: string;
+  address: string;
+  balance: number;
+  avatar?: string;
+}

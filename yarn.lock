@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@arconnect/components@^0.1.7":
-  version "0.1.7"
-  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.1.7.tgz#59f3a7419a6c9f1c59c75014bbd765ee7eeaa221"
-  integrity sha512-sGvXAElNYcmTWmEoUR1+CbTUgh/BT3W3csDTaCTtu98tDAv5R1eYdFuOED9Xmxc5X8OboFQzK6lpJW3qLQrN2Q==
+"@arconnect/components@^0.1.8":
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.1.8.tgz#a26b893ff73ca3286229ae2a50765b7bce61904d"
+  integrity sha512-8P3ZDkefX0onIhEKjmmxECzui6AU7P62atRo1E3fHCPMI/3JhJfzD912Cz8L5RjsiKQX5MeN+vmWY0Pta8MkGA==
   dependencies:
     "@iconicicons/react" "^1.5.0"
     "@types/jest" "^27.0.1"
@@ -3376,7 +3376,7 @@ formidable@^1.2.2:
   resolved "https://registry.yarnpkg.com/formidable/-/formidable-1.2.6.tgz#d2a51d60162bbc9b4a055d8457a7c75315d1a168"
   integrity sha512-KcpbcpuLNOwrEjnbpMC0gS+X8ciDoZE1kkqzat4a8vrprf+s9pKNQ/QIwWfbfs4ltgmFl3MD177SNTkve3BwGQ==
 
-framer-motion@^7.5.2:
+framer-motion@^7.5.2, framer-motion@^7.5.3:
   version "7.5.3"
   resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-7.5.3.tgz#a1de7d6c4abbf7333619d4a6c8df74c12240be43"
   integrity sha512-VvANga9Z7bYtKMAsM/je81FwJDHfThOYywN04xVQ4OGdMVY09Bowx/q7nZd6XtytLuv6byc6GT1mYwag+SQ/nw==

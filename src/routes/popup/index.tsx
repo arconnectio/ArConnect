@@ -1,10 +1,10 @@
 import { Text } from "@arconnect/components";
-import WalletSwitcher from "~components/popup/WalletSwitcher";
+import WalletHeader from "~components/popup/WalletHeader";
 
 export default function Home() {
   return (
     <>
-      <WalletSwitcher />
+      <WalletHeader />
     </>
   );
 }
