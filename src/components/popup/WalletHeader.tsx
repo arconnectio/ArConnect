@@ -1,11 +1,12 @@
-import { MouseEventHandler, useEffect, useMemo, useState } from "react";
+import { DisplayTheme, Section, Text, Tooltip } from "@arconnect/components";
 import { ChevronDownIcon, GridIcon, UserIcon } from "@iconicicons/react";
 import { defaultGateway, concatGatewayURL } from "~applications/gateway";
-import { Section, Text, Tooltip } from "@arconnect/components";
+import { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { AnsUser, getAnsProfile } from "~utils/ans";
 import { useStorage } from "@plasmohq/storage/hook";
 import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
+import { useTheme } from "~utils/theme";
 import WalletSwitcher from "./WalletSwitcher";
 import Squircle from "~components/Squircle";
 import styled from "styled-components";
@@ -73,11 +74,27 @@ export default function WalletHeader() {
     return undefined;
   }, [ans]);
 
+  // ui theme
+  const theme = useTheme();
+
+  // scroll position
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const listener = () => setScrollY(window.scrollY);
+
+    window.addEventListener("scroll", listener);
+
+    return () => window.removeEventListener("scroll", listener);
+  }, []);
+
   return (
     <Wrapper
       onClick={() => {
         if (!isOpen) setOpen(true);
       }}
+      displayTheme={theme}
+      scrolled={scrollY > 14}
     >
       <Wallet>
         <WalletIcon />
@@ -103,15 +120,31 @@ export default function WalletHeader() {
   );
 }
 
-const Wrapper = styled(Section)`
-  position: relative;
+const Wrapper = styled(Section)<{
+  displayTheme: DisplayTheme;
+  scrolled: boolean;
+}>`
+  position: sticky;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding-top: 2.2rem;
-  padding-bottom: 1.75rem;
+  padding-bottom: 1.5rem;
   cursor: pointer;
   z-index: 100;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(${(props) => props.theme.background}, 0.75);
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid;
+  border-bottom-color: ${(props) =>
+    props.scrolled
+      ? "rgba(" +
+        (props.displayTheme === "light" ? "235, 235, 241" : "31, 30, 47") +
+        ")"
+      : "transparent"};
+  transition: all 0.23s ease-in-out;
 `;
 
 const Wallet = styled.div`

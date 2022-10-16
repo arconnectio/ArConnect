@@ -13,6 +13,7 @@ import { AnsUser, getAnsProfile } from "~utils/ans";
 import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
 import { useEffect, useState } from "react";
+import browser from "webextension-polyfill";
 import Squircle from "~components/Squircle";
 import styled from "styled-components";
 import Arweave from "arweave";
@@ -121,7 +122,7 @@ export default function WalletSwitcher({ open }: Props) {
 
   // fixup wallet names
   useEffect(() => {
-    if (editMode) return;
+    if (editMode || storedWallets.length === 0) return;
 
     setStoredWallets((val) =>
       val.map((wallet, i) => {
@@ -212,7 +213,15 @@ export default function WalletSwitcher({ open }: Props) {
                 </Wallet>
               ))}
               <ActionBar>
-                <AddWalletButton>
+                <AddWalletButton
+                  onClick={() =>
+                    browser.tabs.create({
+                      url: browser.runtime.getURL(
+                        "tabs/dashboard.html#add-wallet"
+                      )
+                    })
+                  }
+                >
                   <PlusIcon />
                   Add wallet
                 </AddWalletButton>
