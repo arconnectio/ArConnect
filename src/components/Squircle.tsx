@@ -1,11 +1,29 @@
-import type { HTMLProps } from "react";
+import { HTMLProps, useEffect, useState } from "react";
 import styled from "styled-components";
+import axios from "axios";
 
 export default function Squircle({
   children,
   img,
   ...props
 }: HTMLProps<HTMLDivElement> & Props) {
+  const [imageData, setImageData] = useState<string>();
+
+  // load the image with axios
+  // we use this to have a nicer loading
+  // because otherwise the background looks weird
+  useEffect(() => {
+    (async () => {
+      const { data, headers } = await axios.get(img, {
+        responseType: "arraybuffer"
+      });
+      const base64 = Buffer.from(data, "binary").toString("base64");
+      const prefix = "data:" + headers["content-type"] + ";base64, ";
+
+      setImageData(prefix + base64);
+    })();
+  }, [img]);
+
   return (
     <Wrapper {...(props as any)}>
       <SquircleSvg
@@ -15,7 +33,7 @@ export default function Squircle({
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {img && (
+        {imageData && (
           <defs>
             <pattern
               id="squircle"
@@ -24,7 +42,7 @@ export default function Squircle({
               height="60"
             >
               <image
-                xlinkHref={img}
+                xlinkHref={imageData}
                 x="0"
                 y="0"
                 width="60"
@@ -36,7 +54,7 @@ export default function Squircle({
         )}
         <path
           d="M0 30C0 5.295 5.295 0 30 0C54.705 0 60 5.295 60 30C60 54.705 54.705 60 30 60C5.295 60 0 54.705 0 30Z"
-          fill={img ? "url(#squircle)" : "currentColor"}
+          fill={imageData ? "url(#squircle)" : "currentColor"}
         />
       </SquircleSvg>
       {children}
