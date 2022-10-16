@@ -1,9 +1,9 @@
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
-import { Card, Section, Text } from "@arconnect/components";
+import { Button, Card, Section, Text } from "@arconnect/components";
+import { EditIcon, PlusIcon, WalletIcon } from "@iconicicons/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStorage } from "@plasmohq/storage/hook";
 import { AnsUser, getAnsProfile } from "~utils/ans";
-import { WalletIcon } from "@iconicicons/react";
 import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
 import { useEffect, useState } from "react";
@@ -147,6 +147,13 @@ export default function WalletSwitcher({ open }: Props) {
                   </Avatar>
                 </Wallet>
               ))}
+              <ActionBar>
+                <Button small>
+                  <PlusIcon />
+                  Add wallet
+                </Button>
+                <EditButton />
+              </ActionBar>
             </WalletsCard>
           </Wrapper>
         </SwitcherPopover>
@@ -216,6 +223,8 @@ const walletAnimation = {
   }
 };
 
+const wallet_side_padding = "1.15rem";
+
 const Wallet = styled(motion.div).attrs<{ open: boolean }>((props) => ({
   variants: walletAnimation,
   animate: props.open ? "open" : "closed"
@@ -223,7 +232,7 @@ const Wallet = styled(motion.div).attrs<{ open: boolean }>((props) => ({
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.45rem 1.15rem;
+  padding: 0.45rem ${wallet_side_padding};
   border-radius: 12px;
   cursor: pointer;
   background-color: transparent;
@@ -286,6 +295,30 @@ const NoAvatarIcon = styled(WalletIcon)`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+`;
+
+const ActionBar = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const EditButton = styled(EditIcon)`
+  font-size: 1.25rem;
+  width: 1em;
+  height: 1em;
+  color: rgb(${(props) => props.theme.theme});
+  cursor: pointer;
+  padding: 0 ${wallet_side_padding};
+  transition: all 0.23s ease-in-out;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    transform: scale(0.8);
+  }
 `;
 
 interface Props {
