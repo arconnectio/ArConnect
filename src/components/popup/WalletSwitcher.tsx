@@ -199,7 +199,6 @@ export default function WalletSwitcher({ open }: Props) {
                   </WalletData>
                   <Avatar
                     img={!editMode ? wallet.avatar : undefined}
-                    editMode={editMode}
                     onClick={() => {
                       if (!editMode) return;
                       setStoredWallets((val) =>
@@ -373,11 +372,11 @@ const Balance = styled(Text).attrs({ noMargin: true })`
   }
 `;
 
-const Avatar = styled(Squircle)<{ editMode: boolean }>`
+const Avatar = styled(Squircle)`
   position: relative;
   width: 1.92rem;
   height: 1.92rem;
-  cursor: ${(props) => (props.editMode ? "pointer" : "default")};
+  cursor: pointer;
 `;
 
 const NoAvatarIcon = styled(WalletIcon)`

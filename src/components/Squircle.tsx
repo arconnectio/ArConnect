@@ -11,7 +11,8 @@ export default function Squircle({
 
   // load the image with axios
   // we use this to have a nicer loading
-  // because otherwise the background looks weird
+  // because otherwise the background looks
+  // weird for a second
   useEffect(() => {
     (async () => {
       const { data, headers } = await axios.get(img, {
@@ -20,6 +21,7 @@ export default function Squircle({
       const base64 = Buffer.from(data, "binary").toString("base64");
       const prefix = "data:" + headers["content-type"] + ";base64, ";
 
+      // append the base64 image string
       setImageData(prefix + base64);
     })();
   }, [img]);
