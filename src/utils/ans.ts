@@ -16,7 +16,7 @@ export async function getAnsProfile(address: string | string[]) {
 
     return user;
   } else {
-    return data.res.filter(({ user }) => address.includes(user));
+    return data.res.filter(({ user }) => address?.includes(user));
   }
 }
 

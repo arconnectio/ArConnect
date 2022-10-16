@@ -1,6 +1,12 @@
+import {
+  CheckIcon,
+  EditIcon,
+  PlusIcon,
+  TrashIcon,
+  WalletIcon
+} from "@iconicicons/react";
+import { Button, Card, Section, Text, Tooltip } from "@arconnect/components";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
-import { Button, Card, Section, Text } from "@arconnect/components";
-import { EditIcon, PlusIcon, WalletIcon } from "@iconicicons/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStorage } from "@plasmohq/storage/hook";
 import { AnsUser, getAnsProfile } from "~utils/ans";
@@ -20,7 +26,7 @@ export default function WalletSwitcher({ open }: Props) {
   });
 
   // all wallets added
-  const [storedWallets] = useStorage<StoredWallet[]>(
+  const [storedWallets, setStoredWallets] = useStorage<StoredWallet[]>(
     {
       key: "wallets",
       area: "local",
@@ -110,12 +116,24 @@ export default function WalletSwitcher({ open }: Props) {
     })();
   }, [wallets]);
 
+  // edit mode status
+  const [editMode, setEditMode] = useState(false);
+
+  useEffect(() => {
+    if (!open) setEditMode(false);
+  }, [open]);
+
   return (
     <AnimatePresence>
       {open && (
         <SwitcherPopover>
           <Wrapper>
-            <WalletsCard>
+            <WalletsCard
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+            >
               {wallets.map((wallet, i) => (
                 <Wallet
                   open={open}
@@ -124,7 +142,24 @@ export default function WalletSwitcher({ open }: Props) {
                 >
                   <WalletData>
                     <WalletTitle>
-                      <WalletName>{wallet.name}</WalletName>
+                      <WalletName>
+                        {(!editMode && wallet.name) || (
+                          <WalletNameEditor
+                            value={wallet.name}
+                            onChange={(e) =>
+                              setStoredWallets((val) =>
+                                val.map((w) => {
+                                  if (w.address !== wallet.address) return w;
+                                  return {
+                                    ...w,
+                                    nickname: e.target.value
+                                  };
+                                })
+                              )
+                            }
+                          />
+                        )}
+                      </WalletName>
                       <Text noMargin>
                         (
                         {formatAddress(
@@ -142,8 +177,18 @@ export default function WalletSwitcher({ open }: Props) {
                       <span>AR</span>
                     </Balance>
                   </WalletData>
-                  <Avatar img={wallet.avatar}>
-                    {!wallet.avatar && <NoAvatarIcon />}
+                  <Avatar
+                    img={!editMode ? wallet.avatar : undefined}
+                    editMode={editMode}
+                    onClick={() => {
+                      if (!editMode) return;
+                      setStoredWallets((val) =>
+                        val.filter((w) => w.address !== wallet.address)
+                      );
+                    }}
+                  >
+                    {!wallet.avatar && !editMode && <NoAvatarIcon />}
+                    {editMode && <DeleteIcon />}
                   </Avatar>
                 </Wallet>
               ))}
@@ -152,7 +197,12 @@ export default function WalletSwitcher({ open }: Props) {
                   <PlusIcon />
                   Add wallet
                 </AddWalletButton>
-                <EditButton />
+                <Tooltip content="Edit">
+                  <EditButton
+                    onClick={() => setEditMode((val) => !val)}
+                    as={editMode ? CheckIcon : undefined}
+                  />
+                </Tooltip>
               </ActionBar>
             </WalletsCard>
           </Wrapper>
@@ -193,6 +243,8 @@ const SwitcherPopover = styled(motion.div).attrs({
   top: calc(100% - 1.05rem);
   left: 0;
   right: 0;
+  z-index: 110;
+  cursor: default;
 `;
 
 const Wrapper = styled(Section)`
@@ -202,6 +254,7 @@ const Wrapper = styled(Section)`
 
 const WalletsCard = styled(Card)`
   padding: 0.3rem;
+  background-color: rgb(${(props) => props.theme.background});
 `;
 
 const walletAnimation = {
@@ -263,6 +316,18 @@ const WalletName = styled(Text).attrs({ noMargin: true })`
   color: rgb(${(props) => props.theme.primaryText});
 `;
 
+const WalletNameEditor = styled.input.attrs({
+  type: "text"
+})`
+  border: none;
+  outline: none;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  border-bottom: 1px dotted rgb(${(props) => props.theme.cardBorder});
+  width: 5rem;
+`;
+
 const ActiveIndicator = styled.span`
   display: block;
   width: 6px;
@@ -280,10 +345,11 @@ const Balance = styled(Text).attrs({ noMargin: true })`
   }
 `;
 
-const Avatar = styled(Squircle)`
+const Avatar = styled(Squircle)<{ editMode: boolean }>`
   position: relative;
   width: 1.92rem;
   height: 1.92rem;
+  cursor: ${(props) => (props.editMode ? "pointer" : "default")};
 `;
 
 const NoAvatarIcon = styled(WalletIcon)`
@@ -326,6 +392,17 @@ const EditButton = styled(EditIcon)`
   &:active {
     transform: scale(0.8);
   }
+`;
+
+const DeleteIcon = styled(TrashIcon)`
+  position: absolute;
+  font-size: 1.25rem;
+  color: #fff;
+  width: 1em;
+  height: 1em;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 `;
 
 interface Props {

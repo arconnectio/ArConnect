@@ -1,6 +1,6 @@
+import { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { ChevronDownIcon, GridIcon, UserIcon } from "@iconicicons/react";
 import { defaultGateway, concatGatewayURL } from "~applications/gateway";
-import { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { Section, Text, Tooltip } from "@arconnect/components";
 import { AnsUser, getAnsProfile } from "~utils/ans";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -74,7 +74,11 @@ export default function WalletHeader() {
   }, [ans]);
 
   return (
-    <Wrapper onClick={() => setOpen((val) => !val)}>
+    <Wrapper
+      onClick={() => {
+        if (!isOpen) setOpen(true);
+      }}
+    >
       <Wallet>
         <WalletIcon />
         <Text noMargin>{walletName}</Text>
@@ -93,6 +97,7 @@ export default function WalletHeader() {
         </WithArrow>
       </Wallet>
       <Avatar img={avatar}>{!avatar && <NoAvatarIcon />}</Avatar>
+      {isOpen && <CloseLayer onClick={() => setOpen(false)} />}
       <WalletSwitcher open={isOpen} />
     </Wrapper>
   );
@@ -106,6 +111,7 @@ const Wrapper = styled(Section)`
   padding-top: 2.2rem;
   padding-bottom: 1.75rem;
   cursor: pointer;
+  z-index: 100;
 `;
 
 const Wallet = styled.div`
@@ -168,4 +174,16 @@ const NoAvatarIcon = styled(UserIcon)`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+`;
+
+const CloseLayer = styled.div`
+  position: fixed;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  cursor: default;
 `;
