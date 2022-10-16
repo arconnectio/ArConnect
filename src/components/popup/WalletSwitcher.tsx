@@ -5,7 +5,14 @@ import {
   TrashIcon,
   WalletIcon
 } from "@iconicicons/react";
-import { Button, Card, Section, Text, Tooltip } from "@arconnect/components";
+import {
+  Button,
+  Card,
+  Section,
+  Text,
+  Tooltip,
+  useToasts
+} from "@arconnect/components";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -143,6 +150,9 @@ export default function WalletSwitcher({ open }: Props) {
     if (!open) setEditMode(false);
   }, [open]);
 
+  // toasts
+  const { setToast } = useToasts();
+
   return (
     <AnimatePresence>
       {open && (
@@ -158,7 +168,10 @@ export default function WalletSwitcher({ open }: Props) {
                 <Wallet
                   open={open}
                   key={i}
-                  onClick={() => setActiveAddress(wallet.address)}
+                  onClick={() => {
+                    if (editMode) return;
+                    setActiveAddress(wallet.address);
+                  }}
                 >
                   <WalletData>
                     <WalletTitle>
@@ -201,9 +214,17 @@ export default function WalletSwitcher({ open }: Props) {
                     img={!editMode ? wallet.avatar : undefined}
                     onClick={() => {
                       if (!editMode) return;
-                      setStoredWallets((val) =>
-                        val.filter((w) => w.address !== wallet.address)
-                      );
+                      setToast({
+                        content: `Remove ${wallet.name}?`,
+                        duration: 4000,
+                        action: {
+                          name: "YES",
+                          task: () =>
+                            setStoredWallets((val) =>
+                              val.filter((w) => w.address !== wallet.address)
+                            )
+                        }
+                      });
                     }}
                   >
                     {!wallet.avatar && !editMode && <NoAvatarIcon />}
