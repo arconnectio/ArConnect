@@ -1,10 +1,13 @@
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { Card, Section, Text } from "@arconnect/components";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStorage } from "@plasmohq/storage/hook";
 import { AnsUser, getAnsProfile } from "~utils/ans";
+import { WalletIcon } from "@iconicicons/react";
+import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
-import { Card } from "@arconnect/components";
 import { useEffect, useState } from "react";
+import Squircle from "~components/Squircle";
 import styled from "styled-components";
 import Arweave from "arweave";
 
@@ -43,9 +46,11 @@ export default function WalletSwitcher({ open }: Props) {
   );
 
   // load ANS data for wallet
+  const [loadedAns, setLoadedAns] = useState(false);
+
   useEffect(() => {
     (async () => {
-      if (wallets.length === 0) return;
+      if (wallets.length === 0 || loadedAns) return;
 
       const profiles = (await getAnsProfile(
         wallets.map((val) => val.address)
@@ -57,20 +62,26 @@ export default function WalletSwitcher({ open }: Props) {
 
           return {
             ...wallet,
-            name: profile?.currentLabel || wallet.name,
+            name: profile?.currentLabel
+              ? profile.currentLabel + ".ar"
+              : wallet.name,
             avatar: profile?.avatar
               ? concatGatewayURL(defaultGateway) + "/" + profile.avatar
               : undefined
           };
         })
       );
+
+      setLoadedAns(true);
     })();
   }, [wallets]);
 
   // load wallet balances
+  const [loadedBalances, setLoadedBalances] = useState(false);
+
   useEffect(() => {
     (async () => {
-      if (wallets.length === 0) return;
+      if (wallets.length === 0 || loadedBalances) return;
 
       const arweave = new Arweave(defaultGateway);
 
@@ -94,6 +105,8 @@ export default function WalletSwitcher({ open }: Props) {
           })
         );
       }
+
+      setLoadedBalances(true);
     })();
   }, [wallets]);
 
@@ -101,17 +114,41 @@ export default function WalletSwitcher({ open }: Props) {
     <AnimatePresence>
       {open && (
         <SwitcherPopover>
-          <Card smallPadding>
-            {wallets.map((wallet, i) => (
-              <motion.div
-                variants={walletAnimation}
-                animate={open ? "open" : "closed"}
-                key={i}
-              >
-                {wallet.name}
-              </motion.div>
-            ))}
-          </Card>
+          <Wrapper>
+            <WalletsCard>
+              {wallets.map((wallet, i) => (
+                <Wallet
+                  open={open}
+                  key={i}
+                  onClick={() => setActiveAddress(wallet.address)}
+                >
+                  <WalletData>
+                    <WalletTitle>
+                      <WalletName>{wallet.name}</WalletName>
+                      <Text noMargin>
+                        (
+                        {formatAddress(
+                          wallet.address,
+                          wallet.name.length > 14 ? 3 : 6
+                        )}
+                        )
+                      </Text>
+                      {wallet.address === activeAddress && <ActiveIndicator />}
+                    </WalletTitle>
+                    <Balance>
+                      {wallet.balance.toLocaleString(undefined, {
+                        maximumFractionDigits: 2
+                      })}
+                      <span>AR</span>
+                    </Balance>
+                  </WalletData>
+                  <Avatar img={wallet.avatar}>
+                    {!wallet.avatar && <NoAvatarIcon />}
+                  </Avatar>
+                </Wallet>
+              ))}
+            </WalletsCard>
+          </Wrapper>
         </SwitcherPopover>
       )}
     </AnimatePresence>
@@ -120,21 +157,21 @@ export default function WalletSwitcher({ open }: Props) {
 
 const openAnimation = {
   open: {
-    clipPath: "inset(0% 0% 0% 0% round 10px)",
+    opacity: 1,
+    y: 0,
+    scale: 1,
     transition: {
-      type: "spring",
-      bounce: 0,
-      duration: 0.7,
-      delayChildren: 0.3,
-      staggerChildren: 0.05
+      type: "easeInOut",
+      duration: 0.14
     }
   },
   closed: {
-    clipPath: "inset(10% 50% 90% 50% round 10px)",
+    opacity: 0,
+    y: -20,
+    scale: 0.8,
     transition: {
-      type: "spring",
-      bounce: 0,
-      duration: 0.3
+      type: "easeInOut",
+      duration: 0.14
     }
   }
 };
@@ -146,9 +183,18 @@ const SwitcherPopover = styled(motion.div).attrs({
   exit: "closed"
 })`
   position: absolute;
-  top: 100%;
+  top: calc(100% - 1.05rem);
   left: 0;
   right: 0;
+`;
+
+const Wrapper = styled(Section)`
+  padding-top: 0;
+  padding-bottom: 0;
+`;
+
+const WalletsCard = styled(Card)`
+  padding: 0.3rem;
 `;
 
 const walletAnimation = {
@@ -169,6 +215,78 @@ const walletAnimation = {
     }
   }
 };
+
+const Wallet = styled(motion.div).attrs<{ open: boolean }>((props) => ({
+  variants: walletAnimation,
+  animate: props.open ? "open" : "closed"
+}))<{ open: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 1.15rem;
+  border-radius: 12px;
+  cursor: pointer;
+  background-color: transparent;
+  transition: all 0.23s ease-in-out;
+
+  &:hover {
+    background-color: rgb(${(props) => props.theme.cardBorder}, 0.65);
+  }
+
+  &:active {
+    transform: scale(0.86);
+  }
+`;
+
+const WalletData = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.13rem;
+`;
+
+const WalletTitle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+`;
+
+const WalletName = styled(Text).attrs({ noMargin: true })`
+  color: rgb(${(props) => props.theme.primaryText});
+`;
+
+const ActiveIndicator = styled.span`
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 100%;
+  background-color: #14d110;
+`;
+
+const Balance = styled(Text).attrs({ noMargin: true })`
+  font-size: 0.84rem;
+
+  span {
+    font-size: 0.7em;
+    text-transform: uppercase;
+  }
+`;
+
+const Avatar = styled(Squircle)`
+  position: relative;
+  width: 1.92rem;
+  height: 1.92rem;
+`;
+
+const NoAvatarIcon = styled(WalletIcon)`
+  position: absolute;
+  font-size: 1.2rem;
+  width: 1em;
+  height: 1em;
+  color: #fff;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`;
 
 interface Props {
   open: boolean;
