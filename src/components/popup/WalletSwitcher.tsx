@@ -148,10 +148,10 @@ export default function WalletSwitcher({ open }: Props) {
                 </Wallet>
               ))}
               <ActionBar>
-                <Button small>
+                <AddWalletButton>
                   <PlusIcon />
                   Add wallet
-                </Button>
+                </AddWalletButton>
                 <EditButton />
               </ActionBar>
             </WalletsCard>
@@ -300,16 +300,23 @@ const NoAvatarIcon = styled(WalletIcon)`
 const ActionBar = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.45rem ${wallet_side_padding};
+`;
+
+const AddWalletButton = styled(Button).attrs({
+  fullWidth: true,
+  small: true
+})`
+  padding: 0.72rem 0;
 `;
 
 const EditButton = styled(EditIcon)`
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   width: 1em;
   height: 1em;
   color: rgb(${(props) => props.theme.theme});
   cursor: pointer;
-  padding: 0 ${wallet_side_padding};
   transition: all 0.23s ease-in-out;
 
   &:hover {
