@@ -1,12 +1,15 @@
+import { ChevronDownIcon, GridIcon, UserIcon } from "@iconicicons/react";
+import { defaultGateway, concatGatewayURL } from "~applications/gateway";
+import { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { Section, Text, Tooltip } from "@arconnect/components";
-import { ChevronDownIcon, GridIcon } from "@iconicicons/react";
+import type { AnsUser, AnsUsers } from "~utils/faces";
 import { useStorage } from "@plasmohq/storage/hook";
-import { MouseEventHandler, useState } from "react";
 import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
 import Squircle from "~components/Squircle";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
+import axios from "axios";
 
 export default function WalletSwitcher() {
   // current address
@@ -35,26 +38,63 @@ export default function WalletSwitcher() {
     copy(activeAddress);
   };
 
-  // fetch ANS name
-  // TODO
+  // fetch ANS name (cached in storage)
+  const [ans, setAns] = useStorage<AnsUser>({
+    key: "ans_data",
+    area: "local",
+    isSecret: true
+  });
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await axios.get<AnsUsers>(
+        "https://ans-stats.decent.land/users"
+      );
+
+      setAns(data.res.find(({ user }) => user === activeAddress));
+    })();
+  }, [activeAddress]);
+
+  // wallet name
+  const walletName = useMemo(() => {
+    if (!ans?.currentLabel) {
+      const wallet = wallets.find(({ address }) => address === activeAddress);
+
+      return wallet?.nickname || "Wallet";
+    }
+
+    return ans.currentLabel + ".ar";
+  }, [wallets, ans, activeAddress]);
+
+  // profile picture
+  const avatar = useMemo(() => {
+    if (!!ans?.avatar) {
+      return concatGatewayURL(defaultGateway) + "/" + ans.avatar;
+    }
+
+    return undefined;
+  }, [ans]);
 
   return (
     <Wrapper onClick={() => setOpen((val) => !val)}>
       <Wallet>
         <WalletIcon />
-        <Text noMargin>
-          {wallets.find(({ address }) => address === activeAddress)?.nickname}
-        </Text>
+        <Text noMargin>{walletName}</Text>
         <WithArrow>
           <Tooltip content="Click to copy" position="bottom">
             <WalletAddress onClick={copyAddress}>
-              ({formatAddress(activeAddress ?? "", 6)})
+              (
+              {formatAddress(
+                activeAddress ?? "",
+                walletName.length > 14 ? 3 : 6
+              )}
+              )
             </WalletAddress>
           </Tooltip>
           <ExpandArrow expanded={isOpen} />
         </WithArrow>
       </Wallet>
-      <Avatar />
+      <Avatar img={avatar}>{!avatar && <NoAvatarIcon />}</Avatar>
     </Wrapper>
   );
 }
@@ -114,6 +154,18 @@ const ExpandArrow = styled(ChevronDownIcon)<{ expanded: boolean }>`
 `;
 
 const Avatar = styled(Squircle)`
+  position: relative;
   width: 2.1rem;
   height: 2.1rem;
+`;
+
+const NoAvatarIcon = styled(UserIcon)`
+  position: absolute;
+  font-size: 1.4rem;
+  width: 1em;
+  height: 1em;
+  color: #fff;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 `;
