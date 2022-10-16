@@ -115,7 +115,7 @@ export default function WalletHeader() {
       </Wallet>
       <Avatar img={avatar}>{!avatar && <NoAvatarIcon />}</Avatar>
       {isOpen && <CloseLayer onClick={() => setOpen(false)} />}
-      <WalletSwitcher open={isOpen} />
+      <WalletSwitcher open={isOpen} close={() => setOpen(false)} />
     </Wrapper>
   );
 }

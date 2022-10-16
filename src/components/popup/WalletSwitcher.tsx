@@ -25,7 +25,7 @@ import Squircle from "~components/Squircle";
 import styled from "styled-components";
 import Arweave from "arweave";
 
-export default function WalletSwitcher({ open }: Props) {
+export default function WalletSwitcher({ open, close }: Props) {
   // current address
   const [activeAddress, setActiveAddress] = useStorage<string>({
     key: "active_address",
@@ -171,6 +171,12 @@ export default function WalletSwitcher({ open }: Props) {
                   onClick={() => {
                     if (editMode) return;
                     setActiveAddress(wallet.address);
+                    setToast({
+                      type: "success",
+                      content: `Switched to ${wallet.name}`,
+                      duration: 1100
+                    });
+                    close();
                   }}
                 >
                   <WalletData>
@@ -227,8 +233,8 @@ export default function WalletSwitcher({ open }: Props) {
                       });
                     }}
                   >
-                    {!wallet.avatar && !editMode && <NoAvatarIcon />}
-                    {editMode && <DeleteIcon />}
+                    {(editMode && <DeleteIcon />) ||
+                      (!wallet.avatar && <NoAvatarIcon />)}
                   </Avatar>
                 </Wallet>
               ))}
@@ -455,6 +461,7 @@ const DeleteIcon = styled(TrashIcon)`
 
 interface Props {
   open: boolean;
+  close: () => any;
 }
 
 interface DisplayedWallet {

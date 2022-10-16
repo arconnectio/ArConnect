@@ -15,6 +15,10 @@ export default function Squircle({
   // weird for a second
   useEffect(() => {
     (async () => {
+      if (!img) {
+        return setImageData(img);
+      }
+
       const { data, headers } = await axios.get(img, {
         responseType: "arraybuffer"
       });
