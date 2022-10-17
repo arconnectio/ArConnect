@@ -1,12 +1,21 @@
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import Application, { AppInfo } from "~applications/application";
 import Graph, { GraphText } from "~components/popup/Graph";
-import { EyeIcon, EyeOffIcon } from "@iconicicons/react";
+import { defaultGateway } from "~applications/gateway";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
+import { Spacer } from "@arconnect/components";
 import { getAppURL } from "~utils/format";
+import {
+  ArrowDownLeftIcon,
+  ArrowUpRightIcon,
+  EyeIcon,
+  EyeOffIcon,
+  GlobeIcon,
+  SettingsIcon
+} from "@iconicicons/react";
 import useActiveTab from "~utils/useActiveTab";
 import Squircle from "~components/Squircle";
+import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
@@ -89,7 +98,25 @@ export default function Balance() {
   }, [activeApp]);
 
   return (
-    <Graph>
+    <Graph
+      actionBar={
+        <>
+          <Spacer x={0.18} />
+          <ActionButton />
+          <ActionButton as={ArrowDownLeftIcon} />
+          <ActionButton as={GlobeIcon} />
+          <ActionButton
+            as={SettingsIcon}
+            onClick={() =>
+              browser.tabs.create({
+                url: browser.runtime.getURL("tabs/dashboard.html")
+              })
+            }
+          />
+          <Spacer x={0.18} />
+        </>
+      }
+    >
       <BalanceHead>
         <div>
           <BalanceText title noMargin>
@@ -118,7 +145,7 @@ export default function Balance() {
         {activeAppData && (
           <ActiveAppIcon>
             <img
-              src={concatGatewayURL(defaultGateway) + "/" + activeAppData.logo}
+              src={activeAppData.logo}
               alt={activeAppData.name || ""}
               draggable={false}
             />
@@ -185,5 +212,22 @@ const ActiveAppIcon = styled(Squircle)`
     left: 50%;
     user-select: none;
     transform: translate(-50%, -50%);
+  }
+`;
+
+const ActionButton = styled(ArrowUpRightIcon)`
+  color: #fff;
+  font-size: 1.9rem;
+  width: 1em;
+  height: 1em;
+  cursor: pointer;
+  transition: all 0.23s ease-in-out;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    transform: scale(0.87);
   }
 `;

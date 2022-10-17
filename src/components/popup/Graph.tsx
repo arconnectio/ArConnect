@@ -52,9 +52,8 @@ const ChildrenWrapper = styled.div`
 const ActionBar = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 2rem 1.2rem;
+  justify-content: space-between;
+  padding: 1rem 1.2rem;
   z-index: 1;
 `;
 
