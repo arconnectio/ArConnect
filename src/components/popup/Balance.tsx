@@ -116,6 +116,7 @@ export default function Balance() {
           <Spacer x={0.18} />
         </>
       }
+      data={[0, 20, 10, 40, 30, 50, 60, 80, 55]}
     >
       <BalanceHead>
         <div>
