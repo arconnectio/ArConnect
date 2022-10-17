@@ -20,7 +20,7 @@ import {
   Title,
   Wrapper
 } from "./devtools";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import copy from "copy-to-clipboard";
 import Arweave from "arweave";
 import axios from "axios";
@@ -101,17 +101,22 @@ function ArLocal() {
   // token qty to add
   const testnetQty = useInput("1");
 
+  // arweave client
+  const arweave = useMemo(() => {
+    // construct client
+    const gatewayURL = new URL(lastUsedTestnet);
+    const arweave = new Arweave({
+      host: gatewayURL.host,
+      port: gatewayURL.port,
+      protocol: gatewayURL.protocol.replace(":", "")
+    });
+
+    return arweave;
+  }, [lastUsedTestnet]);
+
   // mint new AR
   async function mint() {
     try {
-      // construct client
-      const gatewayURL = new URL(lastUsedTestnet);
-      const arweave = new Arweave({
-        host: gatewayURL.host,
-        port: gatewayURL.port,
-        protocol: gatewayURL.protocol.replace(":", "")
-      });
-
       // mint tokens
       const { status, statusText } = await arweave.api.get(
         `/mint/${activeAddress}/${arweave.ar.arToWinston(testnetQty.state)}`
@@ -137,6 +142,37 @@ function ArLocal() {
         duration: 2400
       });
     }
+  }
+
+  // mine
+  const [mining, setMining] = useState(false);
+
+  async function mine() {
+    setMining(true);
+
+    try {
+      // mine testnet
+      const { status, statusText } = await arweave.api.get("mine");
+
+      if (status !== 200) {
+        throw new Error(statusText);
+      }
+
+      setToast({
+        type: "success",
+        content: "Mined",
+        duration: 2350
+      });
+    } catch (e) {
+      console.log("Failed to mine", e);
+      setToast({
+        type: "error",
+        content: "Failed to mine",
+        duration: 2400
+      });
+    }
+
+    setMining(false);
   }
 
   return (
@@ -218,6 +254,16 @@ function ArLocal() {
                 Mint
               </Button>
             </InputWithBtn>
+            <Spacer y={1} />
+            <Text heading noMargin>
+              Create Transaction
+            </Text>
+            <Text>Send a transaction with tags and data</Text>
+            <Button fullWidth>Send Transaction</Button>
+            <Spacer y={1} />
+            <Button fullWidth secondary loading={mining} onClick={mine}>
+              Mine
+            </Button>
           </>
         )}
       </CardBody>
