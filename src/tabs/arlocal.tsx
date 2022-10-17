@@ -6,7 +6,8 @@ import {
   useInput,
   Text,
   InputStatus,
-  useToasts
+  useToasts,
+  FileInput
 } from "@arconnect/components";
 import styled, { css, keyframes } from "styled-components";
 import { GlobalStyle, useTheme } from "~utils/theme";
@@ -20,7 +21,7 @@ import {
   Title,
   Wrapper
 } from "./devtools";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import copy from "copy-to-clipboard";
 import Arweave from "arweave";
 import axios from "axios";
@@ -200,6 +201,87 @@ function ArLocal() {
   const txTargetInput = useInput();
   const txQtyInput = useInput();
   const [tags, setTags] = useState<{ name: string; value: string }[]>([]);
+  const [sendingTx, setSendingTx] = useState(false);
+  const fileInput = useRef<HTMLInputElement>();
+
+  async function sendTransaction() {
+    if (sendingTx || !arweave) return;
+
+    // files in the file input
+    const files = fileInput?.current?.files;
+
+    // check required fields
+    if (txQtyInput.state === "" && txTargetInput.state !== "") {
+      return setToast({
+        type: "error",
+        content: "Please fill out the quantity field",
+        duration: 2400
+      });
+    } else if (txQtyInput.state !== "" && txTargetInput.state === "") {
+      return setToast({
+        type: "error",
+        content: "Please fill out the target field",
+        duration: 2400
+      });
+    } else if (
+      txQtyInput.state === "" &&
+      txTargetInput.state === "" &&
+      (!files || files.length === 0)
+    ) {
+      return setToast({
+        type: "error",
+        content: "Please add a file",
+        duration: 2400
+      });
+    }
+
+    setSendingTx(true);
+
+    try {
+      // create tx
+      const transaction = await arweave.createTransaction({
+        target: txTargetInput.state,
+        quantity: arweave.ar.arToWinston(txQtyInput.state)
+        // TODO
+        // data:
+      });
+
+      // add tags
+      for (const tag of tags) {
+        if (tag.name === "" || tag.value === "") continue;
+
+        transaction.addTag(tag.name, tag.value);
+      }
+
+      // TODO: request password if the wallets are not decrypted
+
+      // sign tx
+      await arweave.transactions.sign(transaction);
+
+      // post tx
+      const uploader = await arweave.transactions.getUploader(transaction);
+
+      while (!uploader.isComplete) {
+        await uploader.uploadChunk();
+      }
+
+      // notify the user
+      setToast({
+        type: "success",
+        content: "Sent transaction",
+        duration: 2400
+      });
+    } catch (e) {
+      console.log("Error sending tx", e);
+      setToast({
+        type: "error",
+        content: "Could not send transaction",
+        duration: 2400
+      });
+    }
+
+    setSendingTx(false);
+  }
 
   return (
     <Wrapper>
@@ -376,7 +458,12 @@ function ArLocal() {
               <PlusIcon /> Add tag
             </Button>
             <Spacer y={1} />
-            <Button fullWidth>Send Transaction</Button>
+            <Text>Data</Text>
+            <FileInput>Drag and drop a file...</FileInput>
+            <Spacer y={1.35} />
+            <Button fullWidth loading={sendingTx} onClick={sendTransaction}>
+              Send Transaction
+            </Button>
             <Spacer y={1} />
             <Button fullWidth secondary loading={mining} onClick={mine}>
               Mine
