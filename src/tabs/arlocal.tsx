@@ -11,7 +11,7 @@ import {
 import styled, { css, keyframes } from "styled-components";
 import { GlobalStyle, useTheme } from "~utils/theme";
 import { useStorage } from "@plasmohq/storage/hook";
-import { CopyIcon, RefreshIcon } from "@iconicicons/react";
+import { CopyIcon, PlusIcon, RefreshIcon, TrashIcon } from "@iconicicons/react";
 import { formatAddress } from "~utils/format";
 import {
   CardBody,
@@ -175,6 +175,11 @@ function ArLocal() {
     setMining(false);
   }
 
+  // tx data
+  const txTargetInput = useInput();
+  const txQtyInput = useInput();
+  const [tags, setTags] = useState<{ name: string; value: string }[]>([]);
+
   return (
     <Wrapper>
       <CardBody>
@@ -259,6 +264,97 @@ function ArLocal() {
               Create Transaction
             </Text>
             <Text>Send a transaction with tags and data</Text>
+            <Inputs>
+              <HalfInputWrapper>
+                <Input
+                  type="text"
+                  label="Target"
+                  placeholder="Leave empty for none..."
+                  fullWidth
+                  {...txTargetInput.bindings}
+                />
+              </HalfInputWrapper>
+              <HalfInputWrapper>
+                <Input
+                  type="number"
+                  label="Amount"
+                  placeholder="Leave empty for none..."
+                  fullWidth
+                  {...txQtyInput.bindings}
+                />
+              </HalfInputWrapper>
+            </Inputs>
+            <Spacer y={1} />
+            <Text>Tags</Text>
+            {tags.map((tag, i) => (
+              <div key={i}>
+                <InputWithBtn>
+                  <InputWrapper>
+                    <Input
+                      type="text"
+                      label="Name"
+                      placeholder="Tag name..."
+                      fullWidth
+                      value={tag.name}
+                      onChange={(e) =>
+                        setTags((val) =>
+                          val.map((t, j) => {
+                            if (j !== i) return t;
+
+                            return {
+                              ...t,
+                              // @ts-expect-error
+                              name: e.target.value
+                            };
+                          })
+                        )
+                      }
+                    />
+                  </InputWrapper>
+                  <InputWrapper>
+                    <Input
+                      type="text"
+                      label="Value"
+                      placeholder="Tag value..."
+                      fullWidth
+                      value={tag.value}
+                      onChange={(e) =>
+                        setTags((val) =>
+                          val.map((t, j) => {
+                            if (j !== i) return t;
+
+                            return {
+                              ...t,
+                              // @ts-expect-error
+                              value: e.target.value
+                            };
+                          })
+                        )
+                      }
+                    />
+                  </InputWrapper>
+                  <RefreshButton
+                    secondary
+                    onClick={() =>
+                      setTags((val) => val.filter((_, j) => j !== i))
+                    }
+                  >
+                    <TrashIcon />
+                  </RefreshButton>
+                </InputWithBtn>
+                <Spacer y={1} />
+              </div>
+            ))}
+            <Button
+              fullWidth
+              secondary
+              onClick={() =>
+                setTags((val) => [...val, { name: "", value: "" }])
+              }
+            >
+              <PlusIcon /> Add tag
+            </Button>
+            <Spacer y={1} />
             <Button fullWidth>Send Transaction</Button>
             <Spacer y={1} />
             <Button fullWidth secondary loading={mining} onClick={mine}>
@@ -279,6 +375,16 @@ const InputWithBtn = styled.div`
 
 const InputWrapper = styled.div`
   width: 100%;
+`;
+
+const Inputs = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const HalfInputWrapper = styled.div`
+  width: 48%;
 `;
 
 const rotate = keyframes`
