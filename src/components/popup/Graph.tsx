@@ -61,21 +61,38 @@ const ActionBar = styled.div`
 
 const Chart = ({ data }: ChartProps) => {
   const theme = useTheme();
+
+  // graph dimensions
   const height = 180;
   const width = 500;
+
+  // where the graph drawing starts from
   const baseLevel = 116;
+
   const path = useMemo(() => {
     const max = Math.max(...data);
+    const min = Math.min(...data);
 
     return (
       `M0 ${baseLevel}` +
       data
-        .map(
-          (val, i) =>
-            `L${(width / data.length) * i} ${
-              ((height - baseLevel) / 100) * ((val / max) * 100)
-            }`
-        )
+        .map((val, i) => {
+          // vertical pos
+          // we calculate it like this:
+          // 1. Subtract the minimum value from the val & max
+          // 2. Get the ratio of the value / max element of the dataset
+          // 3. Get the pixel size of 1% of the graph height
+          // 4. Multiply the calculated ratio with the 1% size
+          const v =
+            ((val - min) / (max - min)) * 100 * ((height - baseLevel) / 100);
+
+          // horizontal pos
+          // we calculate it by dividing it with our data size to
+          // split the total length into sections of equal width
+          const h = (width / (data.length - 1)) * i;
+
+          return "L" + h + " " + v;
+        })
         .join(" ") +
       ` L${width} ${baseLevel} Z`
     );

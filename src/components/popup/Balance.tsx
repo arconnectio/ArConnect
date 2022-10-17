@@ -13,6 +13,7 @@ import {
   GlobeIcon,
   SettingsIcon
 } from "@iconicicons/react";
+import type ArdbTransaction from "ardb/lib/models/transaction";
 import useActiveTab from "~utils/useActiveTab";
 import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
@@ -20,6 +21,7 @@ import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
 import axios from "axios";
+import ArDB from "ardb";
 
 export default function Balance() {
   // grab address
@@ -97,6 +99,24 @@ export default function Balance() {
     })();
   }, [activeApp]);
 
+  // balance history
+  const [historicalBalance, setHistoricalBalance] = useStorage<number[]>(
+    {
+      key: "historical_balance",
+      area: "local",
+      isSecret: true
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (!activeAddress) return;
+
+    balanceHistory(activeAddress)
+      .then((res) => setHistoricalBalance(res))
+      .catch();
+  }, [activeAddress]);
+
   return (
     <Graph
       actionBar={
@@ -116,7 +136,7 @@ export default function Balance() {
           <Spacer x={0.18} />
         </>
       }
-      data={[0, 20, 10, 40, 30, 50, 60, 80, 55]}
+      data={historicalBalance}
     >
       <BalanceHead>
         <div>
@@ -155,6 +175,53 @@ export default function Balance() {
       </BalanceHead>
     </Graph>
   );
+}
+
+async function balanceHistory(address: string) {
+  const arweave = new Arweave(defaultGateway);
+  const gql = new ArDB(arweave);
+
+  // find txs coming in and going out
+  const inTxs = (await gql
+    .search()
+    .to(address)
+    .limit(100)
+    .find()) as ArdbTransaction[];
+  const outTxs = (await gql
+    .search()
+    .from(address)
+    .limit(100)
+    .find()) as ArdbTransaction[];
+
+  // sort txs
+  const txs = inTxs
+    .concat(outTxs)
+    .filter((tx) => !!tx?.block?.timestamp)
+    .sort((a, b) => b.block.timestamp - a.block.timestamp)
+    .slice(0, 100);
+
+  // get initial balance
+  let balance = parseFloat(
+    arweave.ar.winstonToAr(await arweave.wallets.getBalance(address))
+  );
+
+  const res = [balance];
+
+  // go back in time by tx and calculate
+  // historical balance
+  for (const tx of txs) {
+    balance += parseFloat(tx.fee.ar);
+
+    if (tx.owner.address === address) {
+      balance += parseFloat(tx.quantity.ar);
+    } else {
+      balance -= parseFloat(tx.quantity.ar);
+    }
+
+    res.push(balance);
+  }
+
+  return res;
 }
 
 const BalanceHead = styled.div`
