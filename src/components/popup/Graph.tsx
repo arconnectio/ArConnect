@@ -67,7 +67,7 @@ const Chart = ({ data }: ChartProps) => {
   const width = 500;
 
   // where the graph drawing starts from
-  const baseLevel = 116;
+  const baseLevel = 101;
 
   const path = useMemo(() => {
     const max = Math.max(...data);
@@ -116,7 +116,12 @@ const Chart = ({ data }: ChartProps) => {
         strokeWidth="2"
         mask="url(#path-1-inside-1_246_144)"
       />
-      <rect y="115" width={width} height="100" fill={`rgb(${theme.theme})`} />
+      <rect
+        y={baseLevel - 1}
+        width={width}
+        height="115"
+        fill={`rgb(${theme.theme})`}
+      />
     </ChartSvg>
   );
 };
