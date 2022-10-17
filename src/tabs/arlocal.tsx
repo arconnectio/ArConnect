@@ -5,12 +5,14 @@ import {
   Spacer,
   useInput,
   Text,
-  InputStatus
+  InputStatus,
+  useToasts
 } from "@arconnect/components";
 import styled, { css, keyframes } from "styled-components";
 import { GlobalStyle, useTheme } from "~utils/theme";
 import { useStorage } from "@plasmohq/storage/hook";
 import { CopyIcon, RefreshIcon } from "@iconicicons/react";
+import { formatAddress } from "~utils/format";
 import {
   CardBody,
   ConnectionStatus,
@@ -19,8 +21,9 @@ import {
   Wrapper
 } from "./devtools";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import copy from "copy-to-clipboard";
+import Arweave from "arweave";
+import axios from "axios";
 
 export default function Popup() {
   const theme = useTheme();
@@ -87,6 +90,53 @@ export default function Popup() {
   const [arLocalCommandStatus, setArLocalCommandStatus] =
     useState<InputStatus>("default");
 
+  // active address
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    area: "local",
+    isSecret: true
+  });
+
+  // toasts
+  const { setToast } = useToasts();
+
+  // token qty to add
+  const testnetQty = useInput("1");
+
+  // mint new AR
+  async function mint() {
+    try {
+      // construct client
+      const gatewayURL = new URL(lastUsedTestnet);
+      const arweave = new Arweave({
+        host: gatewayURL.host,
+        port: gatewayURL.port,
+        protocol: gatewayURL.protocol
+      });
+
+      // mint tokens
+      await arweave.api.get(
+        `/mint/${activeAddress}/${arweave.ar.arToWinston(testnetQty.state)}`
+      );
+
+      setToast({
+        type: "success",
+        content: `Minted ${testnetQty.state} AR to ${formatAddress(
+          activeAddress,
+          8
+        )}`,
+        duration: 3000
+      });
+    } catch (e) {
+      console.log("Failed to mint tokens", e);
+      setToast({
+        type: "error",
+        content: "Failed to mint tokens",
+        duration: 2400
+      });
+    }
+  }
+
   return (
     <Provider theme={theme}>
       <GlobalStyle />
@@ -102,7 +152,7 @@ export default function Popup() {
             <ConnectionStatus connected={online} />
           </ConnectionText>
           <Spacer y={1.5} />
-          <TestnetUrl>
+          <InputWithBtn>
             <InputWrapper>
               <Input
                 {...testnetInput.bindings}
@@ -119,15 +169,15 @@ export default function Popup() {
             >
               <RefreshIcon />
             </RefreshButton>
-          </TestnetUrl>
+          </InputWithBtn>
           <Spacer y={1} />
-          {!online && (
+          {(!online && (
             <>
               <Text noMargin>
                 Don't have ArLocal installed? Run it like this:
               </Text>
               <Spacer y={0.4} />
-              <TestnetUrl>
+              <InputWithBtn>
                 <InputWrapper>
                   <Input
                     type="text"
@@ -146,8 +196,28 @@ export default function Popup() {
                 >
                   <CopyIcon />
                 </RefreshButton>
-              </TestnetUrl>
+              </InputWithBtn>
               <Spacer y={1} />
+            </>
+          )) || (
+            <>
+              <Text heading noMargin>
+                Mint AR
+              </Text>
+              <Text>Add testnet tokens to your wallet</Text>
+              <InputWithBtn>
+                <InputWrapper>
+                  <Input
+                    {...testnetQty.bindings}
+                    type="number"
+                    placeholder="AR qty..."
+                    fullWidth
+                  />
+                </InputWrapper>
+                <Button secondary onClick={mint}>
+                  Mint
+                </Button>
+              </InputWithBtn>
             </>
           )}
         </CardBody>
@@ -156,7 +226,7 @@ export default function Popup() {
   );
 }
 
-const TestnetUrl = styled.div`
+const InputWithBtn = styled.div`
   display: flex;
   align-items: flex-end;
   gap: 0.8rem;
@@ -176,7 +246,6 @@ const rotate = keyframes`
   }
 `;
 
-// @ts-ignore
 const rotation = css`
   ${rotate} 0.5s linear infinite
 `;
