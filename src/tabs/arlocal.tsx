@@ -74,10 +74,31 @@ function ArLocal() {
     await setLastUsedTestnet(testnetUrl);
 
     try {
-      await axios.get(testnetUrl);
+      const { data, status, statusText } = await axios.get<{
+        network: string;
+      }>(testnetUrl);
+
+      // check status
+      if (status !== 200) {
+        throw new Error(statusText);
+      }
+
+      // check if testnet
+      if (!data.network.includes("arlocal")) {
+        setToast({
+          type: "error",
+          content: "Gateway is not a testnet network",
+          duration: 3000
+        });
+
+        throw new Error(
+          `Gateway not testnet. Gateway network type: ${data.network}`
+        );
+      }
 
       setOnline(true);
-    } catch {
+    } catch (e) {
+      console.log("Failed to load gateway", e);
       setOnline(false);
     }
 
