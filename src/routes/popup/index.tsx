@@ -1,14 +1,11 @@
-import { Text } from "@arconnect/components";
 import WalletHeader from "~components/popup/WalletHeader";
-import Graph from "~components/popup/Graph";
+import Balance from "~components/popup/Balance";
 
 export default function Home() {
   return (
     <>
       <WalletHeader />
-      <Graph>
-        <Text title>231,539.23</Text>
-      </Graph>
+      <Balance />
     </>
   );
 }

@@ -1,6 +1,6 @@
+import { Section, Text } from "@arconnect/components";
 import styled, { useTheme } from "styled-components";
 import type { HTMLProps, ReactNode } from "react";
-import { Section } from "@arconnect/components";
 
 export default function Graph({
   children,
@@ -8,7 +8,7 @@ export default function Graph({
   ...props
 }: HTMLProps<HTMLDivElement> & GraphProps) {
   return (
-    <Section size="slim">
+    <GraphSection size="slim">
       <Wrapper {...(props as any)}>
         <Content>
           <ChildrenWrapper>{children}</ChildrenWrapper>
@@ -16,7 +16,7 @@ export default function Graph({
         </Content>
         <Chart />
       </Wrapper>
-    </Section>
+    </GraphSection>
   );
 }
 
@@ -24,22 +24,29 @@ interface GraphProps {
   actionBar?: ReactNode;
 }
 
+const GraphSection = styled(Section)`
+  padding-top: 0;
+`;
+
 const Wrapper = styled.div`
   position: relative;
   background-color: #000;
   border-radius: 40px;
   overflow: hidden;
+  z-index: 1;
 `;
 
 const Content = styled.div`
   display: flex;
   flex-direction: column;
   color: #fff;
-  z-index: 10;
+  z-index: 20;
+  gap: 2.75rem;
 `;
 
 const ChildrenWrapper = styled.div`
-  padding: 2rem;
+  padding: 1.2rem;
+  z-index: 1;
 `;
 
 const ActionBar = styled.div`
@@ -47,7 +54,8 @@ const ActionBar = styled.div`
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  padding: 2rem;
+  padding: 2rem 1.2rem;
+  z-index: 1;
 `;
 
 const Chart = () => {
@@ -82,4 +90,14 @@ const ChartSvg = styled.svg`
   left: 0;
   right: 0;
   width: 100%;
+  z-index: -1;
+`;
+
+export const GraphText = styled(Text)`
+  line-height: 1em;
+  color: #fff;
+
+  span {
+    font-size: 0.6em;
+  }
 `;

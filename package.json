@@ -21,7 +21,8 @@
     "default_locale": "en",
     "permissions": [
       "alarms",
-      "contextMenus"
+      "contextMenus",
+      "tabs"
     ]
   },
   "dependencies": {
