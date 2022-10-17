@@ -102,24 +102,26 @@ export default function Devtools() {
   );
 }
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   padding: 1rem;
   width: calc(100vw - 1rem * 2);
   height: calc(100vh - 1rem * 2);
 `;
 
-const CardBody = styled(Card)`
+export const CardBody = styled(Card)`
   min-height: calc(100% - 1rem * 2);
 `;
 
-const Title = styled(Text).attrs({
+export const Title = styled(Text).attrs({
   subtitle: true,
   noMargin: true
 })`
+  display: flex;
+  align-items: flex-start;
   font-weight: 600;
 `;
 
-const ConnectionText = styled(Text).attrs({
+export const ConnectionText = styled(Text).attrs({
   noMargin: true
 })`
   display: flex;
@@ -127,7 +129,7 @@ const ConnectionText = styled(Text).attrs({
   gap: 0.34rem;
 `;
 
-const ConnectionStatus = styled.span<{ connected: boolean }>`
+export const ConnectionStatus = styled.span<{ connected: boolean }>`
   width: 6px;
   height: 6px;
   border-radius: 100%;
