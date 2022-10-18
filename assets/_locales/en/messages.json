@@ -288,5 +288,9 @@
   "resetSpentQty": {
     "message": "Reset spent quantity",
     "description": "Reset tooltip text"
+  },
+  "limit": {
+    "message": "Limit",
+    "description": "Limit text"
   }
 }

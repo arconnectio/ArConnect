@@ -1,18 +1,39 @@
 import { permissionData, PermissionType } from "~applications/permissions";
-import { defaultGateway } from "~applications/gateway";
 import { Spacer, Text, Tooltip } from "@arconnect/components";
+import { CheckIcon, EditIcon } from "@iconicicons/react";
+import { defaultGateway } from "~applications/gateway";
 import PermissionCheckbox, {
   PermissionDescription
 } from "~components/auth/PermissionCheckbox";
+import { useMemo, useState } from "react";
 import type Application from "~applications/application";
 import browser from "webextension-polyfill";
-import Arweave from "arweave";
 import styled from "styled-components";
+import Arweave from "arweave";
 
 export default function AppSettings({ app }: Props) {
   // app settings
   const [settings, updateSettings] = app.hook();
   const arweave = new Arweave(defaultGateway);
+
+  // allowance spent qty
+  const spent = useMemo(() => {
+    const val = settings?.allowance?.spent;
+
+    if (!val) return "0";
+    return val.toString();
+  }, [settings]);
+
+  // allowance limit
+  const limit = useMemo(() => {
+    const val = settings?.allowance?.limit;
+
+    if (!val) return arweave.ar.arToWinston("0.1");
+    return val.toString();
+  }, [settings]);
+
+  // editing limit
+  const [editingLimit, setEditingLimit] = useState(false);
 
   if (!settings) return <></>;
 
@@ -70,10 +91,10 @@ export default function AppSettings({ app }: Props) {
         </PermissionDescription>
       </PermissionCheckbox>
       <Spacer y={0.8} />
-      <Text>
+      <Text noMargin>
         {browser.i18n.getMessage("spent")}
         {": "}
-        {arweave.ar.winstonToAr(settings.allowance?.spent?.toString() || "0")}
+        {arweave.ar.winstonToAr(spent)}
         {" AR "}
         <Tooltip content={browser.i18n.getMessage("resetSpentQty")}>
           <ResetButton
@@ -90,6 +111,31 @@ export default function AppSettings({ app }: Props) {
             {browser.i18n.getMessage("reset")}
           </ResetButton>
         </Tooltip>
+      </Text>
+      <Spacer y={0.55} />
+      <Text noMargin>
+        {browser.i18n.getMessage("limit")}
+        {": "}
+        {(editingLimit && (
+          <EmptyInput
+            value={arweave.ar.winstonToAr(limit)}
+            onChange={(e) =>
+              updateSettings((val) => ({
+                ...val,
+                allowance: {
+                  ...val.allowance,
+                  limit: Number(arweave.ar.arToWinston(e.target.value))
+                }
+              }))
+            }
+          />
+        )) ||
+          arweave.ar.winstonToAr(limit)}
+        {" AR "}
+        <EditLimitButton
+          as={editingLimit ? CheckIcon : EditIcon}
+          onClick={() => setEditingLimit((val) => !val)}
+        />
       </Text>
     </>
   );
@@ -110,4 +156,33 @@ const ResetButton = styled.span`
   border-bottom: 1px dotted rgba(${(props) => props.theme.theme}, 0.8);
   margin-left: 0.37rem;
   cursor: pointer;
+`;
+
+const EmptyInput = styled.input.attrs({
+  type: "number",
+  focus: true
+})`
+  border: none;
+  outline: none;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  font-size: 1em;
+  color: rgb(${(props) => props.theme.secondaryText});
+`;
+
+const EditLimitButton = styled(EditIcon)`
+  font-size: 1em;
+  width: 1em;
+  height: 1em;
+  cursor: pointer;
+  transition: all 0.23s ease-in-out;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    transform: scale(0.83);
+  }
 `;
