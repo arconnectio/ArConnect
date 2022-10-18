@@ -22,10 +22,12 @@ import {
   Wrapper
 } from "./devtools";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { readFileBinary } from "~utils/file";
+import { getActiveKeyfile } from "~wallets";
+import { unlock } from "~wallets/auth";
 import copy from "copy-to-clipboard";
 import Arweave from "arweave";
 import axios from "axios";
-import { readFileBinary } from "~utils/file";
 
 function ArLocal() {
   // testnet data
@@ -198,6 +200,16 @@ function ArLocal() {
     setMining(false);
   }
 
+  // decryption key to check if a password is required
+  const [decryptionKey] = useStorage<string>({
+    key: "decryption_key",
+    area: "local",
+    isSecret: true
+  });
+
+  // password
+  const passwordInput = useInput();
+
   // tx data
   const txTargetInput = useInput();
   const txQtyInput = useInput();
@@ -208,32 +220,34 @@ function ArLocal() {
   async function sendTransaction() {
     if (sendingTx || !arweave) return;
 
-    // files in the file input
-    const files = fileInput?.current?.files;
+    // file in the file input
+    const file = fileInput.current?.files?.[0];
 
     // check required fields
-    if (txQtyInput.state === "" && txTargetInput.state !== "") {
-      return setToast({
-        type: "error",
-        content: "Please fill out the quantity field",
-        duration: 2400
-      });
-    } else if (txQtyInput.state !== "" && txTargetInput.state === "") {
-      return setToast({
-        type: "error",
-        content: "Please fill out the target field",
-        duration: 2400
-      });
-    } else if (
-      txQtyInput.state === "" &&
-      txTargetInput.state === "" &&
-      (!files || files.length === 0)
-    ) {
-      return setToast({
-        type: "error",
-        content: "Please add a file",
-        duration: 2400
-      });
+    if (!file) {
+      if (txQtyInput.state === "" && txTargetInput.state !== "") {
+        return setToast({
+          type: "error",
+          content: "Please fill out the quantity field",
+          duration: 2400
+        });
+      } else if (txQtyInput.state !== "" && txTargetInput.state === "") {
+        return setToast({
+          type: "error",
+          content: "Please fill out the target field",
+          duration: 2400
+        });
+      } else if (
+        txQtyInput.state === "" &&
+        txTargetInput.state === "" &&
+        !file
+      ) {
+        return setToast({
+          type: "error",
+          content: "Please add a file",
+          duration: 2400
+        });
+      }
     }
 
     setSendingTx(true);
@@ -242,8 +256,6 @@ function ArLocal() {
 
     try {
       // read file
-      const file = fileInput.current?.files?.[0];
-
       if (!!file) {
         txData = await readFileBinary(file);
       }
@@ -258,13 +270,37 @@ function ArLocal() {
       return;
     }
 
+    // unlock if there isn't a decryption key
+    if (!decryptionKey) {
+      const unlockResult = await unlock(passwordInput.state);
+
+      if (!unlockResult) {
+        passwordInput.setStatus("error");
+        setToast({
+          type: "error",
+          content: "Invalid password",
+          duration: 2400
+        });
+        return;
+      }
+    }
+
     try {
+      // get keyfile
+      const keyfile = await getActiveKeyfile();
+
       // create tx
-      const transaction = await arweave.createTransaction({
-        target: txTargetInput.state,
-        quantity: arweave.ar.arToWinston(txQtyInput.state),
-        data: txData
-      });
+      const transaction = await arweave.createTransaction(
+        {
+          target: txTargetInput.state,
+          quantity:
+            txQtyInput.state !== ""
+              ? arweave.ar.arToWinston(txQtyInput.state)
+              : undefined,
+          data: txData
+        },
+        keyfile
+      );
 
       // add tags
       for (const tag of tags) {
@@ -273,10 +309,16 @@ function ArLocal() {
         transaction.addTag(tag.name, tag.value);
       }
 
-      // TODO: request password if the wallets are not decrypted
+      // add content-type tag if there isn't one already
+      if (
+        file &&
+        !tags.find((tag) => tag.name.toLowerCase() === "content-type")
+      ) {
+        transaction.addTag("Content-Type", file.type);
+      }
 
       // sign tx
-      await arweave.transactions.sign(transaction);
+      await arweave.transactions.sign(transaction, keyfile);
 
       // post tx
       const uploader = await arweave.transactions.getUploader(transaction);
@@ -480,6 +522,17 @@ function ArLocal() {
             <Spacer y={1} />
             <Text>Data</Text>
             <FileInput>Drag and drop a file...</FileInput>
+            {!decryptionKey && (
+              <>
+                <Spacer y={1} />
+                <Input
+                  {...passwordInput.bindings}
+                  type="password"
+                  label="Passoword"
+                  placeholder="Enter password to decrypt wallet..."
+                />
+              </>
+            )}
             <Spacer y={1.35} />
             <Button fullWidth loading={sendingTx} onClick={sendTransaction}>
               Send Transaction
