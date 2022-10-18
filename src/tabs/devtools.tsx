@@ -1,20 +1,16 @@
-import { Button, Card, Provider, Spacer, Text } from "@arconnect/components";
-import { permissionData, PermissionType } from "~applications/permissions";
+import { Card, Provider, Spacer, Text } from "@arconnect/components";
 import { GlobalStyle, useTheme } from "~utils/theme";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useStorage } from "@plasmohq/storage/hook";
 import { getTab } from "~applications/tab";
 import { getAppURL } from "~utils/format";
-import { addApp } from "~applications";
-import PermissionCheckbox, {
-  PermissionDescription
-} from "~components/auth/PermissionCheckbox";
+import Connector from "~components/devtools/Connector";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 
 export default function Devtools() {
   // fetch app data
-  const [connected, setConnected] = useState(false);
   const [app, setApp] = useState<Application>();
 
   useEffect(() => {
@@ -23,19 +19,27 @@ export default function Devtools() {
       const tab = await getTab(browser.devtools.inspectedWindow.tabId);
       const appURL = getAppURL(tab.url);
       const app = new Application(appURL);
-      const connected = await app.isConnected();
 
-      setConnected(connected);
-
-      // set app if connected
-      if (connected) {
-        setApp(app);
-      }
+      setApp(app);
     })();
   }, []);
 
-  // permissions to "force-connect" the app with
-  const [permsToConnect, setPermsToConnect] = useState<PermissionType[]>([]);
+  // connected apps
+  const [connectedApps] = useStorage<string[]>(
+    {
+      key: "apps",
+      area: "local",
+      isSecret: true
+    },
+    []
+  );
+
+  // app connected
+  const connected = useMemo(() => {
+    if (!app) return false;
+
+    return connectedApps.includes(app.url);
+  }, [app, connectedApps]);
 
   // ui theme
   const theme = useTheme();
@@ -53,53 +57,8 @@ export default function Devtools() {
             <ConnectionStatus connected={connected} />
           </ConnectionText>
           <Spacer y={1.5} />
-          {!connected && (
-            <>
-              {Object.keys(permissionData).map(
-                (permissionName: PermissionType, i) => (
-                  <div key={i}>
-                    <PermissionCheckbox
-                      onChange={(checked) =>
-                        setPermsToConnect((val) => {
-                          // toggle permission
-                          if (checked && !val.includes(permissionName)) {
-                            return [...val, permissionName];
-                          } else if (!checked) {
-                            return val.filter((p) => p !== permissionName);
-                          }
-
-                          return val;
-                        })
-                      }
-                    >
-                      {permissionName}
-                      <br />
-                      <PermissionDescription>
-                        {browser.i18n.getMessage(
-                          permissionData[permissionName]
-                        )}
-                      </PermissionDescription>
-                    </PermissionCheckbox>
-                    <Spacer y={0.8} />
-                  </div>
-                )
-              )}
-              <Spacer y={1.15} />
-              <Button
-                fullWidth
-                disabled={permsToConnect.length === 0}
-                onClick={() => {
-                  if (permsToConnect.length === 0) return;
-                  addApp({
-                    url: app.url,
-                    permissions: permsToConnect
-                  });
-                }}
-              >
-                {browser.i18n.getMessage("forceConnect")}
-              </Button>
-            </>
-          )}
+          {(!connected && app && <Connector appUrl={app.url} />) ||
+            (connected && app && <>app settings here</>)}
         </CardBody>
       </Wrapper>
     </Provider>

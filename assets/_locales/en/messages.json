@@ -252,5 +252,9 @@
   "copyId": {
     "message": "Copy ID",
     "description": "Copy ID button text"
+  },
+  "connectionFailure": {
+    "message": "Failed to connect to app",
+    "description": "Notification about app connection failure in devtools"
   }
 }
