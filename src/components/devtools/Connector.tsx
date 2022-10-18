@@ -54,6 +54,7 @@ export default function Connector({ appUrl }: Props) {
                 return val;
               })
             }
+            checked={permsToConnect.includes(permissionName)}
           >
             {permissionName}
             <br />

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { getTab } from "~applications/tab";
 import { getAppURL } from "~utils/format";
+import AppSettings from "~components/dashboard/AppSettings";
 import Connector from "~components/devtools/Connector";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
@@ -58,7 +59,7 @@ export default function Devtools() {
           </ConnectionText>
           <Spacer y={1.5} />
           {(!connected && app && <Connector appUrl={app.url} />) ||
-            (connected && app && <>app settings here</>)}
+            (connected && app && <AppSettings app={app} />)}
         </CardBody>
       </Wrapper>
     </Provider>

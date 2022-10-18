@@ -256,5 +256,37 @@
   "connectionFailure": {
     "message": "Failed to connect to app",
     "description": "Notification about app connection failure in devtools"
+  },
+  "permissions": {
+    "message": "Permissions",
+    "description": "Permissions title"
+  },
+  "allowance": {
+    "message": "Allowance",
+    "description": "Allowance title"
+  },
+  "allowanceTip": {
+    "message": "Apply a spending limit for this application",
+    "description": "Tip explaining allowances for the user"
+  },
+  "enabled": {
+    "message": "Enabled",
+    "description": "Enabled label"
+  },
+  "disabled": {
+    "message": "Disabled",
+    "description": "Disabled label"
+  },
+  "spent": {
+    "message": "Spent",
+    "description": "Spent text"
+  },
+  "reset": {
+    "message": "Reset",
+    "description": "Reset text"
+  },
+  "resetSpentQty": {
+    "message": "Reset spent quantity",
+    "description": "Reset tooltip text"
   }
 }
