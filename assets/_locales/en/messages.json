@@ -224,5 +224,33 @@
   "permissionDescriptionAccessAllAddresses": {
     "message": "Access all addresses added to ArConnect",
     "description": "Description for the \"ACCESS_ALL_ADDRESSES\" permission"
+  },
+  "permissionDescriptionSign": {
+    "message": "Sign a transaction",
+    "description": "Description for the \"SIGN_TRANSACTION\" permission"
+  },
+  "permissionDescriptionEncrypt": {
+    "message": "Encrypt data using the user's keyfile",
+    "description": "Description for the \"ENCRYPT\" permission"
+  },
+  "permissionDescriptionDecrypt": {
+    "message": "Decrypt data using the user's keyfile",
+    "description": "Description for the \"DECRYPT\" permission"
+  },
+  "permissionDescriptionSignature": {
+    "message": "Sign data using the user's keyfile",
+    "description": "Description for the \"SIGNATURE\" permission"
+  },
+  "permissionDescriptionArweaveConfig": {
+    "message": "Access the user's custom Arweave config",
+    "description": "Description for the \"ACCESS_ARWEAVE_CONFIG\" permission"
+  },
+  "permissionDescriptionDispatch": {
+    "message": "Dispatch an Arweave transaction or interaction",
+    "description": "Description for the \"DISPATCH\" permission"
+  },
+  "copyId": {
+    "message": "Copy ID",
+    "description": "Copy ID button text"
   }
 }

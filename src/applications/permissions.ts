@@ -19,10 +19,10 @@ export const permissionData: Record<PermissionType, string> = {
   ACCESS_ADDRESS: "permissionDescriptionAccessAddress",
   ACCESS_PUBLIC_KEY: "permissionDescriptionAccessPublicKey",
   ACCESS_ALL_ADDRESSES: "permissionDescriptionAccessAllAddresses",
-  SIGN_TRANSACTION: "Sign a transaction",
-  ENCRYPT: "Encrypt data using the user's keyfile",
-  DECRYPT: "Decrypt data using the user's keyfile",
-  SIGNATURE: "Sign data using the user's keyfile",
-  ACCESS_ARWEAVE_CONFIG: "Access the user's custom Arweave config",
-  DISPATCH: "Dispatch an Arweave transaction or interaction"
+  SIGN_TRANSACTION: "permissionDescriptionSign",
+  ENCRYPT: "permissionDescriptionEncrypt",
+  DECRYPT: "permissionDescriptionDecrypt",
+  SIGNATURE: "permissionDescriptionSignature",
+  ACCESS_ARWEAVE_CONFIG: "permissionDescriptionArweaveConfig",
+  DISPATCH: "permissionDescriptionDispatch"
 };

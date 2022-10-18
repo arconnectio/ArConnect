@@ -9,6 +9,7 @@ import Application from "~applications/application";
 import { defaultGateway } from "~applications/gateway";
 import { permissionData, PermissionType } from "~applications/permissions";
 import { unlock } from "~wallets/auth";
+import browser from "webextension-polyfill";
 
 export default function App() {
   // fetch data sent to process with the auth
@@ -247,7 +248,7 @@ const PermissionsManager = ({
                 }
               }}
             />
-            {" " + permissionData[permission]}
+            {" " + browser.i18n.getMessage(permissionData[permission])}
           </label>
         </div>
       ))}

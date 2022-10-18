@@ -75,7 +75,9 @@ export default function Devtools() {
                       {permissionName}
                       <br />
                       <PermissionDescription>
-                        {permissionData[permissionName]}
+                        {browser.i18n.getMessage(
+                          permissionData[permissionName]
+                        )}
                       </PermissionDescription>
                     </PermissionCheckbox>
                     <Spacer y={0.8} />
@@ -107,7 +109,7 @@ export default function Devtools() {
 export const Wrapper = styled.div`
   padding: 1rem;
   width: calc(100vw - 1rem * 2);
-  height: calc(100vh - 1rem * 2);
+  min-height: calc(100vh - 1rem * 2);
 `;
 
 export const CardBody = styled(Card)`
