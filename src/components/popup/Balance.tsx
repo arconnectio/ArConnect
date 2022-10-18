@@ -263,16 +263,13 @@ const HideBalanceButton = styled(EyeIcon)`
   }
 `;
 
-const ActiveAppIcon = styled(Squircle)`
+const ActiveAppIcon = styled(Squircle).attrs({
+  outline: "#000"
+})`
   color: rgb(${(props) => props.theme.theme});
   width: 3rem;
   height: 3rem;
   cursor: pointer;
-  transition: all 0.23s ease-in-out;
-
-  &:hover {
-    opacity: 0.84;
-  }
 
   img {
     position: absolute;
@@ -280,6 +277,11 @@ const ActiveAppIcon = styled(Squircle)`
     left: 50%;
     user-select: none;
     transform: translate(-50%, -50%);
+    transition: all 0.23s ease-in-out;
+  }
+
+  &:hover img {
+    opacity: 0.84;
   }
 `;
 

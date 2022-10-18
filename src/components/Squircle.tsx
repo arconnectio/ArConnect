@@ -5,6 +5,7 @@ import axios from "axios";
 export default function Squircle({
   children,
   img,
+  outline,
   ...props
 }: HTMLProps<HTMLDivElement> & Props) {
   const [imageData, setImageData] = useState<string>();
@@ -29,6 +30,11 @@ export default function Squircle({
       setImageData(prefix + base64);
     })();
   }, [img]);
+
+  const outlinePath =
+    "M1 30C1 23.8466 1.33102 18.97 2.18954 15.107C3.04554 11.2554 4.41259 8.47287 6.44273 6.44273C8.47287 4.41259 11.2554 3.04554 15.107 2.18954C18.97 1.33102 23.8466 1 30 1C36.1534 1 41.03 1.33102 44.893 2.18954C48.7446 3.04554 51.5271 4.41259 53.5573 6.44273C55.5874 8.47287 56.9545 11.2554 57.8105 15.107C58.669 18.97 59 23.8466 59 30C59 36.1534 58.669 41.03 57.8105 44.893C56.9545 48.7446 55.5874 51.5271 53.5573 53.5573C51.5271 55.5874 48.7446 56.9545 44.893 57.8105C41.03 58.669 36.1534 59 30 59C23.8466 59 18.97 58.669 15.107 57.8105C11.2554 56.9545 8.47287 55.5874 6.44273 53.5573C4.41259 51.5271 3.04554 48.7446 2.18954 44.893C1.33102 41.03 1 36.1534 1 30Z";
+  const originalPath =
+    "M0 30C0 5.295 5.295 0 30 0C54.705 0 60 5.295 60 30C60 54.705 54.705 60 30 60C5.295 60 0 54.705 0 30Z";
 
   return (
     <Wrapper {...(props as any)}>
@@ -59,8 +65,10 @@ export default function Squircle({
           </defs>
         )}
         <path
-          d="M0 30C0 5.295 5.295 0 30 0C54.705 0 60 5.295 60 30C60 54.705 54.705 60 30 60C5.295 60 0 54.705 0 30Z"
+          d={outline ? outlinePath : originalPath}
           fill={imageData ? "url(#squircle)" : "currentColor"}
+          strokeWidth={outline ? 2 : undefined}
+          stroke={outline}
         />
       </SquircleSvg>
       {children}
@@ -70,6 +78,7 @@ export default function Squircle({
 
 interface Props {
   img?: string;
+  outline?: string;
 }
 
 const Wrapper = styled.div`
