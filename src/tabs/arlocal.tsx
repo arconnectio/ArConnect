@@ -329,7 +329,7 @@ function ArLocal() {
           <RefreshButton
             secondary
             onClick={() => loadTestnet()}
-            loading={loadingTestnet}
+            refreshing={loadingTestnet}
           >
             <RefreshIcon />
           </RefreshButton>
@@ -529,12 +529,12 @@ const rotation = css`
   ${rotate} 0.5s linear infinite
 `;
 
-const RefreshButton = styled(Button)<{ loading?: boolean }>`
+const RefreshButton = styled(Button)<{ refreshing?: boolean }>`
   padding: 1.2rem;
   transition: all 0.23s ease-in-out;
 
   svg {
-    animation: ${(props) => (props.loading ? rotation : "none")};
+    animation: ${(props) => (props.refreshing ? rotation : "none")};
   }
 `;
 
