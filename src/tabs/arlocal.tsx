@@ -25,6 +25,7 @@ import {
   Title,
   Wrapper
 } from "./devtools";
+import browser from "webextension-polyfill";
 import copy from "copy-to-clipboard";
 import Arweave from "arweave";
 import axios from "axios";
@@ -91,7 +92,7 @@ function ArLocal() {
       if (!data.network.includes("arlocal")) {
         setToast({
           type: "error",
-          content: "Gateway is not a testnet network",
+          content: browser.i18n.getMessage("gatewayNotTestnet"),
           duration: 3000
         });
 
@@ -153,17 +154,17 @@ function ArLocal() {
 
       setToast({
         type: "success",
-        content: `Minted ${testnetQty.state} AR to ${formatAddress(
-          activeAddress,
-          8
-        )}`,
+        content: browser.i18n.getMessage("arMinted", [
+          testnetQty.state,
+          formatAddress(activeAddress, 8)
+        ]),
         duration: 3000
       });
     } catch (e) {
       console.log("Failed to mint tokens", e);
       setToast({
         type: "error",
-        content: "Failed to mint tokens",
+        content: browser.i18n.getMessage("tokenMintFailed"),
         duration: 2400
       });
     }
@@ -185,14 +186,14 @@ function ArLocal() {
 
       setToast({
         type: "success",
-        content: "Mined",
+        content: browser.i18n.getMessage("mined"),
         duration: 2350
       });
     } catch (e) {
       console.log("Failed to mine", e);
       setToast({
         type: "error",
-        content: "Failed to mine",
+        content: browser.i18n.getMessage("miningFailed"),
         duration: 2400
       });
     }
@@ -228,13 +229,13 @@ function ArLocal() {
       if (txQtyInput.state === "" && txTargetInput.state !== "") {
         return setToast({
           type: "error",
-          content: "Please fill out the quantity field",
+          content: browser.i18n.getMessage("fillOutQtyField"),
           duration: 2400
         });
       } else if (txQtyInput.state !== "" && txTargetInput.state === "") {
         return setToast({
           type: "error",
-          content: "Please fill out the target field",
+          content: browser.i18n.getMessage("fillOutTargetField"),
           duration: 2400
         });
       } else if (
@@ -244,7 +245,7 @@ function ArLocal() {
       ) {
         return setToast({
           type: "error",
-          content: "Please add a file",
+          content: browser.i18n.getMessage("addFileError"),
           duration: 2400
         });
       }
@@ -263,7 +264,7 @@ function ArLocal() {
       console.log("Error reading file", e);
       setToast({
         type: "error",
-        content: "Could not read transaction data file",
+        content: browser.i18n.getMessage("couldNotReadTxData"),
         duration: 2400
       });
       setSendingTx(false);
@@ -278,7 +279,7 @@ function ArLocal() {
         passwordInput.setStatus("error");
         setToast({
           type: "error",
-          content: "Invalid password",
+          content: browser.i18n.getMessage("invalidPassword"),
           duration: 2400
         });
         return;
@@ -329,14 +330,14 @@ function ArLocal() {
       // notify the user
       setToast({
         type: "success",
-        content: "Sent transaction",
+        content: browser.i18n.getMessage("txSent"),
         duration: 2400
       });
     } catch (e) {
       console.log("Error sending tx", e);
       setToast({
         type: "error",
-        content: "Could not send transaction",
+        content: browser.i18n.getMessage("txFailed"),
         duration: 2400
       });
     }
@@ -348,12 +349,12 @@ function ArLocal() {
     <Wrapper>
       <CardBody>
         <Title>
-          ArLocal Devtools
+          ArLocal {browser.i18n.getMessage("devtools")}
           <Spacer x={0.2} />
           <Text noMargin>by ArConnect</Text>
         </Title>
         <ConnectionText>
-          {"Testnet is " + (!online ? "not " : "") + "live"}
+          {browser.i18n.getMessage(online ? "testnetLive" : "testnetDown")}
           <ConnectionStatus connected={online} />
         </ConnectionText>
         <Spacer y={1.5} />
@@ -362,7 +363,7 @@ function ArLocal() {
             <Input
               {...testnetInput.bindings}
               type="text"
-              label="Testnet gateway url"
+              label={browser.i18n.getMessage("testnetGatewayUrlLabel")}
               placeholder="http://localhost:1984"
               fullWidth
             />
@@ -379,7 +380,7 @@ function ArLocal() {
         {(!online && (
           <>
             <Text noMargin>
-              Don't have ArLocal installed? Run it like this:
+              {browser.i18n.getMessage("arlocalCommandTutorial")}
             </Text>
             <Spacer y={0.4} />
             <InputWithBtn>
@@ -407,33 +408,33 @@ function ArLocal() {
         )) || (
           <>
             <Text heading noMargin>
-              Mint AR
+              {browser.i18n.getMessage("mintAr")}
             </Text>
-            <Text>Add testnet tokens to your wallet</Text>
+            <Text>{browser.i18n.getMessage("addTestnetTokensSubtitle")}</Text>
             <InputWithBtn>
               <InputWrapper>
                 <Input
                   {...testnetQty.bindings}
                   type="number"
-                  placeholder="AR qty..."
+                  placeholder={browser.i18n.getMessage("arQtyPlaceholder")}
                   fullWidth
                 />
               </InputWrapper>
               <Button secondary onClick={mint}>
-                Mint
+                {browser.i18n.getMessage("mint")}
               </Button>
             </InputWithBtn>
             <Spacer y={1} />
             <Text heading noMargin>
-              Create Transaction
+              {browser.i18n.getMessage("createTransaction")}
             </Text>
-            <Text>Send a transaction with tags and data</Text>
+            <Text>{browser.i18n.getMessage("createTransactionSubtitle")}</Text>
             <Inputs>
               <HalfInputWrapper>
                 <Input
                   type="text"
-                  label="Target"
-                  placeholder="Leave empty for none..."
+                  label={browser.i18n.getMessage("target")}
+                  placeholder={browser.i18n.getMessage("leaveEmptyForNone")}
                   fullWidth
                   {...txTargetInput.bindings}
                 />
@@ -441,23 +442,25 @@ function ArLocal() {
               <HalfInputWrapper>
                 <Input
                   type="number"
-                  label="Amount"
-                  placeholder="Leave empty for none..."
+                  label={browser.i18n.getMessage("amount")}
+                  placeholder={browser.i18n.getMessage("leaveEmptyForNone")}
                   fullWidth
                   {...txQtyInput.bindings}
                 />
               </HalfInputWrapper>
             </Inputs>
             <Spacer y={1} />
-            <Text>Tags</Text>
+            <Text>{browser.i18n.getMessage("tags")}</Text>
             {tags.map((tag, i) => (
               <div key={i}>
                 <InputWithBtn>
                   <InputWrapper>
                     <Input
                       type="text"
-                      label="Name"
-                      placeholder="Tag name..."
+                      label={browser.i18n.getMessage("name")}
+                      placeholder={browser.i18n.getMessage(
+                        "tagNamePlaceholder"
+                      )}
                       fullWidth
                       value={tag.name}
                       onChange={(e) =>
@@ -478,8 +481,10 @@ function ArLocal() {
                   <InputWrapper>
                     <Input
                       type="text"
-                      label="Value"
-                      placeholder="Tag value..."
+                      label={browser.i18n.getMessage("value")}
+                      placeholder={browser.i18n.getMessage(
+                        "tagValuePlaceholder"
+                      )}
                       fullWidth
                       value={tag.value}
                       onChange={(e) =>
@@ -516,29 +521,33 @@ function ArLocal() {
                 setTags((val) => [...val, { name: "", value: "" }])
               }
             >
-              <PlusIcon /> Add tag
+              <PlusIcon /> {browser.i18n.getMessage("addTag")}
             </Button>
             <Spacer y={1} />
-            <Text>Data</Text>
-            <FileInput inputRef={fileInput}>Drag and drop a file...</FileInput>
+            <Text>{browser.i18n.getMessage("data")}</Text>
+            <FileInput inputRef={fileInput}>
+              {browser.i18n.getMessage("dragAndDropFile")}
+            </FileInput>
             {!decryptionKey && (
               <>
                 <Spacer y={1} />
                 <Input
                   {...passwordInput.bindings}
                   type="password"
-                  label="Passoword"
-                  placeholder="Enter password to decrypt wallet..."
+                  label={browser.i18n.getMessage("password")}
+                  placeholder={browser.i18n.getMessage(
+                    "enterPasswordToDecrypt"
+                  )}
                 />
               </>
             )}
             <Spacer y={1.35} />
             <Button fullWidth loading={sendingTx} onClick={sendTransaction}>
-              Send Transaction
+              {browser.i18n.getMessage("sendTransaction")}
             </Button>
             <Spacer y={1} />
             <Button fullWidth secondary loading={mining} onClick={mine}>
-              Mine
+              {browser.i18n.getMessage("mine")}
             </Button>
           </>
         )}

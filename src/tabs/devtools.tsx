@@ -45,9 +45,11 @@ export default function Devtools() {
       <GlobalStyle />
       <Wrapper>
         <CardBody>
-          <Title>ArConnect Devtools</Title>
+          <Title>ArConnect {browser.i18n.getMessage("devtools")}</Title>
           <ConnectionText>
-            {"App " + (!connected ? "not " : "") + "connected"}
+            {browser.i18n.getMessage(
+              connected ? "appConnected" : "appNotConnected"
+            )}
             <ConnectionStatus connected={connected} />
           </ConnectionText>
           <Spacer y={1.5} />
@@ -92,7 +94,7 @@ export default function Devtools() {
                   });
                 }}
               >
-                Force Connect
+                {browser.i18n.getMessage("forceConnect")}
               </Button>
             </>
           )}

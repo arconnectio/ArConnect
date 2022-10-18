@@ -173,7 +173,9 @@ export default function WalletSwitcher({ open, close }: Props) {
                     setActiveAddress(wallet.address);
                     setToast({
                       type: "success",
-                      content: `Switched to ${wallet.name}`,
+                      content: browser.i18n.getMessage("switchedToWallet", [
+                        wallet.name
+                      ]),
                       duration: 1100
                     });
                     close();
@@ -221,10 +223,12 @@ export default function WalletSwitcher({ open, close }: Props) {
                     onClick={() => {
                       if (!editMode) return;
                       setToast({
-                        content: `Remove ${wallet.name}?`,
+                        content: browser.i18n.getMessage("removeConfirmation", [
+                          wallet.name
+                        ]),
                         duration: 4000,
                         action: {
-                          name: "YES",
+                          name: browser.i18n.getMessage("yes").toUpperCase(),
                           task: () =>
                             setStoredWallets((val) =>
                               val.filter((w) => w.address !== wallet.address)
@@ -249,9 +253,9 @@ export default function WalletSwitcher({ open, close }: Props) {
                   }
                 >
                   <PlusIcon />
-                  Add wallet
+                  {browser.i18n.getMessage("addWallet")}
                 </AddWalletButton>
-                <Tooltip content="Edit">
+                <Tooltip content={browser.i18n.getMessage("edit")}>
                   <EditButton
                     onClick={() => setEditMode((val) => !val)}
                     as={editMode ? CheckIcon : undefined}

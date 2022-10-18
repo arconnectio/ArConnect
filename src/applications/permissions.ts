@@ -16,10 +16,9 @@ export type PermissionType =
  * All permissions with their descriptions
  */
 export const permissionData: Record<PermissionType, string> = {
-  ACCESS_ADDRESS: "Access the current address selected in ArConnect",
-  ACCESS_PUBLIC_KEY:
-    "Access the public key of the current address selected in ArConnect",
-  ACCESS_ALL_ADDRESSES: "Access all addresses added to ArConnect",
+  ACCESS_ADDRESS: "permissionDescriptionAccessAddress",
+  ACCESS_PUBLIC_KEY: "permissionDescriptionAccessPublicKey",
+  ACCESS_ALL_ADDRESSES: "permissionDescriptionAccessAllAddresses",
   SIGN_TRANSACTION: "Sign a transaction",
   ENCRYPT: "Encrypt data using the user's keyfile",
   DECRYPT: "Decrypt data using the user's keyfile",

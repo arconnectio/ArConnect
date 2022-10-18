@@ -9,6 +9,7 @@ import type { StoredWallet } from "~wallets";
 import { useTheme } from "~utils/theme";
 import WalletSwitcher from "./WalletSwitcher";
 import Squircle from "~components/Squircle";
+import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 
@@ -100,7 +101,10 @@ export default function WalletHeader() {
         <WalletIcon />
         <Text noMargin>{walletName}</Text>
         <WithArrow>
-          <Tooltip content="Click to copy" position="bottom">
+          <Tooltip
+            content={browser.i18n.getMessage("clickToCopy")}
+            position="bottom"
+          >
             <WalletAddress onClick={copyAddress}>
               (
               {formatAddress(

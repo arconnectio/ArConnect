@@ -3,8 +3,226 @@
     "message": "Secure wallet management for Arweave",
     "description": "Extension description"
   },
-  "popup": {
-    "message": "This is showing the power of i18n!",
-    "description": "Popup message."
+  "clickToCopy": {
+    "message": "Click to copy",
+    "description": "Text to indicate the ability to copy something"
+  },
+  "switchedToWallet": {
+    "message": "Switched to $ADDRESS$",
+    "description": "Notification on switching active wallet",
+    "placeholders": {
+      "address": {
+        "content": "$1",
+        "example": "ljvCPN31...-CS-6Iho8U"
+      }
+    }
+  },
+  "removeConfirmation": {
+    "message": "Remove $ADDRESS$?",
+    "description": "Question asking if the user wants to remove a wallet",
+    "placeholders": {
+      "address": {
+        "content": "$1",
+        "example": "ljvCPN31...-CS-6Iho8U"
+      }
+    }
+  },
+  "yes": {
+    "message": "Yes",
+    "description": "The word \"yes\""
+  },
+  "addWallet": {
+    "message": "Add wallet",
+    "description": "Add a wallet text"
+  },
+  "edit": {
+    "message": "Edit",
+    "description": "Edit text"
+  },
+  "appConnected": {
+    "message": "App connected",
+    "description": "Application connected text"
+  },
+  "appNotConnected": {
+    "message": "App not connected",
+    "description": "Application connected text"
+  },
+  "forceConnect": {
+    "message": "Force Connect",
+    "description": "Force connect button text"
+  },
+  "devtools": {
+    "message": "Devtools",
+    "description": "Devtools name"
+  },
+  "gatewayNotTestnet": {
+    "message": "Gateway is not a testnet network",
+    "description": "Gateway not a testnet notification"
+  },
+  "mint": {
+    "message": "Mint",
+    "description": "Mint button text"
+  },
+  "mintAr": {
+    "message": "Mint AR",
+    "description": "Mint AR tokens title"
+  },
+  "arMinted": {
+    "message": "Minted $QTY$ AR to $ADDRESS$",
+    "description": "Message on arweave minted to an address",
+    "placeholders": {
+      "qty": {
+        "content": "$1",
+        "example": "10"
+      },
+      "address": {
+        "content": "$2",
+        "example": "ljvCPN31...-CS-6Iho8U"
+      }
+    }
+  },
+  "tokenMintFailed": {
+    "message": "Failed to mint tokens",
+    "description": "Message indicating minting failure"
+  },
+  "mine": {
+    "message": "Mine",
+    "description": "Mine button text"
+  },
+  "mined": {
+    "message": "Mined",
+    "description": "Mine success message"
+  },
+  "miningFailed": {
+    "message": "Failed to mine",
+    "description": "Mine failure message"
+  },
+  "fillOutQtyField": {
+    "message": "Please fill out the quantity field",
+    "description": "Fill out qty field error"
+  },
+  "fillOutTargetField": {
+    "message": "Please fill out the target field",
+    "description": "Fill out target field error"
+  },
+  "addFileError": {
+    "message": "Please add a file",
+    "description": "Add file error"
+  },
+  "couldNotReadTxData": {
+    "message": "Could not read transaction data file",
+    "description": "File reading failure for tx data"
+  },
+  "invalidPassword": {
+    "message": "Invalid password",
+    "description": "Invalid password error"
+  },
+  "txSent": {
+    "message": "Sent transaction",
+    "description": "Sent transaction successfuly message"
+  },
+  "txFailed": {
+    "message": "Could not send transaction",
+    "description": "Transaction failure"
+  },
+  "testnetLive": {
+    "message": "Testnet is live",
+    "description": "Testnet live message"
+  },
+  "testnetDown": {
+    "message": "Testnet is offline",
+    "description": "Testnet offline message"
+  },
+  "testnetGatewayUrlLabel": {
+    "message": "Testnet gateway url",
+    "description": "Label indicating the input content to be the testnet gateway url"
+  },
+  "arlocalCommandTutorial": {
+    "message": "Don't have ArLocal installed? Run it like this:",
+    "description": "Tutorial for the user on running ArLocal"
+  },
+  "addTestnetTokensSubtitle": {
+    "message": "Add testnet tokens to your wallet",
+    "description": "Subtitle indicating the ability to add testnet AR tokens to the active wallet"
+  },
+  "arQtyPlaceholder": {
+    "message": "AR qty...",
+    "description": "Placeholder for AR amount input"
+  },
+  "createTransaction": {
+    "message": "Create Transaction",
+    "description": "Create transaction title"
+  },
+  "createTransactionSubtitle": {
+    "message": "Send a transaction with tags and data",
+    "description": "Send transaction subtitle"
+  },
+  "leaveEmptyForNone": {
+    "message": "Leave empty for none...",
+    "description": "Placeholder for inputs that take empty values as none"
+  },
+  "target": {
+    "message": "Target",
+    "description": "Target label"
+  },
+  "amount": {
+    "message": "Amount",
+    "description": "Amount label"
+  },
+  "tags": {
+    "message": "Tags",
+    "description": "Tags label"
+  },
+  "name": {
+    "message": "Name",
+    "description": "Name label"
+  },
+  "tagNamePlaceholder": {
+    "message": "Tag name...",
+    "description": "Tag name placeholder"
+  },
+  "value": {
+    "message": "Value",
+    "description": "Value label"
+  },
+  "tagValuePlaceholder": {
+    "message": "Tag value...",
+    "description": "Tag value placeholder"
+  },
+  "addTag": {
+    "message": "Add tag",
+    "description": "Add tag button"
+  },
+  "data": {
+    "message": "Data",
+    "description": "Data label"
+  },
+  "dragAndDropFile": {
+    "message": "Drag and drop file...",
+    "description": "File input label"
+  },
+  "password": {
+    "message": "Password",
+    "description": "Password label"
+  },
+  "enterPasswordToDecrypt": {
+    "message": "Enter password to decrypt wallet...",
+    "description": "Password request to decrypt wallet"
+  },
+  "sendTransaction": {
+    "message": "Send Transaction",
+    "description": "Send transaction button"
+  },
+  "permissionDescriptionAccessAddress": {
+    "message": "Access the current address selected in ArConnect",
+    "description": "Description for the \"ACCESS_ADDRESS\" permission"
+  },
+  "permissionDescriptionAccessPublicKey": {
+    "message": "Access the public key of the current address selected in ArConnect",
+    "description": "Description for the \"ACCESS_PUBLIC_KEY\" permission"
+  },
+  "permissionDescriptionAccessAllAddresses": {
+    "message": "Access all addresses added to ArConnect",
+    "description": "Description for the \"ACCESS_ALL_ADDRESSES\" permission"
   }
 }
