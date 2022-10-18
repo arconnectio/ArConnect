@@ -25,6 +25,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import copy from "copy-to-clipboard";
 import Arweave from "arweave";
 import axios from "axios";
+import { readFileBinary } from "~utils/file";
 
 function ArLocal() {
   // testnet data
@@ -237,13 +238,32 @@ function ArLocal() {
 
     setSendingTx(true);
 
+    let txData: ArrayBuffer;
+
+    try {
+      // read file
+      const file = fileInput.current?.files?.[0];
+
+      if (!!file) {
+        txData = await readFileBinary(file);
+      }
+    } catch (e) {
+      console.log("Error reading file", e);
+      setToast({
+        type: "error",
+        content: "Could not read transaction data file",
+        duration: 2400
+      });
+      setSendingTx(false);
+      return;
+    }
+
     try {
       // create tx
       const transaction = await arweave.createTransaction({
         target: txTargetInput.state,
-        quantity: arweave.ar.arToWinston(txQtyInput.state)
-        // TODO
-        // data:
+        quantity: arweave.ar.arToWinston(txQtyInput.state),
+        data: txData
       });
 
       // add tags
