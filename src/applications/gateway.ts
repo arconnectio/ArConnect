@@ -107,7 +107,7 @@ export function urlToGateway(url: string): Gateway {
 
   return {
     host: gatewayURL.hostname,
-    port: Number(gatewayURL.port),
+    port: gatewayURL.port === "" ? 443 : Number(gatewayURL.port),
     // @ts-expect-error
     protocol: gatewayURL.protocol?.replace(":", "") || "http"
   };
