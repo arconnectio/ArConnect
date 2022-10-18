@@ -316,5 +316,9 @@
   "setCustomGateway": {
     "message": "Set custom gateway",
     "description": "Notification about setting a custom gateway for an app"
+  },
+  "settings": {
+    "message": "Settings",
+    "description": "Settings title"
   }
 }

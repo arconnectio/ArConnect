@@ -24,6 +24,9 @@ export default class Setting {
   /** Name in extension storage */
   public storageName: string;
 
+  /** Setting display icon */
+  public icon: Icon;
+
   /** Storage to fetch from */
   #storage: Storage;
 
@@ -33,13 +36,15 @@ export default class Setting {
     description,
     type,
     defaultValue,
-    options
+    options,
+    icon
   }: InitParams) {
     this.name = name;
     this.displayName = displayName;
     this.description = description;
     this.type = type;
     this.defaultValue = defaultValue;
+    this.icon = icon;
 
     // set storage name
     this.storageName = `${PREFIX}${name}`;
@@ -97,10 +102,12 @@ export default class Setting {
 type SettingType = "string" | "number" | "boolean" | "pick";
 export type ValueType = string | number | boolean;
 
+export type Icon = (props: React.ComponentProps<"svg">) => JSX.Element;
+
 interface InitParams {
   name: string;
   displayName: string;
-  icon: (props: React.ComponentProps<"svg">) => JSX.Element;
+  icon: Icon;
   description?: string;
   type: SettingType;
   defaultValue: ValueType;
