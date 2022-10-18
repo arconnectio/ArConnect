@@ -179,6 +179,15 @@ export default function Transaction({ arweave }: Props) {
           task: () => copy(transaction.id)
         }
       });
+
+      // reset inputs
+      txTargetInput.setState("");
+      txTargetInput.setStatus("default");
+      txQtyInput.setState("");
+      txQtyInput.setStatus("default");
+
+      setTags([]);
+      fileInput.current.value = null;
     } catch (e) {
       console.log("Error sending tx", e);
       setToast({
