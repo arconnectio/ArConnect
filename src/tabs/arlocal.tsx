@@ -1,6 +1,7 @@
 import { RefreshButton } from "~components/IconButton";
 import { useEffect, useMemo, useState } from "react";
 import { GlobalStyle, useTheme } from "~utils/theme";
+import { urlToGateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
 import { RefreshIcon } from "@iconicicons/react";
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
@@ -113,12 +114,7 @@ function ArLocal() {
   // arweave client
   const arweave = useMemo(() => {
     // construct client
-    const gatewayURL = new URL(lastUsedTestnet);
-    const arweave = new Arweave({
-      host: gatewayURL.host,
-      port: gatewayURL.port,
-      protocol: gatewayURL.protocol.replace(":", "")
-    });
+    const arweave = new Arweave(urlToGateway(lastUsedTestnet));
 
     return arweave;
   }, [lastUsedTestnet]);

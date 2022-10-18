@@ -1,16 +1,32 @@
-import { Button, Input, Spacer, Text, Tooltip } from "@arconnect/components";
+import {
+  Button,
+  Input,
+  Select,
+  Spacer,
+  Text,
+  Tooltip,
+  useInput,
+  useToasts
+} from "@arconnect/components";
 import { permissionData, PermissionType } from "~applications/permissions";
+import {
+  concatGatewayURL,
+  defaultGateway,
+  suggestedGateways,
+  urlToGateway
+} from "~applications/gateway";
 import { CheckIcon, EditIcon } from "@iconicicons/react";
-import { defaultGateway } from "~applications/gateway";
 import PermissionCheckbox, {
   PermissionDescription
 } from "~components/auth/PermissionCheckbox";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { removeApp } from "~applications";
 import type Application from "~applications/application";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Arweave from "arweave";
+import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
+import { IconButton } from "~components/IconButton";
 
 export default function AppSettings({ app }: Props) {
   // app settings
@@ -35,6 +51,40 @@ export default function AppSettings({ app }: Props) {
 
   // editing limit
   const [editingLimit, setEditingLimit] = useState(false);
+
+  // active gateway
+  const gateway = useMemo(() => {
+    const val = settings?.gateway;
+
+    if (!val) {
+      return concatGatewayURL(defaultGateway);
+    }
+
+    return concatGatewayURL(val);
+  }, [settings]);
+
+  // is the current gateway a custom one
+  const isCustom = useMemo(() => {
+    const gatewayUrls = suggestedGateways.map((g) => concatGatewayURL(g));
+
+    return !gatewayUrls.includes(gateway);
+  }, [gateway]);
+
+  // editing custom gateway
+  const [editingCustom, setEditingCustom] = useState(false);
+
+  // custom gateway input
+  const customGatewayInput = useInput();
+
+  useEffect(() => {
+    if (!isCustom || !settings.gateway) return;
+
+    setEditingCustom(true);
+    customGatewayInput.setState(concatGatewayURL(settings.gateway));
+  }, [isCustom, settings?.gateway]);
+
+  // toasts
+  const { setToast } = useToasts();
 
   if (!settings) return <></>;
 
@@ -140,7 +190,66 @@ export default function AppSettings({ app }: Props) {
       </Text>
       <Spacer y={1} />
       <Title>{browser.i18n.getMessage("gateway")}</Title>
+      <Select
+        onChange={(e) => {
+          // @ts-expect-error
+          if (e.target.value === "custom") {
+            return setEditingCustom(true);
+          }
 
+          setEditingCustom(false);
+          updateSettings((val) => ({
+            ...val,
+            // @ts-expect-error
+            gateway: urlToGateway(e.target.value)
+          }));
+        }}
+        fullWidth
+      >
+        {suggestedGateways.map((g, i) => {
+          const url = concatGatewayURL(g);
+
+          return (
+            <option value={url} selected={!isCustom && url === gateway} key={i}>
+              {url}
+            </option>
+          );
+        })}
+        <option value="custom" selected={isCustom}>
+          Custom
+        </option>
+      </Select>
+      {editingCustom && (
+        <>
+          <Spacer y={0.8} />
+          <InputWithBtn>
+            <InputWrapper>
+              <Input
+                {...customGatewayInput.bindings}
+                type="text"
+                placeholder="https://arweave.net:443"
+                fullWidth
+              />
+            </InputWrapper>
+            <IconButton
+              secondary
+              onClick={() => {
+                updateSettings((val) => ({
+                  ...val,
+                  gateway: urlToGateway(customGatewayInput.state)
+                }));
+                setToast({
+                  type: "info",
+                  content: "Updated gateway",
+                  duration: 3000
+                });
+              }}
+            >
+              <CheckIcon />
+            </IconButton>
+          </InputWithBtn>
+        </>
+      )}
       <Spacer y={1} />
       <Title>{browser.i18n.getMessage("bundlrNode")}</Title>
       <Input

@@ -101,3 +101,14 @@ export async function gql(
 
   return data;
 }
+
+export function urlToGateway(url: string): Gateway {
+  const gatewayURL = new URL(url);
+
+  return {
+    host: gatewayURL.hostname,
+    port: Number(gatewayURL.port),
+    // @ts-expect-error
+    protocol: gatewayURL.protocol?.replace(":", "") || "http"
+  };
+}
