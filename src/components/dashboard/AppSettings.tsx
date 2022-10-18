@@ -1,3 +1,12 @@
+import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
+import { permissionData, PermissionType } from "~applications/permissions";
+import { CheckIcon, EditIcon } from "@iconicicons/react";
+import { useEffect, useMemo, useState } from "react";
+import { IconButton } from "~components/IconButton";
+import PermissionCheckbox, {
+  PermissionDescription
+} from "~components/auth/PermissionCheckbox";
+import { removeApp } from "~applications";
 import {
   Button,
   Input,
@@ -8,25 +17,16 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
-import { permissionData, PermissionType } from "~applications/permissions";
 import {
   concatGatewayURL,
   defaultGateway,
   suggestedGateways,
   urlToGateway
 } from "~applications/gateway";
-import { CheckIcon, EditIcon } from "@iconicicons/react";
-import PermissionCheckbox, {
-  PermissionDescription
-} from "~components/auth/PermissionCheckbox";
-import { useEffect, useMemo, useState } from "react";
-import { removeApp } from "~applications";
 import type Application from "~applications/application";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Arweave from "arweave";
-import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
-import { IconButton } from "~components/IconButton";
 
 export default function AppSettings({ app }: Props) {
   // app settings
@@ -240,7 +240,7 @@ export default function AppSettings({ app }: Props) {
                 }));
                 setToast({
                   type: "info",
-                  content: "Updated gateway",
+                  content: browser.i18n.getMessage("setCustomGateway"),
                   duration: 3000
                 });
               }}

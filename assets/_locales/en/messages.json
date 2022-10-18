@@ -312,5 +312,9 @@
   "unblock": {
     "message": "Unblock",
     "description": "Unblock button"
+  },
+  "setCustomGateway": {
+    "message": "Set custom gateway",
+    "description": "Notification about setting a custom gateway for an app"
   }
 }
