@@ -1,3 +1,12 @@
+import { CopyIcon, PlusIcon, RefreshIcon, TrashIcon } from "@iconicicons/react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import styled, { css, keyframes } from "styled-components";
+import { GlobalStyle, useTheme } from "~utils/theme";
+import { useStorage } from "@plasmohq/storage/hook";
+import { formatAddress } from "~utils/format";
+import { readFileBinary } from "~utils/file";
+import { getActiveKeyfile } from "~wallets";
+import { unlock } from "~wallets/auth";
 import {
   Button,
   Input,
@@ -9,11 +18,6 @@ import {
   useToasts,
   FileInput
 } from "@arconnect/components";
-import styled, { css, keyframes } from "styled-components";
-import { GlobalStyle, useTheme } from "~utils/theme";
-import { useStorage } from "@plasmohq/storage/hook";
-import { CopyIcon, PlusIcon, RefreshIcon, TrashIcon } from "@iconicicons/react";
-import { formatAddress } from "~utils/format";
 import {
   CardBody,
   ConnectionStatus,
@@ -21,10 +25,6 @@ import {
   Title,
   Wrapper
 } from "./devtools";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { readFileBinary } from "~utils/file";
-import { getActiveKeyfile } from "~wallets";
-import { unlock } from "~wallets/auth";
 import copy from "copy-to-clipboard";
 import Arweave from "arweave";
 import axios from "axios";
@@ -252,7 +252,7 @@ function ArLocal() {
 
     setSendingTx(true);
 
-    let txData: ArrayBuffer;
+    let txData: ArrayBuffer | undefined = undefined;
 
     try {
       // read file
@@ -291,14 +291,13 @@ function ArLocal() {
 
       // create tx
       const transaction = await arweave.createTransaction(
-        {
-          target: txTargetInput.state,
-          quantity:
-            txQtyInput.state !== ""
-              ? arweave.ar.arToWinston(txQtyInput.state)
-              : undefined,
-          data: txData
-        },
+        txTargetInput.state !== ""
+          ? {
+              target: txTargetInput.state,
+              quantity: arweave.ar.arToWinston(txQtyInput.state),
+              data: txData
+            }
+          : { data: txData },
         keyfile
       );
 
@@ -521,7 +520,7 @@ function ArLocal() {
             </Button>
             <Spacer y={1} />
             <Text>Data</Text>
-            <FileInput>Drag and drop a file...</FileInput>
+            <FileInput inputRef={fileInput}>Drag and drop a file...</FileInput>
             {!decryptionKey && (
               <>
                 <Spacer y={1} />

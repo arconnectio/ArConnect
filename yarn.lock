@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@arconnect/components@^0.1.14":
-  version "0.1.14"
-  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.1.14.tgz#ad6a477acc1b3ec7d47c18a384bf2333b7ee26d0"
-  integrity sha512-WLY/bRy2BBrgj2KttdgxBKxarB257b0bwdTdxfcDGMNIOnVCBei2haepYOYcMwrEJGhO5B84myr45JDldB7Prw==
+"@arconnect/components@^0.1.15":
+  version "0.1.15"
+  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.1.15.tgz#3f69138f0b90afff45fefc48d82f0fd831cccb8e"
+  integrity sha512-Liv/knJeo052bDUETi8fBXkJKKmuesS5GcRzPi1WfeoF/tIifmna0bDIVTTlALTOrfhWuUrKKMy184Iaik28wQ==
   dependencies:
     "@iconicicons/react" "^1.5.0"
     "@types/jest" "^27.0.1"
@@ -14,7 +14,6 @@
     "@types/react-dom" "^18.0.0"
     framer-motion "^7.5.2"
     nanoid "^4.0.0"
-    react-merge-refs "^2.0.1"
     typescript "^4.4.2"
     web-vitals "^2.1.0"
 
@@ -5221,11 +5220,6 @@ react-is@^17.0.1:
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
-
-react-merge-refs@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/react-merge-refs/-/react-merge-refs-2.0.1.tgz#a1f8c2dadefa635333e9b91ec59f30b65228b006"
-  integrity sha512-pywF6oouJWuqL26xV3OruRSIqai31R9SdJX/I3gP2q8jLxUnA1IwXcLW8werUHLZOrp4N7YOeQNZrh/BKrHI4A==
 
 react-refresh@^0.9.0:
   version "0.9.0"
