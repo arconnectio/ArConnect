@@ -1,11 +1,12 @@
+import { Button, Input, Spacer, Text, Tooltip } from "@arconnect/components";
 import { permissionData, PermissionType } from "~applications/permissions";
-import { Spacer, Text, Tooltip } from "@arconnect/components";
 import { CheckIcon, EditIcon } from "@iconicicons/react";
 import { defaultGateway } from "~applications/gateway";
 import PermissionCheckbox, {
   PermissionDescription
 } from "~components/auth/PermissionCheckbox";
 import { useMemo, useState } from "react";
+import { removeApp } from "~applications";
 import type Application from "~applications/application";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -137,6 +138,41 @@ export default function AppSettings({ app }: Props) {
           onClick={() => setEditingLimit((val) => !val)}
         />
       </Text>
+      <Spacer y={1} />
+      <Title>{browser.i18n.getMessage("gateway")}</Title>
+
+      <Spacer y={1} />
+      <Title>{browser.i18n.getMessage("bundlrNode")}</Title>
+      <Input
+        value={settings.bundler}
+        onChange={(e) =>
+          updateSettings((val) => ({
+            ...val,
+            // @ts-expect-error
+            bundler: e.target.value
+          }))
+        }
+        fullWidth
+        placeholder="https://node2.bundlr.network"
+      />
+      <Spacer y={1.65} />
+      <Button fullWidth small onClick={() => removeApp(app.url)}>
+        {browser.i18n.getMessage("removeApp")}
+      </Button>
+      <Spacer y={0.7} />
+      <Button
+        fullWidth
+        secondary
+        small
+        onClick={() =>
+          updateSettings((val) => ({
+            ...val,
+            blocked: !val.blocked
+          }))
+        }
+      >
+        {browser.i18n.getMessage(settings.blocked ? "unblock" : "block")}
+      </Button>
     </>
   );
 }
@@ -148,7 +184,6 @@ interface Props {
 const Title = styled(Text).attrs({
   heading: true
 })`
-  font-weight: 600;
   margin-bottom: 0.6em;
 `;
 

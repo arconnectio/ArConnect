@@ -26,7 +26,7 @@
     ]
   },
   "dependencies": {
-    "@arconnect/components": "^0.1.15",
+    "@arconnect/components": "^0.1.16",
     "@arconnect/webext-bridge": "^5.0.6",
     "@iconicicons/react": "^1.5.0",
     "@peculiar/webcrypto": "^1.4.0",

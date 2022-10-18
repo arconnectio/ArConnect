@@ -292,5 +292,25 @@
   "limit": {
     "message": "Limit",
     "description": "Limit text"
+  },
+  "gateway": {
+    "message": "Gateway",
+    "description": "Gateway title"
+  },
+  "bundlrNode": {
+    "message": "Bundlr node",
+    "description": "Bundlr node title"
+  },
+  "removeApp": {
+    "message": "Remove app",
+    "description": "Remove app button"
+  },
+  "block": {
+    "message": "Block",
+    "description": "Block button"
+  },
+  "unblock": {
+    "message": "Unblock",
+    "description": "Unblock button"
   }
 }

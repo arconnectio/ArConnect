@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@arconnect/components@^0.1.15":
-  version "0.1.15"
-  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.1.15.tgz#3f69138f0b90afff45fefc48d82f0fd831cccb8e"
-  integrity sha512-Liv/knJeo052bDUETi8fBXkJKKmuesS5GcRzPi1WfeoF/tIifmna0bDIVTTlALTOrfhWuUrKKMy184Iaik28wQ==
+"@arconnect/components@^0.1.16":
+  version "0.1.16"
+  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.1.16.tgz#20cfc6a49035186cc4c0b9c41584e21865b0bc80"
+  integrity sha512-3xww01zObtKgvCK8ZGt6gaKhNKxXPXTozf2Xx8ebeCQupEI7F7YAs6O4YSh/q7QNHm94pyysgj62VRrpmNodvw==
   dependencies:
     "@iconicicons/react" "^1.5.0"
     "@types/jest" "^27.0.1"
