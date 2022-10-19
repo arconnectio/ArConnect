@@ -2,12 +2,12 @@ import { getActiveAddress, getActiveKeyfile } from "~wallets";
 import { defaultGateway, gql } from "~applications/gateway";
 import { fetchContract } from "verto-cache-interface";
 import type { Alarms } from "webextension-polyfill";
+import { getArPrice } from "~lib/coingecko";
 import { getSetting } from "~settings";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave/web/common";
 //import redstone from "redstone-api";
-import axios from "axios";
 
 /**
  * Handle fee tx creation event using alarms
@@ -156,13 +156,14 @@ export async function getFeeAmount(address: string, app: Application) {
   );
 
   const arweave = new Arweave(defaultGateway);
-  let arPrice = 0;
-
   // TODO: figure out a way to use redstone here
   // problem: the redstone-api package uses the
   // window object, which is undefined in the
   // manifest v3 service workers
-  /*try {
+
+  /*let arPrice = 0;
+
+  try {
     // grab price from redstone API
     const { value } = await redstone.getPrice("AR");
 
@@ -174,11 +175,7 @@ export async function getFeeAmount(address: string, app: Application) {
     );
     arPrice = res.arweave.usd;
   }*/
-  const { data: priceData }: any = await axios.get(
-    "https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=usd"
-  );
-  arPrice = priceData.arweave.usd;
-
+  const arPrice = await getArPrice("usd");
   const usdPrice = 1 / arPrice; // 1 USD how much AR
 
   if (res.data.transactions.edges.length) {

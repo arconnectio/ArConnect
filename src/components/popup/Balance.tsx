@@ -14,7 +14,7 @@ import {
   SettingsIcon
 } from "@iconicicons/react";
 import type ArdbTransaction from "ardb/lib/models/transaction";
-import useActiveTab from "~utils/useActiveTab";
+import useActiveTab from "~applications/useActiveTab";
 import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
@@ -22,6 +22,7 @@ import styled from "styled-components";
 import Arweave from "arweave";
 import axios from "axios";
 import ArDB from "ardb";
+import { getArPrice } from "~lib/coingecko";
 
 export default function Balance() {
   // grab address
@@ -56,14 +57,10 @@ export default function Balance() {
       if (!currency) return;
 
       // fetch price in currency
-      const { data } = await axios.get<{
-        arweave: { [key: string]: number };
-      }>(
-        `https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=${currency.toLowerCase()}`
-      );
+      const arPrice = await getArPrice(currency);
 
       // calculate fiat balance
-      setFiat(data.arweave[currency.toLowerCase()] * balance);
+      setFiat(arPrice * balance);
     })();
   }, [balance, currency]);
 

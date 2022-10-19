@@ -16,7 +16,7 @@ import {
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStorage } from "@plasmohq/storage/hook";
-import { AnsUser, getAnsProfile } from "~utils/ans";
+import { AnsUser, getAnsProfile } from "~lib/ans";
 import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
 import { useEffect, useState } from "react";
