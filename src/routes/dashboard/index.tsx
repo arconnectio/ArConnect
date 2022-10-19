@@ -66,10 +66,26 @@ const SettingsWrapper = styled.div`
   height: calc(100vh - 2rem * 2);
 `;
 
+const isMac = () => {
+  const userAgent = navigator.userAgent;
+
+  return userAgent.includes("Mac") && !userAgent.includes("Windows");
+};
+
 const Panel = styled(Card)`
   padding: 0.5rem 0.35rem;
   overflow-y: auto;
   height: calc(100% - 0.35rem * 2);
+
+  ${!isMac()
+    ? `
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }`
+    : ""}
 `;
 
 const SettingsTitle = styled(Text).attrs({
@@ -100,14 +116,14 @@ interface Props {
 const allSettings: Setting[] = [
   {
     name: "apps",
-    displayName: "Applications",
-    description: "View all connected apps & settings",
+    displayName: "setting_apps",
+    description: "setting_apps_description",
     icon: GridIcon
   },
   {
     name: "wallets",
-    displayName: "Wallets",
-    description: "Manager your wallets",
+    displayName: "setting_wallets",
+    description: "setting_wallets_description",
     icon: WalletIcon
   },
   ...settings.map((setting) => ({
@@ -118,20 +134,20 @@ const allSettings: Setting[] = [
   })),
   {
     name: "config",
-    displayName: "Download config",
-    description: "Download ArConnect config or wallets",
+    displayName: "setting_config",
+    description: "setting_config_description",
     icon: DownloadIcon
   },
   {
     name: "about",
-    displayName: "About",
-    description: "Information about ArConnect",
+    displayName: "setting_about",
+    description: "setting_about_description",
     icon: InformationIcon
   },
   {
     name: "reset",
-    displayName: "Reset",
-    description: "Remove all wallets and data",
+    displayName: "setting_reset",
+    description: "setting_reset_description",
     icon: TrashIcon
   }
 ];

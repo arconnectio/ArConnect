@@ -3,6 +3,7 @@ import type { Icon } from "~settings/setting";
 import { Text } from "@arconnect/components";
 import type { HTMLProps } from "react";
 import Squircle from "~components/Squircle";
+import browser from "webextension-polyfill";
 import styled from "styled-components";
 
 export default function SettingItem({
@@ -18,8 +19,12 @@ export default function SettingItem({
         )) || <SettingIcon as={setting.icon} />}
       </SettingIconWrapper>
       <div>
-        <SettingName>{setting.displayName}</SettingName>
-        <SettingDescription>{setting.description}</SettingDescription>
+        <SettingName>
+          {browser.i18n.getMessage(setting.displayName)}
+        </SettingName>
+        <SettingDescription>
+          {browser.i18n.getMessage(setting.description)}
+        </SettingDescription>
       </div>
     </SettingWrapper>
   );

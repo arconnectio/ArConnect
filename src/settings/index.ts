@@ -14,51 +14,51 @@ export const PREFIX = "setting_";
 const settings: Setting[] = [
   new Setting({
     name: "fee_multiplier",
-    displayName: "Fee multiplier",
+    displayName: "setting_fee_multiplier",
     icon: PercentageIcon,
-    description: "Control the fees payed after transactions",
+    description: "setting_fee_multiplier_description",
     type: "number",
     defaultValue: 1
   }),
   new Setting({
     name: "currency",
-    displayName: "Currency",
+    displayName: "setting_currency",
     icon: DollarIcon,
-    description: "Fiat display currency",
+    description: "setting_setting_currency_description",
     type: "pick",
     options: ["usd", "eur", "gbp"],
     defaultValue: "usd"
   }),
   new Setting({
     name: "arverify",
-    displayName: "ArVerify treshold",
+    displayName: "setting_arverify",
     icon: CheckIcon,
-    description: "Set the verification threshold used",
+    description: "setting_setting_arverify_description",
     type: "number",
     defaultValue: 60
   }),
   new Setting({
     name: "arconfetti",
-    displayName: "ArConfetti effect",
+    displayName: "setting_arconfetti",
     icon: StarIcon,
-    description: "Show animation on wallet usage",
+    description: "setting_setting_arconfetti_description",
     type: "pick",
     options: [false, "arweave", "hedgehog", "usd"],
     defaultValue: "arweave"
   }),
   new Setting({
     name: "sign_notification",
-    displayName: "Sign notification",
+    displayName: "setting_sign_notification",
     icon: BellIcon,
-    description: "Notify when signing a transaction",
+    description: "setting_sign_notification_description",
     type: "boolean",
     defaultValue: true
   }),
   new Setting({
     name: "display_theme",
-    displayName: "Theme",
+    displayName: "setting_display_theme",
     icon: SunIcon,
-    description: "The theme of the extension UI",
+    description: "setting_display_theme_description",
     type: "pick",
     options: ["light", "dark", "system"],
     defaultValue: "system"

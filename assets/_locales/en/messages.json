@@ -320,5 +320,93 @@
   "settings": {
     "message": "Settings",
     "description": "Settings title"
+  },
+  "setting_apps": {
+    "message": "Applications",
+    "description": "Apps settings title"
+  },
+  "setting_wallets": {
+    "message": "Wallets",
+    "description": "Wallets settings title"
+  },
+  "setting_config": {
+    "message": "Download config",
+    "description": "Config settings title"
+  },
+  "setting_about": {
+    "message": "About",
+    "description": "About settings title"
+  },
+  "setting_reset": {
+    "message": "Reset",
+    "description": "Reset settings title"
+  },
+  "setting_fee_multiplier": {
+    "message": "Fee multiplier",
+    "description": "Fee multiplier settings title"
+  },
+  "setting_currency": {
+    "message": "Currency",
+    "description": "Reset settings title"
+  },
+  "setting_arverify": {
+    "message": "ArVerify treshold",
+    "description": "ArVerify settings title"
+  },
+  "setting_arconfetti": {
+    "message": "ArConfetti effect",
+    "description": "ArConfetti effect settings title"
+  },
+  "setting_sign_notification": {
+    "message": "Sign notification",
+    "description": "Sign notification settings title"
+  },
+  "setting_display_theme": {
+    "message": "Theme",
+    "description": "Theme settings title"
+  },
+  "setting_apps_description": {
+    "message": "View all connected apps & settings",
+    "description": "App settings description"
+  },
+  "setting_wallets_description": {
+    "message": "Manager your wallets",
+    "description": "Wallet settings description"
+  },
+  "setting_config_description": {
+    "message": "Download ArConnect config or wallets",
+    "description": "Config settings description"
+  },
+  "setting_about_description": {
+    "message": "Information about ArConnect",
+    "description": "Config settings description"
+  },
+  "setting_reset_description": {
+    "message": "Remove all wallets and data",
+    "description": "Reset settings description"
+  },
+  "setting_fee_multiplier_description": {
+    "message": "Control the fees payed after transactions",
+    "description": "Fee multiplier settings description"
+  },
+  "setting_setting_currency_description": {
+    "message": "Fiat display currency",
+    "description": "Currency settings description"
+  },
+  "setting_setting_arverify_description": {
+    "message": "Set the verification threshold used",
+    "description": "Arverify settings description"
+  },
+  "setting_setting_arconfetti_description": {
+    "message": "Show animation on wallet usage",
+    "description": "ArConfetti settings description"
+  },
+  "setting_sign_notification_description": {
+    "message": "Notify when signing a transaction",
+    "description": "Sign notification settings description"
+  },
+  "setting_display_theme_description": {
+    "message": "The theme of the extension UI",
+    "description": "Display theme settings description"
   }
 }
