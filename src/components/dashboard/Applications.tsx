@@ -1,8 +1,8 @@
+import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
+import { useLocation, useRoute } from "wouter";
 import { GridIcon } from "@iconicicons/react";
-import { useEffect, useState } from "react";
 import SettingItem, { SettingsList } from "~components/dashboard/SettingItem";
-import { useLocation } from "wouter";
 import Application from "~applications/application";
 
 export default function Applications() {
@@ -39,16 +39,17 @@ export default function Applications() {
     })();
   }, [connectedApps]);
 
-  // active app
-  const [activeApp, setActiveApp] = useState<string>();
+  // router
+  const [, params] = useRoute<{ app?: string }>("/apps/:app?");
+  const [, setLocation] = useLocation();
+
+  // active subsetting val
+  const activeApp = useMemo(() => decodeURIComponent(params.app), [params]);
 
   useEffect(() => {
-    if (!connectedApps?.[0]) return;
-    setActiveApp(connectedApps[0]);
+    if (!connectedApps?.[0] || !activeApp) return;
+    setLocation("/apps/" + encodeURIComponent(connectedApps[0]));
   }, [connectedApps]);
-
-  // router location
-  const [, setLocation] = useLocation();
 
   return (
     <SettingsList>
