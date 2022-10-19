@@ -14,7 +14,9 @@ import {
   WalletIcon
 } from "@iconicicons/react";
 import Applications from "~components/dashboard/Applications";
+import AppSettings from "~components/dashboard/AppSettings";
 import SettingEl from "~components/dashboard/Setting";
+import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import settings from "~settings";
@@ -83,7 +85,14 @@ export default function Settings({ params }: Props) {
               return <Component />;
             })())}
       </Panel>
-      <Panel></Panel>
+      <Panel normalPadding>
+        {activeSetting === "apps" && activeSubSetting && (
+          <AppSettings
+            app={new Application(decodeURIComponent(activeSubSetting))}
+            showTitle
+          />
+        )}
+      </Panel>
     </SettingsWrapper>
   );
 }

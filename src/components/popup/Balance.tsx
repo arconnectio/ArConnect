@@ -166,7 +166,15 @@ export default function Balance() {
           </FiatBalanceText>
         </div>
         {activeAppData && (
-          <ActiveAppIcon>
+          <ActiveAppIcon
+            onClick={() =>
+              browser.tabs.create({
+                url: browser.runtime.getURL(
+                  `tabs/dashboard.html#/apps/${activeApp.url}`
+                )
+              })
+            }
+          >
             <img
               src={activeAppData.logo}
               alt={activeAppData.name || ""}

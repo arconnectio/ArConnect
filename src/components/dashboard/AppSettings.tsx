@@ -28,7 +28,7 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Arweave from "arweave";
 
-export default function AppSettings({ app }: Props) {
+export default function AppSettings({ app, showTitle = false }: Props) {
   // app settings
   const [settings, updateSettings] = app.hook();
   const arweave = new Arweave(defaultGateway);
@@ -90,6 +90,12 @@ export default function AppSettings({ app }: Props) {
 
   return (
     <>
+      {showTitle && (
+        <>
+          <AppName>{settings?.name || settings?.url}</AppName>
+          <Text>{settings?.url}</Text>
+        </>
+      )}
       <Title>{browser.i18n.getMessage("permissions")}</Title>
       {Object.keys(permissionData).map((permissionName: PermissionType, i) => (
         <div key={i}>
@@ -288,7 +294,15 @@ export default function AppSettings({ app }: Props) {
 
 interface Props {
   app: Application;
+  showTitle?: boolean;
 }
+
+const AppName = styled(Text).attrs({
+  title: true,
+  noMargin: true
+})`
+  font-weight: 600;
+`;
 
 const Title = styled(Text).attrs({
   heading: true
