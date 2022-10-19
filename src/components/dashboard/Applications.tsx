@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
+import { SettingsList } from "./list/BaseElement";
 import { useLocation, useRoute } from "wouter";
-import { GridIcon } from "@iconicicons/react";
-import SettingItem, { SettingsList } from "~components/dashboard/SettingItem";
 import Application from "~applications/application";
+import AppListItem from "./list/AppListItem";
 
 export default function Applications() {
   // connected apps
@@ -59,11 +59,10 @@ export default function Applications() {
   return (
     <SettingsList>
       {apps.map((app, i) => (
-        <SettingItem
-          app={{
-            ...app,
-            icon: app.icon || GridIcon
-          }}
+        <AppListItem
+          name={app.name}
+          url={app.url}
+          icon={app.icon}
           active={activeApp === app.url}
           onClick={() => setLocation("/apps/" + encodeURIComponent(app.url))}
           key={i}

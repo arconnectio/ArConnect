@@ -1,36 +1,23 @@
 import { SettingsIcon } from "@iconicicons/react";
-import type { Icon } from "~settings/setting";
 import { Text } from "@arconnect/components";
-import { HTMLProps, useMemo } from "react";
+import type { HTMLProps } from "react";
 import Squircle from "~components/Squircle";
-import browser from "webextension-polyfill";
 import styled from "styled-components";
 
-export default function SettingItem({
-  setting,
+export default function BaseElement({
+  children,
+  title,
+  description,
   active,
-  app,
+  img,
   ...props
 }: Props & HTMLProps<HTMLDivElement>) {
-  const icon = useMemo(
-    () => setting?.icon || app?.icon,
-    [app?.icon, setting?.icon]
-  );
-
   return (
     <SettingWrapper active={active} {...(props as any)}>
-      <SettingIconWrapper>
-        {(typeof icon === "string" && (
-          <SettingImage src={icon} alt="icon" draggable={false} />
-        )) || <SettingIcon as={icon} />}
-      </SettingIconWrapper>
+      <SettingIconWrapper img={img}>{children}</SettingIconWrapper>
       <div>
-        <SettingName>
-          {setting ? browser.i18n.getMessage(setting.displayName) : app.name}
-        </SettingName>
-        <SettingDescription>
-          {setting ? browser.i18n.getMessage(setting.description) : app.url}
-        </SettingDescription>
+        <SettingName>{title}</SettingName>
+        <SettingDescription>{description}</SettingDescription>
       </div>
     </SettingWrapper>
   );
@@ -64,7 +51,7 @@ const SettingIconWrapper = styled(Squircle)`
   color: rgb(${(props) => props.theme.theme});
 `;
 
-const SettingIcon = styled(SettingsIcon)`
+export const SettingIcon = styled(SettingsIcon)`
   position: absolute;
   font-size: 1.5rem;
   width: 1em;
@@ -89,27 +76,19 @@ const SettingDescription = styled(Text).attrs({
   font-size: 0.82rem;
 `;
 
-const SettingImage = styled.img`
+export const SettingImage = styled.img.attrs({
+  alt: "icon",
+  draggable: false
+})`
   width: 1.5rem;
   user-select: none;
 `;
 
 interface Props {
-  setting?: SettingItemData;
-  app?: AppData;
-  active: boolean;
-}
-
-export interface SettingItemData {
-  icon: Icon | string;
-  displayName: string;
+  title: string;
   description: string;
-}
-
-interface AppData {
-  icon: string | Icon;
-  name: string;
-  url: string;
+  active: boolean;
+  img?: string;
 }
 
 export const SettingsList = styled.div`

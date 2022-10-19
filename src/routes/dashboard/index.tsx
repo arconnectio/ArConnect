@@ -1,9 +1,11 @@
 import { Card, Spacer, Text } from "@arconnect/components";
-import SettingItem, {
+import SettingListItem, {
+  Props as SettingItemData
+} from "~components/dashboard/list/SettingListItem";
+import {
   setting_element_padding,
-  SettingItemData,
   SettingsList
-} from "~components/dashboard/SettingItem";
+} from "~components/dashboard/list/BaseElement";
 import { useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import {
@@ -53,8 +55,10 @@ export default function Settings({ params }: Props) {
         <Spacer y={0.85} />
         <SettingsList>
           {allSettings.map((setting, i) => (
-            <SettingItem
-              setting={setting}
+            <SettingListItem
+              displayName={setting.displayName}
+              description={setting.description}
+              icon={setting.icon}
               active={activeSetting === setting.name}
               onClick={() => setLocation("/" + setting.name)}
               key={i}
@@ -148,7 +152,7 @@ interface Props {
   };
 }
 
-const allSettings: Setting[] = [
+const allSettings: Omit<Setting, "active">[] = [
   {
     name: "apps",
     displayName: "setting_apps",
