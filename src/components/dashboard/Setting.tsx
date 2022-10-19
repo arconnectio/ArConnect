@@ -8,6 +8,14 @@ import styled from "styled-components";
 export default function Setting({ setting }: Props) {
   const [settingState, updateSetting] = useSetting(setting.name);
 
+  const fixupBooleanDisplay = (val: string) => {
+    if (val === "false" || val === "true") {
+      return browser.i18n.getMessage(val === "true" ? "enabled" : "disabled");
+    }
+
+    return val[0].toUpperCase() + val.slice(1);
+  };
+
   switch (setting.type) {
     case "boolean":
       return (
@@ -47,16 +55,31 @@ export default function Setting({ setting }: Props) {
         <Select
           label={browser.i18n.getMessage(setting.displayName)}
           onChange={(e) => {
-            // TODO: fixup value to the required format (number, string, etc.)
             // @ts-expect-error
-            updateSetting(e.target.value);
+            const val = e.target.value;
+
+            // transfer boolean values
+            if (val === "true" || val === "false") {
+              return updateSetting(val === "true");
+            } else if (typeof settingState === "number") {
+              // if the previous state was a number
+              // we assume that this one has to be
+              // a number as well
+              return updateSetting(Number(val));
+            }
+
+            updateSetting(val);
           }}
           fullWidth
         >
           {setting.options &&
             setting.options.map((option, i) => (
-              <OptionWithCapital value={option.toString()} key={i}>
-                {option.toString()}
+              <OptionWithCapital
+                value={option.toString()}
+                key={i}
+                selected={option.toString() === settingState.toString()}
+              >
+                {fixupBooleanDisplay(option.toString())}
               </OptionWithCapital>
             ))}
         </Select>
