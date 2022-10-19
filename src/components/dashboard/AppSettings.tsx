@@ -93,7 +93,10 @@ export default function AppSettings({ app, showTitle = false }: Props) {
       {showTitle && (
         <>
           <AppName>{settings?.name || settings?.url}</AppName>
-          <Text>{settings?.url}</Text>
+          <Text>
+            {settings?.url}
+            {settings?.blocked && <BlockedText>Blocked</BlockedText>}
+          </Text>
         </>
       )}
       <Title>{browser.i18n.getMessage("permissions")}</Title>
@@ -302,6 +305,14 @@ const AppName = styled(Text).attrs({
   noMargin: true
 })`
   font-weight: 600;
+`;
+
+const BlockedText = styled.span`
+  color: #ff0000;
+  font-weight: 500;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  margin-left: 0.375rem;
 `;
 
 const Title = styled(Text).attrs({
