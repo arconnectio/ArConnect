@@ -12,6 +12,7 @@ import {
   TrashIcon,
   WalletIcon
 } from "@iconicicons/react";
+import SettingEl from "~components/dashboard/Setting";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import settings from "~settings";
@@ -22,6 +23,13 @@ export default function Settings({ params }: Props) {
 
   // active setting val
   const activeSetting = useMemo(() => params.setting, [params]);
+
+  // whether the active setting is a setting defined
+  // in "~settings/index.ts" or not
+  const definedSetting = useMemo(
+    () => !!settings.find((s) => s.name === activeSetting),
+    [activeSetting]
+  );
 
   // active subsetting val
   const activeSubSetting = useMemo(() => params.subsetting, [params]);
@@ -50,7 +58,17 @@ export default function Settings({ params }: Props) {
           ))}
         </SettingsList>
       </Panel>
-      <Panel></Panel>
+      <Panel
+        normalPadding={activeSetting !== "apps" && activeSetting !== "wallets"}
+      >
+        <Spacer y={3.3} />
+        {activeSetting &&
+          ((definedSetting && (
+            <SettingEl
+              setting={settings.find((s) => s.name === activeSetting)}
+            />
+          )) || <>TODO: custom setting</>)}
+      </Panel>
       <Panel></Panel>
     </SettingsWrapper>
   );
@@ -72,8 +90,8 @@ const isMac = () => {
   return userAgent.includes("Mac") && !userAgent.includes("Windows");
 };
 
-const Panel = styled(Card)`
-  padding: 0.5rem 0.35rem;
+const Panel = styled(Card)<{ normalPadding?: boolean }>`
+  padding: 0.5rem ${(props) => (!props.normalPadding ? "0.35rem" : "0.6rem")};
   overflow-y: auto;
   height: calc(100% - 0.35rem * 2);
 
