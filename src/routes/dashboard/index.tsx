@@ -66,6 +66,7 @@ export default function Settings({ params }: Props) {
           ((definedSetting && (
             <SettingEl
               setting={settings.find((s) => s.name === activeSetting)}
+              key={activeSetting}
             />
           )) || <>TODO: custom setting</>)}
       </Panel>
@@ -91,7 +92,7 @@ const isMac = () => {
 };
 
 const Panel = styled(Card)<{ normalPadding?: boolean }>`
-  padding: 0.5rem ${(props) => (!props.normalPadding ? "0.35rem" : "0.6rem")};
+  padding: 0.5rem ${(props) => (!props.normalPadding ? "0.35rem" : "0.95rem")};
   overflow-y: auto;
   height: calc(100% - 0.35rem * 2);
 
