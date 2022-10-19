@@ -1,7 +1,7 @@
 import { SettingsIcon } from "@iconicicons/react";
 import type { Icon } from "~settings/setting";
 import { Text } from "@arconnect/components";
-import type { HTMLProps } from "react";
+import { HTMLProps, useMemo } from "react";
 import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -9,21 +9,27 @@ import styled from "styled-components";
 export default function SettingItem({
   setting,
   active,
+  app,
   ...props
 }: Props & HTMLProps<HTMLDivElement>) {
+  const icon = useMemo(
+    () => setting?.icon || app?.icon,
+    [app?.icon, setting?.icon]
+  );
+
   return (
     <SettingWrapper active={active} {...(props as any)}>
       <SettingIconWrapper>
-        {(typeof setting.icon === "string" && (
-          <SettingImage src={setting.icon} alt="icon" draggable={false} />
-        )) || <SettingIcon as={setting.icon} />}
+        {(typeof icon === "string" && (
+          <SettingImage src={icon} alt="icon" draggable={false} />
+        )) || <SettingIcon as={icon} />}
       </SettingIconWrapper>
       <div>
         <SettingName>
-          {browser.i18n.getMessage(setting.displayName)}
+          {setting ? browser.i18n.getMessage(setting.displayName) : app.name}
         </SettingName>
         <SettingDescription>
-          {browser.i18n.getMessage(setting.description)}
+          {setting ? browser.i18n.getMessage(setting.description) : app.url}
         </SettingDescription>
       </div>
     </SettingWrapper>
@@ -89,7 +95,8 @@ const SettingImage = styled.img`
 `;
 
 interface Props {
-  setting: SettingItemData;
+  setting?: SettingItemData;
+  app?: AppData;
   active: boolean;
 }
 
@@ -97,6 +104,12 @@ export interface SettingItemData {
   icon: Icon | string;
   displayName: string;
   description: string;
+}
+
+interface AppData {
+  icon: string | Icon;
+  name: string;
+  url: string;
 }
 
 export const SettingsList = styled.div`

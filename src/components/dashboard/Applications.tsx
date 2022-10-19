@@ -29,7 +29,7 @@ export default function Applications() {
         const appData = await appObj.getAppData();
 
         appsWithData.push({
-          name: appData.name || "",
+          name: appData.name || app,
           url: app,
           icon: appData.logo
         });
@@ -44,20 +44,24 @@ export default function Applications() {
   const [, setLocation] = useLocation();
 
   // active subsetting val
-  const activeApp = useMemo(() => decodeURIComponent(params.app), [params]);
+  const activeApp = useMemo(
+    () => (params?.app ? decodeURIComponent(params.app) : undefined),
+    [params]
+  );
 
   useEffect(() => {
-    if (!connectedApps?.[0] || !activeApp) return;
-    setLocation("/apps/" + encodeURIComponent(connectedApps[0]));
+    const firstApp = connectedApps?.[0];
+
+    if (!firstApp || !!activeApp) return;
+    setLocation("/apps/" + firstApp);
   }, [connectedApps]);
 
   return (
     <SettingsList>
       {apps.map((app, i) => (
         <SettingItem
-          setting={{
-            displayName: app.name,
-            description: app.url,
+          app={{
+            ...app,
             icon: app.icon || GridIcon
           }}
           active={activeApp === app.url}
