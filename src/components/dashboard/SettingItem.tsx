@@ -13,7 +13,9 @@ export default function SettingItem({
   return (
     <SettingWrapper active={active} {...(props as any)}>
       <SettingIconWrapper>
-        <SettingIcon as={setting.icon} />
+        {(typeof setting.icon === "string" && (
+          <SettingImage src={setting.icon} alt="icon" draggable={false} />
+        )) || <SettingIcon as={setting.icon} />}
       </SettingIconWrapper>
       <div>
         <SettingName>{setting.displayName}</SettingName>
@@ -76,11 +78,18 @@ const SettingDescription = styled(Text).attrs({
   font-size: 0.82rem;
 `;
 
+const SettingImage = styled.img`
+  width: 1.5rem;
+  user-select: none;
+`;
+
 interface Props {
-  setting: {
-    icon: Icon;
-    displayName: string;
-    description: string;
-  };
+  setting: SettingItemData;
   active: boolean;
+}
+
+export interface SettingItemData {
+  icon: Icon | string;
+  displayName: string;
+  description: string;
 }

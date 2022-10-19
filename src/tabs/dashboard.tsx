@@ -12,7 +12,7 @@ export default function Popup() {
     <Provider theme={theme}>
       <GlobalStyle />
       <Router hook={useHashLocation}>
-        <Route path="/" component={Settings} />
+        <Route path="/:setting?/:subsetting?" component={Settings} />
       </Router>
     </Provider>
   );

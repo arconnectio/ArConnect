@@ -2,7 +2,7 @@ import { GlobalStyle, useTheme } from "~utils/theme";
 import { useHashLocation } from "~utils/hash_router";
 import { Provider } from "@arconnect/components";
 import { Router, Route } from "wouter";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 
 import Home from "~routes/popup";
 
@@ -12,6 +12,7 @@ export default function Popup() {
   return (
     <Provider theme={theme}>
       <GlobalStyle />
+      <HideScrollbar />
       <Page>
         <Router hook={useHashLocation}>
           <Route path="/" component={Home} />
@@ -20,6 +21,17 @@ export default function Popup() {
     </Provider>
   );
 }
+
+const HideScrollbar = createGlobalStyle`
+  body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none
+    }
+  }
+`;
 
 const Page = styled.div`
   width: 385px;
