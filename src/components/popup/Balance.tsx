@@ -53,17 +53,19 @@ export default function Balance() {
 
   useEffect(() => {
     (async () => {
+      if (!currency) return;
+
       // fetch price in currency
       const { data } = await axios.get<{
         arweave: { [key: string]: number };
       }>(
-        `https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=${currency}`
+        `https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=${currency.toLowerCase()}`
       );
 
       // calculate fiat balance
-      setFiat(data.arweave[currency] * balance);
+      setFiat(data.arweave[currency.toLowerCase()] * balance);
     })();
-  }, [balance]);
+  }, [balance, currency]);
 
   // balance display
   const [hideBalance, setHideBalance] = useStorage<boolean>(
@@ -152,7 +154,7 @@ export default function Balance() {
             {(!hideBalance &&
               fiat.toLocaleString(undefined, {
                 style: "currency",
-                currency,
+                currency: currency.toLowerCase(),
                 currencyDisplay: "narrowSymbol",
                 maximumFractionDigits: 2
               })) ||

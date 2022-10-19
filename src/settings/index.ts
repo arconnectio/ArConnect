@@ -26,8 +26,8 @@ const settings: Setting[] = [
     icon: DollarIcon,
     description: "setting_setting_currency_description",
     type: "pick",
-    options: ["usd", "eur", "gbp"],
-    defaultValue: "usd"
+    options: ["USD", "EUR", "GBP"],
+    defaultValue: "USD"
   }),
   new Setting({
     name: "arverify",

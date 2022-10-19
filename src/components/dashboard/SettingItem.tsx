@@ -98,3 +98,9 @@ export interface SettingItemData {
   displayName: string;
   description: string;
 }
+
+export const SettingsList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+`;

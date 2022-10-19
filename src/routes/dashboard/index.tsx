@@ -1,9 +1,10 @@
 import { Card, Spacer, Text } from "@arconnect/components";
-import { ReactNode, useEffect, useMemo } from "react";
 import SettingItem, {
   setting_element_padding,
-  SettingItemData
+  SettingItemData,
+  SettingsList
 } from "~components/dashboard/SettingItem";
+import { useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import {
   DownloadIcon,
@@ -12,6 +13,7 @@ import {
   TrashIcon,
   WalletIcon
 } from "@iconicicons/react";
+import Applications from "~components/dashboard/Applications";
 import SettingEl from "~components/dashboard/Setting";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -68,7 +70,18 @@ export default function Settings({ params }: Props) {
               setting={settings.find((s) => s.name === activeSetting)}
               key={activeSetting}
             />
-          )) || <>TODO: custom setting</>)}
+          )) ||
+            (() => {
+              const Component = allSettings.find(
+                (s) => s.name === activeSetting
+              )?.component;
+
+              if (!Component) {
+                return <></>;
+              }
+
+              return <Component />;
+            })())}
       </Panel>
       <Panel></Panel>
     </SettingsWrapper>
@@ -114,15 +127,9 @@ const SettingsTitle = styled(Text).attrs({
   padding: 0 ${setting_element_padding};
 `;
 
-const SettingsList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-`;
-
 interface Setting extends SettingItemData {
   name: string;
-  component?: ReactNode;
+  component?: (...args: any[]) => JSX.Element;
 }
 
 interface Props {
@@ -137,7 +144,8 @@ const allSettings: Setting[] = [
     name: "apps",
     displayName: "setting_apps",
     description: "setting_apps_description",
-    icon: GridIcon
+    icon: GridIcon,
+    component: Applications
   },
   {
     name: "wallets",
