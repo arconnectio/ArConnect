@@ -464,5 +464,9 @@
   "error_adding_wallets": {
     "message": "Error adding wallet(s). Check your password",
     "description": "Error on wallet adding notification"
+  },
+  "no_apps_added": {
+    "message": "No apps added yet...",
+    "description": "No apps added message"
   }
 }

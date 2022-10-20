@@ -1,4 +1,4 @@
-import { Spacer, useInput } from "@arconnect/components";
+import { Spacer, Text, useInput } from "@arconnect/components";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { SettingsList } from "./list/BaseElement";
@@ -100,6 +100,9 @@ export default function Applications() {
           />
         ))}
       </SettingsList>
+      {connectedApps && connectedApps.length === 0 && (
+        <NoAppsText>{browser.i18n.getMessage("no_apps_added")}</NoAppsText>
+      )}
     </Wrapper>
   );
 }
@@ -112,4 +115,9 @@ interface SettingsAppData {
 
 const Wrapper = styled.div`
   position: relative;
+`;
+
+const NoAppsText = styled(Text)`
+  text-align: center;
+  padding-top: 0.5rem;
 `;
