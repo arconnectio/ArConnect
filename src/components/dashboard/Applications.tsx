@@ -1,9 +1,12 @@
+import { Spacer, useInput } from "@arconnect/components";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { SettingsList } from "./list/BaseElement";
 import { useLocation, useRoute } from "wouter";
 import Application from "~applications/application";
 import AppListItem from "./list/AppListItem";
+import SearchInput from "./SearchInput";
+import styled from "styled-components";
 
 export default function Applications() {
   // connected apps
@@ -56,19 +59,44 @@ export default function Applications() {
     setLocation("/apps/" + firstApp);
   }, [connectedApps]);
 
+  // search
+  const searchInput = useInput();
+
+  // search filter function
+  function filterSearchResults(app: SettingsAppData) {
+    const query = searchInput.state;
+
+    if (query === "" || !query) {
+      return true;
+    }
+
+    return (
+      app.name.includes(query.toLowerCase()) ||
+      app.url.includes(query.toLowerCase())
+    );
+  }
+
   return (
-    <SettingsList>
-      {apps.map((app, i) => (
-        <AppListItem
-          name={app.name}
-          url={app.url}
-          icon={app.icon}
-          active={activeApp === app.url}
-          onClick={() => setLocation("/apps/" + encodeURIComponent(app.url))}
-          key={i}
-        />
-      ))}
-    </SettingsList>
+    <Wrapper>
+      <SearchInput
+        placeholder="Search for an app..."
+        {...searchInput.bindings}
+        sticky
+      />
+      <Spacer y={1} />
+      <SettingsList>
+        {apps.filter(filterSearchResults).map((app, i) => (
+          <AppListItem
+            name={app.name}
+            url={app.url}
+            icon={app.icon}
+            active={activeApp === app.url}
+            onClick={() => setLocation("/apps/" + encodeURIComponent(app.url))}
+            key={i}
+          />
+        ))}
+      </SettingsList>
+    </Wrapper>
   );
 }
 
@@ -77,3 +105,7 @@ interface SettingsAppData {
   url: string;
   icon?: string;
 }
+
+const Wrapper = styled.div`
+  position: relative;
+`;
