@@ -128,32 +128,6 @@ export default function WalletSwitcher({ open, close }: Props) {
     })();
   }, [wallets]);
 
-  // edit mode status
-  const [editMode, setEditMode] = useState(false);
-
-  // fixup wallet names
-  useEffect(() => {
-    if (editMode || storedWallets.length === 0) return;
-
-    setStoredWallets((val) =>
-      val.map((wallet, i) => {
-        if (wallet.nickname !== "") {
-          return wallet;
-        }
-
-        return {
-          ...wallet,
-          nickname: `Account ${i + 1}`
-        };
-      })
-    );
-  }, [editMode]);
-
-  // disable edit mode on close
-  useEffect(() => {
-    if (!open) setEditMode(false);
-  }, [open]);
-
   // toasts
   const { setToast } = useToasts();
 
@@ -173,7 +147,6 @@ export default function WalletSwitcher({ open, close }: Props) {
                   open={open}
                   key={i}
                   onClick={() => {
-                    if (editMode) return;
                     setActiveAddress(wallet.address);
                     setToast({
                       type: "success",
@@ -187,24 +160,7 @@ export default function WalletSwitcher({ open, close }: Props) {
                 >
                   <WalletData>
                     <WalletTitle>
-                      <WalletName>
-                        {((!editMode || wallet.hasAns) && wallet.name) || (
-                          <WalletNameEditor
-                            value={wallet.name}
-                            onChange={(e) =>
-                              setStoredWallets((val) =>
-                                val.map((w) => {
-                                  if (w.address !== wallet.address) return w;
-                                  return {
-                                    ...w,
-                                    nickname: e.target.value
-                                  };
-                                })
-                              )
-                            }
-                          />
-                        )}
-                      </WalletName>
+                      <WalletName>{wallet.name}</WalletName>
                       <Text noMargin>
                         (
                         {formatAddress(
@@ -222,27 +178,8 @@ export default function WalletSwitcher({ open, close }: Props) {
                       <span>AR</span>
                     </Balance>
                   </WalletData>
-                  <Avatar
-                    img={!editMode ? wallet.avatar : undefined}
-                    onClick={() => {
-                      if (!editMode) return;
-                      setToast({
-                        content: browser.i18n.getMessage("removeConfirmation", [
-                          wallet.name
-                        ]),
-                        duration: 4000,
-                        action: {
-                          name: browser.i18n.getMessage("yes").toUpperCase(),
-                          task: () =>
-                            setStoredWallets((val) =>
-                              val.filter((w) => w.address !== wallet.address)
-                            )
-                        }
-                      });
-                    }}
-                  >
-                    {(editMode && <DeleteIcon />) ||
-                      (!wallet.avatar && <NoAvatarIcon />)}
+                  <Avatar img={wallet.avatar}>
+                    {!wallet.avatar && <NoAvatarIcon />}
                   </Avatar>
                 </Wallet>
               ))}
@@ -261,8 +198,13 @@ export default function WalletSwitcher({ open, close }: Props) {
                 </AddWalletButton>
                 <Tooltip content={browser.i18n.getMessage("edit")}>
                   <EditButton
-                    onClick={() => setEditMode((val) => !val)}
-                    as={editMode ? CheckIcon : undefined}
+                    onClick={() =>
+                      browser.tabs.create({
+                        url: browser.runtime.getURL(
+                          "tabs/dashboard.html#/wallets"
+                        )
+                      })
+                    }
                   />
                 </Tooltip>
               </ActionBar>

@@ -67,19 +67,48 @@ export default function WalletSettings({ address }: Props) {
   }, [wallet, ansLabel]);
 
   // update nickname function
-  async function updateNickname(newName: string) {
-    await setWallets((val) =>
-      val.map((wallet) => {
-        if (wallet.address !== address) {
-          return wallet;
-        }
+  async function updateNickname() {
+    if (!!ansLabel) return;
 
-        return {
-          ...wallet,
-          nickname: newName
-        };
-      })
-    );
+    // check name
+    const newName = walletNameInput.state;
+
+    if (!newName || newName === "") {
+      return setToast({
+        type: "error",
+        content: "Please enter a valid nickname",
+        duration: 2200
+      });
+    }
+
+    // update wallets
+    try {
+      await setWallets((val) =>
+        val.map((wallet) => {
+          if (wallet.address !== address) {
+            return wallet;
+          }
+
+          return {
+            ...wallet,
+            nickname: newName
+          };
+        })
+      );
+
+      setToast({
+        type: "info",
+        content: browser.i18n.getMessage("updated_wallet_name"),
+        duration: 3000
+      });
+    } catch (e) {
+      console.log("Could not update nickname", e);
+      setToast({
+        type: "error",
+        content: browser.i18n.getMessage("error_updating_wallet_name"),
+        duration: 3000
+      });
+    }
   }
 
   if (!wallet) return <></>;
@@ -115,20 +144,7 @@ export default function WalletSettings({ address }: Props) {
               disabled={!!ansLabel}
             />
           </InputWrapper>
-          <IconButton
-            secondary
-            onClick={async () => {
-              if (!!ansLabel) return;
-
-              await updateNickname(walletNameInput.state);
-              setToast({
-                type: "info",
-                content: browser.i18n.getMessage("updated_wallet_name"),
-                duration: 3000
-              });
-            }}
-            disabled={!!ansLabel}
-          >
+          <IconButton secondary onClick={updateNickname} disabled={!!ansLabel}>
             <CheckIcon />
           </IconButton>
         </InputWithBtn>

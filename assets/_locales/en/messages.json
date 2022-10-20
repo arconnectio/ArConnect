@@ -17,16 +17,6 @@
       }
     }
   },
-  "removeConfirmation": {
-    "message": "Remove $ADDRESS$?",
-    "description": "Question asking if the user wants to remove a wallet",
-    "placeholders": {
-      "address": {
-        "content": "$1",
-        "example": "ljvCPN31...-CS-6Iho8U"
-      }
-    }
-  },
   "yes": {
     "message": "Yes",
     "description": "The word \"yes\""
@@ -436,6 +426,10 @@
   "updated_wallet_name": {
     "message": "Updated wallet name",
     "description": "Wallet name update notification content"
+  },
+  "error_updating_wallet_name": {
+    "message": "Error updating wallet name",
+    "description": "Wallet name update error notification content"
   },
   "copied_address": {
     "message": "Copied wallet address",
