@@ -28,7 +28,7 @@ export default function Settings({ params }: Props) {
   const [, setLocation] = useLocation();
 
   // active setting val
-  const activeSetting = useMemo(() => params.setting, [params]);
+  const activeSetting = useMemo(() => params.setting, [params.setting]);
 
   // whether the active setting is a setting defined
   // in "~settings/index.ts" or not
@@ -38,7 +38,19 @@ export default function Settings({ params }: Props) {
   );
 
   // active subsetting val
-  const activeSubSetting = useMemo(() => params.subsetting, [params]);
+  const activeSubSetting = useMemo(
+    () => params.subsetting,
+    [params.subsetting]
+  );
+
+  // active app setting
+  const activeAppSetting = useMemo(() => {
+    if (!activeSubSetting || activeSetting !== "apps") {
+      return undefined;
+    }
+
+    return new Application(decodeURIComponent(activeSubSetting));
+  }, [activeSubSetting]);
 
   // redirect to the first setting
   // if none is selected
@@ -90,10 +102,11 @@ export default function Settings({ params }: Props) {
             })())}
       </Panel>
       <Panel normalPadding>
-        {activeSetting === "apps" && activeSubSetting && (
+        {!!activeAppSetting && (
           <AppSettings
-            app={new Application(decodeURIComponent(activeSubSetting))}
+            app={activeAppSetting}
             showTitle
+            key={activeAppSetting.url}
           />
         )}
       </Panel>
