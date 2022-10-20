@@ -1,7 +1,9 @@
-import { Input, Select, Text } from "@arconnect/components";
+import { setting_element_padding } from "./list/BaseElement";
+import { Input, Text } from "@arconnect/components";
 import PermissionCheckbox from "~components/auth/PermissionCheckbox";
 import type SettingType from "~settings/setting";
 import browser from "webextension-polyfill";
+import Squircle from "~components/Squircle";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 
@@ -52,37 +54,15 @@ export default function Setting({ setting }: Props) {
 
     case "pick":
       return (
-        <Select
-          label={browser.i18n.getMessage(setting.displayName)}
-          onChange={(e) => {
-            // @ts-expect-error
-            const val = e.target.value;
-
-            // transfer boolean values
-            if (val === "true" || val === "false") {
-              return updateSetting(val === "true");
-            } else if (typeof settingState === "number") {
-              // if the previous state was a number
-              // we assume that this one has to be
-              // a number as well
-              return updateSetting(Number(val));
-            }
-
-            updateSetting(val);
-          }}
-          fullWidth
-        >
+        <RadioWrapper>
           {setting.options &&
             setting.options.map((option, i) => (
-              <OptionWithCapital
-                value={option.toString()}
-                key={i}
-                selected={option.toString() === settingState.toString()}
-              >
-                {fixupBooleanDisplay(option.toString())}
-              </OptionWithCapital>
+              <RadioItem onClick={() => updateSetting(option)} key={i}>
+                <Radio>{settingState === option && <RadioInner />}</Radio>
+                <Text noMargin>{fixupBooleanDisplay(option.toString())}</Text>
+              </RadioItem>
             ))}
-        </Select>
+        </RadioWrapper>
       );
 
     default:
@@ -94,6 +74,43 @@ interface Props {
   setting: SettingType;
 }
 
-const OptionWithCapital = styled.option`
-  text-transform: capitalize;
+const RadioWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+`;
+
+const Radio = styled(Squircle).attrs((props) => ({
+  outline: `rgba(${props.theme.theme}, .7)`
+}))`
+  position: relative;
+  color: rgb(${(props) => props.theme.background});
+  width: 1rem;
+  height: 1rem;
+`;
+
+const RadioInner = styled(Squircle)`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.78rem;
+  height: 0.78rem;
+  color: rgb(${(props) => props.theme.theme});
+  transform: translate(-50%, -50%);
+  transition: all 0.23s ease-in-out;
+`;
+
+const RadioItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: ${setting_element_padding};
+  border-radius: 20px;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.23s ease-in-out;
+
+  &:hover {
+    background-color: rgba(${(props) => props.theme.cardBorder}, 0.5);
+  }
 `;
