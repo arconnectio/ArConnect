@@ -80,8 +80,12 @@ export const SettingImage = styled.img.attrs({
   alt: "icon",
   draggable: false
 })`
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: 1.5rem;
   user-select: none;
+  transform: translate(-50%, -50%);
 `;
 
 interface Props {

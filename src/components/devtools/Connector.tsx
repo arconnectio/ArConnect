@@ -1,10 +1,12 @@
 import { permissionData, PermissionType } from "~applications/permissions";
 import { Button, Spacer, useToasts } from "@arconnect/components";
-import { addApp } from "~applications";
-import { useState } from "react";
+import type { AppInfo } from "~applications/application";
 import PermissionCheckbox, {
   PermissionDescription
 } from "~components/auth/PermissionCheckbox";
+import { useEffect, useState } from "react";
+import { getTab } from "~applications/tab";
+import { addApp } from "~applications";
 import browser from "webextension-polyfill";
 
 export default function Connector({ appUrl }: Props) {
@@ -14,6 +16,19 @@ export default function Connector({ appUrl }: Props) {
   const [loading, setLoading] = useState(false);
   const { setToast } = useToasts();
 
+  const [appData, setAppData] = useState<AppInfo>({});
+
+  useEffect(() => {
+    (async () => {
+      const tab = await getTab(browser.devtools.inspectedWindow.tabId);
+
+      setAppData({
+        name: tab?.title?.slice(0, 14),
+        logo: tab?.favIconUrl
+      });
+    })();
+  }, []);
+
   // force connect
   async function forceConnect() {
     if (permsToConnect.length === 0) return;
@@ -22,6 +37,7 @@ export default function Connector({ appUrl }: Props) {
     // try to add the app
     try {
       await addApp({
+        ...appData,
         url: appUrl,
         permissions: permsToConnect
       });
