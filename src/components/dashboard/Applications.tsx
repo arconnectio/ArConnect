@@ -5,6 +5,7 @@ import { SettingsList } from "./list/BaseElement";
 import { useLocation, useRoute } from "wouter";
 import Application from "~applications/application";
 import AppListItem from "./list/AppListItem";
+import browser from "webextension-polyfill";
 import SearchInput from "./SearchInput";
 import styled from "styled-components";
 
@@ -82,7 +83,7 @@ export default function Applications() {
   return (
     <Wrapper>
       <SearchInput
-        placeholder="Search for an app..."
+        placeholder={browser.i18n.getMessage("search_apps")}
         {...searchInput.bindings}
         sticky
       />

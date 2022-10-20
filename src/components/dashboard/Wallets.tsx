@@ -1,3 +1,4 @@
+import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { Spacer, useInput } from "@arconnect/components";
 import { useEffect, useMemo, useState } from "react";
 import { IconButton } from "~components/IconButton";
@@ -7,8 +8,8 @@ import { SettingsList } from "./list/BaseElement";
 import { useLocation, useRoute } from "wouter";
 import { PlusIcon } from "@iconicicons/react";
 import type { StoredWallet } from "~wallets";
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import WalletListItem from "./list/WalletListItem";
+import browser from "webextension-polyfill";
 import SearchInput from "./SearchInput";
 import styled from "styled-components";
 
@@ -47,23 +48,6 @@ export default function Wallets() {
     setLocation("/wallets/" + firstWallet.address);
   }, [wallets]);
 
-  // search
-  const searchInput = useInput();
-
-  // search filter function
-  function filterSearchResults(wallet: StoredWallet) {
-    const query = searchInput.state;
-
-    if (query === "" || !query) {
-      return true;
-    }
-
-    return (
-      wallet.address.toLowerCase().includes(query.toLowerCase()) ||
-      wallet.nickname.toLowerCase().includes(query.toLowerCase())
-    );
-  }
-
   // ans data
   const [ansProfiles, setAnsProfiles] = useState<AnsUser[]>([]);
 
@@ -97,11 +81,29 @@ export default function Wallets() {
     return label + ".ar";
   }
 
+  // search
+  const searchInput = useInput();
+
+  // search filter function
+  function filterSearchResults(wallet: StoredWallet) {
+    const query = searchInput.state;
+
+    if (query === "" || !query) {
+      return true;
+    }
+
+    return (
+      wallet.address.toLowerCase().includes(query.toLowerCase()) ||
+      wallet.nickname.toLowerCase().includes(query.toLowerCase()) ||
+      findLabel(wallet.address)?.includes(query.toLowerCase())
+    );
+  }
+
   return (
     <>
       <Wrapper>
         <SearchInput
-          placeholder="Search for a wallet..."
+          placeholder={browser.i18n.getMessage("search_wallets")}
           {...searchInput.bindings}
           sticky
         />

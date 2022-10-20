@@ -23,6 +23,7 @@ import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import settings from "~settings";
+import WalletSettings from "~components/dashboard/subsettings/WalletSettings";
 
 export default function Settings({ params }: Props) {
   // router location
@@ -109,6 +110,9 @@ export default function Settings({ params }: Props) {
             showTitle
             key={activeAppSetting.url}
           />
+        )}
+        {activeSetting === "wallets" && !!activeSubSetting && (
+          <WalletSettings address={activeSubSetting} />
         )}
       </Panel>
     </SettingsWrapper>

@@ -76,7 +76,7 @@ export default function Setting({ setting }: Props) {
           {setting?.options && setting.options.length > 6 && (
             <>
               <SearchInput
-                placeholder="Search for an option..."
+                placeholder={browser.i18n.getMessage("search_pick_option")}
                 {...searchInput.bindings}
                 sticky
               />

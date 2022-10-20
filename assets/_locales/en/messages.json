@@ -408,5 +408,41 @@
   "setting_display_theme_description": {
     "message": "The theme of the extension UI",
     "description": "Display theme settings description"
+  },
+  "search_pick_option": {
+    "message": "Search for an option...",
+    "description": "Search input placeholder for the \"pick\" option component"
+  },
+  "search_apps": {
+    "message": "Search for an app...",
+    "description": "Search input placeholder for apps"
+  },
+  "search_wallets": {
+    "message": "Search for a wallet...",
+    "description": "Search input placeholder for wallets"
+  },
+  "export_keyfile": {
+    "message": "Export keyfile",
+    "description": "Export keyfile button"
+  },
+  "remove_wallet": {
+    "message": "Remove wallet",
+    "description": "Remove wallet button"
+  },
+  "edit_wallet_name": {
+    "message": "Edit name",
+    "description": "Edit wallet name title in settings"
+  },
+  "updated_wallet_name": {
+    "message": "Updated wallet name",
+    "description": "Wallet name update notification content"
+  },
+  "copied_address": {
+    "message": "Copied wallet address",
+    "description": "Address copy notification"
+  },
+  "cannot_edit_with_ans": {
+    "message": "Cannot edit nickname. Wallet already has an ANS label.",
+    "description": "Explainer for disabled edits for wallets with ANS profiles"
   }
 }

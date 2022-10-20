@@ -53,7 +53,8 @@ export default function WalletSwitcher({ open, close }: Props) {
         storedWallets.map((wallet) => ({
           name: wallet.nickname,
           address: wallet.address,
-          balance: 0
+          balance: 0,
+          hasAns: false
         }))
       ),
     [storedWallets]
@@ -66,10 +67,12 @@ export default function WalletSwitcher({ open, close }: Props) {
     (async () => {
       if (wallets.length === 0 || loadedAns) return;
 
+      // get ans profiles
       const profiles = (await getAnsProfile(
         wallets.map((val) => val.address)
       )) as AnsUser[];
 
+      // update wallets state
       setWallets((val) =>
         val.map((wallet) => {
           const profile = profiles.find(({ user }) => user === wallet.address);
@@ -81,7 +84,8 @@ export default function WalletSwitcher({ open, close }: Props) {
               : wallet.name,
             avatar: profile?.avatar
               ? concatGatewayURL(defaultGateway) + "/" + profile.avatar
-              : undefined
+              : undefined,
+            hasAns: !!profile
           };
         })
       );
@@ -184,7 +188,7 @@ export default function WalletSwitcher({ open, close }: Props) {
                   <WalletData>
                     <WalletTitle>
                       <WalletName>
-                        {(!editMode && wallet.name) || (
+                        {((!editMode || wallet.hasAns) && wallet.name) || (
                           <WalletNameEditor
                             value={wallet.name}
                             onChange={(e) =>
@@ -473,4 +477,5 @@ interface DisplayedWallet {
   address: string;
   balance: number;
   avatar?: string;
+  hasAns: boolean;
 }
