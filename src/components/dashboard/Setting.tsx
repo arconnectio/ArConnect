@@ -77,7 +77,7 @@ interface Props {
 const RadioWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.05rem;
 `;
 
 const Radio = styled(Squircle).attrs((props) => ({
@@ -93,8 +93,8 @@ const RadioInner = styled(Squircle)`
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 0.78rem;
-  height: 0.78rem;
+  width: 0.72rem;
+  height: 0.72rem;
   color: rgb(${(props) => props.theme.theme});
   transform: translate(-50%, -50%);
   transition: all 0.23s ease-in-out;

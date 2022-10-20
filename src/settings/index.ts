@@ -1,3 +1,4 @@
+import { currencies } from "~lib/coingecko";
 import {
   BellIcon,
   CheckIcon,
@@ -26,7 +27,7 @@ const settings: Setting[] = [
     icon: DollarIcon,
     description: "setting_setting_currency_description",
     type: "pick",
-    options: ["USD", "EUR", "GBP"],
+    options: currencies,
     defaultValue: "USD"
   }),
   new Setting({
