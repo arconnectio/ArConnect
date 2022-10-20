@@ -55,7 +55,10 @@ export default function Applications() {
   useEffect(() => {
     const firstApp = connectedApps?.[0];
 
-    if (!firstApp || !!activeApp) return;
+    if (!firstApp || (!!activeApp && !!connectedApps.includes(activeApp))) {
+      return;
+    }
+
     setLocation("/apps/" + firstApp);
   }, [connectedApps]);
 
