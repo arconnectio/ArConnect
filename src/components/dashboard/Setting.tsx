@@ -1,15 +1,18 @@
+import { Input, Spacer, Text, useInput } from "@arconnect/components";
 import { setting_element_padding } from "./list/BaseElement";
-import { Input, Text } from "@arconnect/components";
 import PermissionCheckbox from "~components/auth/PermissionCheckbox";
 import type SettingType from "~settings/setting";
 import browser from "webextension-polyfill";
 import Squircle from "~components/Squircle";
+import SearchInput from "./SearchInput";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 
 export default function Setting({ setting }: Props) {
+  // setting state
   const [settingState, updateSetting] = useSetting(setting.name);
 
+  // fixup displayed option
   const fixupBooleanDisplay = (val: string) => {
     if (val === "false" || val === "true") {
       return browser.i18n.getMessage(val === "true" ? "enabled" : "disabled");
@@ -17,6 +20,20 @@ export default function Setting({ setting }: Props) {
 
     return val[0].toUpperCase() + val.slice(1);
   };
+
+  // search
+  const searchInput = useInput();
+
+  // search filter function
+  function filterSearchResults(option: string) {
+    const query = searchInput.state;
+
+    if (query === "" || !query) {
+      return true;
+    }
+
+    return option.toLowerCase().includes(query.toLowerCase());
+  }
 
   switch (setting.type) {
     case "boolean":
@@ -54,15 +71,28 @@ export default function Setting({ setting }: Props) {
 
     case "pick":
       return (
-        <RadioWrapper>
-          {setting.options &&
-            setting.options.map((option, i) => (
-              <RadioItem onClick={() => updateSetting(option)} key={i}>
-                <Radio>{settingState === option && <RadioInner />}</Radio>
-                <Text noMargin>{fixupBooleanDisplay(option.toString())}</Text>
-              </RadioItem>
-            ))}
-        </RadioWrapper>
+        <>
+          {/** search for "pick" settings with more than 6 options */}
+          {setting?.options && setting.options.length > 6 && (
+            <>
+              <SearchInput
+                placeholder="Search for an option..."
+                {...searchInput.bindings}
+                sticky
+              />
+              <Spacer y={1} />
+            </>
+          )}
+          <RadioWrapper>
+            {setting?.options &&
+              setting.options.filter(filterSearchResults).map((option, i) => (
+                <RadioItem onClick={() => updateSetting(option)} key={i}>
+                  <Radio>{settingState === option && <RadioInner />}</Radio>
+                  <Text noMargin>{fixupBooleanDisplay(option.toString())}</Text>
+                </RadioItem>
+              ))}
+          </RadioWrapper>
+        </>
       );
 
     default:

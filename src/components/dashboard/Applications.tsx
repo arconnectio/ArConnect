@@ -74,8 +74,8 @@ export default function Applications() {
     }
 
     return (
-      app.name.includes(query.toLowerCase()) ||
-      app.url.includes(query.toLowerCase())
+      app.name.toLowerCase().includes(query.toLowerCase()) ||
+      app.url.toLowerCase().includes(query.toLowerCase())
     );
   }
 
