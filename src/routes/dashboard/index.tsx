@@ -18,6 +18,7 @@ import {
 import Applications from "~components/dashboard/Applications";
 import AppSettings from "~components/dashboard/subsettings/AppSettings";
 import SettingEl from "~components/dashboard/Setting";
+import Wallets from "~components/dashboard/Wallets";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -177,7 +178,8 @@ const allSettings: Omit<Setting, "active">[] = [
     name: "wallets",
     displayName: "setting_wallets",
     description: "setting_wallets_description",
-    icon: WalletIcon
+    icon: WalletIcon,
+    component: Wallets
   },
   ...settings.map((setting) => ({
     name: setting.name,
