@@ -1,9 +1,11 @@
 import { Spacer, useInput } from "@arconnect/components";
 import { useEffect, useMemo, useState } from "react";
+import { IconButton } from "~components/IconButton";
 import { useStorage } from "@plasmohq/storage/hook";
 import { AnsUser, getAnsProfile } from "~lib/ans";
 import { SettingsList } from "./list/BaseElement";
 import { useLocation, useRoute } from "wouter";
+import { PlusIcon } from "@iconicicons/react";
 import type { StoredWallet } from "~wallets";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import WalletListItem from "./list/WalletListItem";
@@ -96,32 +98,52 @@ export default function Wallets() {
   }
 
   return (
-    <Wrapper>
-      <SearchInput
-        placeholder="Search for a wallet..."
-        {...searchInput.bindings}
-        sticky
-      />
-      <Spacer y={1} />
-      <SettingsList>
-        {wallets &&
-          wallets
-            .filter(filterSearchResults)
-            .map((wallet, i) => (
-              <WalletListItem
-                name={findLabel(wallet.address) || wallet.nickname}
-                address={wallet.address}
-                avatar={findAvatar(wallet.address)}
-                active={activeWalletSetting === wallet.address}
-                onClick={() => setLocation("/wallets/" + wallet.address)}
-                key={i}
-              />
-            ))}
-      </SettingsList>
-    </Wrapper>
+    <>
+      <Wrapper>
+        <SearchInput
+          placeholder="Search for a wallet..."
+          {...searchInput.bindings}
+          sticky
+        />
+        <Spacer y={1} />
+        <SettingsList>
+          {wallets &&
+            wallets
+              .filter(filterSearchResults)
+              .map((wallet, i) => (
+                <WalletListItem
+                  name={findLabel(wallet.address) || wallet.nickname}
+                  address={wallet.address}
+                  avatar={findAvatar(wallet.address)}
+                  active={activeWalletSetting === wallet.address}
+                  onClick={() => setLocation("/wallets/" + wallet.address)}
+                  key={i}
+                />
+              ))}
+        </SettingsList>
+      </Wrapper>
+      <AddWalletButton>
+        <PlusIcon />
+      </AddWalletButton>
+    </>
   );
 }
 
 const Wrapper = styled.div`
   position: relative;
+`;
+
+const AddWalletButton = styled(IconButton).attrs({
+  secondary: true
+})`
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  z-index: 20;
+  background: linear-gradient(
+      0deg,
+      rgba(${(props) => props.theme.theme}, 0.2),
+      rgba(${(props) => props.theme.theme}, 0.2)
+    ),
+    rgb(${(props) => props.theme.background});
 `;

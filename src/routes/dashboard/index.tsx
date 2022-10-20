@@ -132,6 +132,7 @@ const isMac = () => {
 };
 
 const Panel = styled(Card)<{ normalPadding?: boolean }>`
+  position: relative;
   padding: 0.5rem ${(props) => (!props.normalPadding ? "0.35rem" : "0.95rem")};
   overflow-y: auto;
   height: calc(100% - 0.35rem * 2);

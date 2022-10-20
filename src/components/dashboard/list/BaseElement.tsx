@@ -96,6 +96,7 @@ interface Props {
 }
 
 export const SettingsList = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
