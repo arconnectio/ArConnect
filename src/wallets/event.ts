@@ -1,6 +1,7 @@
 import Application from "~applications/application";
 import browser, { Storage } from "webextension-polyfill";
 import { sendMessage } from "@arconnect/webext-bridge";
+import { getActiveAddress, setActiveWallet, StoredWallet } from "~wallets";
 import { getAppURL } from "~utils/format";
 
 /**
@@ -40,5 +41,30 @@ export async function addressChangeListener({
       newAddress,
       `content-script@${tab.id}`
     );
+  }
+}
+
+/**
+ * Added wallets change listener.
+ * Fixup active address in case the current
+ * active address' wallet has been removed.
+ */
+export async function walletsChangeListener({
+  newValue
+}: Storage.StorageChange) {
+  const wallets: StoredWallet[] = newValue;
+
+  // remove if there are no wallets added
+  if (!wallets || wallets.length === 0) {
+    return await setActiveWallet(undefined);
+  }
+
+  // get current address
+  const activeAddress = await getActiveAddress();
+
+  // check if the active wallet has been removed
+  if (!wallets.find((w) => w.address === activeAddress)) {
+    // update active wallet
+    return setActiveWallet(wallets[0].address);
   }
 }

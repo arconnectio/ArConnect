@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { getTab } from "~applications/tab";
 import { getAppURL } from "~utils/format";
-import AppSettings from "~components/dashboard/AppSettings";
+import AppSettings from "~components/dashboard/subsettings/AppSettings";
 import Connector from "~components/devtools/Connector";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";

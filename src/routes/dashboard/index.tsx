@@ -16,7 +16,7 @@ import {
   WalletIcon
 } from "@iconicicons/react";
 import Applications from "~components/dashboard/Applications";
-import AppSettings from "~components/dashboard/AppSettings";
+import AppSettings from "~components/dashboard/subsettings/AppSettings";
 import SettingEl from "~components/dashboard/Setting";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";

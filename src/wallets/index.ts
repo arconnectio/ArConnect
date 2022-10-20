@@ -118,9 +118,14 @@ export async function getActiveWallet() {
  *
  * @param address Updated active address
  */
-export async function setActiveWallet(address: string) {
+export async function setActiveWallet(address?: string) {
   // verify address
   const wallets = await getWallets();
+
+  // remove if the address is undefined
+  if (!address) {
+    return await storage.remove("active_address");
+  }
 
   if (!wallets.find((wallet) => wallet.address !== address)) {
     return;

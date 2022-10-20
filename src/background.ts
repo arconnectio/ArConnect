@@ -1,5 +1,5 @@
+import { addressChangeListener, walletsChangeListener } from "~wallets/event";
 import { handleApiCalls, handleChunkCalls } from "~api";
-import { addressChangeListener } from "~wallets/event";
 import { handleTabUpdate } from "~applications/tab";
 import { appsChangeListener } from "~applications";
 import { getStorageConfig } from "~utils/storage";
@@ -38,7 +38,8 @@ const storage = new Storage(getStorageConfig());
 // fire the wallet switch event
 storage.watch({
   active_address: addressChangeListener,
-  apps: appsChangeListener
+  apps: appsChangeListener,
+  wallets: walletsChangeListener
 });
 
 export {};
