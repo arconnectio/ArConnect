@@ -251,7 +251,7 @@ export default function WalletSwitcher({ open, close }: Props) {
                   onClick={() =>
                     browser.tabs.create({
                       url: browser.runtime.getURL(
-                        "tabs/dashboard.html#add-wallet"
+                        "tabs/dashboard.html#/wallets/new"
                       )
                     })
                   }

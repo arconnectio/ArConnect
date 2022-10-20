@@ -37,6 +37,7 @@ export default function Wallets() {
   useEffect(() => {
     const firstWallet = wallets?.[0];
 
+    // return if there is a wallet present in params
     if (
       !firstWallet ||
       (!!activeWalletSetting &&
@@ -45,8 +46,11 @@ export default function Wallets() {
       return;
     }
 
+    // return if the new wallet page is open
+    if (activeWalletSetting === "new") return;
+
     setLocation("/wallets/" + firstWallet.address);
-  }, [wallets]);
+  }, [wallets, activeWalletSetting]);
 
   // ans data
   const [ansProfiles, setAnsProfiles] = useState<AnsUser[]>([]);
@@ -124,7 +128,7 @@ export default function Wallets() {
               ))}
         </SettingsList>
       </Wrapper>
-      <AddWalletButton>
+      <AddWalletButton onClick={() => setLocation("/wallets/new")}>
         <PlusIcon />
       </AddWalletButton>
     </>

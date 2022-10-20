@@ -170,7 +170,10 @@ export async function getActiveKeyfile() {
  * @param wallet Wallet JWK object
  * @param password Password to encrypt with
  */
-export async function addWallet(wallet: JWKInterface, password: string) {
+export async function addWallet(
+  wallet: JWKInterface | JWKInterface[],
+  password: string
+) {
   // check password
   if (!(await checkPassword(password))) {
     throw new Error("Invalid password");
@@ -181,28 +184,34 @@ export async function addWallet(wallet: JWKInterface, password: string) {
     port: 443,
     protocol: "https"
   });
+  const walletsToAdd = Array.isArray(wallet) ? wallet : [wallet];
 
-  // prepare data for storing
-  const address = await arweave.wallets.jwkToAddress(wallet);
-  const encrypted = await encryptWallet(wallet, password);
-
-  // save data
+  // wallets
   const wallets = await getWallets();
 
-  if (wallets.find((val) => val.address === address)) {
-    throw new Error("Wallet already added");
+  for (const w of walletsToAdd) {
+    // prepare data for storing
+    const address = await arweave.wallets.jwkToAddress(w);
+    const encrypted = await encryptWallet(w, password);
+
+    if (wallets.find((val) => val.address === address)) {
+      continue;
+    }
+
+    // push wallet
+    wallets.push({
+      nickname: `Account ${wallets.length + 1}`,
+      address,
+      keyfile: encrypted
+    });
   }
 
-  wallets.push({
-    nickname: `Account ${wallets.length + 1}`,
-    address,
-    keyfile: encrypted
-  });
+  // save data
   await storage.set("wallets", wallets);
 
   // set active address if this was the first wallet added
   if (wallets.length === 1) {
-    await storage.set("active_address", address);
+    await storage.set("active_address", wallets[0].address);
   }
 }
 

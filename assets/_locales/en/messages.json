@@ -444,5 +444,25 @@
   "cannot_edit_with_ans": {
     "message": "Cannot edit nickname. Wallet already has an ANS label.",
     "description": "Explainer for disabled edits for wallets with ANS profiles"
+  },
+  "add_wallet_subtitle": {
+    "message": "You can add as many as you like",
+    "description": "Subtitle for add wallet section"
+  },
+  "drag_and_drop_wallet": {
+    "message": "Drag and drop your wallet(s)...",
+    "description": "Wallet input text"
+  },
+  "enter_password": {
+    "message": "Enter your password...",
+    "description": "Password input placeholder"
+  },
+  "added_wallets": {
+    "message": "Added wallets",
+    "description": "Added wallets notification"
+  },
+  "error_adding_wallets": {
+    "message": "Error adding wallet(s). Check your password",
+    "description": "Error on wallet adding notification"
   }
 }

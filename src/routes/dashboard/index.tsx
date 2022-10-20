@@ -15,15 +15,16 @@ import {
   TrashIcon,
   WalletIcon
 } from "@iconicicons/react";
-import Applications from "~components/dashboard/Applications";
+import WalletSettings from "~components/dashboard/subsettings/WalletSettings";
 import AppSettings from "~components/dashboard/subsettings/AppSettings";
+import AddWallet from "~components/dashboard/subsettings/AddWallet";
+import Applications from "~components/dashboard/Applications";
 import SettingEl from "~components/dashboard/Setting";
 import Wallets from "~components/dashboard/Wallets";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import settings from "~settings";
-import WalletSettings from "~components/dashboard/subsettings/WalletSettings";
 
 export default function Settings({ params }: Props) {
   // router location
@@ -111,8 +112,13 @@ export default function Settings({ params }: Props) {
             key={activeAppSetting.url}
           />
         )}
-        {activeSetting === "wallets" && !!activeSubSetting && (
-          <WalletSettings address={activeSubSetting} />
+        {activeSetting === "wallets" &&
+          !!activeSubSetting &&
+          activeSubSetting !== "new" && (
+            <WalletSettings address={activeSubSetting} key={activeSubSetting} />
+          )}
+        {activeSetting === "wallets" && activeSubSetting === "new" && (
+          <AddWallet key="new-wallet" />
         )}
       </Panel>
     </SettingsWrapper>
