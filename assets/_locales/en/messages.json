@@ -518,5 +518,17 @@
   "reset_error": {
     "message": "Could not reset ArConnect",
     "description": "Error message on reset"
+  },
+  "welcome_to": {
+    "message": "Welcome to,",
+    "description": "\"Welcome to\" text"
+  },
+  "get_me_started": {
+    "message": "Get me started",
+    "description": "Get me started button text"
+  },
+  "have_wallet": {
+    "message": "I have a wallet",
+    "description": "Has wallet button text"
   }
 }
