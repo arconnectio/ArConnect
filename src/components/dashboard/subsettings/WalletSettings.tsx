@@ -26,6 +26,7 @@ import { downloadFile } from "~utils/file";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
+import { checkPassword } from "~wallets/auth";
 
 export default function WalletSettings({ address }: Props) {
   // wallets
@@ -131,7 +132,7 @@ export default function WalletSettings({ address }: Props) {
       // decrypt keyfile
       const decrypted = await decryptWallet(
         wallet.keyfile,
-        atob(passwordInput.state)
+        passwordInput.state
       );
 
       // download the file
