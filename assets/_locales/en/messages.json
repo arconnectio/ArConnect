@@ -364,7 +364,7 @@
     "description": "Wallet settings description"
   },
   "setting_config_description": {
-    "message": "Download ArConnect config or wallets",
+    "message": "Download ArConnect config",
     "description": "Config settings description"
   },
   "setting_about_description": {
@@ -498,5 +498,13 @@
   "export_wallet_error": {
     "message": "Error exporting wallet",
     "description": "Wallet export error notification"
+  },
+  "development_version": {
+    "message": "Development",
+    "description": "Development version badge text"
+  },
+  "permissions_used": {
+    "message": "We use the following permissions:",
+    "description": "Used permissions label"
   }
 }

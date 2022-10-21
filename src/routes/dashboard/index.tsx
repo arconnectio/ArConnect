@@ -22,6 +22,7 @@ import Applications from "~components/dashboard/Applications";
 import SettingEl from "~components/dashboard/Setting";
 import Wallets from "~components/dashboard/Wallets";
 import Application from "~applications/application";
+import About from "~components/dashboard/About";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import settings from "~settings";
@@ -198,17 +199,19 @@ const allSettings: Omit<Setting, "active">[] = [
     description: setting.description,
     icon: setting.icon
   })),
-  {
+  // TODO
+  /*{
     name: "config",
     displayName: "setting_config",
     description: "setting_config_description",
     icon: DownloadIcon
-  },
+  },*/
   {
     name: "about",
     displayName: "setting_about",
     description: "setting_about_description",
-    icon: InformationIcon
+    icon: InformationIcon,
+    component: About
   },
   {
     name: "reset",
