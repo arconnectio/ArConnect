@@ -1,9 +1,12 @@
 import {
   Button,
   Input,
+  Modal,
+  ModalButton,
   Spacer,
   Text,
   useInput,
+  useModal,
   useToasts
 } from "@arconnect/components";
 import {
@@ -17,7 +20,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { IconButton } from "~components/IconButton";
 import { AnsUser, getAnsProfile } from "~lib/ans";
-import type { StoredWallet } from "~wallets";
+import { removeWallet, StoredWallet } from "~wallets";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
@@ -111,6 +114,9 @@ export default function WalletSettings({ address }: Props) {
     }
   }
 
+  // wallet remove modal
+  const removeModal = useModal();
+
   if (!wallet) return <></>;
 
   return (
@@ -155,14 +161,62 @@ export default function WalletSettings({ address }: Props) {
           {browser.i18n.getMessage("export_keyfile")}
         </Button>
         <Spacer y={1} />
-        <Button fullWidth secondary small>
+        <Button
+          fullWidth
+          secondary
+          small
+          onClick={() => removeModal.setOpen(true)}
+        >
           <TrashIcon />
           {browser.i18n.getMessage("remove_wallet")}
         </Button>
       </div>
+      <Modal
+        {...removeModal.bindings}
+        actions={
+          <>
+            <ModalButton
+              onClick={async () => {
+                try {
+                  await removeWallet(address);
+                  setToast({
+                    type: "success",
+                    content: browser.i18n.getMessage(
+                      "removed_wallet_notification"
+                    ),
+                    duration: 2000
+                  });
+                } catch (e) {
+                  console.log("Error removing wallet", e);
+                  setToast({
+                    type: "error",
+                    content: browser.i18n.getMessage(
+                      "remove_wallet_error_notification"
+                    ),
+                    duration: 2000
+                  });
+                }
+              }}
+            >
+              {browser.i18n.getMessage("confirm")}
+            </ModalButton>
+          </>
+        }
+      >
+        <CenterText heading>
+          {browser.i18n.getMessage("remove_wallet_modal_title")}
+        </CenterText>
+        <CenterText>
+          {browser.i18n.getMessage("remove_wallet_modal_content")}
+        </CenterText>
+      </Modal>
     </Wrapper>
   );
 }
+
+const CenterText = styled(Text)`
+  text-align: center;
+`;
 
 const Wrapper = styled.div`
   display: flex;

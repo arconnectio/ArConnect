@@ -462,5 +462,25 @@
   "no_apps_added": {
     "message": "No apps added yet...",
     "description": "No apps added message"
+  },
+  "remove_wallet_modal_title": {
+    "message": "Remove wallet?",
+    "description": "Remove wallet modal title"
+  },
+  "remove_wallet_modal_content": {
+    "message": "Are you sure you want to continue? This cannot be reversed.",
+    "description": "Remove wallet modal content"
+  },
+  "confirm": {
+    "message": "Confirm",
+    "description": "Confirm button text"
+  },
+  "removed_wallet_notification": {
+    "message": "Removed wallet",
+    "description": "Notification for wallet removal"
+  },
+  "remove_wallet_error_notification": {
+    "message": "Error removing wallet",
+    "description": "Notification for wallet removal error"
   }
 }
