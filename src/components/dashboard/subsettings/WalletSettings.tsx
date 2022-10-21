@@ -16,11 +16,13 @@ import {
   TrashIcon
 } from "@iconicicons/react";
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
+import { removeWallet, StoredWallet } from "~wallets";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { IconButton } from "~components/IconButton";
+import { decryptWallet } from "~wallets/encryption";
 import { AnsUser, getAnsProfile } from "~lib/ans";
-import { removeWallet, StoredWallet } from "~wallets";
+import { downloadFile } from "~utils/file";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
@@ -117,6 +119,40 @@ export default function WalletSettings({ address }: Props) {
   // wallet remove modal
   const removeModal = useModal();
 
+  // export wallet modal
+  const exportModal = useModal();
+
+  // password input
+  const passwordInput = useInput();
+
+  // export the wallet
+  async function exportWallet() {
+    try {
+      // decrypt keyfile
+      const decrypted = await decryptWallet(
+        wallet.keyfile,
+        atob(passwordInput.state)
+      );
+
+      // download the file
+      downloadFile(
+        JSON.stringify(decrypted, null, 2),
+        "application/json",
+        `arweave-keyfile-${address}.json`
+      );
+
+      // close modal
+      exportModal.setOpen(false);
+    } catch (e) {
+      console.log("Error exporting wallet", e.message);
+      setToast({
+        type: "error",
+        content: browser.i18n.getMessage("export_wallet_error"),
+        duration: 2200
+      });
+    }
+  }
+
   if (!wallet) return <></>;
 
   return (
@@ -156,7 +192,7 @@ export default function WalletSettings({ address }: Props) {
         </InputWithBtn>
       </div>
       <div>
-        <Button fullWidth small>
+        <Button fullWidth small onClick={() => exportModal.setOpen(true)}>
           <DownloadIcon />
           {browser.i18n.getMessage("export_keyfile")}
         </Button>
@@ -200,6 +236,9 @@ export default function WalletSettings({ address }: Props) {
             >
               {browser.i18n.getMessage("confirm")}
             </ModalButton>
+            <ModalButton onClick={() => removeModal.setOpen(false)}>
+              {browser.i18n.getMessage("cancel")}
+            </ModalButton>
           </>
         }
       >
@@ -209,6 +248,24 @@ export default function WalletSettings({ address }: Props) {
         <CenterText>
           {browser.i18n.getMessage("remove_wallet_modal_content")}
         </CenterText>
+      </Modal>
+      <Modal
+        {...exportModal.bindings}
+        actions={
+          <ModalButton onClick={exportWallet}>
+            {browser.i18n.getMessage("export")}
+          </ModalButton>
+        }
+      >
+        <CenterText heading>
+          {browser.i18n.getMessage("export_wallet_modal_title")}
+        </CenterText>
+        <Input
+          type="password"
+          placeholder={browser.i18n.getMessage("password")}
+          {...passwordInput.bindings}
+          fullWidth
+        />
       </Modal>
     </Wrapper>
   );

@@ -102,7 +102,7 @@ export async function decryptWallet(wallet: string, password: string) {
 
   // derive key for decryption
   const key = await deriveKey(password, salt, ["decrypt"]);
-
+  console.log(key);
   // decrypt data
   const decrypted = await crypto.subtle.decrypt(
     {

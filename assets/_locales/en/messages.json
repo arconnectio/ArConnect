@@ -482,5 +482,21 @@
   "remove_wallet_error_notification": {
     "message": "Error removing wallet",
     "description": "Notification for wallet removal error"
+  },
+  "cancel": {
+    "message": "Cancel",
+    "description": "Cancel button text"
+  },
+  "export": {
+    "message": "Export",
+    "description": "Export button text"
+  },
+  "export_wallet_modal_title": {
+    "message": "Export wallet",
+    "description": "Export wallet modal title"
+  },
+  "export_wallet_error": {
+    "message": "Error exporting wallet",
+    "description": "Wallet export error notification"
   }
 }
