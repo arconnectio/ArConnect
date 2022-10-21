@@ -23,6 +23,7 @@ import SettingEl from "~components/dashboard/Setting";
 import Wallets from "~components/dashboard/Wallets";
 import Application from "~applications/application";
 import About from "~components/dashboard/About";
+import Reset from "~components/dashboard/Reset";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import settings from "~settings";
@@ -217,6 +218,7 @@ const allSettings: Omit<Setting, "active">[] = [
     name: "reset",
     displayName: "setting_reset",
     description: "setting_reset_description",
-    icon: TrashIcon
+    icon: TrashIcon,
+    component: Reset
   }
 ];

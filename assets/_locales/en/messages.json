@@ -506,5 +506,17 @@
   "permissions_used": {
     "message": "We use the following permissions:",
     "description": "Used permissions label"
+  },
+  "reset_warning": {
+    "message": "Resetting ArConnect will remove all of your data from it. This includes your wallets, your settings and cached data.",
+    "description": "Warning about resetting ArConnect"
+  },
+  "irreversible_action": {
+    "message": "This action is IRREVERSIBLE!",
+    "description": "Warning about an irreversible action"
+  },
+  "reset_error": {
+    "message": "Could not reset ArConnect",
+    "description": "Error message on reset"
   }
 }
