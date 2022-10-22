@@ -1,8 +1,9 @@
+import { MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Spacer, Text } from "@arconnect/components";
 import { ArrowRightIcon, KeyIcon } from "@iconicicons/react";
 import { AnimatePresence, motion } from "framer-motion";
 import styled, { keyframes } from "styled-components";
-import { MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "wouter";
 import browser from "webextension-polyfill";
 
 export default function Home() {
@@ -14,15 +15,19 @@ export default function Home() {
   const [expandPos, setExpandPos] = useState<{ x: number; y: number }>();
 
   // expand animation functionality
-  function animate(btn: MutableRefObject<HTMLButtonElement>) {
-    // get pos
-    const btnDimensions = btn.current.getBoundingClientRect();
+  const animate = (btn: MutableRefObject<HTMLButtonElement>) =>
+    new Promise<void>((res) => {
+      // get pos
+      const btnDimensions = btn.current.getBoundingClientRect();
 
-    setExpandPos({
-      x: btnDimensions.x + btnDimensions.width / 2,
-      y: btnDimensions.y + btnDimensions.height / 2
+      setExpandPos({
+        x: btnDimensions.x + btnDimensions.width / 2,
+        y: btnDimensions.y + btnDimensions.height / 2
+      });
+
+      // wait for the animation to complete
+      setTimeout(res, expand_animation_duration + 750);
     });
-  }
 
   // window size
   const windowDimensions = useWindowDimensions();
@@ -36,6 +41,9 @@ export default function Home() {
     [windowDimensions]
   );
 
+  // router
+  const [, setLocation] = useLocation();
+
   return (
     <Wrapper>
       <Panel>
@@ -48,7 +56,10 @@ export default function Home() {
           <ButtonsWrapper>
             <WelcomeButton
               ref={startButton}
-              onClick={() => animate(startButton)}
+              onClick={async () => {
+                await animate(startButton);
+                setLocation("/start");
+              }}
             >
               {browser.i18n.getMessage("get_me_started")}
               <ArrowRightIcon />
@@ -56,7 +67,10 @@ export default function Home() {
             <WelcomeButton
               secondary
               ref={walletButton}
-              onClick={() => animate(walletButton)}
+              onClick={async () => {
+                await animate(walletButton);
+                setLocation("/load");
+              }}
             >
               {browser.i18n.getMessage("have_wallet")}
               <KeyIcon />
@@ -159,17 +173,20 @@ const WelcomeButton = styled(Button)`
   width: calc(100% - 0.75rem * 1);
 `;
 
+// in ms
+const expand_animation_duration = 0.75;
+
 const ExpandAnimationElement = styled(motion.div).attrs<{
   pos: { x: number; y: number };
   circleSize: number;
 }>((props) => ({
   variants: {
     closed: {
-      opacity: 0,
+      opacity: 0.2,
       clipPath: `circle(20px at ${props.pos.x + "px"} ${props.pos.y + "px"})`,
       transition: {
         type: "easeInOut",
-        duration: 0.75
+        duration: expand_animation_duration
       }
     },
     open: {
@@ -179,7 +196,7 @@ const ExpandAnimationElement = styled(motion.div).attrs<{
       })`,
       transition: {
         type: "easeInOut",
-        duration: 0.75
+        duration: expand_animation_duration
       }
     }
   },
@@ -192,7 +209,7 @@ const ExpandAnimationElement = styled(motion.div).attrs<{
   left: 0;
   bottom: 0;
   right: 0;
-  background-color: rgb(${(props) => props.theme.theme});
+  background-color: #fff;
 `;
 
 function getWindowDimensions() {
