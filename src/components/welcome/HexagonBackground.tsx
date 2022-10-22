@@ -12,7 +12,11 @@ export default function HexagonBackground({ images }: Props) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.8 - Math.floor(i / 10) * 0.2 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.23, ease: "easeInOut" }}
+          transition={{
+            duration: 0.23,
+            ease: "easeInOut",
+            delay: Math.random() * (3 - 0.12) + 0.12
+          }}
           data-test={Math.floor(i / 10)}
         />
       ))}

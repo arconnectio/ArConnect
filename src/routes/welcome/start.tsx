@@ -54,9 +54,11 @@ export default function Start() {
       </Pagination>
       {page === 1 && (
         <HexagonBackground
-          images={Array(25).fill(
-            "https://www.arweave.org/images/hexagonbg/1.jpg"
-          )}
+          images={Array(28)
+            .fill("")
+            .map(
+              (_, i) => `https://www.arweave.org/images/hexagonbg/${i + 1}.jpg`
+            )}
         />
       )}
     </Wrapper>
