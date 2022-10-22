@@ -17,7 +17,6 @@ export default function HexagonBackground({ images }: Props) {
             ease: "easeInOut",
             delay: Math.random() * (3 - 0.12) + 0.12
           }}
-          data-test={Math.floor(i / 10)}
         />
       ))}
     </Wrapper>

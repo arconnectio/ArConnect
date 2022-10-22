@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useLocation } from "wouter";
 import { useState } from "react";
 import HexagonBackground from "~components/welcome/HexagonBackground";
+import Ecosystem from "~components/welcome/Ecosystem";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 
@@ -54,13 +55,14 @@ export default function Start() {
       </Pagination>
       {page === 1 && (
         <HexagonBackground
-          images={Array(28)
+          images={Array(27)
             .fill("")
             .map(
               (_, i) => `https://www.arweave.org/images/hexagonbg/${i + 1}.jpg`
             )}
         />
       )}
+      {page === 2 && <Ecosystem />}
     </Wrapper>
   );
 }
