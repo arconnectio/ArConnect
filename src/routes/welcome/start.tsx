@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useLocation } from "wouter";
 import { useState } from "react";
 import HexagonBackground from "~components/welcome/HexagonBackground";
+import Screenshots from "~components/welcome/Screenshots";
 import Ecosystem from "~components/welcome/Ecosystem";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -63,6 +64,7 @@ export default function Start() {
         />
       )}
       {page === 2 && <Ecosystem />}
+      {page === 3 && <Screenshots />}
     </Wrapper>
   );
 }
