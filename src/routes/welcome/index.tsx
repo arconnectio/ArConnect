@@ -9,7 +9,9 @@ export default function Home() {
       <Panel>
         <WelcomeContent>
           <LargeTitle>{browser.i18n.getMessage("welcome_to")}</LargeTitle>
-          <RotatingName>ArConnect</RotatingName>
+          <RotatingName>
+            <RotatingNameSpan>ArConnect</RotatingNameSpan>
+          </RotatingName>
           <Spacer y={1.35} />
           <ButtonsWrapper>
             <WelcomeButton>
@@ -60,21 +62,44 @@ const LargeTitle = styled(Text).attrs({
   font-size: 4rem;
 `;
 
+const RotatingName = styled(LargeTitle)`
+  color: rgb(${(props) => props.theme.theme});
+  perspective: 3000px;
+  overflow: hidden;
+`;
+
 const rotate = keyframes`
   0% {
-    transform: rotateX(0);
+    transform: rotateX(0) translateY(0);
   }
-	20% {
-    transform: rotateX(180deg);
+  5% {
+    transform: rotateX(90deg) translateY(-22px);
   }
-  40% {
-    transform: rotateX(0);
+  50% {
+    transform: rotateX(90deg) translateY(-20px);
+  }
+  55% {
+    transform: rotateX(0) translateY(0);
   }
 `;
 
-const RotatingName = styled(LargeTitle)`
-  color: rgb(${(props) => props.theme.theme});
-  animation: ${rotate} 3s linear infinite;
+const RotatingNameSpan = styled.span`
+  display: block;
+  position: relative;
+  transform-origin: 50% 0;
+  transform-style: preserve-3d;
+  animation: ${rotate} 4s linear infinite;
+
+  &::before {
+    content: "Arweave";
+    position: absolute;
+    left: 1%;
+    top: 102%;
+    width: 100%;
+    height: 100%;
+    transform: rotateX(-90deg) translateY(2px);
+    transform-origin: 50% 0;
+  }
 `;
 
 const ButtonsWrapper = styled.div`
