@@ -1,10 +1,11 @@
+import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { RefreshButton } from "~components/IconButton";
 import { useEffect, useMemo, useState } from "react";
 import { GlobalStyle, useTheme } from "~utils/theme";
 import { urlToGateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
 import { RefreshIcon } from "@iconicicons/react";
-import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
+import { useNoWallets } from "~wallets";
 import {
   Button,
   Input,
@@ -22,6 +23,7 @@ import {
   Wrapper
 } from "./devtools";
 import Transaction from "~components/arlocal/Transaction";
+import NoWallets from "~components/devtools/NoWallets";
 import Tutorial from "~components/arlocal/Tutorial";
 import Mint from "~components/arlocal/Mint";
 import browser from "webextension-polyfill";
@@ -150,8 +152,12 @@ function ArLocal() {
     setMining(false);
   }
 
+  // no wallets
+  const noWallets = useNoWallets();
+
   return (
     <Wrapper>
+      {noWallets && <NoWallets />}
       <CardBody>
         <Title>
           ArLocal {browser.i18n.getMessage("devtools")}

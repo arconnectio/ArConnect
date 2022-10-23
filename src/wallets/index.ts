@@ -116,6 +116,24 @@ export const useSetUp = () =>
   }, []);
 
 /**
+ * Hook to get if there are no wallets added
+ */
+export const useNoWallets = () => {
+  const [state, setState] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const activeAddress = await getActiveAddress();
+      const wallets = await getWallets();
+
+      setState(!activeAddress && wallets.length === 0);
+    })();
+  }, []);
+
+  return state;
+};
+
+/**
  * Get the active address
  */
 export async function getActiveAddress() {

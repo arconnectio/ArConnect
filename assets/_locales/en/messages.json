@@ -656,5 +656,17 @@
   "password_strength_5": {
     "message": "Very strong password",
     "description": "Level 5 strength password text"
+  },
+  "no_wallets_added": {
+    "message": "No wallets added",
+    "description": "No wallets added title (devtools)"
+  },
+  "no_wallets_added_paragraph": {
+    "message": "Visit the setup page to use this feature.",
+    "description": "No wallets added text (devtools)"
+  },
+  "setup": {
+    "message": "Setup",
+    "description": "Setup button text"
   }
 }

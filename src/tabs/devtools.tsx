@@ -4,8 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { getTab } from "~applications/tab";
 import { getAppURL } from "~utils/format";
+import { useNoWallets } from "~wallets";
 import AppSettings from "~components/dashboard/subsettings/AppSettings";
 import Connector from "~components/devtools/Connector";
+import NoWallets from "~components/devtools/NoWallets";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -45,10 +47,14 @@ export default function Devtools() {
   // ui theme
   const theme = useTheme();
 
+  // no wallets
+  const noWallets = useNoWallets();
+
   return (
     <Provider theme={theme}>
       <GlobalStyle />
       <Wrapper>
+        {noWallets && <NoWallets />}
         <CardBody>
           <Title>ArConnect {browser.i18n.getMessage("devtools")}</Title>
           <ConnectionText>
