@@ -9,6 +9,7 @@ declare module "@arconnect/webext-bridge" {
     switch_wallet_event: string;
     copy_address: string;
     chunk: ProtocolWithReturn<ApiCall<Chunk>, ApiResponse<number>>;
+    generate_wallet: ProtocolWithReturn<GenerateCall, GenerationResult>;
   }
 }
 
@@ -27,6 +28,14 @@ interface AuthResult {
   authID: string;
   error?: boolean;
   data?: any;
+}
+
+interface GenerateCall {
+  seed: string;
+}
+
+interface GenerationResult {
+  address: string;
 }
 
 declare module "styled-components" {

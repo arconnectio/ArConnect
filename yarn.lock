@@ -1804,6 +1804,11 @@
   resolved "https://registry.yarnpkg.com/@types/long/-/long-4.0.2.tgz#b74129719fc8d11c01868010082d483b7545591a"
   integrity sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA==
 
+"@types/node@11.11.6":
+  version "11.11.6"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.11.6.tgz#df929d1bb2eee5afdda598a41930fe50b43eaa6a"
+  integrity sha512-Exw4yUWMBXM3X+8oqzJNRqZSwUAaS4+7NdvHqQuFi/d+synz++xmX3QIf+BFqneW8N31R8Ky+sikfZUXq07ggQ==
+
 "@types/node@>=12.12.47", "@types/node@>=13.7.0":
   version "18.7.18"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-18.7.18.tgz#633184f55c322e4fb08612307c274ee6d5ed3154"
@@ -2278,6 +2283,13 @@ binary-extensions@^2.0.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-2.2.0.tgz#75f502eeaf9ffde42fc98829645be4ea76bd9e2d"
   integrity sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==
+
+bip39-web-crypto@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/bip39-web-crypto/-/bip39-web-crypto-4.0.1.tgz#5ef85b70c6250cccbec568f8dbed02236810f59f"
+  integrity sha512-Mpi+8Af5hDbjx+rv4ZHMB3FxIV7wfiZzlOr1Sg0vYhrc/E2YnQUwbHconxUrNl+qTXK8TBNOaiiy/tcGOq4HKw==
+  dependencies:
+    "@types/node" "11.11.6"
 
 bl@^4.0.3:
   version "4.1.0"

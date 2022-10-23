@@ -30,6 +30,15 @@ export default function Start() {
           {browser.i18n.getMessage(
             pages.find((_, i) => i === page - 1).content
           )}
+          {" " + browser.i18n.getMessage("read_more_arwiki") + " "}
+          <a
+            href="https://arwiki.wiki"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ArWiki
+          </a>
+          .
         </ExplainerContent>
         <Spacer y={1.25} />
         <Button
@@ -113,6 +122,10 @@ const ExplainerContent = styled(Text).attrs({
   noMargin: true
 })`
   text-align: justify;
+
+  a {
+    color: rgb(${(props) => props.theme.secondaryText});
+  }
 `;
 
 const Pagination = styled.div`

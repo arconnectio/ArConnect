@@ -5,6 +5,7 @@ import { Router, Route } from "wouter";
 
 import Home from "~routes/welcome";
 import Start from "~routes/welcome/start";
+import Generate from "~routes/welcome/generate";
 
 export default function Popup() {
   const theme = useTheme();
@@ -15,6 +16,7 @@ export default function Popup() {
       <Router hook={useHashLocation}>
         <Route path="/" component={Home} />
         <Route path="/start" component={Start} />
+        <Route path="/generate" component={Generate} />
       </Router>
     </Provider>
   );

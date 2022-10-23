@@ -562,5 +562,43 @@
   "about_arconnect": {
     "message": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed accusantium impedit culpa cumque dolores corporis accusamus eius voluptatum ullam et optio voluptas aperiam minima debitis laboriosam ducimus, facere esse corrupti.",
     "description": "A short paragraph explaining arconnect"
+  },
+  "read_more_arwiki": {
+    "message": "Read more at",
+    "description": "\"Read more at (ArWiki)\" text"
+  },
+  "backup_wallet_title": {
+    "message": "Backup your wallet",
+    "description": "Backup walet title"
+  },
+  "backup_wallet_content": {
+    "message": "Save this 12 word seedphrase to a password manager, or write it down to a paper. Never share it with anyone.",
+    "description": "Backup wallet paragraph"
+  },
+  "copySeed": {
+    "message": "Copy seedphrase",
+    "description": "Copy seedphrase text"
+  },
+  "done": {
+    "message": "Done",
+    "description": "Done button text"
+  },
+  "generated_wallet": {
+    "message": "Generated wallet with address $ADDRESS$",
+    "description": "Generated wallet notification",
+    "placeholders": {
+      "address": {
+        "content": "$1",
+        "example": "ljvCPN31...-CS-6Iho8U"
+      }
+    }
+  },
+  "error_generating_wallet": {
+    "message": "Error generating wallet",
+    "description": "Error generating wallet notification"
+  },
+  "written_down_seed": {
+    "message": "I have written down my seedphrase",
+    "description": "Label for written down seedphrase checkbox"
   }
 }
