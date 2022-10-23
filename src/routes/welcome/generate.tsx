@@ -2,15 +2,14 @@ import { checkPasswordValid, jwkFromMnemonic } from "~wallets/generator";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { AnimatePresence, motion } from "framer-motion";
 import { defaultGateway } from "~applications/gateway";
-import { useEffect, useMemo, useState } from "react";
+import { ArrowRightIcon } from "@iconicicons/react";
 import { AnsUser, getAnsProfile } from "~lib/ans";
-import { formatAddress } from "~utils/format";
+import { useEffect, useState } from "react";
 import { addWallet } from "~wallets";
 import {
   Button,
   Card,
   Checkbox,
-  Input,
   Loading,
   Spacer,
   Text,
@@ -18,18 +17,14 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
-import {
-  ArrowRightIcon,
-  CopyIcon,
-  EyeIcon,
-  EyeOffIcon
-} from "@iconicicons/react";
+import BackupWalletPage from "~components/welcome/generate/BackupWalletPage";
+import ConfirmSeedPage from "~components/welcome/generate/ConfirmSeedPage";
+import PasswordPage from "~components/welcome/generate/PasswordPage";
 import browser from "webextension-polyfill";
 import * as bip39 from "bip39-web-crypto";
 import styled from "styled-components";
-import copy from "copy-to-clipboard";
 import Arweave from "arweave";
-import PasswordStrength from "~components/welcome/PasswordStrength";
+import GeneratedPage from "~components/welcome/generate/GeneratedPage";
 
 export default function Generate() {
   // active page
@@ -55,6 +50,7 @@ export default function Generate() {
 
   // keyfile
   const [keyfile, setKeyfile] = useState<JWKInterface>();
+  const [address, setAddress] = useState<string>();
 
   // generate wallet
   useEffect(() => {
@@ -67,9 +63,10 @@ export default function Generate() {
 
         // generate wallet from seedphrase
         const generatedKeyfile = await jwkFromMnemonic(seed);
-        const address = await arweave.wallets.jwkToAddress(generatedKeyfile);
+        const addr = await arweave.wallets.jwkToAddress(generatedKeyfile);
 
         setKeyfile(generatedKeyfile);
+        setAddress(addr);
       } catch (e) {
         console.log("Error generating wallet", e);
         setToast({
@@ -98,16 +95,25 @@ export default function Generate() {
   // next button click event
   async function handleBtn() {
     if (page === 1 && !checkPasswordValid(passwordInput.state)) {
+      // we check the password strength on page 1
       return setToast({
         type: "error",
         content: browser.i18n.getMessage("password_not_strong"),
         duration: 2300
       });
-    }
-    if ((!writtenDown.state && page !== 1) || (!sorted && page === 3)) return;
-    if (page !== 4) setPage((v) => v + 1);
-    else if (!!keyfile && page === 4) {
-      // add wallet
+    } else if (!writtenDown.state && page !== 1) {
+      // we check if the written down seed checbox is checked
+      // on every page, except page 1
+      return;
+    } else if (!sorted && page === 3) {
+      // we check if the words have been verified
+      // by the user sorting them
+      return;
+    } else if (page !== 4) {
+      // we go to the next page if we are not on the final one
+      return setPage((v) => v + 1);
+    } else if (!!keyfile && page === 4) {
+      // add wallet on the final page
       setAddingWallet(true);
 
       try {
@@ -155,6 +161,7 @@ export default function Generate() {
         {page === 3 && seed && (
           <ConfirmSeedPage seed={seed} setSorted={setSorted} />
         )}
+        {page === 4 && <GeneratedPage address={address} />}
         {page !== 1 && (
           <>
             <Spacer y={1.25} />
@@ -190,122 +197,6 @@ export default function Generate() {
   );
 }
 
-const PasswordPage = ({
-  passwordInput
-}: {
-  passwordInput: ReturnType<typeof useInput>;
-}) => {
-  return (
-    <>
-      <Text heading>{browser.i18n.getMessage("create_password")}</Text>
-      <Paragraph>
-        {browser.i18n.getMessage("create_password_paragraph")}
-      </Paragraph>
-      <Input
-        type="password"
-        {...passwordInput.bindings}
-        placeholder={browser.i18n.getMessage("enter_password")}
-        fullWidth
-      />
-      <Spacer y={1.55} />
-      <PasswordStrength password={passwordInput.state} />
-      <Spacer y={2.5} />
-    </>
-  );
-};
-
-const BackupWalletPage = ({ seed }: { seed: string }) => {
-  // seed blur status
-  const [shown, setShown] = useState(false);
-
-  return (
-    <>
-      <Text heading>{browser.i18n.getMessage("backup_wallet_title")}</Text>
-      <Paragraph>{browser.i18n.getMessage("backup_wallet_content")}</Paragraph>
-      <SeedContainer onClick={() => setShown((val) => !val)}>
-        <Seed shown={shown}>{seed}</Seed>
-        <SeedShownIcon as={shown ? EyeIcon : EyeOffIcon} />
-      </SeedContainer>
-      <Spacer y={0.5} />
-      <CopySeed onClick={() => copy(seed)}>
-        <CopyIcon /> {browser.i18n.getMessage("copySeed")}
-      </CopySeed>
-    </>
-  );
-};
-
-const ConfirmSeedPage = ({
-  seed,
-  setSorted
-}: {
-  seed: string;
-  setSorted: (v) => any;
-}) => {
-  // mnemonic words array
-  const words = useMemo(
-    () => seed.split(" ").sort(() => Math.random() - 0.5),
-    [seed]
-  );
-
-  // user ordered words
-  const [userOrdered, setUserOrdered] = useState<string[]>([]);
-
-  // get the i + 1 of a word
-  const getCountOf = (word: string) => {
-    const index = userOrdered.findIndex((v) => v === word);
-
-    if (index >= 0) return index + 1;
-    else return false;
-  };
-
-  // toasts
-  const { setToast } = useToasts();
-
-  // check order
-  useEffect(() => {
-    if (userOrdered.length !== words.length) return;
-
-    for (let i = 0; i < words.length; i++) {
-      if (userOrdered[i] !== seed.split(" ")[i]) {
-        setToast({
-          type: "error",
-          content: browser.i18n.getMessage("invalid_seed_order"),
-          duration: 2200
-        });
-        setSorted(false);
-        setUserOrdered([]);
-        return;
-      }
-    }
-
-    setSorted(true);
-  }, [words, userOrdered, seed]);
-
-  return (
-    <>
-      <Text heading>{browser.i18n.getMessage("confirm_seed")}</Text>
-      <Paragraph>{browser.i18n.getMessage("confirm_seed_paragraph")}</Paragraph>
-      <ConfirmWords>
-        {words.map((word, i) => (
-          <Button
-            secondary
-            small
-            key={i}
-            onClick={() => {
-              if (userOrdered.includes(word)) return;
-              setUserOrdered((val) => [...val, word]);
-              console.log(getCountOf(word));
-            }}
-          >
-            {getCountOf(word) ? getCountOf(word) + ". " : ""}
-            {word}
-          </Button>
-        ))}
-      </ConfirmWords>
-    </>
-  );
-};
-
 const Wrapper = styled.div`
   position: relative;
   width: 100vw;
@@ -337,54 +228,6 @@ const Page = styled.div<{ active?: boolean }>`
   transition: all 0.23s ease-in-out;
 `;
 
-const Paragraph = styled(Text)`
-  text-align: justify;
-`;
-
-const SeedContainer = styled.div`
-  position: relative;
-  padding: 0.6rem 0.8rem;
-  border: 1px solid rgb(${(props) => props.theme.cardBorder});
-  border-radius: 6px;
-  cursor: pointer;
-  overflow: hidden;
-`;
-
-const SeedShownIcon = styled(EyeIcon)`
-  position: absolute;
-  right: 0.8rem;
-  bottom: 0.6rem;
-  font-size: 1.1rem;
-  width: 1em;
-  height: 1em;
-  color: rgb(${(props) => props.theme.primaryText});
-`;
-
-const Seed = styled.p<{ shown: boolean }>`
-  margin: 0;
-  color: rgb(${(props) => props.theme.primaryText});
-  font-weight: 500;
-  font-size: 0.92rem;
-  line-height: 1.5em;
-  filter: blur(${(props) => (!props.shown ? "10px" : "0")});
-`;
-
-const CopySeed = styled(Text).attrs({
-  noMargin: true
-})`
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  width: max-content;
-  cursor: pointer;
-
-  svg {
-    font-size: 1rem;
-    width: 1em;
-    height: 1em;
-  }
-`;
-
 const Generating = styled(motion.div).attrs({
   initial: { opacity: 0 },
   animate: { opacity: 1 },
@@ -403,12 +246,4 @@ const GeneratingLoading = styled(Loading)`
   color: rgb(${(props) => props.theme.theme});
   width: 1.23rem;
   height: 1.23rem;
-`;
-
-const ConfirmWords = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.5rem 0;
 `;

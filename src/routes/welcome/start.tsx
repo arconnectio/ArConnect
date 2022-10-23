@@ -3,9 +3,9 @@ import { ArrowRightIcon } from "@iconicicons/react";
 import { motion } from "framer-motion";
 import { useLocation } from "wouter";
 import { useState } from "react";
-import HexagonBackground from "~components/welcome/HexagonBackground";
-import Screenshots from "~components/welcome/Screenshots";
-import Ecosystem from "~components/welcome/Ecosystem";
+import HexagonBackground from "~components/welcome/start/HexagonBackground";
+import Screenshots from "~components/welcome/start/Screenshots";
+import Ecosystem from "~components/welcome/start/Ecosystem";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 

@@ -583,8 +583,12 @@
     "message": "Done",
     "description": "Done button text"
   },
+  "setup_complete_title": {
+    "message": "Setup complete",
+    "description": "Setup complete title"
+  },
   "generated_wallet": {
-    "message": "Generated wallet with address $ADDRESS$",
+    "message": "Generated wallet with address $ADDRESS$. You should never share nor the keyfile, nor the seedphrase with anyone. Avoid dApps asking for your keyfile as well.",
     "description": "Generated wallet notification",
     "placeholders": {
       "address": {
