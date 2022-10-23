@@ -6,6 +6,7 @@ import { Router, Route } from "wouter";
 import Home from "~routes/welcome";
 import Start from "~routes/welcome/start";
 import Generate from "~routes/welcome/generate";
+import Load from "~routes/welcome/load";
 
 export default function Welcome() {
   const theme = useTheme();
@@ -17,6 +18,7 @@ export default function Welcome() {
         <Route path="/" component={Home} />
         <Route path="/start" component={Start} />
         <Route path="/generate" component={Generate} />
+        <Route path="/load" component={Load} />
       </Router>
     </Provider>
   );

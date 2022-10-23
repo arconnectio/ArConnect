@@ -1,3 +1,9 @@
+import {
+  Wrapper,
+  GenerateCard,
+  Page,
+  Paginator
+} from "~components/welcome/Wrapper";
 import { checkPasswordValid, jwkFromMnemonic } from "~wallets/generator";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { AnimatePresence, motion } from "framer-motion";
@@ -96,6 +102,8 @@ export default function Generate() {
   async function handleBtn() {
     if (page === 1 && !checkPasswordValid(passwordInput.state)) {
       // we check the password strength on page 1
+      passwordInput.setState("error");
+
       return setToast({
         type: "error",
         content: browser.i18n.getMessage("password_not_strong"),
@@ -196,37 +204,6 @@ export default function Generate() {
     </Wrapper>
   );
 }
-
-const Wrapper = styled.div`
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-`;
-
-const GenerateCard = styled(Card)`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 350px;
-  transform: translate(-50%, -50%);
-`;
-
-const Paginator = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-`;
-
-const Page = styled.div<{ active?: boolean }>`
-  width: 2.5rem;
-  height: 2px;
-  background-color: rgba(
-    ${(props) => props.theme.theme + ", " + (props.active ? "1" : ".45")}
-  );
-  transition: all 0.23s ease-in-out;
-`;
 
 const Generating = styled(motion.div).attrs({
   initial: { opacity: 0 },

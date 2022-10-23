@@ -692,5 +692,13 @@
   "generated_wallet_dashboard": {
     "message": "Generated wallet, you may close the winodw now",
     "description": "Notification about wallet generation"
+  },
+  "provide_seedphrase": {
+    "message": "Provide seedphrase",
+    "description": "Provide seedphrase for title in load wallet setup"
+  },
+  "provide_seedphrase_paragraph": {
+    "message": "Enter the 12 word seedphrase you saved when you generated your wallet. Make sure it is in the right order.",
+    "description": "Explainer about the seedphrase loading"
   }
 }
