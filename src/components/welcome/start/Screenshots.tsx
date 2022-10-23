@@ -1,12 +1,13 @@
+import type { HTMLProps } from "react";
 import { motion } from "framer-motion";
 import collectibleScreenshot from "url:/assets/screenshots/collectible.png";
 import exploreScreenshot from "url:/assets/screenshots/explore.png";
 import homeScreenshot from "url:/assets/screenshots/home.png";
 import styled from "styled-components";
 
-export default function Screenshots() {
+export default function Screenshots(props: HTMLProps<HTMLDivElement>) {
   return (
-    <Wrapper>
+    <Wrapper {...(props as any)}>
       <Column>
         <Screenshot src={exploreScreenshot} />
         <Screenshot src={homeScreenshot} />

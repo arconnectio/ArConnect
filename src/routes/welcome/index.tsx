@@ -4,6 +4,7 @@ import { ArrowRightIcon, KeyIcon } from "@iconicicons/react";
 import { AnimatePresence, motion } from "framer-motion";
 import styled, { keyframes } from "styled-components";
 import { useLocation } from "wouter";
+import Screenshots from "~components/welcome/start/Screenshots";
 import browser from "webextension-polyfill";
 
 export default function Home() {
@@ -78,7 +79,9 @@ export default function Home() {
           </ButtonsWrapper>
         </WelcomeContent>
       </Panel>
-      <EcosystemPanel></EcosystemPanel>
+      <ArConnectPanel>
+        <ScreenshotsWelcome />
+      </ArConnectPanel>
       <AnimatePresence>
         {expandPos && (
           <ExpandAnimationElement pos={expandPos} circleSize={circleSize} />
@@ -102,8 +105,14 @@ const Panel = styled.div`
   height: 100%;
 `;
 
-const EcosystemPanel = styled(Panel)`
+const ArConnectPanel = styled(Panel)`
   background-color: #000;
+`;
+
+const ScreenshotsWelcome = styled(Screenshots)`
+  left: 5%;
+  right: 5%;
+  z-index: 1;
 `;
 
 const WelcomeContent = styled.div`
@@ -210,6 +219,7 @@ const ExpandAnimationElement = styled(motion.div).attrs<{
   bottom: 0;
   right: 0;
   background-color: #fff;
+  z-index: 1000;
 `;
 
 function getWindowDimensions() {
