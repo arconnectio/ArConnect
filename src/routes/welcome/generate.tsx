@@ -31,7 +31,6 @@ export default function Generate() {
   // load seed
   useEffect(() => {
     (async () => {
-      console.log(bip39);
       const mnemonic = await bip39.generateMnemonic();
 
       setSeed(mnemonic);
@@ -61,7 +60,11 @@ export default function Generate() {
 
       try {
         // try to generate wallet in the background
-        const res = await sendMessage("generate_wallet", { seed });
+        const res = await sendMessage(
+          "generate_wallet",
+          { seed },
+          "background"
+        );
 
         setToast({
           type: "success",

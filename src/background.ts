@@ -1,25 +1,14 @@
 import { addressChangeListener, walletsChangeListener } from "~wallets/event";
+import { generateWalletInBackground } from "~wallets/generator";
 import { handleApiCalls, handleChunkCalls } from "~api";
+import { onMessage } from "@arconnect/webext-bridge";
 import { handleTabUpdate } from "~applications/tab";
 import { appsChangeListener } from "~applications";
 import { getStorageConfig } from "~utils/storage";
+import { onInstalled } from "~utils/runtime";
 import { Storage } from "@plasmohq/storage";
-import { getWallets } from "~wallets";
-import { onMessage } from "@arconnect/webext-bridge";
 import handleFeeAlarm from "~api/modules/sign/fee";
 import browser from "webextension-polyfill";
-
-// open welcome page on extension install
-browser.runtime.onInstalled.addListener(async () => {
-  // get stored wallets
-  const storedWallets = await getWallets();
-
-  // open welcome page
-  if (storedWallets.length !== 0) return;
-  await browser.tabs.create({
-    url: browser.runtime.getURL("tabs/welcome.html")
-  });
-});
 
 // TODO: save decryption key here if the extension is
 // running in firefox. firefox still uses manifest v2,
@@ -32,6 +21,9 @@ onMessage("api_call", handleApiCalls);
 
 // watch for chunks
 onMessage("chunk", handleChunkCalls);
+
+// watch for wallet generation requests
+onMessage("generate_wallet", generateWalletInBackground);
 
 // handle tab change (icon, context menus)
 browser.tabs.onUpdated.addListener((tabId) => handleTabUpdate(tabId));
@@ -52,5 +44,8 @@ storage.watch({
   apps: appsChangeListener,
   wallets: walletsChangeListener
 });
+
+// open welcome page on extension install
+browser.runtime.onInstalled.addListener(onInstalled);
 
 export {};

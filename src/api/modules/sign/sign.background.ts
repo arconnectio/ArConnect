@@ -28,7 +28,7 @@ const background: ModuleFunction<BackgroundResult> = async (
   // grab the user's keyfile
   const keyfile = await getActiveKeyfile().catch(() => {
     // if there are no wallets added, open the welcome page
-    browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
+    browser.tabs.create({ url: browser.runtime.getURL("tabs/welcome.html") });
 
     throw new Error("No wallets added");
   });
