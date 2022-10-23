@@ -19,12 +19,12 @@ import {
 } from "@arconnect/components";
 import BackupWalletPage from "~components/welcome/generate/BackupWalletPage";
 import ConfirmSeedPage from "~components/welcome/generate/ConfirmSeedPage";
+import GeneratedPage from "~components/welcome/generate/GeneratedPage";
 import PasswordPage from "~components/welcome/generate/PasswordPage";
 import browser from "webextension-polyfill";
 import * as bip39 from "bip39-web-crypto";
 import styled from "styled-components";
 import Arweave from "arweave";
-import GeneratedPage from "~components/welcome/generate/GeneratedPage";
 
 export default function Generate() {
   // active page

@@ -668,5 +668,29 @@
   "setup": {
     "message": "Setup",
     "description": "Setup button text"
+  },
+  "or": {
+    "message": "Or",
+    "description": "\"Or\" text"
+  },
+  "enter_seedphrase": {
+    "message": "Enter seedphrase...",
+    "description": "Enter seedphrase input placerholder"
+  },
+  "generate_wallet": {
+    "message": "Generate wallet",
+    "description": "Generate wallet button text"
+  },
+  "enter_pw_gen_wallet": {
+    "message": "Enter password to generate wallet",
+    "description": "Request to enter password before generating a wallet in settings"
+  },
+  "no_close_window": {
+    "message": "Don't close the window!",
+    "description": "Request to not close the window"
+  },
+  "generated_wallet_dashboard": {
+    "message": "Generated wallet, you may close the winodw now",
+    "description": "Notification about wallet generation"
   }
 }
