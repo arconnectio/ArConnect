@@ -4,11 +4,22 @@ import { handleTabUpdate } from "~applications/tab";
 import { appsChangeListener } from "~applications";
 import { getStorageConfig } from "~utils/storage";
 import { Storage } from "@plasmohq/storage";
+import { getWallets } from "~wallets";
 import { onMessage } from "@arconnect/webext-bridge";
 import handleFeeAlarm from "~api/modules/sign/fee";
 import browser from "webextension-polyfill";
 
-// TODO: open welcome page on extension install
+// open welcome page on extension install
+browser.runtime.onInstalled.addListener(async () => {
+  // get stored wallets
+  const storedWallets = await getWallets();
+
+  // open welcome page
+  if (storedWallets.length !== 0) return;
+  await browser.tabs.create({
+    url: browser.runtime.getURL("tabs/welcome.html")
+  });
+});
 
 // TODO: save decryption key here if the extension is
 // running in firefox. firefox still uses manifest v2,
