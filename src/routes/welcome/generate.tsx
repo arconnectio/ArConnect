@@ -1,17 +1,21 @@
+import { checkPasswordValid, jwkFromMnemonic } from "~wallets/generator";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { AnimatePresence, motion } from "framer-motion";
 import { defaultGateway } from "~applications/gateway";
 import { useEffect, useMemo, useState } from "react";
-import { jwkFromMnemonic } from "~wallets/generator";
+import { AnsUser, getAnsProfile } from "~lib/ans";
 import { formatAddress } from "~utils/format";
+import { addWallet } from "~wallets";
 import {
   Button,
   Card,
   Checkbox,
+  Input,
   Loading,
   Spacer,
   Text,
   useCheckbox,
+  useInput,
   useToasts
 } from "@arconnect/components";
 import {
@@ -25,8 +29,7 @@ import * as bip39 from "bip39-web-crypto";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import Arweave from "arweave";
-import { AnsUser, getAnsProfile } from "~lib/ans";
-import { addWallet } from "~wallets";
+import PasswordStrength from "~components/welcome/PasswordStrength";
 
 export default function Generate() {
   // active page
@@ -67,14 +70,6 @@ export default function Generate() {
         const address = await arweave.wallets.jwkToAddress(generatedKeyfile);
 
         setKeyfile(generatedKeyfile);
-
-        setToast({
-          type: "success",
-          content: browser.i18n.getMessage("generated_wallet", [
-            formatAddress(address, 6)
-          ]),
-          duration: 2300
-        });
       } catch (e) {
         console.log("Error generating wallet", e);
         setToast({
@@ -97,11 +92,21 @@ export default function Generate() {
   // adding wallet
   const [addingWallet, setAddingWallet] = useState(false);
 
+  // password input
+  const passwordInput = useInput("");
+
   // next button click event
   async function handleBtn() {
-    if (!writtenDown.state || (!sorted && page === 2)) return;
-    if (page !== 3) setPage((v) => v + 1);
-    else if (!!keyfile && page === 3) {
+    if (page === 1 && !checkPasswordValid(passwordInput.state)) {
+      return setToast({
+        type: "error",
+        content: browser.i18n.getMessage("password_not_strong"),
+        duration: 2300
+      });
+    }
+    if ((!writtenDown.state && page !== 1) || (!sorted && page === 3)) return;
+    if (page !== 4) setPage((v) => v + 1);
+    else if (!!keyfile && page === 4) {
       // add wallet
       setAddingWallet(true);
 
@@ -123,7 +128,7 @@ export default function Generate() {
         // add the wallet
         await addWallet(
           nickname ? { nickname, wallet: keyfile } : keyfile,
-          password
+          passwordInput.state
         );
         window.top.close();
       } catch (e) {
@@ -138,34 +143,39 @@ export default function Generate() {
     <Wrapper>
       <GenerateCard>
         <Paginator>
-          {Array(3)
+          {Array(4)
             .fill("")
             .map((_, i) => (
               <Page key={i} active={page === i + 1} />
             ))}
         </Paginator>
         <Spacer y={1} />
-        {page === 1 && seed && <BackupWalletPage seed={seed} />}
-        {page === 2 && seed && (
+        {page === 1 && <PasswordPage passwordInput={passwordInput} />}
+        {page === 2 && seed && <BackupWalletPage seed={seed} />}
+        {page === 3 && seed && (
           <ConfirmSeedPage seed={seed} setSorted={setSorted} />
         )}
-        <Spacer y={1.25} />
-        <Checkbox {...writtenDown.bindings}>
-          {browser.i18n.getMessage("written_down_seed")}
-        </Checkbox>
+        {page !== 1 && (
+          <>
+            <Spacer y={1.25} />
+            <Checkbox {...writtenDown.bindings}>
+              {browser.i18n.getMessage("written_down_seed")}
+            </Checkbox>
+          </>
+        )}
         <Spacer y={1.25} />
         <Button
           fullWidth
           disabled={
-            !writtenDown.state ||
-            (!sorted && page === 2) ||
-            (!keyfile && page === 3)
+            (!writtenDown.state && page !== 1) ||
+            (!sorted && page === 3) ||
+            (!keyfile && page === 4)
           }
           onClick={handleBtn}
-          loading={(page === 3 && !keyfile) || addingWallet}
+          loading={(page === 4 && !keyfile) || addingWallet}
         >
-          {browser.i18n.getMessage(page === 3 ? "done" : "next")}
-          {page !== 3 && <ArrowRightIcon />}
+          {browser.i18n.getMessage(page === 4 ? "done" : "next")}
+          {page !== 4 && <ArrowRightIcon />}
         </Button>
       </GenerateCard>
       <AnimatePresence>
@@ -179,6 +189,30 @@ export default function Generate() {
     </Wrapper>
   );
 }
+
+const PasswordPage = ({
+  passwordInput
+}: {
+  passwordInput: ReturnType<typeof useInput>;
+}) => {
+  return (
+    <>
+      <Text heading>{browser.i18n.getMessage("create_password")}</Text>
+      <Paragraph>
+        {browser.i18n.getMessage("create_password_paragraph")}
+      </Paragraph>
+      <Input
+        type="password"
+        {...passwordInput.bindings}
+        placeholder={browser.i18n.getMessage("enter_password")}
+        fullWidth
+      />
+      <Spacer y={1.55} />
+      <PasswordStrength password={passwordInput.state} />
+      <Spacer y={2.5} />
+    </>
+  );
+};
 
 const BackupWalletPage = ({ seed }: { seed: string }) => {
   // seed blur status
@@ -244,11 +278,6 @@ const ConfirmSeedPage = ({
       }
     }
 
-    setToast({
-      type: "success",
-      content: browser.i18n.getMessage("correct"),
-      duration: 2000
-    });
     setSorted(true);
   }, [words, userOrdered, seed]);
 
