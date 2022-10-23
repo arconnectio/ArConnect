@@ -1,7 +1,14 @@
+import type { JWKInterface } from "arweave/web/lib/wallet";
+import { AnimatePresence, motion } from "framer-motion";
+import { defaultGateway } from "~applications/gateway";
+import { jwkFromMnemonic } from "~wallets/generator";
+import { formatAddress } from "~utils/format";
+import { useEffect, useState } from "react";
 import {
   Button,
   Card,
   Checkbox,
+  Loading,
   Spacer,
   Text,
   useCheckbox,
@@ -13,13 +20,11 @@ import {
   EyeIcon,
   EyeOffIcon
 } from "@iconicicons/react";
-import { sendMessage } from "@arconnect/webext-bridge";
-import { formatAddress } from "~utils/format";
-import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import * as bip39 from "bip39-web-crypto";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
+import Arweave from "arweave";
 
 export default function Generate() {
   // active page
@@ -40,36 +45,31 @@ export default function Generate() {
   // toasts
   const { setToast } = useToasts();
 
-  // send wallet generating request
-  const [sendGenerationRequest, setSendGenerationRequest] = useState(false);
+  // generation in progress
+  const [generatingWallet, setGeneratingWallet] = useState(false);
 
-  // wallet generator
-  // we send a message to the background worker
-  // to create the wallet
-  // this is needed because wallet generationg is very
-  // slow, so it is better to perform it in the background
-  //
-  // IMPORTANT: because a stored wallet keyfile can be undefined,
-  // as it has not yet generated it's keyfile, we need to display
-  // in the popup, if a wallet is still being generated, and will
-  // be pushed to the stored wallets array
+  // keyfile
+  const [keyfile, setKeyfile] = useState<JWKInterface>();
+
+  // generate wallet
   useEffect(() => {
     (async () => {
-      if (seed === "" || sendGenerationRequest) return;
-      setSendGenerationRequest(true);
+      if (seed === "" || generatingWallet) return;
+      setGeneratingWallet(true);
 
       try {
-        // try to generate wallet in the background
-        const res = await sendMessage(
-          "generate_wallet",
-          { seed },
-          "background"
-        );
+        const arweave = new Arweave(defaultGateway);
+
+        // generate wallet from seedphrase
+        const generatedKeyfile = await jwkFromMnemonic(seed);
+        const address = await arweave.wallets.jwkToAddress(generatedKeyfile);
+
+        setKeyfile(generatedKeyfile);
 
         setToast({
           type: "success",
           content: browser.i18n.getMessage("generated_wallet", [
-            formatAddress(res.address, 6)
+            formatAddress(address, 6)
           ]),
           duration: 2300
         });
@@ -81,8 +81,10 @@ export default function Generate() {
           duration: 2300
         });
       }
+
+      setGeneratingWallet(false);
     })();
-  }, [seed, sendGenerationRequest]);
+  }, [seed]);
 
   // written down checkbox
   const writtenDown = useCheckbox();
@@ -117,6 +119,14 @@ export default function Generate() {
           {page !== 3 && <ArrowRightIcon />}
         </Button>
       </GenerateCard>
+      <AnimatePresence>
+        {generatingWallet && (
+          <Generating>
+            <Text noMargin>{browser.i18n.getMessage("generating_wallet")}</Text>
+            <GeneratingLoading />
+          </Generating>
+        )}
+      </AnimatePresence>
     </Wrapper>
   );
 }
@@ -218,4 +228,24 @@ const CopySeed = styled(Text).attrs({
     width: 1em;
     height: 1em;
   }
+`;
+
+const Generating = styled(motion.div).attrs({
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: { duration: 0.23, ease: "easeInOut" }
+})`
+  position: fixed;
+  display: flex;
+  align-items: center;
+  bottom: 1rem;
+  right: 1rem;
+  gap: 0.36rem;
+`;
+
+const GeneratingLoading = styled(Loading)`
+  color: rgb(${(props) => props.theme.theme});
+  width: 1.23rem;
+  height: 1.23rem;
 `;

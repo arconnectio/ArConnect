@@ -600,5 +600,9 @@
   "written_down_seed": {
     "message": "I have written down my seedphrase",
     "description": "Label for written down seedphrase checkbox"
+  },
+  "generating_wallet": {
+    "message": "Generating wallet...",
+    "description": "Generating wallet in progress text"
   }
 }

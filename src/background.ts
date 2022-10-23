@@ -1,5 +1,4 @@
 import { addressChangeListener, walletsChangeListener } from "~wallets/event";
-import { generateWalletInBackground } from "~wallets/generator";
 import { handleApiCalls, handleChunkCalls } from "~api";
 import { onMessage } from "@arconnect/webext-bridge";
 import { handleTabUpdate } from "~applications/tab";
@@ -21,9 +20,6 @@ onMessage("api_call", handleApiCalls);
 
 // watch for chunks
 onMessage("chunk", handleChunkCalls);
-
-// watch for wallet generation requests
-onMessage("generate_wallet", generateWalletInBackground);
 
 // handle tab change (icon, context menus)
 browser.tabs.onUpdated.addListener((tabId) => handleTabUpdate(tabId));
