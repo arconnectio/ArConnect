@@ -102,7 +102,7 @@ export default function Generate() {
   async function handleBtn() {
     if (page === 1 && !checkPasswordValid(passwordInput.state)) {
       // we check the password strength on page 1
-      passwordInput.setState("error");
+      passwordInput.setStatus("error");
 
       return setToast({
         type: "error",

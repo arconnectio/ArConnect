@@ -15,6 +15,7 @@ import {
   useToasts
 } from "@arconnect/components";
 import BackupWalletPage from "~components/welcome/generate/BackupWalletPage";
+import SeedTextarea from "~components/welcome/load/SeedTextarea";
 import browser from "webextension-polyfill";
 import * as bip39 from "bip39-web-crypto";
 import styled from "styled-components";
@@ -154,11 +155,9 @@ export default function AddWallet() {
             <Spacer y={1} />
             <Or>{browser.i18n.getMessage("or").toUpperCase()}</Or>
             <Spacer y={1} />
-            <Input
-              {...seedInput.bindings}
-              fullWidth
+            <ShortSeedTextarea
+              {...(seedInput.bindings as any)}
               placeholder={browser.i18n.getMessage("enter_seedphrase")}
-              type="text"
             />
             <Spacer y={1} />
             <Input
@@ -222,12 +221,16 @@ const Title = styled(Text).attrs({
 `;
 
 const WalletInput = styled(FileInput)`
-  padding-top: 3rem;
-  padding-bottom: 3rem;
+  padding-top: 2.6rem;
+  padding-bottom: 2.6rem;
 `;
 
 const Or = styled(Text).attrs({
   noMargin: true
 })`
   text-align: center;
+`;
+
+const ShortSeedTextarea = styled(SeedTextarea)`
+  height: 110px;
 `;
