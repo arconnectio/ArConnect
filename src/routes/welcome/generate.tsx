@@ -25,6 +25,8 @@ import * as bip39 from "bip39-web-crypto";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import Arweave from "arweave";
+import { AnsUser, getAnsProfile } from "~lib/ans";
+import { addWallet } from "~wallets";
 
 export default function Generate() {
   // active page
@@ -92,6 +94,46 @@ export default function Generate() {
   // sorted words
   const [sorted, setSorted] = useState(false);
 
+  // adding wallet
+  const [addingWallet, setAddingWallet] = useState(false);
+
+  // next button click event
+  async function handleBtn() {
+    if (!writtenDown.state || (!sorted && page === 2)) return;
+    if (page !== 3) setPage((v) => v + 1);
+    else if (!!keyfile && page === 3) {
+      // add wallet
+      setAddingWallet(true);
+
+      try {
+        const arweave = new Arweave(defaultGateway);
+
+        // fetch ans data
+        const address = await arweave.wallets.jwkToAddress(keyfile);
+        let nickname: string;
+
+        try {
+          const ansProfile = (await getAnsProfile(address)) as AnsUser;
+
+          if (ansProfile) {
+            nickname = ansProfile.currentLabel;
+          }
+        } catch {}
+
+        // add the wallet
+        await addWallet(
+          nickname ? { nickname, wallet: keyfile } : keyfile,
+          password
+        );
+        window.top.close();
+      } catch (e) {
+        console.log("Failed to add wallet", e);
+      }
+
+      setAddingWallet(false);
+    }
+  }
+
   return (
     <Wrapper>
       <GenerateCard>
@@ -114,12 +156,13 @@ export default function Generate() {
         <Spacer y={1.25} />
         <Button
           fullWidth
-          disabled={!writtenDown.state || (!sorted && page === 2)}
-          onClick={() => {
-            if (!writtenDown.state || (!sorted && page === 2)) return;
-            if (page !== 3) setPage((v) => v + 1);
-            else window.top.close();
-          }}
+          disabled={
+            !writtenDown.state ||
+            (!sorted && page === 2) ||
+            (!keyfile && page === 3)
+          }
+          onClick={handleBtn}
+          loading={(page === 3 && !keyfile) || addingWallet}
         >
           {browser.i18n.getMessage(page === 3 ? "done" : "next")}
           {page !== 3 && <ArrowRightIcon />}
@@ -189,7 +232,7 @@ const ConfirmSeedPage = ({
     if (userOrdered.length !== words.length) return;
 
     for (let i = 0; i < words.length; i++) {
-      if (userOrdered[i] !== words[i]) {
+      if (userOrdered[i] !== seed.split(" ")[i]) {
         setToast({
           type: "error",
           content: browser.i18n.getMessage("invalid_seed_order"),
@@ -207,7 +250,7 @@ const ConfirmSeedPage = ({
       duration: 2000
     });
     setSorted(true);
-  }, [words, userOrdered]);
+  }, [words, userOrdered, seed]);
 
   return (
     <>

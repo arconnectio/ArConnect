@@ -171,7 +171,11 @@ export async function getActiveKeyfile() {
  * @param password Password to encrypt with
  */
 export async function addWallet(
-  wallet: JWKInterface | JWKInterface[],
+  wallet:
+    | JWKInterface
+    | WalletWithNickname
+    | JWKInterface[]
+    | WalletWithNickname[],
   password: string
 ) {
   // check password
@@ -184,15 +188,18 @@ export async function addWallet(
     port: 443,
     protocol: "https"
   });
-  const walletsToAdd = Array.isArray(wallet) ? wallet : [wallet];
+  const walletsToAdd = Array.isArray(wallet) ? wallet : [{ wallet }];
 
   // wallets
   const wallets = await getWallets();
 
-  for (const w of walletsToAdd) {
+  for (const item of walletsToAdd) {
+    // @ts-expect-error
+    const keyfile: JWKInterface = item.wallet || item;
+
     // prepare data for storing
-    const address = await arweave.wallets.jwkToAddress(w);
-    const encrypted = await encryptWallet(w, password);
+    const address = await arweave.wallets.jwkToAddress(keyfile);
+    const encrypted = await encryptWallet(keyfile, password);
 
     if (wallets.find((val) => val.address === address)) {
       continue;
@@ -200,7 +207,8 @@ export async function addWallet(
 
     // push wallet
     wallets.push({
-      nickname: `Account ${wallets.length + 1}`,
+      // @ts-expect-error
+      nickname: item.nickname || `Account ${wallets.length + 1}`,
       address,
       keyfile: encrypted
     });
@@ -268,3 +276,8 @@ export const readWalletFromFile = (file: File) =>
       }
     };
   });
+
+interface WalletWithNickname {
+  wallet: JWKInterface;
+  nickname?: string;
+}
