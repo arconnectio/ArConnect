@@ -1,9 +1,9 @@
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { AnimatePresence, motion } from "framer-motion";
 import { defaultGateway } from "~applications/gateway";
+import { useEffect, useMemo, useState } from "react";
 import { jwkFromMnemonic } from "~wallets/generator";
 import { formatAddress } from "~utils/format";
-import { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -89,6 +89,9 @@ export default function Generate() {
   // written down checkbox
   const writtenDown = useCheckbox();
 
+  // sorted words
+  const [sorted, setSorted] = useState(false);
+
   return (
     <Wrapper>
       <GenerateCard>
@@ -101,6 +104,9 @@ export default function Generate() {
         </Paginator>
         <Spacer y={1} />
         {page === 1 && seed && <BackupWalletPage seed={seed} />}
+        {page === 2 && seed && (
+          <ConfirmSeedPage seed={seed} setSorted={setSorted} />
+        )}
         <Spacer y={1.25} />
         <Checkbox {...writtenDown.bindings}>
           {browser.i18n.getMessage("written_down_seed")}
@@ -108,9 +114,9 @@ export default function Generate() {
         <Spacer y={1.25} />
         <Button
           fullWidth
-          disabled={!writtenDown.state}
+          disabled={!writtenDown.state || (!sorted && page === 2)}
           onClick={() => {
-            if (!writtenDown.state) return;
+            if (!writtenDown.state || (!sorted && page === 2)) return;
             if (page !== 3) setPage((v) => v + 1);
             else window.top.close();
           }}
@@ -147,6 +153,83 @@ const BackupWalletPage = ({ seed }: { seed: string }) => {
       <CopySeed onClick={() => copy(seed)}>
         <CopyIcon /> {browser.i18n.getMessage("copySeed")}
       </CopySeed>
+    </>
+  );
+};
+
+const ConfirmSeedPage = ({
+  seed,
+  setSorted
+}: {
+  seed: string;
+  setSorted: (v) => any;
+}) => {
+  // mnemonic words array
+  const words = useMemo(
+    () => seed.split(" ").sort(() => Math.random() - 0.5),
+    [seed]
+  );
+
+  // user ordered words
+  const [userOrdered, setUserOrdered] = useState<string[]>([]);
+
+  // get the i + 1 of a word
+  const getCountOf = (word: string) => {
+    const index = userOrdered.findIndex((v) => v === word);
+
+    if (index >= 0) return index + 1;
+    else return false;
+  };
+
+  // toasts
+  const { setToast } = useToasts();
+
+  // check order
+  useEffect(() => {
+    if (userOrdered.length !== words.length) return;
+
+    for (let i = 0; i < words.length; i++) {
+      if (userOrdered[i] !== words[i]) {
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("invalid_seed_order"),
+          duration: 2200
+        });
+        setSorted(false);
+        setUserOrdered([]);
+        return;
+      }
+    }
+
+    setToast({
+      type: "success",
+      content: browser.i18n.getMessage("correct"),
+      duration: 2000
+    });
+    setSorted(true);
+  }, [words, userOrdered]);
+
+  return (
+    <>
+      <Text heading>{browser.i18n.getMessage("confirm_seed")}</Text>
+      <Paragraph>{browser.i18n.getMessage("confirm_seed_paragraph")}</Paragraph>
+      <ConfirmWords>
+        {words.map((word, i) => (
+          <Button
+            secondary
+            small
+            key={i}
+            onClick={() => {
+              if (userOrdered.includes(word)) return;
+              setUserOrdered((val) => [...val, word]);
+              console.log(getCountOf(word));
+            }}
+          >
+            {getCountOf(word) ? getCountOf(word) + ". " : ""}
+            {word}
+          </Button>
+        ))}
+      </ConfirmWords>
     </>
   );
 };
@@ -248,4 +331,12 @@ const GeneratingLoading = styled(Loading)`
   color: rgb(${(props) => props.theme.theme});
   width: 1.23rem;
   height: 1.23rem;
+`;
+
+const ConfirmWords = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 0;
 `;

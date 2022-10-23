@@ -604,5 +604,21 @@
   "generating_wallet": {
     "message": "Generating wallet...",
     "description": "Generating wallet in progress text"
+  },
+  "confirm_seed": {
+    "message": "Confirm your seedphrase",
+    "description": "Confirm seedphrase title"
+  },
+  "confirm_seed_paragraph": {
+    "message": "Verify your seedphrase by clicking the words in the same order you've received them.",
+    "description": "Confirm seedphrase explainer paragraph"
+  },
+  "correct": {
+    "message": "Correct",
+    "description": "Correct text"
+  },
+  "invalid_seed_order": {
+    "message": "Invalid order. Please try again",
+    "description": "Invalid seed order notification"
   }
 }
