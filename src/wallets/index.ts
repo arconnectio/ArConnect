@@ -6,6 +6,7 @@ import { Storage } from "@plasmohq/storage";
 import { useEffect, useState } from "react";
 import { checkPassword } from "./auth";
 import authenticate from "~api/modules/connect/auth";
+import browser from "webextension-polyfill";
 import Arweave from "arweave/web/common";
 
 /**
@@ -90,6 +91,29 @@ export const useActiveWallet = () => {
 
   return activeWallet;
 };
+
+/**
+ * Hook that opens a new tab if ArConnect has not been set up yet
+ */
+export const useSetUp = () =>
+  useEffect(() => {
+    (async () => {
+      const activeAddress = await getActiveAddress();
+      const wallets = await getWallets();
+
+      if (
+        !activeAddress ||
+        activeAddress === "" ||
+        wallets.length === 0 ||
+        !wallets
+      ) {
+        await browser.tabs.create({
+          url: browser.runtime.getURL("tabs/welcome.html")
+        });
+        window.top.close();
+      }
+    })();
+  }, []);
 
 /**
  * Get the active address

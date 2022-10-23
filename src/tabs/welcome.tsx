@@ -7,7 +7,7 @@ import Home from "~routes/welcome";
 import Start from "~routes/welcome/start";
 import Generate from "~routes/welcome/generate";
 
-export default function Popup() {
+export default function Welcome() {
   const theme = useTheme();
 
   return (
