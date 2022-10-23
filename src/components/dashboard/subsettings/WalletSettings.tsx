@@ -212,6 +212,9 @@ export default function WalletSettings({ address }: Props) {
         {...removeModal.bindings}
         actions={
           <>
+            <ModalButton onClick={() => removeModal.setOpen(false)}>
+              {browser.i18n.getMessage("cancel")}
+            </ModalButton>
             <ModalButton
               onClick={async () => {
                 try {
@@ -236,9 +239,6 @@ export default function WalletSettings({ address }: Props) {
               }}
             >
               {browser.i18n.getMessage("confirm")}
-            </ModalButton>
-            <ModalButton onClick={() => removeModal.setOpen(false)}>
-              {browser.i18n.getMessage("cancel")}
             </ModalButton>
           </>
         }
