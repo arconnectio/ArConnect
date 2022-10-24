@@ -25,10 +25,14 @@ export function useTheme() {
       return setDisplayTheme(theme);
     }
 
-    // listen for system theme changes
+    // match theme
     const darkModePreference = window.matchMedia(
       "(prefers-color-scheme: dark)"
     );
+
+    setDisplayTheme(darkModePreference.matches ? "dark" : "light");
+
+    // listen for system theme changes
     const listener = (e: MediaQueryListEvent) =>
       setDisplayTheme(e.matches ? "dark" : "light");
 
