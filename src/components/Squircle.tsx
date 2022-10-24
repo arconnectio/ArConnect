@@ -1,4 +1,5 @@
-import { HTMLProps, useEffect, useState } from "react";
+import { HTMLProps, useEffect, useMemo, useState } from "react";
+import { v4 as uuid } from "uuid";
 import styled from "styled-components";
 import axios from "axios";
 
@@ -9,6 +10,8 @@ export default function Squircle({
   ...props
 }: HTMLProps<HTMLDivElement> & Props) {
   const [imageData, setImageData] = useState<string>();
+
+  const svgPathId = useMemo(() => uuid(), [img]);
 
   // load the image with axios
   // we use this to have a nicer loading
@@ -48,7 +51,7 @@ export default function Squircle({
         {imageData && (
           <defs>
             <pattern
-              id="squircle"
+              id={svgPathId}
               patternUnits="userSpaceOnUse"
               width="60"
               height="60"
@@ -66,7 +69,7 @@ export default function Squircle({
         )}
         <path
           d={outline ? outlinePath : originalPath}
-          fill={imageData ? "url(#squircle)" : "currentColor"}
+          fill={imageData ? `url(#${svgPathId})` : "currentColor"}
           strokeWidth={outline ? 2 : undefined}
           stroke={outline}
         />

@@ -55,7 +55,7 @@ async function createAuthPopup(data: AuthData) {
     focused: true,
     type: "popup",
     width: 385,
-    height: 635
+    height: 720
   });
 
   return { authID, tabId: window.tabs?.[0]?.id };

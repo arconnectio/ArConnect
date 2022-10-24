@@ -708,5 +708,13 @@
   "app_wants_to_connect": {
     "message": "An app wants to connect",
     "description": "App wants to connect label"
+  },
+  "wallet": {
+    "message": "Wallet",
+    "description": "Wallet label"
+  },
+  "enter_your_password": {
+    "message": "Enter your password...",
+    "description": "Enter password placeholder"
   }
 }
