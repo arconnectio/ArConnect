@@ -25,7 +25,11 @@ import Squircle from "~components/Squircle";
 import styled from "styled-components";
 import Arweave from "arweave";
 
-export default function WalletSwitcher({ open, close }: Props) {
+export default function WalletSwitcher({
+  open,
+  close,
+  showOptions = true
+}: Props) {
   // current address
   const [activeAddress, setActiveAddress] = useStorage<string>({
     key: "active_address",
@@ -202,31 +206,33 @@ export default function WalletSwitcher({ open, close }: Props) {
                   </Avatar>
                 </Wallet>
               ))}
-              <ActionBar>
-                <AddWalletButton
-                  onClick={() =>
-                    browser.tabs.create({
-                      url: browser.runtime.getURL(
-                        "tabs/dashboard.html#/wallets/new"
-                      )
-                    })
-                  }
-                >
-                  <PlusIcon />
-                  {browser.i18n.getMessage("addWallet")}
-                </AddWalletButton>
-                <Tooltip content={browser.i18n.getMessage("edit")}>
-                  <EditButton
+              {showOptions && (
+                <ActionBar>
+                  <AddWalletButton
                     onClick={() =>
                       browser.tabs.create({
                         url: browser.runtime.getURL(
-                          "tabs/dashboard.html#/wallets"
+                          "tabs/dashboard.html#/wallets/new"
                         )
                       })
                     }
-                  />
-                </Tooltip>
-              </ActionBar>
+                  >
+                    <PlusIcon />
+                    {browser.i18n.getMessage("addWallet")}
+                  </AddWalletButton>
+                  <Tooltip content={browser.i18n.getMessage("edit")}>
+                    <EditButton
+                      onClick={() =>
+                        browser.tabs.create({
+                          url: browser.runtime.getURL(
+                            "tabs/dashboard.html#/wallets"
+                          )
+                        })
+                      }
+                    />
+                  </Tooltip>
+                </ActionBar>
+              )}
             </WalletsCard>
           </Wrapper>
         </SwitcherPopover>
@@ -431,6 +437,7 @@ const DeleteIcon = styled(TrashIcon)`
 interface Props {
   open: boolean;
   close: () => any;
+  showOptions?: boolean;
 }
 
 interface DisplayedWallet {

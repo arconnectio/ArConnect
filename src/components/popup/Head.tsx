@@ -1,21 +1,22 @@
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { DisplayTheme, Section, Text } from "@arconnect/components";
-import { Avatar, NoAvatarIcon } from "./WalletHeader";
+import { Avatar, CloseLayer, NoAvatarIcon } from "./WalletHeader";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ArrowLeftIcon } from "@iconicicons/react";
 import type { AnsUser } from "~lib/ans";
 import { useTheme } from "~utils/theme";
 import { motion } from "framer-motion";
+import WalletSwitcher from "./WalletSwitcher";
 import styled from "styled-components";
 
-export default function Head({ title }: Props) {
+export default function Head({ title, showOptions = true }: Props) {
   // scroll position
   const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up");
 
   useEffect(() => {
     const listener = () => {
-      const newDir = window.scrollY > 85 ? "down" : "up";
+      const newDir = window.scrollY > 0 ? "down" : "up";
 
       if (newDir === scrollDirection) return;
       setScrollDirection(newDir);
@@ -24,7 +25,7 @@ export default function Head({ title }: Props) {
     window.addEventListener("scroll", listener);
 
     return () => window.removeEventListener("scroll", listener);
-  }, []);
+  }, [scrollDirection]);
 
   // ui theme
   const theme = useTheme();
@@ -50,8 +51,11 @@ export default function Head({ title }: Props) {
 
   useEffect(() => setFirstRender(false), []);
 
+  // wallet switcher open
+  const [isOpen, setOpen] = useState(false);
+
   return (
-    <HeadWrapper displayTheme={theme} scrolled={scrollY > 85}>
+    <HeadWrapper displayTheme={theme} scrolled={scrollDirection === "down"}>
       <BackWrapper>
         <BackButton onClick={() => history.back()} />
       </BackWrapper>
@@ -61,8 +65,16 @@ export default function Head({ title }: Props) {
         firstRender={firstRender}
       >
         <PageTitle>{title}</PageTitle>
-        <Avatar img={avatar}>{!avatar && <NoAvatarIcon />}</Avatar>
+        <ClickableAvatar img={avatar} onClick={() => setOpen(true)}>
+          {!avatar && <NoAvatarIcon />}
+        </ClickableAvatar>
       </PageInfo>
+      {isOpen && <CloseLayer onClick={() => setOpen(false)} />}
+      <WalletSwitcher
+        open={isOpen}
+        close={() => setOpen(false)}
+        showOptions={showOptions}
+      />
     </HeadWrapper>
   );
 }
@@ -147,6 +159,11 @@ const PageTitle = styled(Text).attrs({
   font-weight: 500;
 `;
 
+const ClickableAvatar = styled(Avatar)`
+  cursor: pointer;
+`;
+
 interface Props {
   title: string;
+  showOptions?: boolean;
 }

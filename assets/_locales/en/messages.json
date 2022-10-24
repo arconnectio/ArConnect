@@ -700,5 +700,13 @@
   "provide_seedphrase_paragraph": {
     "message": "Enter the 12 word seedphrase you saved when you generated your wallet. Make sure it is in the right order.",
     "description": "Explainer about the seedphrase loading"
+  },
+  "sign_in": {
+    "message": "Sign In",
+    "description": "Sign in title"
+  },
+  "app_wants_to_connect": {
+    "message": "An app wants to connect",
+    "description": "App wants to connect label"
   }
 }

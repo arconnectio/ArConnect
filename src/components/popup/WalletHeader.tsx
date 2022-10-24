@@ -205,7 +205,7 @@ export const NoAvatarIcon = styled(UserIcon)`
   transform: translate(-50%, -50%);
 `;
 
-const CloseLayer = styled.div`
+export const CloseLayer = styled.div`
   position: fixed;
   z-index: 100;
   top: 0;

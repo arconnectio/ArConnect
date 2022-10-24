@@ -97,7 +97,7 @@ export default function Home() {
   if (!authenticated) {
     return (
       <>
-        <Head title="Auth" />
+        <Head title="Auth" showOptions={false} />
         <h2>Auth - {initParmas.type}</h2>
         <input
           type="password"
