@@ -131,6 +131,25 @@ export default function WalletSwitcher({ open, close }: Props) {
   // toasts
   const { setToast } = useToasts();
 
+  // fetch ANS name (cached in storage)
+  const [_, setAns] = useStorage<AnsUser | {}>({
+    key: "ans_data",
+    area: "local",
+    isSecret: true
+  });
+
+  useEffect(() => {
+    (async () => {
+      const user = await getAnsProfile(activeAddress);
+
+      if (!user) {
+        return setAns({});
+      }
+
+      setAns(user as AnsUser);
+    })();
+  }, [activeAddress]);
+
   return (
     <AnimatePresence>
       {open && (

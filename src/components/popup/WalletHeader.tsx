@@ -3,9 +3,9 @@ import { ChevronDownIcon, GridIcon, UserIcon } from "@iconicicons/react";
 import { defaultGateway, concatGatewayURL } from "~applications/gateway";
 import { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
-import { AnsUser, getAnsProfile } from "~lib/ans";
 import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
+import type { AnsUser } from "~lib/ans";
 import { useTheme } from "~utils/theme";
 import WalletSwitcher from "./WalletSwitcher";
 import Squircle from "~components/Squircle";
@@ -41,19 +41,11 @@ export default function WalletHeader() {
   };
 
   // fetch ANS name (cached in storage)
-  const [ans, setAns] = useStorage<AnsUser>({
+  const [ans] = useStorage<AnsUser>({
     key: "ans_data",
     area: "local",
     isSecret: true
   });
-
-  useEffect(() => {
-    (async () => {
-      const user = await getAnsProfile(activeAddress);
-
-      setAns(user as AnsUser);
-    })();
-  }, [activeAddress]);
 
   // wallet name
   const walletName = useMemo(() => {
@@ -196,13 +188,13 @@ const ExpandArrow = styled(ChevronDownIcon)<{ expanded: boolean }>`
   transform: ${(props) => (props.expanded ? "rotate(180deg)" : "rotate(0)")};
 `;
 
-const Avatar = styled(Squircle)`
+export const Avatar = styled(Squircle)`
   position: relative;
   width: 2.1rem;
   height: 2.1rem;
 `;
 
-const NoAvatarIcon = styled(UserIcon)`
+export const NoAvatarIcon = styled(UserIcon)`
   position: absolute;
   font-size: 1.4rem;
   width: 1em;
