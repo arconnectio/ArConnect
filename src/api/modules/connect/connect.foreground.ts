@@ -21,15 +21,6 @@ const foreground: ModuleFunction<any[]> = async (
   }
 
   // construct app info if not provided
-  if (!appInfo.logo) {
-    // try to grab site icon
-    const siteIcon = document.head
-      .querySelector(`link[rel="shortcut icon"]`)
-      ?.getAttribute("href");
-
-    appInfo.logo = siteIcon ?? undefined;
-  }
-
   if (!appInfo.name) {
     // grab site title
     const siteTitle = document.title;

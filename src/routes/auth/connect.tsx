@@ -9,6 +9,7 @@ import {
   useToasts
 } from "@arconnect/components";
 import { permissionData, PermissionType } from "~applications/permissions";
+import { checkPassword, replyToAuthRequest } from "~wallets/auth";
 import type { AuthDataWithID } from "~api/modules/connect/auth";
 import { objectFromUrlParams } from "~api/modules/connect/url";
 import { CloseLayer } from "~components/popup/WalletHeader";
@@ -18,7 +19,6 @@ import { useEffect, useMemo, useState } from "react";
 import { ChevronDownIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { formatAddress } from "~utils/format";
-import { checkPassword, replyToAuthRequest } from "~wallets/auth";
 import PermissionCheckbox, {
   PermissionDescription
 } from "~components/auth/PermissionCheckbox";

@@ -282,6 +282,7 @@ const ActiveAppIcon = styled(Squircle).attrs({
     position: absolute;
     top: 50%;
     left: 50%;
+    max-width: 2.5em;
     user-select: none;
     transform: translate(-50%, -50%);
     transition: all 0.23s ease-in-out;
