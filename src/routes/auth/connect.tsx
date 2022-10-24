@@ -152,7 +152,11 @@ export default function Connect() {
   return (
     <Wrapper>
       <div>
-        <Head title={browser.i18n.getMessage("sign_in")} showOptions={false} />
+        <Head
+          title={browser.i18n.getMessage("sign_in")}
+          showOptions={false}
+          back={cancel}
+        />
         <Spacer y={0.75} />
         <App
           appName={appData.name || appUrl}

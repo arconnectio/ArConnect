@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import WalletSwitcher from "./WalletSwitcher";
 import styled from "styled-components";
 
-export default function Head({ title, showOptions = true }: Props) {
+export default function Head({ title, showOptions = true, back }: Props) {
   // scroll position
   const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up");
 
@@ -57,7 +57,12 @@ export default function Head({ title, showOptions = true }: Props) {
   return (
     <HeadWrapper displayTheme={theme} scrolled={scrollDirection === "down"}>
       <BackWrapper>
-        <BackButton onClick={() => history.back()} />
+        <BackButton
+          onClick={async () => {
+            if (back) await back();
+            else history.back();
+          }}
+        />
       </BackWrapper>
       <PageInfo
         key={scrollDirection}
@@ -167,4 +172,5 @@ const ClickableAvatar = styled(Avatar)`
 interface Props {
   title: string;
   showOptions?: boolean;
+  back?: (...args) => any;
 }
