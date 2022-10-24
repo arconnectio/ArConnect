@@ -51,7 +51,7 @@ async function createAuthPopup(data: AuthData) {
   const window = await browser.windows.create({
     url: `${browser.runtime.getURL("tabs/auth.html")}?${objectToUrlParams(
       authData
-    )}`,
+    )}#/${data.type}`,
     focused: true,
     type: "popup",
     width: 385,

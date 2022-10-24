@@ -1,3 +1,4 @@
+import { Gateway, concatGatewayURL } from "~applications/gateway";
 import { Section, Spacer, Text } from "@arconnect/components";
 import { GridIcon } from "@iconicicons/react";
 import Squircle from "~components/Squircle";
@@ -5,7 +6,7 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Label from "./Label";
 
-export default function App({ appIcon, appName, appUrl }: Props) {
+export default function App({ appIcon, appName, appUrl, gateway }: Props) {
   return (
     <>
       <SidePaddingSection>
@@ -19,7 +20,11 @@ export default function App({ appIcon, appName, appUrl }: Props) {
           </AppIcon>
           <div>
             <AppName>{appName || appUrl}</AppName>
-            <AppUrl>{appUrl}</AppUrl>
+            <AppUrl>
+              {browser.i18n.getMessage("gateway")}
+              {": "}
+              {concatGatewayURL(gateway)}
+            </AppUrl>
           </div>
         </Wrapper>
       </SidePaddingSection>
@@ -79,4 +84,5 @@ interface Props {
   appIcon?: string;
   appName?: string;
   appUrl: string;
+  gateway: Gateway;
 }

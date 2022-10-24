@@ -716,5 +716,13 @@
   "enter_your_password": {
     "message": "Enter your password...",
     "description": "Enter password placeholder"
+  },
+  "connect": {
+    "message": "Connect",
+    "description": "Connect button text"
+  },
+  "allow_these_permissions": {
+    "message": "Allow these permissions for the application:",
+    "description": "Auth permissions label"
   }
 }

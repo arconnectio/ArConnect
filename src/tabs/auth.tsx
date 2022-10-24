@@ -5,7 +5,7 @@ import { Router, Route } from "wouter";
 import { syncLabels } from "~wallets";
 import { useEffect } from "react";
 
-import Home from "~routes/auth";
+import Connect from "~routes/auth/connect";
 
 export default function Dashboard() {
   const theme = useTheme();
@@ -18,7 +18,7 @@ export default function Dashboard() {
     <Provider theme={theme}>
       <GlobalStyle />
       <Router hook={useHashLocation}>
-        <Route path="/" component={Home} />
+        <Route path="/connect" component={Connect} />
       </Router>
     </Provider>
   );
