@@ -305,6 +305,7 @@ export default function Transaction({ arweave }: Props) {
             type="password"
             label={browser.i18n.getMessage("password")}
             placeholder={browser.i18n.getMessage("enterPasswordToDecrypt")}
+            fullWidth
           />
         </>
       )}
