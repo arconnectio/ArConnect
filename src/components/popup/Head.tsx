@@ -74,6 +74,7 @@ export default function Head({ title, showOptions = true }: Props) {
         open={isOpen}
         close={() => setOpen(false)}
         showOptions={showOptions}
+        exactTop={true}
       />
     </HeadWrapper>
   );

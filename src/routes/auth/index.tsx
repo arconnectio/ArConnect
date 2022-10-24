@@ -6,9 +6,12 @@ import {
   Spacer,
   Text
 } from "@arconnect/components";
+import { CloseLayer } from "~components/popup/WalletHeader";
 import { ChevronDownIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { formatAddress } from "~utils/format";
+import { useState } from "react";
+import WalletSwitcher from "~components/popup/WalletSwitcher";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
 import Label from "~components/auth/Label";
@@ -24,6 +27,9 @@ export default function SignIn() {
     isSecret: true
   });
 
+  // wallet switcher open
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+
   return (
     <Wrapper>
       <div>
@@ -38,10 +44,22 @@ export default function SignIn() {
         <Section>
           <Label>{browser.i18n.getMessage("wallet")}</Label>
           <Spacer y={0.4} />
-          <WalletSelect>
-            <Address>{formatAddress(activeAddress || "", 10)}</Address>
-            <SelectIcon />
-          </WalletSelect>
+          <WalletSelectWrapper>
+            <WalletSelect onClick={() => setSwitcherOpen(true)}>
+              <Address>{formatAddress(activeAddress || "", 10)}</Address>
+              <SelectIcon />
+            </WalletSelect>
+            {switcherOpen && (
+              <CloseLayer onClick={() => setSwitcherOpen(false)} />
+            )}
+            <WalletSwitcher
+              open={switcherOpen}
+              close={() => setSwitcherOpen(false)}
+              showOptions={false}
+              exactTop={true}
+              noPadding={true}
+            />
+          </WalletSelectWrapper>
           <Spacer y={1} />
           <Input
             type="password"
@@ -62,7 +80,12 @@ export default function SignIn() {
   );
 }
 
+const WalletSelectWrapper = styled.div`
+  position: relative;
+`;
+
 const WalletSelect = styled(Card)`
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;

@@ -28,7 +28,9 @@ import Arweave from "arweave";
 export default function WalletSwitcher({
   open,
   close,
-  showOptions = true
+  showOptions = true,
+  exactTop = false,
+  noPadding = false
 }: Props) {
   // current address
   const [activeAddress, setActiveAddress] = useStorage<string>({
@@ -157,8 +159,8 @@ export default function WalletSwitcher({
   return (
     <AnimatePresence>
       {open && (
-        <SwitcherPopover>
-          <Wrapper>
+        <SwitcherPopover exactTop={exactTop}>
+          <Wrapper noPadding={!!noPadding}>
             <WalletsCard
               onClick={(e) => {
                 e.stopPropagation();
@@ -267,18 +269,19 @@ const SwitcherPopover = styled(motion.div).attrs({
   initial: "closed",
   animate: "open",
   exit: "closed"
-})`
+})<{ exactTop?: boolean }>`
   position: absolute;
-  top: calc(100% - 1.05rem);
+  top: ${(props) => (props.exactTop ? "100%" : "calc(100% - 1.05rem)")};
   left: 0;
   right: 0;
   z-index: 110;
   cursor: default;
 `;
 
-const Wrapper = styled(Section)`
+const Wrapper = styled(Section)<{ noPadding: boolean }>`
   padding-top: 0;
   padding-bottom: 0;
+  ${(props) => (props.noPadding ? "padding: 0;" : "")}
 `;
 
 const WalletsCard = styled(Card)`
@@ -438,6 +441,8 @@ interface Props {
   open: boolean;
   close: () => any;
   showOptions?: boolean;
+  exactTop?: boolean;
+  noPadding?: boolean;
 }
 
 interface DisplayedWallet {
