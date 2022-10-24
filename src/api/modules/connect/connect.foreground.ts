@@ -11,9 +11,9 @@ const foreground: ModuleFunction<any[]> = async (
   gateway?: Gateway
 ) => {
   // create popup overlay
-  const overlay = createOverlay(
+  /*const overlay = createOverlay(
     "This page is requesting permission to connect to your wallet...<br />Please review them in the popup."
-  );
+  );*/
 
   // check permissions
   if (!permissions || permissions.length === 0) {
@@ -31,7 +31,7 @@ const foreground: ModuleFunction<any[]> = async (
   }
 
   // add overlay to the document body
-  document.body.appendChild(overlay);
+  //document.body.appendChild(overlay);
 
   return [permissions, appInfo, gateway];
 };
@@ -42,12 +42,12 @@ const foreground: ModuleFunction<any[]> = async (
  */
 export const finalizer: ModuleFunction<void> = () => {
   // select all overlay elements left in the document
-  const overlays = document.getElementsByClassName(OVERLAY_CLASS);
+  /*const overlays = document.getElementsByClassName(OVERLAY_CLASS);
 
   // remove overlays
   for (const overlay of overlays) {
     document.body.removeChild(overlay);
-  }
+  }*/
 };
 
 export default foreground;
