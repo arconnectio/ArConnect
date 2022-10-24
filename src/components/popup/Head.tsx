@@ -6,15 +6,20 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ArrowLeftIcon } from "@iconicicons/react";
 import type { AnsUser } from "~lib/ans";
 import { useTheme } from "~utils/theme";
-import styled, { keyframes } from "styled-components";
 import { motion } from "framer-motion";
+import styled from "styled-components";
 
 export default function Head({ title }: Props) {
   // scroll position
-  const [scrollY, setScrollY] = useState(0);
+  const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up");
 
   useEffect(() => {
-    const listener = () => setScrollY(window.scrollY);
+    const listener = () => {
+      const newDir = window.scrollY > 85 ? "down" : "up";
+
+      if (newDir === scrollDirection) return;
+      setScrollDirection(newDir);
+    };
 
     window.addEventListener("scroll", listener);
 
@@ -40,14 +45,20 @@ export default function Head({ title }: Props) {
     return undefined;
   }, [ans]);
 
+  // first render for animation
+  const [firstRender, setFirstRender] = useState(true);
+
+  useEffect(() => setFirstRender(false), []);
+
   return (
     <HeadWrapper displayTheme={theme} scrolled={scrollY > 85}>
       <BackWrapper>
         <BackButton onClick={() => history.back()} />
       </BackWrapper>
       <PageInfo
-        key={scrollY > 85 ? 0 : 1}
-        scrollDirection={scrollY > 85 ? "down" : "up"}
+        key={scrollDirection}
+        scrollDirection={scrollDirection}
+        firstRender={firstRender}
       >
         <PageTitle>{title}</PageTitle>
         <Avatar img={avatar}>{!avatar && <NoAvatarIcon />}</Avatar>
@@ -62,14 +73,14 @@ const HeadWrapper = styled(Section)<{
 }>`
   position: sticky;
   display: flex;
-  align-items: ${(props) => (props.scrolled ? "flex-start" : "center")};
-  flex-direction: ${(props) => (props.scrolled ? "column" : "row")};
-  gap: ${(props) => (props.scrolled ? "0.5rem" : "0.77rem")};
+  align-items: ${(props) => (props.scrolled ? "center" : "flex-start")};
+  flex-direction: ${(props) => (props.scrolled ? "row" : "column")};
+  gap: ${(props) => (props.scrolled ? "0.77rem" : "0.5rem")};
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
-  padding-top: 2rem;
+  padding-top: 2.15rem;
   padding-bottom: 0.8rem;
   background-color: rgba(${(props) => props.theme.background}, 0.75);
   backdrop-filter: blur(15px);
@@ -111,11 +122,15 @@ const BackButton = styled(ArrowLeftIcon)`
 
 const PageInfo = styled(motion.div).attrs<{
   scrollDirection: "up" | "down";
+  firstRender: boolean;
 }>((props) => ({
-  initial: { opacity: 0, y: props.scrollDirection === "up" ? 20 : -20 },
+  initial: !props.firstRender
+    ? { opacity: 0, y: props.scrollDirection === "up" ? 20 : -20 }
+    : undefined,
   animate: { opacity: 1, y: 0 },
   exit: { opacity: 0, y: props.scrollDirection === "up" ? -20 : 20 }
 }))<{
+  firstRender: boolean;
   scrollDirection: "up" | "down";
 }>`
   display: flex;
