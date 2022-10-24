@@ -6,6 +6,7 @@ import { appsChangeListener } from "~applications";
 import { getStorageConfig } from "~utils/storage";
 import { onInstalled } from "~utils/runtime";
 import { Storage } from "@plasmohq/storage";
+import { syncLabels } from "~wallets";
 import handleFeeAlarm from "~api/modules/sign/fee";
 import browser from "webextension-polyfill";
 
@@ -27,6 +28,9 @@ browser.tabs.onActivated.addListener(({ tabId }) => handleTabUpdate(tabId));
 
 // handle fee alarm (send fees asyncronously)
 browser.alarms.onAlarm.addListener(handleFeeAlarm);
+
+// handle sync label alarm
+browser.alarms.onAlarm.addListener(syncLabels);
 
 // create storage client
 const storage = new Storage(getStorageConfig());

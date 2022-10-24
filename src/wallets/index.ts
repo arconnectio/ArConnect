@@ -1,12 +1,13 @@
 import { decryptWallet, encryptWallet } from "./encryption";
 import type { JWKInterface } from "arweave/node/lib/wallet";
 import { useStorage } from "@plasmohq/storage/hook";
+import { AnsUser, getAnsProfile } from "~lib/ans";
 import { getStorageConfig } from "~utils/storage";
 import { Storage } from "@plasmohq/storage";
 import { useEffect, useState } from "react";
 import { checkPassword } from "./auth";
+import browser, { Alarms } from "webextension-polyfill";
 import authenticate from "~api/modules/connect/auth";
-import browser from "webextension-polyfill";
 import Arweave from "arweave/web/common";
 
 /**
@@ -322,4 +323,37 @@ export const readWalletFromFile = (file: File) =>
 interface WalletWithNickname {
   wallet: JWKInterface;
   nickname?: string;
+}
+
+/**
+ * Sync nicknames with ANS labels
+ */
+export async function syncLabels(alarmInfo?: Alarms.Alarm) {
+  // check alarm name if called from an alarm
+  if (alarmInfo?.name && alarmInfo.name !== "sync_labels") {
+    return;
+  }
+
+  // get wallets
+  const wallets = await getWallets();
+
+  if (wallets.length === 0) return;
+
+  // get profiles
+  const profiles = (await getAnsProfile(
+    wallets.map((w) => w.address)
+  )) as AnsUser[];
+  const find = (addr: string) =>
+    profiles.find((w) => w.user === addr)?.currentLabel;
+
+  // save updated wallets
+  await storage.set(
+    "wallets",
+    wallets.map((wallet) => ({
+      ...wallet,
+      nickname: find(wallet.address)
+        ? find(wallet.address) + ".ar"
+        : wallet.nickname
+    }))
+  );
 }

@@ -1,15 +1,21 @@
 import { GlobalStyle, useTheme } from "~utils/theme";
 import { useHashLocation } from "~utils/hash_router";
 import { Provider } from "@arconnect/components";
+import { syncLabels, useSetUp } from "~wallets";
 import { Router, Route } from "wouter";
-import { useSetUp } from "~wallets";
+import { useEffect } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 
 import Home from "~routes/popup";
 
 export default function Popup() {
   const theme = useTheme();
+
   useSetUp();
+
+  useEffect(() => {
+    syncLabels();
+  }, []);
 
   return (
     <Provider theme={theme}>

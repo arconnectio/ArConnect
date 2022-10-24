@@ -50,9 +50,25 @@ export async function addressChangeListener({
  * active address' wallet has been removed.
  */
 export async function walletsChangeListener({
-  newValue
+  newValue,
+  oldValue
 }: Storage.StorageChange) {
   const wallets: StoredWallet[] = newValue;
+  const previousWallets: StoredWallet[] = oldValue;
+
+  // add or remove ANS label change listener
+  if (wallets.length > 0 && previousWallets.length === 0) {
+    // add scheduled label refresh if
+    // ArConnect has just been set up
+    browser.alarms.create("sync_labels", {
+      delayInMinutes: 1,
+      periodInMinutes: 60
+    });
+  } else if (wallets.length === 0 && previousWallets.length > 0) {
+    // remove scheduled label refresh if
+    // ArConnect has just been reset
+    await browser.alarms.clear("sync_labels");
+  }
 
   // remove if there are no wallets added
   if (!wallets || wallets.length === 0) {
