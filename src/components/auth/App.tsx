@@ -1,12 +1,36 @@
-import { Gateway, concatGatewayURL } from "~applications/gateway";
+import {
+  Gateway,
+  concatGatewayURL,
+  defaultGateway
+} from "~applications/gateway";
 import { Section, Spacer, Text } from "@arconnect/components";
+import type { Allowance } from "~applications/allowance";
 import { GridIcon } from "@iconicicons/react";
+import { useMemo } from "react";
 import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
+import Arweave from "arweave";
 import Label from "./Label";
 
-export default function App({ appIcon, appName, appUrl, gateway }: Props) {
+export default function App({
+  appIcon,
+  appName,
+  appUrl,
+  gateway,
+  allowance
+}: Props) {
+  // allowance spent in AR
+  const spent = useMemo(() => {
+    if (!allowance) return 0;
+
+    // calculate
+    const arweave = new Arweave(defaultGateway);
+    const arVal = arweave.ar.winstonToAr(allowance.limit.toString());
+
+    return parseFloat(arVal);
+  }, [allowance]);
+
   return (
     <>
       <SidePaddingSection>
@@ -15,17 +39,37 @@ export default function App({ appIcon, appName, appUrl, gateway }: Props) {
       <Spacer y={0.4} />
       <SidePaddingSection size="slim">
         <Wrapper>
-          <AppIcon img={appIcon} key={appIcon}>
-            {!appIcon && <NoAppIcon />}
-          </AppIcon>
-          <div>
-            <AppName>{appName || appUrl}</AppName>
-            <AppUrl>
-              {browser.i18n.getMessage("gateway")}
-              {": "}
-              {concatGatewayURL(gateway)}
-            </AppUrl>
-          </div>
+          <AppData>
+            <AppIcon img={appIcon} key={appIcon}>
+              {!appIcon && <NoAppIcon />}
+            </AppIcon>
+            <div>
+              <AppName>{appName || appUrl}</AppName>
+              {(gateway && (
+                <AppUrl>
+                  {browser.i18n.getMessage("gateway")}
+                  {": "}
+                  {concatGatewayURL(gateway)}
+                </AppUrl>
+              )) ||
+                (allowance && (
+                  <AppUrl>
+                    {browser.i18n.getMessage("limit")}
+                    {": "}
+                    {spent.toLocaleString(undefined, {
+                      maximumFractionDigits: 2
+                    })}
+                    {" AR"}
+                  </AppUrl>
+                ))}
+            </div>
+          </AppData>
+          {allowance && (
+            <AllowanceSpent>
+              {allowance.spent}
+              {" AR"}
+            </AllowanceSpent>
+          )}
         </Wrapper>
       </SidePaddingSection>
     </>
@@ -41,6 +85,12 @@ const Wrapper = styled.div`
   background-color: #000;
   border-radius: 27px;
   padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const AppData = styled.div`
   display: flex;
   align-items: center;
   gap: 0.7rem;
@@ -70,7 +120,6 @@ const AppName = styled(Text).attrs({
 })`
   font-size: 1.3rem;
   font-weight: 500;
-
   color: #fff;
 `;
 
@@ -80,9 +129,15 @@ const AppUrl = styled(Text).attrs({
   font-size: 0.7rem;
 `;
 
+const AllowanceSpent = styled(AppName)`
+  font-size: 1.4rem;
+  color: #ffb800;
+`;
+
 interface Props {
   appIcon?: string;
   appName?: string;
   appUrl: string;
-  gateway: Gateway;
+  gateway?: Gateway;
+  allowance?: Allowance;
 }

@@ -1,10 +1,7 @@
-import type { AuthType } from "~api/modules/connect/auth";
-import { sendMessage } from "@arconnect/webext-bridge";
 import { getStorageConfig } from "~utils/storage";
 import { decryptWallet } from "./encryption";
 import { getActiveTab } from "~applications";
 import { Storage } from "@plasmohq/storage";
-import type { AuthResult } from "shim";
 import { getWallets } from "./index";
 import browser, { Alarms } from "webextension-polyfill";
 
@@ -101,27 +98,4 @@ async function scheduleKeyRemoval() {
     delayInMinutes: 24 * 60 // 1 day
   });
   browser.alarms.onAlarm.addListener(keyRemoveAlarmListener);
-}
-
-/**
- * Send the result as a response to the auth
- *
- * @param type Type of the auth
- * @param authID ID of the auth
- * @param errorMessage Optional error message. If defined, the auth will fail with this message
- */
-export async function replyToAuthRequest(
-  type: AuthType,
-  authID: string,
-  errorMessage?: string
-) {
-  const response: AuthResult = {
-    type,
-    authID,
-    error: !!errorMessage,
-    data: errorMessage
-  };
-
-  // send the response message
-  await sendMessage("auth_result", response, "background");
 }

@@ -6,6 +6,7 @@ import { syncLabels } from "~wallets";
 import { useEffect } from "react";
 
 import Connect from "~routes/auth/connect";
+import Allowance from "~routes/auth/allowance";
 
 export default function Dashboard() {
   const theme = useTheme();
@@ -19,6 +20,7 @@ export default function Dashboard() {
       <GlobalStyle />
       <Router hook={useHashLocation}>
         <Route path="/connect" component={Connect} />
+        <Route path="/allowance" component={Allowance} />
       </Router>
     </Provider>
   );

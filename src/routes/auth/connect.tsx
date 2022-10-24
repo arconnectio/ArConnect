@@ -8,10 +8,8 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
+import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { permissionData, PermissionType } from "~applications/permissions";
-import { checkPassword, replyToAuthRequest } from "~wallets/auth";
-import type { AuthDataWithID } from "~api/modules/connect/auth";
-import { objectFromUrlParams } from "~api/modules/connect/url";
 import { CloseLayer } from "~components/popup/WalletHeader";
 import type { AppInfo } from "~applications/application";
 import { defaultGateway } from "~applications/gateway";
@@ -19,6 +17,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ChevronDownIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { formatAddress } from "~utils/format";
+import { checkPassword } from "~wallets/auth";
 import PermissionCheckbox, {
   PermissionDescription
 } from "~components/auth/PermissionCheckbox";
@@ -46,17 +45,7 @@ export default function Connect() {
   const [page, setPage] = useState<"unlock" | "permissions">("unlock");
 
   // connect params
-  const [params, setParams] = useState<AuthDataWithID>();
-
-  // fetch params
-  useEffect(() => {
-    const urlParams = window.location.href.split("?");
-    const params = objectFromUrlParams<AuthDataWithID>(
-      urlParams[urlParams.length - 1].replace(window.location.hash, "")
-    );
-
-    setParams(params);
-  }, []);
+  const params = useAuthParams();
 
   // app data
   const appData = useMemo<AppInfo>(() => {
@@ -94,6 +83,9 @@ export default function Connect() {
   // toasts
   const { setToast } = useToasts();
 
+  // get auth utils
+  const { closeWindow, cancel } = useAuthUtils("connect", params?.authID);
+
   // unlock
   async function unlock() {
     if (!(await checkPassword(passwordInput.state))) {
@@ -125,28 +117,6 @@ export default function Connect() {
 
     // close the window
     closeWindow();
-  }
-
-  // cancel
-  async function cancel() {
-    // send response
-    await replyToAuthRequest(
-      "connect",
-      params.authID,
-      "User cancelled the auth"
-    );
-
-    // close the window
-    closeWindow();
-  }
-
-  // send cancel event if the popup is closed by the user
-  window.onbeforeunload = cancel;
-
-  // remove cancel event and close the window
-  function closeWindow() {
-    window.onbeforeunload = null;
-    window.close();
   }
 
   return (
