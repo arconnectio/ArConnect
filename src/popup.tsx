@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 
 import Home from "~routes/popup";
+import Receive from "~routes/popup/receive";
 
 export default function Popup() {
   const theme = useTheme();
@@ -24,6 +25,7 @@ export default function Popup() {
       <Page>
         <Router hook={useHashLocation}>
           <Route path="/" component={Home} />
+          <Route path="/receive" component={Receive} />
         </Router>
       </Page>
     </Provider>
@@ -43,4 +45,5 @@ const HideScrollbar = createGlobalStyle`
 
 const Page = styled.div`
   width: 385px;
+  height: 600;
 `;

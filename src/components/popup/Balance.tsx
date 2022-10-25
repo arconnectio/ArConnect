@@ -4,7 +4,9 @@ import { defaultGateway } from "~applications/gateway";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { Spacer } from "@arconnect/components";
+import { getArPrice } from "~lib/coingecko";
 import { getAppURL } from "~utils/format";
+import { useLocation } from "wouter";
 import {
   ArrowDownLeftIcon,
   ArrowUpRightIcon,
@@ -20,9 +22,7 @@ import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
-import axios from "axios";
 import ArDB from "ardb";
-import { getArPrice } from "~lib/coingecko";
 
 export default function Balance() {
   // grab address
@@ -116,13 +116,19 @@ export default function Balance() {
       .catch();
   }, [activeAddress]);
 
+  // router
+  const [, setLocation] = useLocation();
+
   return (
     <Graph
       actionBar={
         <>
           <Spacer x={0.18} />
           <ActionButton />
-          <ActionButton as={ArrowDownLeftIcon} />
+          <ActionButton
+            as={ArrowDownLeftIcon}
+            onClick={() => setLocation("/receive")}
+          />
           <ActionButton as={GlobeIcon} />
           <ActionButton
             as={SettingsIcon}

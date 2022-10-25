@@ -744,5 +744,9 @@
   "unlock_wallet_to_use": {
     "message": "You'll need to unlock your wallet to continue using it.",
     "description": "Unlock wallet explanation"
+  },
+  "receive": {
+    "message": "Receive",
+    "description": "Receive title"
   }
 }
