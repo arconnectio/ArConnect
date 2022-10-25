@@ -7,7 +7,7 @@ const SeedTextarea = styled.textarea`
   border-radius: 22px;
   overflow: hidden;
   font-size: 1.2rem;
-  font-weight: 500;
+  font-weight: 600;
   padding: 1rem;
   color: rgb(${(props) => props.theme.theme});
   outline: none;

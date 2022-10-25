@@ -93,7 +93,7 @@ export const GlobalStyle = createGlobalStyle`
     min-height: 500px;
   }
 
-  body, button, input, select {
+  body, button, input, select, textarea {
     font-family: "ManropeLocal", "Manrope VF", "Manrope", sans-serif !important;
   }
 `;
