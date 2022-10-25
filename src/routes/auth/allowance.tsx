@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
-import type { Allowance } from "~applications/allowance";
-import Application, { AppInfo } from "~applications/application";
-import Wrapper from "~components/auth/Wrapper";
-import Head from "~components/popup/Head";
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
+import Application, { AppInfo } from "~applications/application";
+import type { Allowance } from "~applications/allowance";
+import { defaultGateway } from "~applications/gateway";
+import { checkPassword } from "~wallets/auth";
+import { useEffect, useState } from "react";
+import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
+import Head from "~components/popup/Head";
+import App from "~components/auth/App";
 import {
   Button,
   Input,
@@ -13,9 +16,6 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
-import App from "~components/auth/App";
-import { checkPassword } from "~wallets/auth";
-import { defaultGateway } from "~applications/gateway";
 import Arweave from "arweave";
 
 export default function Allowance() {
