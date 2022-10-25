@@ -34,7 +34,11 @@ export default function App({
   return (
     <>
       <SidePaddingSection>
-        <Label>{browser.i18n.getMessage("app_wants_to_connect")}</Label>
+        <Label>
+          {browser.i18n.getMessage(
+            gateway ? "app_wants_to_connect" : "allowance_limit_reached"
+          )}
+        </Label>
       </SidePaddingSection>
       <Spacer y={0.4} />
       <SidePaddingSection size="slim">

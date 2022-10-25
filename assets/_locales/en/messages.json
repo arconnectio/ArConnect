@@ -724,5 +724,17 @@
   "allow_these_permissions": {
     "message": "Allow these permissions for the application:",
     "description": "Auth permissions label"
+  },
+  "reset_allowance": {
+    "message": "Reset allowance",
+    "description": "Reset allowance title"
+  },
+  "reset_spent": {
+    "message": "Reset Spent",
+    "description": "Reset spent button"
+  },
+  "allowance_limit_reached": {
+    "message": "This app has reached it's allowance limit",
+    "description": "App allowance limit reached label"
   }
 }
