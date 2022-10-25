@@ -736,5 +736,13 @@
   "allowance_limit_reached": {
     "message": "This app has reached it's allowance limit",
     "description": "App allowance limit reached label"
+  },
+  "unlock": {
+    "message": "Unlock",
+    "description": "Unlock title"
+  },
+  "unlock_wallet_to_use": {
+    "message": "You'll need to unlock your wallet to continue using it.",
+    "description": "Unlock wallet explanation"
   }
 }

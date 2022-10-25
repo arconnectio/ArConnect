@@ -7,6 +7,7 @@ import { useEffect } from "react";
 
 import Connect from "~routes/auth/connect";
 import Allowance from "~routes/auth/allowance";
+import Unlock from "~routes/auth/unlock";
 
 export default function Dashboard() {
   const theme = useTheme();
@@ -21,6 +22,7 @@ export default function Dashboard() {
       <Router hook={useHashLocation}>
         <Route path="/connect" component={Connect} />
         <Route path="/allowance" component={Allowance} />
+        <Route path="/unlock" component={Unlock} />
       </Router>
     </Provider>
   );

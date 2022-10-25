@@ -25,7 +25,7 @@ export default function Allowance() {
   const params = useAuthParams();
 
   // get auth utils
-  const { closeWindow, cancel } = useAuthUtils("connect", params?.authID);
+  const { closeWindow, cancel } = useAuthUtils("allowance", params?.authID);
 
   // limit input
   const limitInput = useInput();
