@@ -9,18 +9,18 @@ import {
 } from "@arconnect/components";
 import { ArrowUpRightIcon, ChevronDownIcon } from "@iconicicons/react";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
-import { getAnsProfile, AnsUser } from "~lib/ans";
+import type { JWKInterface } from "arweave/web/lib/wallet";
 import { formatAddress, isAddress } from "~utils/format";
+import { decryptWallet } from "~wallets/encryption";
+import { getAnsProfile, AnsUser } from "~lib/ans";
 import { useState, useEffect } from "react";
+import { getActiveWallet } from "~wallets";
 import { getArPrice } from "~lib/coingecko";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
-import { decryptWallet } from "~wallets/encryption";
-import { getActiveWallet } from "~wallets";
-import type { JWKInterface } from "arweave/web/lib/wallet";
 
 export default function Send() {
   // amount
