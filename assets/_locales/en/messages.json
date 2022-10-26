@@ -748,5 +748,9 @@
   "receive": {
     "message": "Receive",
     "description": "Receive title"
+  },
+  "share": {
+    "message": "Share",
+    "description": "Share button text"
   }
 }

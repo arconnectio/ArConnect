@@ -1,9 +1,12 @@
-import { Section } from "@arconnect/components";
+import { Button, Section } from "@arconnect/components";
+import { CopyIcon, ShareIcon } from "@iconicicons/react";
+import { useStorage } from "@plasmohq/storage/hook";
+import { formatAddress } from "~utils/format";
+import { QRCodeSVG } from "qrcode.react";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
-import { QRCodeSVG } from "qrcode.react";
-import { useStorage } from "@plasmohq/storage/hook";
+import copy from "copy-to-clipboard";
 
 export default function Receive() {
   // active address
@@ -14,30 +17,76 @@ export default function Receive() {
   });
 
   return (
-    <>
-      <Head title={browser.i18n.getMessage("receive")} />
-      <Wrapper>
+    <Wrapper>
+      <div>
+        <Head title={browser.i18n.getMessage("receive")} />
+        <AddressField>
+          {formatAddress(activeAddress ?? "", 6)}
+          <CopyButton onClick={() => copy(activeAddress)} />
+        </AddressField>
+      </div>
+      <Section>
         <QRCodeWrapper>
-          <QRCode value={activeAddress ?? ""} />
+          <QRCodeSVG
+            fgColor="#fff"
+            bgColor="transparent"
+            size={256}
+            value={activeAddress ?? ""}
+          />
         </QRCodeWrapper>
-      </Wrapper>
-    </>
+      </Section>
+      <Section>
+        <Button fullWidth>
+          {browser.i18n.getMessage("share")}
+          <ShareIcon />
+        </Button>
+      </Section>
+    </Wrapper>
   );
 }
 
-const Wrapper = styled(Section)`
+const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  height: 100vh;
+`;
+
+const AddressField = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.45rem 0.8rem;
+  border-radius: 18px;
+  margin: 0 auto;
+  background-color: rgb(${(props) => props.theme.theme});
+  color: #fff;
+  width: max-content;
+`;
+
+const CopyButton = styled(CopyIcon)`
+  font-size: 0.9rem;
+  width: 1em;
+  height: 1em;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.23s ease-in-out;
+
+  &:hover {
+    opacity: 0.86;
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
 `;
 
 const QRCodeWrapper = styled.div`
+  width: max-content;
+  margin: 0 auto;
   background-color: rgb(${(props) => props.theme.theme});
   border-radius: 24px;
-  padding: 1rem;
+  padding: 1.35rem;
 `;
-
-const QRCode = styled(QRCodeSVG).attrs({
-  fgColor: "#fff",
-  bgColor: "transparent"
-})``;

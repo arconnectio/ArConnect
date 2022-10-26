@@ -45,5 +45,5 @@ const HideScrollbar = createGlobalStyle`
 
 const Page = styled.div`
   width: 385px;
-  height: 600;
+  min-height: 600px;
 `;
