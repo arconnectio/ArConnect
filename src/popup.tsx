@@ -8,6 +8,7 @@ import styled, { createGlobalStyle } from "styled-components";
 
 import Home from "~routes/popup";
 import Receive from "~routes/popup/receive";
+import Send from "~routes/popup/send";
 
 export default function Popup() {
   const theme = useTheme();
@@ -26,6 +27,7 @@ export default function Popup() {
         <Router hook={useHashLocation}>
           <Route path="/" component={Home} />
           <Route path="/receive" component={Receive} />
+          <Route path="/send" component={Send} />
         </Router>
       </Page>
     </Provider>
@@ -34,7 +36,6 @@ export default function Popup() {
 
 const HideScrollbar = createGlobalStyle`
   body {
-    -ms-overflow-style: none;
     scrollbar-width: none;
 
     &::-webkit-scrollbar {

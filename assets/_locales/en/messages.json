@@ -752,5 +752,13 @@
   "share": {
     "message": "Share",
     "description": "Share button text"
+  },
+  "send": {
+    "message": "Send",
+    "description": "Send title"
+  },
+  "network_fee": {
+    "message": "network fee",
+    "description": "Transaction network fee text"
   }
 }

@@ -124,7 +124,7 @@ export default function Balance() {
       actionBar={
         <>
           <Spacer x={0.18} />
-          <ActionButton />
+          <ActionButton onClick={() => setLocation("/send")} />
           <ActionButton
             as={ArrowDownLeftIcon}
             onClick={() => setLocation("/receive")}
