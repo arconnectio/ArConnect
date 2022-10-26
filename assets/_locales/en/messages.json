@@ -760,5 +760,17 @@
   "network_fee": {
     "message": "network fee",
     "description": "Transaction network fee text"
+  },
+  "invalid_amount": {
+    "message": "Amount has to be more than 0",
+    "description": "Invalid tx amount message"
+  },
+  "invalid_address": {
+    "message": "Target is not a valid address",
+    "description": "Invalid address message"
+  },
+  "sent_tx": {
+    "message": "Send transaction",
+    "description": "Transaction sent successfuly notification"
   }
 }

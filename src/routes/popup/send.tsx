@@ -4,11 +4,13 @@ import {
   Section,
   Spacer,
   Text,
-  useInput
+  useInput,
+  useToasts
 } from "@arconnect/components";
 import { ArrowUpRightIcon, ChevronDownIcon } from "@iconicicons/react";
-import { defaultGateway } from "~applications/gateway";
-import { formatAddress } from "~utils/format";
+import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { getAnsProfile, AnsUser } from "~lib/ans";
+import { formatAddress, isAddress } from "~utils/format";
 import { useState, useEffect } from "react";
 import { getArPrice } from "~lib/coingecko";
 import browser from "webextension-polyfill";
@@ -16,6 +18,9 @@ import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
+import { decryptWallet } from "~wallets/encryption";
+import { getActiveWallet } from "~wallets";
+import type { JWKInterface } from "arweave/web/lib/wallet";
 
 export default function Send() {
   // amount
@@ -61,6 +66,99 @@ export default function Send() {
     label?: string;
     avatar?: string;
   }>();
+
+  useEffect(() => {
+    (async () => {
+      if (!isAddress(targetInput.state)) return;
+
+      const ansProfile = (await getAnsProfile(targetInput.state)) as AnsUser;
+
+      setTarget({
+        address: targetInput.state,
+        label: ansProfile?.currentLabel,
+        avatar: ansProfile?.avatar
+          ? concatGatewayURL(defaultGateway) + "/" + ansProfile.avatar
+          : undefined
+      });
+    })();
+  }, [targetInput.state]);
+
+  // toasts
+  const { setToast } = useToasts();
+
+  // loading
+  const [loading, setLoading] = useState(false);
+
+  // send tx
+  async function send() {
+    let wallet: JWKInterface;
+
+    setLoading(true);
+
+    // get wallet
+    try {
+      const activeWallet = await getActiveWallet();
+      wallet = await decryptWallet(activeWallet.keyfile, passwordInput.state);
+    } catch {
+      setLoading(false);
+      return setToast({
+        type: "error",
+        content: browser.i18n.getMessage("invalidPassword"),
+        duration: 2000
+      });
+    }
+
+    // check amount
+    if (amount <= 0) {
+      setLoading(false);
+      return setToast({
+        type: "error",
+        content: browser.i18n.getMessage("invalid_amount"),
+        duration: 2000
+      });
+    }
+
+    // check target
+    if (!isAddress(targetInput.state)) {
+      setLoading(false);
+      return setToast({
+        type: "error",
+        content: browser.i18n.getMessage("invalid_address"),
+        duration: 2000
+      });
+    }
+
+    try {
+      // create and send tx
+      const arweave = new Arweave(defaultGateway);
+      const tx = await arweave.createTransaction(
+        {
+          target: targetInput.state,
+          quantity: arweave.ar.arToWinston(amount.toString())
+        },
+        wallet
+      );
+
+      await arweave.transactions.sign(tx, wallet);
+      await arweave.transactions.post(tx);
+
+      setToast({
+        type: "success",
+        content: browser.i18n.getMessage("sent_tx"),
+        duration: 2000
+      });
+    } catch {
+      return setToast({
+        type: "error",
+        content: browser.i18n.getMessage("txFailed"),
+        duration: 2000
+      });
+    }
+
+    passwordInput.setState("");
+    targetInput.setState("");
+    setLoading(false);
+  }
 
   return (
     <Wrapper>
@@ -128,7 +226,7 @@ export default function Send() {
         </Section>
       </div>
       <Section>
-        <Button fullWidth>
+        <Button fullWidth loading={loading} onClick={send}>
           {browser.i18n.getMessage("send")}
           <ArrowUpRightIcon />
         </Button>
@@ -208,12 +306,6 @@ const Target = styled.div`
   background-color: rgb(${(props) => props.theme.theme});
   color: #fff;
   width: max-content;
-  cursor: pointer;
-  transition: all 0.23s ease-in-out;
-
-  &:hover {
-    opacity: 0.8;
-  }
 `;
 
 const TargetAvatar = styled.img.attrs({
