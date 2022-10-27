@@ -7,8 +7,8 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
-import { ArrowUpRightIcon, ChevronDownIcon } from "@iconicicons/react";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { ArrowUpRightIcon, ChevronDownIcon } from "@iconicicons/react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { formatAddress, isAddress } from "~utils/format";
 import { decryptWallet } from "~wallets/encryption";
@@ -75,7 +75,9 @@ export default function Send() {
 
       setTarget({
         address: targetInput.state,
-        label: ansProfile?.currentLabel,
+        label: ansProfile?.currentLabel
+          ? ansProfile.currentLabel + ".ar"
+          : undefined,
         avatar: ansProfile?.avatar
           ? concatGatewayURL(defaultGateway) + "/" + ansProfile.avatar
           : undefined

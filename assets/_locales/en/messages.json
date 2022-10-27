@@ -772,5 +772,13 @@
   "sent_tx": {
     "message": "Send transaction",
     "description": "Transaction sent successfuly notification"
+  },
+  "assets": {
+    "message": "Assets",
+    "description": "Assets title"
+  },
+  "view_all": {
+    "message": "View all",
+    "description": "View all link text"
   }
 }
