@@ -51,9 +51,7 @@ export default function ConfirmSeedPage({ seed, setSorted }: Props) {
       <Paragraph>{browser.i18n.getMessage("confirm_seed_paragraph")}</Paragraph>
       <ConfirmWords>
         {words.map((word, i) => (
-          <Button
-            secondary
-            small
+          <Word
             key={i}
             onClick={() => {
               if (userOrdered.includes(word)) return;
@@ -63,7 +61,7 @@ export default function ConfirmSeedPage({ seed, setSorted }: Props) {
           >
             {getCountOf(word) ? getCountOf(word) + ". " : ""}
             {word}
-          </Button>
+          </Word>
         ))}
       </ConfirmWords>
     </>
@@ -71,11 +69,18 @@ export default function ConfirmSeedPage({ seed, setSorted }: Props) {
 }
 
 const ConfirmWords = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.5rem 0;
+  display: grid;
+  grid-template-columns: auto auto auto;
+  justify-content: stretch;
+  gap: 1rem;
+`;
+
+const Word = styled(Button).attrs({
+  secondary: true,
+  small: true
+})`
+  padding-left: 0;
+  padding-right: 0;
 `;
 
 interface Props {
