@@ -9,7 +9,7 @@ import {
 import { useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import {
-  DownloadIcon,
+  TicketIcon,
   GridIcon,
   InformationIcon,
   TrashIcon,
@@ -193,6 +193,12 @@ const allSettings: Omit<Setting, "active">[] = [
     description: "setting_wallets_description",
     icon: WalletIcon,
     component: Wallets
+  },
+  {
+    name: "tokens",
+    displayName: "setting_tokens",
+    description: "setting_tokens_description",
+    icon: TicketIcon
   },
   ...settings.map((setting) => ({
     name: setting.name,

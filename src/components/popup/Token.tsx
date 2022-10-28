@@ -1,3 +1,4 @@
+import { Token as TokenInterface } from "~utils/token";
 import { Text } from "@arconnect/components";
 import { useTheme } from "~utils/theme";
 import { useLocation } from "wouter";
@@ -74,10 +75,6 @@ const Ticker = styled.span`
   font-weight: 500;
 `;
 
-interface Props {
-  id: string;
-  name?: string;
-  ticker: string;
-  balance: number;
+interface Props extends TokenInterface {
   price?: number;
 }

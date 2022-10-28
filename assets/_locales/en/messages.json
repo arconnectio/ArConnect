@@ -780,5 +780,13 @@
   "view_all": {
     "message": "View all",
     "description": "View all link text"
+  },
+  "setting_tokens": {
+    "message": "Tokens",
+    "description": "Tokens setting title"
+  },
+  "setting_tokens_description": {
+    "message": "Manage tokens added by dApps or the user",
+    "description": "Tokens setting description"
   }
 }
