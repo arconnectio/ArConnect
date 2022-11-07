@@ -22,7 +22,9 @@
     "permissions": [
       "alarms",
       "contextMenus",
-      "tabs"
+      "tabs",
+      "declarativeNetRequest",
+      "<all_urls>"
     ]
   },
   "dependencies": {
