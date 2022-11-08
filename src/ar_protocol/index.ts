@@ -34,5 +34,5 @@ export async function unregisterProtocolHandler() {
     return await disableChromiumHandler();
   }
 
-  return disableFirefoxHandler();
+  await disableFirefoxHandler();
 }

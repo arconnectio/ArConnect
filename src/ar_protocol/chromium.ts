@@ -1,5 +1,5 @@
-import { concatGatewayURL, Gateway } from "~applications/gateway";
-import { isAddress } from "~utils/format";
+import type { Gateway } from "~applications/gateway";
+import { getRedirectURL } from "./parser";
 import browser from "webextension-polyfill";
 
 /**
@@ -11,7 +11,7 @@ export default async function addChromiumHandler() {
   await addInterceptor();
 
   // add middleware for parsing the request
-  addMiddleware();
+  await addMiddleware();
 }
 
 const INTERCEPTOR_ID = 1;
@@ -77,42 +77,33 @@ export async function disableHandler() {
  * the appropriate arweave tx, permapage
  * URL or ANS name
  */
-function addMiddleware() {
+async function addMiddleware() {
+  // TODO: get active gateway
+  const middleware = createMiddleware({
+    host: "arweave.net",
+    port: 443,
+    protocol: "https"
+  });
+
   removeEventListener("fetch", middleware);
   addEventListener("fetch", middleware);
 }
 
-async function middleware(e: FetchEvent) {
-  const url = new URL(e.request.url);
+const createMiddleware = (gateway: Gateway) =>
+  async function (e: FetchEvent) {
+    const url = new URL(e.request.url);
 
-  // check host
-  if (url.host !== browser.runtime.id) return;
+    // check host
+    if (url.host !== browser.runtime.id) return;
 
-  // check path
-  if (url.pathname !== "/redirect") return;
+    // check path
+    if (url.pathname !== "/redirect") return;
 
-  // "ar://" url
-  const arURL = url.searchParams.get("q");
+    // parse redirect url
+    const redirectURL = getRedirectURL(url, gateway);
 
-  if (!arURL || arURL === "") return;
+    if (!redirectURL) return;
 
-  // value (address / permapage / id)
-  const value = arURL.replace("ar://", "");
-
-  if (!value || value === "") return;
-
-  const gateway: Gateway = {
-    host: "arweave.net",
-    port: 443,
-    protocol: "https"
+    // send redirect response
+    e.respondWith(Response.redirect(redirectURL, 302));
   };
-  let redirectURL = concatGatewayURL(gateway) + "/" + value;
-
-  // if it is not an Arweave ID, redirect to permapages
-  if (!isAddress(value)) {
-    redirectURL = `https://${value}.arweave.dev`;
-  }
-
-  // send redirect response
-  e.respondWith(Response.redirect(redirectURL, 302));
-}
