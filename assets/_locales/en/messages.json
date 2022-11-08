@@ -788,5 +788,9 @@
   "setting_tokens_description": {
     "message": "Manage tokens added by dApps or the user",
     "description": "Tokens setting description"
+  },
+  "explore": {
+    "message": "Explore",
+    "description": "Explore title"
   }
 }

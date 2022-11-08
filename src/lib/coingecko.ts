@@ -7,17 +7,32 @@ import axios from "axios";
  * @returns Price of 1 AR
  */
 export async function getArPrice(currency: string) {
-  const { data } = await axios.get<CoinGeckoResult>(
+  const { data } = await axios.get<CoinGeckoPriceResult>(
     `https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=${currency.toLowerCase()}`
   );
 
   return data.arweave[currency.toLowerCase()];
 }
 
-interface CoinGeckoResult {
+interface CoinGeckoPriceResult {
   arweave: {
     [key: string]: number;
   };
+}
+
+export async function getMarketChart(currency: string, days = "max") {
+  const { data } = await axios.get<CoinGeckoMarketChartResult>(
+    `https://api.coingecko.com/api/v3/coins/arweave/market_chart?vs_currency=${currency}&days=${days}`
+  );
+
+  return data;
+}
+
+interface CoinGeckoMarketChartResult {
+  /** Prices: arrany of date in milliseconds and price */
+  prices: [number, number][];
+  market_caps: [number, number][];
+  total_volumes: [number, number][];
 }
 
 export const currencies = [

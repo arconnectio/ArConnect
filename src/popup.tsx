@@ -9,6 +9,7 @@ import styled, { createGlobalStyle } from "styled-components";
 import Home from "~routes/popup";
 import Receive from "~routes/popup/receive";
 import Send from "~routes/popup/send";
+import Explore from "~routes/popup/explore";
 
 export default function Popup() {
   const theme = useTheme();
@@ -28,6 +29,7 @@ export default function Popup() {
           <Route path="/" component={Home} />
           <Route path="/receive" component={Receive} />
           <Route path="/send" component={Send} />
+          <Route path="/explore" component={Explore} />
         </Router>
       </Page>
     </Provider>

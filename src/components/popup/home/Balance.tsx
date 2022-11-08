@@ -129,7 +129,10 @@ export default function Balance() {
             as={ArrowDownLeftIcon}
             onClick={() => setLocation("/receive")}
           />
-          <ActionButton as={GlobeIcon} />
+          <ActionButton
+            as={GlobeIcon}
+            onClick={() => setLocation("/explore")}
+          />
           <ActionButton
             as={SettingsIcon}
             onClick={() =>

@@ -30,14 +30,14 @@ const settings: Setting[] = [
     options: currencies,
     defaultValue: "USD"
   }),
-  new Setting({
+  /*new Setting({
     name: "arverify",
     displayName: "setting_arverify",
     icon: CheckIcon,
     description: "setting_setting_arverify_description",
     type: "number",
     defaultValue: 60
-  }),
+  }),*/
   new Setting({
     name: "arconfetti",
     displayName: "setting_arconfetti",
