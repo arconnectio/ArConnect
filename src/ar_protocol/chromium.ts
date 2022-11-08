@@ -1,3 +1,4 @@
+import { concatGatewayURL, Gateway } from "~applications/gateway";
 import { isAddress } from "~utils/format";
 import browser from "webextension-polyfill";
 
@@ -70,6 +71,7 @@ async function addInterceptor() {
  * URL or ANS name
  */
 function addMiddleware() {
+  removeEventListener("fetch", middleware);
   addEventListener("fetch", middleware);
 }
 
@@ -92,7 +94,12 @@ async function middleware(e: FetchEvent) {
 
   if (!value || value === "") return;
 
-  let redirectURL = "https://arweave.net/" + value;
+  const gateway: Gateway = {
+    host: "arweave.net",
+    port: 443,
+    protocol: "https"
+  };
+  let redirectURL = concatGatewayURL(gateway) + "/" + value;
 
   // if it is not an Arweave ID, redirect to permapages
   if (!isAddress(value)) {
