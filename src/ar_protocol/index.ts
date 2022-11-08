@@ -1,5 +1,9 @@
-import addChromiumHandler from "./chromium";
-import addFirefoxHandler from "./firefox";
+import addChromiumHandler, {
+  disableHandler as disableChromiumHandler
+} from "./chromium";
+import addFirefoxHandler, {
+  disableHandler as disableFirefoxHandler
+} from "./firefox";
 
 /**
  * Handle custom ar:// protocol, using the
@@ -19,4 +23,16 @@ export default async function registerProtocolHandler() {
 
   // register for MV2-based browsers
   await addFirefoxHandler();
+}
+
+/**
+ * Disable ar:// protocol handling
+ */
+export async function unregisterProtocolHandler() {
+  // unregister for chromium-based browsers
+  if (chrome) {
+    return await disableChromiumHandler();
+  }
+
+  return disableFirefoxHandler();
 }

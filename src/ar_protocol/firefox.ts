@@ -8,3 +8,8 @@ export default async function addFirefoxHandler() {
   //browser.webRequest.onBeforeRequest.removeListener()
   //browser.webRequest.onBeforeRequest.addListener()
 }
+
+/**
+ * Disable handler for "ar://" protocol
+ */
+export async function disableHandler() {}

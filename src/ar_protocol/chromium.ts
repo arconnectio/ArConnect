@@ -14,25 +14,22 @@ export default async function addChromiumHandler() {
   addMiddleware();
 }
 
+const INTERCEPTOR_ID = 1;
+
 /**
  * Add chrome.declarativeNetRequest based interceptor,
  * that we use to intercept requests to the "ar://"
  * protocol.
  */
 async function addInterceptor() {
-  // get active rules
-  const rules = await chrome.declarativeNetRequest.getSessionRules();
-
   // remove active rules
-  await chrome.declarativeNetRequest.updateSessionRules({
-    removeRuleIds: rules.map((rule) => rule.id)
-  });
+  await disableHandler();
 
   // add updated rules
   await chrome.declarativeNetRequest.updateSessionRules({
     addRules: [
       {
-        id: 1,
+        id: INTERCEPTOR_ID,
         priority: 1,
         action: {
           type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
@@ -62,6 +59,16 @@ async function addInterceptor() {
         }
       }
     ]
+  });
+}
+
+/**
+ * Disable handler for "ar://" protocol
+ */
+export async function disableHandler() {
+  // remove active rules
+  await chrome.declarativeNetRequest.updateSessionRules({
+    removeRuleIds: [INTERCEPTOR_ID]
   });
 }
 
