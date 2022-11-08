@@ -7,8 +7,8 @@ import { getStorageConfig } from "~utils/storage";
 import { onInstalled } from "~utils/runtime";
 import { Storage } from "@plasmohq/storage";
 import { syncLabels } from "~wallets";
+import registerProtocolHandler from "~ar_protocol";
 import handleFeeAlarm from "~api/modules/sign/fee";
-import handleCustomProtocol from "~ar_protocol";
 import browser from "webextension-polyfill";
 
 // TODO: save decryption key here if the extension is
@@ -50,38 +50,6 @@ storage.watch({
 browser.runtime.onInstalled.addListener(onInstalled);
 
 // handle ar:// protocol
-// ar://KAYYI1eT70NTc9BH0GJulo3GxIHqAWoXKp2gcNNQeDc
-if (chrome) {
-  (async () => {
-    const rules = await chrome.declarativeNetRequest.getSessionRules();
-    await chrome.declarativeNetRequest.updateSessionRules({
-      removeRuleIds: rules.map((rule) => rule.id)
-    });
-
-    await chrome.declarativeNetRequest.updateSessionRules({
-      addRules: [
-        {
-          id: 1,
-          priority: 1,
-          action: {
-            type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
-            redirect: {
-              regexSubstitution: "https://arweave.net/\\1"
-            }
-          },
-          condition: {
-            regexFilter: `^https://.*/.*${encodeURIComponent("ar://")}(.*)`,
-            resourceTypes: [
-              chrome.declarativeNetRequest.ResourceType.MAIN_FRAME,
-              chrome.declarativeNetRequest.ResourceType.SUB_FRAME,
-              chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST,
-              chrome.declarativeNetRequest.ResourceType.OTHER
-            ]
-          }
-        }
-      ]
-    });
-  })();
-}
+registerProtocolHandler();
 
 export {};

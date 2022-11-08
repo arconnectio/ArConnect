@@ -235,6 +235,7 @@ export async function addWallet(
 
   // wallets
   const wallets = await getWallets();
+  const freshInstall = wallets.length === 0;
 
   for (const item of walletsToAdd) {
     // @ts-expect-error
@@ -261,7 +262,7 @@ export async function addWallet(
   await storage.set("wallets", wallets);
 
   // set active address if this was the first wallet added
-  if (wallets.length === 1) {
+  if (freshInstall) {
     await storage.set("active_address", wallets[0].address);
   }
 }
