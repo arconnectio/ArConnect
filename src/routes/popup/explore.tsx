@@ -1,8 +1,8 @@
-import { getMarketChart } from "~lib/coingecko";
+import { getMarketChart, getArPrice } from "~lib/coingecko";
 import { useEffect, useState } from "react";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
+import PriceChart from "~components/popup/asset/PriceChart";
 import browser from "webextension-polyfill";
-import Graph from "~components/popup/Graph";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 
@@ -13,7 +13,7 @@ export default function Explore() {
   // currency setting
   const [currency] = useSetting<string>("currency");
 
-  // load ar price
+  // load ar price history
   const [priceData, setPriceData] = useState([]);
 
   useEffect(() => {
@@ -31,15 +31,30 @@ export default function Explore() {
     })();
   }, [period, currency]);
 
+  // load latest ar price
+  const [latestPrice, setLatestPrice] = useState(0);
+
+  useEffect(() => {
+    (async () => {
+      const price = await getArPrice(currency);
+
+      setLatestPrice(price);
+    })();
+  }, [currency]);
+
   return (
     <>
       <Head title={browser.i18n.getMessage("explore")} />
-      <Graph
-        actionBar={
-          <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />
-        }
-        data={priceData}
-      ></Graph>
+      <PriceChart
+        token={{
+          name: "Arweave",
+          ticker: "AR"
+        }}
+        priceData={priceData}
+        latestPrice={latestPrice}
+      >
+        <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />
+      </PriceChart>
     </>
   );
 }

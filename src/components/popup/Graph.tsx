@@ -83,8 +83,9 @@ const Chart = ({ data }: ChartProps) => {
           // 2. Get the ratio of the value / max element of the dataset
           // 3. Get the pixel size of 1% of the graph height
           // 4. Multiply the calculated ratio with the 1% size
+          const percentage = ((val - min) / (max - min)) * 100;
           const v =
-            ((val - min) / (max - min)) * 100 * ((height - baseLevel) / 100);
+            height - baseLevel - percentage * ((height - baseLevel) / 100);
 
           // horizontal pos
           // we calculate it by dividing it with our data size to
