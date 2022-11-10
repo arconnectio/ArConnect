@@ -11,6 +11,10 @@ export default async function getArweaveNewsFeed() {
 }
 
 export interface ArweaveNewsFeed {
+  items: ArweaveNewsArticle[];
+}
+
+export interface ArweaveNewsArticle {
   creator: string;
   title: string;
   link: string;

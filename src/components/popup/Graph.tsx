@@ -28,6 +28,7 @@ interface GraphProps {
 
 const GraphSection = styled(Section)`
   padding-top: 0;
+  padding-bottom: 0.3rem;
 `;
 
 const Wrapper = styled.div`
@@ -43,7 +44,7 @@ const Content = styled.div`
   flex-direction: column;
   color: #fff;
   z-index: 20;
-  gap: 2.75rem;
+  gap: 1.75rem;
 `;
 
 const ChildrenWrapper = styled.div`
@@ -63,18 +64,15 @@ const Chart = ({ data }: ChartProps) => {
   const theme = useTheme();
 
   // graph dimensions
-  const height = 180;
+  const height = 140;
   const width = 500;
-
-  // where the graph drawing starts from
-  const baseLevel = 101;
 
   const path = useMemo(() => {
     const max = Math.max(...data);
     const min = Math.min(...data);
 
     return (
-      `M0 ${baseLevel}` +
+      `M0 ${height} ` +
       data
         .map((val, i) => {
           // vertical pos
@@ -84,8 +82,7 @@ const Chart = ({ data }: ChartProps) => {
           // 3. Get the pixel size of 1% of the graph height
           // 4. Multiply the calculated ratio with the 1% size
           const percentage = ((val - min) / (max - min)) * 100;
-          const v =
-            height - baseLevel - percentage * ((height - baseLevel) / 100);
+          const v = height - percentage * (height / 100);
 
           // horizontal pos
           // we calculate it by dividing it with our data size to
@@ -95,7 +92,7 @@ const Chart = ({ data }: ChartProps) => {
           return "L" + h + " " + v;
         })
         .join(" ") +
-      ` L${width} ${baseLevel} Z`
+      ` L${width} ${height} Z`
     );
   }, [data]);
 
@@ -107,18 +104,14 @@ const Chart = ({ data }: ChartProps) => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <mask id="path-1-inside-1_246_144" fill="white">
-        <path d={path} />
-      </mask>
       <path
         d={path}
         fill={`rgb(${theme.theme})`}
         stroke={`rgb(${theme.theme})`}
         strokeWidth="2"
-        mask="url(#path-1-inside-1_246_144)"
       />
       <rect
-        y={baseLevel - 1}
+        y={height}
         width={width}
         height="115"
         fill={`rgb(${theme.theme})`}

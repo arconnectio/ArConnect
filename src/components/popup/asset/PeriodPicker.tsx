@@ -39,11 +39,13 @@ const Period = styled.div<{ active: boolean }>`
   cursor: pointer;
   text-align: center;
   color: rgba(255, 255, 255, ${(props) => (props.active ? "1" : ".5")});
+  backdrop-filter: blur(${(props) => (props.active ? "4px" : "0")});
   font-size: 0.75rem;
   font-weight: 500;
   transition: all 0.23s ease-in-out;
 
   &:hover {
+    backdrop-filter: blur(4px);
     background-color: rgba(255, 255, 255, 0.075);
   }
 `;
