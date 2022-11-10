@@ -17,10 +17,10 @@ import {
 } from "@iconicicons/react";
 import type ArdbTransaction from "ardb/lib/models/transaction";
 import useActiveTab from "~applications/useActiveTab";
-import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
+import AppIcon from "./AppIcon";
 import Arweave from "arweave";
 import ArDB from "ardb";
 
@@ -172,7 +172,8 @@ export default function Balance() {
           </FiatBalanceText>
         </div>
         {activeAppData && (
-          <ActiveAppIcon
+          <AppIcon
+            outline="#000"
             onClick={() =>
               browser.tabs.create({
                 url: browser.runtime.getURL(
@@ -186,7 +187,7 @@ export default function Balance() {
               alt={activeAppData.name || ""}
               draggable={false}
             />
-          </ActiveAppIcon>
+          </AppIcon>
         )}
       </BalanceHead>
     </Graph>
@@ -276,29 +277,6 @@ const HideBalanceButton = styled(EyeIcon)`
 
   &:active {
     transform: scale(0.86);
-  }
-`;
-
-const ActiveAppIcon = styled(Squircle).attrs({
-  outline: "#000"
-})`
-  color: rgb(${(props) => props.theme.theme});
-  width: 3rem;
-  height: 3rem;
-  cursor: pointer;
-
-  img {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    max-width: 2.5em;
-    user-select: none;
-    transform: translate(-50%, -50%);
-    transition: all 0.23s ease-in-out;
-  }
-
-  &:hover img {
-    opacity: 0.84;
   }
 `;
 

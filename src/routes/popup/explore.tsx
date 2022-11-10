@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import getArweaveNewsFeed, { ArweaveNewsArticle } from "~lib/arweave_news";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
+import viewblockLogo from "url:/assets/ecosystem/viewblock.png";
+import metaweaveLogo from "url:/assets/ecosystem/metaweave.png";
 import PriceChart from "~components/popup/asset/PriceChart";
+import arDriveLogo from "url:/assets/ecosystem/ardrive.svg";
+import aftrLogo from "url:/assets/ecosystem/aftrmarket.png";
+import warpLogo from "url:/assets/ecosystem/warp.svg";
+import AppIcon from "~components/popup/home/AppIcon";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
@@ -49,6 +55,19 @@ export default function Explore() {
   // active featured news page
   const [featuredPage, setFeaturedPage] = useState<number>(0);
 
+  useEffect(() => {
+    const id = setTimeout(
+      () =>
+        setFeaturedPage((v) => {
+          if (v > 1) return 0;
+          else return v + 1;
+        }),
+      4000
+    );
+
+    return () => clearInterval(id);
+  }, [featuredPage]);
+
   // parse arweave.news RSS
   const [feed, setFeed] = useState<ArweaveNewsArticle[]>();
 
@@ -81,6 +100,11 @@ export default function Explore() {
             <FeaturedArticle
               key={featuredPage}
               background="https://arweave.news/wp-content/uploads/2022/11/bdfgbndgbdgnsgnsns.png"
+              onClick={() =>
+                browser.tabs.create({
+                  url: feed?.[featuredPage]?.link
+                })
+              }
             >
               <ArticleTitle style={{ textAlign: "center" }}>
                 {feed?.[featuredPage]?.title || ""}
@@ -96,6 +120,29 @@ export default function Explore() {
             ))}
           </Paginator>
         </FeaturedArticles>
+        <Spacer y={1} />
+        <Card smallPadding>
+          <ShortcutsLabel>
+            {browser.i18n.getMessage("shortcuts")}
+          </ShortcutsLabel>
+          <Shortcuts>
+            <AppIcon color="#ffa4b5">
+              <img src={arDriveLogo} alt={"ArDrive"} draggable={false} />
+            </AppIcon>
+            <AppIcon color="#000">
+              <img src={aftrLogo} alt={"AFTR"} draggable={false} />
+            </AppIcon>
+            <AppIcon color="#7bc0de">
+              <img src={viewblockLogo} alt={"Viewblock"} draggable={false} />
+            </AppIcon>
+            <AppIcon color="#ffbdfd">
+              <img src={metaweaveLogo} alt={"Metaweave"} draggable={false} />
+            </AppIcon>
+            <AppIcon color="#b7caff">
+              <img src={warpLogo} alt={"Sonar"} draggable={false} />
+            </AppIcon>
+          </Shortcuts>
+        </Card>
       </Section>
     </>
   );
@@ -155,4 +202,18 @@ const FeaturedArticle = styled(motion.div).attrs({
 const ArticleTitle = styled(Text)`
   color: #fff;
   margin: 0;
+`;
+
+const ShortcutsLabel = styled(Text)`
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.73rem;
+  font-weight: 600;
+  text-transform: uppercase;
+`;
+
+const Shortcuts = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;

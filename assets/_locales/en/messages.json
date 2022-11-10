@@ -796,5 +796,9 @@
   "news_and_updates": {
     "message": "News & Updates",
     "description": "Title for explore news"
+  },
+  "shortcuts": {
+    "message": "Shortcuts",
+    "description": "Shortcuts label"
   }
 }
