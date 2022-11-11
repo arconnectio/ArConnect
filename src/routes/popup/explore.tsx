@@ -116,6 +116,7 @@ export default function Explore() {
               <Page
                 active={i === featuredPage}
                 onClick={() => setFeaturedPage(i)}
+                key={i}
               />
             ))}
           </Paginator>
@@ -143,6 +144,11 @@ export default function Explore() {
             </AppIcon>
           </Shortcuts>
         </Card>
+        <Spacer y={1} />
+        <SmallerArticles>
+          <SquareArticle></SquareArticle>
+          <LongArticle></LongArticle>
+        </SmallerArticles>
       </Section>
     </>
   );
@@ -216,4 +222,20 @@ const Shortcuts = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+`;
+
+const SmallerArticles = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const SquareArticle = styled(Card)`
+  padding: 0.2rem;
+  height: calc(105px - 0.2rem * 2);
+  width: calc(105px - 0.2rem * 2);
+`;
+
+const LongArticle = styled(SquareArticle)`
+  width: calc(100% - 105px - 0.2rem * 2 - 1rem);
 `;
