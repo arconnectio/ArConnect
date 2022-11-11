@@ -29,7 +29,6 @@ import { RootState } from "../../../stores/reducers";
 import { formatAddress, getRealURL, shortenURL } from "../../../utils/url";
 import { Currency } from "../../../stores/reducers/settings";
 import { Threshold } from "arverify";
-import { MessageType } from "../../../utils/messenger";
 import { updateIcon } from "../../../scripts/background/icon";
 import { checkPassword, setPassword } from "../../../utils/auth";
 import { browser } from "webextension-polyfill-ts";
@@ -1324,7 +1323,7 @@ export default function Settings({
 }
 
 export interface ArConnectEvent {
-  event: MessageType;
+  event: string;
   url: string;
   date: number;
 }

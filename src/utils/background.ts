@@ -1,4 +1,4 @@
-import { MessageType, validateMessage } from "../utils/messenger";
+import { validateMessage } from "../utils/messenger";
 import { RootState } from "../stores/reducers";
 import { IPermissionState } from "../stores/reducers/permissions";
 import { IGatewayConfig, defaultConfig } from "../stores/reducers/arweave";
@@ -134,7 +134,7 @@ export async function walletsStored(): Promise<boolean> {
  * @param action Reason of the auth request
  * @param tabURL The URL of the current app
  */
-export const authenticateUser = (action: MessageType, tabURL: string) =>
+export const authenticateUser = (action: string, tabURL: string) =>
   new Promise<void>(async (resolve, reject) => {
     try {
       const decryptionKey = (await browser.storage.local.get("decryptionKey"))
