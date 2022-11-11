@@ -48,6 +48,12 @@ async function middleware(
 
   if (!redirectUrl) return {};
 
+  // @ts-expect-error
+  if (chrome) {
+    browser.tabs.update(details.tabId, { url: redirectUrl });
+    return {};
+  }
+
   return { redirectUrl };
 }
 
