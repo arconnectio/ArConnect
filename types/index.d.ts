@@ -81,11 +81,7 @@ declare global {
        */
       encrypt(
         data: string,
-        options: {
-          algorithm: string;
-          hash: string;
-          salt?: string;
-        }
+        options: RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams
       ): Promise<Uint8Array>;
 
       /**
@@ -98,11 +94,7 @@ declare global {
        */
       decrypt(
         data: Uint8Array,
-        options: {
-          algorithm: string;
-          hash: string;
-          salt?: string;
-        }
+        options: RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams
       ): Promise<string>;
 
       /**
