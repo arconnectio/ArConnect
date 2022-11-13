@@ -3,23 +3,23 @@ import { browser } from "webextension-polyfill-ts";
 import { ModuleFunction } from "../../background";
 import Arweave from "arweave";
 
-const background: ModuleFunction<string> = async (
+const background: ModuleFunction<string | Uint8Array> = async (
   _,
   data: Uint8Array,
   options: any
 ) => {
-  if (options.algorithm) {
-    // Old ArConnect algorithm
-    // grab the user's keyfile
-    const { keyfile } = await getActiveKeyfile().catch(() => {
-      // if there are no wallets added, open the welcome page
-      browser.tabs.create({
-        url: browser.runtime.getURL("/welcome.html")
-      });
-
-      throw new Error("No wallets added");
+  // grab the user's keyfile
+  const { keyfile } = await getActiveKeyfile().catch(() => {
+    // if there are no wallets added, open the welcome page
+    browser.tabs.create({
+      url: browser.runtime.getURL("/welcome.html")
     });
 
+    throw new Error("No wallets added");
+  });
+
+  if (options.algorithm) {
+    // old ArConnect algorithm
     // get decryption key
     const decryptJwk = {
       ...keyfile,
@@ -71,15 +71,7 @@ const background: ModuleFunction<string> = async (
 
     return arweave.utils.bufferToString(res);
   } else if (options.name) {
-    //Standard RSA decryption, from arweave.app
-    const { keyfile } = await getActiveKeyfile().catch(() => {
-      // if there are no wallets added, open the welcome page
-      browser.tabs.create({
-        url: browser.runtime.getURL("/welcome.html")
-      });
-
-      throw new Error("No wallets added");
-    });
+    // standard RSA decryption, from arweave.app
     const decryptJwk = {
       ...keyfile,
       alg: undefined,
@@ -97,9 +89,10 @@ const background: ModuleFunction<string> = async (
       ["decrypt"]
     );
     const decrypted = await window.crypto.subtle.decrypt(options, key, data);
+
     return new Uint8Array(decrypted);
   } else {
-    throw new Error("Invalid options passed!", options);
+    throw new Error("Invalid options passed", options);
   }
 };
 
