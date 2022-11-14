@@ -19,6 +19,7 @@ import { browser } from "webextension-polyfill-ts";
 import { ArConnectEvent } from "../views/Popup/routes/Settings";
 import { Chunk, handleChunk } from "../api/modules/sign/chunks";
 import { getRealURL } from "../utils/url";
+import addProtocolHandler from "../ar_protocol";
 import handleFeeAlarm from "../utils/fee";
 import modules from "../api/background";
 
@@ -249,5 +250,8 @@ browser.runtime.onMessage.addListener(async (message: MessageFormat) => {
       break;
   }
 });
+
+// add ar:// protocol
+addProtocolHandler();
 
 export {};
