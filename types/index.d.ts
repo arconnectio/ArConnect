@@ -72,30 +72,34 @@ declare global {
       getPermissions(): Promise<PermissionType[]>;
 
       /**
-       * Encrypt a string, using the user's wallet.
+       * Encrypt data, using the user's wallet.
        *
-       * @param data String to encrypt
-       * @param options Encrypt options
-       *
-       * @returns Promise of the encrypted string
+       * @param data `BufferSource` data to encrypt
+       * @param options Encrypt algorithm
+       *  
+       * This is an implementation of the [webcrypto encrypt API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt).
+       * 
+       * @returns Promise of the encrypted data
        */
       encrypt(
-        data: string,
-        options: RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams
+        data: BufferSource,
+        algorithm: RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams
       ): Promise<Uint8Array>;
 
       /**
-       * Decrypt a string encrypted with the user's wallet.
+       * Decrypt data encrypted with the user's wallet.
        *
-       * @param data `Uint8Array` data to decrypt to a string
-       * @param options Decrypt options
+       * @param data `BufferSource` data to decrypt
+       * @param options Decrypt algorithm
+       * 
+       * This is an implementation of the [webcrypto decrypt API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/decrypt).
        *
-       * @returns Promise of the decrypted string
+       * @returns Promise of the decrypted data
        */
       decrypt(
-        data: Uint8Array,
-        options: RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams
-      ): Promise<string>;
+        data: BufferSource,
+        algorithm: RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams
+      ): Promise<Uint8Array>;
 
       /**
        * Get the user's custom Arweave config set in the extension
