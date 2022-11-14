@@ -286,7 +286,6 @@ const Wrapper = styled(Section)<{ noPadding: boolean }>`
 
 const WalletsCard = styled(Card)`
   padding: 0.3rem;
-  background-color: rgb(${(props) => props.theme.background});
 `;
 
 const walletAnimation = {

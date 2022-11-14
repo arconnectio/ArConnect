@@ -36,5 +36,6 @@ declare module "styled-components" {
     secondaryText: string;
     background: string;
     cardBorder: string;
+    cardBackground: string;
   }
 }

@@ -128,19 +128,44 @@ export default function Explore() {
             {browser.i18n.getMessage("shortcuts")}
           </ShortcutsLabel>
           <Shortcuts>
-            <AppIcon color="#ffa4b5">
+            <AppIcon
+              color="#ffa4b5"
+              onClick={() =>
+                browser.tabs.create({ url: "https://app.ardrive.io" })
+              }
+            >
               <img src={arDriveLogo} alt={"ArDrive"} draggable={false} />
             </AppIcon>
-            <AppIcon color="#000">
+            <AppIcon
+              color="#000"
+              onClick={() =>
+                browser.tabs.create({ url: "https://aftr.market" })
+              }
+            >
               <img src={aftrLogo} alt={"AFTR"} draggable={false} />
             </AppIcon>
-            <AppIcon color="#7bc0de">
+            <AppIcon
+              color="#7bc0de"
+              onClick={() =>
+                browser.tabs.create({ url: "https://viewblock.io/arweave" })
+              }
+            >
               <img src={viewblockLogo} alt={"Viewblock"} draggable={false} />
             </AppIcon>
-            <AppIcon color="#ffbdfd">
+            <AppIcon
+              color="#ffbdfd"
+              onClick={() =>
+                browser.tabs.create({ url: "https://metaweave.xyz" })
+              }
+            >
               <img src={metaweaveLogo} alt={"Metaweave"} draggable={false} />
             </AppIcon>
-            <AppIcon color="#79d483">
+            <AppIcon
+              color="#79d483"
+              onClick={() =>
+                browser.tabs.create({ url: "https://permaswap.network" })
+              }
+            >
               <img src={permaswapLogo} alt={"Permaswap"} draggable={false} />
             </AppIcon>
           </Shortcuts>

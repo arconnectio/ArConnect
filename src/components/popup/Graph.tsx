@@ -1,5 +1,6 @@
+import { DisplayTheme, Section, Text } from "@arconnect/components";
+import { useTheme as useDisplayTheme } from "~utils/theme";
 import { HTMLProps, ReactNode, useMemo } from "react";
-import { Section, Text } from "@arconnect/components";
 import styled, { useTheme } from "styled-components";
 
 export default function Graph({
@@ -8,9 +9,11 @@ export default function Graph({
   data,
   ...props
 }: Omit<HTMLProps<HTMLDivElement>, "data"> & GraphProps) {
+  const theme = useDisplayTheme();
+
   return (
     <GraphSection size="slim">
-      <Wrapper {...(props as any)}>
+      <Wrapper {...(props as any)} displayTheme={theme}>
         <Content>
           <ChildrenWrapper>{children}</ChildrenWrapper>
           <ActionBar>{actionBar}</ActionBar>
@@ -31,9 +34,12 @@ const GraphSection = styled(Section)`
   padding-bottom: 0.3rem;
 `;
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ displayTheme: DisplayTheme }>`
   position: relative;
-  background-color: #000;
+  background-color: rgb(
+    ${(props) =>
+      props.displayTheme === "light" ? "0, 0, 0" : props.theme.cardBackground}
+  );
   border-radius: 40px;
   overflow: hidden;
   z-index: 1;
