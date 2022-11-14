@@ -138,8 +138,8 @@ export default function Connect() {
         <Spacer y={1.5} />
         <ContentWrapper>
           <AnimatePresence initial={false}>
-            <ConnectContent key={page}>
-              {page === "unlock" && (
+            {page === "unlock" && (
+              <UnlockWrapper>
                 <Section>
                   <Label>{browser.i18n.getMessage("wallet")}</Label>
                   <Spacer y={0.4} />
@@ -170,8 +170,10 @@ export default function Connect() {
                     {...passwordInput.bindings}
                   />
                 </Section>
-              )}
-              {page === "permissions" && (
+              </UnlockWrapper>
+            )}
+            {page === "permissions" && (
+              <PermissionsContent>
                 <Section>
                   <Text>
                     {browser.i18n.getMessage("allow_these_permissions")}
@@ -208,8 +210,8 @@ export default function Connect() {
                     </div>
                   ))}
                 </Section>
-              )}
-            </ConnectContent>
+              </PermissionsContent>
+            )}
           </AnimatePresence>
         </ContentWrapper>
       </div>
@@ -264,15 +266,31 @@ const SelectIcon = styled(ChevronDownIcon)`
 
 const ContentWrapper = styled.div`
   display: flex;
+  width: max-content;
 `;
 
-const ConnectContent = styled(motion.div).attrs({
-  initial: { x: 1000, opacity: 0 },
-  animate: { x: 0, opacity: 1 },
-  exit: { x: -1000, opacity: 0 },
+const UnlockWrapper = styled(motion.div).attrs({
+  exit: { opacity: 0 },
   transition: {
-    x: { type: "spring", stiffness: 300, damping: 30 },
-    opacity: { duration: 0.2 }
+    type: "easeInOut",
+    duration: 0.2
+  }
+})`
+  width: 100vw;
+`;
+
+const PermissionsContent = styled(motion.div).attrs({
+  initial: {
+    opacity: 0,
+    y: 50
+  },
+  animate: {
+    opacity: 1,
+    y: 0
+  },
+  transition: {
+    type: "easeInOut",
+    duration: 0.2
   }
 })`
   width: 100vw;

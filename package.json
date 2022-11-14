@@ -16,7 +16,7 @@
   },
   "manifest": {
     "host_permissions": [
-      "https://*/*"
+      "*://*/*"
     ],
     "default_locale": "en",
     "permissions": [
