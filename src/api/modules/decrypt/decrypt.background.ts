@@ -5,7 +5,7 @@ import Arweave from "arweave";
 
 const background: ModuleFunction<string | Uint8Array> = async (
   _,
-  data: Uint8Array,
+  data: BufferSource,
   options: any
 ) => {
   // grab the user's keyfile
