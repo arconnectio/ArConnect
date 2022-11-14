@@ -10,6 +10,7 @@ import {
 } from "@arconnect/components";
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { permissionData, PermissionType } from "~applications/permissions";
+import { AnimatePresence, motion, Variants } from "framer-motion";
 import { CloseLayer } from "~components/popup/WalletHeader";
 import type { AppInfo } from "~applications/application";
 import { defaultGateway } from "~applications/gateway";
@@ -135,69 +136,82 @@ export default function Connect() {
           appIcon={appData.logo}
         />
         <Spacer y={1.5} />
-        {page === "unlock" && (
-          <Section>
-            <Label>{browser.i18n.getMessage("wallet")}</Label>
-            <Spacer y={0.4} />
-            <WalletSelectWrapper>
-              <WalletSelect onClick={() => setSwitcherOpen(true)}>
-                <Address>{formatAddress(activeAddress || "", 10)}</Address>
-                <SelectIcon />
-              </WalletSelect>
-              {switcherOpen && (
-                <CloseLayer onClick={() => setSwitcherOpen(false)} />
-              )}
-              <WalletSwitcher
-                open={switcherOpen}
-                close={() => setSwitcherOpen(false)}
-                showOptions={false}
-                exactTop={true}
-                noPadding={true}
-              />
-            </WalletSelectWrapper>
-            <Spacer y={1} />
-            <Input
-              type="password"
-              placeholder={browser.i18n.getMessage("enter_your_password")}
-              label={browser.i18n.getMessage("password")}
-              fullWidth
-              {...passwordInput.bindings}
-            />
-          </Section>
-        )}
-        {page === "permissions" && (
-          <Section>
-            <Text>{browser.i18n.getMessage("allow_these_permissions")}</Text>
-            {requestedPermissions.map((permission, i) => (
-              <div key={i}>
-                <PermissionCheckbox
-                  checked={permissions.includes(permission)}
-                  onChange={(checked) =>
-                    setPermissions((val) => {
-                      if (checked && val.includes(permission)) return val;
-                      if (!checked && !val.includes(permission)) return val;
-                      if (checked && !val.includes(permission)) {
-                        return [...val, permission];
-                      }
-                      if (!checked && val.includes(permission)) {
-                        return val.filter((p) => p !== permission);
-                      }
-                    })
-                  }
-                >
-                  {permission.toUpperCase()}
-                  <br />
-                  <PermissionDescription>
-                    {browser.i18n.getMessage(
-                      permissionData[permission.toUpperCase()]
+        <ContentWrapper>
+          <AnimatePresence initial={false}>
+            <ConnectContent key={page}>
+              {page === "unlock" && (
+                <Section>
+                  <Label>{browser.i18n.getMessage("wallet")}</Label>
+                  <Spacer y={0.4} />
+                  <WalletSelectWrapper>
+                    <WalletSelect onClick={() => setSwitcherOpen(true)}>
+                      <Address>
+                        {formatAddress(activeAddress || "", 10)}
+                      </Address>
+                      <SelectIcon />
+                    </WalletSelect>
+                    {switcherOpen && (
+                      <CloseLayer onClick={() => setSwitcherOpen(false)} />
                     )}
-                  </PermissionDescription>
-                </PermissionCheckbox>
-                {i !== requestedPermissions.length - 1 && <Spacer y={0.8} />}
-              </div>
-            ))}
-          </Section>
-        )}
+                    <WalletSwitcher
+                      open={switcherOpen}
+                      close={() => setSwitcherOpen(false)}
+                      showOptions={false}
+                      exactTop={true}
+                      noPadding={true}
+                    />
+                  </WalletSelectWrapper>
+                  <Spacer y={1} />
+                  <Input
+                    type="password"
+                    placeholder={browser.i18n.getMessage("enter_your_password")}
+                    label={browser.i18n.getMessage("password")}
+                    fullWidth
+                    {...passwordInput.bindings}
+                  />
+                </Section>
+              )}
+              {page === "permissions" && (
+                <Section>
+                  <Text>
+                    {browser.i18n.getMessage("allow_these_permissions")}
+                  </Text>
+                  {requestedPermissions.map((permission, i) => (
+                    <div key={i}>
+                      <PermissionCheckbox
+                        checked={permissions.includes(permission)}
+                        onChange={(checked) =>
+                          setPermissions((val) => {
+                            if (checked && val.includes(permission)) return val;
+                            if (!checked && !val.includes(permission))
+                              return val;
+                            if (checked && !val.includes(permission)) {
+                              return [...val, permission];
+                            }
+                            if (!checked && val.includes(permission)) {
+                              return val.filter((p) => p !== permission);
+                            }
+                          })
+                        }
+                      >
+                        {permission.toUpperCase()}
+                        <br />
+                        <PermissionDescription>
+                          {browser.i18n.getMessage(
+                            permissionData[permission.toUpperCase()]
+                          )}
+                        </PermissionDescription>
+                      </PermissionCheckbox>
+                      {i !== requestedPermissions.length - 1 && (
+                        <Spacer y={0.8} />
+                      )}
+                    </div>
+                  ))}
+                </Section>
+              )}
+            </ConnectContent>
+          </AnimatePresence>
+        </ContentWrapper>
       </div>
       <Section>
         <Button
@@ -246,4 +260,20 @@ const SelectIcon = styled(ChevronDownIcon)`
   width: 1em;
   height: 1em;
   color: rgb(${(props) => props.theme.theme});
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+`;
+
+const ConnectContent = styled(motion.div).attrs({
+  initial: { x: 1000, opacity: 0 },
+  animate: { x: 0, opacity: 1 },
+  exit: { x: -1000, opacity: 0 },
+  transition: {
+    x: { type: "spring", stiffness: 300, damping: 30 },
+    opacity: { duration: 0.2 }
+  }
+})`
+  width: 100vw;
 `;
