@@ -145,10 +145,16 @@ export default function Explore() {
           </Shortcuts>
         </Card>
         <Spacer y={1} />
-        <SmallerArticles>
-          <SquareArticle></SquareArticle>
-          <LongArticle></LongArticle>
-        </SmallerArticles>
+        {feed?.[4] && (
+          <OtherArticles>
+            {feed.slice(4).map((article, i) => (
+              <Article key={i} href={article.link}>
+                <Text noMargin>{article.title}</Text>
+                <SmallText>{article.pubDate}</SmallText>
+              </Article>
+            ))}
+          </OtherArticles>
+        )}
       </Section>
     </>
   );
@@ -224,18 +230,45 @@ const Shortcuts = styled.div`
   justify-content: space-between;
 `;
 
-const SmallerArticles = styled.div`
+const OtherArticles = styled(Card).attrs({
+  smallPadding: true
+})`
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.3rem;
 `;
 
-const SquareArticle = styled(Card)`
-  padding: 0.2rem;
-  height: calc(105px - 0.2rem * 2);
-  width: calc(105px - 0.2rem * 2);
+const Article = styled.a.attrs({
+  target: "_blank",
+  rel: "noopener noreferer"
+})`
+  position: relative;
+  display: block;
+  padding-left: calc(0.2rem + 3px);
+  margin-bottom: 0.25rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.23s ease-in-out;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 3px;
+    border-radius: 2px;
+    background-color: rgb(${(props) => props.theme.theme});
+  }
 `;
 
-const LongArticle = styled(SquareArticle)`
-  width: calc(100% - 105px - 0.2rem * 2 - 1rem);
+const SmallText = styled(Text).attrs({
+  noMargin: true
+})`
+  font-size: 0.7rem;
+  color: rgb(${(props) => props.theme.primaryText});
 `;
