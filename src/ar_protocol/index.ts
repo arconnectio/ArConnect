@@ -1,5 +1,5 @@
 import { WebRequest, browser } from "webextension-polyfill-ts";
-import { IGatewayConfig } from "../stores/reducers/arweave"
+import { IGatewayConfig } from "../stores/reducers/arweave";
 import { getRedirectURL } from "./parser";
 
 /**

@@ -76,9 +76,9 @@ declare global {
        *
        * @param data `BufferSource` data to encrypt
        * @param options Encrypt algorithm
-       *  
+       *
        * This is an implementation of the [webcrypto encrypt API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt).
-       * 
+       *
        * @returns Promise of the encrypted data
        */
       encrypt(
@@ -91,7 +91,7 @@ declare global {
        *
        * @param data `BufferSource` data to decrypt
        * @param options Decrypt algorithm
-       * 
+       *
        * This is an implementation of the [webcrypto decrypt API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/decrypt).
        *
        * @returns Promise of the decrypted data

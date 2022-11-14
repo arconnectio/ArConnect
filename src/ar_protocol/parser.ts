@@ -1,5 +1,5 @@
-import { IGatewayConfig } from "../stores/reducers/arweave"
-import { concatGatewayURL } from "../utils/gateways"
+import { IGatewayConfig } from "../stores/reducers/arweave";
+import { concatGatewayURL } from "../utils/gateways";
 
 export function getRedirectURL(url: URL, gateway: IGatewayConfig) {
   let redirectURL: string | undefined = undefined;

@@ -3,7 +3,9 @@ import { ModuleFunction } from "../../module";
 
 const foreground: ModuleFunction<void> = (_, options) => {
   if (options.algorithm) {
-    console.warn("[ArConnect] YOU'RE USING DEPRECATED PARAMS FOR \"encrypt()\". Please check the documentation.\nhttps://github.com/arconnectio/ArConnect#encryptdata-options-promiseuint8array");
+    console.warn(
+      '[ArConnect] YOU\'RE USING DEPRECATED PARAMS FOR "encrypt()". Please check the documentation.\nhttps://github.com/arconnectio/ArConnect#encryptdata-options-promiseuint8array'
+    );
   }
 };
 
