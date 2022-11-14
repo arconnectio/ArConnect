@@ -6,15 +6,16 @@ import getArweaveNewsFeed, { ArweaveNewsArticle } from "~lib/arweave_news";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import viewblockLogo from "url:/assets/ecosystem/viewblock.png";
 import metaweaveLogo from "url:/assets/ecosystem/metaweave.png";
+import permaswapLogo from "url:/assets/ecosystem/permaswap.svg";
 import PriceChart from "~components/popup/asset/PriceChart";
 import arDriveLogo from "url:/assets/ecosystem/ardrive.svg";
 import aftrLogo from "url:/assets/ecosystem/aftrmarket.png";
-import warpLogo from "url:/assets/ecosystem/warp.svg";
 import AppIcon from "~components/popup/home/AppIcon";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
+import dayjs from "dayjs";
 
 export default function Explore() {
   // ar price period
@@ -139,8 +140,8 @@ export default function Explore() {
             <AppIcon color="#ffbdfd">
               <img src={metaweaveLogo} alt={"Metaweave"} draggable={false} />
             </AppIcon>
-            <AppIcon color="#b7caff">
-              <img src={warpLogo} alt={"Sonar"} draggable={false} />
+            <AppIcon color="#79d483">
+              <img src={permaswapLogo} alt={"Permaswap"} draggable={false} />
             </AppIcon>
           </Shortcuts>
         </Card>
@@ -150,7 +151,9 @@ export default function Explore() {
             {feed.slice(4).map((article, i) => (
               <Article key={i} href={article.link}>
                 <Text noMargin>{article.title}</Text>
-                <SmallText>{article.pubDate}</SmallText>
+                <SmallText>
+                  {dayjs(article.pubDate).format("MMM DD, YYYY")}
+                </SmallText>
               </Article>
             ))}
           </OtherArticles>
@@ -270,5 +273,5 @@ const SmallText = styled(Text).attrs({
   noMargin: true
 })`
   font-size: 0.7rem;
-  color: rgb(${(props) => props.theme.primaryText});
+  color: rgba(${(props) => props.theme.primaryText}, 0.4);
 `;
