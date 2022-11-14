@@ -1,10 +1,11 @@
+import Route, { Wrapper } from "~components/popup/Route";
+import { createGlobalStyle } from "styled-components";
 import { GlobalStyle, useTheme } from "~utils/theme";
 import { useHashLocation } from "~utils/hash_router";
 import { Provider } from "@arconnect/components";
 import { syncLabels, useSetUp } from "~wallets";
-import { Router, Route } from "wouter";
 import { useEffect } from "react";
-import styled, { createGlobalStyle } from "styled-components";
+import { Router } from "wouter";
 
 import Home from "~routes/popup";
 import Receive from "~routes/popup/receive";
@@ -24,14 +25,14 @@ export default function Popup() {
     <Provider theme={theme}>
       <GlobalStyle />
       <HideScrollbar />
-      <Page>
+      <Wrapper>
         <Router hook={useHashLocation}>
           <Route path="/" component={Home} />
           <Route path="/receive" component={Receive} />
           <Route path="/send" component={Send} />
           <Route path="/explore" component={Explore} />
         </Router>
-      </Page>
+      </Wrapper>
     </Provider>
   );
 }
@@ -44,9 +45,4 @@ const HideScrollbar = createGlobalStyle`
       display: none
     }
   }
-`;
-
-const Page = styled.div`
-  width: 385px;
-  min-height: 600px;
 `;
