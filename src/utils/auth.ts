@@ -7,13 +7,13 @@ import type { AuthResult } from "shim";
 /**
  * Hook to parse auth params from the url
  */
-export function useAuthParams() {
-  const [params, setParams] = useState<AuthDataWithID>();
+export function useAuthParams<T = {}>() {
+  const [params, setParams] = useState<AuthDataWithID & T>();
 
   // fetch params
   useEffect(() => {
     const urlParams = window.location.href.split("?");
-    const params = objectFromUrlParams<AuthDataWithID>(
+    const params = objectFromUrlParams<AuthDataWithID & T>(
       urlParams[urlParams.length - 1].replace(window.location.hash, "")
     );
 

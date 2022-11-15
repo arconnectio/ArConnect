@@ -1,10 +1,10 @@
-import { objectToUrlParams } from "./url";
 import { onMessage } from "@arconnect/webext-bridge";
+import { objectToUrlParams } from "./url";
 import type { AuthResult } from "shim";
 import { nanoid } from "nanoid";
 import browser from "webextension-polyfill";
 
-export type AuthType = "connect" | "allowance" | "unlock";
+export type AuthType = "connect" | "allowance" | "unlock" | "token";
 
 export interface AuthData {
   // type of auth to request from the user

@@ -1,3 +1,5 @@
+import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
+import { unlock } from "~wallets/auth";
 import {
   Button,
   Input,
@@ -7,8 +9,6 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
-import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
-import { unlock } from "~wallets/auth";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";

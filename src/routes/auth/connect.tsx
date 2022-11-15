@@ -10,10 +10,10 @@ import {
 } from "@arconnect/components";
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { permissionData, PermissionType } from "~applications/permissions";
-import { AnimatePresence, motion, Variants } from "framer-motion";
+import { defaultGateway, Gateway } from "~applications/gateway";
 import { CloseLayer } from "~components/popup/WalletHeader";
 import type { AppInfo } from "~applications/application";
-import { defaultGateway } from "~applications/gateway";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronDownIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -46,7 +46,12 @@ export default function Connect() {
   const [page, setPage] = useState<"unlock" | "permissions">("unlock");
 
   // connect params
-  const params = useAuthParams();
+  const params = useAuthParams<{
+    url: string;
+    permissions: PermissionType[];
+    appInfo: AppInfo;
+    gateway?: Gateway;
+  }>();
 
   // app data
   const appData = useMemo<AppInfo>(() => {

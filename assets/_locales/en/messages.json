@@ -808,5 +808,19 @@
   "shortcuts": {
     "message": "Shortcuts",
     "description": "Shortcuts label"
+  },
+  "addToken": {
+    "message": "Add token",
+    "description": "Add token title"
+  },
+  "addTokenParagraph": {
+    "message": "$APP$ would like to add a token to your wallet. Please review it's details below.",
+    "description": "Add token explanation",
+    "placeholders": {
+      "app": {
+        "content": "$1",
+        "example": "ardrive.app"
+      }
+    }
   }
 }

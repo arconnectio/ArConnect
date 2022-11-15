@@ -4,10 +4,6 @@ import type { Allowance } from "~applications/allowance";
 import { defaultGateway } from "~applications/gateway";
 import { checkPassword } from "~wallets/auth";
 import { useEffect, useState } from "react";
-import Wrapper from "~components/auth/Wrapper";
-import browser from "webextension-polyfill";
-import Head from "~components/popup/Head";
-import App from "~components/auth/App";
 import {
   Button,
   Input,
@@ -16,13 +12,20 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
+import Wrapper from "~components/auth/Wrapper";
+import browser from "webextension-polyfill";
+import Head from "~components/popup/Head";
+import App from "~components/auth/App";
 import Arweave from "arweave";
 
 export default function Allowance() {
   const arweave = new Arweave(defaultGateway);
 
   // connect params
-  const params = useAuthParams();
+  const params = useAuthParams<{
+    url: string;
+    spendingLimitReached: boolean;
+  }>();
 
   // get auth utils
   const { closeWindow, cancel } = useAuthUtils("allowance", params?.authID);
