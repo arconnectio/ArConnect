@@ -2,7 +2,6 @@ import {
   Button,
   Input,
   Modal,
-  ModalButton,
   Spacer,
   Text,
   useInput,
@@ -26,7 +25,6 @@ import { downloadFile } from "~utils/file";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
-import { checkPassword } from "~wallets/auth";
 
 export default function WalletSettings({ address }: Props) {
   // wallets

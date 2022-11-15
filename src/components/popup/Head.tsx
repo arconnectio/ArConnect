@@ -13,12 +13,28 @@ import styled from "styled-components";
 export default function Head({ title, showOptions = true, back }: Props) {
   // scroll position
   const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up");
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const listener = () => {
-      const newDir = window.scrollY > 0 ? "down" : "up";
+      const isScrolled = window.scrollY > 0;
+      const newDir = isScrolled ? "down" : "up";
 
+      // don't set it again
       if (newDir === scrollDirection) return;
+      if (scrolled !== isScrolled) {
+        setScrolled(isScrolled);
+      }
+
+      // if the difference between the scroll height
+      // and the client height if not enough
+      // don't let the scroll direction change
+      const diff =
+        document.documentElement.scrollHeight -
+        document.documentElement.clientHeight;
+
+      if (diff < 85) return;
+
       setScrollDirection(newDir);
     };
 
@@ -55,7 +71,11 @@ export default function Head({ title, showOptions = true, back }: Props) {
   const [isOpen, setOpen] = useState(false);
 
   return (
-    <HeadWrapper displayTheme={theme} scrolled={scrollDirection === "down"}>
+    <HeadWrapper
+      displayTheme={theme}
+      collapse={scrollDirection === "down"}
+      scrolled={scrolled}
+    >
       <BackWrapper>
         <BackButton
           onClick={async () => {
@@ -86,14 +106,15 @@ export default function Head({ title, showOptions = true, back }: Props) {
 }
 
 const HeadWrapper = styled(Section)<{
+  collapse: boolean;
   scrolled: boolean;
   displayTheme: DisplayTheme;
 }>`
   position: sticky;
   display: flex;
-  align-items: ${(props) => (props.scrolled ? "center" : "flex-start")};
-  flex-direction: ${(props) => (props.scrolled ? "row" : "column")};
-  gap: ${(props) => (props.scrolled ? "0.77rem" : "0.5rem")};
+  align-items: ${(props) => (props.collapse ? "center" : "flex-start")};
+  flex-direction: ${(props) => (props.collapse ? "row" : "column")};
+  gap: ${(props) => (props.collapse ? "0.77rem" : "0.5rem")};
   top: 0;
   left: 0;
   right: 0;
