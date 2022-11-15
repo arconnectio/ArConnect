@@ -12,6 +12,7 @@ import arDriveLogo from "url:/assets/ecosystem/ardrive.svg";
 import aftrLogo from "url:/assets/ecosystem/aftrmarket.png";
 import AppIcon from "~components/popup/home/AppIcon";
 import browser from "webextension-polyfill";
+import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
@@ -92,9 +93,7 @@ export default function Explore() {
         <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />
       </PriceChart>
       <Section>
-        <Text heading noMargin>
-          {browser.i18n.getMessage("news_and_updates")}
-        </Text>
+        <Title noMargin>{browser.i18n.getMessage("news_and_updates")}</Title>
         <Spacer y={0.75} />
         <FeaturedArticles>
           <AnimatePresence>
@@ -272,7 +271,7 @@ const Article = styled.a.attrs({
 })`
   position: relative;
   display: block;
-  padding-left: calc(0.2rem + 3px);
+  padding-left: calc(0.35rem + 3px);
   margin-bottom: 0.25rem;
   cursor: pointer;
   text-decoration: none;

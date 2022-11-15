@@ -2,14 +2,13 @@ import { Section, Spacer, Text } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Token from "../Token";
+import Title from "../Title";
 
 export default function Tokens() {
   return (
     <Section>
       <Heading>
-        <Text heading noMargin>
-          {browser.i18n.getMessage("assets")}
-        </Text>
+        <Title noMargin>{browser.i18n.getMessage("assets")}</Title>
         <ViewAll>
           {browser.i18n.getMessage("view_all")}
           <TokenCount>4</TokenCount>
@@ -34,8 +33,7 @@ const Heading = styled.div`
   align-items: center;
 `;
 
-const ViewAll = styled(Text).attrs({
-  heading: true,
+const ViewAll = styled(Title).attrs({
   noMargin: true
 })`
   display: flex;
