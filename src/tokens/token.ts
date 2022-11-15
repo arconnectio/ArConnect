@@ -11,3 +11,9 @@ export interface TokenState {
   balances: Record<string, number>;
   [key: string]: any;
 }
+
+/**
+ * Check if a contract state is a
+ * valid token state
+ */
+export function validateTokenState(state: TokenState) {}

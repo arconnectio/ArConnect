@@ -1,4 +1,4 @@
-import { Token as TokenInterface } from "~utils/token";
+import type { Token as TokenInterface } from "~tokens/token";
 import { Text } from "@arconnect/components";
 import { useTheme } from "~utils/theme";
 import { useLocation } from "wouter";
