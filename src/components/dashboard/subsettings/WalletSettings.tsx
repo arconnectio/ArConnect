@@ -208,56 +208,44 @@ export default function WalletSettings({ address }: Props) {
           {browser.i18n.getMessage("remove_wallet")}
         </Button>
       </div>
-      <Modal
-        {...removeModal.bindings}
-        actions={
-          <>
-            <ModalButton onClick={() => removeModal.setOpen(false)}>
-              {browser.i18n.getMessage("cancel")}
-            </ModalButton>
-            <ModalButton
-              onClick={async () => {
-                try {
-                  await removeWallet(address);
-                  setToast({
-                    type: "success",
-                    content: browser.i18n.getMessage(
-                      "removed_wallet_notification"
-                    ),
-                    duration: 2000
-                  });
-                } catch (e) {
-                  console.log("Error removing wallet", e);
-                  setToast({
-                    type: "error",
-                    content: browser.i18n.getMessage(
-                      "remove_wallet_error_notification"
-                    ),
-                    duration: 2000
-                  });
-                }
-              }}
-            >
-              {browser.i18n.getMessage("confirm")}
-            </ModalButton>
-          </>
-        }
-      >
+      <Modal {...removeModal.bindings}>
         <CenterText heading>
           {browser.i18n.getMessage("remove_wallet_modal_title")}
         </CenterText>
         <CenterText>
           {browser.i18n.getMessage("remove_wallet_modal_content")}
         </CenterText>
+        <Spacer y={1.75} />
+        <Button
+          fullWidth
+          onClick={async () => {
+            try {
+              await removeWallet(address);
+              setToast({
+                type: "success",
+                content: browser.i18n.getMessage("removed_wallet_notification"),
+                duration: 2000
+              });
+            } catch (e) {
+              console.log("Error removing wallet", e);
+              setToast({
+                type: "error",
+                content: browser.i18n.getMessage(
+                  "remove_wallet_error_notification"
+                ),
+                duration: 2000
+              });
+            }
+          }}
+        >
+          {browser.i18n.getMessage("confirm")}
+        </Button>
+        <Spacer y={0.75} />
+        <Button fullWidth secondary onClick={() => removeModal.setOpen(false)}>
+          {browser.i18n.getMessage("cancel")}
+        </Button>
       </Modal>
-      <Modal
-        {...exportModal.bindings}
-        actions={
-          <ModalButton onClick={exportWallet}>
-            {browser.i18n.getMessage("export")}
-          </ModalButton>
-        }
-      >
+      <Modal {...exportModal.bindings}>
         <CenterText heading>
           {browser.i18n.getMessage("export_wallet_modal_title")}
         </CenterText>
@@ -267,6 +255,10 @@ export default function WalletSettings({ address }: Props) {
           {...passwordInput.bindings}
           fullWidth
         />
+        <Spacer y={1.75} />
+        <Button fullWidth onClick={exportWallet}>
+          {browser.i18n.getMessage("export")}
+        </Button>
       </Modal>
     </Wrapper>
   );

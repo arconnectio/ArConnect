@@ -10,11 +10,13 @@ import { removeApp } from "~applications";
 import {
   Button,
   Input,
+  Modal,
   Select,
   Spacer,
   Text,
   Tooltip,
   useInput,
+  useModal,
   useToasts
 } from "@arconnect/components";
 import {
@@ -85,6 +87,9 @@ export default function AppSettings({ app, showTitle = false }: Props) {
 
   // toasts
   const { setToast } = useToasts();
+
+  // remove modal
+  const removeModal = useModal();
 
   if (!settings) return <></>;
 
@@ -274,7 +279,7 @@ export default function AppSettings({ app, showTitle = false }: Props) {
         placeholder="https://node2.bundlr.network"
       />
       <Spacer y={1.65} />
-      <Button fullWidth small onClick={() => removeApp(app.url)}>
+      <Button fullWidth small onClick={() => removeModal.setOpen(true)}>
         {browser.i18n.getMessage("removeApp")}
       </Button>
       <Spacer y={0.7} />
@@ -291,6 +296,21 @@ export default function AppSettings({ app, showTitle = false }: Props) {
       >
         {browser.i18n.getMessage(settings.blocked ? "unblock" : "block")}
       </Button>
+      <Modal {...removeModal.bindings}>
+        <CenterText heading>{browser.i18n.getMessage("removeApp")}</CenterText>
+        <Spacer y={0.55} />
+        <CenterText noMargin>
+          {browser.i18n.getMessage("removeAppNote")}
+        </CenterText>
+        <Spacer y={1.75} />
+        <Button fullWidth onClick={() => removeApp(app.url)}>
+          {browser.i18n.getMessage("remove")}
+        </Button>
+        <Spacer y={0.75} />
+        <Button fullWidth secondary onClick={() => removeModal.setOpen(false)}>
+          {browser.i18n.getMessage("cancel")}
+        </Button>
+      </Modal>
     </>
   );
 }
@@ -353,5 +373,15 @@ const EditLimitButton = styled(EditIcon)`
 
   &:active {
     transform: scale(0.83);
+  }
+`;
+
+const CenterText = styled(Text)`
+  text-align: center;
+  max-width: 22vw;
+  margin: 0 auto;
+
+  @media screen and (max-width: 720px) {
+    max-width: 90vw;
   }
 `;
