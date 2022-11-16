@@ -1,5 +1,13 @@
+import { GridIcon } from "@iconicicons/react";
 import Squircle from "~components/Squircle";
 import styled from "styled-components";
+
+export const NoAppIcon = styled(GridIcon)`
+  font-size: 2rem;
+  width: 1em;
+  height: 1em;
+  color: #fff;
+`;
 
 const AppIcon = styled(Squircle)<{ color?: string }>`
   color: ${(props) =>
@@ -8,17 +16,22 @@ const AppIcon = styled(Squircle)<{ color?: string }>`
   height: 3rem;
   cursor: pointer;
 
-  img {
+  img,
+  ${NoAppIcon} {
     position: absolute;
     top: 50%;
     left: 50%;
-    max-width: 2.5em;
-    user-select: none;
     transform: translate(-50%, -50%);
     transition: all 0.23s ease-in-out;
   }
 
-  &:hover img {
+  img {
+    max-width: 2.5em;
+    user-select: none;
+  }
+
+  &:hover img,
+  &:hover ${NoAppIcon} {
     opacity: 0.84;
   }
 `;

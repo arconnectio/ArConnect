@@ -17,10 +17,10 @@ import {
 } from "@iconicicons/react";
 import type ArdbTransaction from "ardb/lib/models/transaction";
 import useActiveTab from "~applications/useActiveTab";
+import AppIcon, { NoAppIcon } from "./AppIcon";
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
-import AppIcon from "./AppIcon";
 import Arweave from "arweave";
 import ArDB from "ardb";
 
@@ -181,12 +181,15 @@ export default function Balance() {
                 )
               })
             }
+            title={activeAppData.name || ""}
           >
-            <img
-              src={activeAppData.logo}
-              alt={activeAppData.name || ""}
-              draggable={false}
-            />
+            {(activeAppData.logo && (
+              <img
+                src={activeAppData.logo}
+                alt={activeAppData.name || ""}
+                draggable={false}
+              />
+            )) || <NoAppIcon />}
           </AppIcon>
         )}
       </BalanceHead>
