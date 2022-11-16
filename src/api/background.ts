@@ -28,6 +28,8 @@ import decryptModule from "./modules/decrypt";
 import decrypt from "./modules/decrypt/decrypt.background";
 import signatureModule from "./modules/signature";
 import signature from "./modules/signature/signature.background";
+import addTokenModule from "./modules/add_token";
+import addToken from "./modules/add_token/add_token.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
@@ -38,7 +40,8 @@ const modules: BackgroundModule<any>[] = [
   { ...walletNamesModule, function: walletNames },
   { ...arweaveConfigModule, function: arweaveConfig },
   { ...disconnectModule, function: disconnect },
-  { ...connectModule, function: connect }
+  { ...connectModule, function: connect },
+  { ...addTokenModule, function: addToken }
   /*{ ...signModule, function: sign },
   { ...dispatchModule, function: dispatch },
   { ...encryptModule, function: encrypt },

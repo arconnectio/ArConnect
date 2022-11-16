@@ -15,6 +15,8 @@ import arweaveConfigModule from "./modules/arweave_config";
 import arweaveConfig from "./modules/arweave_config/arweave_config.foreground";
 import disconnectModule from "./modules/disconnect";
 import disconnect from "./modules/disconnect/disconnect.foreground";
+import addTokenModule from "./modules/add_token";
+import addToken from "./modules/add_token/add_token.foreground";
 import connectModule from "./modules/connect";
 import connect, {
   finalizer as connectFinalizer
@@ -52,7 +54,8 @@ const modules: ForegroundModule[] = [
   { ...dispatchModule, function: dispatch, finalizer: dispatchFinalizer },
   { ...encryptModule, function: encrypt, finalizer: encryptFinalizer },
   { ...decryptModule, function: decrypt },
-  { ...signatureModule, function: signature, finalizer: signatureFinalizer }
+  { ...signatureModule, function: signature, finalizer: signatureFinalizer },
+  { ...addTokenModule, function: addToken }
 ];
 
 export default modules;
