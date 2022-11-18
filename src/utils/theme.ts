@@ -91,6 +91,7 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     min-height: 500px;
+    transition: background-color .23s ease-in-out;
   }
 
   body, button, input, select, textarea {

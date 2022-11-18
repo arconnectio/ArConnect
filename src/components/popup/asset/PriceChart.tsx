@@ -97,5 +97,6 @@ interface Props {
   token: {
     name: string;
     ticker: string;
+    logo?: string;
   };
 }

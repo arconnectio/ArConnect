@@ -54,7 +54,7 @@ export async function walletsChangeListener({
   oldValue
 }: Storage.StorageChange) {
   const wallets: StoredWallet[] = newValue;
-  const previousWallets: StoredWallet[] = oldValue;
+  const previousWallets: StoredWallet[] = oldValue || [];
 
   // add or remove ANS label change listener
   if (wallets.length > 0 && previousWallets.length === 0) {

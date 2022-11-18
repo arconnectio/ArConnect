@@ -34,6 +34,7 @@ const PageWrapper = styled(Wrapper)`
   position: absolute;
   top: 0;
   background-color: rgb(${(props) => props.theme.background});
+  transition: background-color 0.23s ease-in-out;
 `;
 
 const Page = ({

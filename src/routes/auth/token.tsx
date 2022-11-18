@@ -1,6 +1,8 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { Button, Section, Spacer, Text } from "@arconnect/components";
-import { useState } from "react";
+import type { TokenState } from "~tokens/token";
+import { getTokenLogo } from "~lib/viewblock";
+import { useEffect, useState } from "react";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import PriceChart from "~components/popup/asset/PriceChart";
 import Wrapper from "~components/auth/Wrapper";
@@ -15,7 +17,7 @@ export default function Token() {
   }>();
 
   // get auth utils
-  const { closeWindow, cancel } = useAuthUtils("unlock", params?.authID);
+  const { closeWindow, cancel } = useAuthUtils("token", params?.authID);
 
   // price period
   const [period, setPeriod] = useState("Day");
@@ -31,6 +33,44 @@ export default function Token() {
     closeWindow();
   }
 
+  // load state
+  const [state, setState] = useState<TokenState>();
+
+  useEffect(() => {
+    (async () => {
+      if (!params?.tokenID) {
+        return;
+      }
+
+      const tabToExecute = await browser.tabs.query({
+        url: "*://*/*"
+      });
+
+      if (!tabToExecute[0].id) {
+        return;
+      }
+
+      const res = await browser.scripting.executeScript({
+        target: {
+          tabId: tabToExecute[0].id
+        },
+        async func() {
+          const { WarpFactory } = await import("warp-contracts");
+
+          // fetch token state
+          const res = await WarpFactory.forMainnet()
+            .contract<TokenState>(params.tokenID)
+            .readState();
+          const tokenState = res?.cachedValue?.state;
+
+          return tokenState;
+        }
+      });
+
+      setState(res[0].result);
+    })();
+  }, [params?.tokenID]);
+
   return (
     <Wrapper>
       <div>
@@ -45,14 +85,14 @@ export default function Token() {
             {browser.i18n.getMessage("addTokenParagraph", params?.url)}
           </Text>
         </Section>
-        <Spacer y={1.5} />
         <PriceChart
           token={{
-            name: "Arweave",
-            ticker: "AR"
+            name: state?.name || state?.ticker || "",
+            ticker: state?.ticker || "",
+            logo: getTokenLogo(params?.tokenID || "", "dark")
           }}
           priceData={[0, 2, 3, 4, 3, 5, 1, 2]}
-          latestPrice={1.12}
+          latestPrice={0}
         >
           <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />
         </PriceChart>

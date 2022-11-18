@@ -24,8 +24,7 @@
       "contextMenus",
       "tabs",
       "declarativeNetRequest",
-      "webRequest",
-      "webRequestBlocking",
+      "scripting",
       "<all_urls>"
     ],
     "web_accessible_resources": [
