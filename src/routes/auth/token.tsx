@@ -2,7 +2,7 @@ import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { Button, Section, Spacer, Text } from "@arconnect/components";
 import type { TokenState } from "~tokens/token";
 import { getTokenLogo } from "~lib/viewblock";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import PriceChart from "~components/popup/asset/PriceChart";
 import Wrapper from "~components/auth/Wrapper";
@@ -35,41 +35,37 @@ export default function Token() {
 
   // load state
   const [state, setState] = useState<TokenState>();
+  const sandbox = useRef<HTMLIFrameElement>();
 
   useEffect(() => {
-    (async () => {
-      if (!params?.tokenID) {
-        return;
-      }
+    if (!params?.tokenID || !sandbox.current) {
+      return;
+    }
 
-      const tabToExecute = await browser.tabs.query({
-        url: "*://*/*"
-      });
+    // load state using a sandboxed page
+    const resultListener = (e: MessageEvent<TokenState>) => {
+      console.log(e);
+    };
 
-      if (!tabToExecute[0].id) {
-        return;
-      }
-
-      const res = await browser.scripting.executeScript({
-        target: {
-          tabId: tabToExecute[0].id
+    // send message to iframe
+    const sandboxLoadListener = () => {
+      sandbox.current.contentWindow.postMessage(
+        {
+          fn: "getContractState",
+          params: [params.tokenID]
         },
-        async func() {
-          const { WarpFactory } = await import("warp-contracts");
+        "*"
+      );
+    };
 
-          // fetch token state
-          const res = await WarpFactory.forMainnet()
-            .contract<TokenState>(params.tokenID)
-            .readState();
-          const tokenState = res?.cachedValue?.state;
+    window.addEventListener("message", resultListener);
+    sandbox.current.addEventListener("load", sandboxLoadListener);
 
-          return tokenState;
-        }
-      });
-
-      setState(res[0].result);
-    })();
-  }, [params?.tokenID]);
+    return () => {
+      window.removeEventListener("message", resultListener);
+      sandbox.current.removeEventListener("load", sandboxLoadListener);
+    };
+  }, [params?.tokenID, sandbox]);
 
   return (
     <Wrapper>
@@ -106,6 +102,11 @@ export default function Token() {
           {browser.i18n.getMessage("cancel")}
         </Button>
       </Section>
+      <iframe
+        src={browser.runtime.getURL("tabs/sandbox.html")}
+        ref={sandbox}
+        style={{ display: "none" }}
+      ></iframe>
     </Wrapper>
   );
 }

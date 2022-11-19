@@ -36,7 +36,12 @@
           "https://*/*"
         ]
       }
-    ]
+    ],
+    "sandbox": {
+      "pages": [
+        "tabs/sandbox.html"
+      ]
+    }
   },
   "dependencies": {
     "@arconnect/components": "^0.1.19",
