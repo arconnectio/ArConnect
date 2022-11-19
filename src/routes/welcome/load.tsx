@@ -6,6 +6,7 @@ import {
 } from "~components/welcome/Wrapper";
 import { Button, Spacer, useInput, useToasts } from "@arconnect/components";
 import { checkPasswordValid, jwkFromMnemonic } from "~wallets/generator";
+import { AnimatePresence, motion, Variants } from "framer-motion";
 import type { JWKInterface } from "arweave/node/lib/wallet";
 import { ArrowRightIcon } from "@iconicicons/react";
 import { readFileString } from "~utils/file";
@@ -13,6 +14,7 @@ import { useRef, useState } from "react";
 import { addWallet } from "~wallets";
 import PasswordPage from "~components/welcome/generate/PasswordPage";
 import Seed from "~components/welcome/load/Seed";
+import Done from "~components/welcome/Done";
 import browser from "webextension-polyfill";
 
 export default function Load() {
@@ -78,7 +80,7 @@ export default function Load() {
         // add wallet
         await addWallet(walletsToAdd, passwordInput.state);
 
-        window.top.close();
+        setPage(3);
       } catch (e) {
         console.log("Failed to load wallet from mnemonic", e);
         setToast({
@@ -89,6 +91,8 @@ export default function Load() {
       }
 
       setLoading(false);
+    } else if (page === 3) {
+      window.top.close();
     }
   }
 
@@ -96,23 +100,42 @@ export default function Load() {
     <Wrapper>
       <GenerateCard>
         <Paginator>
-          {Array(2)
+          {Array(3)
             .fill("")
             .map((_, i) => (
               <Page key={i} active={page === i + 1} />
             ))}
         </Paginator>
         <Spacer y={1} />
-        {page === 1 && <PasswordPage passwordInput={passwordInput} />}
-        {page === 2 && (
-          <Seed seedInput={seedInput} fileInputRef={fileInputRef} />
-        )}
+        <AnimatePresence initial={false}>
+          <motion.div
+            variants={pageAnimation}
+            initial="exit"
+            animate="init"
+            key={page}
+          >
+            {page === 1 && <PasswordPage passwordInput={passwordInput} />}
+            {page === 2 && (
+              <Seed seedInput={seedInput} fileInputRef={fileInputRef} />
+            )}
+            {page === 3 && <Done />}
+          </motion.div>
+        </AnimatePresence>
         <Spacer y={1.25} />
         <Button fullWidth onClick={handleBtn} loading={loading}>
-          {browser.i18n.getMessage(page === 2 ? "done" : "next")}
-          {page !== 2 && <ArrowRightIcon />}
+          {browser.i18n.getMessage(page > 1 ? "done" : "next")}
+          {page === 1 && <ArrowRightIcon />}
         </Button>
       </GenerateCard>
     </Wrapper>
   );
 }
+
+const pageAnimation: Variants = {
+  init: {
+    opacity: 1
+  },
+  exit: {
+    opacity: 0
+  }
+};

@@ -5,8 +5,8 @@ import {
   Paginator
 } from "~components/welcome/Wrapper";
 import { checkPasswordValid, jwkFromMnemonic } from "~wallets/generator";
+import { AnimatePresence, motion, Variants } from "framer-motion";
 import type { JWKInterface } from "arweave/web/lib/wallet";
-import { AnimatePresence, motion } from "framer-motion";
 import { defaultGateway } from "~applications/gateway";
 import { ArrowRightIcon } from "@iconicicons/react";
 import { AnsUser, getAnsProfile } from "~lib/ans";
@@ -28,6 +28,7 @@ import ConfirmSeedPage from "~components/welcome/generate/ConfirmSeedPage";
 import GeneratedPage from "~components/welcome/generate/GeneratedPage";
 import PasswordPage from "~components/welcome/generate/PasswordPage";
 import browser from "webextension-polyfill";
+import Done from "~components/welcome/Done";
 import * as bip39 from "bip39-web-crypto";
 import styled from "styled-components";
 import Arweave from "arweave";
@@ -117,7 +118,7 @@ export default function Generate() {
       // we check if the words have been verified
       // by the user sorting them
       return;
-    } else if (page !== 4) {
+    } else if (page < 4) {
       // we go to the next page if we are not on the final one
       return setPage((v) => v + 1);
     } else if (!!keyfile && page === 4) {
@@ -144,12 +145,14 @@ export default function Generate() {
           nickname ? { nickname, wallet: keyfile } : keyfile,
           passwordInput.state
         );
-        window.top.close();
       } catch (e) {
         console.log("Failed to add wallet", e);
       }
 
       setAddingWallet(false);
+      setPage((v) => v + 1);
+    } else if (page === 5) {
+      window.top.close();
     }
   }
 
@@ -157,27 +160,37 @@ export default function Generate() {
     <Wrapper>
       <GenerateCard>
         <Paginator>
-          {Array(4)
+          {Array(5)
             .fill("")
             .map((_, i) => (
               <Page key={i} active={page === i + 1} />
             ))}
         </Paginator>
         <Spacer y={1} />
-        {page === 1 && <PasswordPage passwordInput={passwordInput} />}
-        {page === 2 && seed && <BackupWalletPage seed={seed} />}
-        {page === 3 && seed && (
-          <ConfirmSeedPage seed={seed} setSorted={setSorted} />
-        )}
-        {page === 4 && <GeneratedPage address={address} />}
-        {page !== 1 && (
-          <>
-            <Spacer y={1.25} />
-            <Checkbox {...writtenDown.bindings}>
-              {browser.i18n.getMessage("written_down_seed")}
-            </Checkbox>
-          </>
-        )}
+        <AnimatePresence initial={false}>
+          <motion.div
+            variants={pageAnimation}
+            initial="exit"
+            animate="init"
+            key={page}
+          >
+            {page === 1 && <PasswordPage passwordInput={passwordInput} />}
+            {page === 2 && seed && <BackupWalletPage seed={seed} />}
+            {page === 3 && seed && (
+              <ConfirmSeedPage seed={seed} setSorted={setSorted} />
+            )}
+            {page === 4 && <GeneratedPage address={address} />}
+            {page !== 1 && (
+              <>
+                <Spacer y={1.25} />
+                <Checkbox {...writtenDown.bindings}>
+                  {browser.i18n.getMessage("written_down_seed")}
+                </Checkbox>
+              </>
+            )}
+            {page === 5 && <Done />}
+          </motion.div>
+        </AnimatePresence>
         <Spacer y={1.25} />
         <Button
           fullWidth
@@ -189,8 +202,8 @@ export default function Generate() {
           onClick={handleBtn}
           loading={(page === 4 && !keyfile) || addingWallet}
         >
-          {browser.i18n.getMessage(page === 4 ? "done" : "next")}
-          {page !== 4 && <ArrowRightIcon />}
+          {browser.i18n.getMessage(page > 3 ? "done" : "next")}
+          {page > 4 && <ArrowRightIcon />}
         </Button>
       </GenerateCard>
       <AnimatePresence>
@@ -224,3 +237,12 @@ const GeneratingLoading = styled(Loading)`
   width: 1.23rem;
   height: 1.23rem;
 `;
+
+const pageAnimation: Variants = {
+  init: {
+    opacity: 1
+  },
+  exit: {
+    opacity: 0
+  }
+};

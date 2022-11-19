@@ -6,7 +6,7 @@
  */
 export async function getAnsProfile(
   address: string | string[]
-): Promise<AnsUsers> {
+): Promise<AnsUsers | AnsUser> {
   const { res } = await (
     await fetch("https://ans-stats.decent.land/users")
   ).json();
