@@ -12,7 +12,7 @@ import Arweave from "arweave";
  * @returns Location to icon or false if it is disabled
  */
 export async function arconfettiIcon(): Promise<string | false> {
-  const defaultIcon = browser.runtime.getURL("assets/arweave.png");
+  const defaultIcon = browser.runtime.getURL("assets/animation/arweave.png");
 
   try {
     const arConfettiSetting = getSetting("arconfetti");
@@ -28,7 +28,7 @@ export async function arconfettiIcon(): Promise<string | false> {
     }
 
     // return icon location
-    return browser.runtime.getURL(`assets/${iconName}.png`);
+    return browser.runtime.getURL(`assets/animation/${iconName}.png`);
   } catch {
     // return the default icon
     return defaultIcon;

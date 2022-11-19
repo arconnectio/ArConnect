@@ -36,6 +36,14 @@
         "matches": [
           "https://*/*"
         ]
+      },
+      {
+        "resources": [
+          "assets/animation/*.png"
+        ],
+        "matches": [
+          "*://*/*"
+        ]
       }
     ],
     "sandbox": {
