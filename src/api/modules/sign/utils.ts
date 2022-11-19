@@ -2,6 +2,7 @@ import { getSetting } from "~settings";
 import { nanoid } from "nanoid";
 import type Transaction from "arweave/web/lib/transaction";
 import Application from "~applications/application";
+import iconUrl from "url:/assets/icon512.png";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
 
@@ -97,7 +98,7 @@ export async function signNotification(
 
   // create the notification
   await browser.notifications.create(notificationID, {
-    iconUrl: browser.runtime.getURL("icons/logo256.png"),
+    iconUrl,
     type: "basic",
     title: `Transaction ${type === "sign" ? "signed" : "dispatched"}`,
     message

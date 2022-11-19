@@ -42,10 +42,10 @@ const modules: BackgroundModule<any>[] = [
   { ...disconnectModule, function: disconnect },
   { ...connectModule, function: connect },
   { ...addTokenModule, function: addToken },
-  /*{ ...signModule, function: sign },
-  { ...dispatchModule, function: dispatch },
+  { ...signModule, function: sign },
+  /*{ ...dispatchModule, function: dispatch },*/
   { ...encryptModule, function: encrypt },
-  { ...decryptModule, function: decrypt },*/
+  { ...decryptModule, function: decrypt },
   { ...signatureModule, function: signature }
 ];
 

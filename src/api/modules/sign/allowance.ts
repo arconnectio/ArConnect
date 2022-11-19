@@ -30,7 +30,7 @@ export async function updateAllowance(tabURL: string, price: number) {
   await app.updateSettings(({ allowance }) => ({
     allowance: {
       ...allowance,
-      spent: allowance.spent + price
+      spent: (allowance?.spent || 0) + price
     }
   }));
 }

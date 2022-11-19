@@ -81,6 +81,7 @@ export const handleApiCalls: OnMessageCallback<
       data: functionResult
     };
   } catch (e) {
+    console.error(`[ArConnect API] (${data.type})`, e);
     // return error
     return {
       ...baseMessage,

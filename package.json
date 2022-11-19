@@ -25,6 +25,7 @@
       "tabs",
       "declarativeNetRequest",
       "scripting",
+      "notifications",
       "<all_urls>"
     ],
     "web_accessible_resources": [
