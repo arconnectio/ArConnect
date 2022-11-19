@@ -10,7 +10,7 @@ import { useMemo } from "react";
 import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import Arweave from "arweave";
+import Arweave from "@arconnect/arweave";
 import Label from "./Label";
 
 export default function App({

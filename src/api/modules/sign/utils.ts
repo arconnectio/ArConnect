@@ -4,7 +4,7 @@ import type Transaction from "arweave/web/lib/transaction";
 import Application from "~applications/application";
 import iconUrl from "url:/assets/icon512.png";
 import browser from "webextension-polyfill";
-import Arweave from "arweave";
+import Arweave from "@arconnect/arweave";
 
 /**
  * Fetch current arconfetti icon

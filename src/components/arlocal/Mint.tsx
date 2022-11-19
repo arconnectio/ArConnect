@@ -9,7 +9,7 @@ import { InputWithBtn, InputWrapper } from "./InputWrapper";
 import { useStorage } from "@plasmohq/storage/hook";
 import { formatAddress } from "~utils/format";
 import browser from "webextension-polyfill";
-import type Arweave from "arweave";
+import type Arweave from "@arconnect/arweave";
 
 export default function Mint({ arweave }: Props) {
   // token qty to add

@@ -2,7 +2,7 @@ import { defaultGateway } from "~applications/gateway";
 import type { ModuleFunction } from "~api/background";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
-import Arweave from "arweave";
+import Arweave from "@arconnect/arweave";
 
 const background: ModuleFunction<string> = async (
   _,

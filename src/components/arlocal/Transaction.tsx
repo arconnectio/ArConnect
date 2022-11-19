@@ -19,7 +19,7 @@ import {
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
-import type Arweave from "arweave";
+import type Arweave from "@arconnect/arweave";
 
 export default function Transaction({ arweave }: Props) {
   // decryption key to check if a password is required

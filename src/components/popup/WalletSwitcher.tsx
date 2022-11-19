@@ -23,7 +23,7 @@ import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import Squircle from "~components/Squircle";
 import styled from "styled-components";
-import Arweave from "arweave";
+import Arweave from "@arconnect/arweave";
 
 export default function WalletSwitcher({
   open,

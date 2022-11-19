@@ -21,7 +21,7 @@ import AppIcon, { NoAppIcon } from "./AppIcon";
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
-import Arweave from "arweave";
+import Arweave from "@arconnect/arweave";
 import ArDB from "ardb";
 
 export default function Balance() {

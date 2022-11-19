@@ -2,6 +2,19 @@
 # yarn lockfile v1
 
 
+"@arconnect/arweave@1.11.6":
+  version "1.11.6"
+  resolved "https://registry.yarnpkg.com/@arconnect/arweave/-/arweave-1.11.6.tgz#c9f290f7a371fb57d23ce452ca352acefe03d484"
+  integrity sha512-usWP3hGhoUD5ljDjpRAa2QpvixbAsiWE7HSTsKShtX7Zh925pCn6gASTN22JM26c/W+2NMS1Q/Fcn7SNoM4xIw==
+  dependencies:
+    "@vespaiach/axios-fetch-adapter" "^0.3.1"
+    arconnect "^0.4.2"
+    asn1.js "^5.4.1"
+    axios "^0.27.2"
+    base64-js "^1.5.1"
+    bignumber.js "^9.0.2"
+    util "^0.12.4"
+
 "@arconnect/components@^0.1.19":
   version "0.1.19"
   resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.1.19.tgz#abe2dd6778a6a8d53348d60504738d7770e51eeb"
@@ -1895,6 +1908,11 @@
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@ungap/promise-all-settled/-/promise-all-settled-1.1.2.tgz#aa58042711d6e3275dd37dc597e5d31e8c290a44"
   integrity sha512-sL/cEvJWAnClXw0wHk85/2L0G6Sj8UB0Ctc1TEMbKSsmpRosqhwj9gWgFRZSrBr2f9tiXISwNhCPmlfqUqyb9Q==
+
+"@vespaiach/axios-fetch-adapter@^0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@vespaiach/axios-fetch-adapter/-/axios-fetch-adapter-0.3.1.tgz#b0c08167bec9cc558f578a1b9ccff52ead1cf1cb"
+  integrity sha512-+1F52VWXmQHSRFSv4/H0wtnxfvjRMPK5531e880MIjypPdUSX6QZuoDgEVeCE1vjhzDdxCVX7rOqkub7StEUwQ==
 
 "@vue/compiler-core@3.2.39":
   version "3.2.39"

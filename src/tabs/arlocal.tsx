@@ -27,7 +27,7 @@ import NoWallets from "~components/devtools/NoWallets";
 import Tutorial from "~components/arlocal/Tutorial";
 import Mint from "~components/arlocal/Mint";
 import browser from "webextension-polyfill";
-import Arweave from "arweave";
+import Arweave from "@arconnect/arweave";
 import axios from "axios";
 
 function ArLocal() {

@@ -65,20 +65,15 @@ export default function Reset() {
         <TrashIcon />
         {browser.i18n.getMessage("reset")}
       </ResetButton>
-      <Modal
-        {...resetModal.bindings}
-        actions={
-          <>
-            <ModalButton onClick={reset}>
-              {browser.i18n.getMessage("confirm")}
-            </ModalButton>
-          </>
-        }
-      >
+      <Modal {...resetModal.bindings}>
         <ModalText heading>{browser.i18n.getMessage("reset")}</ModalText>
         <ModalText>
           {browser.i18n.getMessage("setting_reset_description")}
         </ModalText>
+        <Spacer y={0.75} />
+        <ResetButton onClick={reset}>
+          {browser.i18n.getMessage("confirm")}
+        </ResetButton>
       </Modal>
     </>
   );

@@ -31,7 +31,7 @@ import browser from "webextension-polyfill";
 import Done from "~components/welcome/Done";
 import * as bip39 from "bip39-web-crypto";
 import styled from "styled-components";
-import Arweave from "arweave";
+import Arweave from "@arconnect/arweave";
 
 export default function Generate() {
   // active page
@@ -150,8 +150,6 @@ export default function Generate() {
       }
 
       setAddingWallet(false);
-      setPage((v) => v + 1);
-    } else if (page === 5) {
       window.top.close();
     }
   }
@@ -160,7 +158,7 @@ export default function Generate() {
     <Wrapper>
       <GenerateCard>
         <Paginator>
-          {Array(5)
+          {Array(4)
             .fill("")
             .map((_, i) => (
               <Page key={i} active={page === i + 1} />
@@ -188,7 +186,6 @@ export default function Generate() {
                 </Checkbox>
               </>
             )}
-            {page === 5 && <Done />}
           </motion.div>
         </AnimatePresence>
         <Spacer y={1.25} />

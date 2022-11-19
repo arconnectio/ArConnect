@@ -28,7 +28,7 @@ import {
 import type Application from "~applications/application";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import Arweave from "arweave";
+import Arweave from "@arconnect/arweave";
 
 export default function AppSettings({ app, showTitle = false }: Props) {
   // app settings
