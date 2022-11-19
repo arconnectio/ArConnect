@@ -1,22 +1,22 @@
-import axios from "axios";
-
 /**
  * Get the ANS profile for an address
  *
  * @param address Address to fetch the profile for
  * @returns Profile data
  */
-export async function getAnsProfile(address: string | string[]) {
-  const { data } = await axios.get<AnsUsers>(
-    "https://ans-stats.decent.land/users"
-  );
+export async function getAnsProfile(
+  address: string | string[]
+): Promise<AnsUsers> {
+  const { res } = await (
+    await fetch("https://ans-stats.decent.land/users")
+  ).json();
 
   if (typeof address === "string") {
-    const user = data.res.find(({ user }) => user === address);
+    const user = res.find(({ user }) => user === address);
 
     return user;
   } else {
-    return data.res.filter(({ user }) => address?.includes(user));
+    return res.filter(({ user }) => address?.includes(user));
   }
 }
 

@@ -41,12 +41,12 @@ const modules: BackgroundModule<any>[] = [
   { ...arweaveConfigModule, function: arweaveConfig },
   { ...disconnectModule, function: disconnect },
   { ...connectModule, function: connect },
-  { ...addTokenModule, function: addToken }
+  { ...addTokenModule, function: addToken },
   /*{ ...signModule, function: sign },
   { ...dispatchModule, function: dispatch },
   { ...encryptModule, function: encrypt },
-  { ...decryptModule, function: decrypt },
-  { ...signatureModule, function: signature }*/
+  { ...decryptModule, function: decrypt },*/
+  { ...signatureModule, function: signature }
 ];
 
 export default modules;
