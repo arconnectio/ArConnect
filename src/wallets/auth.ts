@@ -1,7 +1,6 @@
 import browser, { Alarms } from "webextension-polyfill";
 import { getStorageConfig } from "~utils/storage";
 import { decryptWallet } from "./encryption";
-import { getActiveTab } from "~applications";
 import { Storage } from "@plasmohq/storage";
 import { getWallets } from "./index";
 

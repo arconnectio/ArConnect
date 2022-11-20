@@ -1,8 +1,10 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { Button, Section, Spacer, Text } from "@arconnect/components";
-import type { TokenState } from "~tokens/token";
-import { getTokenLogo } from "~lib/viewblock";
+import { getInitialState, TokenState } from "~tokens/token";
+import { defaultGateway } from "~applications/gateway";
 import { useEffect, useRef, useState } from "react";
+import { getTokenLogo } from "~lib/viewblock";
+import { addToken } from "~tokens";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import PriceChart from "~components/popup/asset/PriceChart";
 import Wrapper from "~components/auth/Wrapper";
@@ -22,29 +24,14 @@ export default function Token() {
   // price period
   const [period, setPeriod] = useState("Day");
 
-  // add the token
-  async function addToken() {
-    // TODO: add token
-
-    // reply to request
-    await replyToAuthRequest("token", params.authID);
-
-    // close the window
-    closeWindow();
-  }
-
   // load state
   const [state, setState] = useState<TokenState>();
   const sandbox = useRef<HTMLIFrameElement>();
 
   useEffect(() => {
-    if (!params?.tokenID || !sandbox.current) {
-      return;
-    }
-
     // load state using a sandboxed page
     const resultListener = (e: MessageEvent<TokenState>) => {
-      console.log(e);
+      setState(e.data);
     };
 
     // send message to iframe
@@ -58,6 +45,21 @@ export default function Token() {
       );
     };
 
+    (async () => {
+      if (!params?.tokenID || !sandbox.current) {
+        return;
+      }
+
+      // load initial state
+      const initialState = await getInitialState(
+        params.tokenID,
+        defaultGateway
+      );
+
+      if (!!state) return;
+      setState(initialState as any);
+    })();
+
     window.addEventListener("message", resultListener);
     sandbox.current.addEventListener("load", sandboxLoadListener);
 
@@ -66,6 +68,18 @@ export default function Token() {
       sandbox.current.removeEventListener("load", sandboxLoadListener);
     };
   }, [params?.tokenID, sandbox]);
+
+  // add the token
+  async function done() {
+    // add the token
+    await addToken(params.tokenID, state);
+
+    // reply to request
+    await replyToAuthRequest("token", params.authID);
+
+    // close the window
+    closeWindow();
+  }
 
   return (
     <Wrapper>
@@ -81,20 +95,22 @@ export default function Token() {
             {browser.i18n.getMessage("addTokenParagraph", params?.url)}
           </Text>
         </Section>
-        <PriceChart
-          token={{
-            name: state?.name || state?.ticker || "",
-            ticker: state?.ticker || "",
-            logo: getTokenLogo(params?.tokenID || "", "dark")
-          }}
-          priceData={[0, 2, 3, 4, 3, 5, 1, 2]}
-          latestPrice={0}
-        >
-          <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />
-        </PriceChart>
+        {state && (
+          <PriceChart
+            token={{
+              name: state.name || state.ticker || "",
+              ticker: state.ticker || "",
+              logo: getTokenLogo(params.tokenID || "", "dark")
+            }}
+            priceData={[0, 0, 0, 0]}
+            latestPrice={0}
+          >
+            <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />
+          </PriceChart>
+        )}
       </div>
       <Section>
-        <Button fullWidth onClick={addToken}>
+        <Button fullWidth onClick={done}>
           {browser.i18n.getMessage("addToken")}
         </Button>
         <Spacer y={0.75} />

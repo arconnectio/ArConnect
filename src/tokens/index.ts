@@ -1,7 +1,6 @@
 import { Token, TokenState, validateTokenState } from "./token";
 import { useStorage } from "@plasmohq/storage/hook";
 import { getStorageConfig } from "~utils/storage";
-import { WarpFactory } from "warp-contracts";
 import { getActiveAddress } from "~wallets";
 import { Storage } from "@plasmohq/storage";
 
@@ -21,14 +20,8 @@ export async function getTokens() {
  *
  * @param id ID of the token contract
  */
-export async function addToken(id: string) {
+export async function addToken(id: string, state: TokenState) {
   const tokens = await getTokens();
-
-  // fetch token state
-  const res = await WarpFactory.forMainnet()
-    .contract<TokenState>(id)
-    .readState();
-  const state = res?.cachedValue?.state;
 
   // check state
   if (!state) {
