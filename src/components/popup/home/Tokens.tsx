@@ -1,10 +1,13 @@
-import { Section, Spacer, Text } from "@arconnect/components";
+import { Section, Spacer } from "@arconnect/components";
+import { useTokens } from "~tokens";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Token from "../Token";
 import Title from "../Title";
 
 export default function Tokens() {
+  const [tokens] = useTokens();
+
   return (
     <Section>
       <Heading>
@@ -16,12 +19,9 @@ export default function Tokens() {
       </Heading>
       <Spacer y={0.8} />
       <TokensList>
-        <Token
-          id="usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
-          name="Verto"
-          ticker="VRT"
-          balance={12303.34}
-        />
+        {tokens.map((token, i) => (
+          <Token id={token.id} key={i} />
+        ))}
       </TokensList>
     </Section>
   );
@@ -61,5 +61,5 @@ const TokenCount = styled.span`
 const TokensList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.82rem;
 `;

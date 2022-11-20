@@ -25,10 +25,13 @@ export default function PriceChart({
 
   return (
     <Graph actionBar={children} data={priceData}>
-      <TokenName>
-        {token.name}
-        <TokenTicker>{token.ticker}</TokenTicker>
-      </TokenName>
+      <Head>
+        <TokenName>
+          {token.name}
+          <TokenTicker>{token.ticker}</TokenTicker>
+        </TokenName>
+        {token.logo && <Logo src={token.logo} />}
+      </Head>
       <Spacer y={0.15} />
       <TokenPrice>
         {latestPrice.toLocaleString(undefined, {
@@ -47,6 +50,12 @@ export default function PriceChart({
     </Graph>
   );
 }
+
+const Head = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
 
 const TokenName = styled(Text).attrs({
   title: true,
@@ -68,6 +77,13 @@ const TokenTicker = styled(Text).attrs({
   text-transform: uppercase;
   font-weight: 600;
   line-height: 1em;
+`;
+
+const Logo = styled.img.attrs({
+  draggable: false
+})`
+  height: 2.1rem;
+  user-select: none;
 `;
 
 const TokenPrice = styled(Text).attrs({

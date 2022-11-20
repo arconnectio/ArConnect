@@ -40,8 +40,7 @@ export async function addToken(id: string, state: TokenState) {
   tokens.push({
     id,
     name: state.name,
-    ticker: state.ticker,
-    balance: state.balances[activeAddress] || 0
+    ticker: state.ticker
   });
   await storage.set("tokens", tokens);
 }

@@ -1,36 +1,87 @@
-import type { Token as TokenInterface } from "~tokens/token";
+import { AnimatePresence, motion, Variants } from "framer-motion";
+import { useStorage } from "@plasmohq/storage/hook";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Text } from "@arconnect/components";
 import { useTheme } from "~utils/theme";
 import { useLocation } from "wouter";
+import useSandboxedTokenState from "~tokens/hook";
+import browser from "webextension-polyfill";
 import styled from "styled-components";
 
-export default function Token({ id, name, ticker, price, balance }: Props) {
+export default function Token({ id }: Props) {
   // display theme
   const theme = useTheme();
 
   // router
   const [, setLocation] = useLocation();
 
+  // active address
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    area: "local",
+    isSecret: true
+  });
+
+  // load state
+  const sandbox = useRef<HTMLIFrameElement>();
+  const state = useSandboxedTokenState(id, sandbox);
+
+  const balance = useMemo(() => {
+    if (!state?.balances || !activeAddress) {
+      return "0";
+    }
+
+    const bal = state.balances[activeAddress] || 0;
+
+    return bal.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  }, [state, activeAddress]);
+
+  const [price, setPrice] = useState<number>();
+
   return (
-    <Wrapper onClick={() => setLocation(`/token/${id}`)}>
-      <LogoAndDetails>
-        <Logo src={`https://meta.viewblock.io/AR.${id}/logo?t=${theme}`} />
-        <div>
-          <PrimaryText>
-            {name ? name + ` (${ticker.toUpperCase()})` : ticker.toUpperCase()}
-          </PrimaryText>
-          <Ticker>
-            {balance.toLocaleString(undefined, { maximumFractionDigits: 2 })}{" "}
-            {ticker}
-          </Ticker>
-        </div>
-      </LogoAndDetails>
-      {price && <PrimaryText>{price}</PrimaryText>}
-    </Wrapper>
+    <>
+      <AnimatePresence>
+        {state && (
+          <Wrapper onClick={() => setLocation(`/token/${id}`)}>
+            <LogoAndDetails>
+              <Logo
+                src={`https://meta.viewblock.io/AR.${id}/logo?t=${theme}`}
+              />
+              <div>
+                <PrimaryText>
+                  {(state.name && `${state.name} (${state.ticker})`) ||
+                    state.ticker}
+                </PrimaryText>
+                <Ticker>
+                  {balance} {state.ticker}
+                </Ticker>
+              </div>
+            </LogoAndDetails>
+            {price && <PrimaryText>{price}</PrimaryText>}
+          </Wrapper>
+        )}
+      </AnimatePresence>
+      <iframe
+        src={browser.runtime.getURL("tabs/sandbox.html")}
+        ref={sandbox}
+        style={{ display: "none" }}
+      ></iframe>
+    </>
   );
 }
 
-const Wrapper = styled.div`
+const animation: Variants = {
+  hidden: { opacity: 0 },
+  shown: { opacity: 1 }
+};
+
+const Wrapper = styled(motion.div).attrs({
+  variants: animation,
+  initial: "hidden",
+  animate: "shown",
+  exit: "hidden",
+  transition: { duration: 0.2, ease: "easeInOut" }
+})`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -75,6 +126,6 @@ const Ticker = styled.span`
   font-weight: 500;
 `;
 
-interface Props extends TokenInterface {
-  price?: number;
+interface Props {
+  id: string;
 }

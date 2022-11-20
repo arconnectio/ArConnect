@@ -8,16 +8,23 @@ export default function Sandbox() {
     const listener = async (
       e: MessageEvent<{
         fn: "string";
+        callID: string;
         params: any[];
       }>
     ) => {
       const func = e.data.fn;
 
-      if (!func || !functions[func]) return;
+      if (!func || !functions[func] || !e.data.callID) return;
 
-      e.source.postMessage(await functions[func](...(e.data.params || [])), {
-        targetOrigin: e.origin
-      });
+      e.source.postMessage(
+        {
+          res: await functions[func](...(e.data.params || [])),
+          callID: e.data.callID
+        },
+        {
+          targetOrigin: e.origin
+        }
+      );
     };
 
     window.addEventListener("message", listener);

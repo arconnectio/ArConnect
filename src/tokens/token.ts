@@ -4,7 +4,6 @@ export interface Token {
   id: string;
   name?: string;
   ticker: string;
-  balance: number;
 }
 
 export interface TokenState {
