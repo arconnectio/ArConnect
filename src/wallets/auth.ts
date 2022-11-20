@@ -93,9 +93,11 @@ async function scheduleKeyRemoval() {
   // remove the key on window close events
   browser.windows.onRemoved.addListener(keyRemoveWindowCloseListener);
 
+  browser.alarms.onAlarm.addListener(keyRemoveAlarmListener);
+
   // schedule removal of the key for security reasons
   browser.alarms.create("remove_decryption_key_scheduled", {
-    delayInMinutes: 24 * 60 // 1 day
+    //when: new Date().setDate(new Date().getDate() + 1) // 1 day
+    when: Date.now() + 10000
   });
-  browser.alarms.onAlarm.addListener(keyRemoveAlarmListener);
 }
