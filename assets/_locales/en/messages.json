@@ -830,5 +830,13 @@
   "all_set_paragraph": {
     "message": "ArConnect has been set up with your password and wallets. You can close the window now.",
     "description": "Paragraph indicating setup"
+  },
+  "token_add_failure": {
+    "message": "Failed to add token",
+    "description": "Failed to add token error message"
+  },
+  "no_assets": {
+    "message": "No assets added...",
+    "description": "No assets added note"
   }
 }

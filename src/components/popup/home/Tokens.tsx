@@ -1,25 +1,40 @@
-import { Section, Spacer } from "@arconnect/components";
+import { Section, Spacer, Text } from "@arconnect/components";
+import { useLocation } from "wouter";
 import { useTokens } from "~tokens";
+import { useMemo } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Token from "../Token";
 import Title from "../Title";
 
 export default function Tokens() {
+  // all tokens
   const [tokens] = useTokens();
+
+  // assets
+  const assets = useMemo(
+    () => tokens.filter((token) => token.type === "asset"),
+    [tokens]
+  );
+
+  // router location
+  const [, setLocation] = useLocation();
 
   return (
     <Section>
       <Heading>
         <Title noMargin>{browser.i18n.getMessage("assets")}</Title>
-        <ViewAll>
+        <ViewAll onClick={() => setLocation("/tokens")}>
           {browser.i18n.getMessage("view_all")}
-          <TokenCount>4</TokenCount>
+          <TokenCount>{assets.length}</TokenCount>
         </ViewAll>
       </Heading>
       <Spacer y={0.8} />
+      {assets.length === 0 && (
+        <NoTokens>{browser.i18n.getMessage("no_assets")}</NoTokens>
+      )}
       <TokensList>
-        {tokens.map((token, i) => (
+        {assets.slice(0, 4).map((token, i) => (
           <Token id={token.id} key={i} />
         ))}
       </TokensList>
@@ -62,4 +77,10 @@ const TokensList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.82rem;
+`;
+
+const NoTokens = styled(Text).attrs({
+  noMargin: true
+})`
+  text-align: center;
 `;

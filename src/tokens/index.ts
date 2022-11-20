@@ -20,7 +20,11 @@ export async function getTokens() {
  *
  * @param id ID of the token contract
  */
-export async function addToken(id: string, state: TokenState) {
+export async function addToken(
+  id: string,
+  type: "asset" | "collectible",
+  state: TokenState
+) {
   const tokens = await getTokens();
 
   // check state
@@ -40,7 +44,8 @@ export async function addToken(id: string, state: TokenState) {
   tokens.push({
     id,
     name: state.name,
-    ticker: state.ticker
+    ticker: state.ticker,
+    type
   });
   await storage.set("tokens", tokens);
 }

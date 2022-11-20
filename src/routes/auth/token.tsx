@@ -1,5 +1,12 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
-import { Button, Section, Spacer, Text } from "@arconnect/components";
+import {
+  Button,
+  Section,
+  Spacer,
+  Text,
+  useToasts
+} from "@arconnect/components";
+import { AnimatePresence, motion, Variants } from "framer-motion";
 import { getTokenLogo } from "~lib/viewblock";
 import { useRef, useState } from "react";
 import { addToken } from "~tokens";
@@ -9,7 +16,7 @@ import useSandboxedTokenState from "~tokens/hook";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
-import { AnimatePresence, motion, Variants } from "framer-motion";
+import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 
 export default function Token() {
   // connect params
@@ -28,16 +35,46 @@ export default function Token() {
   const sandbox = useRef<HTMLIFrameElement>();
   const state = useSandboxedTokenState(params?.tokenID, sandbox);
 
+  // toasts
+  const { setToast } = useToasts();
+
+  // loading
+  const [loading, setLoading] = useState(false);
+
   // add the token
   async function done() {
-    // add the token
-    await addToken(params.tokenID, state);
+    setLoading(true);
 
-    // reply to request
-    await replyToAuthRequest("token", params.authID);
+    try {
+      // get token type
+      const data = await fetch(
+        `${concatGatewayURL(defaultGateway)}/${params.tokenID}`
+      );
 
-    // close the window
-    closeWindow();
+      // add the token
+      await addToken(
+        params.tokenID,
+        data.headers.get("content-type").includes("application/json")
+          ? "asset"
+          : "collectible",
+        state
+      );
+
+      // reply to request
+      await replyToAuthRequest("token", params.authID);
+
+      // close the window
+      closeWindow();
+    } catch (e) {
+      console.log("Failed to add token", e);
+      setToast({
+        type: "error",
+        content: browser.i18n.getMessage("token_add_failure"),
+        duration: 2200
+      });
+    }
+
+    setLoading(false);
   }
 
   return (
@@ -78,7 +115,7 @@ export default function Token() {
         </AnimatePresence>
       </div>
       <Section>
-        <Button fullWidth onClick={done}>
+        <Button fullWidth onClick={done} loading={loading}>
           {browser.i18n.getMessage("addToken")}
         </Button>
         <Spacer y={0.75} />

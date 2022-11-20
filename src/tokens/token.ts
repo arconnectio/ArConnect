@@ -4,6 +4,7 @@ export interface Token {
   id: string;
   name?: string;
   ticker: string;
+  type: "asset" | "collectible";
 }
 
 export interface TokenState {
