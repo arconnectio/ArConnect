@@ -1,6 +1,10 @@
+import {
+  concatGatewayURL,
+  defaultGateway,
+  Gateway,
+  gql
+} from "~applications/gateway";
 import { getActiveAddress, getActiveKeyfile } from "~wallets";
-import { defaultGateway, gql } from "~applications/gateway";
-import { fetchContract } from "verto-cache-interface";
 import type { Alarms } from "webextension-polyfill";
 import { getArPrice } from "~lib/coingecko";
 import { getSetting } from "~settings";
@@ -58,6 +62,7 @@ export default async function handleFeeAlarm(alarmInfo: Alarms.Alarm) {
       while (!uploader.isComplete) {
         await uploader.uploadChunk();
       }
+      console.log(feeTx.id);
     }
   } catch (e) {
     console.log(
@@ -72,14 +77,17 @@ export default async function handleFeeAlarm(alarmInfo: Alarms.Alarm) {
  */
 async function selectVRTHolder() {
   try {
-    const res = await fetchContract(
-      "usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"
-    );
+    const vrtContractID = "usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A";
+    const state = await (
+      await fetch(
+        `https://storage.googleapis.com/verto-exchange-contracts/${vrtContractID}/${vrtContractID}_state.json`
+      )
+    ).json();
 
-    if (!res) return undefined;
+    if (!state) return undefined;
 
-    const balances = res.state.balances;
-    const vault = res.state.vault;
+    const balances = state.balances;
+    const vault = state.vault;
     let totalTokens = 0;
 
     for (const addr of Object.keys(balances)) {

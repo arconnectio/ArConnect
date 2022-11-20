@@ -1,6 +1,5 @@
 import type GQLResultInterface from "ar-gql/dist/faces";
 import type Application from "./application";
-import axios from "axios";
 
 export interface Gateway {
   host: string;
@@ -89,15 +88,16 @@ export async function gql(
   });
 
   // execute the query
-  const { data } = await axios.post<GQLResultInterface>(
-    gatewayUrl + "/graphql",
-    graphql,
-    {
+  const data: GQLResultInterface = await (
+    await fetch(gatewayUrl + "/graphql", {
+      method: "post",
+      body: graphql,
       headers: {
+        accept: "application/json",
         "content-type": "application/json"
       }
-    }
-  );
+    })
+  ).json();
 
   return data;
 }

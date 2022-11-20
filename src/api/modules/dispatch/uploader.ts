@@ -9,6 +9,7 @@ import axios from "axios";
  * @returns Bundlr node response
  */
 export async function uploadDataToBundlr(dataItem: DataItem, node: string) {
+  // TODO: switch to fetch
   const res = await axios.post(`${node}/tx`, dataItem.getRaw(), {
     headers: {
       "Content-Type": "application/octet-stream"

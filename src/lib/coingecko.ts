@@ -1,5 +1,3 @@
-import axios from "axios";
-
 /**
  * Get price for the AR token using the coingecko API
  *
@@ -7,9 +5,11 @@ import axios from "axios";
  * @returns Price of 1 AR
  */
 export async function getArPrice(currency: string) {
-  const { data } = await axios.get<CoinGeckoPriceResult>(
-    `https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=${currency.toLowerCase()}`
-  );
+  const data: CoinGeckoPriceResult = await (
+    await fetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=${currency.toLowerCase()}`
+    )
+  ).json();
 
   return data.arweave[currency.toLowerCase()];
 }
@@ -21,9 +21,11 @@ interface CoinGeckoPriceResult {
 }
 
 export async function getMarketChart(currency: string, days = "max") {
-  const { data } = await axios.get<CoinGeckoMarketChartResult>(
-    `https://api.coingecko.com/api/v3/coins/arweave/market_chart?vs_currency=${currency}&days=${days}`
-  );
+  const data: CoinGeckoMarketChartResult = await (
+    await fetch(
+      `https://api.coingecko.com/api/v3/coins/arweave/market_chart?vs_currency=${currency}&days=${days}`
+    )
+  ).json();
 
   return data;
 }
