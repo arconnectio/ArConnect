@@ -14,11 +14,11 @@ import { defaultGateway, Gateway } from "~applications/gateway";
 import { CloseLayer } from "~components/popup/WalletHeader";
 import type { AppInfo } from "~applications/application";
 import { AnimatePresence, motion } from "framer-motion";
+import { unlock as globalUnlock } from "~wallets/auth";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronDownIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { formatAddress } from "~utils/format";
-import { checkPassword } from "~wallets/auth";
 import PermissionCheckbox, {
   PermissionDescription
 } from "~components/auth/PermissionCheckbox";
@@ -94,7 +94,9 @@ export default function Connect() {
 
   // unlock
   async function unlock() {
-    if (!(await checkPassword(passwordInput.state))) {
+    const unlockRes = await globalUnlock(passwordInput.state);
+
+    if (!unlockRes) {
       return setToast({
         type: "error",
         content: browser.i18n.getMessage("invalidPassword"),
