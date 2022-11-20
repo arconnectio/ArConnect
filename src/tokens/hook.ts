@@ -49,15 +49,14 @@ export default function useSandboxedTokenState(
       setState(initialState as any);
     })();
 
+    const sandbox = sandboxElementRef.current;
+
     window.addEventListener("message", resultListener);
-    sandboxElementRef.current.addEventListener("load", sandboxLoadListener);
+    sandbox.addEventListener("load", sandboxLoadListener);
 
     return () => {
       window.removeEventListener("message", resultListener);
-      sandboxElementRef.current.removeEventListener(
-        "load",
-        sandboxLoadListener
-      );
+      sandbox.removeEventListener("load", sandboxLoadListener);
     };
   }, [id, sandboxElementRef]);
 

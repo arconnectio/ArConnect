@@ -14,6 +14,7 @@ import Receive from "~routes/popup/receive";
 import Send from "~routes/popup/send";
 import Explore from "~routes/popup/explore";
 import Unlock from "~routes/popup/unlock";
+import Tokens from "~routes/popup/tokens";
 
 export default function Popup() {
   const theme = useTheme();
@@ -54,6 +55,7 @@ export default function Popup() {
           <Route path="/send" component={Send} />
           <Route path="/explore" component={Explore} />
           <Route path="/unlock" component={Unlock} />
+          <Route path="/tokens" component={Tokens} />
         </Router>
       </Wrapper>
     </Provider>

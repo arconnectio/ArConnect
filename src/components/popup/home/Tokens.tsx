@@ -24,7 +24,12 @@ export default function Tokens() {
     <Section>
       <Heading>
         <Title noMargin>{browser.i18n.getMessage("assets")}</Title>
-        <ViewAll onClick={() => setLocation("/tokens")}>
+        <ViewAll
+          onClick={() => {
+            if (assets.length === 0) return;
+            setLocation("/tokens");
+          }}
+        >
           {browser.i18n.getMessage("view_all")}
           <TokenCount>{assets.length}</TokenCount>
         </ViewAll>
@@ -34,7 +39,7 @@ export default function Tokens() {
         <NoTokens>{browser.i18n.getMessage("no_assets")}</NoTokens>
       )}
       <TokensList>
-        {assets.slice(0, 4).map((token, i) => (
+        {assets.slice(0, 3).map((token, i) => (
           <Token id={token.id} key={i} />
         ))}
       </TokensList>
