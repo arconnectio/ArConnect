@@ -36,11 +36,18 @@ export default async function handleFeeAlarm(alarmInfo: Alarms.Alarm) {
     const feeTarget = await selectVRTHolder();
 
     if (feeTarget) {
+      const data = Math.random().toString().slice(-4);
+      const reward = await arApi(
+        `price/${new TextEncoder().encode(data).byteLength}/${feeTarget}`,
+        defaultGateway
+      );
       const feeTx = await arweave.createTransaction(
         {
           target: feeTarget,
           quantity: await getFeeAmount(address, new Application(appURL)),
-          data: Math.random().toString().slice(-4)
+          data,
+          last_tx: await arApi("tx_anchor", defaultGateway),
+          reward
         },
         keyfile
       );
@@ -62,7 +69,6 @@ export default async function handleFeeAlarm(alarmInfo: Alarms.Alarm) {
       while (!uploader.isComplete) {
         await uploader.uploadChunk();
       }
-      console.log(feeTx.id);
     }
   } catch (e) {
     console.log(
@@ -191,4 +197,15 @@ export async function getFeeAmount(address: string, app: Application) {
 
     return arweave.ar.arToWinston((usdPrice * usd).toString());
   } else return arweave.ar.arToWinston((usdPrice * 0.01).toString());
+}
+
+/**
+ * Get Arweave transaction anchor
+ */
+async function arApi(path: string, gateway: Gateway) {
+  const res = await (
+    await fetch(`${concatGatewayURL(gateway)}/${path}`)
+  ).text();
+
+  return res;
 }
