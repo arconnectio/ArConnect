@@ -1,5 +1,6 @@
 import { addressChangeListener, walletsChangeListener } from "~wallets/event";
 import { handleApiCalls, handleChunkCalls } from "~api";
+import { keyRemoveAlarmListener } from "~wallets/auth";
 import { onMessage } from "@arconnect/webext-bridge";
 import { handleTabUpdate } from "~applications/tab";
 import { appsChangeListener } from "~applications";
@@ -32,6 +33,9 @@ browser.alarms.onAlarm.addListener(handleFeeAlarm);
 
 // handle sync label alarm
 browser.alarms.onAlarm.addListener(syncLabels);
+
+// handle decryption key removal alarm
+browser.alarms.onAlarm.addListener(keyRemoveAlarmListener);
 
 // create storage client
 const storage = new Storage(getStorageConfig());

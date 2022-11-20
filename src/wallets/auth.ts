@@ -64,40 +64,26 @@ export async function checkPassword(password: string) {
 
 /**
  * Schedule removing the decryption key.
- * Removal occurs after one day or on window close event.
+ * Removal occurs after one day.
  */
 async function scheduleKeyRemoval() {
-  // fetch current tab (auth window) for later verification
-  const tab = await getActiveTab();
-
-  // handle key remove alarm event
-  const keyRemoveAlarmListener = async (alarm: Alarms.Alarm) => {
-    if (alarm.name !== "remove_decryption_key_scheduled") return;
-    await keyRemover();
-  };
-
-  // handle window close key removal event
-  const keyRemoveWindowCloseListener = async (windowId: number) => {
-    if (tab.windowId === windowId) return;
-    await keyRemover();
-  };
-
-  // remove decyrption key and listeners
-  const keyRemover = async () => {
-    await storage.remove("decryption_key");
-    browser.windows.onRemoved.removeListener(keyRemover);
-    browser.alarms.onAlarm.removeListener(keyRemoveAlarmListener);
-    await browser.alarms.clear("remove_decryption_key_scheduled");
-  };
-
-  // remove the key on window close events
-  browser.windows.onRemoved.addListener(keyRemoveWindowCloseListener);
-
-  browser.alarms.onAlarm.addListener(keyRemoveAlarmListener);
-
   // schedule removal of the key for security reasons
   browser.alarms.create("remove_decryption_key_scheduled", {
-    //when: new Date().setDate(new Date().getDate() + 1) // 1 day
-    when: Date.now() + 10000
+    periodInMinutes: 60 * 24
   });
+}
+
+/**
+ * Listener for the key removal alarm
+ */
+export async function keyRemoveAlarmListener(alarm: Alarms.Alarm) {
+  console.log(alarm);
+  if (alarm.name !== "remove_decryption_key_scheduled") return;
+
+  // check if there is a decryption key
+  const decryptionKey = await storage.get("decryption_key");
+  if (!decryptionKey) return;
+
+  // remove the decryption key
+  await storage.remove("decryption_key");
 }
