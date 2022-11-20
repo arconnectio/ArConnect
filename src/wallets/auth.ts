@@ -77,12 +77,28 @@ async function scheduleKeyRemoval() {
  * Listener for the key removal alarm
  */
 export async function keyRemoveAlarmListener(alarm: Alarms.Alarm) {
-  console.log(alarm);
   if (alarm.name !== "remove_decryption_key_scheduled") return;
 
   // check if there is a decryption key
   const decryptionKey = await storage.get("decryption_key");
   if (!decryptionKey) return;
+
+  // remove the decryption key
+  await storage.remove("decryption_key");
+}
+
+/**
+ * Listener for browser close.
+ * On browser closed, we remove the
+ * decryptionKey.
+ */
+export async function onWindowClose() {
+  const windows = await browser.windows.getAll();
+
+  // return if there are still windows open
+  if (windows.length > 0) {
+    return;
+  }
 
   // remove the decryption key
   await storage.remove("decryption_key");
