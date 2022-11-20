@@ -10,7 +10,7 @@ const storage = new Storage(getStorageConfig());
 /**
  * Unlock wallets and save decryption key
  *
- * **Warning**: SHOULD ONLY BE CALLED FROM THE AUTH VIEW / VIEWS
+ * **Warning**: SHOULD ONLY BE CALLED FROM THE AUTH/POPUP VIEW / VIEWS
  *
  * @param password Password for unlocking
  */

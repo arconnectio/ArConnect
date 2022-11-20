@@ -67,6 +67,7 @@ export default function Allowance() {
   async function reset() {
     // check password
     if (!(await checkPassword(passwordInput.state))) {
+      passwordInput.setStatus("error");
       return setToast({
         type: "error",
         content: browser.i18n.getMessage("invalidPassword"),

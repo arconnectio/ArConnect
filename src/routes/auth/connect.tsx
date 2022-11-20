@@ -97,6 +97,7 @@ export default function Connect() {
     const unlockRes = await globalUnlock(passwordInput.state);
 
     if (!unlockRes) {
+      passwordInput.setStatus("error");
       return setToast({
         type: "error",
         content: browser.i18n.getMessage("invalidPassword"),

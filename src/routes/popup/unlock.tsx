@@ -1,5 +1,5 @@
-import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { unlock } from "~wallets/auth";
+import { useLocation } from "wouter";
 import {
   Button,
   Input,
@@ -14,17 +14,14 @@ import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 
 export default function Unlock() {
-  // connect params
-  const params = useAuthParams();
-
-  // get auth utils
-  const { closeWindow, cancel } = useAuthUtils("unlock", params?.authID);
-
   // password input
   const passwordInput = useInput();
 
   // toasts
   const { setToast } = useToasts();
+
+  // router location
+  const [, setLocation] = useLocation();
 
   // unlock ArConnect
   async function unlockWallet() {
@@ -40,11 +37,7 @@ export default function Unlock() {
       });
     }
 
-    // reply to request
-    await replyToAuthRequest("unlock", params.authID);
-
-    // close the window
-    closeWindow();
+    setLocation("/");
   }
 
   return (
@@ -53,7 +46,7 @@ export default function Unlock() {
         <Head
           title={browser.i18n.getMessage("unlock")}
           showOptions={false}
-          back={cancel}
+          back={() => {}}
         />
         <Spacer y={0.75} />
         <Section>
@@ -73,10 +66,6 @@ export default function Unlock() {
       <Section>
         <Button fullWidth onClick={unlockWallet}>
           {browser.i18n.getMessage("unlock")}
-        </Button>
-        <Spacer y={0.75} />
-        <Button fullWidth secondary onClick={cancel}>
-          {browser.i18n.getMessage("cancel")}
         </Button>
       </Section>
     </Wrapper>
