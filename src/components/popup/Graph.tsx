@@ -7,6 +7,7 @@ export default function Graph({
   children,
   actionBar,
   data,
+  blur,
   ...props
 }: Omit<HTMLProps<HTMLDivElement>, "data"> & GraphProps) {
   const theme = useDisplayTheme();
@@ -18,7 +19,7 @@ export default function Graph({
           <ChildrenWrapper>{children}</ChildrenWrapper>
           <ActionBar>{actionBar}</ActionBar>
         </Content>
-        <Chart data={data} />
+        <Chart data={data} blur={blur} />
       </Wrapper>
     </GraphSection>
   );
@@ -27,6 +28,7 @@ export default function Graph({
 interface GraphProps {
   actionBar?: ReactNode;
   data: number[];
+  blur?: boolean;
 }
 
 const GraphSection = styled(Section)`
@@ -66,7 +68,7 @@ const ActionBar = styled.div`
   z-index: 1;
 `;
 
-const Chart = ({ data }: ChartProps) => {
+const Chart = ({ data, blur }: ChartProps) => {
   const theme = useTheme();
 
   // graph dimensions
@@ -109,6 +111,7 @@ const Chart = ({ data }: ChartProps) => {
       viewBox={`0 0 ${width} ${height}`}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      blur={blur}
     >
       <path
         d={path}
@@ -126,13 +129,14 @@ const Chart = ({ data }: ChartProps) => {
   );
 };
 
-const ChartSvg = styled.svg`
+const ChartSvg = styled.svg<{ blur?: boolean }>`
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   width: 100%;
   z-index: -1;
+  ${(props) => (props.blur ? "filter: blur(5px);" : "")}
 `;
 
 export const GraphText = styled(Text)`
@@ -146,4 +150,5 @@ export const GraphText = styled(Text)`
 
 interface ChartProps {
   data: number[];
+  blur?: boolean;
 }

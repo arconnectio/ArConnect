@@ -1,5 +1,5 @@
-import { AnimatePresence, motion, Variants } from "framer-motion";
 import { EyeIcon, MessageIcon, ShareIcon } from "@iconicicons/react";
+import { AnimatePresence, motion, Variants } from "framer-motion";
 import { Section, Spacer, Text } from "@arconnect/components";
 import { useMemo, useRef, useState } from "react";
 import { getCommunityUrl } from "~utils/format";
@@ -52,7 +52,7 @@ export default function Asset({ id }: Props) {
                 ticker: state.ticker || "",
                 logo: getTokenLogo(id, "dark")
               }}
-              priceData={[0, 0, 0, 0]}
+              priceData={[]}
               latestPrice={0}
             >
               <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />

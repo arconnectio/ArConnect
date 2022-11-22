@@ -106,7 +106,7 @@ export default function WalletHeader() {
               )
             </WalletAddress>
           </Tooltip>
-          <ExpandArrow expanded={isOpen} />
+          <ExpandArrow open={isOpen} />
         </WithArrow>
       </Wallet>
       <Avatar img={avatar}>{!avatar && <NoAvatarIcon />}</Avatar>
@@ -178,14 +178,14 @@ const WalletAddress = styled(Text).attrs(() => ({ noMargin: true }))`
   }
 `;
 
-const ExpandArrow = styled(ChevronDownIcon)<{ expanded: boolean }>`
+const ExpandArrow = styled(ChevronDownIcon)<{ open: boolean }>`
   color: rgb(${(props) => props.theme.secondaryText});
   font-size: 1.2rem;
   width: 1em;
   height: 1em;
   transition: all 0.23s ease-in-out;
 
-  transform: ${(props) => (props.expanded ? "rotate(180deg)" : "rotate(0)")};
+  transform: ${(props) => (props.open ? "rotate(180deg)" : "rotate(0)")};
 `;
 
 export const Avatar = styled(Squircle)`

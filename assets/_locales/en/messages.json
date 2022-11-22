@@ -854,5 +854,9 @@
   "info_title": {
     "message": "Info",
     "description": "Token info section title"
+  },
+  "no_price": {
+    "message": "No price data...",
+    "description": "No price data available note"
   }
 }

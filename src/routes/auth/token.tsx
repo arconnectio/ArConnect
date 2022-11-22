@@ -105,7 +105,7 @@ export default function Token() {
                   ticker: state.ticker || "",
                   logo: getTokenLogo(params.tokenID || "", "dark")
                 }}
-                priceData={[0, 0, 0, 0]}
+                priceData={[]}
                 latestPrice={0}
               >
                 <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />
