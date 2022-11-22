@@ -1,4 +1,4 @@
-import { Token, TokenState, validateTokenState } from "./token";
+import { Token, TokenState, TokenType, validateTokenState } from "./token";
 import { useStorage } from "@plasmohq/storage/hook";
 import { getStorageConfig } from "~utils/storage";
 import { getActiveAddress } from "~wallets";
@@ -20,11 +20,7 @@ export async function getTokens() {
  *
  * @param id ID of the token contract
  */
-export async function addToken(
-  id: string,
-  type: "asset" | "collectible",
-  state: TokenState
-) {
+export async function addToken(id: string, type: TokenType, state: TokenState) {
   const tokens = await getTokens();
 
   // check state

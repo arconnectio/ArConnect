@@ -1,4 +1,10 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
+import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { AnimatePresence, motion, Variants } from "framer-motion";
+import type { TokenType } from "~tokens/token";
+import { getTokenLogo } from "~lib/viewblock";
+import { useRef, useState } from "react";
+import { addToken } from "~tokens";
 import {
   Button,
   Section,
@@ -6,23 +12,19 @@ import {
   Text,
   useToasts
 } from "@arconnect/components";
-import { AnimatePresence, motion, Variants } from "framer-motion";
-import { getTokenLogo } from "~lib/viewblock";
-import { useRef, useState } from "react";
-import { addToken } from "~tokens";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import PriceChart from "~components/popup/asset/PriceChart";
 import useSandboxedTokenState from "~tokens/hook";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 
 export default function Token() {
   // connect params
   const params = useAuthParams<{
     url: string;
     tokenID: string;
+    tokenType?: TokenType;
   }>();
 
   // get auth utils
@@ -47,18 +49,23 @@ export default function Token() {
 
     try {
       // get token type
-      const data = await fetch(
-        `${concatGatewayURL(defaultGateway)}/${params.tokenID}`
-      );
+      let tokenType = params.tokenType;
+
+      if (!tokenType) {
+        // fetch data
+        const data = await fetch(
+          `${concatGatewayURL(defaultGateway)}/${params.tokenID}`
+        );
+
+        tokenType = data.headers
+          .get("content-type")
+          .includes("application/json")
+          ? "asset"
+          : "collectible";
+      }
 
       // add the token
-      await addToken(
-        params.tokenID,
-        data.headers.get("content-type").includes("application/json")
-          ? "asset"
-          : "collectible",
-        state
-      );
+      await addToken(params.tokenID, tokenType, state);
 
       // reply to request
       await replyToAuthRequest("token", params.authID);

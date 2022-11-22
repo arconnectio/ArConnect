@@ -1,16 +1,26 @@
 import type { ModuleFunction } from "~api/background";
 import { getAppURL, isAddress } from "~utils/format";
+import type { TokenType } from "~tokens/token";
 import { getTokens } from "~tokens";
 import Application from "~applications/application";
 import authenticate from "../connect/auth";
 
-const background: ModuleFunction<void> = async (tab, id: string) => {
+const background: ModuleFunction<void> = async (
+  tab,
+  id: string,
+  type?: TokenType
+) => {
   // grab tab url
   const tabURL = getAppURL(tab.url);
 
   // check id
   if (!isAddress(id)) {
     throw new Error("Invalid token contract ID");
+  }
+
+  // check type
+  if (type && type !== "asset" && type !== "collectible") {
+    throw new Error("Invalid token type");
   }
 
   // check if connected
@@ -32,7 +42,8 @@ const background: ModuleFunction<void> = async (tab, id: string) => {
   await authenticate({
     type: "token",
     url: tabURL,
-    tokenID: id
+    tokenID: id,
+    tokenType: type
   });
 };
 

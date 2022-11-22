@@ -4,7 +4,7 @@ export interface Token {
   id: string;
   name?: string;
   ticker: string;
-  type: "asset" | "collectible";
+  type: TokenType;
 }
 
 export interface TokenState {
@@ -13,6 +13,8 @@ export interface TokenState {
   balances: Record<string, number>;
   [key: string]: any;
 }
+
+export type TokenType = "asset" | "collectible";
 
 /**
  * Check if a contract state is a

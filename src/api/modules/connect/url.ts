@@ -29,6 +29,8 @@ export function objectFromUrlParams<T = Record<string | number, any>>(
   const obj: T = {};
 
   for (const [key, value] of urlParams) {
+    if (!value || value === "undefined") continue;
+
     obj[key] = JSON.parse(decodeURIComponent(value));
   }
 
