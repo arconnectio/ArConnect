@@ -1,5 +1,6 @@
 import { defaultCacheOptions, WarpFactory } from "warp-contracts";
 import { useEffect } from "react";
+import SandboxCache from "~tokens/SandboxCache";
 
 export default function Sandbox() {
   useEffect(() => {
@@ -43,10 +44,9 @@ export default function Sandbox() {
    */
   async function getContractState(contractId: string) {
     // read state
-    const res = await WarpFactory.forMainnet({
-      ...defaultCacheOptions,
-      inMemory: true
-    })
+    const res = await WarpFactory.forMainnet()
+      .useStateCache(new SandboxCache())
+      .useContractCache(new SandboxCache())
       .contract(contractId)
       .readState();
     const state = res?.cachedValue?.state;

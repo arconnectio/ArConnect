@@ -1,13 +1,14 @@
-import type {
+import {
   CacheKey,
+  CacheOptions,
+  defaultCacheOptions,
   SortKeyCache,
   SortKeyCacheResult
-} from "warp-contracts/lib/types/cache/SortKeyCache";
-import type { CacheOptions } from "warp-contracts";
+} from "warp-contracts";
 import { nanoid } from "nanoid";
 
 export default class SandboxCache<V = any> implements SortKeyCache<V> {
-  constructor(cacheOptions: CacheOptions) {}
+  constructor(cacheOptions: CacheOptions = defaultCacheOptions) {}
 
   async get(contractTxId: string, sortKey: string, returnDeepCopy?: boolean) {
     return await this.invokeFunction<SortKeyCacheResult<V> | null>("get", [
@@ -82,10 +83,17 @@ export default class SandboxCache<V = any> implements SortKeyCache<V> {
 
       // send call message
       window.postMessage({
+        type: "cache",
         fn,
         callID,
         params
       });
     });
   }
+
+  storage() {
+    return undefined;
+  }
+
+  prune(): any {}
 }
