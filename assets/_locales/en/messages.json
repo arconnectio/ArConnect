@@ -858,5 +858,13 @@
   "no_price": {
     "message": "No price data...",
     "description": "No price data available note"
+  },
+  "collectibles": {
+    "message": "Collectibles",
+    "description": "Collectibles title"
+  },
+  "no_collectibles": {
+    "message": "No collectibles added...",
+    "description": "No collectibles added note"
   }
 }
