@@ -39,3 +39,9 @@ declare module "styled-components" {
     cardBackground: string;
   }
 }
+
+declare namespace NodeJS {
+  interface ProcessEnv {
+    BETA_VERSION?: string;
+  }
+}

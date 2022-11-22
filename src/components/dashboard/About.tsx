@@ -11,9 +11,11 @@ export default function About() {
       <Name>ArConnect</Name>
       <Version>
         {"v" + browser.runtime.getManifest().version}
-        {process.env.NODE_ENV === "development" && (
+        {(process.env.NODE_ENV === "development" ||
+          !!process.env.BETA_VERSION) && (
           <DevelopmentVersion>
-            {browser.i18n.getMessage("development_version").toUpperCase()}
+            {process.env.BETA_VERSION ||
+              browser.i18n.getMessage("development_version").toUpperCase()}
           </DevelopmentVersion>
         )}
       </Version>
