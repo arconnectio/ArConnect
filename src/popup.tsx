@@ -15,6 +15,7 @@ import Send from "~routes/popup/send";
 import Explore from "~routes/popup/explore";
 import Unlock from "~routes/popup/unlock";
 import Tokens from "~routes/popup/tokens";
+import Asset from "~routes/popup/token/[id]";
 
 export default function Popup() {
   const theme = useTheme();
@@ -56,6 +57,9 @@ export default function Popup() {
           <Route path="/explore" component={Explore} />
           <Route path="/unlock" component={Unlock} />
           <Route path="/tokens" component={Tokens} />
+          <Route path="/token/:id">
+            {(params: { id: string }) => <Asset id={params?.id} />}
+          </Route>
         </Router>
       </Wrapper>
     </Provider>

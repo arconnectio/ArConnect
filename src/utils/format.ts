@@ -11,6 +11,19 @@ export function getAppURL(link: string) {
   return url.hostname;
 }
 
+/**
+ * Get community url formatted
+ *
+ * @param link Link to get the app url from
+ */
+export function getCommunityUrl(link: string) {
+  if (!link) return "";
+
+  const url = new URL(link);
+
+  return url.hostname + url.pathname;
+}
+
 // possible types
 type Types =
   | "string"

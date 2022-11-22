@@ -785,6 +785,10 @@
     "message": "Assets",
     "description": "Assets title"
   },
+  "asset": {
+    "message": "Asset",
+    "description": "Asset title"
+  },
   "view_all": {
     "message": "View all",
     "description": "View all link text"
@@ -838,5 +842,17 @@
   "no_assets": {
     "message": "No assets added...",
     "description": "No assets added note"
+  },
+  "about_title": {
+    "message": "About",
+    "description": "ABout title"
+  },
+  "no_description": {
+    "message": "No description available",
+    "description": "No token description note"
+  },
+  "info_title": {
+    "message": "Info",
+    "description": "Token info section title"
   }
 }
