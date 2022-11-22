@@ -1,9 +1,9 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { AnimatePresence, motion, Variants } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { TokenType } from "~tokens/token";
 import { getTokenLogo } from "~lib/viewblock";
-import { useRef, useState } from "react";
 import { addToken } from "~tokens";
 import {
   Button,
@@ -14,10 +14,13 @@ import {
 } from "@arconnect/components";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import PriceChart from "~components/popup/asset/PriceChart";
+import Thumbnail from "~components/popup/asset/Thumbnail";
 import useSandboxedTokenState from "~tokens/hook";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
+import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
+import styled from "styled-components";
 
 export default function Token() {
   // connect params
@@ -37,33 +40,53 @@ export default function Token() {
   const sandbox = useRef<HTMLIFrameElement>();
   const state = useSandboxedTokenState(params?.tokenID, sandbox);
 
+  // token settings
+  const settings = useMemo(() => {
+    if (!state || !state.settings) return undefined;
+
+    return new Map(state.settings);
+  }, [state]);
+
   // toasts
   const { setToast } = useToasts();
 
   // loading
   const [loading, setLoading] = useState(false);
 
-  // add the token
-  async function done() {
-    setLoading(true);
+  // load type
+  const [tokenType, setTokenType] = useState<TokenType>();
 
-    try {
+  useEffect(() => {
+    (async () => {
+      if (!params?.tokenID) return;
+
       // get token type
-      let tokenType = params.tokenType;
+      let type = params.tokenType;
 
-      if (!tokenType) {
+      if (!type) {
         // fetch data
         const data = await fetch(
           `${concatGatewayURL(defaultGateway)}/${params.tokenID}`
         );
 
-        tokenType = data.headers
-          .get("content-type")
-          .includes("application/json")
+        type = data.headers.get("content-type").includes("application/json")
           ? "asset"
           : "collectible";
       }
 
+      setTokenType(type);
+    })();
+  }, [params?.tokenID]);
+
+  // add the token
+  async function done() {
+    if (!params?.tokenID || !tokenType || !state) {
+      return;
+    }
+
+    setLoading(true);
+
+    try {
       // add the token
       await addToken(params.tokenID, tokenType, state);
 
@@ -99,24 +122,51 @@ export default function Token() {
           </Text>
         </Section>
         <AnimatePresence>
-          {state && (
+          {state && tokenType && (
             <motion.div
               variants={chartAnimation}
               initial="hidden"
               animate="shown"
               exit="hidden"
             >
-              <PriceChart
-                token={{
-                  name: state.name || state.ticker || "",
-                  ticker: state.ticker || "",
-                  logo: getTokenLogo(params.tokenID || "", "dark")
-                }}
-                priceData={[]}
-                latestPrice={0}
-              >
-                <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />
-              </PriceChart>
+              {(tokenType === "asset" && (
+                <PriceChart
+                  token={{
+                    name: state.name || state.ticker || "",
+                    ticker: state.ticker || "",
+                    logo: getTokenLogo(params.tokenID || "", "dark")
+                  }}
+                  priceData={[]}
+                  latestPrice={0}
+                >
+                  <PeriodPicker
+                    period={period}
+                    onChange={(p) => setPeriod(p)}
+                  />
+                </PriceChart>
+              )) || (
+                <>
+                  <Thumbnail
+                    src={`${concatGatewayURL(defaultGateway)}/${
+                      params?.tokenID
+                    }`}
+                  />
+                  <Section>
+                    <TokenName noMargin>
+                      {state.name || state.ticker}{" "}
+                      {state.name && (
+                        <Ticker>({state.ticker.toUpperCase()})</Ticker>
+                      )}
+                    </TokenName>
+                    <Spacer y={0.15} />
+                    <Description>
+                      {(settings && settings.get("communityDescription")) ||
+                        state.description ||
+                        browser.i18n.getMessage("no_description")}
+                    </Description>
+                  </Section>
+                </>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -143,3 +193,19 @@ const chartAnimation: Variants = {
   hidden: { opacity: 0 },
   shown: { opacity: 1 }
 };
+
+const TokenName = styled(Title)`
+  display: flex;
+  gap: 0.3rem;
+`;
+
+const Ticker = styled.span`
+  color: rgb(${(props) => props.theme.secondaryText});
+`;
+
+const Description = styled(Text).attrs({
+  noMargin: true
+})`
+  font-size: 0.98rem;
+  text-align: justify;
+`;
