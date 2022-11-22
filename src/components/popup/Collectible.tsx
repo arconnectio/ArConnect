@@ -1,28 +1,74 @@
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { Card, DisplayTheme, Spacer } from "@arconnect/components";
+import { AnimatePresence, motion, Variants } from "framer-motion";
+import { useStorage } from "@plasmohq/storage/hook";
+import { useMemo, useRef, useState } from "react";
 import { useTheme } from "~utils/theme";
+import useSandboxedTokenState from "~tokens/hook";
+import browser from "webextension-polyfill";
 import styled from "styled-components";
 
 export default function Collectible({ id, size = "small" }: Props) {
   // display theme
   const theme = useTheme();
 
+  // load state
+  const sandbox = useRef<HTMLIFrameElement>();
+  const state = useSandboxedTokenState(id, sandbox);
+
+  // active address
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    area: "local",
+    isSecret: true
+  });
+
+  // balance
+  const balance = useMemo(() => {
+    if (!state?.balances || !activeAddress) {
+      return "0";
+    }
+
+    const bal = state.balances[activeAddress] || 0;
+
+    return bal.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  }, [state, activeAddress]);
+
+  // price
+  const [price, setPrice] = useState<number>();
+
   return (
-    <Wrapper displayTheme={theme} size={size}>
-      <ImageWrapper size={size}>
-        <Image src={concatGatewayURL(defaultGateway) + `/${id}`} />
-      </ImageWrapper>
-      <Spacer y={0.34} />
-      <Data>
-        <Title>Example title</Title>
-        <SmallData>
-          <Balance>2 AR</Balance>
-          <Balance>
-            1.12<span>AR</span>
-          </Balance>
-        </SmallData>
-      </Data>
-    </Wrapper>
+    <>
+      <AnimatePresence>
+        {state && (
+          <Wrapper>
+            <CollectibleWrapper displayTheme={theme} size={size}>
+              <ImageWrapper size={size}>
+                <Image src={concatGatewayURL(defaultGateway) + `/${id}`} />
+              </ImageWrapper>
+              <Spacer y={0.34} />
+              <Data>
+                <Title>{state.name || state.ticker}</Title>
+                <SmallData>
+                  <Balance>{`${balance} ${state.ticker}`}</Balance>
+                  {price && (
+                    <Balance>
+                      {price}
+                      <span>AR</span>
+                    </Balance>
+                  )}
+                </SmallData>
+              </Data>
+            </CollectibleWrapper>
+          </Wrapper>
+        )}
+      </AnimatePresence>
+      <iframe
+        src={browser.runtime.getURL("tabs/sandbox.html")}
+        ref={sandbox}
+        style={{ display: "none" }}
+      ></iframe>
+    </>
   );
 }
 
@@ -31,7 +77,22 @@ const sizes = {
   large: "182px"
 };
 
-const Wrapper = styled(Card)<{
+const animation: Variants = {
+  hidden: { opacity: 0 },
+  shown: { opacity: 1 }
+};
+
+const Wrapper = styled(motion.div).attrs({
+  variants: animation,
+  initial: "hidden",
+  animate: "shown",
+  exit: "hidden",
+  transition: { duration: 0.2, ease: "easeInOut" }
+})`
+  width: max-content;
+`;
+
+const CollectibleWrapper = styled(Card)<{
   displayTheme: DisplayTheme;
   size: "small" | "large";
 }>`
