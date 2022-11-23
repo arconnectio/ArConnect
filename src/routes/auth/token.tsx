@@ -1,5 +1,9 @@
+import {
+  concatGatewayURL,
+  defaultGateway,
+  Gateway
+} from "~applications/gateway";
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { TokenType } from "~tokens/token";
@@ -12,6 +16,7 @@ import {
   Text,
   useToasts
 } from "@arconnect/components";
+import CustomGatewayWarning from "~components/auth/CustomGatewayWarning";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import PriceChart from "~components/popup/asset/PriceChart";
 import Thumbnail from "~components/popup/asset/Thumbnail";
@@ -28,6 +33,7 @@ export default function Token() {
     url: string;
     tokenID: string;
     tokenType?: TokenType;
+    gateway?: Gateway;
   }>();
 
   // get auth utils
@@ -80,7 +86,7 @@ export default function Token() {
 
   // add the token
   async function done() {
-    if (!params?.tokenID || !tokenType || !state) {
+    if (!params?.tokenID || !tokenType || !state || !params) {
       return;
     }
 
@@ -88,7 +94,7 @@ export default function Token() {
 
     try {
       // add the token
-      await addToken(params.tokenID, tokenType, state);
+      await addToken(params.tokenID, tokenType, state, params.gateway);
 
       // reply to request
       await replyToAuthRequest("token", params.authID);
@@ -121,6 +127,9 @@ export default function Token() {
             {browser.i18n.getMessage("addTokenParagraph", params?.url)}
           </Text>
         </Section>
+        <AnimatePresence>
+          {!!params?.gateway && <CustomGatewayWarning />}
+        </AnimatePresence>
         <AnimatePresence>
           {state && tokenType && (
             <motion.div

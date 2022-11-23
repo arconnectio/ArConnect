@@ -22,6 +22,7 @@ import Applications from "~components/dashboard/Applications";
 import SettingEl from "~components/dashboard/Setting";
 import Wallets from "~components/dashboard/Wallets";
 import Application from "~applications/application";
+import Tokens from "~components/dashboard/Tokens";
 import About from "~components/dashboard/About";
 import Reset from "~components/dashboard/Reset";
 import browser from "webextension-polyfill";
@@ -198,7 +199,8 @@ const allSettings: Omit<Setting, "active">[] = [
     name: "tokens",
     displayName: "setting_tokens",
     description: "setting_tokens_description",
-    icon: TicketIcon
+    icon: TicketIcon,
+    component: Tokens
   },
   ...settings.map((setting) => ({
     name: setting.name,

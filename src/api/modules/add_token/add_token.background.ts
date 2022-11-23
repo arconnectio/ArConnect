@@ -1,4 +1,5 @@
 import type { ModuleFunction } from "~api/background";
+import type { Gateway } from "~applications/gateway";
 import { getAppURL, isAddress } from "~utils/format";
 import type { TokenType } from "~tokens/token";
 import { getTokens } from "~tokens";
@@ -8,7 +9,8 @@ import authenticate from "../connect/auth";
 const background: ModuleFunction<void> = async (
   tab,
   id: string,
-  type?: TokenType
+  type?: TokenType,
+  gateway?: Gateway
 ) => {
   // grab tab url
   const tabURL = getAppURL(tab.url);
@@ -43,7 +45,8 @@ const background: ModuleFunction<void> = async (
     type: "token",
     url: tabURL,
     tokenID: id,
-    tokenType: type
+    tokenType: type,
+    gateway
   });
 };
 

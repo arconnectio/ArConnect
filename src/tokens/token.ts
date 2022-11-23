@@ -5,6 +5,7 @@ export interface Token {
   name?: string;
   ticker: string;
   type: TokenType;
+  gateway?: Gateway;
 }
 
 export interface TokenState {

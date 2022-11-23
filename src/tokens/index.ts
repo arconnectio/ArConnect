@@ -1,4 +1,5 @@
 import { Token, TokenState, TokenType, validateTokenState } from "./token";
+import type { Gateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
 import { getStorageConfig } from "~utils/storage";
 import { getActiveAddress } from "~wallets";
@@ -20,7 +21,12 @@ export async function getTokens() {
  *
  * @param id ID of the token contract
  */
-export async function addToken(id: string, type: TokenType, state: TokenState) {
+export async function addToken(
+  id: string,
+  type: TokenType,
+  state: TokenState,
+  gateway?: Gateway
+) {
   const tokens = await getTokens();
 
   // check state
@@ -41,7 +47,8 @@ export async function addToken(id: string, type: TokenType, state: TokenState) {
     id,
     name: state.name,
     ticker: state.ticker,
-    type
+    type,
+    gateway
   });
   await storage.set("tokens", tokens);
 }

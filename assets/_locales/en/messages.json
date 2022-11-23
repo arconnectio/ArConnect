@@ -870,5 +870,9 @@
   "no_collectibles": {
     "message": "No collectibles added...",
     "description": "No collectibles added note"
+  },
+  "custom_gateway_warning": {
+    "message": "This token uses a custom gateway. This might slow down evaluation.",
+    "description": "Warning about adding tokens with custom gateways"
   }
 }
