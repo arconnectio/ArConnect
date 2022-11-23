@@ -14,6 +14,7 @@ import { useRef, useState } from "react";
 import { addWallet } from "~wallets";
 import PasswordPage from "~components/welcome/generate/PasswordPage";
 import Seed from "~components/welcome/load/Seed";
+import Theme from "~components/welcome/Theme";
 import Done from "~components/welcome/Done";
 import browser from "webextension-polyfill";
 
@@ -92,6 +93,8 @@ export default function Load() {
 
       setLoading(false);
     } else if (page === 3) {
+      setPage(4);
+    } else if (page === 4) {
       window.top.close();
     }
   }
@@ -100,7 +103,7 @@ export default function Load() {
     <Wrapper>
       <GenerateCard>
         <Paginator>
-          {Array(3)
+          {Array(4)
             .fill("")
             .map((_, i) => (
               <Page key={i} active={page === i + 1} />
@@ -118,7 +121,8 @@ export default function Load() {
             {page === 2 && (
               <Seed seedInput={seedInput} fileInputRef={fileInputRef} />
             )}
-            {page === 3 && <Done />}
+            {page === 3 && <Theme />}
+            {page === 4 && <Done />}
           </motion.div>
         </AnimatePresence>
         <Spacer y={1.25} />

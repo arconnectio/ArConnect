@@ -874,5 +874,21 @@
   "custom_gateway_warning": {
     "message": "This token uses a custom gateway. This might slow down evaluation.",
     "description": "Warning about adding tokens with custom gateways"
+  },
+  "choose_theme": {
+    "message": "Choose UI theme",
+    "description": "UI theme option title in setup"
+  },
+  "light_theme": {
+    "message": "Light",
+    "description": "Light theme"
+  },
+  "dark_theme": {
+    "message": "Dark",
+    "description": "Dark theme"
+  },
+  "system_theme": {
+    "message": "System",
+    "description": "System theme"
   }
 }

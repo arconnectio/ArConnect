@@ -27,6 +27,7 @@ import BackupWalletPage from "~components/welcome/generate/BackupWalletPage";
 import ConfirmSeedPage from "~components/welcome/generate/ConfirmSeedPage";
 import GeneratedPage from "~components/welcome/generate/GeneratedPage";
 import PasswordPage from "~components/welcome/generate/PasswordPage";
+import Theme from "~components/welcome/Theme";
 import browser from "webextension-polyfill";
 import Done from "~components/welcome/Done";
 import * as bip39 from "bip39-web-crypto";
@@ -101,7 +102,7 @@ export default function Generate() {
 
   // next button click event
   async function handleBtn() {
-    if (page === 1 && !checkPasswordValid(passwordInput.state)) {
+    if (page === 2 && !checkPasswordValid(passwordInput.state)) {
       // we check the password strength on page 1
       passwordInput.setStatus("error");
 
@@ -110,18 +111,18 @@ export default function Generate() {
         content: browser.i18n.getMessage("password_not_strong"),
         duration: 2300
       });
-    } else if (!writtenDown.state && page !== 1) {
+    } else if (!writtenDown.state && page !== 1 && page !== 2) {
       // we check if the written down seed checbox is checked
       // on every page, except page 1
       return;
-    } else if (!sorted && page === 3) {
+    } else if (!sorted && page === 4) {
       // we check if the words have been verified
       // by the user sorting them
       return;
-    } else if (page < 4) {
+    } else if (page < 5) {
       // we go to the next page if we are not on the final one
       return setPage((v) => v + 1);
-    } else if (!!keyfile && page === 4) {
+    } else if (!!keyfile && page === 5) {
       // add wallet on the final page
       setAddingWallet(true);
 
@@ -158,7 +159,7 @@ export default function Generate() {
     <Wrapper>
       <GenerateCard>
         <Paginator>
-          {Array(4)
+          {Array(5)
             .fill("")
             .map((_, i) => (
               <Page key={i} active={page === i + 1} />
@@ -172,13 +173,14 @@ export default function Generate() {
             animate="init"
             key={page}
           >
-            {page === 1 && <PasswordPage passwordInput={passwordInput} />}
-            {page === 2 && seed && <BackupWalletPage seed={seed} />}
-            {page === 3 && seed && (
+            {page === 1 && <Theme />}
+            {page === 2 && <PasswordPage passwordInput={passwordInput} />}
+            {page === 3 && seed && <BackupWalletPage seed={seed} />}
+            {page === 4 && seed && (
               <ConfirmSeedPage seed={seed} setSorted={setSorted} />
             )}
-            {page === 4 && <GeneratedPage address={address} />}
-            {page !== 1 && (
+            {page === 54 && <GeneratedPage address={address} />}
+            {page !== 1 && page !== 2 && (
               <>
                 <Spacer y={1.25} />
                 <Checkbox {...writtenDown.bindings}>
@@ -192,15 +194,15 @@ export default function Generate() {
         <Button
           fullWidth
           disabled={
-            (!writtenDown.state && page !== 1) ||
-            (!sorted && page === 3) ||
-            (!keyfile && page === 4)
+            (!writtenDown.state && page !== 1 && page !== 2) ||
+            (!sorted && page === 4) ||
+            (!keyfile && page === 5)
           }
           onClick={handleBtn}
-          loading={(page === 4 && !keyfile) || addingWallet}
+          loading={(page === 5 && !keyfile) || addingWallet}
         >
-          {browser.i18n.getMessage(page > 3 ? "done" : "next")}
-          {page > 4 && <ArrowRightIcon />}
+          {browser.i18n.getMessage(page > 4 ? "done" : "next")}
+          {page > 5 && <ArrowRightIcon />}
         </Button>
       </GenerateCard>
       <AnimatePresence>
