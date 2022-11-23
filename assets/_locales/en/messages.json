@@ -890,5 +890,17 @@
   "system_theme": {
     "message": "System",
     "description": "System theme"
+  },
+  "migration_available": {
+    "message": "Migration available",
+    "description": "Migration available title"
+  },
+  "migration_available_paragraph": {
+    "message": "It appears you have already used an older version of ArConnect before. We can migrate your wallets from this previous version to use. You'll still have to complete the setup process.",
+    "description": "Migration available paragraph"
+  },
+  "migrate": {
+    "message": "Migrate",
+    "description": "Migrate button text"
   }
 }

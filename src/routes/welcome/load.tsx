@@ -1,22 +1,32 @@
 import {
+  Button,
+  Modal,
+  Spacer,
+  useInput,
+  useModal,
+  useToasts,
+  Text
+} from "@arconnect/components";
+import { checkPasswordValid, jwkFromMnemonic } from "~wallets/generator";
+import { AnimatePresence, motion, Variants } from "framer-motion";
+import type { JWKInterface } from "arweave/node/lib/wallet";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRightIcon } from "@iconicicons/react";
+import { useStorage } from "@plasmohq/storage/hook";
+import { readFileString } from "~utils/file";
+import {
   Wrapper,
   GenerateCard,
   Page,
   Paginator
 } from "~components/welcome/Wrapper";
-import { Button, Spacer, useInput, useToasts } from "@arconnect/components";
-import { checkPasswordValid, jwkFromMnemonic } from "~wallets/generator";
-import { AnimatePresence, motion, Variants } from "framer-motion";
-import type { JWKInterface } from "arweave/node/lib/wallet";
-import { ArrowRightIcon } from "@iconicicons/react";
-import { readFileString } from "~utils/file";
-import { useRef, useState } from "react";
 import { addWallet } from "~wallets";
 import PasswordPage from "~components/welcome/generate/PasswordPage";
 import Seed from "~components/welcome/load/Seed";
 import Theme from "~components/welcome/Theme";
-import Done from "~components/welcome/Done";
 import browser from "webextension-polyfill";
+import Done from "~components/welcome/Done";
+import styled from "styled-components";
 
 export default function Load() {
   // page
@@ -99,6 +109,18 @@ export default function Load() {
     }
   }
 
+  // migration available
+  const [oldState] = useStorage({
+    key: "persist:root",
+    area: "local",
+    isSecret: true
+  });
+
+  // migration modal
+  const migrationModal = useModal();
+
+  useEffect(() => migrationModal.setOpen(!!oldState?.wallets), [oldState]);
+
   return (
     <Wrapper>
       <GenerateCard>
@@ -131,6 +153,24 @@ export default function Load() {
           {page === 1 && <ArrowRightIcon />}
         </Button>
       </GenerateCard>
+      <Modal {...migrationModal.bindings}>
+        <ModalText heading>
+          {browser.i18n.getMessage("migration_available")}
+        </ModalText>
+        <ModalText>
+          {browser.i18n.getMessage("migration_available_paragraph")}
+        </ModalText>
+        <Spacer y={1.75} />
+        <Button fullWidth>{browser.i18n.getMessage("migrate")}</Button>
+        <Spacer y={0.75} />
+        <Button
+          fullWidth
+          secondary
+          onClick={() => migrationModal.setOpen(false)}
+        >
+          {browser.i18n.getMessage("cancel")}
+        </Button>
+      </Modal>
     </Wrapper>
   );
 }
@@ -143,3 +183,7 @@ const pageAnimation: Variants = {
     opacity: 0
   }
 };
+
+const ModalText = styled(Text)`
+  text-align: center;
+`;
