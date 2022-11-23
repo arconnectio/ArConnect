@@ -1,14 +1,14 @@
-import {
-  concatGatewayURL,
-  defaultGateway,
-  Gateway
-} from "~applications/gateway";
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { TokenType } from "~tokens/token";
 import { getTokenLogo } from "~lib/viewblock";
 import { addToken } from "~tokens";
+import {
+  concatGatewayURL,
+  defaultGateway,
+  Gateway
+} from "~applications/gateway";
 import {
   Button,
   Section,

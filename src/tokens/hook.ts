@@ -1,6 +1,7 @@
 import { MutableRefObject, useEffect, useState } from "react";
 import { getInitialState, TokenState } from "~tokens/token";
 import { defaultGateway } from "~applications/gateway";
+import { getTokens } from "~tokens";
 import { nanoid } from "nanoid";
 
 export default function useSandboxedTokenState(
@@ -8,6 +9,13 @@ export default function useSandboxedTokenState(
   sandboxElementRef: MutableRefObject<HTMLIFrameElement>
 ) {
   const [state, setState] = useState<TokenState>();
+
+  async function getTokenGateway(id: string) {
+    const tokens = await getTokens();
+    const gateway = tokens.find((token) => token.id === id)?.gateway;
+
+    return gateway;
+  }
 
   useEffect(() => {
     if (!id || !sandboxElementRef.current) {
@@ -30,20 +38,26 @@ export default function useSandboxedTokenState(
     };
 
     // send message to iframe
-    const sandboxLoadListener = () => {
+    const sandboxLoadListener = async () => {
+      // get gateway
+      const gateway = await getTokenGateway(id);
+
       sandboxElementRef.current.contentWindow.postMessage(
         {
           fn: "getContractState",
           callID,
-          params: [id]
+          params: [id, gateway]
         },
         "*"
       );
     };
 
     (async () => {
+      // get gateway
+      const gateway = await getTokenGateway(id);
+
       // load initial state
-      const initialState = await getInitialState(id, defaultGateway);
+      const initialState = await getInitialState(id, gateway || defaultGateway);
 
       if (!!state) return;
       setState(initialState as any);

@@ -1,5 +1,7 @@
 import { defaultCacheOptions, WarpFactory } from "warp-contracts";
+import type { Gateway } from "~applications/gateway";
 import { useEffect } from "react";
+import Arweave from "@arconnect/arweave";
 
 export default function Sandbox() {
   useEffect(() => {
@@ -41,14 +43,30 @@ export default function Sandbox() {
    *
    * @param contractId ID of the contract
    */
-  async function getContractState(contractId: string) {
+  async function getContractState(contractId: string, gateway?: Gateway) {
     // read state
-    const res = await WarpFactory.forMainnet({
+    let contract = WarpFactory.forMainnet({
       ...defaultCacheOptions,
       inMemory: true
-    })
-      .contract(contractId)
-      .readState();
+    }).contract(contractId);
+
+    if (gateway) {
+      const arweave = new Arweave(gateway);
+
+      contract = WarpFactory.custom(
+        // @ts-expect-error
+        arweave,
+        {
+          ...defaultCacheOptions,
+          inMemory: true
+        },
+        "testnet"
+      )
+        .build()
+        .contract(contractId);
+    }
+
+    const res = await contract.readState();
     const state = res?.cachedValue?.state;
 
     return state;
