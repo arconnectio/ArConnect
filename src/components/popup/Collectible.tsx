@@ -4,6 +4,7 @@ import { AnimatePresence, motion, Variants } from "framer-motion";
 import { useStorage } from "@plasmohq/storage/hook";
 import { useMemo, useRef, useState } from "react";
 import { useTheme } from "~utils/theme";
+import { useLocation } from "wouter";
 import useSandboxedTokenState from "~tokens/hook";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -37,11 +38,14 @@ export default function Collectible({ id, size = "small" }: Props) {
   // price
   const [price, setPrice] = useState<number>();
 
+  // router
+  const [, setLocation] = useLocation();
+
   return (
     <>
       <AnimatePresence>
         {state && (
-          <Wrapper>
+          <Wrapper onClick={() => setLocation(`/collectible/${id}`)}>
             <CollectibleWrapper displayTheme={theme} size={size}>
               <ImageWrapper size={size}>
                 <Image src={concatGatewayURL(defaultGateway) + `/${id}`} />

@@ -1,24 +1,21 @@
+import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { EyeIcon, MessageIcon, ShareIcon } from "@iconicicons/react";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { Section, Spacer, Text } from "@arconnect/components";
 import { useMemo, useRef, useState } from "react";
 import { getCommunityUrl } from "~utils/format";
-import { getTokenLogo } from "~lib/viewblock";
-import PeriodPicker from "~components/popup/asset/PeriodPicker";
-import PriceChart from "~components/popup/asset/PriceChart";
+import { Link } from "../token/[id]";
+import Thumbnail from "~components/popup/asset/Thumbnail";
 import useSandboxedTokenState from "~tokens/hook";
 import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
 
-export default function Asset({ id }: Props) {
+export default function Collectible({ id }: Props) {
   // load state
   const sandbox = useRef<HTMLIFrameElement>();
   const state = useSandboxedTokenState(id, sandbox);
-
-  // price period
-  const [period, setPeriod] = useState("Day");
 
   const settings = useMemo(() => {
     if (!state || !state.settings) return undefined;
@@ -34,36 +31,36 @@ export default function Asset({ id }: Props) {
     return val as string[];
   }, [settings]);
 
+  // price
+  const [price, setPrice] = useState<number>();
+
   return (
     <>
-      <Head title={browser.i18n.getMessage("asset")} />
+      <Head title={browser.i18n.getMessage("collectible")} />
       <Spacer y={0.75} />
-      <AnimatePresence>
-        {state && (
-          <motion.div
-            variants={chartAnimation}
-            initial="hidden"
-            animate="shown"
-            exit="hidden"
-          >
-            <PriceChart
-              token={{
-                name: state.name || state.ticker || "",
-                ticker: state.ticker || "",
-                logo: getTokenLogo(id, "dark")
-              }}
-              priceData={[]}
-              latestPrice={0}
+      <Thumbnail src={`${concatGatewayURL(defaultGateway)}/${id}`} />
+      <Section>
+        <AnimatePresence>
+          {state && (
+            <motion.div
+              variants={chartAnimation}
+              initial="hidden"
+              animate="shown"
+              exit="hidden"
             >
-              <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />
-            </PriceChart>
-            <Spacer y={0.15} />
-            <Section>
-              <Title noMargin>{browser.i18n.getMessage("about_title")}</Title>
-              <Spacer y={0.6} />
+              <Title heading noMargin>
+                {state?.name || state?.ticker || ""}
+              </Title>
+              {price && (
+                <Price noMargin>
+                  {price}
+                  <span>AR</span>
+                </Price>
+              )}
+              <Spacer y={1} />
               <Description>
                 {(settings && settings.get("communityDescription")) ||
-                  state.description ||
+                  state?.description ||
                   browser.i18n.getMessage("no_description")}
               </Description>
               <Spacer y={1} />
@@ -91,10 +88,10 @@ export default function Asset({ id }: Props) {
                 <EyeIcon />
                 Viewblock
               </Link>
-            </Section>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Section>
       <iframe
         src={browser.runtime.getURL("tabs/sandbox.html")}
         ref={sandbox}
@@ -108,10 +105,14 @@ interface Props {
   id: string;
 }
 
-const chartAnimation: Variants = {
-  hidden: { opacity: 0 },
-  shown: { opacity: 1 }
-};
+const Price = styled(Text)`
+  font-size: 1.075rem;
+  font-weight: 600;
+
+  span {
+    font-size: 0.63em;
+  }
+`;
 
 const Description = styled(Text).attrs({
   noMargin: true
@@ -120,26 +121,7 @@ const Description = styled(Text).attrs({
   text-align: justify;
 `;
 
-export const Link = styled.a.attrs({
-  target: "_blank",
-  rel: "noopen noreferer"
-})`
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  color: rgb(${(props) => props.theme.secondaryText});
-  font-weight: 500;
-  font-size: 0.9rem;
-  text-decoration: none;
-  transition: all 0.23s ease-in-out;
-
-  svg {
-    font-size: 1.2em;
-    width: 1em;
-    height: 1em;
-  }
-
-  &:hover {
-    opacity: 0.8;
-  }
-`;
+const chartAnimation: Variants = {
+  hidden: { opacity: 0 },
+  shown: { opacity: 1 }
+};

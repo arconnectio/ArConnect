@@ -863,6 +863,10 @@
     "message": "Collectibles",
     "description": "Collectibles title"
   },
+  "collectible": {
+    "message": "Collectible",
+    "description": "Collectible title"
+  },
   "no_collectibles": {
     "message": "No collectibles added...",
     "description": "No collectibles added note"
