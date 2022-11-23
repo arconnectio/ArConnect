@@ -57,6 +57,12 @@ const CollectiblesSection = styled(Section)`
 const CollectiblesWrapper = styled.div`
   width: 100%;
   overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const CollectiblesList = styled(Section)`

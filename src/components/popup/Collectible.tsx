@@ -74,7 +74,7 @@ export default function Collectible({ id, size = "small" }: Props) {
 
 const sizes = {
   small: "128px",
-  large: "182px"
+  large: "160px"
 };
 
 const animation: Variants = {

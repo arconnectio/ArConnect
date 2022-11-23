@@ -16,6 +16,7 @@ import Explore from "~routes/popup/explore";
 import Unlock from "~routes/popup/unlock";
 import Tokens from "~routes/popup/tokens";
 import Asset from "~routes/popup/token/[id]";
+import Collectibles from "~routes/popup/collectibles";
 
 export default function Popup() {
   const theme = useTheme();
@@ -60,6 +61,7 @@ export default function Popup() {
           <Route path="/token/:id">
             {(params: { id: string }) => <Asset id={params?.id} />}
           </Route>
+          <Route path="/collectibles" component={Collectibles} />
         </Router>
       </Wrapper>
     </Provider>
