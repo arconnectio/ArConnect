@@ -26,7 +26,9 @@ export default function Wallets() {
   );
 
   // router
-  const [, params] = useRoute<{ address?: string }>("/wallets/:address?");
+  const [matches, params] = useRoute<{ address?: string }>(
+    "/wallets/:address?"
+  );
   const [, setLocation] = useLocation();
 
   // active subsetting val
@@ -36,6 +38,8 @@ export default function Wallets() {
   );
 
   useEffect(() => {
+    if (!matches) return;
+
     const firstWallet = wallets?.[0];
 
     // return if there is a wallet present in params
