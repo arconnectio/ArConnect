@@ -902,5 +902,9 @@
   "migrate": {
     "message": "Migrate",
     "description": "Migrate button text"
+  },
+  "migration_confirmation": {
+    "message": "Your wallets will be migrated once you complete the setup",
+    "description": "Migration confirmation notification"
   }
 }

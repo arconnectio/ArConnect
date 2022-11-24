@@ -119,7 +119,46 @@ export default function Load() {
   // migration modal
   const migrationModal = useModal();
 
-  useEffect(() => migrationModal.setOpen(!!oldState?.wallets), [oldState]);
+  // wallets to migrate
+  const [walletsToMigrate, setWalletsToMigrate] = useState<JWKInterface[]>([]);
+
+  useEffect(() => {
+    try {
+      if (!oldState.wallets) {
+        return migrationModal.setOpen(false);
+      }
+
+      const oldWallets: {
+        address: string;
+        keyfile: string;
+        name: string;
+      }[] = JSON.parse(oldState.wallets);
+      const parsedWallets: JWKInterface[] = [];
+
+      // parse old wallets
+      for (let i = 0; i < oldWallets.length; i++) {
+        const w = oldWallets[i];
+
+        if (!w.keyfile) continue;
+
+        try {
+          const keyfile: JWKInterface = JSON.parse(atob(w.keyfile));
+
+          parsedWallets.push(keyfile);
+        } catch {}
+      }
+
+      setWalletsToMigrate(parsedWallets);
+
+      // open modal
+      migrationModal.setOpen(parsedWallets.length > 0);
+    } catch {
+      migrationModal.setOpen(false);
+    }
+  }, [oldState]);
+
+  // allow migration
+  const [allowMigration, setAllowMigration] = useState(false);
 
   return (
     <Wrapper>
@@ -161,7 +200,19 @@ export default function Load() {
           {browser.i18n.getMessage("migration_available_paragraph")}
         </ModalText>
         <Spacer y={1.75} />
-        <Button fullWidth>{browser.i18n.getMessage("migrate")}</Button>
+        <Button
+          fullWidth
+          onClick={() => {
+            setAllowMigration(true);
+            setToast({
+              type: "info",
+              content: browser.i18n.getMessage("migration_confirmation"),
+              duration: 2200
+            });
+          }}
+        >
+          {browser.i18n.getMessage("migrate")}
+        </Button>
         <Spacer y={0.75} />
         <Button
           fullWidth
