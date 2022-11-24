@@ -13,7 +13,9 @@ import type { JWKInterface } from "arweave/node/lib/wallet";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRightIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
+import { getStorageConfig } from "~utils/storage";
 import { readFileString } from "~utils/file";
+import { Storage } from "@plasmohq/storage";
 import {
   Wrapper,
   GenerateCard,
@@ -22,11 +24,14 @@ import {
 } from "~components/welcome/Wrapper";
 import { addWallet } from "~wallets";
 import PasswordPage from "~components/welcome/generate/PasswordPage";
+import Migrate from "~components/welcome/load/Migrate";
 import Seed from "~components/welcome/load/Seed";
 import Theme from "~components/welcome/Theme";
 import browser from "webextension-polyfill";
 import Done from "~components/welcome/Done";
 import styled from "styled-components";
+
+const OLD_STORAGE_NAME = "persist:root";
 
 export default function Load() {
   // page
@@ -88,8 +93,23 @@ export default function Load() {
           }
         }
 
+        // load migrated wallets
+        if (allowMigration && walletsToMigrate.length > 0) {
+          walletsToAdd.push(...walletsToMigrate);
+        }
+
         // add wallet
         await addWallet(walletsToAdd, passwordInput.state);
+
+        // remove old storage, but only after we added the wallet
+        // this is useful in case adding the wallets fail,
+        // because the error will prevent the old storage from
+        // being removed
+        if (allowMigration && walletsToMigrate.length > 0) {
+          const storage = new Storage(getStorageConfig());
+
+          await storage.remove(OLD_STORAGE_NAME);
+        }
 
         setPage(3);
       } catch (e) {
@@ -111,7 +131,7 @@ export default function Load() {
 
   // migration available
   const [oldState] = useStorage({
-    key: "persist:root",
+    key: OLD_STORAGE_NAME,
     area: "local",
     isSecret: true
   });
@@ -180,7 +200,12 @@ export default function Load() {
           >
             {page === 1 && <PasswordPage passwordInput={passwordInput} />}
             {page === 2 && (
-              <Seed seedInput={seedInput} fileInputRef={fileInputRef} />
+              <>
+                <Seed seedInput={seedInput} fileInputRef={fileInputRef} />
+                {walletsToMigrate.length > 0 && allowMigration && (
+                  <Migrate wallets={walletsToMigrate} />
+                )}
+              </>
             )}
             {page === 3 && <Theme />}
             {page === 4 && <Done />}
@@ -209,6 +234,7 @@ export default function Load() {
               content: browser.i18n.getMessage("migration_confirmation"),
               duration: 2200
             });
+            migrationModal.setOpen(false);
           }}
         >
           {browser.i18n.getMessage("migrate")}

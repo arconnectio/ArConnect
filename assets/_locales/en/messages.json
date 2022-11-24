@@ -906,5 +906,9 @@
   "migration_confirmation": {
     "message": "Your wallets will be migrated once you complete the setup",
     "description": "Migration confirmation notification"
+  },
+  "migrate_wallets_list": {
+    "message": "These wallets will be migrated:",
+    "description": "Label for migrated wallets"
   }
 }
