@@ -16,6 +16,7 @@ import {
   WalletIcon
 } from "@iconicicons/react";
 import WalletSettings from "~components/dashboard/subsettings/WalletSettings";
+import TokenSettings from "~components/dashboard/subsettings/TokenSettings";
 import AppSettings from "~components/dashboard/subsettings/AppSettings";
 import AddWallet from "~components/dashboard/subsettings/AddWallet";
 import Applications from "~components/dashboard/Applications";
@@ -122,6 +123,9 @@ export default function Settings({ params }: Props) {
           )}
         {activeSetting === "wallets" && activeSubSetting === "new" && (
           <AddWallet key="new-wallet" />
+        )}
+        {activeSetting === "tokens" && activeSubSetting && (
+          <TokenSettings id={activeSubSetting} />
         )}
       </Panel>
     </SettingsWrapper>

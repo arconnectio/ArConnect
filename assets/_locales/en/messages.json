@@ -291,17 +291,17 @@
     "message": "Bundlr node",
     "description": "Bundlr node title"
   },
-  "removeApp": {
-    "message": "Remove app",
-    "description": "Remove app button"
+  "mApp": {
+    "message": "m app",
+    "description": "m app button"
   },
-  "removeAppNote": {
-    "message": "This will remove all permissions from the app and disconnect it from ArConnect.",
-    "description": "Remove app note paragraph"
+  "mAppNote": {
+    "message": "This will m all permissions from the app and disconnect it from ArConnect.",
+    "description": "m app note paragraph"
   },
-  "remove": {
-    "message": "Remove",
-    "description": "Remove button text"
+  "m": {
+    "message": "m",
+    "description": "m button text"
   },
   "block": {
     "message": "Block",
@@ -380,7 +380,7 @@
     "description": "Config settings description"
   },
   "setting_reset_description": {
-    "message": "Remove all wallets and data",
+    "message": "m all wallets and data",
     "description": "Reset settings description"
   },
   "setting_fee_multiplier_description": {
@@ -423,9 +423,9 @@
     "message": "Export keyfile",
     "description": "Export keyfile button"
   },
-  "remove_wallet": {
-    "message": "Remove wallet",
-    "description": "Remove wallet button"
+  "m_wallet": {
+    "message": "m wallet",
+    "description": "m wallet button"
   },
   "edit_wallet_name": {
     "message": "Edit name",
@@ -471,23 +471,23 @@
     "message": "No apps added yet...",
     "description": "No apps added message"
   },
-  "remove_wallet_modal_title": {
-    "message": "Remove wallet?",
-    "description": "Remove wallet modal title"
+  "m_wallet_modal_title": {
+    "message": "m wallet?",
+    "description": "m wallet modal title"
   },
-  "remove_wallet_modal_content": {
+  "m_wallet_modal_content": {
     "message": "Are you sure you want to continue? This cannot be reversed.",
-    "description": "Remove wallet modal content"
+    "description": "m wallet modal content"
   },
   "confirm": {
     "message": "Confirm",
     "description": "Confirm button text"
   },
-  "removed_wallet_notification": {
-    "message": "Removed wallet",
+  "md_wallet_notification": {
+    "message": "md wallet",
     "description": "Notification for wallet removal"
   },
-  "remove_wallet_error_notification": {
+  "m_wallet_error_notification": {
     "message": "Error removing wallet",
     "description": "Notification for wallet removal error"
   },
@@ -516,7 +516,7 @@
     "description": "Used permissions label"
   },
   "reset_warning": {
-    "message": "Resetting ArConnect will remove all of your data from it. This includes your wallets, your settings and cached data.",
+    "message": "Resetting ArConnect will m all of your data from it. This includes your wallets, your settings and cached data.",
     "description": "Warning about resetting ArConnect"
   },
   "irreversible_action": {
@@ -914,5 +914,21 @@
   "click_and_drag": {
     "message": "Click & drag",
     "description": "Hover text for drag icon"
+  },
+  "token_type": {
+    "message": "Token type",
+    "description": "Token type label"
+  },
+  "token_type_asset": {
+    "message": "Asset",
+    "description": "Asset token type"
+  },
+  "token_type_collectible": {
+    "message": "Collectible",
+    "description": "Collectible token type (NFT, etc.)"
+  },
+  "remove_token": {
+    "message": "Remove token",
+    "description": "Remove token button text"
   }
 }
