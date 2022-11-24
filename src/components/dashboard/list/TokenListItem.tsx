@@ -3,6 +3,7 @@ import { Reorder, useDragControls } from "framer-motion";
 import { formatAddress } from "~utils/format";
 import { getTokenLogo } from "~lib/viewblock";
 import type { Token } from "~tokens/token";
+import { useLocation } from "wouter";
 import { useMemo } from "react";
 import BaseElement from "./BaseElement";
 import styled from "styled-components";
@@ -26,6 +27,9 @@ export default function TokenListItem({ token, active }: Props) {
     return `${concatGatewayURL(token.gateway || defaultGateway)}/${token.id}`;
   }, [token]);
 
+  // router
+  const [, setLocation] = useLocation();
+
   return (
     <Reorder.Item
       as="div"
@@ -33,6 +37,7 @@ export default function TokenListItem({ token, active }: Props) {
       id={token.id}
       dragListener={false}
       dragControls={dragControls}
+      onClick={() => setLocation(`/tokens/${token.id}`)}
     >
       <BaseElement
         title={`${token.name} (${token.ticker})`}
