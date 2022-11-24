@@ -119,6 +119,7 @@ export default function Wallets() {
             axis="y"
             onReorder={setWallets}
             values={wallets}
+            style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}
           >
             {wallets.filter(filterSearchResults).map((wallet) => (
               <WalletListItem

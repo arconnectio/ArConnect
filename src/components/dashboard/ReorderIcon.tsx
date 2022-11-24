@@ -15,7 +15,28 @@ export default function ReorderIcon({ dragControls }: Props) {
       onPointerDown={handler}
       title={browser.i18n.getMessage("click_and_drag")}
     >
-      <Icon />
+      <Icon
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M4.25 8.75H19.25"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M4.25 15.25H19.25"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </Icon>
     </Wrapper>
   );
 }
@@ -25,16 +46,10 @@ const Wrapper = styled.div`
   color: rgb(${(props) => props.theme.secondaryText});
 `;
 
-const Icon = styled(DotsIcon)`
+const Icon = styled.svg`
   font-size: 1.4rem;
   width: 1em;
   height: 1em;
-  stroke-width: 2.5px;
-  fill: currentColor;
-
-  path {
-    stroke-linejoin: bevel;
-  }
 `;
 
 interface Props {
