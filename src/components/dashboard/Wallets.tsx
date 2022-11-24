@@ -12,10 +12,11 @@ import WalletListItem from "./list/WalletListItem";
 import browser from "webextension-polyfill";
 import SearchInput from "./SearchInput";
 import styled from "styled-components";
+import { Reorder } from "framer-motion";
 
 export default function Wallets() {
   // wallets
-  const [wallets] = useStorage<StoredWallet[]>(
+  const [wallets, setWallets] = useStorage<StoredWallet[]>(
     {
       key: "wallets",
       area: "local",
@@ -112,21 +113,26 @@ export default function Wallets() {
           sticky
         />
         <Spacer y={1} />
-        <SettingsList>
-          {wallets &&
-            wallets
-              .filter(filterSearchResults)
-              .map((wallet, i) => (
-                <WalletListItem
-                  name={findLabel(wallet.address) || wallet.nickname}
-                  address={wallet.address}
-                  avatar={findAvatar(wallet.address)}
-                  active={activeWalletSetting === wallet.address}
-                  onClick={() => setLocation("/wallets/" + wallet.address)}
-                  key={i}
-                />
-              ))}
-        </SettingsList>
+        {wallets && (
+          <Reorder.Group
+            as="div"
+            axis="y"
+            onReorder={setWallets}
+            values={wallets}
+          >
+            {wallets.filter(filterSearchResults).map((wallet) => (
+              <WalletListItem
+                wallet={wallet}
+                name={findLabel(wallet.address) || wallet.nickname}
+                address={wallet.address}
+                avatar={findAvatar(wallet.address)}
+                active={activeWalletSetting === wallet.address}
+                onClick={() => setLocation("/wallets/" + wallet.address)}
+                key={wallet.address}
+              />
+            ))}
+          </Reorder.Group>
+        )}
       </Wrapper>
       <AddWalletButton onClick={() => setLocation("/wallets/new")}>
         <PlusIcon />

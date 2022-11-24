@@ -1,7 +1,9 @@
+import type { DragControls } from "framer-motion";
 import { SettingsIcon } from "@iconicicons/react";
 import { Text } from "@arconnect/components";
 import type { HTMLProps } from "react";
 import Squircle from "~components/Squircle";
+import ReorderIcon from "../ReorderIcon";
 import styled from "styled-components";
 
 export default function BaseElement({
@@ -10,15 +12,19 @@ export default function BaseElement({
   description,
   active,
   img,
+  dragControls,
   ...props
 }: Props & HTMLProps<HTMLDivElement>) {
   return (
     <SettingWrapper active={active} {...(props as any)}>
-      <SettingIconWrapper img={img}>{children}</SettingIconWrapper>
-      <div>
-        <SettingName>{title}</SettingName>
-        <SettingDescription>{description}</SettingDescription>
-      </div>
+      <ContentWrapper>
+        <SettingIconWrapper img={img}>{children}</SettingIconWrapper>
+        <div>
+          <SettingName>{title}</SettingName>
+          <SettingDescription>{description}</SettingDescription>
+        </div>
+      </ContentWrapper>
+      {dragControls && <ReorderIcon dragControls={dragControls} />}
     </SettingWrapper>
   );
 }
@@ -28,7 +34,7 @@ export const setting_element_padding = ".8rem";
 const SettingWrapper = styled.div<{ active: boolean }>`
   display: flex;
   align-items: center;
-  gap: ${setting_element_padding};
+  justify-content: space-between;
   padding: ${setting_element_padding};
   border-radius: 20px;
   overflow: hidden;
@@ -42,6 +48,12 @@ const SettingWrapper = styled.div<{ active: boolean }>`
       ${(props) => props.theme.cardBorder + ", " + (props.active ? "1" : ".5")}
     );
   }
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${setting_element_padding};
 `;
 
 const SettingIconWrapper = styled(Squircle)`
@@ -93,6 +105,7 @@ interface Props {
   description: string;
   active: boolean;
   img?: string;
+  dragControls?: DragControls;
 }
 
 export const SettingsList = styled.div`

@@ -910,5 +910,9 @@
   "migrate_wallets_list": {
     "message": "These wallets will be migrated:",
     "description": "Label for migrated wallets"
+  },
+  "click_and_drag": {
+    "message": "Click & drag",
+    "description": "Hover text for drag icon"
   }
 }
