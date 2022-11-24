@@ -5,6 +5,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { useMemo, useRef, useState } from "react";
 import { useTheme } from "~utils/theme";
 import { useLocation } from "wouter";
+import { useTokens } from "~tokens";
 import useSandboxedTokenState from "~tokens/hook";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -41,6 +42,18 @@ export default function Collectible({ id, size = "small" }: Props) {
   // router
   const [, setLocation] = useLocation();
 
+  // load gateway
+  const [tokens] = useTokens();
+  const gateway = useMemo(() => {
+    const token = tokens?.find((t) => t.id === id);
+
+    if (!token?.gateway) {
+      return defaultGateway;
+    }
+
+    return token.gateway;
+  }, [tokens]);
+
   return (
     <>
       <AnimatePresence>
@@ -48,7 +61,7 @@ export default function Collectible({ id, size = "small" }: Props) {
           <Wrapper onClick={() => setLocation(`/collectible/${id}`)}>
             <CollectibleWrapper displayTheme={theme} size={size}>
               <ImageWrapper size={size}>
-                <Image src={concatGatewayURL(defaultGateway) + `/${id}`} />
+                <Image src={concatGatewayURL(gateway) + `/${id}`} />
               </ImageWrapper>
               <Spacer y={0.34} />
               <Data>

@@ -4,15 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import { IconButton } from "~components/IconButton";
 import { useStorage } from "@plasmohq/storage/hook";
 import { AnsUser, getAnsProfile } from "~lib/ans";
-import { SettingsList } from "./list/BaseElement";
 import { useLocation, useRoute } from "wouter";
 import { PlusIcon } from "@iconicicons/react";
 import type { StoredWallet } from "~wallets";
+import { Reorder } from "framer-motion";
 import WalletListItem from "./list/WalletListItem";
 import browser from "webextension-polyfill";
 import SearchInput from "./SearchInput";
 import styled from "styled-components";
-import { Reorder } from "framer-motion";
 
 export default function Wallets() {
   // wallets

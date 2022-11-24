@@ -1,7 +1,7 @@
 import type { DragControls } from "framer-motion";
 import { SettingsIcon } from "@iconicicons/react";
 import { Text } from "@arconnect/components";
-import type { HTMLProps } from "react";
+import type { HTMLProps, ReactNode } from "react";
 import Squircle from "~components/Squircle";
 import ReorderIcon from "../ReorderIcon";
 import styled from "styled-components";
@@ -80,6 +80,10 @@ const SettingName = styled(Text).attrs({
 })`
   font-weight: 500;
   font-size: 1.2rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 250px;
 `;
 
 const SettingDescription = styled(Text).attrs({
@@ -101,8 +105,8 @@ export const SettingImage = styled.img.attrs({
 `;
 
 interface Props {
-  title: string;
-  description: string;
+  title: string | ReactNode;
+  description: string | ReactNode;
   active: boolean;
   img?: string;
   dragControls?: DragControls;
