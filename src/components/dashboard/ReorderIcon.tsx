@@ -44,6 +44,11 @@ export default function ReorderIcon({ dragControls }: Props) {
 const Wrapper = styled.div`
   display: flex;
   color: rgb(${(props) => props.theme.secondaryText});
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
 `;
 
 const Icon = styled.svg`
