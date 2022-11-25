@@ -44,7 +44,7 @@ export default function Token() {
 
   // load state
   const sandbox = useRef<HTMLIFrameElement>();
-  const state = useSandboxedTokenState(params?.tokenID, sandbox);
+  const { state } = useSandboxedTokenState(params?.tokenID, sandbox);
 
   // token settings
   const settings = useMemo(() => {

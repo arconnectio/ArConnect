@@ -16,7 +16,7 @@ export default function Collectible({ id, size = "small" }: Props) {
 
   // load state
   const sandbox = useRef<HTMLIFrameElement>();
-  const state = useSandboxedTokenState(id, sandbox);
+  const { state } = useSandboxedTokenState(id, sandbox);
 
   // active address
   const [activeAddress] = useStorage<string>({

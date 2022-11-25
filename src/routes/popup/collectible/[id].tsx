@@ -5,6 +5,7 @@ import { Section, Spacer, Text } from "@arconnect/components";
 import { useMemo, useRef, useState } from "react";
 import { getCommunityUrl } from "~utils/format";
 import { Link } from "../token/[id]";
+import TokenLoading from "~components/popup/asset/Loading";
 import Thumbnail from "~components/popup/asset/Thumbnail";
 import useSandboxedTokenState from "~tokens/hook";
 import browser from "webextension-polyfill";
@@ -15,7 +16,7 @@ import styled from "styled-components";
 export default function Collectible({ id }: Props) {
   // load state
   const sandbox = useRef<HTMLIFrameElement>();
-  const state = useSandboxedTokenState(id, sandbox);
+  const { state, loading } = useSandboxedTokenState(id, sandbox);
 
   const settings = useMemo(() => {
     if (!state || !state.settings) return undefined;
@@ -43,7 +44,7 @@ export default function Collectible({ id }: Props) {
         <AnimatePresence>
           {state && (
             <motion.div
-              variants={chartAnimation}
+              variants={opacityAnimation}
               initial="hidden"
               animate="shown"
               exit="hidden"
@@ -92,6 +93,7 @@ export default function Collectible({ id }: Props) {
           )}
         </AnimatePresence>
       </Section>
+      <AnimatePresence>{loading && <TokenLoading />}</AnimatePresence>
       <iframe
         src={browser.runtime.getURL("tabs/sandbox.html")}
         ref={sandbox}
@@ -121,7 +123,7 @@ const Description = styled(Text).attrs({
   text-align: justify;
 `;
 
-const chartAnimation: Variants = {
+const opacityAnimation: Variants = {
   hidden: { opacity: 0 },
   shown: { opacity: 1 }
 };

@@ -9,6 +9,7 @@ export default function useSandboxedTokenState(
   sandboxElementRef: MutableRefObject<HTMLIFrameElement>
 ) {
   const [state, setState] = useState<TokenState>();
+  const [loading, setLoading] = useState(false);
 
   async function getTokenGateway(id: string) {
     const tokens = await getTokens();
@@ -35,6 +36,7 @@ export default function useSandboxedTokenState(
       if (e.data.callID !== callID) return;
 
       setState(e.data.res);
+      setLoading(false);
     };
 
     // send message to iframe
@@ -53,6 +55,9 @@ export default function useSandboxedTokenState(
     };
 
     (async () => {
+      // start loading
+      setLoading(true);
+
       // get gateway
       const gateway = await getTokenGateway(id);
 
@@ -74,5 +79,5 @@ export default function useSandboxedTokenState(
     };
   }, [id, sandboxElementRef]);
 
-  return state;
+  return { state, loading };
 }

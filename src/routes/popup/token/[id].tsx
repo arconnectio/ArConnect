@@ -6,6 +6,7 @@ import { getCommunityUrl } from "~utils/format";
 import { getTokenLogo } from "~lib/viewblock";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import PriceChart from "~components/popup/asset/PriceChart";
+import TokenLoading from "~components/popup/asset/Loading";
 import useSandboxedTokenState from "~tokens/hook";
 import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
@@ -15,7 +16,7 @@ import styled from "styled-components";
 export default function Asset({ id }: Props) {
   // load state
   const sandbox = useRef<HTMLIFrameElement>();
-  const state = useSandboxedTokenState(id, sandbox);
+  const { state, loading } = useSandboxedTokenState(id, sandbox);
 
   // price period
   const [period, setPeriod] = useState("Day");
@@ -95,6 +96,7 @@ export default function Asset({ id }: Props) {
           </motion.div>
         )}
       </AnimatePresence>
+      <AnimatePresence>{loading && <TokenLoading />}</AnimatePresence>
       <iframe
         src={browser.runtime.getURL("tabs/sandbox.html")}
         ref={sandbox}

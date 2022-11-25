@@ -24,7 +24,7 @@ export default function Token({ id }: Props) {
 
   // load state
   const sandbox = useRef<HTMLIFrameElement>();
-  const state = useSandboxedTokenState(id, sandbox);
+  const { state } = useSandboxedTokenState(id, sandbox);
 
   const balance = useMemo(() => {
     if (!state?.balances || !activeAddress) {
