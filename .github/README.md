@@ -186,6 +186,16 @@ Get the user's custom [Arweave config](#arweave-config) set in the extension
 
 Requires the `ACCESS_ARWEAVE_CONFIG` [permission](#permissions).
 
+### `addToken(id, type?, gateway?)`
+
+Add a token to the user's wallet. The token will show up in ArConnect assets / collectibles.
+
+- `id`: ID of the token to add
+- `type`: Optional token type (`asset` or `collectible`)
+- `gateway`: Optional gateway to fetch the token from (see the [format](#arweave-config))
+
+> **Warning:** If the gateway is defined, ArConnect will not use the default Warp Mainnet Gateway, but the custom one. This might slow down evaluation!
+
 ## Permissions
 
 There are 8 permissions currently available. When calling `connect`, you need to specify at least one of them, commonly `ACCESS_ADDRESS`.
