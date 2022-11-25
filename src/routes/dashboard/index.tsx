@@ -86,7 +86,11 @@ export default function Settings({ params }: Props) {
         </SettingsList>
       </Panel>
       <Panel
-        normalPadding={activeSetting !== "apps" && activeSetting !== "wallets"}
+        normalPadding={
+          activeSetting !== "apps" &&
+          activeSetting !== "wallets" &&
+          activeSetting !== "tokens"
+        }
       >
         <Spacer y={3.3} />
         {activeSetting &&
