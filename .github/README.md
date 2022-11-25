@@ -139,35 +139,25 @@ Dispatches (signs and sends) a transaction to the network, preferably by bundlin
 
 Requires the `DISPATCH` [permission](#permissions).
 
-### `encrypt(data, options): Promise<Uint8Array>`
+### `encrypt(data, algorithm): Promise<Uint8Array>`
 
-Encrypt a string with the user's wallet.
+Encrypt data with the user's wallet. This is an implementation of the [webcrypto encrypt API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt).
 
-- `data`: String to encrypt
-- `options`: Encrypt [options](#encryption-options)
+- `data`: `BufferSource` to encrypt
+- `algorithm`: Encrypt [algorithm](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt#parameters)
   <br />
-- `returns`: Encrypted string
+- `returns`: Encrypted data
 
 Requires the `ENCRYPT` [permission](#permissions).
 
-#### Encryption options
-
-```ts
-{
-  algorithm: string; // encryption algorithm
-  hash: string; // encryption hash
-  salt?: string; // optional salt
-}
-```
-
 ### `decrypt(data, options): Promise<string>`
 
-Decrypt a string [encrypted](#encryptdata-options-promiseuint8array) with the user's wallet.
+Decrypt data with the user's wallet. This is an implementation of the [webcrypto decrypt API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/decrypt).
 
-- `data`: `Uint8Array` data to decrypt to a string
-- `options`: Decrypt [options](#encryption-options)
+- `data`: `BufferSource` data to decrypt
+- `algorithm`: Decrypt [algorithm](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/decrypt#parameters)
   <br />
-- `returns`: Decrypted string
+- `returns`: Decrypted data
 
 Requires the `DECRYPT` [permission](#permissions).
 
