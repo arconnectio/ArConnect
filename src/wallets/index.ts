@@ -1,11 +1,11 @@
 import { decryptWallet, encryptWallet } from "./encryption";
 import type { JWKInterface } from "arweave/node/lib/wallet";
+import { checkPassword, getDecryptionKey } from "./auth";
 import { useStorage } from "@plasmohq/storage/hook";
 import { AnsUser, getAnsProfile } from "~lib/ans";
 import { getStorageConfig } from "~utils/storage";
 import { Storage } from "@plasmohq/storage";
 import { useEffect, useState } from "react";
-import { checkPassword } from "./auth";
 import browser, { Alarms } from "webextension-polyfill";
 import authenticate from "~api/modules/connect/auth";
 import Arweave from "arweave/web/common";
@@ -49,7 +49,7 @@ export const useActiveWallet = () => {
   // stored decryption key
   const [decryptionKey] = useStorage<string>({
     key: "decryption_key",
-    area: "local",
+    area: "session",
     isSecret: true
   });
 
@@ -187,7 +187,7 @@ export async function getActiveKeyfile() {
   const activeWallet = await getActiveWallet();
 
   // get decryption key
-  let decryptionKey = await storage.get("decryption_key");
+  let decryptionKey = await getDecryptionKey();
 
   // unlock ArConnect if the decryption key is undefined
   // this means that the user has to enter their decryption
@@ -198,14 +198,11 @@ export async function getActiveKeyfile() {
     });
 
     // re-read the decryption key
-    decryptionKey = await storage.get("decryption_key");
+    decryptionKey = await getDecryptionKey();
   }
 
   // decrypt keyfile
-  const decrypted = await decryptWallet(
-    activeWallet.keyfile,
-    atob(decryptionKey)
-  );
+  const decrypted = await decryptWallet(activeWallet.keyfile, decryptionKey);
 
   return decrypted;
 }

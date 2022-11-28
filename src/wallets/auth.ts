@@ -1,10 +1,7 @@
-import browser, { Alarms } from "webextension-polyfill";
-import { getStorageConfig } from "~utils/storage";
+import { getDecryptionKeyStorageConfig } from "~utils/storage";
 import { decryptWallet } from "./encryption";
 import { Storage } from "@plasmohq/storage";
 import { getWallets } from "./index";
-
-const storage = new Storage(getStorageConfig());
 
 /**
  * Unlock wallets and save decryption key
@@ -20,10 +17,7 @@ export async function unlock(password: string) {
   }
 
   // save decryption key
-  await storage.set("decryption_key", btoa(password));
-
-  // schedule the key for removal
-  await scheduleKeyRemoval();
+  await setDecryptionKey(password);
 
   return true;
 }
@@ -35,13 +29,10 @@ export async function unlock(password: string) {
  * @param password Password to check
  */
 export async function checkPassword(password: string) {
-  // try to check it agains the decryption key
-  const storage = new Storage(getStorageConfig());
-
-  let decryptionKey = await storage.get("decryption_key");
+  let decryptionKey = await getDecryptionKey();
 
   if (!!decryptionKey) {
-    return atob(decryptionKey) === password;
+    return decryptionKey === password;
   }
 
   // try decrypting
@@ -62,43 +53,28 @@ export async function checkPassword(password: string) {
 }
 
 /**
- * Schedule removing the decryption key.
- * Removal occurs after one day.
+ * Get wallet decryption key
  */
-async function scheduleKeyRemoval() {
-  // schedule removal of the key for security reasons
-  browser.alarms.create("remove_decryption_key_scheduled", {
-    periodInMinutes: 60 * 24
-  });
-}
+export async function getDecryptionKey() {
+  const keyStorage = new Storage(getDecryptionKeyStorageConfig());
 
-/**
- * Listener for the key removal alarm
- */
-export async function keyRemoveAlarmListener(alarm: Alarms.Alarm) {
-  if (alarm.name !== "remove_decryption_key_scheduled") return;
+  const val = await keyStorage.get("decryption_key");
 
-  // check if there is a decryption key
-  const decryptionKey = await storage.get("decryption_key");
-  if (!decryptionKey) return;
-
-  // remove the decryption key
-  await storage.remove("decryption_key");
-}
-
-/**
- * Listener for browser close.
- * On browser closed, we remove the
- * decryptionKey.
- */
-export async function onWindowClose() {
-  const windows = await browser.windows.getAll();
-
-  // return if there are still windows open
-  if (windows.length > 0) {
-    return;
+  // check if defined
+  if (!val) {
+    return undefined;
   }
 
-  // remove the decryption key
-  await storage.remove("decryption_key");
+  return atob(val);
+}
+
+/**
+ * Set wallet decryption key
+ *
+ * @param val Decryption key to set
+ */
+export async function setDecryptionKey(val: string) {
+  const keyStorage = new Storage(getDecryptionKeyStorageConfig());
+
+  return await keyStorage.set("decryption_key", btoa(val));
 }

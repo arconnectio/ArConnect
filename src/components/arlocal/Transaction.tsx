@@ -25,7 +25,7 @@ export default function Transaction({ arweave }: Props) {
   // decryption key to check if a password is required
   const [decryptionKey] = useStorage<string>({
     key: "decryption_key",
-    area: "local",
+    area: "session",
     isSecret: true
   });
 

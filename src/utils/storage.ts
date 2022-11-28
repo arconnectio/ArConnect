@@ -10,3 +10,11 @@ export const getStorageConfig = (): {
   area: "local",
   allSecret: true
 });
+
+/**
+ * Get config for decryption key storage
+ */
+export const getDecryptionKeyStorageConfig: typeof getStorageConfig = () => ({
+  ...getStorageConfig(),
+  area: "session"
+});

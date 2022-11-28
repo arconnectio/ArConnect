@@ -2,10 +2,9 @@ import Route, { Wrapper } from "~components/popup/Route";
 import { createGlobalStyle } from "styled-components";
 import { GlobalStyle, useTheme } from "~utils/theme";
 import { useHashLocation } from "~utils/hash_router";
-import { getStorageConfig } from "~utils/storage";
+import { getDecryptionKey } from "~wallets/auth";
 import { Provider } from "@arconnect/components";
 import { syncLabels, useSetUp } from "~wallets";
-import { Storage } from "@plasmohq/storage";
 import { useEffect } from "react";
 import { Router } from "wouter";
 
@@ -38,8 +37,7 @@ export default function Popup() {
   // key is not available
   useEffect(() => {
     (async () => {
-      const storage = new Storage(getStorageConfig());
-      const decryptionKey = await storage.get("decryption_key");
+      const decryptionKey = await getDecryptionKey();
 
       if (!decryptionKey) {
         setLocation("/unlock");
