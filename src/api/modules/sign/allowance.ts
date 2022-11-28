@@ -27,12 +27,14 @@ export async function updateAllowance(tabURL: string, price: number) {
   const app = new Application(tabURL);
 
   // update allowance spent value
-  await app.updateSettings(({ allowance }) => ({
-    allowance: {
-      ...allowance,
-      spent: (allowance?.spent || 0) + price
-    }
-  }));
+  await app.updateSettings(({ allowance }) => {
+    return {
+      allowance: {
+        ...allowance,
+        spent: (allowance?.spent || 0) + price
+      }
+    };
+  });
 }
 
 /**

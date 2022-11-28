@@ -85,15 +85,24 @@ export async function signNotification(
   // calculate price in AR
   const arPrice = parseFloat(arweave.ar.winstonToAr(price.toString()));
 
+  // format price
+  const formatPrice = (p: number) =>
+    p.toLocaleString(undefined, {
+      maximumFractionDigits: 4
+    });
+  let formattedPrice = `~${formatPrice(arPrice)} AR`;
+
+  if (price.toString().length <= 8) {
+    formattedPrice = `~${formatPrice(price)} Winston`;
+  }
+
   // give an ID to the notification
   const notificationID = nanoid();
 
   // transaction message
   const message =
     type === "sign"
-      ? `It cost a total of ~${arPrice.toLocaleString(undefined, {
-          maximumFractionDigits: 4
-        })} AR`
+      ? `It cost a total of ${formattedPrice}`
       : "It was submitted to The Bundlr Network";
 
   // create the notification
