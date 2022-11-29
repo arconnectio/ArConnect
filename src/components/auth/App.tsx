@@ -1,17 +1,17 @@
 import { DisplayTheme, Section, Spacer, Text } from "@arconnect/components";
+import { useTheme as useDisplayTheme } from "~utils/theme";
+import type { Allowance } from "~applications/allowance";
+import { GridIcon } from "@iconicicons/react";
+import { useMemo } from "react";
 import {
   Gateway,
   concatGatewayURL,
   defaultGateway
 } from "~applications/gateway";
-import { useTheme as useDisplayTheme } from "~utils/theme";
-import type { Allowance } from "~applications/allowance";
-import { GridIcon } from "@iconicicons/react";
-import { useMemo } from "react";
 import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
-import styled from "styled-components";
 import Arweave from "@arconnect/arweave";
+import styled from "styled-components";
 import Label from "./Label";
 
 export default function App({

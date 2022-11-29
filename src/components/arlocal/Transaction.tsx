@@ -1,10 +1,9 @@
 import type { CreateTransactionInterface } from "arweave/web/common";
+import { getActiveKeyfile, useDecryptionKey } from "~wallets";
 import { InputWithBtn, InputWrapper } from "./InputWrapper";
 import { PlusIcon, TrashIcon } from "@iconicicons/react";
 import { IconButton } from "~components/IconButton";
-import { useStorage } from "@plasmohq/storage/hook";
 import { readFileBinary } from "~utils/file";
-import { getActiveKeyfile } from "~wallets";
 import { useRef, useState } from "react";
 import { unlock } from "~wallets/auth";
 import {
@@ -16,18 +15,14 @@ import {
   FileInput,
   useToasts
 } from "@arconnect/components";
+import type Arweave from "@arconnect/arweave";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
-import type Arweave from "@arconnect/arweave";
 
 export default function Transaction({ arweave }: Props) {
   // decryption key to check if a password is required
-  const [decryptionKey] = useStorage<string>({
-    key: "decryption_key",
-    area: "session",
-    isSecret: true
-  });
+  const [decryptionKey] = useDecryptionKey();
 
   // toast
   const { setToast } = useToasts();

@@ -1,7 +1,10 @@
-import { getDecryptionKeyStorageConfig } from "~utils/storage";
+import { getStorageConfig } from "~utils/storage";
 import { decryptWallet } from "./encryption";
 import { Storage } from "@plasmohq/storage";
 import { getWallets } from "./index";
+import browser, { Alarms } from "webextension-polyfill";
+
+const storage = new Storage(getStorageConfig());
 
 /**
  * Unlock wallets and save decryption key
@@ -18,6 +21,9 @@ export async function unlock(password: string) {
 
   // save decryption key
   await setDecryptionKey(password);
+
+  // schedule the key for removal
+  await scheduleKeyRemoval();
 
   return true;
 }
@@ -56,9 +62,7 @@ export async function checkPassword(password: string) {
  * Get wallet decryption key
  */
 export async function getDecryptionKey() {
-  const keyStorage = new Storage(getDecryptionKeyStorageConfig());
-
-  const val = await keyStorage.get("decryption_key");
+  const val = await storage.get("decryption_key");
 
   // check if defined
   if (!val) {
@@ -74,7 +78,54 @@ export async function getDecryptionKey() {
  * @param val Decryption key to set
  */
 export async function setDecryptionKey(val: string) {
-  const keyStorage = new Storage(getDecryptionKeyStorageConfig());
+  return await storage.set("decryption_key", btoa(val));
+}
 
-  return await keyStorage.set("decryption_key", btoa(val));
+/**
+ * Remove decryption key
+ */
+export async function removeDecryptionKey() {
+  return await storage.remove("decryption_key");
+}
+
+/**
+ * Schedule removing the decryption key.
+ * Removal occurs after one day.
+ */
+async function scheduleKeyRemoval() {
+  // schedule removal of the key for security reasons
+  browser.alarms.create("remove_decryption_key_scheduled", {
+    periodInMinutes: 60 * 24
+  });
+}
+
+/**
+ * Listener for the key removal alarm
+ */
+export async function keyRemoveAlarmListener(alarm: Alarms.Alarm) {
+  if (alarm.name !== "remove_decryption_key_scheduled") return;
+
+  // check if there is a decryption key
+  const decryptionKey = await getDecryptionKey();
+  if (!decryptionKey) return;
+
+  // remove the decryption key
+  await removeDecryptionKey();
+}
+
+/**
+ * Listener for browser close.
+ * On browser closed, we remove the
+ * decryptionKey.
+ */
+export async function onWindowClose() {
+  const windows = await browser.windows.getAll();
+
+  // return if there are still windows open
+  if (windows.length > 0) {
+    return;
+  }
+
+  // remove the decryption key
+  await removeDecryptionKey();
 }

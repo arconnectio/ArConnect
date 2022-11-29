@@ -47,11 +47,7 @@ export const useActiveWallet = () => {
   });
 
   // stored decryption key
-  const [decryptionKey] = useStorage<string>({
-    key: "decryption_key",
-    area: "session",
-    isSecret: true
-  });
+  const [decryptionKey] = useDecryptionKey();
 
   // all wallets
   const [wallets] = useStorage<string>({
@@ -81,7 +77,7 @@ export const useActiveWallet = () => {
         }
 
         // decrypt wallet
-        const decrypted = await decryptWallet(active, atob(decryptionKey));
+        const decrypted = await decryptWallet(active, decryptionKey);
 
         setActiveWallet(decrypted);
       } catch {
@@ -133,6 +129,27 @@ export const useNoWallets = () => {
 
   return state;
 };
+
+/**
+ * Hook for decryption key
+ */
+export function useDecryptionKey(): [string, (val: string) => void] {
+  const [decryptionKey, setDecryptionKey] = useStorage<string>(
+    {
+      key: "decryption_key",
+      area: "local",
+      isSecret: true
+    },
+    (val) => {
+      if (!val) return undefined;
+      return atob(val);
+    }
+  );
+
+  const set = (val: string) => setDecryptionKey(btoa(val));
+
+  return [decryptionKey, set];
+}
 
 /**
  * Get the active address
