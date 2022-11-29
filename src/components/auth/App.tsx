@@ -1,9 +1,10 @@
+import { DisplayTheme, Section, Spacer, Text } from "@arconnect/components";
 import {
   Gateway,
   concatGatewayURL,
   defaultGateway
 } from "~applications/gateway";
-import { Section, Spacer, Text } from "@arconnect/components";
+import { useTheme as useDisplayTheme } from "~utils/theme";
 import type { Allowance } from "~applications/allowance";
 import { GridIcon } from "@iconicicons/react";
 import { useMemo } from "react";
@@ -31,6 +32,9 @@ export default function App({
     return parseFloat(arVal);
   }, [allowance]);
 
+  // display theme
+  const theme = useDisplayTheme();
+
   return (
     <>
       <SidePaddingSection>
@@ -42,7 +46,7 @@ export default function App({
       </SidePaddingSection>
       <Spacer y={0.4} />
       <SidePaddingSection size="slim">
-        <Wrapper>
+        <Wrapper displayTheme={theme}>
           <AppData>
             <AppIcon img={appIcon} key={appIcon}>
               {!appIcon && <NoAppIcon />}
@@ -85,8 +89,11 @@ const SidePaddingSection = styled(Section)`
   padding-bottom: 0;
 `;
 
-const Wrapper = styled.div`
-  background-color: #000;
+const Wrapper = styled.div<{ displayTheme: DisplayTheme }>`
+  background-color: rgb(
+    ${(props) =>
+      props.displayTheme === "light" ? "0, 0, 0" : props.theme.cardBackground}
+  );
   border-radius: 27px;
   padding: 1rem;
   display: flex;

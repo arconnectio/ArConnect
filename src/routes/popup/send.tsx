@@ -292,7 +292,7 @@ const Prices = styled(Text).attrs({
   text-align: center;
 
   span {
-    color: #000;
+    color: rgb(${(props) => props.theme.primaryText});
   }
 `;
 
