@@ -141,6 +141,10 @@ export default function Allowance() {
             label={browser.i18n.getMessage("password")}
             placeholder={browser.i18n.getMessage("enter_password")}
             fullWidth
+            onKeyDown={(e) => {
+              if (e.key !== "Enter") return;
+              reset();
+            }}
           />
         </Section>
       </div>

@@ -176,6 +176,10 @@ export default function Connect() {
                     label={browser.i18n.getMessage("password")}
                     fullWidth
                     {...passwordInput.bindings}
+                    onKeyDown={(e) => {
+                      if (e.key !== "Enter") return;
+                      unlock();
+                    }}
                   />
                 </Section>
               </UnlockWrapper>
