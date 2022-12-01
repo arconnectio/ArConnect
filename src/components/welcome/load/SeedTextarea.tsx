@@ -10,6 +10,7 @@ const SeedTextarea = styled.textarea`
   font-weight: 600;
   padding: 1rem;
   color: rgb(${(props) => props.theme.theme});
+  background-color: transparent;
   outline: none;
   resize: none;
   transition: all 0.23s ease-in-out;
