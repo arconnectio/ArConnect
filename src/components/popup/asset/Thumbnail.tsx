@@ -41,7 +41,7 @@ const FullScreenButton = styled.a`
   backdrop-filter: blur(5px);
   text-decoration: none;
   border-radius: 100%;
-  transition: all 0.23s ease-in-out;
+  transition: all 0.07s ease-in-out;
 
   &:active {
     transform: scale(0.92);

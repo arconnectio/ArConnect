@@ -192,6 +192,11 @@ export const Avatar = styled(Squircle)`
   position: relative;
   width: 2.1rem;
   height: 2.1rem;
+  transition: all 0.07s ease-in-out;
+
+  &:active {
+    transform: scale(0.93);
+  }
 `;
 
 export const NoAvatarIcon = styled(UserIcon)`

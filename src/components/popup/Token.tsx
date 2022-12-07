@@ -126,7 +126,7 @@ const Wrapper = styled(motion.div).attrs({
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  transition: all 0.23s ease-in-out;
+  transition: all 0.07s ease-in-out;
 
   &:hover {
     opacity: 0.82;

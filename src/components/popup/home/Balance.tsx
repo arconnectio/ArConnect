@@ -172,7 +172,7 @@ export default function Balance() {
           </FiatBalanceText>
         </div>
         {activeAppData && (
-          <AppIcon
+          <ActiveAppIcon
             outline="#000"
             onClick={() =>
               browser.tabs.create({
@@ -190,7 +190,7 @@ export default function Balance() {
                 draggable={false}
               />
             )) || <NoAppIcon />}
-          </AppIcon>
+          </ActiveAppIcon>
         )}
       </BalanceHead>
     </Graph>
@@ -297,5 +297,13 @@ const ActionButton = styled(ArrowUpRightIcon)`
 
   &:active {
     transform: scale(0.87);
+  }
+`;
+
+const ActiveAppIcon = styled(AppIcon)`
+  transition: all 0.07s ease-in-out;
+
+  &:active {
+    transform: scale(0.93);
   }
 `;

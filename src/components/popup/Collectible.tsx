@@ -122,7 +122,7 @@ const CollectibleWrapper = styled(Card)<{
   width: ${(props) => sizes[props.size]};
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.18s ease-in-out;
+  transition: all 0.07s ease-in-out;
 
   &:active {
     transform: scale(0.95);
