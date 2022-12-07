@@ -67,9 +67,8 @@ export default function Sandbox() {
     }
 
     const res = await contract.readState();
-    const state = res?.cachedValue?.state;
 
-    return state;
+    return res?.cachedValue;
   }
 
   return <></>;

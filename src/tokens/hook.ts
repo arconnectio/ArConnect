@@ -1,14 +1,21 @@
+import type { SortKeyCacheResult } from "warp-contracts/lib/types/cache/SortKeyCache";
 import { MutableRefObject, useEffect, useState } from "react";
 import { getInitialState, TokenState } from "~tokens/token";
 import { defaultGateway } from "~applications/gateway";
+import type { EvalStateResult } from "warp-contracts";
 import { getTokens } from "~tokens";
 import { nanoid } from "nanoid";
+
+type ContractResult = SortKeyCacheResult<
+  EvalStateResult<TokenState>
+>["cachedValue"];
 
 export default function useSandboxedTokenState(
   id: string,
   sandboxElementRef: MutableRefObject<HTMLIFrameElement>
 ) {
-  const [state, setState] = useState<TokenState>();
+  const [contractResult, setContractResult] =
+    useState<Partial<ContractResult>>();
   const [loading, setLoading] = useState(false);
 
   async function getTokenGateway(id: string) {
@@ -30,12 +37,12 @@ export default function useSandboxedTokenState(
     const resultListener = (
       e: MessageEvent<{
         callID: string;
-        res: TokenState;
+        res: ContractResult;
       }>
     ) => {
       if (e.data.callID !== callID) return;
 
-      setState(e.data.res);
+      setContractResult(e.data.res);
       setLoading(false);
     };
 
@@ -64,8 +71,8 @@ export default function useSandboxedTokenState(
       // load initial state
       const initialState = await getInitialState(id, gateway || defaultGateway);
 
-      if (!!state) return;
-      setState(initialState as any);
+      if (!!contractResult?.state) return;
+      setContractResult({ state: initialState as any });
     })();
 
     const sandbox = sandboxElementRef.current;
@@ -79,5 +86,9 @@ export default function useSandboxedTokenState(
     };
   }, [id, sandboxElementRef]);
 
-  return { state, loading };
+  return {
+    state: contractResult?.state,
+    validity: contractResult?.validity,
+    loading
+  };
 }
