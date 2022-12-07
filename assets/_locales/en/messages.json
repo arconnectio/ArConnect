@@ -930,5 +930,9 @@
   "remove_token": {
     "message": "Remove token",
     "description": "Remove token button text"
+  },
+  "your_balance": {
+    "message": "Your balance",
+    "description": "Balance label for tokens"
   }
 }
