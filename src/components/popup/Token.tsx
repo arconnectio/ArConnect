@@ -28,17 +28,35 @@ export default function Token({ id, onClick }: Props) {
   const sandbox = useRef<HTMLIFrameElement>();
   const { state } = useSandboxedTokenState(id, sandbox);
 
+  // token balance
   const balance = useMemo(() => {
     if (!state?.balances || !activeAddress) {
-      return "0";
+      return 0;
     }
 
     const bal = state.balances[activeAddress] || 0;
 
-    return bal.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    return bal;
   }, [state, activeAddress]);
 
+  // formatted token balance
+  const formattedBalance = useMemo(
+    () => balance.toLocaleString(undefined, { maximumFractionDigits: 2 }),
+    [balance]
+  );
+
+  // token price
   const [price, setPrice] = useState<number>();
+
+  // currency setting
+  const [currency] = useSetting<string>("currency");
+
+  // fiat balance
+  const fiatBalance = useMemo(() => {
+    if (!price) return undefined;
+
+    return balance * price;
+  }, [price, balance]);
 
   return (
     <>
@@ -55,11 +73,31 @@ export default function Token({ id, onClick }: Props) {
                     state.ticker}
                 </PrimaryText>
                 <Ticker>
-                  {balance} {state.ticker}
+                  {formattedBalance} {state.ticker}
                 </Ticker>
               </div>
             </LogoAndDetails>
-            {price && <PrimaryText>{price}</PrimaryText>}
+            {(price && fiatBalance && (
+              <FiatSection>
+                <PrimaryText>
+                  {price.toLocaleString(undefined, {
+                    style: "currency",
+                    currency: currency.toLowerCase(),
+                    currencyDisplay: "narrowSymbol",
+                    maximumFractionDigits: 2
+                  })}
+                </PrimaryText>
+                <Ticker>
+                  {fiatBalance.toLocaleString(undefined, {
+                    style: "currency",
+                    currency: currency.toLowerCase(),
+                    currencyDisplay: "narrowSymbol",
+                    maximumFractionDigits: 2
+                  })}
+                </Ticker>
+              </FiatSection>
+            )) ||
+              ""}
           </Wrapper>
         )}
       </AnimatePresence>
@@ -128,6 +166,17 @@ const Ticker = styled.span`
   font-weight: 500;
 `;
 
+const FiatSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: right;
+
+  p,
+  span {
+    text-align: right;
+  }
+`;
+
 interface Props {
   id: string;
   onClick?: MouseEventHandler<HTMLDivElement>;
@@ -158,6 +207,7 @@ export function ArToken({ onClick }: ArTokenProps) {
 
   // load ar balance
   const [balance, setBalance] = useState("0");
+  const [fiatBalance, setFiatBalance] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -172,8 +222,9 @@ export function ArToken({ onClick }: ArTokenProps) {
       setBalance(
         arBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })
       );
+      setFiatBalance(arBalance * price);
     })();
-  }, [activeAddress]);
+  }, [activeAddress, price]);
 
   return (
     <Wrapper onClick={onClick}>
@@ -187,14 +238,24 @@ export function ArToken({ onClick }: ArTokenProps) {
           </Ticker>
         </div>
       </LogoAndDetails>
-      <PrimaryText>
-        {price.toLocaleString(undefined, {
-          style: "currency",
-          currency: currency.toLowerCase(),
-          currencyDisplay: "narrowSymbol",
-          maximumFractionDigits: 2
-        })}
-      </PrimaryText>
+      <FiatSection>
+        <PrimaryText>
+          {price.toLocaleString(undefined, {
+            style: "currency",
+            currency: currency.toLowerCase(),
+            currencyDisplay: "narrowSymbol",
+            maximumFractionDigits: 2
+          })}
+        </PrimaryText>
+        <Ticker>
+          {fiatBalance.toLocaleString(undefined, {
+            style: "currency",
+            currency: currency.toLowerCase(),
+            currencyDisplay: "narrowSymbol",
+            maximumFractionDigits: 2
+          })}
+        </Ticker>
+      </FiatSection>
     </Wrapper>
   );
 }
