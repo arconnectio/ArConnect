@@ -1,19 +1,21 @@
+import { MouseEventHandler, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, Variants } from "framer-motion";
+import { defaultGateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
-import { useEffect, useMemo, useRef, useState } from "react";
 import { Text } from "@arconnect/components";
+import { getArPrice } from "~lib/coingecko";
 import { useTheme } from "~utils/theme";
-import { useLocation } from "wouter";
+import arLogoLight from "url:/assets/ar/logo_light.png";
+import arLogoDark from "url:/assets/ar/logo_dark.png";
 import useSandboxedTokenState from "~tokens/hook";
 import browser from "webextension-polyfill";
+import useSetting from "~settings/hook";
 import styled from "styled-components";
+import Arweave from "arweave";
 
-export default function Token({ id }: Props) {
+export default function Token({ id, onClick }: Props) {
   // display theme
   const theme = useTheme();
-
-  // router
-  const [, setLocation] = useLocation();
 
   // active address
   const [activeAddress] = useStorage<string>({
@@ -42,7 +44,7 @@ export default function Token({ id }: Props) {
     <>
       <AnimatePresence>
         {state && (
-          <Wrapper onClick={() => setLocation(`/token/${id}`)}>
+          <Wrapper onClick={onClick}>
             <LogoAndDetails>
               <Logo
                 src={`https://meta.viewblock.io/AR.${id}/logo?t=${theme}`}
@@ -128,4 +130,75 @@ const Ticker = styled.span`
 
 interface Props {
   id: string;
+  onClick?: MouseEventHandler<HTMLDivElement>;
+}
+
+export function ArToken({ onClick }: ArTokenProps) {
+  // currency setting
+  const [currency] = useSetting<string>("currency");
+
+  // load arweave price
+  const [price, setPrice] = useState(0);
+
+  useEffect(() => {
+    getArPrice(currency)
+      .then((v) => setPrice(v))
+      .catch();
+  }, [currency]);
+
+  // theme
+  const theme = useTheme();
+
+  // active address
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    area: "local",
+    isSecret: true
+  });
+
+  // load ar balance
+  const [balance, setBalance] = useState("0");
+
+  useEffect(() => {
+    (async () => {
+      if (!activeAddress) return;
+
+      const arweave = new Arweave(defaultGateway);
+
+      // fetch balance
+      const winstonBalance = await arweave.wallets.getBalance(activeAddress);
+      const arBalance = Number(arweave.ar.winstonToAr(winstonBalance));
+
+      setBalance(
+        arBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })
+      );
+    })();
+  }, [activeAddress]);
+
+  return (
+    <Wrapper onClick={onClick}>
+      <LogoAndDetails>
+        <Logo src={theme === "light" ? arLogoLight : arLogoDark} />
+        <div>
+          <PrimaryText>Arweave (AR)</PrimaryText>
+          <Ticker>
+            {balance}
+            {" AR"}
+          </Ticker>
+        </div>
+      </LogoAndDetails>
+      <PrimaryText>
+        {price.toLocaleString(undefined, {
+          style: "currency",
+          currency: currency.toLowerCase(),
+          currencyDisplay: "narrowSymbol",
+          maximumFractionDigits: 2
+        })}
+      </PrimaryText>
+    </Wrapper>
+  );
+}
+
+interface ArTokenProps {
+  onClick?: MouseEventHandler<HTMLDivElement>;
 }

@@ -9,18 +9,22 @@ import {
 } from "@arconnect/components";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { ArrowUpRightIcon, ChevronDownIcon } from "@iconicicons/react";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { formatAddress, isAddress } from "~utils/format";
 import { decryptWallet } from "~wallets/encryption";
 import { getAnsProfile, AnsUser } from "~lib/ans";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { getActiveWallet } from "~wallets";
 import { getArPrice } from "~lib/coingecko";
+import { useTokens } from "~tokens";
+import Token, { ArToken } from "~components/popup/Token";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "@arconnect/arweave";
+import { getInitialState } from "~tokens/token";
 
 export default function Send() {
   // amount
@@ -133,7 +137,7 @@ export default function Send() {
     try {
       // create and send tx
       const arweave = new Arweave(defaultGateway);
-      const tx = await arweave.createTransaction(
+      let tx = await arweave.createTransaction(
         {
           target: targetInput.state,
           quantity: arweave.ar.arToWinston(amount.toString())
@@ -141,8 +145,44 @@ export default function Send() {
         wallet
       );
 
+      if (selectedToken !== "AR") {
+        tx = await arweave.createTransaction(
+          {
+            target: targetInput.state,
+            quantity: "0",
+            data: (Math.random() * Math.pow(10, 5)).toFixed(0)
+          },
+          wallet
+        );
+
+        tx.addTag("App-Name", "SmartWeaveAction");
+        tx.addTag("App-Version", "0.3.0");
+        tx.addTag("Contract", selectedToken);
+        tx.addTag(
+          "Input",
+          JSON.stringify({
+            function: "transfer",
+            target: targetInput.state,
+            qty: amount
+          })
+        );
+      }
+
+      tx.addTag("Type", "Transfer");
+      tx.addTag("Client", "ArConnect");
+      tx.addTag("Client-Version", browser.runtime.getManifest().version);
+
       await arweave.transactions.sign(tx, wallet);
-      await arweave.transactions.post(tx);
+
+      if (selectedToken === "AR") {
+        await arweave.transactions.post(tx);
+      } else {
+        const uploader = await arweave.transactions.getUploader(tx);
+
+        while (!uploader.isComplete) {
+          await uploader.uploadChunk();
+        }
+      }
 
       setToast({
         type: "success",
@@ -161,6 +201,22 @@ export default function Send() {
     targetInput.setState("");
     setLoading(false);
   }
+
+  // show token selector
+  const [showTokenSelector, setShownTokenSelector] = useState(false);
+
+  // all tokens
+  const [tokens] = useTokens();
+
+  // selected token
+  const [selectedToken, setSelectedToken] = useState<"AR" | string>("AR");
+  const selectedTokenData = useMemo(() => {
+    if (selectedToken === "AR" || !selectedToken || !tokens) {
+      return undefined;
+    }
+
+    return tokens.find((t) => t.id === selectedToken);
+  }, [selectedToken, tokens]);
 
   return (
     <Wrapper>
@@ -182,20 +238,24 @@ export default function Send() {
             >
               {startAmount}
             </Amount>
-            <Ticker>
-              AR
+            <Ticker onClick={() => setShownTokenSelector(true)}>
+              {(selectedToken === "AR" && "AR") ||
+                selectedTokenData?.ticker ||
+                "???"}
               <ChevronDownIcon />
             </Ticker>
           </AmountWrapper>
           <Spacer y={0.4} />
           <Prices>
             <span>
-              {fiatVal.toLocaleString(undefined, {
-                style: "currency",
-                currency: currency.toLowerCase(),
-                currencyDisplay: "narrowSymbol",
-                maximumFractionDigits: 2
-              })}
+              {(selectedToken === "AR" &&
+                fiatVal.toLocaleString(undefined, {
+                  style: "currency",
+                  currency: currency.toLowerCase(),
+                  currencyDisplay: "narrowSymbol",
+                  maximumFractionDigits: 2
+                })) ||
+                "??"}
             </span>
             {" - "}
             {fee}
@@ -233,6 +293,35 @@ export default function Send() {
           <ArrowUpRightIcon />
         </Button>
       </Section>
+      <AnimatePresence>
+        {showTokenSelector && (
+          <TokenSelector
+            variants={animation}
+            initial="hidden"
+            animate="shown"
+            exit="hidden"
+          >
+            <TokensSection>
+              <ArToken
+                onClick={() => {
+                  setSelectedToken("AR");
+                  setShownTokenSelector(false);
+                }}
+              />
+              {tokens.map((token, i) => (
+                <Token
+                  id={token.id}
+                  onClick={() => {
+                    setSelectedToken(token.id);
+                    setShownTokenSelector(false);
+                  }}
+                  key={i}
+                />
+              ))}
+            </TokensSection>
+          </TokenSelector>
+        )}
+      </AnimatePresence>
     </Wrapper>
   );
 }
@@ -319,4 +408,28 @@ const TargetAvatar = styled.img.attrs({
   border-radius: 100%;
   object-fit: cover;
   user-select: none;
+`;
+
+const TokenSelector = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  overflow-y: auto;
+  background-color: rgb(${(props) => props.theme.background});
+  z-index: 1000;
+`;
+
+const animation: Variants = {
+  hidden: { opacity: 0 },
+  shown: { opacity: 1 }
+};
+
+const TokensSection = styled(Section)`
+  display: flex;
+  flex-direction: column;
+  gap: 0.82rem;
+  padding-top: 2rem;
+  padding-bottom: 1.4rem;
 `;

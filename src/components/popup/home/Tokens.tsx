@@ -40,7 +40,11 @@ export default function Tokens() {
       )}
       <TokensList>
         {assets.slice(0, 3).map((token, i) => (
-          <Token id={token.id} key={i} />
+          <Token
+            id={token.id}
+            onClick={() => setLocation(`/token/${token.id}`)}
+            key={i}
+          />
         ))}
       </TokensList>
     </Section>

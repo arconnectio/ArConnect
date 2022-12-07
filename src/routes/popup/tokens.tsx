@@ -1,4 +1,5 @@
 import { Section } from "@arconnect/components";
+import { useLocation } from "wouter";
 import { useTokens } from "~tokens";
 import { useMemo } from "react";
 import browser from "webextension-polyfill";
@@ -16,12 +17,19 @@ export default function Tokens() {
     [tokens]
   );
 
+  // router
+  const [, setLocation] = useLocation();
+
   return (
     <>
       <Head title={browser.i18n.getMessage("assets")} />
       <TokensList>
         {assets.map((token, i) => (
-          <Token id={token.id} key={i} />
+          <Token
+            id={token.id}
+            onClick={() => setLocation(`/token/${token.id}`)}
+            key={i}
+          />
         ))}
       </TokensList>
     </>
