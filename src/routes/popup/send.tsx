@@ -12,11 +12,11 @@ import { ArrowUpRightIcon, ChevronDownIcon } from "@iconicicons/react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { formatAddress, isAddress } from "~utils/format";
+import { useState, useEffect, useMemo } from "react";
 import { decryptWallet } from "~wallets/encryption";
 import { getAnsProfile, AnsUser } from "~lib/ans";
-import { useState, useEffect, useMemo } from "react";
-import { getActiveWallet } from "~wallets";
 import { getArPrice } from "~lib/coingecko";
+import { getActiveWallet } from "~wallets";
 import { useTokens } from "~tokens";
 import Token, { ArToken } from "~components/popup/Token";
 import browser from "webextension-polyfill";
@@ -24,9 +24,8 @@ import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "@arconnect/arweave";
-import { getInitialState } from "~tokens/token";
 
-export default function Send() {
+export default function Send({ id }: Props) {
   // amount
   const startAmount = 1;
   const [amount, setAmount] = useState(startAmount);
@@ -209,7 +208,8 @@ export default function Send() {
   const [tokens] = useTokens();
 
   // selected token
-  const [selectedToken, setSelectedToken] = useState<"AR" | string>("AR");
+  const [selectedToken, setSelectedToken] = useState<"AR" | string>(id || "AR");
+
   const selectedTokenData = useMemo(() => {
     if (selectedToken === "AR" || !selectedToken || !tokens) {
       return undefined;
@@ -433,3 +433,7 @@ const TokensSection = styled(Section)`
   padding-top: 2rem;
   padding-bottom: 1.4rem;
 `;
+
+interface Props {
+  id?: string;
+}

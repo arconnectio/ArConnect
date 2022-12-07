@@ -53,7 +53,9 @@ export default function Popup() {
         <Router hook={useHashLocation}>
           <Route path="/" component={Home} />
           <Route path="/receive" component={Receive} />
-          <Route path="/send" component={Send} />
+          <Route path="/send/:id?">
+            {(params: { id?: string }) => <Send id={params?.id} />}
+          </Route>
           <Route path="/explore" component={Explore} />
           <Route path="/unlock" component={Unlock} />
           <Route path="/tokens" component={Tokens} />
