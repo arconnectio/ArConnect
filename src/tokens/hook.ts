@@ -1,4 +1,3 @@
-import type { SortKeyCacheResult } from "warp-contracts/lib/types/cache/SortKeyCache";
 import { MutableRefObject, useEffect, useState } from "react";
 import { getInitialState, TokenState } from "~tokens/token";
 import { defaultGateway } from "~applications/gateway";
@@ -6,9 +5,7 @@ import type { EvalStateResult } from "warp-contracts";
 import { getTokens } from "~tokens";
 import { nanoid } from "nanoid";
 
-type ContractResult = SortKeyCacheResult<
-  EvalStateResult<TokenState>
->["cachedValue"];
+type ContractResult = EvalStateResult<TokenState>;
 
 export default function useSandboxedTokenState(
   id: string,

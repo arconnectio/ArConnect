@@ -2,6 +2,7 @@ import {
   ArrowDownLeftIcon,
   ArrowUpRightIcon,
   EyeIcon,
+  GlobeIcon,
   MessageIcon,
   ShareIcon
 } from "@iconicicons/react";
@@ -142,6 +143,11 @@ export default function Asset({ id }: Props) {
                   <Spacer y={0.22} />
                 </>
               )}
+              <Link href={`https://sonar.warp.cc/#/app/contract/${id}`}>
+                <GlobeIcon />
+                Sonar
+              </Link>
+              <Spacer y={0.22} />
               <Link href={`https://viewblock.io/arweave/address/${id}`}>
                 <EyeIcon />
                 Viewblock

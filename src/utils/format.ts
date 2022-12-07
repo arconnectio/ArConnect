@@ -21,7 +21,7 @@ export function getCommunityUrl(link: string) {
 
   const url = new URL(link);
 
-  return url.hostname + url.pathname;
+  return url.hostname + ((url.pathname !== "/" && url.pathname) || "");
 }
 
 // possible types

@@ -1,5 +1,5 @@
+import { EyeIcon, MessageIcon, ShareIcon, GlobeIcon } from "@iconicicons/react";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
-import { EyeIcon, MessageIcon, ShareIcon } from "@iconicicons/react";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { Section, Spacer, Text } from "@arconnect/components";
 import { useMemo, useRef, useState } from "react";
@@ -85,6 +85,11 @@ export default function Collectible({ id }: Props) {
                   <Spacer y={0.22} />
                 </>
               )}
+              <Link href={`https://sonar.warp.cc/#/app/contract/${id}`}>
+                <GlobeIcon />
+                Sonar
+              </Link>
+              <Spacer y={0.22} />
               <Link href={`https://viewblock.io/arweave/address/${id}`}>
                 <EyeIcon />
                 Viewblock
