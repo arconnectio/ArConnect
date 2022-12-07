@@ -167,7 +167,7 @@ export default function Token() {
                         <Ticker>({state.ticker.toUpperCase()})</Ticker>
                       )}
                     </TokenName>
-                    <Spacer y={0.15} />
+                    <Spacer y={0.7} />
                     <Description>
                       {(settings && settings.get("communityDescription")) ||
                         state.description ||

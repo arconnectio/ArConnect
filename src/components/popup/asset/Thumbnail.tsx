@@ -1,4 +1,4 @@
-import { DisplayTheme, Section } from "@arconnect/components";
+import type { DisplayTheme } from "@arconnect/components";
 import { MaximizeIcon } from "@iconicicons/react";
 import { useTheme } from "~utils/theme";
 import styled from "styled-components";
@@ -8,20 +8,13 @@ export default function Thumbnail({ src }: Props) {
   const theme = useTheme();
 
   return (
-    <Wrapper>
-      <ThumbnailImage src={src} displayTheme={theme}>
-        <FullScreenButton href={src} target="_blank" rel="noopener noreferer">
-          <MaximizeIcon />
-        </FullScreenButton>
-      </ThumbnailImage>
-    </Wrapper>
+    <ThumbnailImage src={src} displayTheme={theme}>
+      <FullScreenButton href={src} target="_blank" rel="noopener noreferer">
+        <MaximizeIcon />
+      </FullScreenButton>
+    </ThumbnailImage>
   );
 }
-
-const Wrapper = styled(Section)`
-  padding-top: 0;
-  padding-bottom: 0;
-`;
 
 const ThumbnailImage = styled.div<{ displayTheme: DisplayTheme; src: string }>`
   position: relative;
@@ -33,7 +26,6 @@ const ThumbnailImage = styled.div<{ displayTheme: DisplayTheme; src: string }>`
   );
   background-size: cover;
   background-image: url(${(props) => props.src});
-  border-radius: 40px;
   overflow: hidden;
 `;
 
