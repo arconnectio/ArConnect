@@ -1,19 +1,15 @@
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
-import { Card, DisplayTheme, Spacer } from "@arconnect/components";
 import { AnimatePresence, motion, Variants } from "framer-motion";
+import { Spacer, Text } from "@arconnect/components";
 import { useStorage } from "@plasmohq/storage/hook";
-import { useMemo, useRef, useState } from "react";
-import { useTheme } from "~utils/theme";
+import { useMemo, useRef } from "react";
 import { useLocation } from "wouter";
 import { useTokens } from "~tokens";
 import useSandboxedTokenState from "~tokens/hook";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 
-export default function Collectible({ id, size = "small" }: Props) {
-  // display theme
-  const theme = useTheme();
-
+export default function Collectible({ id }: Props) {
   // load state
   const sandbox = useRef<HTMLIFrameElement>();
   const { state } = useSandboxedTokenState(id, sandbox);
@@ -36,9 +32,6 @@ export default function Collectible({ id, size = "small" }: Props) {
     return bal.toLocaleString(undefined, { maximumFractionDigits: 2 });
   }, [state, activeAddress]);
 
-  // price
-  const [price, setPrice] = useState<number>();
-
   // router
   const [, setLocation] = useLocation();
 
@@ -55,133 +48,92 @@ export default function Collectible({ id, size = "small" }: Props) {
   }, [tokens]);
 
   return (
-    <>
-      <AnimatePresence>
-        {state && (
-          <Wrapper onClick={() => setLocation(`/collectible/${id}`)}>
-            <CollectibleWrapper displayTheme={theme} size={size}>
-              <ImageWrapper size={size}>
-                <Image src={concatGatewayURL(gateway) + `/${id}`} />
-              </ImageWrapper>
-              <Spacer y={0.34} />
-              <Data>
-                <Title>{state.name || state.ticker}</Title>
-                <SmallData>
-                  <Balance>{`${balance} ${state.ticker}`}</Balance>
-                  {price && (
-                    <Balance>
-                      {price}
-                      <span>AR</span>
-                    </Balance>
-                  )}
-                </SmallData>
-              </Data>
-            </CollectibleWrapper>
-          </Wrapper>
-        )}
-      </AnimatePresence>
+    <Wrapper onClick={() => setLocation(`/collectible/${id}`)}>
+      <Image src={concatGatewayURL(gateway) + `/${id}`}>
+        <AnimatePresence>
+          {state && balance !== "0" && (
+            <OwnedQty
+              variants={animation}
+              initial="hidden"
+              animate="shown"
+              exit="hidden"
+            >
+              {balance}
+            </OwnedQty>
+          )}
+        </AnimatePresence>
+      </Image>
+      <Spacer y={0.4} />
+      <TokenName>
+        {state?.name || state?.ticker || ""}
+        <Ticker>{state?.ticker || ""}</Ticker>
+      </TokenName>
       <iframe
         src={browser.runtime.getURL("tabs/sandbox.html")}
         ref={sandbox}
         style={{ display: "none" }}
       ></iframe>
-    </>
+    </Wrapper>
   );
 }
-
-const sizes = {
-  small: "128px",
-  large: "160px"
-};
 
 const animation: Variants = {
   hidden: { opacity: 0 },
   shown: { opacity: 1 }
 };
 
-const Wrapper = styled(motion.div).attrs({
-  variants: animation,
-  initial: "hidden",
-  animate: "shown",
-  exit: "hidden",
-  transition: { duration: 0.2, ease: "easeInOut" }
-})`
-  width: max-content;
-`;
-
-const CollectibleWrapper = styled(Card)<{
-  displayTheme: DisplayTheme;
-  size: "small" | "large";
-}>`
-  padding: 0;
-  background-color: rgb(
-    ${(props) =>
-      props.displayTheme === "light" ? "0, 0, 0" : props.theme.cardBackground}
-  );
-  border: none;
-  width: ${(props) => sizes[props.size]};
-  overflow: hidden;
+const Wrapper = styled.div`
   cursor: pointer;
   transition: all 0.07s ease-in-out;
 
   &:active {
-    transform: scale(0.95);
+    transform: scale(0.97);
   }
 `;
 
-const ImageWrapper = styled.div<{ size: "small" | "large" }>`
+const Image = styled.div<{ src: string }>`
   position: relative;
-  width: 100%;
-  height: ${(props) => sizes[props.size]};
+  background-image: url(${(props) => props.src});
+  background-size: cover;
+  padding-top: 100%;
+  border-radius: 18px;
 `;
 
-const Image = styled.img.attrs({
-  alt: "",
-  draggable: false
+const TokenName = styled(Text).attrs({
+  noMargin: true
 })`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  user-select: none;
-`;
-
-const Data = styled.div`
-  padding: 0.2rem 0.44rem 0.44rem;
-`;
-
-const SmallData = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 0.2rem;
-`;
-
-const Title = styled.p`
-  font-size: 1.15rem;
-  font-weight: 500;
-  color: #fff;
-  margin: 0;
-  line-height: 1.05em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 100%;
-  overflow: hidden;
-`;
-
-const Balance = styled(Title)`
   display: flex;
   align-items: baseline;
-  font-size: 0.82rem;
-  color: rgb(${(props) => props.theme.theme});
-  text-transform: uppercase;
-  width: max-content;
+  gap: 0.4rem;
+  color: rgb(${(props) => props.theme.primaryText});
+  font-weight: 500;
+  max-width: 100%;
+  overflow: hidden;
+  line-height: 1.2em;
+`;
 
-  span {
-    font-size: 0.68em;
-  }
+const Ticker = styled.span`
+  color: rgb(${(props) => props.theme.secondaryText});
+  text-transform: uppercase;
+  font-size: 0.73em;
+`;
+
+const OwnedQty = styled(motion.div)`
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.6rem;
+  padding: 0.1rem 0.3rem;
+  font-size: 0.8rem;
+  border-radius: 1rem;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  backdrop-filter: blur(5px);
+  padding: 0.1rem 0.55rem;
+  width: max-content;
+  text-align: center;
 `;
 
 interface Props {
   id: string;
-  size?: "small" | "large";
 }

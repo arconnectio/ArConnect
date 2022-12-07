@@ -21,56 +21,36 @@ export default function Collectibles() {
   const [, setLocation] = useLocation();
 
   return (
-    <>
-      <CollectiblesSection>
-        <Heading>
-          <Title noMargin>{browser.i18n.getMessage("collectibles")}</Title>
-          <ViewAll
-            onClick={() => {
-              if (collectibles.length === 0) return;
-              setLocation("/collectibles");
-            }}
-          >
-            {browser.i18n.getMessage("view_all")}
-            <TokenCount>{collectibles.length}</TokenCount>
-          </ViewAll>
-        </Heading>
-        <Spacer y={0.8} />
-      </CollectiblesSection>
-      <CollectiblesWrapper>
-        {(collectibles.length > 0 && (
-          <CollectiblesList>
-            {collectibles.slice(0, 3).map((collectible, i) => (
-              <Collectible id={collectible.id} key={i} />
-            ))}
-          </CollectiblesList>
-        )) || <NoAssets>{browser.i18n.getMessage("no_collectibles")}</NoAssets>}
-      </CollectiblesWrapper>
-    </>
+    <Section>
+      <Heading>
+        <Title noMargin>{browser.i18n.getMessage("collectibles")}</Title>
+        <ViewAll
+          onClick={() => {
+            if (collectibles.length === 0) return;
+            setLocation("/collectibles");
+          }}
+        >
+          {browser.i18n.getMessage("view_all")}
+          <TokenCount>{collectibles.length}</TokenCount>
+        </ViewAll>
+      </Heading>
+      <Spacer y={0.8} />
+      {collectibles.length === 0 && (
+        <NoAssets>{browser.i18n.getMessage("no_collectibles")}</NoAssets>
+      )}
+      <CollectiblesList>
+        {collectibles.slice(0, 4).map((collectible, i) => (
+          <Collectible id={collectible.id} key={i} />
+        ))}
+      </CollectiblesList>
+    </Section>
   );
 }
 
-const CollectiblesSection = styled(Section)`
-  padding-bottom: 0;
-`;
-
-const CollectiblesWrapper = styled.div`
-  width: 100%;
-  overflow-x: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const CollectiblesList = styled(Section)`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  width: max-content;
-  padding-top: 0;
+const CollectiblesList = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
 `;
 
 const NoAssets = styled(Text).attrs({
