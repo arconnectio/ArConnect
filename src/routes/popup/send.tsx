@@ -19,6 +19,7 @@ import { getArPrice } from "~lib/coingecko";
 import { getActiveWallet } from "~wallets";
 import { useTokens } from "~tokens";
 import Token, { ArToken } from "~components/popup/Token";
+import Collectible from "~components/popup/Collectible";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
@@ -308,17 +309,33 @@ export default function Send({ id }: Props) {
                   setShownTokenSelector(false);
                 }}
               />
-              {tokens.map((token, i) => (
-                <Token
-                  id={token.id}
-                  onClick={() => {
-                    setSelectedToken(token.id);
-                    setShownTokenSelector(false);
-                  }}
-                  key={i}
-                />
-              ))}
+              {tokens
+                .filter((token) => token.type === "asset")
+                .map((token, i) => (
+                  <Token
+                    id={token.id}
+                    onClick={() => {
+                      setSelectedToken(token.id);
+                      setShownTokenSelector(false);
+                    }}
+                    key={i}
+                  />
+                ))}
             </TokensSection>
+            <CollectiblesList>
+              {tokens
+                .filter((token) => token.type === "collectible")
+                .map((token, i) => (
+                  <Collectible
+                    id={token.id}
+                    onClick={() => {
+                      setSelectedToken(token.id);
+                      setShownTokenSelector(false);
+                    }}
+                    key={i}
+                  />
+                ))}
+            </CollectiblesList>
           </TokenSelector>
         )}
       </AnimatePresence>
@@ -432,6 +449,13 @@ const TokensSection = styled(Section)`
   gap: 0.82rem;
   padding-top: 2rem;
   padding-bottom: 1.4rem;
+`;
+
+const CollectiblesList = styled(Section)`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  padding-top: 0;
 `;
 
 interface Props {

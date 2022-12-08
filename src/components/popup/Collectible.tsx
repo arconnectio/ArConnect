@@ -1,15 +1,14 @@
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { AnimatePresence, motion, Variants } from "framer-motion";
+import { MouseEventHandler, useMemo, useRef } from "react";
 import { Spacer, Text } from "@arconnect/components";
 import { useStorage } from "@plasmohq/storage/hook";
-import { useMemo, useRef } from "react";
-import { useLocation } from "wouter";
 import { useTokens } from "~tokens";
 import useSandboxedTokenState from "~tokens/hook";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 
-export default function Collectible({ id }: Props) {
+export default function Collectible({ id, onClick }: Props) {
   // load state
   const sandbox = useRef<HTMLIFrameElement>();
   const { state } = useSandboxedTokenState(id, sandbox);
@@ -32,9 +31,6 @@ export default function Collectible({ id }: Props) {
     return bal.toLocaleString(undefined, { maximumFractionDigits: 2 });
   }, [state, activeAddress]);
 
-  // router
-  const [, setLocation] = useLocation();
-
   // load gateway
   const [tokens] = useTokens();
   const gateway = useMemo(() => {
@@ -48,7 +44,7 @@ export default function Collectible({ id }: Props) {
   }, [tokens]);
 
   return (
-    <Wrapper onClick={() => setLocation(`/collectible/${id}`)}>
+    <Wrapper onClick={onClick}>
       <Image src={concatGatewayURL(gateway) + `/${id}`}>
         <AnimatePresence>
           {state && balance !== "0" && (
@@ -136,4 +132,5 @@ const OwnedQty = styled(motion.div)`
 
 interface Props {
   id: string;
+  onClick?: MouseEventHandler<HTMLDivElement>;
 }

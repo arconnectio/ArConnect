@@ -1,4 +1,5 @@
 import { Section } from "@arconnect/components";
+import { useLocation } from "wouter";
 import { useTokens } from "~tokens";
 import { useMemo } from "react";
 import Collectible from "~components/popup/Collectible";
@@ -16,12 +17,19 @@ export default function Collectibles() {
     [tokens]
   );
 
+  // router location
+  const [, setLocation] = useLocation();
+
   return (
     <>
       <Head title={browser.i18n.getMessage("collectibles")} />
       <CollectiblesList>
         {collectibles.map((collectible, i) => (
-          <Collectible id={collectible.id} key={i} />
+          <Collectible
+            id={collectible.id}
+            onClick={() => setLocation(`/collectible/${collectible.id}`)}
+            key={i}
+          />
         ))}
       </CollectiblesList>
     </>

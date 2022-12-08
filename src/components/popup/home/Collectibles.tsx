@@ -40,7 +40,11 @@ export default function Collectibles() {
       )}
       <CollectiblesList>
         {collectibles.slice(0, 4).map((collectible, i) => (
-          <Collectible id={collectible.id} key={i} />
+          <Collectible
+            id={collectible.id}
+            onClick={() => setLocation(`/collectible/${collectible.id}`)}
+            key={i}
+          />
         ))}
       </CollectiblesList>
     </Section>

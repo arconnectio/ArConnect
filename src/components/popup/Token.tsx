@@ -160,8 +160,8 @@ const Logo = styled.div<{ src: string }>`
   -webkit-mask: url(${(props) => props.src}) center/contain;
   user-select: none;
   background: rgb(${(props) => props.theme.theme});
-  width: 31%;
-  height: 31%;
+  width: 35%;
+  height: 35%;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
