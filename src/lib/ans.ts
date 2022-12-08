@@ -20,6 +20,20 @@ export async function getAnsProfile(
   }
 }
 
+/**
+ * Get the ANS profile for a label
+ *
+ * @param label Label to fetch the profile for
+ * @returns Profile data
+ */
+export async function getAnsProfileByLabel(label: string): Promise<AnsUser> {
+  const { res } = await (
+    await fetch("https://ans-stats.decent.land/users")
+  ).json();
+
+  return res.find(({ currentLabel }) => currentLabel === label);
+}
+
 export interface AnsUsers {
   res: AnsUser[];
 }

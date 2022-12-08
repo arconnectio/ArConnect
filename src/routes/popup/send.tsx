@@ -14,7 +14,7 @@ import type { JWKInterface } from "arweave/web/lib/wallet";
 import { formatAddress, isAddress } from "~utils/format";
 import { useState, useEffect, useMemo } from "react";
 import { decryptWallet } from "~wallets/encryption";
-import { getAnsProfile, AnsUser } from "~lib/ans";
+import { getAnsProfile, AnsUser, getAnsProfileByLabel } from "~lib/ans";
 import { getArPrice } from "~lib/coingecko";
 import { getActiveWallet } from "~wallets";
 import { useTokens } from "~tokens";
@@ -43,14 +43,21 @@ export default function Send({ id }: Props) {
   // calculate fee
   const [fee, setFee] = useState("0");
 
+  // target data
+  const [target, setTarget] = useState<{
+    address: string;
+    label?: string;
+    avatar?: string;
+  }>();
+
   useEffect(() => {
     (async () => {
       const arweave = new Arweave(defaultGateway);
-      const price = await arweave.transactions.getPrice(0, targetInput.state);
+      const price = await arweave.transactions.getPrice(0, target.address);
 
       setFee(arweave.ar.winstonToAr(price));
     })();
-  }, [amount, targetInput.state]);
+  }, [amount, target]);
 
   // get fiat value
   const [fiatVal, setFiatVal] = useState(0);
@@ -65,26 +72,35 @@ export default function Send({ id }: Props) {
   }, [amount, currency]);
 
   // fetch target data
-  const [target, setTarget] = useState<{
-    address: string;
-    label?: string;
-    avatar?: string;
-  }>();
-
   useEffect(() => {
     (async () => {
-      if (!isAddress(targetInput.state)) return;
+      let targetAddress = targetInput.state;
+      let ansProfile: AnsUser;
 
-      const ansProfile = (await getAnsProfile(targetInput.state)) as AnsUser;
+      // fetch profile with address
+      if (isAddress(targetAddress)) {
+        ansProfile = (await getAnsProfile(targetAddress)) as AnsUser;
+      } else if (targetAddress.includes(".ar")) {
+        // fetch profile with label
+        ansProfile = await getAnsProfileByLabel(
+          targetAddress.replace(".ar", "")
+        );
+      } else {
+        return;
+      }
+
+      if (!ansProfile) {
+        return setTarget(undefined);
+      }
+
+      const label = ansProfile.currentLabel + ".ar";
+      const avatar =
+        concatGatewayURL(defaultGateway) + "/" + (ansProfile?.avatar || "");
 
       setTarget({
-        address: targetInput.state,
-        label: ansProfile?.currentLabel
-          ? ansProfile.currentLabel + ".ar"
-          : undefined,
-        avatar: ansProfile?.avatar
-          ? concatGatewayURL(defaultGateway) + "/" + ansProfile.avatar
-          : undefined
+        address: ansProfile.user,
+        label,
+        avatar: ansProfile.avatar ? avatar : undefined
       });
     })();
   }, [targetInput.state]);
@@ -98,6 +114,11 @@ export default function Send({ id }: Props) {
   // send tx
   async function send() {
     let wallet: JWKInterface;
+
+    // return if target is undefined
+    if (!target) {
+      return;
+    }
 
     setLoading(true);
 
@@ -125,7 +146,7 @@ export default function Send({ id }: Props) {
     }
 
     // check target
-    if (!isAddress(targetInput.state)) {
+    if (!isAddress(target.address)) {
       setLoading(false);
       return setToast({
         type: "error",
@@ -139,7 +160,7 @@ export default function Send({ id }: Props) {
       const arweave = new Arweave(defaultGateway);
       let tx = await arweave.createTransaction(
         {
-          target: targetInput.state,
+          target: target.address,
           quantity: arweave.ar.arToWinston(amount.toString())
         },
         wallet
@@ -148,7 +169,7 @@ export default function Send({ id }: Props) {
       if (selectedToken !== "AR") {
         tx = await arweave.createTransaction(
           {
-            target: targetInput.state,
+            target: target.address,
             quantity: "0",
             data: (Math.random() * Math.pow(10, 5)).toFixed(0)
           },
@@ -162,7 +183,7 @@ export default function Send({ id }: Props) {
           "Input",
           JSON.stringify({
             function: "transfer",
-            target: targetInput.state,
+            target: target.address,
             qty: amount
           })
         );
