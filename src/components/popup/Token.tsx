@@ -8,6 +8,7 @@ import { useTheme } from "~utils/theme";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import useSandboxedTokenState from "~tokens/hook";
+import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
@@ -64,14 +65,13 @@ export default function Token({ id, onClick }: Props) {
         {state && (
           <Wrapper onClick={onClick}>
             <LogoAndDetails>
-              <Logo
-                src={`https://meta.viewblock.io/AR.${id}/logo?t=${theme}`}
-              />
+              <LogoWrapper outline="#000">
+                <Logo
+                  src={`https://meta.viewblock.io/AR.${id}/logo?t=${theme}`}
+                />
+              </LogoWrapper>
               <div>
-                <PrimaryText>
-                  {(state.name && `${state.name} (${state.ticker})`) ||
-                    state.ticker}
-                </PrimaryText>
+                <PrimaryText>{state.name || state.ticker}</PrimaryText>
                 <Ticker>
                   {formattedBalance} {state.ticker}
                 </Ticker>
@@ -143,14 +143,28 @@ const LogoAndDetails = styled.div`
   gap: 0.75rem;
 `;
 
-const Logo = styled.img.attrs({
-  draggable: false,
-  alt: "logo"
-})`
-  width: 2.4rem;
-  height: 2.4rem;
-  object-fit: cover;
+const LogoWrapper = styled(Squircle)`
+  position: relative;
+  width: 3rem;
+  height: 3rem;
+  color: transparent;
+
+  path {
+    stroke: rgb(${(props) => props.theme.cardBorder}) !important;
+  }
+`;
+
+const Logo = styled.div<{ src: string }>`
+  position: absolute;
+  mask: url(${(props) => props.src}) center/contain;
+  -webkit-mask: url(${(props) => props.src}) center/contain;
   user-select: none;
+  background: rgb(${(props) => props.theme.theme});
+  width: 31%;
+  height: 31%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 `;
 
 const PrimaryText = styled(Text).attrs({
@@ -229,9 +243,11 @@ export function ArToken({ onClick }: ArTokenProps) {
   return (
     <Wrapper onClick={onClick}>
       <LogoAndDetails>
-        <Logo src={theme === "light" ? arLogoLight : arLogoDark} />
+        <LogoWrapper outline="#000">
+          <Logo src={theme === "light" ? arLogoLight : arLogoDark} />
+        </LogoWrapper>
         <div>
-          <PrimaryText>Arweave (AR)</PrimaryText>
+          <PrimaryText>Arweave</PrimaryText>
           <Ticker>
             {balance}
             {" AR"}
