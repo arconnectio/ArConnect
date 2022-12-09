@@ -1,3 +1,4 @@
+import type { GQLEdgeInterface } from "ar-gql/dist/faces";
 import {
   concatGatewayURL,
   defaultGateway,
@@ -116,7 +117,7 @@ export async function getInitialState(
  * @param gateway Optional gateway to fetch the interactions from
  * @param limit Limit of the interactions returned
  */
-export async function getInteractionsForAddress(
+export async function getInteractionsTxsForAddress(
   contractId: string,
   address: string,
   gateway?: Gateway,
@@ -206,4 +207,63 @@ export async function getInteractionsForAddress(
     .slice(0, limit);
 
   return interactions;
+}
+
+/**
+ * Parse interactions from interaction txs
+ *
+ * @param interactions Interaction txs to parse
+ * @param activeAddress Active wallet address
+ * @param ticker Ticker of the token contract
+ */
+export function parseInteractions(
+  interactions: GQLEdgeInterface[],
+  activeAddress: string,
+  ticker?: string
+): TokenInteraction[] {
+  return interactions.map((tx) => {
+    // interaction input
+    const input = JSON.parse(
+      tx.node.tags.find((tag) => tag.name === "Input")?.value
+    );
+    const recipient = tx.node.recipient || input.target;
+
+    // interaction data
+    let type: TokenInteractionType = "interaction";
+    let qty = Number(tx.node.quantity.ar);
+    let otherAddress: string;
+
+    if (input.function === "transfer") {
+      type = (recipient === activeAddress && "in") || "out";
+      qty = Number(input.qty);
+      otherAddress =
+        (recipient === activeAddress && tx.node.owner.address) || recipient;
+    }
+
+    // parsed interaction data
+    return {
+      id: tx.node.id,
+      type,
+      qty:
+        qty.toLocaleString(undefined, { maximumFractionDigits: 2 }) +
+        " " +
+        (type === "interaction" ? "AR" : ticker || ""),
+      function: input.function,
+      otherAddress
+    };
+  });
+}
+
+type TokenInteractionType = "interaction" | "in" | "out";
+
+export interface TokenInteraction {
+  id: string;
+  type: TokenInteractionType;
+  // qty + ticker
+  qty: string;
+  // recipient for outgoing txs
+  // sender for incoming txs
+  otherAddress?: string;
+  // interaction function
+  function: string;
 }

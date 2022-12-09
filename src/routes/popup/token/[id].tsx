@@ -1,3 +1,12 @@
+import { AnimatePresence, motion, Variants } from "framer-motion";
+import { Section, Spacer, Text } from "@arconnect/components";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { defaultGateway } from "~applications/gateway";
+import { useStorage } from "@plasmohq/storage/hook";
+import { getCommunityUrl } from "~utils/format";
+import { getTokenLogo } from "~lib/viewblock";
+import { useLocation } from "wouter";
+import { useTokens } from "~tokens";
 import {
   ArrowDownLeftIcon,
   ArrowUpRightIcon,
@@ -6,16 +15,11 @@ import {
   MessageIcon,
   ShareIcon
 } from "@iconicicons/react";
-import { AnimatePresence, motion, Variants } from "framer-motion";
-import { Section, Spacer, Text } from "@arconnect/components";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { getInteractionsForAddress } from "~tokens/token";
-import { defaultGateway } from "~applications/gateway";
-import { useStorage } from "@plasmohq/storage/hook";
-import { getCommunityUrl } from "~utils/format";
-import { getTokenLogo } from "~lib/viewblock";
-import { useLocation } from "wouter";
-import { useTokens } from "~tokens";
+import {
+  getInteractionsTxsForAddress,
+  parseInteractions,
+  TokenInteraction
+} from "~tokens/token";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import PriceChart from "~components/popup/asset/PriceChart";
 import TokenLoading from "~components/popup/asset/Loading";
@@ -85,49 +89,20 @@ export default function Asset({ id }: Props) {
       }
 
       // fetch interactions
-      const allInteractions = await getInteractionsForAddress(
+      const allInteractions = await getInteractionsTxsForAddress(
         id,
         activeAddress,
         gateway
       );
 
       // compare validity
-      const validInteractions: TokenInteraction[] = allInteractions
-        .filter((tx) => !!validity[tx.node.id])
-        .map((tx) => {
-          // interaction input
-          const input = JSON.parse(
-            tx.node.tags.find((tag) => tag.name === "Input")?.value
-          );
-          const recipient = tx.node.recipient || input.target;
+      const validInteractions = allInteractions.filter(
+        (tx) => !!validity[tx.node.id]
+      );
 
-          // interaction data
-          let type: TokenInteractionType = "interaction";
-          let qty = Number(tx.node.quantity.ar);
-          let otherAddress: string;
-
-          if (input.function === "transfer") {
-            type = (recipient === activeAddress && "in") || "out";
-            qty = Number(input.qty);
-            otherAddress =
-              (recipient === activeAddress && tx.node.owner.address) ||
-              recipient;
-          }
-
-          // parsed interaction data
-          return {
-            id: tx.node.id,
-            type,
-            qty:
-              qty.toLocaleString(undefined, { maximumFractionDigits: 2 }) +
-              " " +
-              (type === "interaction" ? "AR" : state?.ticker || ""),
-            function: input.function,
-            otherAddress
-          };
-        });
-
-      setInteractions(validInteractions);
+      setInteractions(
+        parseInteractions(validInteractions, activeAddress, state?.ticker)
+      );
     })();
   }, [id, activeAddress, validity, state, gateway]);
 
@@ -340,17 +315,3 @@ export const Link = styled.a.attrs({
     opacity: 0.8;
   }
 `;
-
-type TokenInteractionType = "interaction" | "in" | "out";
-
-interface TokenInteraction {
-  id: string;
-  type: TokenInteractionType;
-  // qty + ticker
-  qty: string;
-  // recipient for outgoing txs
-  // sender for incoming txs
-  otherAddress?: string;
-  // interaction function
-  function: string;
-}
