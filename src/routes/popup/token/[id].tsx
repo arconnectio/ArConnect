@@ -21,6 +21,7 @@ import {
   TokenInteraction
 } from "~tokens/token";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
+import Interaction from "~components/popup/asset/Interaction";
 import PriceChart from "~components/popup/asset/PriceChart";
 import TokenLoading from "~components/popup/asset/Loading";
 import useSandboxedTokenState from "~tokens/hook";
@@ -193,6 +194,14 @@ export default function Asset({ id }: Props) {
                 <EyeIcon />
                 Viewblock
               </Link>
+              <Spacer y={1.45} />
+              <Title noMargin>{browser.i18n.getMessage("history")}</Title>
+              <Spacer y={0.6} />
+              <InteractionsList>
+                {interactions.map((interaction, i) => (
+                  <Interaction {...interaction} key={i} />
+                ))}
+              </InteractionsList>
             </Section>
           </motion.div>
         )}
@@ -314,4 +323,10 @@ export const Link = styled.a.attrs({
   &:hover {
     opacity: 0.8;
   }
+`;
+
+const InteractionsList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
 `;

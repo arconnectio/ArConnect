@@ -121,7 +121,7 @@ export async function getInteractionsTxsForAddress(
   contractId: string,
   address: string,
   gateway?: Gateway,
-  limit = 10
+  limit = 6
 ) {
   // fetch outgoing interactions
   const { data: out } = await gql(

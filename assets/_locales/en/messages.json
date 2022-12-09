@@ -934,5 +934,9 @@
   "your_balance": {
     "message": "Your balance",
     "description": "Balance label for tokens"
+  },
+  "history": {
+    "message": "History",
+    "description": "History title"
   }
 }
