@@ -40,7 +40,7 @@ export default function Interaction({
         return;
       }
 
-      setRecipient(ans.currentLabel);
+      setRecipient(ans.currentLabel + ".ar");
     })();
   }, [otherAddress]);
 
