@@ -138,6 +138,9 @@ export async function getInteractionsForAddress(
             node {
               id
               recipient
+              owner {
+                address
+              }
               quantity {
                 ar
               }
@@ -173,6 +176,9 @@ export async function getInteractionsForAddress(
             node {
               id
               recipient
+              owner {
+                address
+              }
               quantity {
                 ar
               }

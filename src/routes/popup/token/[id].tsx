@@ -92,17 +92,44 @@ export default function Asset({ id }: Props) {
       );
 
       // compare validity
-      console.log(
-        allInteractions
-          .filter((tx) => !!validity[tx.node.id])
-          .map((tx) => ({
+      const validInteractions: TokenInteraction[] = allInteractions
+        .filter((tx) => !!validity[tx.node.id])
+        .map((tx) => {
+          // interaction input
+          const input = JSON.parse(
+            tx.node.tags.find((tag) => tag.name === "Input")?.value
+          );
+          const recipient = tx.node.recipient || input.target;
+
+          // interaction data
+          let type: TokenInteractionType = "interaction";
+          let qty = Number(tx.node.quantity.ar);
+          let otherAddress: string;
+
+          if (input.function === "transfer") {
+            type = (recipient === activeAddress && "in") || "out";
+            qty = Number(input.qty);
+            otherAddress =
+              (recipient === activeAddress && tx.node.owner.address) ||
+              recipient;
+          }
+
+          // parsed interaction data
+          return {
             id: tx.node.id,
-            timestamp: tx.node.block.timestamp,
-            date: new Date(tx.node.block.timestamp * 1000)
-          }))
-      );
+            type,
+            qty:
+              qty.toLocaleString(undefined, { maximumFractionDigits: 2 }) +
+              " " +
+              (type === "interaction" ? "AR" : state?.ticker || ""),
+            function: input.function,
+            otherAddress
+          };
+        });
+
+      setInteractions(validInteractions);
     })();
-  }, [id, activeAddress, validity, gateway]);
+  }, [id, activeAddress, validity, state, gateway]);
 
   return (
     <>
@@ -314,4 +341,16 @@ export const Link = styled.a.attrs({
   }
 `;
 
-interface TokenInteraction {}
+type TokenInteractionType = "interaction" | "in" | "out";
+
+interface TokenInteraction {
+  id: string;
+  type: TokenInteractionType;
+  // qty + ticker
+  qty: string;
+  // recipient for outgoing txs
+  // sender for incoming txs
+  otherAddress?: string;
+  // interaction function
+  function: string;
+}
