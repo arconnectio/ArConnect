@@ -5,6 +5,7 @@ import { Section, Spacer, Text } from "@arconnect/components";
 import { useMemo, useRef, useState } from "react";
 import { getCommunityUrl } from "~utils/format";
 import { Link } from "../token/[id]";
+import { useTokens } from "~tokens";
 import TokenLoading from "~components/popup/asset/Loading";
 import Thumbnail from "~components/popup/asset/Thumbnail";
 import useSandboxedTokenState from "~tokens/hook";
@@ -18,12 +19,14 @@ export default function Collectible({ id }: Props) {
   const sandbox = useRef<HTMLIFrameElement>();
   const { state, loading } = useSandboxedTokenState(id, sandbox);
 
+  // community settings
   const settings = useMemo(() => {
     if (!state || !state.settings) return undefined;
 
     return new Map(state.settings);
   }, [state]);
 
+  // links
   const chatLinks = useMemo<string[]>(() => {
     const val = settings?.get("communityDiscussionLinks");
 
@@ -35,11 +38,18 @@ export default function Collectible({ id }: Props) {
   // price
   const [price, setPrice] = useState<number>();
 
+  // token gateway
+  const [tokens] = useTokens();
+  const gateway = useMemo(
+    () => tokens.find((t) => t.id === id)?.gateway || defaultGateway,
+    [id]
+  );
+
   return (
     <>
       <Head title={browser.i18n.getMessage("collectible")} />
       <Spacer y={0.75} />
-      <Thumbnail src={`${concatGatewayURL(defaultGateway)}/${id}`} />
+      <Thumbnail src={`${concatGatewayURL(gateway)}/${id}`} />
       <Section>
         <AnimatePresence>
           {state && (

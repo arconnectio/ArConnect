@@ -1,4 +1,9 @@
-import { concatGatewayURL, Gateway, gql } from "~applications/gateway";
+import {
+  concatGatewayURL,
+  defaultGateway,
+  Gateway,
+  gql
+} from "~applications/gateway";
 
 export interface Token {
   id: string;
@@ -100,4 +105,99 @@ export async function getInitialState(
   ).json();
 
   return contractData;
+}
+
+/**
+ * Get incoming and outgoing interactions (including transfers)
+ * for an address using the specified contract
+ *
+ * @param contractId ID of the contract to get the interactions for
+ * @param address User address to get the interactions for
+ * @param gateway Optional gateway to fetch the interactions from
+ * @param limit Limit of the interactions returned
+ */
+export async function getInteractionsForAddress(
+  contractId: string,
+  address: string,
+  gateway?: Gateway,
+  limit = 10
+) {
+  // fetch outgoing interactions
+  const { data: out } = await gql(
+    `
+      query($contractId: String!, $address: String!) {
+        transactions(
+          owners: [$address]
+          tags: [
+            { name: "App-Name", values: "SmartWeaveAction" }
+            { name: "App-Version", values: "0.3.0" }
+            { name: "Contract", values: [$contractId] }
+          ]
+        ) {
+          edges {
+            node {
+              id
+              recipient
+              quantity {
+                ar
+              }
+              tags {
+                name
+                value
+              }
+              block {
+                timestamp
+              }
+            }
+          }
+        }
+      }
+    `,
+    { contractId, address },
+    gateway || defaultGateway
+  );
+
+  // fetch outgoing interactions
+  const { data: incoming } = await gql(
+    `
+      query($contractId: String!, $address: String!) {
+        transactions(
+          recipients: [$address]
+          tags: [
+            { name: "App-Name", values: "SmartWeaveAction" }
+            { name: "App-Version", values: "0.3.0" }
+            { name: "Contract", values: [$contractId] }
+          ]
+        ) {
+          edges {
+            node {
+              id
+              recipient
+              quantity {
+                ar
+              }
+              tags {
+                name
+                value
+              }
+              block {
+                timestamp
+              }
+            }
+          }
+        }
+      }    
+    `,
+    { contractId, address },
+    gateway || defaultGateway
+  );
+
+  // sort interactions
+  const interactions = out.transactions.edges
+    .concat(incoming.transactions.edges)
+    .filter((tx) => !!tx?.node.block?.timestamp)
+    .sort((a, b) => b.node.block.timestamp - a.node.block.timestamp)
+    .slice(0, limit);
+
+  return interactions;
 }

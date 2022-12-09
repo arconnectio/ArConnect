@@ -8,11 +8,14 @@ import {
 } from "@iconicicons/react";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { Section, Spacer, Text } from "@arconnect/components";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { getInteractionsForAddress } from "~tokens/token";
+import { defaultGateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
-import { useMemo, useRef, useState } from "react";
 import { getCommunityUrl } from "~utils/format";
 import { getTokenLogo } from "~lib/viewblock";
 import { useLocation } from "wouter";
+import { useTokens } from "~tokens";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import PriceChart from "~components/popup/asset/PriceChart";
 import TokenLoading from "~components/popup/asset/Loading";
@@ -25,7 +28,7 @@ import styled from "styled-components";
 export default function Asset({ id }: Props) {
   // load state
   const sandbox = useRef<HTMLIFrameElement>();
-  const { state, loading } = useSandboxedTokenState(id, sandbox);
+  const { state, validity, loading } = useSandboxedTokenState(id, sandbox);
 
   // price period
   const [period, setPeriod] = useState("Day");
@@ -47,7 +50,7 @@ export default function Asset({ id }: Props) {
   }, [settings]);
 
   // current address
-  const [activeAddress, setActiveAddress] = useStorage<string>({
+  const [activeAddress] = useStorage<string>({
     key: "active_address",
     area: "local",
     isSecret: true
@@ -64,6 +67,42 @@ export default function Asset({ id }: Props) {
 
   // location
   const [, setLocation] = useLocation();
+
+  // token gateway
+  const [tokens] = useTokens();
+  const gateway = useMemo(
+    () => tokens.find((t) => t.id === id)?.gateway || defaultGateway,
+    [id]
+  );
+
+  // fetch interactions
+  const [interactions, setInteractions] = useState<TokenInteraction[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      if (!activeAddress || !validity || !id) {
+        return;
+      }
+
+      // fetch interactions
+      const allInteractions = await getInteractionsForAddress(
+        id,
+        activeAddress,
+        gateway
+      );
+
+      // compare validity
+      console.log(
+        allInteractions
+          .filter((tx) => !!validity[tx.node.id])
+          .map((tx) => ({
+            id: tx.node.id,
+            timestamp: tx.node.block.timestamp,
+            date: new Date(tx.node.block.timestamp * 1000)
+          }))
+      );
+    })();
+  }, [id, activeAddress, validity, gateway]);
 
   return (
     <>
@@ -274,3 +313,5 @@ export const Link = styled.a.attrs({
     opacity: 0.8;
   }
 `;
+
+interface TokenInteraction {}
