@@ -938,5 +938,9 @@
   "history": {
     "message": "History",
     "description": "History title"
+  },
+  "transaction": {
+    "message": "Transaction",
+    "description": "Transaction title"
   }
 }

@@ -199,7 +199,13 @@ export default function Asset({ id }: Props) {
               <Spacer y={0.6} />
               <InteractionsList>
                 {interactions.map((interaction, i) => (
-                  <Interaction {...interaction} key={i} />
+                  <Interaction
+                    {...interaction}
+                    onClick={() =>
+                      setLocation(`/transaction/${interaction.id}`)
+                    }
+                    key={i}
+                  />
                 ))}
               </InteractionsList>
             </Section>

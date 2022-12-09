@@ -7,7 +7,7 @@ import { DisplayTheme, Text } from "@arconnect/components";
 import type { TokenInteraction } from "~tokens/token";
 import { AnsUser, getAnsProfile } from "~lib/ans";
 import { formatAddress } from "~utils/format";
-import { useEffect, useState } from "react";
+import { MouseEventHandler, useEffect, useState } from "react";
 import { useTheme } from "~utils/theme";
 import Squircle from "~components/Squircle";
 import styled from "styled-components";
@@ -17,8 +17,9 @@ export default function Interaction({
   type,
   qty,
   otherAddress,
-  function: fn
-}: TokenInteraction) {
+  function: fn,
+  onClick
+}: TokenInteraction & Props) {
   // display theme
   const displayTheme = useTheme();
 
@@ -45,7 +46,7 @@ export default function Interaction({
   }, [otherAddress]);
 
   return (
-    <Wrapper>
+    <Wrapper onClick={onClick}>
       <DataWrapper>
         <InteractionIconWrapper displayTheme={displayTheme}>
           {type === "in" && <InIcon />}
@@ -67,7 +68,7 @@ const Wrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  transition: all 0.07s ease-in-out;
+  transition: transform 0.07s ease-in-out, opacity 0.23s ease-in-out;
 
   &:hover {
     opacity: 0.82;
@@ -137,3 +138,7 @@ const Quantity = styled.span`
   color: rgb(${(props) => props.theme.secondaryText});
   font-weight: 500;
 `;
+
+interface Props {
+  onClick?: MouseEventHandler<HTMLDivElement>;
+}
