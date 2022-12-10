@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, Variants } from "framer-motion";
-import { Section, Spacer, Text } from "@arconnect/components";
+import { Loading, Section, Spacer, Text } from "@arconnect/components";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { defaultGateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -20,13 +20,13 @@ import {
   parseInteractions,
   TokenInteraction
 } from "~tokens/token";
+import Title, { Heading } from "~components/popup/Title";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import Interaction from "~components/popup/asset/Interaction";
 import PriceChart from "~components/popup/asset/PriceChart";
 import TokenLoading from "~components/popup/asset/Loading";
 import useSandboxedTokenState from "~tokens/hook";
 import browser from "webextension-polyfill";
-import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
 
@@ -82,6 +82,7 @@ export default function Asset({ id }: Props) {
 
   // fetch interactions
   const [interactions, setInteractions] = useState<TokenInteraction[]>([]);
+  const [loadingInteractions, setLoadingInteractions] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -89,21 +90,27 @@ export default function Asset({ id }: Props) {
         return;
       }
 
-      // fetch interactions
-      const allInteractions = await getInteractionsTxsForAddress(
-        id,
-        activeAddress,
-        gateway
-      );
+      setLoadingInteractions(true);
 
-      // compare validity
-      const validInteractions = allInteractions.filter(
-        (tx) => !!validity[tx.node.id]
-      );
+      try {
+        // fetch interactions
+        const allInteractions = await getInteractionsTxsForAddress(
+          id,
+          activeAddress,
+          gateway
+        );
 
-      setInteractions(
-        parseInteractions(validInteractions, activeAddress, state?.ticker)
-      );
+        // compare validity
+        const validInteractions = allInteractions.filter(
+          (tx) => !!validity[tx.node.id]
+        );
+
+        setInteractions(
+          parseInteractions(validInteractions, activeAddress, state?.ticker)
+        );
+      } catch {}
+
+      setLoadingInteractions(false);
     })();
   }, [id, activeAddress, validity, state, gateway]);
 
@@ -114,7 +121,7 @@ export default function Asset({ id }: Props) {
       <AnimatePresence>
         {state && (
           <motion.div
-            variants={chartAnimation}
+            variants={opacityAnimation}
             initial="hidden"
             animate="shown"
             exit="hidden"
@@ -195,7 +202,21 @@ export default function Asset({ id }: Props) {
                 Viewblock
               </Link>
               <Spacer y={1.45} />
-              <Title noMargin>{browser.i18n.getMessage("history")}</Title>
+              <Heading>
+                <Title noMargin>{browser.i18n.getMessage("history")}</Title>
+                <AnimatePresence>
+                  {loadingInteractions && (
+                    <LoadingWrapper
+                      variants={opacityAnimation}
+                      initial="hidden"
+                      animate="shown"
+                      exit="hidden"
+                    >
+                      <Loading />
+                    </LoadingWrapper>
+                  )}
+                </AnimatePresence>
+              </Heading>
               <Spacer y={0.6} />
               <InteractionsList>
                 {interactions.map((interaction, i) => (
@@ -207,6 +228,11 @@ export default function Asset({ id }: Props) {
                     key={i}
                   />
                 ))}
+                {interactions.length === 0 && !loadingInteractions && (
+                  <NoInteractions>
+                    {browser.i18n.getMessage("no_interaction_history")}
+                  </NoInteractions>
+                )}
               </InteractionsList>
             </Section>
           </motion.div>
@@ -226,7 +252,7 @@ interface Props {
   id: string;
 }
 
-const chartAnimation: Variants = {
+const opacityAnimation: Variants = {
   hidden: { opacity: 0 },
   shown: { opacity: 1 }
 };
@@ -335,4 +361,16 @@ const InteractionsList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+`;
+
+const NoInteractions = styled(Text).attrs({
+  noMargin: true
+})`
+  text-align: center;
+`;
+
+const LoadingWrapper = styled(motion.div)`
+  display: flex;
+  color: rgb(${(props) => props.theme.theme});
+  font-size: 1.075rem;
 `;

@@ -942,5 +942,9 @@
   "transaction": {
     "message": "Transaction",
     "description": "Transaction title"
+  },
+  "no_interaction_history": {
+    "message": "No history with this asset",
+    "description": "No interaction history text for an asset"
   }
 }
