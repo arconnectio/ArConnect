@@ -12,7 +12,7 @@ import styled from "styled-components";
 export default function Collectible({ id, onClick }: Props) {
   // load state
   const sandbox = useRef<HTMLIFrameElement>();
-  const { state } = useSandboxedTokenState(id, sandbox);
+  const { state } = useSandboxedTokenState(id, sandbox, 270);
 
   // active address
   const [activeAddress] = useStorage<string>({

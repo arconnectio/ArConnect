@@ -27,7 +27,7 @@ export default function Token({ id, onClick }: Props) {
 
   // load state
   const sandbox = useRef<HTMLIFrameElement>();
-  const { state } = useSandboxedTokenState(id, sandbox);
+  const { state } = useSandboxedTokenState(id, sandbox, 270);
 
   // token balance
   const balance = useMemo(() => {
