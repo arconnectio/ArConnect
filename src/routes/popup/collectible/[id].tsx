@@ -18,7 +18,7 @@ import styled from "styled-components";
 export default function Collectible({ id }: Props) {
   // load state
   const sandbox = useRef<HTMLIFrameElement>();
-  const { state, loading } = useSandboxedTokenState(id, sandbox);
+  const { state, loading } = useSandboxedTokenState(id, sandbox, 270);
 
   // community settings
   const settings = useMemo(() => {

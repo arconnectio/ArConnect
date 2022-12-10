@@ -9,7 +9,8 @@ type ContractResult = EvalStateResult<TokenState>;
 
 export default function useSandboxedTokenState(
   id: string,
-  sandboxElementRef: MutableRefObject<HTMLIFrameElement>
+  sandboxElementRef: MutableRefObject<HTMLIFrameElement>,
+  waitForAnimation = 0
 ) {
   const [contractResult, setContractResult] =
     useState<Partial<ContractResult>>();
@@ -48,20 +49,27 @@ export default function useSandboxedTokenState(
       // get gateway
       const gateway = await getTokenGateway(id);
 
-      sandboxElementRef.current.contentWindow.postMessage(
-        {
-          fn: "getContractState",
-          callID,
-          params: [id, gateway]
-        },
-        "*"
+      // wait for animation
+      // so it won't lag the page switch
+      setTimeout(
+        () =>
+          sandboxElementRef.current.contentWindow.postMessage(
+            {
+              fn: "getContractState",
+              callID,
+              params: [id, gateway]
+            },
+            "*"
+          ),
+        waitForAnimation
       );
     };
 
-    (async () => {
-      // start loading
-      setLoading(true);
+    // start loading
+    setLoading(true);
 
+    // wait for animation
+    setTimeout(async () => {
       // get gateway
       const gateway = await getTokenGateway(id);
 
@@ -70,7 +78,7 @@ export default function useSandboxedTokenState(
 
       if (!!contractResult?.state) return;
       setContractResult({ state: initialState as any });
-    })();
+    }, waitForAnimation);
 
     const sandbox = sandboxElementRef.current;
 

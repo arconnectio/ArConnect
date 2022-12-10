@@ -27,14 +27,14 @@ import PriceChart from "~components/popup/asset/PriceChart";
 import TokenLoading from "~components/popup/asset/Loading";
 import useSandboxedTokenState from "~tokens/hook";
 import browser from "webextension-polyfill";
+import Skeleton from "~components/Skeleton";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
-import Skeleton from "~components/Skeleton";
 
 export default function Asset({ id }: Props) {
   // load state
   const sandbox = useRef<HTMLIFrameElement>();
-  const { state, validity, loading } = useSandboxedTokenState(id, sandbox);
+  const { state, validity, loading } = useSandboxedTokenState(id, sandbox, 270);
 
   // price period
   const [period, setPeriod] = useState("Day");
