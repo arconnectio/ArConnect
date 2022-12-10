@@ -4,7 +4,7 @@ import { Section } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 
-export default function CustomGatewayWarning() {
+export default function CustomGatewayWarning({ simple = false }: Props) {
   return (
     <motion.div
       variants={animation}
@@ -15,7 +15,9 @@ export default function CustomGatewayWarning() {
       <Section>
         <Alert>
           <Icon />
-          {browser.i18n.getMessage("custom_gateway_warning")}
+          {browser.i18n.getMessage(
+            simple ? "custom_gateway_warning_simple" : "custom_gateway_warning"
+          )}
         </Alert>
       </Section>
     </motion.div>
@@ -43,3 +45,7 @@ const animation: Variants = {
   hidden: { opacity: 0 },
   shown: { opacity: 1 }
 };
+
+interface Props {
+  simple?: boolean;
+}

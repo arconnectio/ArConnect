@@ -875,6 +875,10 @@
     "message": "This token uses a custom gateway. This might slow down evaluation.",
     "description": "Warning about adding tokens with custom gateways"
   },
+  "custom_gateway_warning_simple": {
+    "message": "Custom gateway used",
+    "description": "Custom gateway label for transaction details"
+  },
   "choose_theme": {
     "message": "Choose UI theme",
     "description": "UI theme option title in setup"

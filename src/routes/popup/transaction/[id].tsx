@@ -7,9 +7,11 @@ import {
 import { Button, Section, Spacer, Text } from "@arconnect/components";
 import type { GQLTransactionInterface } from "ardb/lib/faces/gql";
 import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { ShareIcon } from "@iconicicons/react";
 import { formatAddress } from "~utils/format";
 import { getArPrice } from "~lib/coingecko";
+import CustomGatewayWarning from "~components/auth/CustomGatewayWarning";
 import CodeArea from "~components/CodeArea";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
@@ -176,6 +178,9 @@ export default function Transaction({ id, gw }: Props) {
                 <span>AR</span>
               </AmountTitle>
             </Section>
+            <AnimatePresence>
+              {gw && <CustomGatewayWarning simple />}
+            </AnimatePresence>
             <Section>
               <Properties>
                 <TransactionProperty>
