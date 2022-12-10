@@ -1,7 +1,7 @@
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { Loading, Section, Spacer, Text } from "@arconnect/components";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { defaultGateway } from "~applications/gateway";
+import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
 import { getCommunityUrl } from "~utils/format";
 import { getTokenLogo } from "~lib/viewblock";
@@ -230,9 +230,19 @@ export default function Asset({ id }: Props) {
                     >
                       <Interaction
                         {...interaction}
-                        onClick={() =>
-                          setLocation(`/transaction/${interaction.id}`)
-                        }
+                        onClick={() => {
+                          if (gateway.host !== "arweave.net") {
+                            setLocation(
+                              `/transaction/${
+                                interaction.id
+                              }/${encodeURIComponent(
+                                concatGatewayURL(gateway)
+                              )}`
+                            );
+                          } else {
+                            setLocation(`/transaction/${interaction.id}`);
+                          }
+                        }}
                       />
                     </motion.div>
                   ))}

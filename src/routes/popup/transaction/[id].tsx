@@ -1,4 +1,9 @@
-import { concatGatewayURL, defaultGateway, gql } from "~applications/gateway";
+import {
+  concatGatewayURL,
+  defaultGateway,
+  gql,
+  urlToGateway
+} from "~applications/gateway";
 import { Button, Section, Spacer, Text } from "@arconnect/components";
 import type { GQLTransactionInterface } from "ardb/lib/faces/gql";
 import { useEffect, useMemo, useState } from "react";
@@ -12,17 +17,23 @@ import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
 
-export default function Transaction({ id }: Props) {
+export default function Transaction({ id, gw }: Props) {
   if (!id) return <></>;
 
   // fetch tx data
   const [transaction, setTransaction] = useState<GQLTransactionInterface>();
 
   // arweave gateway
-  const gw = useMemo(() => defaultGateway, []);
+  const gateway = useMemo(() => {
+    if (!gw) {
+      return defaultGateway;
+    }
+
+    return urlToGateway(decodeURIComponent(gw));
+  }, [gw]);
 
   // arweave client
-  const arweave = useMemo(() => new Arweave(gw), [gw]);
+  const arweave = useMemo(() => new Arweave(gateway), [gateway]);
 
   useEffect(() => {
     (async () => {
@@ -56,12 +67,12 @@ export default function Transaction({ id }: Props) {
           }        
         `,
         { id },
-        gw
+        gateway
       );
 
       setTransaction(data.transaction);
     })();
-  }, [id, gw]);
+  }, [id, gateway]);
 
   // transaction confirmations
   const [confirmations, setConfirmations] = useState(0);
@@ -130,7 +141,9 @@ export default function Transaction({ id }: Props) {
       }
 
       // load data
-      let txData = await (await fetch(`${concatGatewayURL(gw)}/${id}`)).text();
+      let txData = await (
+        await fetch(`${concatGatewayURL(gateway)}/${id}`)
+      ).text();
 
       // format json
       if (type === "application/json") {
@@ -139,7 +152,7 @@ export default function Transaction({ id }: Props) {
 
       setData(txData);
     })();
-  }, [id, transaction, gw, isBinary]);
+  }, [id, transaction, gateway, isBinary]);
 
   return (
     <Wrapper>
@@ -232,7 +245,7 @@ export default function Transaction({ id }: Props) {
                     <PropertyName>
                       {browser.i18n.getMessage("transaction_data")}
                       <a
-                        href={`${concatGatewayURL(gw)}/${id}`}
+                        href={`${concatGatewayURL(gateway)}/${id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -248,7 +261,9 @@ export default function Transaction({ id }: Props) {
                           data}
                       </CodeArea>
                     )) || (
-                      <ImageDisplay src={`${concatGatewayURL(gw)}/${id}`} />
+                      <ImageDisplay
+                        src={`${concatGatewayURL(gateway)}/${id}`}
+                      />
                     )}
                   </>
                 )}
@@ -360,4 +375,6 @@ const ImageDisplay = styled.img.attrs({
 
 interface Props {
   id: string;
+  // encodeURIComponent transformed gateway url
+  gw?: string;
 }

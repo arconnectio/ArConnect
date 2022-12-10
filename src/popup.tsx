@@ -67,8 +67,10 @@ export default function Popup() {
           <Route path="/collectible/:id">
             {(params: { id: string }) => <Collectible id={params?.id} />}
           </Route>
-          <Route path="/transaction/:id">
-            {(params: { id: string }) => <Transaction id={params?.id} />}
+          <Route path="/transaction/:id/:gateway?">
+            {(params: { id: string; gateway?: string }) => (
+              <Transaction id={params?.id} gw={params?.gateway} />
+            )}
           </Route>
         </Router>
       </Wrapper>
