@@ -23,6 +23,7 @@ import {
   concatGatewayURL,
   defaultGateway,
   suggestedGateways,
+  testnets,
   urlToGateway
 } from "~applications/gateway";
 import type Application from "~applications/application";
@@ -67,7 +68,9 @@ export default function AppSettings({ app, showTitle = false }: Props) {
 
   // is the current gateway a custom one
   const isCustom = useMemo(() => {
-    const gatewayUrls = suggestedGateways.map((g) => concatGatewayURL(g));
+    const gatewayUrls = suggestedGateways
+      .concat(testnets)
+      .map((g) => concatGatewayURL(g));
 
     return !gatewayUrls.includes(gateway);
   }, [gateway]);
@@ -220,7 +223,7 @@ export default function AppSettings({ app, showTitle = false }: Props) {
         }}
         fullWidth
       >
-        {suggestedGateways.map((g, i) => {
+        {suggestedGateways.concat(testnets).map((g, i) => {
           const url = concatGatewayURL(g);
 
           return (

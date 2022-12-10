@@ -1,7 +1,7 @@
-import { AnimatePresence, motion, Variants } from "framer-motion";
-import { Loading, Section, Spacer, Text } from "@arconnect/components";
-import { useEffect, useMemo, useRef, useState } from "react";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { Loading, Section, Spacer, Text } from "@arconnect/components";
+import { AnimatePresence, motion, Variants } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { getCommunityUrl } from "~utils/format";
 import { getTokenLogo } from "~lib/viewblock";
