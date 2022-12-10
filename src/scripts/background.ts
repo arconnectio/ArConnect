@@ -54,7 +54,12 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (!(await walletsStored())) return;
 
   if (changeInfo.status === "complete") {
-    const txId = await checkCommunityContract(tab.url!);
+    const authRequired =
+      (await browser.storage.local.get("auth_url"))?.auth_url === tab.url!;
+    const txId = authRequired
+      ? undefined
+      : await checkCommunityContract(tab.url!);
+    await browser.storage.local.remove("auth_url");
     if (txId) {
       await handleArweaveTabOpened(tabId, txId);
     } else {
@@ -250,6 +255,16 @@ browser.runtime.onMessage.addListener(async (message: MessageFormat) => {
       break;
   }
 });
+
+// listen for the url that needs to be authenticated and stored
+// to prevent `checkCommunityContract` from being unable to enter authentication credentials
+browser.webRequest.onAuthRequired.addListener(
+  async (details) => {
+    await browser.storage.local.set({ auth_url: details.url });
+    return browser.storage.local.get(null);
+  },
+  { urls: ["<all_urls>"] }
+);
 
 // add ar:// protocol
 addProtocolHandler();
