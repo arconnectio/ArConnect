@@ -1,9 +1,11 @@
 import { Token, TokenState, TokenType, validateTokenState } from "./token";
+import type { EvalStateResult } from "warp-contracts";
 import type { Gateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
 import { getStorageConfig } from "~utils/storage";
 import { getActiveAddress } from "~wallets";
 import { Storage } from "@plasmohq/storage";
+import { clearCache } from "./cache";
 
 const storage = new Storage(getStorageConfig());
 
@@ -65,6 +67,7 @@ export async function removeToken(id: string) {
     "tokens",
     tokens.filter((token) => token.id !== id)
   );
+  clearCache(id);
 }
 
 /**
@@ -79,3 +82,8 @@ export const useTokens = () =>
     },
     []
   );
+
+/**
+ * Token contract state evaluation result
+ */
+export type ContractResult = EvalStateResult<TokenState>;

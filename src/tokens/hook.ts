@@ -1,11 +1,9 @@
 import { MutableRefObject, useEffect, useState } from "react";
-import { getInitialState, TokenState } from "~tokens/token";
+import { cacheResult, getCachedResult } from "./cache";
 import { defaultGateway } from "~applications/gateway";
-import type { EvalStateResult } from "warp-contracts";
-import { getTokens } from "~tokens";
+import { ContractResult, getTokens } from "~tokens";
+import { getInitialState } from "~tokens/token";
 import { nanoid } from "nanoid";
-
-type ContractResult = EvalStateResult<TokenState>;
 
 export default function useSandboxedTokenState(
   id: string,
@@ -108,35 +106,4 @@ export default function useSandboxedTokenState(
     validity: contractResult?.validity,
     loading
   };
-}
-
-/**
- * Get contract cached executiong result from localStorage
- *
- * @param id Contract ID
- */
-function getCachedResult(id: string): ContractResult {
-  const res = localStorage.getItem(`cache_contract_${id}`);
-
-  if (!res) {
-    return undefined;
-  }
-
-  return JSON.parse(res);
-}
-
-/**
- * Cache contract execution result to localStorage
- *
- * @param id Contract ID
- * @param result Result to cache
- */
-function cacheResult(id: string, result: ContractResult) {
-  localStorage.setItem(
-    `cache_contract_${id}`,
-    JSON.stringify({
-      state: result.state,
-      validity: result.validity
-    })
-  );
 }
