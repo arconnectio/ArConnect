@@ -3,6 +3,7 @@ import { AnimatePresence, motion, Variants } from "framer-motion";
 import { MouseEventHandler, useMemo, useRef } from "react";
 import { Spacer, Text } from "@arconnect/components";
 import { useStorage } from "@plasmohq/storage/hook";
+import { hoverEffect } from "~utils/theme";
 import { useTokens } from "~tokens";
 import useSandboxedTokenState from "~tokens/hook";
 import browser from "webextension-polyfill";
@@ -79,8 +80,17 @@ const animation: Variants = {
 };
 
 const Wrapper = styled.div`
+  position: relative;
   cursor: pointer;
   transition: all 0.07s ease-in-out;
+
+  ${hoverEffect}
+
+  &::after {
+    width: calc(100% + 15px);
+    height: calc(100% + 15px);
+    border-radius: 12px;
+  }
 
   &:active {
     transform: scale(0.97);

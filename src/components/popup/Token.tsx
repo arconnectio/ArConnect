@@ -1,10 +1,10 @@
 import { MouseEventHandler, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { defaultGateway } from "~applications/gateway";
+import { hoverEffect, useTheme } from "~utils/theme";
 import { useStorage } from "@plasmohq/storage/hook";
 import { Text } from "@arconnect/components";
 import { getArPrice } from "~lib/coingecko";
-import { useTheme } from "~utils/theme";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import useSandboxedTokenState from "~tokens/hook";
@@ -122,11 +122,20 @@ const Wrapper = styled(motion.div).attrs({
   exit: "hidden",
   transition: { duration: 0.2, ease: "easeInOut" }
 })`
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
   transition: all 0.07s ease-in-out;
+
+  ${hoverEffect}
+
+  &::after {
+    width: 105%;
+    height: 130%;
+    border-radius: 12px;
+  }
 
   &:hover {
     opacity: 0.82;

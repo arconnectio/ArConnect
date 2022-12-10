@@ -320,14 +320,14 @@ const Wallet = styled(motion.div).attrs<{ open: boolean }>((props) => ({
   border-radius: 12px;
   cursor: pointer;
   background-color: transparent;
-  transition: all 0.23s ease-in-out;
+  transition: background-color 0.23s ease-in-out;
 
   &:hover {
     background-color: rgb(${(props) => props.theme.cardBorder}, 0.65);
   }
 
   &:active {
-    transform: scale(0.86);
+    transform: scale(0.975) !important;
   }
 `;
 
@@ -345,18 +345,6 @@ const WalletTitle = styled.div`
 
 const WalletName = styled(Text).attrs({ noMargin: true })`
   color: rgb(${(props) => props.theme.primaryText});
-`;
-
-const WalletNameEditor = styled.input.attrs({
-  type: "text"
-})`
-  border: none;
-  outline: none;
-  background-color: transparent;
-  padding: 0;
-  margin: 0;
-  border-bottom: 1px dotted rgb(${(props) => props.theme.cardBorder});
-  width: 5rem;
 `;
 
 const ActiveIndicator = styled.span`

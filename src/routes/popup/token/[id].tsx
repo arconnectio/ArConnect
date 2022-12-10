@@ -363,6 +363,7 @@ export const Link = styled.a.attrs({
   font-weight: 500;
   font-size: 0.9rem;
   text-decoration: none;
+  width: max-content;
   transition: all 0.23s ease-in-out;
 
   svg {

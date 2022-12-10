@@ -2,10 +2,10 @@ import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { DisplayTheme, Section, Text } from "@arconnect/components";
 import { Avatar, CloseLayer, NoAvatarIcon } from "./WalletHeader";
 import { useEffect, useMemo, useState } from "react";
+import { hoverEffect, useTheme } from "~utils/theme";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ArrowLeftIcon } from "@iconicicons/react";
 import type { AnsUser } from "~lib/ans";
-import { useTheme } from "~utils/theme";
 import { motion } from "framer-motion";
 import WalletSwitcher from "./WalletSwitcher";
 import styled from "styled-components";
@@ -134,10 +134,23 @@ const HeadWrapper = styled(Section)<{
 `;
 
 const BackWrapper = styled.div`
+  position: relative;
   display: flex;
-  overflow: hidden;
   width: max-content;
   height: max-content;
+  cursor: pointer;
+
+  ${hoverEffect}
+
+  &::after {
+    width: 158%;
+    height: 158%;
+    border-radius: 100%;
+  }
+
+  &:active svg {
+    transform: scale(0.92);
+  }
 `;
 
 const BackButton = styled(ArrowLeftIcon)`
@@ -145,17 +158,10 @@ const BackButton = styled(ArrowLeftIcon)`
   width: 1em;
   height: 1em;
   color: rgb(${(props) => props.theme.primaryText});
-  cursor: pointer;
-  transform: translateX(0);
-  opacity: 1;
-  transition: all 0.23s ease-in-out;
+  z-index: 2;
 
   path {
     stroke-width: 1.75 !important;
-  }
-
-  &:hover {
-    opacity: 0.7;
   }
 `;
 

@@ -1,5 +1,5 @@
+import { createGlobalStyle, css } from "styled-components";
 import type { DisplayTheme } from "@arconnect/components";
-import { createGlobalStyle } from "styled-components";
 import { useEffect, useState } from "react";
 import useSetting from "~settings/hook";
 
@@ -96,5 +96,30 @@ export const GlobalStyle = createGlobalStyle`
 
   body, button, input, select, textarea {
     font-family: "ManropeLocal", "Manrope VF", "Manrope", sans-serif !important;
+  }
+`;
+
+/**
+ * Hover effect css
+ * Applies a slight hue to the background of
+ * the element without using background-color
+ */
+export const hoverEffect = css`
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    overflow: hidden;
+    z-index: 0;
+    transform: translate(-50%, -50%);
+  }
+
+  &:hover::after {
+    background-color: rgb(${(props) => props.theme.primaryText}, 0.02);
+  }
+
+  &:active::after {
+    background-color: rgb(${(props) => props.theme.primaryText}, 0.06);
   }
 `;

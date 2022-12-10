@@ -1,14 +1,14 @@
+import { MouseEventHandler, useEffect, useState } from "react";
+import { DisplayTheme, Text } from "@arconnect/components";
+import type { TokenInteraction } from "~tokens/token";
+import { hoverEffect, useTheme } from "~utils/theme";
+import { AnsUser, getAnsProfile } from "~lib/ans";
+import { formatAddress } from "~utils/format";
 import {
   ArrowDownLeftIcon,
   ArrowUpRightIcon,
   CodeIcon
 } from "@iconicicons/react";
-import { DisplayTheme, Text } from "@arconnect/components";
-import type { TokenInteraction } from "~tokens/token";
-import { AnsUser, getAnsProfile } from "~lib/ans";
-import { formatAddress } from "~utils/format";
-import { MouseEventHandler, useEffect, useState } from "react";
-import { useTheme } from "~utils/theme";
 import Squircle from "~components/Squircle";
 import styled from "styled-components";
 
@@ -64,14 +64,19 @@ export default function Interaction({
 }
 
 const Wrapper = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
   transition: transform 0.07s ease-in-out, opacity 0.23s ease-in-out;
 
-  &:hover {
-    opacity: 0.82;
+  ${hoverEffect}
+
+  &::after {
+    width: calc(100% + 15px);
+    height: calc(100% + 15px);
+    border-radius: 12px;
   }
 
   &:active {
