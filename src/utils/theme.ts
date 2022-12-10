@@ -97,6 +97,11 @@ export const GlobalStyle = createGlobalStyle`
   body, button, input, select, textarea {
     font-family: "ManropeLocal", "Manrope VF", "Manrope", sans-serif !important;
   }
+
+  ::selection {
+    background-color: rgba(${(props) => props.theme.theme}, .6);
+    color: #fff;
+  }
 `;
 
 /**
@@ -105,21 +110,29 @@ export const GlobalStyle = createGlobalStyle`
  * the element without using background-color
  */
 export const hoverEffect = css`
+  z-index: 1;
+
   &::after {
     content: "";
     position: absolute;
     top: 50%;
     left: 50%;
     overflow: hidden;
-    z-index: 0;
+    z-index: -1;
     transform: translate(-50%, -50%);
   }
 
   &:hover::after {
-    background-color: rgb(${(props) => props.theme.primaryText}, 0.02);
+    background-color: rgb(
+      ${(props) => props.theme.primaryText},
+      ${(props) => (props.theme.displayTheme === "light" ? "0.02" : "0.08")}
+    );
   }
 
   &:active::after {
-    background-color: rgb(${(props) => props.theme.primaryText}, 0.06);
+    background-color: rgb(
+      ${(props) => props.theme.primaryText},
+      ${(props) => (props.theme.displayTheme === "light" ? "0.08" : "0.12")}
+    );
   }
 `;

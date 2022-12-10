@@ -1,4 +1,5 @@
 import type { ProtocolWithReturn } from "@arconnect/webext-bridge";
+import type { DisplayTheme } from "@arconnect/components";
 import type { Chunk } from "~api/modules/sign/chunks";
 import "styled-components";
 
@@ -31,6 +32,7 @@ interface AuthResult {
 
 declare module "styled-components" {
   export interface DefaultTheme {
+    displayTheme: DisplayTheme;
     theme: string;
     primaryText: string;
     secondaryText: string;

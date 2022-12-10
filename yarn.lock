@@ -15,10 +15,10 @@
     bignumber.js "^9.0.2"
     util "^0.12.4"
 
-"@arconnect/components@^0.1.19":
-  version "0.1.19"
-  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.1.19.tgz#abe2dd6778a6a8d53348d60504738d7770e51eeb"
-  integrity sha512-t+RwYM5LSt4nd5GXy15G0qGSn65TRPVVQhXmKzlx+/phmjSIjfdXTBkarpoQhVh5gRPKql/MJ7lEFpcQhxya+Q==
+"@arconnect/components@^0.1.20":
+  version "0.1.20"
+  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.1.20.tgz#4411e5f345b87861097cf90014e58149c58706b6"
+  integrity sha512-iwm1h+LjQcN4K7EdG+mcByfBWWMKI1FLMJE148TWsum9k5Jkh5zYk5ndH1vaRclM/wH+9dHyo1VjTIvMDqi1BQ==
   dependencies:
     "@iconicicons/react" "^1.5.0"
     "@types/jest" "^27.0.1"
