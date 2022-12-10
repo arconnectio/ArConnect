@@ -40,6 +40,7 @@ export default function useSandboxedTokenState(
     ) => {
       if (e.data.callID !== callID) return;
 
+      cacheResult(id, e.data.res);
       setContractResult(e.data.res);
       setLoading(false);
     };
@@ -68,17 +69,28 @@ export default function useSandboxedTokenState(
     // start loading
     setLoading(true);
 
-    // wait for animation
-    setTimeout(async () => {
-      // get gateway
-      const gateway = await getTokenGateway(id);
+    // get cache
+    const cache = getCachedResult(id);
 
+    if (cache) {
+      setContractResult(cache);
+    } else {
+      // wait for animation
       // load initial state
-      const initialState = await getInitialState(id, gateway || defaultGateway);
+      setTimeout(async () => {
+        // get gateway
+        const gateway = await getTokenGateway(id);
 
-      if (!!contractResult?.state) return;
-      setContractResult({ state: initialState as any });
-    }, waitForAnimation);
+        // load initial state
+        const initialState = await getInitialState(
+          id,
+          gateway || defaultGateway
+        );
+
+        if (!!contractResult?.state) return;
+        setContractResult({ state: initialState as any });
+      }, waitForAnimation);
+    }
 
     const sandbox = sandboxElementRef.current;
 
@@ -96,4 +108,29 @@ export default function useSandboxedTokenState(
     validity: contractResult?.validity,
     loading
   };
+}
+
+/**
+ * Get contract cached executiong result from localStorage
+ *
+ * @param id Contract ID
+ */
+function getCachedResult(id: string): ContractResult {
+  const res = localStorage.getItem(`cache_contract_${id}`);
+
+  if (!res) {
+    return undefined;
+  }
+
+  return JSON.parse(res);
+}
+
+/**
+ * Cache contract execution result to localStorage
+ *
+ * @param id Contract ID
+ * @param result Result to cache
+ */
+function cacheResult(id: string, result: ContractResult) {
+  localStorage.setItem(`cache_contract_${id}`, JSON.stringify(result));
 }
