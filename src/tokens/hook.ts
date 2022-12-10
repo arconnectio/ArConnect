@@ -132,5 +132,11 @@ function getCachedResult(id: string): ContractResult {
  * @param result Result to cache
  */
 function cacheResult(id: string, result: ContractResult) {
-  localStorage.setItem(`cache_contract_${id}`, JSON.stringify(result));
+  localStorage.setItem(
+    `cache_contract_${id}`,
+    JSON.stringify({
+      state: result.state,
+      validity: result.validity
+    })
+  );
 }
