@@ -219,15 +219,24 @@ export default function Asset({ id }: Props) {
               </Heading>
               <Spacer y={0.6} />
               <InteractionsList>
-                {interactions.map((interaction, i) => (
-                  <Interaction
-                    {...interaction}
-                    onClick={() =>
-                      setLocation(`/transaction/${interaction.id}`)
-                    }
-                    key={i}
-                  />
-                ))}
+                <AnimatePresence>
+                  {interactions.map((interaction, i) => (
+                    <motion.div
+                      variants={opacityAnimation}
+                      initial="hidden"
+                      animate="shown"
+                      exit="hidden"
+                      key={i}
+                    >
+                      <Interaction
+                        {...interaction}
+                        onClick={() =>
+                          setLocation(`/transaction/${interaction.id}`)
+                        }
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
                 {interactions.length === 0 && !loadingInteractions && (
                   <NoInteractions>
                     {browser.i18n.getMessage("no_interaction_history")}

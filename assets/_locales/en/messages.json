@@ -939,12 +939,48 @@
     "message": "History",
     "description": "History title"
   },
-  "transaction": {
-    "message": "Transaction",
-    "description": "Transaction title"
-  },
   "no_interaction_history": {
     "message": "No history with this asset",
     "description": "No interaction history text for an asset"
+  },
+  "titles_transaction": {
+    "message": "Transaction",
+    "description": "Transaction title"
+  },
+  "transaction_id": {
+    "message": "Transaction ID",
+    "description": "Transaction ID label"
+  },
+  "transaction_from": {
+    "message": "From",
+    "description": "Transaction \"from\" label"
+  },
+  "transaction_to": {
+    "message": "To",
+    "description": "Transaction \"to\" label"
+  },
+  "transaction_fee": {
+    "message": "Fee",
+    "description": "Transaction \"fee\" label"
+  },
+  "transaction_size": {
+    "message": "Size",
+    "description": "Transaction \"size\" label"
+  },
+  "transaction_confirmations": {
+    "message": "Confirmations",
+    "description": "Transaction \"confirmations\" label"
+  },
+  "transaction_tags": {
+    "message": "Tags",
+    "description": "Transaction \"tags\" label"
+  },
+  "transaction_data": {
+    "message": "Data",
+    "description": "Transaction \"data\" label"
+  },
+  "transaction_data_binary_warning": {
+    "message": "Cannot display binary transaction data...",
+    "description": "Warning about ArConnect not being able to display a transaction's data"
   }
 }

@@ -1,10 +1,11 @@
+import { concatGatewayURL, defaultGateway, gql } from "~applications/gateway";
 import { Button, Section, Spacer, Text } from "@arconnect/components";
 import type { GQLTransactionInterface } from "ardb/lib/faces/gql";
-import { defaultGateway, gql } from "~applications/gateway";
+import { useEffect, useMemo, useState } from "react";
 import { ShareIcon } from "@iconicicons/react";
 import { formatAddress } from "~utils/format";
-import { useEffect, useMemo, useState } from "react";
 import { getArPrice } from "~lib/coingecko";
+import CodeArea from "~components/CodeArea";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
@@ -16,6 +17,12 @@ export default function Transaction({ id }: Props) {
 
   // fetch tx data
   const [transaction, setTransaction] = useState<GQLTransactionInterface>();
+
+  // arweave gateway
+  const gw = useMemo(() => defaultGateway, []);
+
+  // arweave client
+  const arweave = useMemo(() => new Arweave(gw), [gw]);
 
   useEffect(() => {
     (async () => {
@@ -36,6 +43,7 @@ export default function Transaction({ id }: Props) {
               }
               data {
                 size
+                type
               }
               quantity {
                 ar
@@ -47,24 +55,24 @@ export default function Transaction({ id }: Props) {
             }
           }        
         `,
-        { id }
+        { id },
+        gw
       );
 
       setTransaction(data.transaction);
     })();
-  }, [id]);
+  }, [id, gw]);
 
   // transaction confirmations
   const [confirmations, setConfirmations] = useState(0);
 
   useEffect(() => {
     (async () => {
-      const arweave = new Arweave(defaultGateway);
       const status = await arweave.transactions.getStatus(id);
 
       setConfirmations(status.confirmed?.number_of_confirmations || 0);
     })();
-  }, [id]);
+  }, [id, arweave]);
 
   // currency setting
   const [currency] = useSetting<string>("currency");
@@ -85,10 +93,58 @@ export default function Transaction({ id }: Props) {
     return transactionQty * arPrice;
   }, [transaction, arPrice]);
 
+  // get content type
+  const getContentType = () =>
+    transaction?.data?.type ||
+    transaction?.tags?.find((t) => t.name.toLowerCase() === "content-type")
+      ?.value;
+
+  // transaction data
+  const [data, setData] = useState<string>("");
+
+  const isBinary = useMemo(() => {
+    const type = getContentType();
+
+    if (!type) return false;
+
+    return !type.startsWith("text/") && !type.startsWith("application/");
+  }, [transaction]);
+
+  const isImage = useMemo(() => {
+    const type = getContentType();
+
+    return type && type.startsWith("image/");
+  }, [transaction]);
+
+  useEffect(() => {
+    (async () => {
+      if (!transaction || !id || !arweave || isBinary) {
+        return;
+      }
+
+      const type = getContentType();
+
+      // return for null type
+      if (!type) {
+        return;
+      }
+
+      // load data
+      let txData = await (await fetch(`${concatGatewayURL(gw)}/${id}`)).text();
+
+      // format json
+      if (type === "application/json") {
+        txData = JSON.stringify(JSON.parse(txData), null, 2);
+      }
+
+      setData(txData);
+    })();
+  }, [id, transaction, gw, isBinary]);
+
   return (
     <Wrapper>
       <div>
-        <Head title={browser.i18n.getMessage("transaction")} />
+        <Head title={browser.i18n.getMessage("titles_transaction")} />
         {transaction && (
           <>
             <Section style={{ paddingBottom: 0 }}>
@@ -111,18 +167,22 @@ export default function Transaction({ id }: Props) {
               <Properties>
                 <TransactionProperty>
                   <PropertyName>
-                    {browser.i18n.getMessage("transaction")} ID
+                    {browser.i18n.getMessage("transaction_id")}
                   </PropertyName>
                   <PropertyValue>{formatAddress(id, 6)}</PropertyValue>
                 </TransactionProperty>
                 <TransactionProperty>
-                  <PropertyName>From</PropertyName>
+                  <PropertyName>
+                    {browser.i18n.getMessage("transaction_from")}
+                  </PropertyName>
                   <PropertyValue>
                     {formatAddress(transaction.owner.address, 6)}
                   </PropertyValue>
                 </TransactionProperty>
                 <TransactionProperty>
-                  <PropertyName>To</PropertyName>
+                  <PropertyName>
+                    {browser.i18n.getMessage("transaction_to")}
+                  </PropertyName>
                   <PropertyValue>
                     {(transaction.recipient &&
                       formatAddress(transaction.recipient, 6)) ||
@@ -130,27 +190,35 @@ export default function Transaction({ id }: Props) {
                   </PropertyValue>
                 </TransactionProperty>
                 <TransactionProperty>
-                  <PropertyName>Fee</PropertyName>
+                  <PropertyName>
+                    {browser.i18n.getMessage("transaction_fee")}
+                  </PropertyName>
                   <PropertyValue>
                     {transaction.fee.ar}
                     {" AR"}
                   </PropertyValue>
                 </TransactionProperty>
                 <TransactionProperty>
-                  <PropertyName>Size</PropertyName>
+                  <PropertyName>
+                    {browser.i18n.getMessage("transaction_size")}
+                  </PropertyName>
                   <PropertyValue>
                     {transaction.data.size}
                     {" B"}
                   </PropertyValue>
                 </TransactionProperty>
                 <TransactionProperty>
-                  <PropertyName>Confirmations</PropertyName>
+                  <PropertyName>
+                    {browser.i18n.getMessage("transaction_confirmations")}
+                  </PropertyName>
                   <PropertyValue>
                     {confirmations.toLocaleString()}
                   </PropertyValue>
                 </TransactionProperty>
                 <Spacer y={0.1} />
-                <PropertyName>Tags</PropertyName>
+                <PropertyName>
+                  {browser.i18n.getMessage("transaction_tags")}
+                </PropertyName>
                 <Spacer y={0.05} />
                 {transaction.tags.map((tag, i) => (
                   <TransactionProperty key={i}>
@@ -158,6 +226,32 @@ export default function Transaction({ id }: Props) {
                     <TagValue>{tag.value}</TagValue>
                   </TransactionProperty>
                 ))}
+                {(data || isBinary) && (
+                  <>
+                    <Spacer y={0.1} />
+                    <PropertyName>
+                      {browser.i18n.getMessage("transaction_data")}
+                      <a
+                        href={`${concatGatewayURL(gw)}/${id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ShareIcon />
+                      </a>
+                    </PropertyName>
+                    {(!isImage && (
+                      <CodeArea>
+                        {(isBinary &&
+                          browser.i18n.getMessage(
+                            "transaction_data_binary_warning"
+                          )) ||
+                          data}
+                      </CodeArea>
+                    )) || (
+                      <ImageDisplay src={`${concatGatewayURL(gw)}/${id}`} />
+                    )}
+                  </>
+                )}
               </Properties>
             </Section>
             <Section>
@@ -223,7 +317,22 @@ const TransactionProperty = styled.div`
 const BasePropertyText = styled(Text).attrs({
   noMargin: true
 })`
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
   font-size: 0.95rem;
+
+  a {
+    display: flex;
+    color: inherit;
+    text-decoration: none;
+
+    svg {
+      font-size: 1em;
+      width: 1em;
+      height: 1em;
+    }
+  }
 `;
 
 const PropertyName = styled(BasePropertyText)`
@@ -239,6 +348,14 @@ const TagValue = styled(PropertyValue)`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+`;
+
+const ImageDisplay = styled.img.attrs({
+  draggable: false,
+  alt: "Transaction data"
+})`
+  width: 100%;
+  user-select: none;
 `;
 
 interface Props {
