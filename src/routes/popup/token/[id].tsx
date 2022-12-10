@@ -29,6 +29,7 @@ import useSandboxedTokenState from "~tokens/hook";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
+import Skeleton from "~components/Skeleton";
 
 export default function Asset({ id }: Props) {
   // load state
@@ -137,23 +138,44 @@ export default function Asset({ id }: Props) {
             >
               <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />
             </PriceChart>
-            <Spacer y={0.15} />
-            <Section>
-              <BalanceSection>
-                <div>
-                  <BalanceLabel>
-                    {browser.i18n.getMessage("your_balance")}
-                  </BalanceLabel>
-                  <Spacer y={0.38} />
-                  <TokenBalance>
-                    {tokenBalance}
-                    <span>{state.ticker || ""}</span>
-                  </TokenBalance>
-                  {/*<FiatBalance>
-                    $13.45 USD
-                  </FiatBalance>*/}
-                  <FiatBalance>$?? USD</FiatBalance>
-                </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {!state && (
+        <Section size="slim" style={{ paddingTop: 0, paddingBottom: "0.3rem" }}>
+          <Skeleton height="160px" />
+        </Section>
+      )}
+      <Spacer y={0.15} />
+      <Section>
+        <BalanceSection>
+          <div>
+            <BalanceLabel>
+              {(state && browser.i18n.getMessage("your_balance")) || (
+                <Skeleton width="3.4rem" />
+              )}
+            </BalanceLabel>
+            <Spacer y={0.38} />
+            <TokenBalance>
+              {(state && (
+                <>
+                  {tokenBalance}
+                  <span>{state.ticker || ""}</span>
+                </>
+              )) || <Skeleton width="5rem" addMargin />}
+            </TokenBalance>
+            <FiatBalance>
+              {(state && "$?? USD") || <Skeleton width="3.7rem" />}
+            </FiatBalance>
+          </div>
+          <AnimatePresence>
+            {state && (
+              <motion.div
+                variants={opacityAnimation}
+                initial="hidden"
+                animate="shown"
+                exit="hidden"
+              >
                 <TokenActions>
                   <TokenAction onClick={() => setLocation(`/send/${id}`)} />
                   <ActionSeparator />
@@ -162,101 +184,126 @@ export default function Asset({ id }: Props) {
                     onClick={() => setLocation("/receive")}
                   />
                 </TokenActions>
-              </BalanceSection>
-              <Spacer y={1.45} />
-              <Title noMargin>{browser.i18n.getMessage("about_title")}</Title>
-              <Spacer y={0.6} />
-              <Description>
-                {(settings && settings.get("communityDescription")) ||
-                  state.description ||
-                  browser.i18n.getMessage("no_description")}
-              </Description>
-              <Spacer y={1.45} />
-              <Title noMargin>{browser.i18n.getMessage("info_title")}</Title>
-              <Spacer y={0.6} />
-              {chatLinks.map((link, i) => (
-                <div key={i}>
-                  <Link href={link}>
-                    <MessageIcon />
-                    {getCommunityUrl(link)}
-                  </Link>
-                  <Spacer y={0.22} />
-                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </BalanceSection>
+        <Spacer y={1.45} />
+        <Title noMargin>{browser.i18n.getMessage("about_title")}</Title>
+        <Spacer y={0.6} />
+        <Description>
+          {(state && (
+            <>
+              {(settings && settings.get("communityDescription")) ||
+                state.description ||
+                browser.i18n.getMessage("no_description")}
+            </>
+          )) ||
+            new Array(5)
+              .fill("")
+              .map((_, i) => (
+                <Skeleton
+                  addMargin
+                  height="1rem"
+                  width={i === 4 ? "80%" : "100%"}
+                  key={i}
+                />
               ))}
-              {settings?.get("communityAppUrl") && (
-                <>
-                  <Link href={settings.get("communityAppUrl") as string}>
-                    <ShareIcon />
-                    {getCommunityUrl(settings.get("communityAppUrl") as string)}
-                  </Link>
-                  <Spacer y={0.22} />
-                </>
-              )}
-              <Link href={`https://sonar.warp.cc/#/app/contract/${id}`}>
-                <GlobeIcon />
-                Sonar
-              </Link>
-              <Spacer y={0.22} />
-              <Link href={`https://viewblock.io/arweave/address/${id}`}>
-                <EyeIcon />
-                Viewblock
-              </Link>
-              <Spacer y={1.45} />
-              <Heading>
-                <Title noMargin>{browser.i18n.getMessage("history")}</Title>
-                <AnimatePresence>
-                  {loadingInteractions && (
-                    <LoadingWrapper
-                      variants={opacityAnimation}
-                      initial="hidden"
-                      animate="shown"
-                      exit="hidden"
-                    >
-                      <Loading />
-                    </LoadingWrapper>
-                  )}
-                </AnimatePresence>
-              </Heading>
-              <Spacer y={0.6} />
-              <InteractionsList>
-                <AnimatePresence>
-                  {interactions.map((interaction, i) => (
-                    <motion.div
-                      variants={opacityAnimation}
-                      initial="hidden"
-                      animate="shown"
-                      exit="hidden"
-                      key={i}
-                    >
-                      <Interaction
-                        {...interaction}
-                        onClick={() => {
-                          if (gateway.host !== "arweave.net") {
-                            setLocation(
-                              `/transaction/${
-                                interaction.id
-                              }/${encodeURIComponent(
-                                concatGatewayURL(gateway)
-                              )}`
-                            );
-                          } else {
-                            setLocation(`/transaction/${interaction.id}`);
-                          }
-                        }}
-                      />
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-                {interactions.length === 0 && !loadingInteractions && (
-                  <NoInteractions>
-                    {browser.i18n.getMessage("no_interaction_history")}
-                  </NoInteractions>
-                )}
-              </InteractionsList>
-            </Section>
-          </motion.div>
+        </Description>
+        <Spacer y={1.45} />
+        <Title noMargin>{browser.i18n.getMessage("info_title")}</Title>
+        <Spacer y={0.6} />
+        {chatLinks.map((link, i) => (
+          <div key={i}>
+            <Link href={link}>
+              <MessageIcon />
+              {getCommunityUrl(link)}
+            </Link>
+            <Spacer y={0.22} />
+          </div>
+        ))}
+        {settings?.get("communityAppUrl") && (
+          <>
+            <Link href={settings.get("communityAppUrl") as string}>
+              <ShareIcon />
+              {getCommunityUrl(settings.get("communityAppUrl") as string)}
+            </Link>
+            <Spacer y={0.22} />
+          </>
         )}
-      </AnimatePresence>
+        {(!loading && (
+          <>
+            <Link href={`https://sonar.warp.cc/#/app/contract/${id}`}>
+              <GlobeIcon />
+              Sonar
+            </Link>
+            <Spacer y={0.22} />
+            <Link href={`https://viewblock.io/arweave/address/${id}`}>
+              <EyeIcon />
+              Viewblock
+            </Link>
+          </>
+        )) ||
+          new Array(4)
+            .fill("")
+            .map((_, i) => (
+              <Skeleton addMargin height="1rem" width="6.8rem" key={i} />
+            ))}
+        <Spacer y={1.45} />
+        <Heading>
+          <Title noMargin>{browser.i18n.getMessage("history")}</Title>
+          <AnimatePresence>
+            {loadingInteractions && (
+              <LoadingWrapper
+                variants={opacityAnimation}
+                initial="hidden"
+                animate="shown"
+                exit="hidden"
+              >
+                <Loading />
+              </LoadingWrapper>
+            )}
+          </AnimatePresence>
+        </Heading>
+        <Spacer y={0.6} />
+        <InteractionsList>
+          {loadingInteractions &&
+            new Array(6)
+              .fill("")
+              .map((_, i) => <Skeleton height="42px" key={i} />)}
+          <AnimatePresence>
+            {interactions.map((interaction, i) => (
+              <motion.div
+                variants={opacityAnimation}
+                initial="hidden"
+                animate="shown"
+                exit="hidden"
+                key={i}
+              >
+                <Interaction
+                  {...interaction}
+                  onClick={() => {
+                    if (gateway.host !== "arweave.net") {
+                      setLocation(
+                        `/transaction/${interaction.id}/${encodeURIComponent(
+                          concatGatewayURL(gateway)
+                        )}`
+                      );
+                    } else {
+                      setLocation(`/transaction/${interaction.id}`);
+                    }
+                  }}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          {interactions.length === 0 && !loadingInteractions && (
+            <NoInteractions>
+              {browser.i18n.getMessage("no_interaction_history")}
+            </NoInteractions>
+          )}
+        </InteractionsList>
+      </Section>
       <AnimatePresence>{loading && <TokenLoading />}</AnimatePresence>
       <iframe
         src={browser.runtime.getURL("tabs/sandbox.html")}

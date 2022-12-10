@@ -1,14 +1,15 @@
 import { EyeIcon, MessageIcon, ShareIcon, GlobeIcon } from "@iconicicons/react";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
-import { AnimatePresence, motion, Variants } from "framer-motion";
 import { Section, Spacer, Text } from "@arconnect/components";
 import { useMemo, useRef, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { getCommunityUrl } from "~utils/format";
 import { Link } from "../token/[id]";
 import { useTokens } from "~tokens";
 import TokenLoading from "~components/popup/asset/Loading";
 import Thumbnail from "~components/popup/asset/Thumbnail";
 import useSandboxedTokenState from "~tokens/hook";
+import Skeleton from "~components/Skeleton";
 import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
@@ -51,62 +52,74 @@ export default function Collectible({ id }: Props) {
       <Spacer y={0.75} />
       <Thumbnail src={`${concatGatewayURL(gateway)}/${id}`} />
       <Section>
-        <AnimatePresence>
-          {state && (
-            <motion.div
-              variants={opacityAnimation}
-              initial="hidden"
-              animate="shown"
-              exit="hidden"
-            >
-              <Title heading noMargin>
-                {state?.name || state?.ticker || ""}
-              </Title>
-              {price && (
-                <Price noMargin>
-                  {price}
-                  <span>AR</span>
-                </Price>
-              )}
-              <Spacer y={1} />
-              <Description>
-                {(settings && settings.get("communityDescription")) ||
-                  state?.description ||
-                  browser.i18n.getMessage("no_description")}
-              </Description>
-              <Spacer y={1} />
-              <Title noMargin>{browser.i18n.getMessage("info_title")}</Title>
-              <Spacer y={0.6} />
-              {chatLinks.map((link, i) => (
-                <div key={i}>
-                  <Link href={link}>
-                    <MessageIcon />
-                    {getCommunityUrl(link)}
-                  </Link>
-                  <Spacer y={0.22} />
-                </div>
+        <Title heading noMargin>
+          {state?.name || state?.ticker || <Skeleton width="6rem" />}
+        </Title>
+        {price && (
+          <Price noMargin>
+            {price}
+            <span>AR</span>
+          </Price>
+        )}
+        <Spacer y={1} />
+        <Description>
+          {(state && (
+            <>
+              {(settings && settings.get("communityDescription")) ||
+                state?.description ||
+                browser.i18n.getMessage("no_description")}
+            </>
+          )) ||
+            new Array(5)
+              .fill("")
+              .map((_, i) => (
+                <Skeleton
+                  addMargin
+                  height="1rem"
+                  width={i === 4 ? "80%" : "100%"}
+                  key={i}
+                />
               ))}
-              {settings?.get("communityAppUrl") && (
-                <>
-                  <Link href={settings.get("communityAppUrl") as string}>
-                    <ShareIcon />
-                    {getCommunityUrl(settings.get("communityAppUrl") as string)}
-                  </Link>
-                  <Spacer y={0.22} />
-                </>
-              )}
-              <Link href={`https://sonar.warp.cc/#/app/contract/${id}`}>
-                <GlobeIcon />
-                Sonar
-              </Link>
-              <Spacer y={0.22} />
-              <Link href={`https://viewblock.io/arweave/address/${id}`}>
-                <EyeIcon />
-                Viewblock
-              </Link>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        </Description>
+        <Spacer y={1} />
+        <Title noMargin>{browser.i18n.getMessage("info_title")}</Title>
+        <Spacer y={0.6} />
+        {chatLinks.map((link, i) => (
+          <div key={i}>
+            <Link href={link}>
+              <MessageIcon />
+              {getCommunityUrl(link)}
+            </Link>
+            <Spacer y={0.22} />
+          </div>
+        ))}
+        {settings?.get("communityAppUrl") && (
+          <>
+            <Link href={settings.get("communityAppUrl") as string}>
+              <ShareIcon />
+              {getCommunityUrl(settings.get("communityAppUrl") as string)}
+            </Link>
+            <Spacer y={0.22} />
+          </>
+        )}
+        {(!loading && (
+          <>
+            <Link href={`https://sonar.warp.cc/#/app/contract/${id}`}>
+              <GlobeIcon />
+              Sonar
+            </Link>
+            <Spacer y={0.22} />
+            <Link href={`https://viewblock.io/arweave/address/${id}`}>
+              <EyeIcon />
+              Viewblock
+            </Link>
+          </>
+        )) ||
+          new Array(4)
+            .fill("")
+            .map((_, i) => (
+              <Skeleton addMargin height="1rem" width="6.8rem" key={i} />
+            ))}
       </Section>
       <AnimatePresence>{loading && <TokenLoading />}</AnimatePresence>
       <iframe
@@ -137,8 +150,3 @@ const Description = styled(Text).attrs({
   font-size: 0.9rem;
   text-align: justify;
 `;
-
-const opacityAnimation: Variants = {
-  hidden: { opacity: 0 },
-  shown: { opacity: 1 }
-};
