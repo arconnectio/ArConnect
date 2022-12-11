@@ -12,13 +12,15 @@ import { ShareIcon } from "@iconicicons/react";
 import { formatAddress } from "~utils/format";
 import { getArPrice } from "~lib/coingecko";
 import CustomGatewayWarning from "~components/auth/CustomGatewayWarning";
+import Skeleton from "~components/Skeleton";
 import CodeArea from "~components/CodeArea";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
+import prettyBytes from "pretty-bytes";
 import styled from "styled-components";
 import Arweave from "arweave";
-import Skeleton from "~components/Skeleton";
+import dayjs from "dayjs";
 
 export default function Transaction({ id, gw }: Props) {
   if (!id) return <></>;
@@ -65,6 +67,10 @@ export default function Transaction({ id, gw }: Props) {
               tags {
                 name
                 value
+              }
+              block {
+                height
+                timestamp
               }
             }
           }        
@@ -222,10 +228,32 @@ export default function Transaction({ id, gw }: Props) {
                     {browser.i18n.getMessage("transaction_size")}
                   </PropertyName>
                   <PropertyValue>
-                    {transaction.data.size}
-                    {" B"}
+                    {prettyBytes(Number(transaction.data.size))}
                   </PropertyValue>
                 </TransactionProperty>
+                {transaction.block && (
+                  <>
+                    <TransactionProperty>
+                      <PropertyName>
+                        {browser.i18n.getMessage("transaction_block_timestamp")}
+                      </PropertyName>
+                      <PropertyValue>
+                        {dayjs(transaction.block.timestamp * 1000).format(
+                          "MMM DD, YYYY"
+                        )}
+                      </PropertyValue>
+                    </TransactionProperty>
+                    <TransactionProperty>
+                      <PropertyName>
+                        {browser.i18n.getMessage("transaction_block_height")}
+                      </PropertyName>
+                      <PropertyValue>
+                        {"#"}
+                        {transaction.block.height}
+                      </PropertyValue>
+                    </TransactionProperty>
+                  </>
+                )}
                 <TransactionProperty>
                   <PropertyName>
                     {browser.i18n.getMessage("transaction_confirmations")}
@@ -288,7 +316,7 @@ export default function Transaction({ id, gw }: Props) {
             </Section>
             <Section>
               <Properties>
-                {new Array(5).fill("").map((_, i) => (
+                {new Array(7).fill("").map((_, i) => (
                   <TransactionProperty key={i}>
                     <PropertyName>
                       <Skeleton width="7.2rem" />

@@ -273,30 +273,31 @@ export default function Asset({ id }: Props) {
               .fill("")
               .map((_, i) => <Skeleton height="42px" key={i} />)}
           <AnimatePresence>
-            {interactions.map((interaction, i) => (
-              <motion.div
-                variants={opacityAnimation}
-                initial="hidden"
-                animate="shown"
-                exit="hidden"
-                key={i}
-              >
-                <Interaction
-                  {...interaction}
-                  onClick={() => {
-                    if (gateway.host !== "arweave.net") {
-                      setLocation(
-                        `/transaction/${interaction.id}/${encodeURIComponent(
-                          concatGatewayURL(gateway)
-                        )}`
-                      );
-                    } else {
-                      setLocation(`/transaction/${interaction.id}`);
-                    }
-                  }}
-                />
-              </motion.div>
-            ))}
+            {!loadingInteractions &&
+              interactions.map((interaction, i) => (
+                <motion.div
+                  variants={opacityAnimation}
+                  initial="hidden"
+                  animate="shown"
+                  exit="hidden"
+                  key={i}
+                >
+                  <Interaction
+                    {...interaction}
+                    onClick={() => {
+                      if (gateway.host !== "arweave.net") {
+                        setLocation(
+                          `/transaction/${interaction.id}/${encodeURIComponent(
+                            concatGatewayURL(gateway)
+                          )}`
+                        );
+                      } else {
+                        setLocation(`/transaction/${interaction.id}`);
+                      }
+                    }}
+                  />
+                </motion.div>
+              ))}
           </AnimatePresence>
           {interactions.length === 0 && !loadingInteractions && (
             <NoInteractions>

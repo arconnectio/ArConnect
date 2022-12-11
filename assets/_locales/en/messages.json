@@ -975,6 +975,14 @@
     "message": "Confirmations",
     "description": "Transaction \"confirmations\" label"
   },
+  "transaction_block_height": {
+    "message": "Block",
+    "description": "Transaction \"block height\" label"
+  },
+  "transaction_block_timestamp": {
+    "message": "Timestamp",
+    "description": "Transaction \"timestamp\" label"
+  },
   "transaction_tags": {
     "message": "Tags",
     "description": "Transaction \"tags\" label"
