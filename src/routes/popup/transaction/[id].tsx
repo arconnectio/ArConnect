@@ -18,6 +18,7 @@ import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
+import Skeleton from "~components/Skeleton";
 
 export default function Transaction({ id, gw }: Props) {
   if (!id) return <></>;
@@ -160,7 +161,7 @@ export default function Transaction({ id, gw }: Props) {
     <Wrapper>
       <div>
         <Head title={browser.i18n.getMessage("titles_transaction")} />
-        {transaction && (
+        {(transaction && (
           <>
             <Section style={{ paddingBottom: 0 }}>
               <FiatAmount>
@@ -274,22 +275,62 @@ export default function Transaction({ id, gw }: Props) {
                 )}
               </Properties>
             </Section>
+          </>
+        )) || (
+          <>
+            <Section style={{ paddingBottom: 0 }}>
+              <FiatAmount>
+                <Skeleton width="3rem" />
+              </FiatAmount>
+              <AmountTitle>
+                <Skeleton width="6rem" />
+              </AmountTitle>
+            </Section>
             <Section>
-              <Button
-                fullWidth
-                onClick={() =>
-                  browser.tabs.create({
-                    url: `https://viewblock.io/arweave/tx/${id}`
-                  })
-                }
-              >
-                Viewblock
-                <ShareIcon />
-              </Button>
+              <Properties>
+                {new Array(5).fill("").map((_, i) => (
+                  <TransactionProperty key={i}>
+                    <PropertyName>
+                      <Skeleton width="7.2rem" />
+                    </PropertyName>
+                    <PropertyValue>
+                      <Skeleton width="7.2rem" />
+                    </PropertyValue>
+                  </TransactionProperty>
+                ))}
+                <Spacer y={0.1} />
+                <PropertyName>
+                  <Skeleton width="4.8rem" />
+                </PropertyName>
+                <Spacer y={0.05} />
+                {new Array(3).fill("").map((_, i) => (
+                  <TransactionProperty key={i}>
+                    <PropertyName>
+                      <Skeleton width="7.2rem" />
+                    </PropertyName>
+                    <PropertyValue>
+                      <Skeleton width="7.2rem" />
+                    </PropertyValue>
+                  </TransactionProperty>
+                ))}
+              </Properties>
             </Section>
           </>
         )}
       </div>
+      <Section>
+        <Button
+          fullWidth
+          onClick={() =>
+            browser.tabs.create({
+              url: `https://viewblock.io/arweave/tx/${id}`
+            })
+          }
+        >
+          Viewblock
+          <ShareIcon />
+        </Button>
+      </Section>
     </Wrapper>
   );
 }
@@ -305,6 +346,10 @@ const FiatAmount = styled(Text).attrs({
   noMargin: true
 })`
   text-align: center;
+
+  ${Skeleton} {
+    margin: 0 auto 0.3em;
+  }
 `;
 
 const AmountTitle = styled.h1`
@@ -319,6 +364,10 @@ const AmountTitle = styled.h1`
     text-transform: uppercase;
     font-size: 0.55em;
     margin-left: 0.34rem;
+  }
+
+  ${Skeleton} {
+    margin: 0 auto;
   }
 `;
 
