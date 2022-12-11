@@ -46,40 +46,52 @@ export default function Transaction({ id, gw }: Props) {
         return;
       }
 
-      const { data } = await gql(
-        `
-          query($id: ID!) {
-            transaction(id: $id) {
-              owner {
-                address
+      // fetch tx and try again in a few
+      // seconds if it is not found
+      const fetchTx = async () => {
+        const { data } = await gql(
+          `
+            query($id: ID!) {
+              transaction(id: $id) {
+                owner {
+                  address
+                }
+                recipient
+                fee {
+                  ar
+                }
+                data {
+                  size
+                  type
+                }
+                quantity {
+                  ar
+                }
+                tags {
+                  name
+                  value
+                }
+                block {
+                  height
+                  timestamp
+                }
               }
-              recipient
-              fee {
-                ar
-              }
-              data {
-                size
-                type
-              }
-              quantity {
-                ar
-              }
-              tags {
-                name
-                value
-              }
-              block {
-                height
-                timestamp
-              }
-            }
-          }        
-        `,
-        { id },
-        gateway
-      );
+            }        
+          `,
+          { id },
+          gateway
+        );
 
-      setTransaction(data.transaction);
+        setTransaction(data.transaction);
+        return data.transaction;
+      };
+
+      const tx = await fetchTx();
+
+      // try again
+      if (!tx) {
+        setTimeout(fetchTx, 5000);
+      }
     })();
   }, [id, gateway]);
 
