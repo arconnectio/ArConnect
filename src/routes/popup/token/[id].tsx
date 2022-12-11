@@ -232,7 +232,7 @@ export default function Asset({ id }: Props) {
             <Spacer y={0.22} />
           </>
         )}
-        {(!loading && (
+        {((!loading || chatLinks.length > 0 || !!settings) && (
           <>
             <Link href={`https://sonar.warp.cc/#/app/contract/${id}`}>
               <GlobeIcon />
