@@ -83,7 +83,7 @@ export default function Asset({ id }: Props) {
 
   // fetch interactions
   const [interactions, setInteractions] = useState<TokenInteraction[]>([]);
-  const [loadingInteractions, setLoadingInteractions] = useState(true);
+  const [loadingInteractions, setLoadingInteractions] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -92,6 +92,7 @@ export default function Asset({ id }: Props) {
       }
 
       setLoadingInteractions(true);
+      setInteractions([]);
 
       try {
         // fetch interactions

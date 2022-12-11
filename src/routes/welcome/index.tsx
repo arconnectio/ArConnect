@@ -218,7 +218,7 @@ const ExpandAnimationElement = styled(motion.div).attrs<{
   left: 0;
   bottom: 0;
   right: 0;
-  background-color: #fff;
+  background-color: rgb(${(props) => props.theme.background});
   z-index: 1000;
 `;
 
