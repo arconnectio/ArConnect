@@ -30,6 +30,7 @@ import useSandboxedTokenState from "~tokens/hook";
 import browser from "webextension-polyfill";
 import Skeleton from "~components/Skeleton";
 import Head from "~components/popup/Head";
+import useSetting from "~settings/hook";
 import styled from "styled-components";
 
 export default function Asset({ id }: Props) {
@@ -124,6 +125,29 @@ export default function Asset({ id }: Props) {
   const { prices: historicalPrices, loading: loadingHistoricalPrices } =
     usePriceHistory(period, state?.ticker);
 
+  // currency setting
+  const [currency] = useSetting<string>("currency");
+
+  // balance in fiat
+  const fiatBalance = useMemo(() => {
+    if (!state) {
+      return "0";
+    }
+
+    if (!price) {
+      return `?? ${currency.toUpperCase()}`;
+    }
+
+    const bal = state.balances?.[activeAddress] || 0;
+
+    return (price * bal).toLocaleString(undefined, {
+      style: "currency",
+      currency: currency.toLowerCase(),
+      currencyDisplay: "narrowSymbol",
+      maximumFractionDigits: 2
+    });
+  }, [state, activeAddress, price, currency]);
+
   return (
     <>
       <Head title={browser.i18n.getMessage("asset")} />
@@ -175,7 +199,7 @@ export default function Asset({ id }: Props) {
               )) || <Skeleton width="5rem" addMargin />}
             </TokenBalance>
             <FiatBalance>
-              {(state && "$?? USD") || <Skeleton width="3.7rem" />}
+              {(state && price && fiatBalance) || <Skeleton width="3.7rem" />}
             </FiatBalance>
           </div>
           <AnimatePresence>
