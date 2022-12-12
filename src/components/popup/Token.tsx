@@ -12,6 +12,7 @@ import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
+import redstone from "redstone-api";
 import Arweave from "arweave";
 
 export default function Token({ id, onClick }: Props) {
@@ -49,6 +50,18 @@ export default function Token({ id, onClick }: Props) {
   // token price
   const [price, setPrice] = useState<number>();
 
+  useEffect(() => {
+    (async () => {
+      if (!state?.ticker) {
+        return;
+      }
+
+      const res = await redstone.getPrice(state.ticker);
+
+      setPrice(res?.value);
+    })();
+  }, [state]);
+
   // currency setting
   const [currency] = useSetting<string>("currency");
 
@@ -65,39 +78,36 @@ export default function Token({ id, onClick }: Props) {
         {state && (
           <Wrapper onClick={onClick}>
             <LogoAndDetails>
-              <LogoWrapper outline="#000">
+              <LogoWrapper>
                 <Logo
                   src={`https://meta.viewblock.io/AR.${id}/logo?t=${theme}`}
                 />
               </LogoWrapper>
-              <div>
-                <PrimaryText>{state.name || state.ticker}</PrimaryText>
-                <Ticker>
-                  {formattedBalance} {state.ticker}
-                </Ticker>
-              </div>
+              <TokenName>
+                {(state.name && (
+                  <>
+                    {state.name}
+                    <span>{state.ticker}</span>
+                  </>
+                )) ||
+                  state.ticker}
+              </TokenName>
             </LogoAndDetails>
-            {(price && fiatBalance && (
-              <FiatSection>
-                <PrimaryText>
-                  {price.toLocaleString(undefined, {
+            <BalanceSection>
+              <FiatBalance>
+                {(fiatBalance &&
+                  fiatBalance.toLocaleString(undefined, {
                     style: "currency",
                     currency: currency.toLowerCase(),
                     currencyDisplay: "narrowSymbol",
                     maximumFractionDigits: 2
-                  })}
-                </PrimaryText>
-                <Ticker>
-                  {fiatBalance.toLocaleString(undefined, {
-                    style: "currency",
-                    currency: currency.toLowerCase(),
-                    currencyDisplay: "narrowSymbol",
-                    maximumFractionDigits: 2
-                  })}
-                </Ticker>
-              </FiatSection>
-            )) ||
-              ""}
+                  })) ||
+                  "--"}
+              </FiatBalance>
+              <NativeBalance>
+                {formattedBalance} {state.ticker}
+              </NativeBalance>
+            </BalanceSection>
           </Wrapper>
         )}
       </AnimatePresence>
@@ -156,11 +166,7 @@ const LogoWrapper = styled(Squircle)`
   position: relative;
   width: 3rem;
   height: 3rem;
-  color: transparent;
-
-  path {
-    stroke: rgb(${(props) => props.theme.cardBorder}) !important;
-  }
+  color: rgba(${(props) => props.theme.theme}, 0.2);
 `;
 
 const Logo = styled.div<{ src: string }>`
@@ -176,20 +182,36 @@ const Logo = styled.div<{ src: string }>`
   transform: translate(-50%, -50%);
 `;
 
-const PrimaryText = styled(Text).attrs({
+const TokenName = styled(Text).attrs({
   noMargin: true
 })`
+  display: flex;
+  align-items: center;
+  gap: 0.34rem;
   font-size: 1.1rem;
+  color: rgb(${(props) => props.theme.primaryText});
+
+  span {
+    color: rgba(${(props) => props.theme.secondaryText}, 0.8);
+    font-weight: 400;
+  }
+`;
+
+const FiatBalance = styled(Text).attrs({
+  noMargin: true
+})`
+  font-size: 0.98rem;
+  font-weight: 400;
   color: rgb(${(props) => props.theme.primaryText});
 `;
 
-const Ticker = styled.span`
+const NativeBalance = styled.span`
   font-size: 0.75rem;
   color: rgb(${(props) => props.theme.secondaryText});
-  font-weight: 500;
+  font-weight: 400;
 `;
 
-const FiatSection = styled.div`
+const BalanceSection = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: right;
@@ -252,35 +274,28 @@ export function ArToken({ onClick }: ArTokenProps) {
   return (
     <Wrapper onClick={onClick}>
       <LogoAndDetails>
-        <LogoWrapper outline="#000">
+        <LogoWrapper>
           <Logo src={theme === "light" ? arLogoLight : arLogoDark} />
         </LogoWrapper>
-        <div>
-          <PrimaryText>Arweave</PrimaryText>
-          <Ticker>
-            {balance}
-            {" AR"}
-          </Ticker>
-        </div>
+        <TokenName>
+          Arweave
+          <span>AR</span>
+        </TokenName>
       </LogoAndDetails>
-      <FiatSection>
-        <PrimaryText>
-          {price.toLocaleString(undefined, {
-            style: "currency",
-            currency: currency.toLowerCase(),
-            currencyDisplay: "narrowSymbol",
-            maximumFractionDigits: 2
-          })}
-        </PrimaryText>
-        <Ticker>
+      <BalanceSection>
+        <FiatBalance>
           {fiatBalance.toLocaleString(undefined, {
             style: "currency",
             currency: currency.toLowerCase(),
             currencyDisplay: "narrowSymbol",
             maximumFractionDigits: 2
           })}
-        </Ticker>
-      </FiatSection>
+        </FiatBalance>
+        <NativeBalance>
+          {balance}
+          {" AR"}
+        </NativeBalance>
+      </BalanceSection>
     </Wrapper>
   );
 }
