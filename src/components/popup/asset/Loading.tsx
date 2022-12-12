@@ -1,13 +1,15 @@
 import { motion, Variants } from "framer-motion";
 import { Loading } from "@arconnect/components";
+import type { HTMLProps } from "react";
 import styled from "styled-components";
 
-const TokenLoading = () => (
+const TokenLoading = (props: HTMLProps<HTMLDivElement>) => (
   <LoadingWrapper
     variants={opacityAnimation}
     initial="hidden"
     animate="shown"
     exit="hidden"
+    {...(props as any)}
   >
     <Spinner />
   </LoadingWrapper>

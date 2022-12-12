@@ -5,6 +5,7 @@ import { hoverEffect, useTheme } from "~utils/theme";
 import { useStorage } from "@plasmohq/storage/hook";
 import { Text } from "@arconnect/components";
 import { getArPrice } from "~lib/coingecko";
+import { usePrice } from "~lib/redstone";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import useSandboxedTokenState from "~tokens/hook";
@@ -12,7 +13,6 @@ import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
-import redstone from "redstone-api";
 import Arweave from "arweave";
 
 export default function Token({ id, onClick }: Props) {
@@ -48,19 +48,7 @@ export default function Token({ id, onClick }: Props) {
   );
 
   // token price
-  const [price, setPrice] = useState<number>();
-
-  useEffect(() => {
-    (async () => {
-      if (!state?.ticker) {
-        return;
-      }
-
-      const res = await redstone.getPrice(state.ticker);
-
-      setPrice(res?.value);
-    })();
-  }, [state]);
+  const { price } = usePrice(state?.ticker);
 
   // currency setting
   const [currency] = useSetting<string>("currency");

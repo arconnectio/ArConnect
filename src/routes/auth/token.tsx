@@ -1,6 +1,7 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { usePrice, usePriceHistory } from "~lib/redstone";
 import type { TokenType } from "~tokens/token";
 import { getTokenLogo } from "~lib/viewblock";
 import { addToken } from "~tokens";
@@ -113,6 +114,13 @@ export default function Token() {
     setLoading(false);
   }
 
+  // token price
+  const { price } = usePrice(state?.ticker);
+
+  // token historical prices
+  const { prices: historicalPrices, loading: loadingHistoricalPrices } =
+    usePriceHistory(period, state?.ticker);
+
   return (
     <Wrapper>
       <div>
@@ -145,8 +153,9 @@ export default function Token() {
                     ticker: state.ticker || "",
                     logo: getTokenLogo(params.tokenID || "", "dark")
                   }}
-                  priceData={[]}
-                  latestPrice={0}
+                  priceData={historicalPrices}
+                  latestPrice={price}
+                  loading={loadingHistoricalPrices}
                 >
                   <PeriodPicker
                     period={period}

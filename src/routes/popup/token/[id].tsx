@@ -2,6 +2,7 @@ import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { Loading, Section, Spacer, Text } from "@arconnect/components";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { usePrice, usePriceHistory } from "~lib/redstone";
 import { useStorage } from "@plasmohq/storage/hook";
 import { getCommunityUrl } from "~utils/format";
 import { getTokenLogo } from "~lib/viewblock";
@@ -116,6 +117,13 @@ export default function Asset({ id }: Props) {
     })();
   }, [id, activeAddress, validity, state, gateway]);
 
+  // token price
+  const { price } = usePrice(state?.ticker);
+
+  // token historical prices
+  const { prices: historicalPrices, loading: loadingHistoricalPrices } =
+    usePriceHistory(period, state?.ticker);
+
   return (
     <>
       <Head title={browser.i18n.getMessage("asset")} />
@@ -134,8 +142,9 @@ export default function Asset({ id }: Props) {
                 ticker: state.ticker || "",
                 logo: getTokenLogo(id, "dark")
               }}
-              priceData={[]}
-              latestPrice={0}
+              priceData={historicalPrices}
+              latestPrice={price}
+              loading={loadingHistoricalPrices}
             >
               <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />
             </PriceChart>

@@ -1,20 +1,23 @@
 import { ArrowDownRightIcon, ArrowUpRightIcon } from "@iconicicons/react";
 import { Spacer, Text } from "@arconnect/components";
 import { PropsWithChildren, useMemo } from "react";
+import { AnimatePresence } from "framer-motion";
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
+import TokenLoading from "./Loading";
 import Graph from "../Graph";
 
 export default function PriceChart({
   children,
   token,
   priceData,
-  latestPrice
+  latestPrice,
+  loading = false
 }: PropsWithChildren<Props>) {
   // price trend
   const positiveTrend = useMemo(() => {
-    if (latestPrice === 0 || priceData.length === 0) {
+    if (latestPrice === 0 || priceData.length === 0 || !latestPrice) {
       return undefined;
     }
 
@@ -30,6 +33,7 @@ export default function PriceChart({
       data={(priceData.length !== 0 && priceData) || defaultPrices}
       blur={priceData.length === 0}
     >
+      <AnimatePresence>{loading && <PriceLoading />}</AnimatePresence>
       <Head>
         <TokenName>
           {token.name}
@@ -118,14 +122,22 @@ const PriceTrendNegative = styled(PriceTrendPositive)`
   color: #ff0000;
 `;
 
+const PriceLoading = styled(TokenLoading)`
+  position: absolute;
+  bottom: unset;
+  top: 35%;
+  right: 1.5rem;
+`;
+
 interface Props {
   priceData: number[];
-  latestPrice: number;
+  latestPrice?: number;
   token: {
     name: string;
     ticker: string;
     logo?: string;
   };
+  loading?: boolean;
 }
 
 const defaultPrices = [
