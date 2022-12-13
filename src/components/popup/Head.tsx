@@ -10,7 +10,12 @@ import { motion } from "framer-motion";
 import WalletSwitcher from "./WalletSwitcher";
 import styled from "styled-components";
 
-export default function Head({ title, showOptions = true, back }: Props) {
+export default function Head({
+  title,
+  showOptions = true,
+  back,
+  allowOpen = true
+}: Props) {
   // scroll position
   const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up");
   const [scrolled, setScrolled] = useState(false);
@@ -90,7 +95,13 @@ export default function Head({ title, showOptions = true, back }: Props) {
         firstRender={firstRender}
       >
         <PageTitle>{title}</PageTitle>
-        <ClickableAvatar img={avatar} onClick={() => setOpen(true)}>
+        <ClickableAvatar
+          img={avatar}
+          onClick={() => {
+            if (!allowOpen) return;
+            setOpen(true);
+          }}
+        >
           {!avatar && <NoAvatarIcon />}
         </ClickableAvatar>
       </PageInfo>
@@ -199,5 +210,7 @@ const ClickableAvatar = styled(Avatar)`
 interface Props {
   title: string;
   showOptions?: boolean;
+  // allow opening the wallet switcher
+  allowOpen?: boolean;
   back?: (...args) => any;
 }

@@ -382,7 +382,7 @@ const Wrapper = styled.div`
   min-height: 100vh;
 `;
 
-const FiatAmount = styled(Text).attrs({
+export const FiatAmount = styled(Text).attrs({
   noMargin: true
 })`
   text-align: center;
@@ -392,7 +392,7 @@ const FiatAmount = styled(Text).attrs({
   }
 `;
 
-const AmountTitle = styled.h1`
+export const AmountTitle = styled.h1`
   font-size: 2.8rem;
   font-weight: 600;
   color: rgb(${(props) => props.theme.primaryText});
@@ -411,13 +411,13 @@ const AmountTitle = styled.h1`
   }
 `;
 
-const Properties = styled.div`
+export const Properties = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.32rem;
 `;
 
-const TransactionProperty = styled.div`
+export const TransactionProperty = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -444,15 +444,15 @@ const BasePropertyText = styled(Text).attrs({
   }
 `;
 
-const PropertyName = styled(BasePropertyText)`
+export const PropertyName = styled(BasePropertyText)`
   color: rgb(${(props) => props.theme.primaryText});
 `;
 
-const PropertyValue = styled(BasePropertyText)`
+export const PropertyValue = styled(BasePropertyText)`
   text-align: right;
 `;
 
-const TagValue = styled(PropertyValue)`
+export const TagValue = styled(PropertyValue)`
   max-width: 50%;
   overflow: hidden;
   white-space: nowrap;

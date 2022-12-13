@@ -10,8 +10,9 @@ import Connect from "~routes/auth/connect";
 import Allowance from "~routes/auth/allowance";
 import Unlock from "~routes/auth/unlock";
 import Token from "~routes/auth/token";
+import Sign from "~routes/auth/sign";
 
-export default function Dashboard() {
+export default function Auth() {
   const theme = useTheme();
 
   useEffect(() => {
@@ -27,6 +28,7 @@ export default function Dashboard() {
           <Route path="/allowance" component={Allowance} />
           <Route path="/unlock" component={Unlock} />
           <Route path="/token" component={Token} />
+          <Route path="/sign" component={Sign} />
         </Router>
       </Wrapper>
     </Provider>

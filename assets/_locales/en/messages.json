@@ -964,7 +964,7 @@
     "description": "Transaction \"to\" label"
   },
   "transaction_fee": {
-    "message": "Fee",
+    "message": "Network fee",
     "description": "Transaction \"fee\" label"
   },
   "transaction_size": {
@@ -994,5 +994,13 @@
   "transaction_data_binary_warning": {
     "message": "Cannot display binary transaction data...",
     "description": "Warning about ArConnect not being able to display a transaction's data"
+  },
+  "titles_sign": {
+    "message": "Sign transaction",
+    "description": "Sign transaction popup title"
+  },
+  "sign_authorize": {
+    "message": "Authorize",
+    "description": "Authorize button label"
   }
 }

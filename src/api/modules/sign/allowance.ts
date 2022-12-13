@@ -1,3 +1,4 @@
+import type { Allowance } from "~applications/allowance";
 import Application from "~applications/application";
 import authenticate from "../connect/auth";
 
@@ -38,36 +39,24 @@ export async function updateAllowance(tabURL: string, price: number) {
 }
 
 /**
- * Verify if the user's allowance is enough for this transaction
- *
- * @param tabURL URL of the application
- * @param price Transaction price in winston
- *
- * @returns Whether the allowance is enough or not
- */
-export async function checkAllowance(tabURL: string, price: number) {
-  const allowance = await getAllowance(tabURL);
-
-  // return if the allowance is not enabled
-  if (!allowance.enabled) return true;
-
-  // spent amount after this transaction
-  const total = allowance.spent + price;
-
-  // check if the price goes over the allowed total limit
-  return allowance.limit >= total;
-}
-
-/**
  * Authenticate the user until they cancel, reset
  * their allowance or update it to have enough
  * for the submitted price
  *
+ * @param allowance Allowance data
+ * @param tabURL Application URL
  * @param price Price to check the allowance for (quantity + reward)
  */
-export async function allowanceAuth(tabURL: string, price: number) {
-  // compare allowance limit and tx price
-  const hasEnoughAllowance = await checkAllowance(tabURL, price);
+export async function allowanceAuth(
+  allowance: Allowance,
+  tabURL: string,
+  price: number
+) {
+  // spent amount after this transaction
+  const total = allowance.spent + price;
+
+  // check if the price goes over the allowed total limit
+  const hasEnoughAllowance = allowance.limit >= total;
 
   // if the allowance is enough, return
   if (hasEnoughAllowance) return;
@@ -81,5 +70,5 @@ export async function allowanceAuth(tabURL: string, price: number) {
 
   // call this function again, to check if the allowance
   // was reset or updated
-  await allowanceAuth(tabURL, price);
+  await allowanceAuth(allowance, tabURL, price);
 }

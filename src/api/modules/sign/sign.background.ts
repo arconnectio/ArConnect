@@ -1,11 +1,12 @@
 import type { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { arconfettiIcon, calculateReward, signNotification } from "./utils";
-import { allowanceAuth, updateAllowance } from "./allowance";
+import { allowanceAuth, getAllowance, updateAllowance } from "./allowance";
 import type { ModuleFunction } from "~api/background";
 import { cleanUpChunks, getChunks } from "./chunks";
 import type { BackgroundResult } from "./index";
 import { getActiveKeyfile } from "~wallets";
 import { getAppURL } from "~utils/format";
+import { signAuth } from "./sign_auth";
 import { signedTxTags } from "./tags";
 import {
   constructTransaction,
@@ -43,7 +44,7 @@ const background: ModuleFunction<BackgroundResult> = async (
   const chunks = getChunks(chunkCollectionID, getAppURL(tab.url));
 
   // reconstruct the transaction from the chunks
-  const transaction = arweave.transactions.fromRaw({
+  let transaction = arweave.transactions.fromRaw({
     ...constructTransaction(tx, chunks || []),
     owner: keyfile.n
   });
@@ -54,13 +55,6 @@ const background: ModuleFunction<BackgroundResult> = async (
   // append fee multiplier to the transaction
   transaction.reward = await calculateReward(transaction);
 
-  // validate the user's allowance for this app
-  // if it is not enough, we need the user to
-  // raise it or cancel the transaction
-  const price = +transaction.reward + parseInt(transaction.quantity);
-
-  await allowanceAuth(tabURL, price);
-
   // add ArConnect tags to the transaction
   for (const tag of signedTxTags) {
     transaction.addTag(tag.name, tag.value);
@@ -70,6 +64,33 @@ const background: ModuleFunction<BackgroundResult> = async (
   // if it is null, the arweave-js webcrypto driver
   // will error
   if (options === null) options = undefined;
+
+  // validate the user's allowance for this app
+  // if it is not enough, we need the user to
+  // raise it or cancel the transaction
+  const price = +transaction.reward + parseInt(transaction.quantity);
+
+  // get allowance
+  const allowance = await getAllowance(tabURL);
+
+  // check if there is an allowance limit
+  // if there isn't, we need to ask the user
+  // to manually confirm the transaction
+  if (allowance.enabled) {
+    // authenticate user if the allowance
+    // limit is reached
+    await allowanceAuth(allowance, tabURL, price);
+  } else {
+    // get address of keyfile
+    const addr = await arweave.wallets.jwkToAddress(keyfile);
+
+    try {
+      // auth before signing
+      await signAuth(tabURL, transaction, addr);
+    } catch {
+      throw new Error("User failed to sign the transaction manually");
+    }
+  }
 
   // sign the transaction
   await arweave.transactions.sign(transaction, keyfile, options);
