@@ -24,6 +24,7 @@ import {
 } from "~components/welcome/Wrapper";
 import { addWallet } from "~wallets";
 import PasswordPage from "~components/welcome/generate/PasswordPage";
+import KeystoneButton from "~components/KeystoneButton";
 import Migrate from "~components/welcome/load/Migrate";
 import Seed from "~components/welcome/load/Seed";
 import Theme from "~components/welcome/Theme";
@@ -212,6 +213,12 @@ export default function Load() {
           </motion.div>
         </AnimatePresence>
         <Spacer y={1.25} />
+        {page === 2 && (
+          <>
+            <KeystoneButton />
+            <Spacer y={1} />
+          </>
+        )}
         <Button fullWidth onClick={handleBtn} loading={loading}>
           {browser.i18n.getMessage(page > 1 ? "done" : "next")}
           {page === 1 && <ArrowRightIcon />}

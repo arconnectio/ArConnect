@@ -19,6 +19,7 @@ import SeedTextarea from "~components/welcome/load/SeedTextarea";
 import browser from "webextension-polyfill";
 import * as bip39 from "bip39-web-crypto";
 import styled from "styled-components";
+import KeystoneButton from "~components/KeystoneButton";
 
 export default function AddWallet() {
   // file input ref
@@ -188,9 +189,11 @@ export default function AddWallet() {
               <PlusIcon />
               {browser.i18n.getMessage("addWallet")}
             </Button>
-            <Spacer y={1} />
+            <Spacer y={2} />
           </>
         )}
+        <KeystoneButton />
+        <Spacer y={1} />
         <Button
           fullWidth
           secondary
@@ -210,7 +213,8 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%;
+  min-height: 100%;
+  gap: 1rem;
 `;
 
 const Title = styled(Text).attrs({
