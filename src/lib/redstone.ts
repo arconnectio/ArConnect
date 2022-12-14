@@ -34,7 +34,8 @@ export function usePrice(symbol?: string, opts?: GetPriceOptions) {
         }
 
         // get price in currency
-        const multiplier = await getPrice("usd", currency);
+        const multiplier =
+          currency !== "usd" ? await getPrice("usd", currency) : 1;
 
         setPrice(res.value * multiplier);
       } catch {}
