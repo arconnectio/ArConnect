@@ -159,7 +159,29 @@ export default function WalletSwitcher({
   return (
     <AnimatePresence>
       {open && (
-        <SwitcherPopover exactTop={exactTop}>
+        <SwitcherPopover
+          exactTop={exactTop}
+          variants={{
+            closed: {
+              scale: 0.4,
+              opacity: 0,
+              transition: {
+                type: "spring",
+                duration: 0.4
+              }
+            },
+            open: {
+              scale: 1,
+              opacity: 1,
+              transition: {
+                type: "spring",
+                duration: 0.4,
+                delayChildren: 0.2,
+                staggerChildren: 0.05
+              }
+            }
+          }}
+        >
           <Wrapper noPadding={!!noPadding}>
             <WalletsCard
               onClick={(e) => {
@@ -243,29 +265,7 @@ export default function WalletSwitcher({
   );
 }
 
-const openAnimation = {
-  open: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "easeInOut",
-      duration: 0.14
-    }
-  },
-  closed: {
-    opacity: 0,
-    y: -20,
-    scale: 0.8,
-    transition: {
-      type: "easeInOut",
-      duration: 0.14
-    }
-  }
-};
-
 const SwitcherPopover = styled(motion.div).attrs({
-  variants: openAnimation,
   initial: "closed",
   animate: "open",
   exit: "closed"
