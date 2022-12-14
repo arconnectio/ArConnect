@@ -1,6 +1,8 @@
 import type { GetPriceOptions } from "redstone-api/lib/types";
 import { useEffect, useState } from "react";
+import useSetting from "~settings/hook";
 import redstone from "redstone-api";
+import { getPrice } from "./coingecko";
 
 /**
  * Hook for the redstone token price API
@@ -12,6 +14,9 @@ export function usePrice(symbol?: string, opts?: GetPriceOptions) {
   const [price, setPrice] = useState<number>();
   const [loading, setLoading] = useState(false);
 
+  // currency setting
+  const [currency] = useSetting<string>("currency");
+
   useEffect(() => {
     (async () => {
       if (!symbol) {
@@ -21,14 +26,22 @@ export function usePrice(symbol?: string, opts?: GetPriceOptions) {
       setLoading(true);
 
       try {
+        // fetch price from redstone
         const res = await redstone.getPrice(symbol, opts);
 
-        setPrice(res?.value);
+        if (!res?.value) {
+          return setPrice(undefined);
+        }
+
+        // get price in currency
+        const multiplier = await getPrice("usd", currency);
+
+        setPrice(res.value * multiplier);
       } catch {}
 
       setLoading(false);
     })();
-  }, [symbol, opts]);
+  }, [symbol, opts, currency]);
 
   return { price, loading };
 }

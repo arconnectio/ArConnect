@@ -1,21 +1,34 @@
 /**
+ * Compare two currencies
+ *
+ * @param symbol Symbol of the currency to get the price for
+ * @param currency What to return the price in
+ */
+export async function getPrice(symbol: string, currency: string) {
+  const data: CoinGeckoPriceResult = await (
+    await fetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=${symbol.toLowerCase()}&vs_currencies=${currency.toLowerCase()}`
+    )
+  ).json();
+
+  return data[symbol.toLowerCase()][currency.toLowerCase()];
+}
+
+/**
  * Get price for the AR token using the coingecko API
  *
  * @param currency Currency to get the price in
  * @returns Price of 1 AR
  */
 export async function getArPrice(currency: string) {
-  const data: CoinGeckoPriceResult = await (
-    await fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=${currency.toLowerCase()}`
-    )
-  ).json();
-
-  return data.arweave[currency.toLowerCase()];
+  return await getPrice("arweave", currency.toLowerCase());
 }
 
 interface CoinGeckoPriceResult {
   arweave: {
+    [key: string]: number;
+  };
+  [key: string]: {
     [key: string]: number;
   };
 }
