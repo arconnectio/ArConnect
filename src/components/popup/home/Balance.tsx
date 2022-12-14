@@ -21,8 +21,9 @@ import AppIcon, { NoAppIcon } from "./AppIcon";
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
-import Arweave from "@arconnect/arweave";
+import Arweave from "arweave";
 import ArDB from "ardb";
+import dayjs from "dayjs";
 
 export default function Balance() {
   // grab address
@@ -217,7 +218,7 @@ async function balanceHistory(address: string) {
   const txs = inTxs
     .concat(outTxs)
     .filter((tx) => !!tx?.block?.timestamp)
-    .sort((a, b) => b.block.timestamp - a.block.timestamp)
+    .sort((a, b) => a.block.timestamp - b.block.timestamp)
     .slice(0, 100);
 
   // get initial balance
