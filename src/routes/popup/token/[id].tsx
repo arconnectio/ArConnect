@@ -11,10 +11,12 @@ import { useTokens } from "~tokens";
 import {
   ArrowDownLeftIcon,
   ArrowUpRightIcon,
+  CloseIcon,
   EyeIcon,
   GlobeIcon,
   MessageIcon,
-  ShareIcon
+  ShareIcon,
+  WarningTriangleIcon
 } from "@iconicicons/react";
 import {
   getInteractionsTxsForAddress,
@@ -148,6 +150,11 @@ export default function Asset({ id }: Props) {
     });
   }, [state, activeAddress, price, currency]);
 
+  const [priceWarningShown, setPriceWarningShown] = useStorage({
+    key: "price_warning_shown",
+    area: "local"
+  });
+
   return (
     <>
       <Head title={browser.i18n.getMessage("asset")} />
@@ -222,6 +229,29 @@ export default function Asset({ id }: Props) {
             )}
           </AnimatePresence>
         </BalanceSection>
+        <AnimatePresence>
+          {state && price && !priceWarningShown && (
+            <PriceWarning
+              variants={opacityAnimation}
+              initial="hidden"
+              animate="shown"
+              exit="hidden"
+            >
+              <PriceWarningContent>
+                <WarningTriangleIcon />
+                {browser.i18n.getMessage("token_price_estimate_warning")}{" "}
+                <a
+                  href="https://redstone.finance"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Redstone
+                </a>
+              </PriceWarningContent>
+              <CloseIcon onClick={() => setPriceWarningShown(true)} />
+            </PriceWarning>
+          )}
+        </AnimatePresence>
         <Spacer y={1.45} />
         <Title noMargin>{browser.i18n.getMessage("about_title")}</Title>
         <Spacer y={0.6} />
@@ -475,4 +505,39 @@ const LoadingWrapper = styled(motion.div)`
   display: flex;
   color: rgb(${(props) => props.theme.theme});
   font-size: 1.075rem;
+`;
+
+const PriceWarning = styled(motion.div)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgb(255, 184, 0);
+  background-color: rgba(255, 184, 0, 0.2);
+  cursor: pointer;
+  padding: 0.9rem 0.8rem;
+  border-radius: 19px;
+  margin-top: 1rem;
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  svg {
+    font-size: 1rem;
+    width: 1em;
+    height: 1em;
+  }
+`;
+
+const PriceWarningContent = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+
+  a {
+    color: rgb(255, 184, 0);
+    text-decoration: underline;
+  }
 `;

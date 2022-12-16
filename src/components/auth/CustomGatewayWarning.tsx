@@ -28,10 +28,10 @@ const Alert = styled.div`
   display: flex;
   align-items: center;
   gap: 0.7rem;
-  color: #ffb800;
+  color: rgb(255, 184, 0);
   font-weight: 500;
   font-size: 1rem;
-  background-color: rgb(255, 184, 0, 0.2);
+  background-color: rgba(255, 184, 0, 0.2);
   padding: 0.9rem 1rem;
   border-radius: 19px;
 `;

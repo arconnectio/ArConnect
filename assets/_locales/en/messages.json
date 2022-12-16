@@ -1006,5 +1006,9 @@
   "connect_keystone": {
     "message": "Connect Keystone",
     "description": "Connect keystone hardware wallet button"
+  },
+  "token_price_estimate_warning": {
+    "message": "Price estimate by",
+    "description": "Price estimate warning text. Full text is displayed with a link to Redstone.finance"
   }
 }
