@@ -192,18 +192,19 @@ export default function AddWallet() {
             <Spacer y={2} />
           </>
         )}
-        <KeystoneButton />
-        <Spacer y={1} />
-        <Button
-          fullWidth
-          secondary
-          onClick={generateWallet}
-          loading={generating}
-          disabled={!!generatedSeed}
-        >
-          <SettingsIcon />
-          {browser.i18n.getMessage("generate_wallet")}
-        </Button>
+        <Btns>
+          <KeystoneButton />
+          <Button
+            fullWidth
+            secondary
+            onClick={generateWallet}
+            loading={generating}
+            disabled={!!generatedSeed}
+          >
+            <SettingsIcon />
+            {browser.i18n.getMessage("generate_wallet")}
+          </Button>
+        </Btns>
       </div>
     </Wrapper>
   );
@@ -237,4 +238,14 @@ const Or = styled(Text).attrs({
 
 const ShortSeedTextarea = styled(SeedTextarea)`
   height: 110px;
+`;
+
+const Btns = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  ${Button} {
+    width: 49%;
+  }
 `;
