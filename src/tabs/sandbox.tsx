@@ -5,6 +5,11 @@ import Arweave from "@arconnect/arweave";
 
 export default function Sandbox() {
   useEffect(() => {
+    // disable console log in sandbox
+    console.log = () => {};
+    console.warn = () => {};
+    console.info = () => {};
+
     // create a listener for functions
     // that are required to run in sandbox
     const listener = async (
