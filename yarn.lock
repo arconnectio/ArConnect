@@ -615,14 +615,13 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@keystonehq/arweave-keyring@^0.0.1-alpha.2":
-  version "0.0.1-alpha.2"
-  resolved "https://registry.yarnpkg.com/@keystonehq/arweave-keyring/-/arweave-keyring-0.0.1-alpha.2.tgz#46dad3ca4e9109b784c12bc506152dd0d4ab1b32"
-  integrity sha512-Zz0N3VPyakogawjfvpNCzGIwARMb7EMmSJDSj8PB5JCAvdirhw6O0QgAB0qyLqkv1fuLz2PHwqHc6i1rMOonbA==
+"@keystonehq/arweave-keyring@0.0.1-alpha.5":
+  version "0.0.1-alpha.5"
+  resolved "https://registry.yarnpkg.com/@keystonehq/arweave-keyring/-/arweave-keyring-0.0.1-alpha.5.tgz#4d9c2d7501fac8f7853a542c8d3f7499197dcb5b"
+  integrity sha512-GztOC2qXiiSLWDLYruqlViFv9AjzXbBBDAjZq1ZajXo/QO1brceF1MYE12nxa5xKegmGBdFWHQhE4aCLSh8bCw==
   dependencies:
     "@keystonehq/bc-ur-registry-arweave" "^0.0.1-alpha.0"
     "@keystonehq/sdk" "^0.14.1-alpha.2"
-    arweave "^1.11.6"
     uuid "^8.3.2"
 
 "@keystonehq/bc-ur-registry-arweave@^0.0.1-alpha.0":

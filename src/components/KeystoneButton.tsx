@@ -1,21 +1,17 @@
 import { Button } from "@arconnect/components";
-import { DefaultKeyring } from "@keystonehq/arweave-keyring";
+import { connect } from "~lib/keystone";
 import browser from "webextension-polyfill";
 
 export default function KeystoneButton() {
   // connect a keystone wallet
-  async function connect() {
-    // init keyring instance
-    const keyring = DefaultKeyring.getEmptyKeyring();
+  async function connectKeystone() {
+    const address = await connect();
 
-    // call qr scanner
-    await keyring.readKeyring();
-    // @ts-expect-error
-    console.log(keyring.getKeyData().toString("hex"));
+    console.log("Add wallet", address);
   }
 
   return (
-    <Button fullWidth secondary onClick={connect}>
+    <Button fullWidth secondary onClick={connectKeystone}>
       <KeystoneIcon />
       {browser.i18n.getMessage("connect_keystone")}
     </Button>
