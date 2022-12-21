@@ -106,6 +106,23 @@ export default function Send({ id }: Props) {
     })();
   }, [targetInput.state]);
 
+  // show token selector
+  const [showTokenSelector, setShownTokenSelector] = useState(false);
+
+  // all tokens
+  const [tokens] = useTokens();
+
+  // selected token
+  const [selectedToken, setSelectedToken] = useState<"AR" | string>(id || "AR");
+
+  const selectedTokenData = useMemo(() => {
+    if (selectedToken === "AR" || !selectedToken || !tokens) {
+      return undefined;
+    }
+
+    return tokens.find((t) => t.id === selectedToken);
+  }, [selectedToken, tokens]);
+
   // toasts
   const { setToast } = useToasts();
 
@@ -161,7 +178,7 @@ export default function Send({ id }: Props) {
 
     try {
       // create and send tx
-      const arweave = new Arweave(defaultGateway);
+      let arweave = new Arweave(defaultGateway);
       let tx = await arweave.createTransaction(
         {
           target: target.address,
@@ -171,6 +188,12 @@ export default function Send({ id }: Props) {
       );
 
       if (selectedToken !== "AR") {
+        // get token gateway
+        if (selectedTokenData.gateway) {
+          arweave = new Arweave(selectedTokenData.gateway);
+        }
+
+        // create interaction
         tx = await arweave.createTransaction(
           {
             target: target.address,
@@ -227,23 +250,6 @@ export default function Send({ id }: Props) {
     targetInput.setState("");
     setLoading(false);
   }
-
-  // show token selector
-  const [showTokenSelector, setShownTokenSelector] = useState(false);
-
-  // all tokens
-  const [tokens] = useTokens();
-
-  // selected token
-  const [selectedToken, setSelectedToken] = useState<"AR" | string>(id || "AR");
-
-  const selectedTokenData = useMemo(() => {
-    if (selectedToken === "AR" || !selectedToken || !tokens) {
-      return undefined;
-    }
-
-    return tokens.find((t) => t.id === selectedToken);
-  }, [selectedToken, tokens]);
 
   return (
     <Wrapper>
