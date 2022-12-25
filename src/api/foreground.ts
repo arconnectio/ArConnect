@@ -14,7 +14,9 @@ import walletNames from "./modules/wallet_names/wallet_names.foreground";
 import arweaveConfigModule from "./modules/arweave_config";
 import arweaveConfig from "./modules/arweave_config/arweave_config.foreground";
 import disconnectModule from "./modules/disconnect";
-import disconnect from "./modules/disconnect/disconnect.foreground";
+import disconnect, {
+  finalizer as disconnectFinalizer
+} from "./modules/disconnect/disconnect.foreground";
 import addTokenModule from "./modules/add_token";
 import addToken from "./modules/add_token/add_token.foreground";
 import connectModule from "./modules/connect";
@@ -48,7 +50,7 @@ const modules: ForegroundModule[] = [
   { ...publicKeyModule, function: publicKey },
   { ...walletNamesModule, function: walletNames },
   { ...arweaveConfigModule, function: arweaveConfig },
-  { ...disconnectModule, function: disconnect },
+  { ...disconnectModule, function: disconnect, finalizer: disconnectFinalizer },
   { ...connectModule, function: connect, finalizer: connectFinalizer },
   { ...signModule, function: sign, finalizer: signFinalizer },
   { ...dispatchModule, function: dispatch, finalizer: dispatchFinalizer },
