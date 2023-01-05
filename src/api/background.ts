@@ -43,7 +43,7 @@ const modules: BackgroundModule<any>[] = [
   { ...connectModule, function: connect },
   { ...addTokenModule, function: addToken },
   { ...signModule, function: sign },
-  /*{ ...dispatchModule, function: dispatch },*/
+  { ...dispatchModule, function: dispatch },
   { ...encryptModule, function: encrypt },
   { ...decryptModule, function: decrypt },
   { ...signatureModule, function: signature }
