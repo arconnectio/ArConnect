@@ -1,5 +1,4 @@
 import type { DataItem } from "arbundles";
-import axios from "axios";
 
 /**
  * Upload a data entry to a Bundlr node
@@ -9,12 +8,12 @@ import axios from "axios";
  * @returns Bundlr node response
  */
 export async function uploadDataToBundlr(dataItem: DataItem, node: string) {
-  // TODO: switch to fetch
-  const res = await axios.post(`${node}/tx`, dataItem.getRaw(), {
+  const res = await fetch(`${node}/tx`, {
+    method: "POST",
     headers: {
       "Content-Type": "application/octet-stream"
     },
-    maxBodyLength: Infinity
+    body: dataItem.getRaw()
   });
 
   if (res.status >= 400)
