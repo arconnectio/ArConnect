@@ -10,12 +10,21 @@ const background: ModuleFunction<Uint8Array> = async (
   options: any
 ) => {
   // grab the user's keyfile
-  const keyfile = await getActiveKeyfile().catch(() => {
+  const decryptedWallet = await getActiveKeyfile().catch(() => {
     // if there are no wallets added, open the welcome page
     browser.tabs.create({ url: browser.runtime.getURL("tabs/welcome.html") });
 
     throw new Error("No wallets added");
   });
+
+  // check if hardware wallet
+  if (decryptedWallet.type === "hardware") {
+    throw new Error(
+      "Active wallet type: hardware. This does not support encryption currently."
+    );
+  }
+
+  const keyfile = decryptedWallet.keyfile;
 
   if (options.algorithm) {
     // old arconnect algorithm

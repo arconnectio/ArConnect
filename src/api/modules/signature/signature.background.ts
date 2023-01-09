@@ -8,12 +8,21 @@ const background: ModuleFunction<number[]> = async (
   algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams
 ) => {
   // grab the user's keyfile
-  const keyfile = await getActiveKeyfile().catch(() => {
+  const decryptedWallet = await getActiveKeyfile().catch(() => {
     // if there are no wallets added, open the welcome page
     browser.tabs.create({ url: browser.runtime.getURL("tabs/welcome.html") });
 
     throw new Error("No wallets added");
   });
+
+  // check if hardware wallet
+  if (decryptedWallet.type === "hardware") {
+    throw new Error(
+      "Active wallet type: hardware. This does not support signature currently."
+    );
+  }
+
+  const keyfile = decryptedWallet.keyfile;
 
   // get signing key using the jwk
   const cryptoKey = await crypto.subtle.importKey(
