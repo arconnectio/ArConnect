@@ -28,12 +28,20 @@ const background: ModuleFunction<ReturnType> = async (
   const transaction = arweave.transactions.fromRaw(tx);
 
   // grab the user's keyfile
-  const keyfile = await getActiveKeyfile().catch(() => {
+  const decryptedWallet = await getActiveKeyfile().catch(() => {
     // if there are no wallets added, open the welcome page
     browser.tabs.create({ url: browser.runtime.getURL("tabs/welcome.html") });
 
     throw new Error("No wallets added");
   });
+
+  if (decryptedWallet.type === "hardware") {
+    throw new Error(
+      "Active wallet type: hardware. This does not support dispatch currently."
+    );
+  }
+
+  const keyfile = decryptedWallet.keyfile;
 
   // grab tx data and tags
   const data = transaction.get("data", { decode: true, string: false });
