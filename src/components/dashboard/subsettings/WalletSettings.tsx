@@ -22,6 +22,7 @@ import { IconButton } from "~components/IconButton";
 import { decryptWallet } from "~wallets/encryption";
 import { AnsUser, getAnsProfile } from "~lib/ans";
 import { downloadFile } from "~utils/file";
+import keystoneLogo from "url:/assets/hardware/keystone.png";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
@@ -126,6 +127,10 @@ export default function WalletSettings({ address }: Props) {
 
   // export the wallet
   async function exportWallet() {
+    if (wallet.type === "hardware") {
+      throw new Error("Hardware wallet cannot be exported");
+    }
+
     try {
       // decrypt keyfile
       const decrypted = await decryptWallet(
@@ -157,7 +162,14 @@ export default function WalletSettings({ address }: Props) {
   return (
     <Wrapper>
       <div>
-        <WalletName>{ansLabel || wallet.nickname}</WalletName>
+        <WalletName>
+          {ansLabel || wallet.nickname}
+          {wallet.type === "hardware" && (
+            <HardwareWalletIcon
+              src={wallet.api === "keystone" ? keystoneLogo : undefined}
+            />
+          )}
+        </WalletName>
         <WalletAddress>
           {wallet.address}
           <CopyButton
@@ -191,7 +203,12 @@ export default function WalletSettings({ address }: Props) {
         </InputWithBtn>
       </div>
       <div>
-        <Button fullWidth small onClick={() => exportModal.setOpen(true)}>
+        <Button
+          fullWidth
+          small
+          onClick={() => exportModal.setOpen(true)}
+          disabled={wallet.type === "hardware"}
+        >
           <DownloadIcon />
           {browser.i18n.getMessage("export_keyfile")}
         </Button>
@@ -277,7 +294,19 @@ const WalletName = styled(Text).attrs({
   title: true,
   noMargin: true
 })`
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
   font-weight: 600;
+`;
+
+const HardwareWalletIcon = styled.img.attrs({
+  draggable: false
+})`
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  user-select: none;
 `;
 
 const WalletAddress = styled(Text)`

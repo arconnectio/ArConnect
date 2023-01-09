@@ -1,8 +1,11 @@
 import { WalletIcon } from "@iconicicons/react";
 import { Reorder, useDragControls } from "framer-motion";
 import { HTMLProps, useMemo } from "react";
+import styled from "styled-components";
 import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
+import HardwareWalletIcon from "~components/HardwareWalletIcon";
+import keystoneLogo from "url:/assets/hardware/keystone.png";
 import BaseElement, { SettingIcon } from "./BaseElement";
 
 export default function WalletListItem({
@@ -36,6 +39,9 @@ export default function WalletListItem({
         {...props}
       >
         {!avatar && <SettingIcon as={WalletIcon} />}
+        {wallet.type === "hardware" && wallet.api === "keystone" && (
+          <HardwareIcon icon={keystoneLogo} color="#2161FF" />
+        )}
       </BaseElement>
     </Reorder.Item>
   );
@@ -48,3 +54,11 @@ interface Props {
   address: string;
   active: boolean;
 }
+
+const HardwareIcon = styled(HardwareWalletIcon)`
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  right: -5px;
+  bottom: -5px;
+`;

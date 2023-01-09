@@ -15,11 +15,14 @@ import {
 } from "@arconnect/components";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { motion, AnimatePresence } from "framer-motion";
+import type { HardwareApi } from "~wallets/hardware";
 import { useStorage } from "@plasmohq/storage/hook";
 import { AnsUser, getAnsProfile } from "~lib/ans";
 import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
 import { useEffect, useState } from "react";
+import HardwareWalletIcon from "~components/HardwareWalletIcon";
+import keystoneLogo from "url:/assets/hardware/keystone.png";
 import browser from "webextension-polyfill";
 import Squircle from "~components/Squircle";
 import styled from "styled-components";
@@ -60,7 +63,8 @@ export default function WalletSwitcher({
           name: wallet.nickname,
           address: wallet.address,
           balance: 0,
-          hasAns: false
+          hasAns: false,
+          api: wallet.type === "hardware" ? wallet.api : undefined
         }))
       ),
     [storedWallets]
@@ -227,6 +231,9 @@ export default function WalletSwitcher({
                   </WalletData>
                   <Avatar img={wallet.avatar}>
                     {!wallet.avatar && <NoAvatarIcon />}
+                    {wallet.api === "keystone" && (
+                      <HardwareWalletIcon icon={keystoneLogo} color="#2161FF" />
+                    )}
                   </Avatar>
                 </Wallet>
               ))}
@@ -369,6 +376,12 @@ const Avatar = styled(Squircle)`
   width: 1.92rem;
   height: 1.92rem;
   cursor: pointer;
+
+  ${HardwareWalletIcon} {
+    position: absolute;
+    right: -5px;
+    bottom: -5px;
+  }
 `;
 
 const NoAvatarIcon = styled(WalletIcon)`
@@ -434,6 +447,7 @@ interface Props {
 
 interface DisplayedWallet {
   name: string;
+  api?: HardwareApi;
   address: string;
   balance: number;
   avatar?: string;
