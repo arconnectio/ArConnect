@@ -1,13 +1,33 @@
-import { Button } from "@arconnect/components";
+import { Button, useToasts } from "@arconnect/components";
+import { addHardwareWallet } from "~wallets/hardware";
 import { connect } from "~wallets/hardware/keystone";
 import browser from "webextension-polyfill";
 
 export default function KeystoneButton() {
+  // toasts
+  const { setToast } = useToasts();
+
   // connect a keystone wallet
   async function connectKeystone() {
-    const address = await connect();
+    try {
+      const { address, owner } = await connect();
 
-    console.log("Add wallet", address);
+      await addHardwareWallet(address, owner, "keystone");
+      setToast({
+        type: "success",
+        content: browser.i18n.getMessage("wallet_hardware_added", "Keystone"),
+        duration: 2300
+      });
+    } catch {
+      setToast({
+        type: "error",
+        content: browser.i18n.getMessage(
+          "wallet_hardware_not_added",
+          "Keystone"
+        ),
+        duration: 2300
+      });
+    }
   }
 
   return (

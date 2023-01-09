@@ -1,4 +1,5 @@
 import type { JWKInterface } from "arweave/web/lib/wallet";
+import { passwordStrength } from "check-password-strength";
 import { getKeyPairFromMnemonic } from "human-crypto-keys";
 
 /**
@@ -63,30 +64,7 @@ async function pkcs8ToJwk(privateKey: Uint8Array): Promise<JWKInterface> {
  * @param password Password to check
  */
 export function checkPasswordValid(password: string) {
-  return passwordStrength(password) > 1;
-}
+  const strength = passwordStrength(password);
 
-/**
- * Get the strength of a password
- *
- * @param password Password to check
- */
-export function passwordStrength(password: string) {
-  const levels: Record<number, RegExp> = {
-    5: /^(?=.*[A-Z])(?=.*[!@#$&*])(?=.*[0-9])(?=.*[a-z]).{5,}$/g,
-    4: /^(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z]).{5,}$/g,
-    3: /^(?=.*[A-Z])(?=.*[a-z]).{5,}$/g,
-    2: /^(?=.*[a-z]).{5,}$/g
-  };
-  let level = 1;
-
-  for (const regexKey in levels) {
-    const thisLevel = parseFloat(regexKey);
-
-    if (!!password.match(levels[regexKey]) && thisLevel > level) {
-      level = thisLevel;
-    }
-  }
-
-  return level;
+  return strength.id >= 1;
 }

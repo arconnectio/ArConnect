@@ -1,4 +1,4 @@
-import { passwordStrength } from "~wallets/generator";
+import { passwordStrength } from "check-password-strength";
 import { Spacer, Text } from "@arconnect/components";
 import { useMemo } from "react";
 import browser from "webextension-polyfill";
@@ -6,7 +6,10 @@ import styled from "styled-components";
 
 export default function PasswordStrength({ password }: Props) {
   // get strength
-  const strength = useMemo(() => passwordStrength(password), [password]);
+  const strength = useMemo(() => {
+    if (password === "") return 1;
+    return passwordStrength(password).id + 2;
+  }, [password]);
 
   return (
     <>

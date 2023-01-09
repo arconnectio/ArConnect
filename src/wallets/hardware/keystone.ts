@@ -1,6 +1,10 @@
-import { DefaultKeyring } from "@keystonehq/arweave-keyring";
+import type { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
+import { DefaultKeyring, BaseKeyring } from "@keystonehq/arweave-keyring";
 import { defaultGateway } from "~applications/gateway";
 import Arweave from "arweave";
+
+// init keyring instance
+const keyring = DefaultKeyring.getEmptyKeyring();
 
 /**
  * Connect to a keystone device using keystone arweave-keyring
@@ -8,9 +12,6 @@ import Arweave from "arweave";
  * @returns Wallet address & public key
  */
 export async function connect() {
-  // init keyring instance
-  const keyring = DefaultKeyring.getEmptyKeyring();
-
   // call qr scanner
   await keyring.readKeyring();
 
@@ -26,4 +27,24 @@ export async function connect() {
     address,
     owner
   };
+}
+
+/**
+ * Sign a transaction with kestone
+ *
+ * @param transaction Transaction buffer to sign
+ * @param options Signature options
+ * @returns Transaction signature
+ */
+export async function sign(transaction: Buffer, options?: SignatureOptions) {
+  const signature = await keyring.signTransaction(
+    transaction,
+    options?.saltLength || 32
+  );
+
+  return signature;
+}
+
+class ArConnectKeyring extends BaseKeyring {
+  //async signTransaction(txBuf: Buffer, saltLen: number): Promise<Buffer> {}
 }
