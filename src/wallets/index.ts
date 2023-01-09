@@ -4,6 +4,7 @@ import { checkPassword, getDecryptionKey } from "./auth";
 import { useStorage } from "@plasmohq/storage/hook";
 import { AnsUser, getAnsProfile } from "~lib/ans";
 import { getStorageConfig } from "~utils/storage";
+import type { HardwareWallet } from "./hardware";
 import { Storage } from "@plasmohq/storage";
 import { useEffect, useState } from "react";
 import browser, { Alarms } from "webextension-polyfill";
@@ -11,13 +12,23 @@ import authenticate from "~api/modules/connect/auth";
 import Arweave from "arweave/web/common";
 
 /**
- * Wallet stored in the localstorage
+ * Locally stored wallet
+ *
+ * KeyfileFormat - string(encrypted) / JWKInterface(decrypted)
  */
-export interface StoredWallet {
+export interface LocalWallet<KeyfileFormat = string> {
+  type: "local";
   nickname: string;
   address: string;
-  keyfile: string;
+  keyfile: KeyfileFormat;
 }
+
+/**
+ * KeyfileFormat - string(encrypted) / JWKInterface(decrypted)
+ */
+export type StoredWallet<KeyfileFormat = string> =
+  | LocalWallet<KeyfileFormat>
+  | HardwareWallet;
 
 const storage = new Storage(getStorageConfig());
 
@@ -31,63 +42,6 @@ export async function getWallets() {
 
   return wallets || [];
 }
-
-/**
- * Hook for the active wallet, returns if the
- * wallets are decrypted and added to the extension
- */
-export const useActiveWallet = () => {
-  const [activeWallet, setActiveWallet] = useState<JWKInterface>();
-
-  // active wallet's address
-  const [activeAddress] = useStorage<string>({
-    key: "active_address",
-    area: "local",
-    isSecret: true
-  });
-
-  // stored decryption key
-  const [decryptionKey] = useDecryptionKey();
-
-  // all wallets
-  const [wallets] = useStorage<string>({
-    key: "wallets",
-    area: "local",
-    isSecret: true
-  });
-
-  useEffect(() => {
-    (async () => {
-      // return if one of the following essential
-      // dependencies is undefined
-      if (!activeAddress || !decryptionKey || !wallets) {
-        return setActiveWallet(undefined);
-      }
-
-      try {
-        // parse wallets
-        const parsedWallets: StoredWallet[] = JSON.parse(wallets);
-        const active = parsedWallets.find(
-          ({ address }) => address === activeAddress
-        ).keyfile;
-
-        // no wallets were found
-        if (!active) {
-          return setActiveWallet(undefined);
-        }
-
-        // decrypt wallet
-        const decrypted = await decryptWallet(active, decryptionKey);
-
-        setActiveWallet(decrypted);
-      } catch {
-        setActiveWallet(undefined);
-      }
-    })();
-  }, [activeAddress, decryptionKey, wallets]);
-
-  return activeWallet;
-};
 
 /**
  * Hook that opens a new tab if ArConnect has not been set up yet
@@ -195,13 +149,20 @@ export async function setActiveWallet(address?: string) {
   await storage.set("active_address", address);
 }
 
+type DecryptedWallet = StoredWallet<JWKInterface>;
+
 /**
- * Get the active wallets JWK
+ * Get the active wallet with decrypted JWK
  *
- * @returns Active JWK
+ * @returns Active wallet with decrypted JWK
  */
-export async function getActiveKeyfile() {
+export async function getActiveKeyfile(): Promise<DecryptedWallet> {
   const activeWallet = await getActiveWallet();
+
+  // return if hardware wallet
+  if (activeWallet.type === "hardware") {
+    return activeWallet;
+  }
 
   // get decryption key
   let decryptionKey = await getDecryptionKey();
@@ -219,9 +180,18 @@ export async function getActiveKeyfile() {
   }
 
   // decrypt keyfile
-  const decrypted = await decryptWallet(activeWallet.keyfile, decryptionKey);
+  const decryptedKeyfile = await decryptWallet(
+    activeWallet.keyfile,
+    decryptionKey
+  );
 
-  return decrypted;
+  // construct decrypted wallet object
+  const decryptedWallet: DecryptedWallet = {
+    ...activeWallet,
+    keyfile: decryptedKeyfile
+  };
+
+  return decryptedWallet;
 }
 
 /**
@@ -268,6 +238,7 @@ export async function addWallet(
 
     // push wallet
     wallets.push({
+      type: "local",
       // @ts-expect-error
       nickname: item.nickname || `Account ${wallets.length + 1}`,
       address,

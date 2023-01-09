@@ -1,7 +1,3 @@
-/*import {
-  createData,
-  signers
-} from "https://arweave.net/D7edPT58C-eAhOwurzB_NvDuYR5W6J7Oj1PssDn4ZIM";*/
 import { arconfettiIcon, signNotification } from "../sign/utils";
 import type { ModuleFunction } from "~api/background";
 import { createData, signers } from "arbundles";

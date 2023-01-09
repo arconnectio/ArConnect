@@ -1,5 +1,5 @@
 import { Button } from "@arconnect/components";
-import { connect } from "~lib/keystone";
+import { connect } from "~wallets/hardware/keystone";
 import browser from "webextension-polyfill";
 
 export default function KeystoneButton() {

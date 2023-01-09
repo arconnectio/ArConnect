@@ -5,7 +5,7 @@ import Arweave from "arweave";
 /**
  * Connect to a keystone device using keystone arweave-keyring
  *
- * @returns Wallet address
+ * @returns Wallet address & public key
  */
 export async function connect() {
   // init keyring instance
@@ -22,5 +22,8 @@ export async function connect() {
   const arweave = new Arweave(defaultGateway);
   const address = await arweave.wallets.ownerToAddress(owner);
 
-  return address;
+  return {
+    address,
+    owner
+  };
 }
