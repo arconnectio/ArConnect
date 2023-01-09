@@ -256,7 +256,7 @@ export default function WalletSwitcher({
                       onClick={() =>
                         browser.tabs.create({
                           url: browser.runtime.getURL(
-                            "tabs/dashboard.html#/wallets"
+                            `tabs/dashboard.html#/wallets/${activeAddress}`
                           )
                         })
                       }
