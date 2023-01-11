@@ -1,4 +1,3 @@
-import LastTransaction from "~components/popup/LastTransaction";
 import Collectibles from "~components/popup/home/Collectibles";
 import WalletHeader from "~components/popup/WalletHeader";
 import Balance from "~components/popup/home/Balance";
@@ -8,7 +7,6 @@ export default function Home() {
   return (
     <>
       <WalletHeader />
-      <LastTransaction />
       <Balance />
       <Tokens />
       <Collectibles />
