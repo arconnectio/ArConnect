@@ -8,7 +8,7 @@ import { getActiveKeyfile } from "~wallets";
 import { getAppURL } from "~utils/format";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
-import Arweave from "@arconnect/arweave";
+import Arweave from "arweave";
 
 type ReturnType = {
   arConfetti: string | false;

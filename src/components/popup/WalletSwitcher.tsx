@@ -26,7 +26,7 @@ import keystoneLogo from "url:/assets/hardware/keystone.png";
 import browser from "webextension-polyfill";
 import Squircle from "~components/Squircle";
 import styled from "styled-components";
-import Arweave from "@arconnect/arweave";
+import Arweave from "arweave";
 
 export default function WalletSwitcher({
   open,

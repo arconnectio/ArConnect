@@ -1,4 +1,4 @@
-import type { JWKInterface } from "@arconnect/arweave/node/lib/wallet";
+import type { JWKInterface } from "arweave/node/lib/wallet";
 import { Spacer, Text } from "@arconnect/components";
 import { useWalletsDetails } from "~wallets/hooks";
 import browser from "webextension-polyfill";

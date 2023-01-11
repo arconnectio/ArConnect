@@ -10,7 +10,7 @@ import {
 } from "~applications/gateway";
 import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
-import Arweave from "@arconnect/arweave";
+import Arweave from "arweave";
 import styled from "styled-components";
 import Label from "./Label";
 

@@ -15,7 +15,7 @@ import {
   FileInput,
   useToasts
 } from "@arconnect/components";
-import type Arweave from "@arconnect/arweave";
+import type Arweave from "arweave";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";

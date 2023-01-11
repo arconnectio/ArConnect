@@ -25,7 +25,7 @@ import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
-import Arweave from "@arconnect/arweave";
+import Arweave from "arweave";
 
 export default function Send({ id }: Props) {
   // amount

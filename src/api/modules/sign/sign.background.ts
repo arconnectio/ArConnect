@@ -15,7 +15,7 @@ import {
 import type Transaction from "arweave/web/lib/transaction";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
-import Arweave from "@arconnect/arweave";
+import Arweave from "arweave";
 
 const background: ModuleFunction<BackgroundResult> = async (
   tab,

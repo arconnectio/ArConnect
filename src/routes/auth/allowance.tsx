@@ -16,7 +16,7 @@ import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import App from "~components/auth/App";
-import Arweave from "@arconnect/arweave";
+import Arweave from "arweave";
 
 export default function Allowance() {
   const arweave = new Arweave(defaultGateway);

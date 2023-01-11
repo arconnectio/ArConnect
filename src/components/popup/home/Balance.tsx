@@ -1,6 +1,6 @@
 import Application, { AppInfo } from "~applications/application";
+import { defaultGateway, gql } from "~applications/gateway";
 import Graph, { GraphText } from "~components/popup/Graph";
-import { defaultGateway } from "~applications/gateway";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { Spacer } from "@arconnect/components";
@@ -15,15 +15,12 @@ import {
   GlobeIcon,
   SettingsIcon
 } from "@iconicicons/react";
-import type ArdbTransaction from "ardb/lib/models/transaction";
 import useActiveTab from "~applications/useActiveTab";
 import AppIcon, { NoAppIcon } from "./AppIcon";
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
-import ArDB from "ardb";
-import dayjs from "dayjs";
 
 export default function Balance() {
   // grab address
@@ -112,7 +109,7 @@ export default function Balance() {
   useEffect(() => {
     if (!activeAddress) return;
 
-    balanceHistory(activeAddress)
+    balanceHistory(activeAddress, defaultGateway)
       .then((res) => setHistoricalBalance(res))
       .catch();
   }, [activeAddress]);
@@ -198,25 +195,69 @@ export default function Balance() {
   );
 }
 
-async function balanceHistory(address: string) {
-  const arweave = new Arweave(defaultGateway);
-  const gql = new ArDB(arweave);
+async function balanceHistory(address: string, gateway = defaultGateway) {
+  const arweave = new Arweave(gateway);
 
   // find txs coming in and going out
-  const inTxs = (await gql
-    .search()
-    .to(address)
-    .limit(100)
-    .find()) as ArdbTransaction[];
-  const outTxs = (await gql
-    .search()
-    .from(address)
-    .limit(100)
-    .find()) as ArdbTransaction[];
+  const inTxs = (
+    await gql(
+      `
+      query($recipient: String!) {
+        transactions(recipients: [$recipient], first: 100) {
+          edges {
+            node {
+              owner {
+                address
+              }
+              fee {
+                ar
+              }
+              quantity {
+                ar
+              }
+              block {
+                timestamp
+              }
+            }
+          }
+        }
+      }
+    `,
+      { recipient: address }
+    )
+  ).data.transactions.edges;
+  const outTxs = (
+    await gql(
+      `
+      query($owner: String!) {
+        transactions(owners: [$owner], first: 100) {
+          edges {
+            node {
+              owner {
+                address
+              }
+              fee {
+                ar
+              }
+              quantity {
+                ar
+              }
+              block {
+                timestamp
+              }
+            }
+          }
+        }
+      }    
+    `,
+      { owner: address }
+    )
+  ).data.transactions.edges;
 
   // sort txs
   const txs = inTxs
     .concat(outTxs)
+    .map((edge) => edge.node)
     .filter((tx) => !!tx?.block?.timestamp)
     .sort((a, b) => a.block.timestamp - b.block.timestamp)
     .slice(0, 100);

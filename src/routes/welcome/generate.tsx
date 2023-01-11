@@ -32,7 +32,7 @@ import browser from "webextension-polyfill";
 import Done from "~components/welcome/Done";
 import * as bip39 from "bip39-web-crypto";
 import styled from "styled-components";
-import Arweave from "@arconnect/arweave";
+import Arweave from "arweave";
 
 export default function Generate() {
   // active page

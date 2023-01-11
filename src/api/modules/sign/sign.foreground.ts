@@ -9,7 +9,7 @@ import {
   SplitTransaction
 } from "./transaction_builder";
 import type Transaction from "arweave/web/lib/transaction";
-import Arweave from "@arconnect/arweave";
+import Arweave from "arweave";
 
 type ReturnParams = [SplitTransaction, SignatureOptions, string];
 type OriginalParams = [Transaction, SignatureOptions];

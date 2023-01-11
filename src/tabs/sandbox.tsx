@@ -1,7 +1,7 @@
 import { defaultCacheOptions, WarpFactory } from "warp-contracts";
 import type { Gateway } from "~applications/gateway";
 import { useEffect } from "react";
-import Arweave from "@arconnect/arweave";
+import Arweave from "arweave";
 
 export default function Sandbox() {
   useEffect(() => {
