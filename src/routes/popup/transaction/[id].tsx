@@ -5,9 +5,9 @@ import {
   urlToGateway
 } from "~applications/gateway";
 import { Button, Section, Spacer, Text } from "@arconnect/components";
-import type { GQLTransactionInterface } from "ardb/lib/faces/gql";
+import { AnimatePresence, Variants, motion } from "framer-motion";
+import type { GQLNodeInterface } from "ar-gql/dist/faces";
 import { useEffect, useMemo, useState } from "react";
-import { AnimatePresence } from "framer-motion";
 import { ShareIcon } from "@iconicicons/react";
 import { formatAddress } from "~utils/format";
 import { getArPrice } from "~lib/coingecko";
@@ -26,7 +26,7 @@ export default function Transaction({ id, gw }: Props) {
   if (!id) return <></>;
 
   // fetch tx data
-  const [transaction, setTransaction] = useState<GQLTransactionInterface>();
+  const [transaction, setTransaction] = useState<GQLNodeInterface>();
 
   // arweave gateway
   const gateway = useMemo(() => {
@@ -41,58 +41,57 @@ export default function Transaction({ id, gw }: Props) {
   const arweave = useMemo(() => new Arweave(gateway), [gateway]);
 
   useEffect(() => {
-    (async () => {
-      if (!id) {
-        return;
-      }
+    if (!id) return;
 
-      // fetch tx and try again in a few
-      // seconds if it is not found
-      const fetchTx = async () => {
-        const { data } = await gql(
-          `
-            query($id: ID!) {
-              transaction(id: $id) {
-                owner {
-                  address
-                }
-                recipient
-                fee {
-                  ar
-                }
-                data {
-                  size
-                  type
-                }
-                quantity {
-                  ar
-                }
-                tags {
-                  name
-                  value
-                }
-                block {
-                  height
-                  timestamp
-                }
+    let timeoutID: number | undefined;
+
+    const fetchTx = async () => {
+      const { data } = await gql(
+        `
+          query($id: ID!) {
+            transaction(id: $id) {
+              owner {
+                address
               }
-            }        
-          `,
-          { id },
-          gateway
-        );
+              recipient
+              fee {
+                ar
+              }
+              data {
+                size
+                type
+              }
+              quantity {
+                ar
+              }
+              tags {
+                name
+                value
+              }
+              block {
+                height
+                timestamp
+              }
+            }
+          }        
+        `,
+        { id },
+        gateway
+      );
 
+      if (!data.transaction) {
+        timeoutID = setTimeout(fetchTx, 5000);
+      } else {
+        timeoutID = undefined;
         setTransaction(data.transaction);
-        return data.transaction;
-      };
-
-      const tx = await fetchTx();
-
-      // try again
-      if (!tx) {
-        setTimeout(fetchTx, 5000);
       }
-    })();
+    };
+
+    fetchTx();
+
+    return () => {
+      if (timeoutID) clearTimeout(timeoutID);
+    };
   }, [id, gateway]);
 
   // transaction confirmations
@@ -358,19 +357,32 @@ export default function Transaction({ id, gw }: Props) {
           </>
         )}
       </div>
-      <Section>
-        <Button
-          fullWidth
-          onClick={() =>
-            browser.tabs.create({
-              url: `https://viewblock.io/arweave/tx/${id}`
-            })
-          }
-        >
-          Viewblock
-          <ShareIcon />
-        </Button>
-      </Section>
+      <AnimatePresence>
+        {id && transaction && (
+          <motion.div
+            variants={opacityAnimation}
+            initial="hidden"
+            animate="shown"
+            exit="hidden"
+          >
+            <Section>
+              <Button
+                fullWidth
+                onClick={() =>
+                  browser.tabs.create({
+                    url: `https://viewblock.io/arweave/tx/${id}`
+                  })
+                }
+                disabled={confirmations <= 0}
+              >
+                {(confirmations > 0 && "Viewblock") ||
+                  browser.i18n.getMessage("transaction_not_on_viewblock")}
+                <ShareIcon />
+              </Button>
+            </Section>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Wrapper>
   );
 }
@@ -466,6 +478,11 @@ const ImageDisplay = styled.img.attrs({
   width: 100%;
   user-select: none;
 `;
+
+const opacityAnimation: Variants = {
+  hidden: { opacity: 0 },
+  shown: { opacity: 1 }
+};
 
 interface Props {
   id: string;

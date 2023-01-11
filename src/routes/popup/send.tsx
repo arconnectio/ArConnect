@@ -78,19 +78,23 @@ export default function Send({ id }: Props) {
       let targetAddress = targetInput.state;
       let ansProfile: AnsUser;
 
-      // fetch profile with address
-      if (isAddress(targetAddress)) {
-        ansProfile = (await getAnsProfile(targetAddress)) as AnsUser;
-      } else if (targetAddress.includes(".ar")) {
+      if (targetAddress.includes(".ar")) {
         // fetch profile with label
         ansProfile = await getAnsProfileByLabel(
           targetAddress.replace(".ar", "")
         );
+      } else if (isAddress(targetAddress)) {
+        setTarget({ address: targetAddress });
+
+        // fetch profile with address
+        ansProfile = (await getAnsProfile(targetAddress)) as AnsUser;
       } else {
         return;
       }
 
       if (!ansProfile) {
+        if (isAddress(targetAddress)) return;
+
         return setTarget(undefined);
       }
 
@@ -146,6 +150,11 @@ export default function Send({ id }: Props) {
     // get wallet
     try {
       const activeWallet = await getActiveWallet();
+
+      if (activeWallet.type === "hardware") {
+        throw new Error("TODO: send with hardware wallet");
+      }
+
       wallet = await decryptWallet(activeWallet.keyfile, passwordInput.state);
     } catch {
       setLoading(false);

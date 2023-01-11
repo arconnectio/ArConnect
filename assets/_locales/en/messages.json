@@ -995,6 +995,10 @@
     "message": "Cannot display binary transaction data...",
     "description": "Warning about ArConnect not being able to display a transaction's data"
   },
+  "transaction_not_on_viewblock": {
+    "message": "Not available on Viewblock",
+    "description": "Disabled viewblock link btn text"
+  },
   "titles_sign": {
     "message": "Sign transaction",
     "description": "Sign transaction popup title"
