@@ -999,6 +999,10 @@
     "message": "Not available on Viewblock",
     "description": "Disabled viewblock link btn text"
   },
+  "transaction_view_last": {
+    "message": "Click to view your last signed transaction",
+    "description": "View last tx prompt content"
+  },
   "titles_sign": {
     "message": "Sign transaction",
     "description": "Sign transaction popup title"
