@@ -27,12 +27,20 @@ const background: ModuleFunction<BackgroundResult> = async (
   const tabURL = getAppURL(tab.url);
 
   // grab the user's keyfile
-  const keyfile = await getActiveKeyfile().catch(() => {
+  const activeWallet = await getActiveKeyfile().catch(() => {
     // if there are no wallets added, open the welcome page
     browser.tabs.create({ url: browser.runtime.getURL("tabs/welcome.html") });
 
     throw new Error("No wallets added");
   });
+
+  if (activeWallet.type === "hardware") {
+    throw new Error(
+      "Active wallet type: hardware. This does not support transaction signing currently."
+    );
+  }
+
+  const keyfile = activeWallet.keyfile;
 
   // app instance
   const app = new Application(tabURL);
