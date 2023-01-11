@@ -43,7 +43,7 @@ export default function WalletSwitcher({
   });
 
   // all wallets added
-  const [storedWallets, setStoredWallets] = useStorage<StoredWallet[]>(
+  const [storedWallets] = useStorage<StoredWallet[]>(
     {
       key: "wallets",
       area: "local",

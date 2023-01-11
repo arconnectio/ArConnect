@@ -137,6 +137,10 @@ const ChartSvg = styled.svg<{ blur?: boolean }>`
   width: 100%;
   z-index: -1;
   ${(props) => (props.blur ? "filter: blur(5px);" : "")}
+
+  path, rect {
+    transition: all 0.23s ease-in-out;
+  }
 `;
 
 export const GraphText = styled(Text)`

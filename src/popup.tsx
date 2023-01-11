@@ -8,6 +8,8 @@ import { syncLabels, useSetUp } from "~wallets";
 import { useEffect } from "react";
 import { Router } from "wouter";
 
+import HardwareWalletTheme from "~components/HardwareWalletTheme";
+
 import Home from "~routes/popup";
 import Receive from "~routes/popup/receive";
 import Send from "~routes/popup/send";
@@ -48,32 +50,34 @@ export default function Popup() {
 
   return (
     <Provider theme={theme}>
-      <GlobalStyle />
-      <HideScrollbar />
-      <Wrapper>
-        <Router hook={useHashLocation}>
-          <Route path="/" component={Home} />
-          <Route path="/receive" component={Receive} />
-          <Route path="/send/:id?">
-            {(params: { id?: string }) => <Send id={params?.id} />}
-          </Route>
-          <Route path="/explore" component={Explore} />
-          <Route path="/unlock" component={Unlock} />
-          <Route path="/tokens" component={Tokens} />
-          <Route path="/token/:id">
-            {(params: { id: string }) => <Asset id={params?.id} />}
-          </Route>
-          <Route path="/collectibles" component={Collectibles} />
-          <Route path="/collectible/:id">
-            {(params: { id: string }) => <Collectible id={params?.id} />}
-          </Route>
-          <Route path="/transaction/:id/:gateway?">
-            {(params: { id: string; gateway?: string }) => (
-              <Transaction id={params?.id} gw={params?.gateway} />
-            )}
-          </Route>
-        </Router>
-      </Wrapper>
+      <HardwareWalletTheme>
+        <GlobalStyle />
+        <HideScrollbar />
+        <Wrapper>
+          <Router hook={useHashLocation}>
+            <Route path="/" component={Home} />
+            <Route path="/receive" component={Receive} />
+            <Route path="/send/:id?">
+              {(params: { id?: string }) => <Send id={params?.id} />}
+            </Route>
+            <Route path="/explore" component={Explore} />
+            <Route path="/unlock" component={Unlock} />
+            <Route path="/tokens" component={Tokens} />
+            <Route path="/token/:id">
+              {(params: { id: string }) => <Asset id={params?.id} />}
+            </Route>
+            <Route path="/collectibles" component={Collectibles} />
+            <Route path="/collectible/:id">
+              {(params: { id: string }) => <Collectible id={params?.id} />}
+            </Route>
+            <Route path="/transaction/:id/:gateway?">
+              {(params: { id: string; gateway?: string }) => (
+                <Transaction id={params?.id} gw={params?.gateway} />
+              )}
+            </Route>
+          </Router>
+        </Wrapper>
+      </HardwareWalletTheme>
     </Provider>
   );
 }

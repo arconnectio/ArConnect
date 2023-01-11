@@ -6,6 +6,8 @@ import { syncLabels } from "~wallets";
 import { useEffect } from "react";
 import { Router } from "wouter";
 
+import HardwareWalletTheme from "~components/HardwareWalletTheme";
+
 import Connect from "~routes/auth/connect";
 import Allowance from "~routes/auth/allowance";
 import Unlock from "~routes/auth/unlock";
@@ -21,16 +23,18 @@ export default function Auth() {
 
   return (
     <Provider theme={theme}>
-      <GlobalStyle />
-      <Wrapper>
-        <Router hook={useHashLocation}>
-          <Route path="/connect" component={Connect} />
-          <Route path="/allowance" component={Allowance} />
-          <Route path="/unlock" component={Unlock} />
-          <Route path="/token" component={Token} />
-          <Route path="/sign" component={Sign} />
-        </Router>
-      </Wrapper>
+      <HardwareWalletTheme>
+        <GlobalStyle />
+        <Wrapper>
+          <Router hook={useHashLocation}>
+            <Route path="/connect" component={Connect} />
+            <Route path="/allowance" component={Allowance} />
+            <Route path="/unlock" component={Unlock} />
+            <Route path="/token" component={Token} />
+            <Route path="/sign" component={Sign} />
+          </Router>
+        </Wrapper>
+      </HardwareWalletTheme>
     </Provider>
   );
 }

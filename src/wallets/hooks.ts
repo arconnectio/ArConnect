@@ -1,8 +1,11 @@
 import type { WalletInterface } from "~components/welcome/load/Migrate";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { defaultGateway } from "~applications/gateway";
+import { useEffect, useMemo, useState } from "react";
+import { useStorage } from "@plasmohq/storage/hook";
 import { AnsUser, getAnsProfile } from "~lib/ans";
-import { useEffect, useState } from "react";
+import type { HardwareApi } from "./hardware";
+import type { StoredWallet } from "~wallets";
 import Arweave from "arweave";
 
 export function useWalletsDetails(wallets: JWKInterface[]) {
@@ -43,4 +46,34 @@ export function useWalletsDetails(wallets: JWKInterface[]) {
   }, [wallets]);
 
   return walletDetails;
+}
+
+export function useHardwareApi() {
+  // current address
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    area: "local",
+    isSecret: true
+  });
+
+  // all wallets added
+  const [wallets] = useStorage<StoredWallet[]>(
+    {
+      key: "wallets",
+      area: "local",
+      isSecret: true
+    },
+    []
+  );
+
+  // hardware wallet type
+  const hardwareApi = useMemo<HardwareApi | false>(() => {
+    const wallet = wallets.find(({ address }) => address === activeAddress);
+
+    if (!wallet) return false;
+
+    return (wallet.type === "hardware" && wallet.api) || false;
+  }, [wallets, activeAddress]);
+
+  return hardwareApi;
 }

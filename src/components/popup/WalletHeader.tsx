@@ -1,12 +1,18 @@
+import HardwareWalletIcon, {
+  hwIconAnimateProps
+} from "~components/HardwareWalletIcon";
 import { DisplayTheme, Section, Text, Tooltip } from "@arconnect/components";
 import { ChevronDownIcon, GridIcon, UserIcon } from "@iconicicons/react";
 import { defaultGateway, concatGatewayURL } from "~applications/gateway";
 import { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
+import { useHardwareApi } from "~wallets/hooks";
+import { AnimatePresence } from "framer-motion";
 import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
 import type { AnsUser } from "~lib/ans";
 import { useTheme } from "~utils/theme";
+import keystoneLogo from "url:/assets/hardware/keystone.png";
 import WalletSwitcher from "./WalletSwitcher";
 import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
@@ -67,6 +73,9 @@ export default function WalletHeader() {
     return undefined;
   }, [ans]);
 
+  // hardware wallet type
+  const hardwareApi = useHardwareApi();
+
   // ui theme
   const theme = useTheme();
 
@@ -109,7 +118,18 @@ export default function WalletHeader() {
           <ExpandArrow open={isOpen} />
         </WithArrow>
       </Wallet>
-      <Avatar img={avatar}>{!avatar && <NoAvatarIcon />}</Avatar>
+      <Avatar img={avatar}>
+        {!avatar && <NoAvatarIcon />}
+        <AnimatePresence initial={false}>
+          {hardwareApi === "keystone" && (
+            <HardwareWalletIcon
+              icon={keystoneLogo}
+              color="#2161FF"
+              {...hwIconAnimateProps}
+            />
+          )}
+        </AnimatePresence>
+      </Avatar>
       {isOpen && <CloseLayer onClick={() => setOpen(false)} />}
       <WalletSwitcher open={isOpen} close={() => setOpen(false)} />
     </Wrapper>
@@ -193,6 +213,12 @@ export const Avatar = styled(Squircle)`
   width: 2.1rem;
   height: 2.1rem;
   transition: all 0.07s ease-in-out;
+
+  ${HardwareWalletIcon} {
+    position: absolute;
+    right: -5px;
+    bottom: -5px;
+  }
 
   &:active {
     transform: scale(0.93);

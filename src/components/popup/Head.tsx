@@ -1,3 +1,6 @@
+import HardwareWalletIcon, {
+  hwIconAnimateProps
+} from "~components/HardwareWalletIcon";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { DisplayTheme, Section, Text } from "@arconnect/components";
 import { Avatar, CloseLayer, NoAvatarIcon } from "./WalletHeader";
@@ -5,8 +8,10 @@ import { useEffect, useMemo, useState } from "react";
 import { hoverEffect, useTheme } from "~utils/theme";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ArrowLeftIcon } from "@iconicicons/react";
+import { useHardwareApi } from "~wallets/hooks";
 import type { AnsUser } from "~lib/ans";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import keystoneLogo from "url:/assets/hardware/keystone.png";
 import WalletSwitcher from "./WalletSwitcher";
 import styled from "styled-components";
 
@@ -75,6 +80,9 @@ export default function Head({
   // wallet switcher open
   const [isOpen, setOpen] = useState(false);
 
+  // hardware api type
+  const hardwareApi = useHardwareApi();
+
   return (
     <HeadWrapper
       displayTheme={theme}
@@ -103,6 +111,15 @@ export default function Head({
           }}
         >
           {!avatar && <NoAvatarIcon />}
+          <AnimatePresence initial={false}>
+            {hardwareApi === "keystone" && (
+              <HardwareWalletIcon
+                icon={keystoneLogo}
+                color="#2161FF"
+                {...hwIconAnimateProps}
+              />
+            )}
+          </AnimatePresence>
         </ClickableAvatar>
       </PageInfo>
       {isOpen && <CloseLayer onClick={() => setOpen(false)} />}
@@ -205,6 +222,12 @@ const PageTitle = styled(Text).attrs({
 
 const ClickableAvatar = styled(Avatar)`
   cursor: pointer;
+
+  ${HardwareWalletIcon} {
+    position: absolute;
+    right: -5px;
+    bottom: -5px;
+  }
 `;
 
 interface Props {
