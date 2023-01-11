@@ -1034,5 +1034,9 @@
         "example": "Keystone"
       }
     }
+  },
+  "wallet_hardware_unsupported": {
+    "message": "This feature does not support hardware wallets",
+    "description": "Notification about a feature that does not support usage with a hardware wallet as an active/selected wallet"
   }
 }

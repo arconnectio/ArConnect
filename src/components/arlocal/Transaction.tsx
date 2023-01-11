@@ -113,7 +113,17 @@ export default function Transaction({ arweave }: Props) {
 
     try {
       // get keyfile
-      const keyfile = await getActiveKeyfile();
+      const activeWallet = await getActiveKeyfile();
+
+      if (activeWallet.type === "hardware") {
+        return setToast({
+          duration: 2200,
+          type: "error",
+          content: browser.i18n.getMessage("wallet_hardware_unsupported")
+        });
+      }
+
+      const keyfile = activeWallet.keyfile;
 
       // create tx
       let initParams: Partial<CreateTransactionInterface> = {

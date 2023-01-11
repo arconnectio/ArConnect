@@ -8,13 +8,13 @@ import {
   useToasts
 } from "@arconnect/components";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { getAnsProfile, AnsUser, getAnsProfileByLabel } from "~lib/ans";
 import { ArrowUpRightIcon, ChevronDownIcon } from "@iconicicons/react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { formatAddress, isAddress } from "~utils/format";
 import { useState, useEffect, useMemo } from "react";
 import { decryptWallet } from "~wallets/encryption";
-import { getAnsProfile, AnsUser, getAnsProfileByLabel } from "~lib/ans";
 import { getArPrice } from "~lib/coingecko";
 import { getActiveWallet } from "~wallets";
 import { useLocation } from "wouter";
