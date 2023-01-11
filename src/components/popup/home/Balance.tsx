@@ -272,12 +272,12 @@ async function balanceHistory(address: string, gateway = defaultGateway) {
   // go back in time by tx and calculate
   // historical balance
   for (const tx of txs) {
-    balance += parseFloat(tx.fee.ar);
+    balance -= parseFloat(tx.fee.ar);
 
     if (tx.owner.address === address) {
-      balance += parseFloat(tx.quantity.ar);
-    } else {
       balance -= parseFloat(tx.quantity.ar);
+    } else {
+      balance += parseFloat(tx.quantity.ar);
     }
 
     res.push(balance);
