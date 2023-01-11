@@ -139,7 +139,7 @@ const ChartSvg = styled.svg<{ blur?: boolean }>`
   ${(props) => (props.blur ? "filter: blur(5px);" : "")}
 
   path, rect {
-    transition: all 0.23s ease-in-out;
+    transition: all 0.7s cubic-bezier(0.06, 1.05, 0.57, 1);
   }
 `;
 
