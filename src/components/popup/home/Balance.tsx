@@ -259,8 +259,7 @@ async function balanceHistory(address: string, gateway = defaultGateway) {
     .concat(outTxs)
     .map((edge) => edge.node)
     .filter((tx) => !!tx?.block?.timestamp)
-    .sort((a, b) => a.block.timestamp - b.block.timestamp)
-    .slice(0, 100);
+    .sort((a, b) => a.block.timestamp - b.block.timestamp);
 
   // get initial balance
   let balance = parseFloat(

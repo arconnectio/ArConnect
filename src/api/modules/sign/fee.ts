@@ -27,9 +27,16 @@ export default async function handleFeeAlarm(alarmInfo: Alarms.Alarm) {
   const feeMultiplier =
     (await getSetting("fee_multiplier").getValue<number>()) || 1;
 
-  // get keyfile and address
-  const keyfile = await getActiveKeyfile();
+  // get wallet and address
+  const wallet = await getActiveKeyfile();
   const address = await getActiveAddress();
+
+  // only charge fee from local wallets
+  if (wallet.type === "hardware") {
+    return;
+  }
+
+  const keyfile = wallet.keyfile;
 
   // attempt to create fee
   try {

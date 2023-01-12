@@ -35,11 +35,16 @@ export async function addHardwareWallet(
   // get wallets
   const wallets = await getWallets();
 
+  // keystone wallet count
+  const keystoneCount = wallets.filter(
+    (wallet) => wallet?.type === "hardware" && wallet?.api === "keystone"
+  ).length;
+
   // push
   wallets.push({
     type: "hardware",
     api,
-    nickname: `Keystone ${wallets.length + 1}`,
+    nickname: `Keystone ${keystoneCount + 1}`,
     address,
     publicKey
   });
