@@ -35,6 +35,11 @@ export async function addHardwareWallet(
   // get wallets
   const wallets = await getWallets();
 
+  // don't add if wallet is already added
+  if (wallets.find((wallet) => wallet.address === address)) {
+    return;
+  }
+
   // keystone wallet count
   const keystoneCount = wallets.filter(
     (wallet) => wallet?.type === "hardware" && wallet?.api === "keystone"
