@@ -17,7 +17,7 @@ import Arweave from "arweave/web/common";
  * Handle fee tx creation event using alarms
  */
 export default async function handleFeeAlarm(alarmInfo: Alarms.Alarm) {
-  if (!alarmInfo.name.startsWith("scheduled-fee_")) return;
+  if (!alarmInfo.name.startsWith("scheduled-fee.")) return;
 
   // client and tx info
   const [, linkedTransaction, appURL] = alarmInfo.name.split(".");
