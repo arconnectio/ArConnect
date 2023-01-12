@@ -86,30 +86,42 @@ export async function signNotification(
   const arPrice = parseFloat(arweave.ar.winstonToAr(price.toString()));
 
   // format price
-  const formatPrice = (p: number) =>
-    p.toLocaleString(undefined, {
+  let formattedPrice = arPrice.toLocaleString(undefined, {
+    maximumFractionDigits: 0
+  });
+
+  if (arPrice < 0.1) {
+    formattedPrice = arPrice.toLocaleString(undefined, {
+      maximumFractionDigits: 6
+    });
+  } else if (arPrice < 10) {
+    formattedPrice = arPrice.toLocaleString(undefined, {
       maximumFractionDigits: 4
     });
-  let formattedPrice = `~${formatPrice(arPrice)} AR`;
-
-  if (price.toString().length <= 8) {
-    formattedPrice = `~${formatPrice(price)} Winston`;
+  } else if (arPrice < 1000) {
+    formattedPrice = arPrice.toLocaleString(undefined, {
+      maximumFractionDigits: 2
+    });
   }
 
   // give an ID to the notification
   const notificationID = nanoid();
 
   // transaction message
-  const message =
+  const message = browser.i18n.getMessage(
     type === "sign"
-      ? `It cost a total of ${formattedPrice}`
-      : "It was submitted to The Bundlr Network";
+      ? "notification_description_native_tx"
+      : "notification_description_dispatch_tx",
+    formattedPrice
+  );
 
   // create the notification
   await browser.notifications.create(notificationID, {
     iconUrl,
     type: "basic",
-    title: `Transaction ${type === "sign" ? "signed" : "dispatched"}`,
+    title: browser.i18n.getMessage(
+      `notification_title_${type === "sign" ? "native" : "dispatched"}_tx`
+    ),
     message
   });
 

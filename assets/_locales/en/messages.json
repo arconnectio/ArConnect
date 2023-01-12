@@ -1042,5 +1042,27 @@
   "wallet_hardware_unsupported": {
     "message": "This feature does not support hardware wallets",
     "description": "Notification about a feature that does not support usage with a hardware wallet as an active/selected wallet"
+  },
+  "notification_title_native_tx": {
+    "message": "Transaction signed",
+    "description": "Notification title for signing a native tx"
+  },
+  "notification_title_dispatched_tx": {
+    "message": "Transaction dispatched",
+    "description": "Notification title for dispatching a tx"
+  },
+  "notification_description_native_tx": {
+    "message": "It cost a total of ~$PRICE$ AR",
+    "description": "Notification body for native tx signing",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "10,234.15"
+      }
+    }
+  },
+  "notification_description_dispatch_tx": {
+    "message": "It was submitted to The Bundlr Network",
+    "description": "Notification body for dispatched tx"
   }
 }
