@@ -20,7 +20,7 @@ export default async function handleFeeAlarm(alarmInfo: Alarms.Alarm) {
   if (!alarmInfo.name.startsWith("scheduled-fee_")) return;
 
   // client and tx info
-  const [, linkedTransaction, appURL] = alarmInfo.name.split("_");
+  const [, linkedTransaction, appURL] = alarmInfo.name.split(".");
   const arweave = new Arweave(defaultGateway);
 
   // fee multiplier
