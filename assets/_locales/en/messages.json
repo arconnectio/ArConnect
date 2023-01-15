@@ -1033,6 +1033,18 @@
       }
     }
   },
+  "keystone_loading_camera": {
+    "message": "Loading the scanner...",
+    "description": "Loading hardware wallet QR scanner text"
+  },
+  "keystone_disabled_camera": {
+    "message": "Your camera is disabled. Enable it to scan QR codes!",
+    "description": "Request to enable the built-in camera"
+  },
+  "keystone_allowed_camera": {
+    "message": "You've granted camera permissions. Please refresh the page!",
+    "description": "Request to refresh the page after granting camera permissions"
+  },
   "token_price_estimate_warning": {
     "message": "Price estimate by",
     "description": "Price estimate warning text. Full text is displayed with a link to Redstone.finance"

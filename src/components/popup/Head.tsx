@@ -1,6 +1,3 @@
-import HardwareWalletIcon, {
-  hwIconAnimateProps
-} from "~components/HardwareWalletIcon";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { DisplayTheme, Section, Text } from "@arconnect/components";
 import { Avatar, CloseLayer, NoAvatarIcon } from "./WalletHeader";
@@ -8,6 +5,9 @@ import { useEffect, useMemo, useState } from "react";
 import { hoverEffect, useTheme } from "~utils/theme";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ArrowLeftIcon } from "@iconicicons/react";
+import HardwareWalletIcon, {
+  hwIconAnimateProps
+} from "~components/hardware/HardwareWalletIcon";
 import { useHardwareApi } from "~wallets/hooks";
 import { useHistory } from "~utils/hash_router";
 import type { AnsUser } from "~lib/ans";

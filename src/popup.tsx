@@ -8,7 +8,7 @@ import { syncLabels, useSetUp } from "~wallets";
 import { useEffect } from "react";
 import { Router } from "wouter";
 
-import HardwareWalletTheme from "~components/HardwareWalletTheme";
+import HardwareWalletTheme from "~components/hardware/HardwareWalletTheme";
 
 import Home from "~routes/popup";
 import Receive from "~routes/popup/receive";

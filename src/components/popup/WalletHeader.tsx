@@ -1,11 +1,11 @@
-import HardwareWalletIcon, {
-  hwIconAnimateProps
-} from "~components/HardwareWalletIcon";
 import { DisplayTheme, Section, Text, Tooltip } from "@arconnect/components";
 import { ChevronDownIcon, GridIcon, UserIcon } from "@iconicicons/react";
 import { defaultGateway, concatGatewayURL } from "~applications/gateway";
 import { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
+import HardwareWalletIcon, {
+  hwIconAnimateProps
+} from "~components/hardware/HardwareWalletIcon";
 import { useHardwareApi } from "~wallets/hooks";
 import { AnimatePresence } from "framer-motion";
 import { formatAddress } from "~utils/format";

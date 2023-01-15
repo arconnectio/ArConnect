@@ -15,8 +15,8 @@ import {
   useToasts
 } from "@arconnect/components";
 import BackupWalletPage from "~components/welcome/generate/BackupWalletPage";
+import KeystoneButton from "~components/hardware/KeystoneButton";
 import SeedTextarea from "~components/welcome/load/SeedTextarea";
-import KeystoneButton from "~components/KeystoneButton";
 import browser from "webextension-polyfill";
 import * as bip39 from "bip39-web-crypto";
 import styled from "styled-components";

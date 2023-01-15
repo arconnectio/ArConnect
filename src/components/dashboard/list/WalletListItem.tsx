@@ -4,7 +4,7 @@ import { HTMLProps, useMemo } from "react";
 import styled from "styled-components";
 import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
-import HardwareWalletIcon from "~components/HardwareWalletIcon";
+import HardwareWalletIcon from "~components/hardware/HardwareWalletIcon";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
 import BaseElement, { SettingIcon } from "./BaseElement";
 

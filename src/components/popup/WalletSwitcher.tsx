@@ -21,7 +21,7 @@ import { AnsUser, getAnsProfile } from "~lib/ans";
 import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
 import { useEffect, useState } from "react";
-import HardwareWalletIcon from "~components/HardwareWalletIcon";
+import HardwareWalletIcon from "~components/hardware/HardwareWalletIcon";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
 import browser from "webextension-polyfill";
 import Squircle from "~components/Squircle";

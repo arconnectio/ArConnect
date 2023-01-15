@@ -6,7 +6,7 @@ import { syncLabels } from "~wallets";
 import { useEffect } from "react";
 import { Router } from "wouter";
 
-import HardwareWalletTheme from "~components/HardwareWalletTheme";
+import HardwareWalletTheme from "~components/hardware/HardwareWalletTheme";
 
 import Connect from "~routes/auth/connect";
 import Allowance from "~routes/auth/allowance";

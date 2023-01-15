@@ -24,7 +24,7 @@ import {
 } from "~components/welcome/Wrapper";
 import { addWallet } from "~wallets";
 import PasswordPage from "~components/welcome/generate/PasswordPage";
-import KeystoneButton from "~components/KeystoneButton";
+import KeystoneButton from "~components/hardware/KeystoneButton";
 import Migrate from "~components/welcome/load/Migrate";
 import Seed from "~components/welcome/load/Seed";
 import Theme from "~components/welcome/Theme";

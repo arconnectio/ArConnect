@@ -1,8 +1,6 @@
 import { DefaultTheme, ThemeProvider } from "styled-components";
-import { useStorage } from "@plasmohq/storage/hook";
 import { PropsWithChildren, useMemo } from "react";
 import { useHardwareApi } from "~wallets/hooks";
-import type { StoredWallet } from "~wallets";
 
 export default function HardwareWalletTheme({
   children

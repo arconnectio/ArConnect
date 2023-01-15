@@ -1,6 +1,6 @@
 import { decodeAccount } from "~wallets/hardware/keystone";
-import { useScanner } from "@arconnect/keystone-sdk";
 import { addHardwareWallet } from "~wallets/hardware";
+import { useScanner } from "@arconnect/keystone-sdk";
 import { useState } from "react";
 import {
   Button,
@@ -10,10 +10,10 @@ import {
   useModal,
   useToasts
 } from "@arconnect/components";
-import AnimatedQRScanner from "./hardware/AnimatedQRScanner";
+import AnimatedQRScanner from "./AnimatedQRScanner";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import Progress from "./Progress";
+import Progress from "../Progress";
 
 export default function KeystoneButton() {
   // toasts
