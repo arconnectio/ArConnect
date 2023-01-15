@@ -38,7 +38,7 @@ export async function addressChangeListener({
     // trigger event via message
     await sendMessage(
       "switch_wallet_event",
-      newAddress,
+      permissionCheck ? newAddress : null,
       `content-script@${tab.id}`
     );
   }

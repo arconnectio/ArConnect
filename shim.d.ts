@@ -7,7 +7,7 @@ declare module "@arconnect/webext-bridge" {
   export interface ProtocolMap {
     api_call: ProtocolWithReturn<ApiCall, ApiResponse>;
     auth_result: AuthResult;
-    switch_wallet_event: string;
+    switch_wallet_event: string | null;
     copy_address: string;
     chunk: ProtocolWithReturn<ApiCall<Chunk>, ApiResponse<number>>;
   }
