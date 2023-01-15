@@ -1,40 +1,40 @@
-import { Button, useToasts } from "@arconnect/components";
+import {
+  Button,
+  Modal,
+  Text,
+  useModal,
+  useToasts
+} from "@arconnect/components";
+import { useScanner } from "@arconnect/keystone-sdk";
 import { addHardwareWallet } from "~wallets/hardware";
 import { connect } from "~wallets/hardware/keystone";
+import AnimatedQRScanner from "./hardware/AnimatedQRScanner";
 import browser from "webextension-polyfill";
+import styled from "styled-components";
 
 export default function KeystoneButton() {
   // toasts
   const { setToast } = useToasts();
 
-  // connect a keystone wallet
-  async function connectKeystone() {
-    try {
-      const { address, owner } = await connect();
+  // connect modal
+  const connectModal = useModal();
 
-      await addHardwareWallet(address, owner, "keystone");
-      setToast({
-        type: "success",
-        content: browser.i18n.getMessage("wallet_hardware_added", "Keystone"),
-        duration: 2300
-      });
-    } catch {
-      setToast({
-        type: "error",
-        content: browser.i18n.getMessage(
-          "wallet_hardware_not_added",
-          "Keystone"
-        ),
-        duration: 2300
-      });
-    }
-  }
+  // qr-wallet scanner
+  const scanner = useScanner((res) => console.log(res));
 
   return (
-    <Button fullWidth secondary onClick={connectKeystone}>
-      <KeystoneIcon />
-      {browser.i18n.getMessage("connect_keystone")}
-    </Button>
+    <>
+      <Button fullWidth secondary onClick={() => connectModal.setOpen(true)}>
+        <KeystoneIcon />
+        {browser.i18n.getMessage("keystone_connect_title")}
+      </Button>
+      <QRModal {...connectModal.bindings}>
+        <ModalText heading>
+          {browser.i18n.getMessage("keystone_connect_title")}
+        </ModalText>
+        <AnimatedQRScanner {...scanner.bindings} />
+      </QRModal>
+    </>
   );
 }
 
@@ -56,3 +56,11 @@ const KeystoneIcon = () => (
     />
   </svg>
 );
+
+const QRModal = styled(Modal)`
+  width: max-content;
+`;
+
+const ModalText = styled(Text)`
+  text-align: center;
+`;

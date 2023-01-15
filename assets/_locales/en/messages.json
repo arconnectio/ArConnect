@@ -1011,7 +1011,7 @@
     "message": "Authorize",
     "description": "Authorize button label"
   },
-  "connect_keystone": {
+  "keystone_connect_title": {
     "message": "Connect Keystone",
     "description": "Connect keystone hardware wallet button"
   },
