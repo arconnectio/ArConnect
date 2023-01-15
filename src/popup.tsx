@@ -20,6 +20,7 @@ import Asset from "~routes/popup/token/[id]";
 import Collectibles from "~routes/popup/collectibles";
 import Collectible from "~routes/popup/collectible/[id]";
 import Transaction from "~routes/popup/transaction/[id]";
+import HistoryProvider from "~components/popup/HistoryProvider";
 
 export default function Popup() {
   const theme = useTheme();
@@ -55,26 +56,28 @@ export default function Popup() {
         <HideScrollbar />
         <Wrapper>
           <Router hook={useHashLocation}>
-            <Route path="/" component={Home} />
-            <Route path="/receive" component={Receive} />
-            <Route path="/send/:id?">
-              {(params: { id?: string }) => <Send id={params?.id} />}
-            </Route>
-            <Route path="/explore" component={Explore} />
-            <Route path="/unlock" component={Unlock} />
-            <Route path="/tokens" component={Tokens} />
-            <Route path="/token/:id">
-              {(params: { id: string }) => <Asset id={params?.id} />}
-            </Route>
-            <Route path="/collectibles" component={Collectibles} />
-            <Route path="/collectible/:id">
-              {(params: { id: string }) => <Collectible id={params?.id} />}
-            </Route>
-            <Route path="/transaction/:id/:gateway?">
-              {(params: { id: string; gateway?: string }) => (
-                <Transaction id={params?.id} gw={params?.gateway} />
-              )}
-            </Route>
+            <HistoryProvider>
+              <Route path="/" component={Home} />
+              <Route path="/receive" component={Receive} />
+              <Route path="/send/:id?">
+                {(params: { id?: string }) => <Send id={params?.id} />}
+              </Route>
+              <Route path="/explore" component={Explore} />
+              <Route path="/unlock" component={Unlock} />
+              <Route path="/tokens" component={Tokens} />
+              <Route path="/token/:id">
+                {(params: { id: string }) => <Asset id={params?.id} />}
+              </Route>
+              <Route path="/collectibles" component={Collectibles} />
+              <Route path="/collectible/:id">
+                {(params: { id: string }) => <Collectible id={params?.id} />}
+              </Route>
+              <Route path="/transaction/:id/:gateway?">
+                {(params: { id: string; gateway?: string }) => (
+                  <Transaction id={params?.id} gw={params?.gateway} />
+                )}
+              </Route>
+            </HistoryProvider>
           </Router>
         </Wrapper>
       </HardwareWalletTheme>

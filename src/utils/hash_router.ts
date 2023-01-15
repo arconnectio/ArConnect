@@ -1,5 +1,5 @@
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { BaseLocationHook } from "wouter/types/use-location";
-import { useEffect, useMemo, useState } from "react";
 
 const navigate = (path: string) => (window.location.hash = path);
 
@@ -23,6 +23,25 @@ export const useHashLocation: BaseLocationHook = () => {
 
   return [loc, navigate];
 };
+
+/**
+ * History push/pop context
+ */
+export type HistoryAction = "push" | "pop";
+export type PushAction = (
+  path: string,
+  options?: {
+    replace?: boolean;
+  }
+) => any;
+export type BackAction = () => any;
+
+/** Push function, back function, action status */
+export const HistoryContext = createContext<
+  [PushAction, BackAction, HistoryAction]
+>([() => {}, () => {}, "push"]);
+
+export const useHistory = () => useContext(HistoryContext);
 
 /**
  * Get if the history action is push or pop
