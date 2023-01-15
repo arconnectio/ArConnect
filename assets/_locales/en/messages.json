@@ -1015,6 +1015,24 @@
     "message": "Connect Keystone",
     "description": "Connect keystone hardware wallet button"
   },
+  "keystone_scan_error": {
+    "message": "There was an error scanning the QR code",
+    "description": "Notification about a keystone scanning error"
+  },
+  "keystone_invalid_result_type": {
+    "message": "Invalid QR code detected",
+    "description": "Notification about an invalid QR code while trying to scan a keystone wallet QR code"
+  },
+  "keystone_scan_progress": {
+    "message": "Progress: $PROGRESS$",
+    "description": "Progress label for QR code scanning",
+    "placeholders": {
+      "progress": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
   "token_price_estimate_warning": {
     "message": "Price estimate by",
     "description": "Price estimate warning text. Full text is displayed with a link to Redstone.finance"

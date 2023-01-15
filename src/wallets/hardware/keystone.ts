@@ -1,22 +1,25 @@
 import type { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
-import { DefaultKeyring, BaseKeyring } from "@keystonehq/arweave-keyring";
+import { ArweaveCryptoAccount } from "@keystonehq/bc-ur-registry-arweave";
+import { DefaultKeyring } from "@keystonehq/arweave-keyring";
 import { defaultGateway } from "~applications/gateway";
+import type { UR } from "@ngraveio/bc-ur";
 import Arweave from "arweave";
 
 // init keyring instance
 const keyring = DefaultKeyring.getEmptyKeyring();
 
 /**
- * Connect to a keystone device using keystone arweave-keyring
+ * Decode cbor result from a keystone QR code
+ * with Arweave account info
  *
  * @returns Wallet address & public key
  */
-export async function connect() {
-  // call qr scanner
-  await keyring.readKeyring();
+export async function decodeAccount(res: UR) {
+  // decode cbor result
+  const keyringData = ArweaveCryptoAccount.fromCBOR(res.cbor);
 
   // get owner
-  const publicKey = keyring.getKeyData();
+  const publicKey = keyringData.getKeyData();
   const owner = Arweave.utils.bufferTob64Url(publicKey);
 
   // get address
@@ -43,8 +46,4 @@ export async function sign(transaction: Buffer, options?: SignatureOptions) {
   );
 
   return signature;
-}
-
-class ArConnectKeyring extends BaseKeyring {
-  //async signTransaction(txBuf: Buffer, saltLen: number): Promise<Buffer> {}
 }

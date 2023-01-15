@@ -58,6 +58,8 @@
     "@arconnect/webext-bridge": "^5.0.6",
     "@iconicicons/react": "^1.5.0",
     "@keystonehq/arweave-keyring": "0.0.1-alpha.5",
+    "@keystonehq/bc-ur-registry-arweave": "^0.1.1-alpha.0",
+    "@ngraveio/bc-ur": "^1.1.6",
     "@plasmohq/storage": "^0.12.1",
     "@types/human-crypto-keys": "^0.1.0",
     "@types/uuid": "^8.3.4",

@@ -628,6 +628,23 @@
     "@keystonehq/bc-ur-registry" "^0.5.3"
     uuid "^8.3.2"
 
+"@keystonehq/bc-ur-registry-arweave@^0.1.1-alpha.0":
+  version "0.1.1-alpha.0"
+  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry-arweave/-/bc-ur-registry-arweave-0.1.1-alpha.0.tgz#fbbadb83e6b20727923307c842e26ebcaf50df3d"
+  integrity sha512-2Kui9ErOscEaETgGHC1v10V0vjlzJdsrrXi9z+JjbhkgSmtOuCFRw6XzBk3oNPQP7LRjoFEa6buxWSprQiL87w==
+  dependencies:
+    "@keystonehq/bc-ur-registry" "0.5.4"
+    uuid "^8.3.2"
+
+"@keystonehq/bc-ur-registry@0.5.4":
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry/-/bc-ur-registry-0.5.4.tgz#5802486a29f5d772520d15579d40fba02860e27f"
+  integrity sha512-z7bZe10I5k0zz9znmDTXh+o3Rzb5XsRVpwAzexubOaLxVdZ0F7aMbe2LoEsw766Hpox/7zARi7UGmLz5C8BAzA==
+  dependencies:
+    "@ngraveio/bc-ur" "^1.1.5"
+    bs58check "^2.1.2"
+    tslib "^2.3.0"
+
 "@keystonehq/bc-ur-registry@^0.5.3":
   version "0.5.3"
   resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry/-/bc-ur-registry-0.5.3.tgz#c3861f18ccc402f006d417da2db5a8bb6a0bb5c5"

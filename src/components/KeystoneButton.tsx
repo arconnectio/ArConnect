@@ -1,16 +1,19 @@
+import { decodeAccount } from "~wallets/hardware/keystone";
+import { useScanner } from "@arconnect/keystone-sdk";
+import { addHardwareWallet } from "~wallets/hardware";
+import { useState } from "react";
 import {
   Button,
   Modal,
+  Spacer,
   Text,
   useModal,
   useToasts
 } from "@arconnect/components";
-import { useScanner } from "@arconnect/keystone-sdk";
-import { addHardwareWallet } from "~wallets/hardware";
-import { connect } from "~wallets/hardware/keystone";
 import AnimatedQRScanner from "./hardware/AnimatedQRScanner";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
+import Progress from "./Progress";
 
 export default function KeystoneButton() {
   // toasts
@@ -19,8 +22,49 @@ export default function KeystoneButton() {
   // connect modal
   const connectModal = useModal();
 
+  // got scan result
+  const [gotResult, setGotResult] = useState(false);
+
+  // cancel scanning
+  function cancel() {
+    scanner.retry();
+    connectModal.setOpen(false);
+    setGotResult(false);
+  }
+
   // qr-wallet scanner
-  const scanner = useScanner((res) => console.log(res));
+  const scanner = useScanner(async (res) => {
+    // if we already have a result
+    // return
+    if (gotResult) return;
+
+    setGotResult(true);
+
+    try {
+      // load account data
+      const account = await decodeAccount(res);
+
+      // add wallet
+      await addHardwareWallet(account.address, account.owner, "keystone");
+
+      setToast({
+        type: "success",
+        content: browser.i18n.getMessage("wallet_hardware_added", "Keystone"),
+        duration: 2300
+      });
+    } catch {
+      setToast({
+        type: "error",
+        content: browser.i18n.getMessage(
+          "wallet_hardware_not_added",
+          "Keystone"
+        ),
+        duration: 2300
+      });
+    }
+
+    cancel();
+  });
 
   return (
     <>
@@ -32,7 +76,28 @@ export default function KeystoneButton() {
         <ModalText heading>
           {browser.i18n.getMessage("keystone_connect_title")}
         </ModalText>
-        <AnimatedQRScanner {...scanner.bindings} />
+        <AnimatedQRScanner
+          {...scanner.bindings}
+          onError={(error) =>
+            setToast({
+              type: "error",
+              duration: 2300,
+              content: browser.i18n.getMessage(`keystone_${error}`)
+            })
+          }
+        />
+        <Spacer y={1} />
+        <Text>
+          {browser.i18n.getMessage(
+            "keystone_scan_progress",
+            `${scanner.progress.toFixed(0)}%`
+          )}
+        </Text>
+        <Progress percentage={scanner.progress} />
+        <Spacer y={1.75} />
+        <CancelButton onClick={cancel}>
+          {browser.i18n.getMessage("cancel")}
+        </CancelButton>
       </QRModal>
     </>
   );
@@ -63,4 +128,11 @@ const QRModal = styled(Modal)`
 
 const ModalText = styled(Text)`
   text-align: center;
+`;
+
+const CancelButton = styled(Button).attrs({
+  secondary: true,
+  fullWidth: true
+})`
+  width: 100% !important;
 `;
