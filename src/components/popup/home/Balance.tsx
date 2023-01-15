@@ -3,10 +3,10 @@ import { defaultGateway, gql } from "~applications/gateway";
 import Graph, { GraphText } from "~components/popup/Graph";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
+import { useHistory } from "~utils/hash_router";
 import { Spacer } from "@arconnect/components";
 import { getArPrice } from "~lib/coingecko";
 import { getAppURL } from "~utils/format";
-import { useLocation } from "wouter";
 import {
   ArrowDownLeftIcon,
   ArrowUpRightIcon,
@@ -114,23 +114,20 @@ export default function Balance() {
       .catch();
   }, [activeAddress]);
 
-  // router
-  const [, setLocation] = useLocation();
+  // router push
+  const [push] = useHistory();
 
   return (
     <Graph
       actionBar={
         <>
           <Spacer x={0.18} />
-          <ActionButton onClick={() => setLocation("/send")} />
+          <ActionButton onClick={() => push("/send")} />
           <ActionButton
             as={ArrowDownLeftIcon}
-            onClick={() => setLocation("/receive")}
+            onClick={() => push("/receive")}
           />
-          <ActionButton
-            as={GlobeIcon}
-            onClick={() => setLocation("/explore")}
-          />
+          <ActionButton as={GlobeIcon} onClick={() => push("/explore")} />
           <ActionButton
             as={SettingsIcon}
             onClick={() =>

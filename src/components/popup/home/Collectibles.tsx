@@ -1,6 +1,6 @@
 import Title, { Heading, TokenCount, ViewAll } from "../Title";
 import { Section, Spacer, Text } from "@arconnect/components";
-import { useLocation } from "wouter";
+import { useHistory } from "~utils/hash_router";
 import { useTokens } from "~tokens";
 import { useMemo } from "react";
 import browser from "webextension-polyfill";
@@ -18,7 +18,7 @@ export default function Collectibles() {
   );
 
   // router location
-  const [, setLocation] = useLocation();
+  const [push] = useHistory();
 
   return (
     <Section>
@@ -27,7 +27,7 @@ export default function Collectibles() {
         <ViewAll
           onClick={() => {
             if (collectibles.length === 0) return;
-            setLocation("/collectibles");
+            push("/collectibles");
           }}
         >
           {browser.i18n.getMessage("view_all")}
@@ -42,7 +42,7 @@ export default function Collectibles() {
         {collectibles.slice(0, 4).map((collectible, i) => (
           <Collectible
             id={collectible.id}
-            onClick={() => setLocation(`/collectible/${collectible.id}`)}
+            onClick={() => push(`/collectible/${collectible.id}`)}
             key={i}
           />
         ))}

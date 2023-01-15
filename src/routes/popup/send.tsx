@@ -15,9 +15,9 @@ import type { JWKInterface } from "arweave/web/lib/wallet";
 import { formatAddress, isAddress } from "~utils/format";
 import { useState, useEffect, useMemo } from "react";
 import { decryptWallet } from "~wallets/encryption";
+import { useHistory } from "~utils/hash_router";
 import { getArPrice } from "~lib/coingecko";
 import { getActiveWallet } from "~wallets";
-import { useLocation } from "wouter";
 import { useTokens } from "~tokens";
 import Token, { ArToken } from "~components/popup/Token";
 import Collectible from "~components/popup/Collectible";
@@ -130,8 +130,8 @@ export default function Send({ id }: Props) {
   // toasts
   const { setToast } = useToasts();
 
-  // router location
-  const [, setLocation] = useLocation();
+  // router push
+  const [push] = useHistory();
 
   // loading
   const [loading, setLoading] = useState(false);
@@ -246,7 +246,7 @@ export default function Send({ id }: Props) {
         content: browser.i18n.getMessage("sent_tx"),
         duration: 2000
       });
-      setLocation(`/transaction/${tx.id}`);
+      push(`/transaction/${tx.id}`);
     } catch {
       return setToast({
         type: "error",

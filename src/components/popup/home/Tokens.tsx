@@ -1,6 +1,6 @@
 import Title, { Heading, TokenCount, ViewAll } from "../Title";
 import { Section, Spacer, Text } from "@arconnect/components";
-import { useLocation } from "wouter";
+import { useHistory } from "~utils/hash_router";
 import { useTokens } from "~tokens";
 import { useMemo } from "react";
 import browser from "webextension-polyfill";
@@ -17,8 +17,8 @@ export default function Tokens() {
     [tokens]
   );
 
-  // router location
-  const [, setLocation] = useLocation();
+  // router push
+  const [push] = useHistory();
 
   return (
     <Section>
@@ -27,7 +27,7 @@ export default function Tokens() {
         <ViewAll
           onClick={() => {
             if (assets.length === 0) return;
-            setLocation("/tokens");
+            push("/tokens");
           }}
         >
           {browser.i18n.getMessage("view_all")}
@@ -42,7 +42,7 @@ export default function Tokens() {
         {assets.slice(0, 3).map((token, i) => (
           <Token
             id={token.id}
-            onClick={() => setLocation(`/token/${token.id}`)}
+            onClick={() => push(`/token/${token.id}`)}
             key={i}
           />
         ))}

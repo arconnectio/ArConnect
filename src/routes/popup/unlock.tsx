@@ -1,5 +1,5 @@
+import { useHistory } from "~utils/hash_router";
 import { unlock } from "~wallets/auth";
-import { useLocation } from "wouter";
 import {
   Button,
   Input,
@@ -20,8 +20,8 @@ export default function Unlock() {
   // toasts
   const { setToast } = useToasts();
 
-  // router location
-  const [, setLocation] = useLocation();
+  // router push
+  const [push] = useHistory();
 
   // unlock ArConnect
   async function unlockWallet() {
@@ -37,7 +37,7 @@ export default function Unlock() {
       });
     }
 
-    setLocation("/");
+    push("/");
   }
 
   return (

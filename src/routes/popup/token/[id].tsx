@@ -5,8 +5,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePrice, usePriceHistory } from "~lib/redstone";
 import { useStorage } from "@plasmohq/storage/hook";
 import { getCommunityUrl } from "~utils/format";
+import { useHistory } from "~utils/hash_router";
 import { getTokenLogo } from "~lib/viewblock";
-import { useLocation } from "wouter";
 import { useTokens } from "~tokens";
 import {
   ArrowDownLeftIcon,
@@ -75,8 +75,8 @@ export default function Asset({ id }: Props) {
     return val.toLocaleString(undefined, { maximumFractionDigits: 2 });
   }, [state, activeAddress]);
 
-  // location
-  const [, setLocation] = useLocation();
+  // router push
+  const [push] = useHistory();
 
   // token gateway
   const [tokens] = useTokens();
@@ -218,11 +218,11 @@ export default function Asset({ id }: Props) {
                 exit="hidden"
               >
                 <TokenActions>
-                  <TokenAction onClick={() => setLocation(`/send/${id}`)} />
+                  <TokenAction onClick={() => push(`/send/${id}`)} />
                   <ActionSeparator />
                   <TokenAction
                     as={ArrowDownLeftIcon}
-                    onClick={() => setLocation("/receive")}
+                    onClick={() => push("/receive")}
                   />
                 </TokenActions>
               </motion.div>
@@ -349,13 +349,13 @@ export default function Asset({ id }: Props) {
                     {...interaction}
                     onClick={() => {
                       if (gateway.host !== "arweave.net") {
-                        setLocation(
+                        push(
                           `/transaction/${interaction.id}/${encodeURIComponent(
                             concatGatewayURL(gateway)
                           )}`
                         );
                       } else {
-                        setLocation(`/transaction/${interaction.id}`);
+                        push(`/transaction/${interaction.id}`);
                       }
                     }}
                   />

@@ -25,28 +25,12 @@ import HistoryProvider from "~components/popup/HistoryProvider";
 export default function Popup() {
   const theme = useTheme();
 
+  // init popup
   useSetUp();
 
+  // sync ans labels
   useEffect(() => {
     syncLabels();
-  }, []);
-
-  // we use the hash location hook
-  // because the "useLocation" of
-  // "wouter" would not work, as we
-  // are out of the router context
-  const [, setLocation] = useHashLocation();
-
-  // redirect to unlock if decryiption
-  // key is not available
-  useEffect(() => {
-    (async () => {
-      const decryptionKey = await getDecryptionKey();
-
-      if (!decryptionKey) {
-        setLocation("/unlock");
-      }
-    })();
   }, []);
 
   return (

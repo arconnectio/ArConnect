@@ -1,4 +1,5 @@
-import { PropsWithChildren, useState } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
+import { getDecryptionKey } from "~wallets/auth";
 import { useLocation } from "wouter";
 import {
   BackAction,
@@ -25,6 +26,18 @@ export default function HistoryProvider({ children }: PropsWithChildren<{}>) {
     setCurrentAction("pop");
     history.back();
   };
+
+  // redirect to unlock if decryiption
+  // key is not available
+  useEffect(() => {
+    (async () => {
+      const decryptionKey = await getDecryptionKey();
+
+      if (!decryptionKey) {
+        push("/unlock");
+      }
+    })();
+  }, []);
 
   return (
     <HistoryContext.Provider value={[push, back, currentAction]}>

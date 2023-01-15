@@ -9,6 +9,7 @@ import { hoverEffect, useTheme } from "~utils/theme";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ArrowLeftIcon } from "@iconicicons/react";
 import { useHardwareApi } from "~wallets/hooks";
+import { useHistory } from "~utils/hash_router";
 import type { AnsUser } from "~lib/ans";
 import { AnimatePresence, motion } from "framer-motion";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
@@ -83,6 +84,9 @@ export default function Head({
   // hardware api type
   const hardwareApi = useHardwareApi();
 
+  // history back
+  const [, goBack] = useHistory();
+
   return (
     <HeadWrapper
       displayTheme={theme}
@@ -93,7 +97,7 @@ export default function Head({
         <BackButton
           onClick={async () => {
             if (back) await back();
-            else history.back();
+            else goBack();
           }}
         />
       </BackWrapper>

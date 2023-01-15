@@ -42,27 +42,3 @@ export const HistoryContext = createContext<
 >([() => {}, () => {}, "push"]);
 
 export const useHistory = () => useContext(HistoryContext);
-
-/**
- * Get if the history action is push or pop
- */
-export const useHistoryAction = () => {
-  const [location] = useHashLocation();
-  const [history, setHistory] = useState<string[]>([]);
-
-  const action = useMemo<"push" | "pop">(() => {
-    const current = history[history.length - 1];
-
-    if (current === "/") {
-      setHistory([]);
-
-      return "pop";
-    }
-
-    return history.includes(current) ? "pop" : "push";
-  }, [history]);
-
-  useEffect(() => setHistory((val) => [...val, location]), [location]);
-
-  return action;
-};

@@ -1,5 +1,5 @@
+import { useHistory } from "~utils/hash_router";
 import { Section } from "@arconnect/components";
-import { useLocation } from "wouter";
 import { useTokens } from "~tokens";
 import { useMemo } from "react";
 import browser from "webextension-polyfill";
@@ -17,8 +17,8 @@ export default function Tokens() {
     [tokens]
   );
 
-  // router
-  const [, setLocation] = useLocation();
+  // router push
+  const [push] = useHistory();
 
   return (
     <>
@@ -27,7 +27,7 @@ export default function Tokens() {
         {assets.map((token, i) => (
           <Token
             id={token.id}
-            onClick={() => setLocation(`/token/${token.id}`)}
+            onClick={() => push(`/token/${token.id}`)}
             key={i}
           />
         ))}

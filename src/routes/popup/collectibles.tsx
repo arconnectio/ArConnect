@@ -1,5 +1,5 @@
+import { useHistory } from "~utils/hash_router";
 import { Section } from "@arconnect/components";
-import { useLocation } from "wouter";
 import { useTokens } from "~tokens";
 import { useMemo } from "react";
 import Collectible from "~components/popup/Collectible";
@@ -17,8 +17,8 @@ export default function Collectibles() {
     [tokens]
   );
 
-  // router location
-  const [, setLocation] = useLocation();
+  // router push
+  const [push] = useHistory();
 
   return (
     <>
@@ -27,7 +27,7 @@ export default function Collectibles() {
         {collectibles.map((collectible, i) => (
           <Collectible
             id={collectible.id}
-            onClick={() => setLocation(`/collectible/${collectible.id}`)}
+            onClick={() => push(`/collectible/${collectible.id}`)}
             key={i}
           />
         ))}

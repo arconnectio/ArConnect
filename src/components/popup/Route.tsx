@@ -1,7 +1,7 @@
 import { AnimatePresence, motion, Variants } from "framer-motion";
+import { HistoryAction, useHistory } from "~utils/hash_router";
 import { createElement, PropsWithChildren } from "react";
 import { useRoute, Route as BaseRoute } from "wouter";
-import { useHistoryAction } from "~utils/hash_router";
 import styled from "styled-components";
 
 /**
@@ -15,7 +15,7 @@ const Route: typeof BaseRoute = ({ path, component, children }) => {
     ? children(params)
     : children;
 
-  const action = useHistoryAction();
+  const [, _, action] = useHistory();
 
   return (
     <AnimatePresence initial={false}>
@@ -40,7 +40,7 @@ const PageWrapper = styled(Wrapper)`
 const Page = ({
   children,
   action
-}: PropsWithChildren<{ action: "push" | "pop" }>) => {
+}: PropsWithChildren<{ action: HistoryAction }>) => {
   const transition = { ease: [0.42, 0, 0.58, 1], duration: 0.27 };
   const pageAnimation: Variants = {
     enter: {
