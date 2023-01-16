@@ -276,6 +276,13 @@ export default function Send({ id }: Props) {
   // update amount using the keypad
   function keypadUpdate(val: string) {
     setAmount((v) => {
+      const intVal = Number(v);
+
+      if (!v || (!Number.isNaN(intVal) && intVal === 0)) {
+        setDisplayedAmount(val);
+        return val;
+      }
+
       setDisplayedAmount(v + val);
 
       return v + val;
@@ -393,6 +400,7 @@ export default function Send({ id }: Props) {
                   onClick={() =>
                     setAmount((val) => {
                       if (val.length <= 1) {
+                        setDisplayedAmount("0");
                         return "0";
                       }
 
