@@ -1,10 +1,10 @@
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { getAnsProfile, AnsUser, getAnsProfileByLabel } from "~lib/ans";
+import { RawStoredTransfer, TRANSFER_TX_STORAGE } from "~utils/storage";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { formatAddress, isAddress } from "~utils/format";
 import { useState, useEffect, useMemo } from "react";
-import { TRANSFER_TX_STORAGE } from "~utils/storage";
 import { IconButton } from "~components/IconButton";
 import { useHistory } from "~utils/hash_router";
 import { getArPrice } from "~lib/coingecko";
@@ -139,9 +139,6 @@ export default function Send({ id }: Props) {
   // router push
   const [push] = useHistory();
 
-  // loading
-  const [loading, setLoading] = useState(false);
-
   // send tx
   async function send() {
     // return if target is undefined
@@ -153,7 +150,6 @@ export default function Send({ id }: Props) {
     const amountInt = Number(amount);
 
     if (Number.isNaN(amountInt) || amountInt <= 0) {
-      setLoading(false);
       return setToast({
         type: "error",
         content: browser.i18n.getMessage("invalid_amount"),
@@ -163,7 +159,6 @@ export default function Send({ id }: Props) {
 
     // check target
     if (!isAddress(target.address)) {
-      setLoading(false);
       return setToast({
         type: "error",
         content: browser.i18n.getMessage("invalid_address"),
@@ -215,12 +210,18 @@ export default function Send({ id }: Props) {
         area: "session",
         allSecret: true
       });
+      const storedTx: RawStoredTransfer = {
+        type: selectedToken === "AR" ? "native" : "token",
+        gateway: selectedTokenData?.gateway || defaultGateway,
+        transaction: tx.toJSON()
+      };
 
-      await storage.set(TRANSFER_TX_STORAGE, tx.toJSON());
+      await storage.set(TRANSFER_TX_STORAGE, storedTx);
 
       // push to auth & signature
-      push(`/send/auth/${tx.id}`);
-    } catch {
+      push(`/send/auth`);
+    } catch (e) {
+      console.log(e);
       return setToast({
         type: "error",
         content: browser.i18n.getMessage("transaction_send_error"),
@@ -230,7 +231,6 @@ export default function Send({ id }: Props) {
 
     passwordInput.setState("");
     targetInput.setState("");
-    setLoading(false);
   }
 
   // editing target status
@@ -242,9 +242,7 @@ export default function Send({ id }: Props) {
   // update amount using the keypad
   function keypadUpdate(val: string) {
     setAmount((v) => {
-      const intVal = Number(v);
-
-      if (!v || (!Number.isNaN(intVal) && intVal === 0)) {
+      if ((!v || v === "0") && val !== ".") {
         setDisplayedAmount(val);
         return val;
       }
@@ -384,11 +382,7 @@ export default function Send({ id }: Props) {
                   <ArrowLeftIcon />
                 </KeypadButton>
               </Keypad>
-              <SendButton
-                disabled={!target?.address}
-                loading={loading}
-                onClick={send}
-              >
+              <SendButton disabled={!target?.address} onClick={send}>
                 {browser.i18n.getMessage("send")}
                 <ArrowUpRightIcon />
               </SendButton>

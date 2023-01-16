@@ -1003,6 +1003,14 @@
     "message": "Authorize",
     "description": "Authorize button label"
   },
+  "sign_enter_password": {
+    "message": "Enter password to sign transaction",
+    "description": "Request to enter password to sign transaction"
+  },
+  "sign_scan_qr": {
+    "message": "Scan the QR code below with your hardware wallet",
+    "description": "Request to scan signature QR"
+  },
   "keystone_connect_title": {
     "message": "Connect Keystone",
     "description": "Connect keystone hardware wallet button"
