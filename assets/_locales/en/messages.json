@@ -552,23 +552,23 @@
     "description": "What is arweave title"
   },
   "about_arweave": {
-    "message": "Arweave is a protocol that allows you to store data permanently, sustainably, with a single upfront fee. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quos recusandae nulla quas voluptatibus reiciendis blanditiis voluptatum suscipit non sed, eligendi distinctio laborum nostrum quidem, rerum, ducimus expedita esse unde. Numquam?",
+    "message": "Arweave is a protocol that allows you to store data permanently, sustainably, with a single upfront fee. The protocol matches people who have hard drive space to spare with those individuals and organizations that need to store data or host content permanently.",
     "description": "A short paragraph explaining Arweave"
   },
-  "what_is_a_permaweb_app": {
-    "message": "What is a Permaweb App?",
-    "description": "What is a permaweb app title"
+  "what_is_the_permaweb": {
+    "message": "What is the permaweb?",
+    "description": "What is the permaweb title"
   },
-  "about_permaweb_apps": {
-    "message": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto aspernatur rem itaque non explicabo ipsum, natus impedit nemo pariatur quia dignissimos dolore excepturi earum fugiat ut facilis blanditiis nisi quis?",
-    "description": "A short paragraph explaining permaweb apps"
+  "about_permaweb": {
+    "message": "The permaweb on Arweave is the next evolution of the web, allowing developers and users to share a resilient knowledge base that is replicated in vast numbers across the world, perpetually. Besides data, Arweave also hosts a number of fully decentralized, permanent applications.",
+    "description": "A short paragraph explaining the permaweb"
   },
   "what_is_arconnect": {
     "message": "What is ArConnect?",
     "description": "What is arconnect title"
   },
   "about_arconnect": {
-    "message": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed accusantium impedit culpa cumque dolores corporis accusamus eius voluptatum ullam et optio voluptas aperiam minima debitis laboriosam ducimus, facere esse corrupti.",
+    "message": "ArConnect is crypto wallet extension allowing you to interact with permaweb apps securely. It also lets you to store and manage your funds easily. With ArConnect, your entry to the Arweave ecosystem will be simple and seamless.",
     "description": "A short paragraph explaining arconnect"
   },
   "read_more_arwiki": {

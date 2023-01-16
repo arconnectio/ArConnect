@@ -1,8 +1,8 @@
 import { Button, Spacer, Text } from "@arconnect/components";
 import { ArrowRightIcon } from "@iconicicons/react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useLocation } from "wouter";
-import { useState } from "react";
 import HexagonBackground from "~components/welcome/start/HexagonBackground";
 import Screenshots from "~components/welcome/start/Screenshots";
 import Ecosystem from "~components/welcome/start/Ecosystem";
@@ -16,29 +16,36 @@ export default function Start() {
   // page of the setup
   const [page, setPage] = useState(1);
 
+  // active page
+  const activePage = useMemo(
+    () => pages.find((_, i) => i === page - 1),
+    [page]
+  );
+
   return (
     <Wrapper>
       <Skip onClick={() => setLocation("/generate")}>
         {browser.i18n.getMessage("skip")}
       </Skip>
       <ExplainerSection>
-        <ExplainTitle>
-          {browser.i18n.getMessage(pages.find((_, i) => i === page - 1).title)}
-        </ExplainTitle>
+        <ExplainTitle>{browser.i18n.getMessage(activePage.title)}</ExplainTitle>
         <Spacer y={0.5} />
         <ExplainerContent>
-          {browser.i18n.getMessage(
-            pages.find((_, i) => i === page - 1).content
+          {browser.i18n.getMessage(activePage.content)}
+          {activePage.arWiki && (
+            <>
+              <br />
+              {" " + browser.i18n.getMessage("read_more_arwiki") + " "}
+              <a
+                href={activePage.arWiki}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                ArWiki
+              </a>
+              .
+            </>
           )}
-          {" " + browser.i18n.getMessage("read_more_arwiki") + " "}
-          <a
-            href="https://arwiki.wiki"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            ArWiki
-          </a>
-          .
         </ExplainerContent>
         <Spacer y={1.25} />
         <Button
@@ -78,14 +85,16 @@ export default function Start() {
   );
 }
 
-const pages: Page[] = [
+const pages: PageInterface[] = [
   {
     title: "what_is_arweave",
-    content: "about_arweave"
+    content: "about_arweave",
+    arWiki: "https://arwiki.wiki/#/en/Arweave"
   },
   {
-    title: "what_is_a_permaweb_app",
-    content: "about_permaweb_apps"
+    title: "what_is_the_permaweb",
+    content: "about_permaweb",
+    arWiki: "https://arwiki.wiki/#/en/the-permaweb"
   },
   {
     title: "what_is_arconnect",
@@ -162,9 +171,11 @@ const ArweaveContentWrapper = styled.div`
   height: 70%;
 `;
 
-interface Page {
+interface PageInterface {
   // i18n key
   title: string;
   // i18n key
   content: string;
+  // arwiki link
+  arWiki?: string;
 }
