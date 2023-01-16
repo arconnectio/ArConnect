@@ -1,15 +1,12 @@
-import {
-  Button,
-  Input,
-  Section,
-  Spacer,
-  Text,
-  useInput,
-  useToasts
-} from "@arconnect/components";
+import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { getAnsProfile, AnsUser, getAnsProfileByLabel } from "~lib/ans";
-import { ArrowUpRightIcon, ChevronDownIcon } from "@iconicicons/react";
+import {
+  ArrowLeftIcon,
+  ArrowUpRightIcon,
+  CheckIcon,
+  ChevronDownIcon
+} from "@iconicicons/react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { formatAddress, isAddress } from "~utils/format";
@@ -19,6 +16,15 @@ import { useHistory } from "~utils/hash_router";
 import { getArPrice } from "~lib/coingecko";
 import { getActiveWallet } from "~wallets";
 import { useTokens } from "~tokens";
+import {
+  Button,
+  Input,
+  Section,
+  Spacer,
+  Text,
+  useInput,
+  useToasts
+} from "@arconnect/components";
 import Token, { ArToken } from "~components/popup/Token";
 import Collectible from "~components/popup/Collectible";
 import browser from "webextension-polyfill";
@@ -26,10 +32,11 @@ import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
+import { IconButton } from "~components/IconButton";
 
 export default function Send({ id }: Props) {
   // amount
-  const startAmount = 1;
+  const startAmount = "1";
   const [amount, setAmount] = useState(startAmount);
 
   // currency setting
@@ -68,7 +75,7 @@ export default function Send({ id }: Props) {
       if (!currency) return;
 
       const price = await getArPrice(currency);
-      setFiatVal(price * amount);
+      setFiatVal(price * parseFloat(amount));
     })();
   }, [amount, currency]);
 
@@ -260,25 +267,40 @@ export default function Send({ id }: Props) {
     setLoading(false);
   }
 
+  // editing target status
+  const [editingTarget, setEditingTarget] = useState(false);
+
+  // displayed amount
+  const [displayedAmount, setDisplayedAmount] = useState(startAmount);
+
+  // update amount using the keypad
+  function keypadUpdate(val: string) {
+    setAmount((v) => {
+      setDisplayedAmount(v + val);
+
+      return v + val;
+    });
+  }
+
   return (
     <Wrapper>
       <div>
         <Head title={browser.i18n.getMessage("send")} />
-        <Spacer y={1} />
-        <Section>
+        <Spacer y={0.25} />
+        <UpperSection>
           <AmountWrapper>
             <Amount
               onInput={(e) => {
                 const val = Number(e.currentTarget.innerText);
 
                 if (Number.isNaN(val)) {
-                  return setAmount(0);
+                  return setAmount("0");
                 }
 
-                return setAmount(val);
+                return setAmount(val.toString());
               }}
             >
-              {startAmount}
+              {displayedAmount}
             </Amount>
             <Ticker onClick={() => setShownTokenSelector(true)}>
               {(selectedToken === "AR" && "AR") ||
@@ -305,36 +327,97 @@ export default function Send({ id }: Props) {
             {browser.i18n.getMessage("network_fee")}
           </Prices>
           <Spacer y={0.9} />
-          {target && (
-            <Target>
-              {target.avatar && <TargetAvatar src={target.avatar} />}
-              {target.label || formatAddress(target.address, 6)}
-            </Target>
-          )}
-          <Spacer y={1} />
-          <Input
-            type="text"
-            {...targetInput.bindings}
-            label={browser.i18n.getMessage("target")}
-            placeholder="ljvCPN31XCLPkBo9FUeB7vAK0VC6-eY52-CS-6Iho8U"
-            fullWidth
-          />
-          <Spacer y={1} />
-          <Input
-            type="password"
-            {...passwordInput.bindings}
-            label={browser.i18n.getMessage("password")}
-            placeholder={browser.i18n.getMessage("enter_your_password")}
-            fullWidth
-          />
-        </Section>
+          <Target onClick={() => setEditingTarget((val) => !val)}>
+            {(target && (
+              <>
+                {target.avatar && <TargetAvatar src={target.avatar} />}
+                <TargetName>
+                  {target.label || formatAddress(target.address, 6)}
+                </TargetName>
+              </>
+            )) || <TargetName>Add target</TargetName>}
+          </Target>
+          <AnimatePresence>
+            {editingTarget && (
+              <motion.div
+                variants={expandAnimation}
+                initial="hidden"
+                animate="shown"
+                exit="hidden"
+              >
+                <Spacer y={1} />
+                <InputWithBtn>
+                  <InputWrapper>
+                    <Input
+                      type="text"
+                      {...targetInput.bindings}
+                      label={browser.i18n.getMessage("target")}
+                      placeholder="ljvCPN31XCLPkBo9FUeB7vAK0VC6-eY52-CS-6Iho8U"
+                      fullWidth
+                    />
+                  </InputWrapper>
+                  <IconButton secondary onClick={() => setEditingTarget(false)}>
+                    <CheckIcon />
+                  </IconButton>
+                </InputWithBtn>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </UpperSection>
       </div>
-      <Section>
-        <Button fullWidth loading={loading} onClick={send}>
-          {browser.i18n.getMessage("send")}
-          <ArrowUpRightIcon />
-        </Button>
-      </Section>
+      <AnimatePresence>
+        {!editingTarget && (
+          <motion.div
+            variants={animation}
+            initial="hidden"
+            animate="shown"
+            exit="hidden"
+          >
+            <KeypadSection>
+              <Keypad>
+                {new Array(9).fill("").map((_, i) => (
+                  <KeypadButton
+                    key={i}
+                    onClick={() => keypadUpdate((i + 1).toString())}
+                  >
+                    <span>{i + 1}</span>
+                  </KeypadButton>
+                ))}
+                <KeypadButton onClick={() => keypadUpdate(".")}>
+                  <span>.</span>
+                </KeypadButton>
+                <KeypadButton onClick={() => keypadUpdate("0")}>
+                  <span>0</span>
+                </KeypadButton>
+                <KeypadButton
+                  onClick={() =>
+                    setAmount((val) => {
+                      if (val.length <= 1) {
+                        return "0";
+                      }
+
+                      const newVal = val.substring(0, val.length - 1);
+                      setDisplayedAmount(newVal);
+
+                      return newVal;
+                    })
+                  }
+                >
+                  <ArrowLeftIcon />
+                </KeypadButton>
+              </Keypad>
+              <SendButton
+                disabled={!target?.address}
+                loading={loading}
+                onClick={send}
+              >
+                {browser.i18n.getMessage("send")}
+                <ArrowUpRightIcon />
+              </SendButton>
+            </KeypadSection>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <AnimatePresence>
         {showTokenSelector && (
           <TokenSelector
@@ -389,6 +472,12 @@ const Wrapper = styled.div`
   flex-direction: column;
   justify-content: space-between;
   height: 100vh;
+  gap: 2.5rem;
+`;
+
+const UpperSection = styled(Section)`
+  padding-top: 0;
+  padding-bottom: 0;
 `;
 
 const AmountWrapper = styled.div`
@@ -449,23 +538,102 @@ const Target = styled.div`
   gap: 0.45rem;
   font-size: 0.9rem;
   font-weight: 500;
-  padding: 0.45rem 0.8rem;
+  padding: 0.05rem 0.5rem;
   border-radius: 18px;
   margin: 0 auto;
   background-color: rgb(${(props) => props.theme.theme});
   color: #fff;
   width: max-content;
+  cursor: pointer;
+  transition: all 0.125s ease-in-out;
+
+  &:active {
+    transform: scale(0.97);
+  }
+`;
+
+const TargetName = styled.span`
+  padding: 0.4rem 0;
 `;
 
 const TargetAvatar = styled.img.attrs({
   draggable: false,
   alt: "avatar"
 })`
-  height: 1.1rem;
-  width: 1.1rem;
+  height: 1.5rem;
+  width: 1.5rem;
   border-radius: 100%;
   object-fit: cover;
   user-select: none;
+`;
+
+const KeypadSection = styled(Section)`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: rgb(${(props) => props.theme.theme});
+  border-radius: 45px 45px 0 0;
+  padding: 20px;
+  padding-top: 10px;
+`;
+
+const Keypad = styled.div`
+  display: grid;
+  grid-template-columns: auto auto auto;
+  justify-content: space-between;
+`;
+
+const KeypadButton = styled.div`
+  position: relative;
+  width: 84px;
+  height: 84px;
+  border-radius: 100%;
+  cursor: pointer;
+  justify-self: center;
+  transition: all 0.125s ease-in-out;
+
+  span,
+  svg {
+    position: absolute;
+    font-size: 1.6rem;
+    font-weight: 500;
+    text-align: center;
+    color: #fff;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  svg {
+    width: 1em;
+    height: 1em;
+  }
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+`;
+
+const SendButton = styled(Button).attrs({
+  fullWidth: true
+})`
+  background-color: #fff;
+  color: #000;
+  box-shadow: 0 0 0 0 rgb(255, 255, 255);
+
+  &:hover:not(:active):not(:disabled) {
+    box-shadow: 0 0 0 ${(props) => (props.small ? ".19rem" : ".25rem")}
+      rgb(255, 255, 255);
+  }
+
+  &:disabled {
+    opacity: 0.87;
+    cursor: not-allowed;
+  }
 `;
 
 const TokenSelector = styled(motion.div)`
@@ -482,6 +650,17 @@ const TokenSelector = styled(motion.div)`
 const animation: Variants = {
   hidden: { opacity: 0 },
   shown: { opacity: 1 }
+};
+
+const expandAnimation: Variants = {
+  hidden: {
+    opacity: 0,
+    height: 0
+  },
+  shown: {
+    opacity: 1,
+    height: "auto"
+  }
 };
 
 const TokensSection = styled(Section)`
