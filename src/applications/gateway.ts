@@ -17,6 +17,11 @@ export const suggestedGateways: Gateway[] = [
     protocol: "https"
   },
   {
+    host: "ar-io.net",
+    port: 443,
+    protocol: "https"
+  },
+  {
     host: "arweave.dev",
     port: 443,
     protocol: "https"
