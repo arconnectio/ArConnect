@@ -10,3 +10,10 @@ export const getStorageConfig = (): {
   area: "local",
   allSecret: true
 });
+
+/**
+ * Session storage raw transfer tx. This will
+ * be signed, submitted and removed after
+ * authentication.
+ */
+export const TRANSFER_TX_STORAGE = "last_transfer_tx";

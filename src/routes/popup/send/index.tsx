@@ -1,20 +1,14 @@
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { getAnsProfile, AnsUser, getAnsProfileByLabel } from "~lib/ans";
-import {
-  ArrowLeftIcon,
-  ArrowUpRightIcon,
-  CheckIcon,
-  ChevronDownIcon
-} from "@iconicicons/react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import type { JWKInterface } from "arweave/web/lib/wallet";
 import { formatAddress, isAddress } from "~utils/format";
 import { useState, useEffect, useMemo } from "react";
-import { decryptWallet } from "~wallets/encryption";
+import { TRANSFER_TX_STORAGE } from "~utils/storage";
+import { IconButton } from "~components/IconButton";
 import { useHistory } from "~utils/hash_router";
 import { getArPrice } from "~lib/coingecko";
-import { getActiveWallet } from "~wallets";
+import { Storage } from "@plasmohq/storage";
 import { useTokens } from "~tokens";
 import {
   Button,
@@ -25,6 +19,12 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
+import {
+  ArrowLeftIcon,
+  ArrowUpRightIcon,
+  CheckIcon,
+  ChevronDownIcon
+} from "@iconicicons/react";
 import Token, { ArToken } from "~components/popup/Token";
 import Collectible from "~components/popup/Collectible";
 import browser from "webextension-polyfill";
@@ -32,7 +32,6 @@ import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
-import { IconButton } from "~components/IconButton";
 
 export default function Send({ id }: Props) {
   // amount
@@ -145,35 +144,15 @@ export default function Send({ id }: Props) {
 
   // send tx
   async function send() {
-    let wallet: JWKInterface;
-
     // return if target is undefined
     if (!target) {
       return;
     }
 
-    setLoading(true);
-
-    // get wallet
-    try {
-      const activeWallet = await getActiveWallet();
-
-      if (activeWallet.type === "hardware") {
-        throw new Error("TODO: send with hardware wallet");
-      }
-
-      wallet = await decryptWallet(activeWallet.keyfile, passwordInput.state);
-    } catch {
-      setLoading(false);
-      return setToast({
-        type: "error",
-        content: browser.i18n.getMessage("invalidPassword"),
-        duration: 2000
-      });
-    }
-
     // check amount
-    if (amount <= 0) {
+    const amountInt = Number(amount);
+
+    if (Number.isNaN(amountInt) || amountInt <= 0) {
       setLoading(false);
       return setToast({
         type: "error",
@@ -193,15 +172,12 @@ export default function Send({ id }: Props) {
     }
 
     try {
-      // create and send tx
+      // create tx
       let arweave = new Arweave(defaultGateway);
-      let tx = await arweave.createTransaction(
-        {
-          target: target.address,
-          quantity: arweave.ar.arToWinston(amount.toString())
-        },
-        wallet
-      );
+      let tx = await arweave.createTransaction({
+        target: target.address,
+        quantity: arweave.ar.arToWinston(amount.toString())
+      });
 
       if (selectedToken !== "AR") {
         // get token gateway
@@ -210,14 +186,11 @@ export default function Send({ id }: Props) {
         }
 
         // create interaction
-        tx = await arweave.createTransaction(
-          {
-            target: target.address,
-            quantity: "0",
-            data: (Math.random() * Math.pow(10, 5)).toFixed(0)
-          },
-          wallet
-        );
+        tx = await arweave.createTransaction({
+          target: target.address,
+          quantity: "0",
+          data: (Math.random() * Math.pow(10, 5)).toFixed(0)
+        });
 
         tx.addTag("App-Name", "SmartWeaveAction");
         tx.addTag("App-Version", "0.3.0");
@@ -236,28 +209,21 @@ export default function Send({ id }: Props) {
       tx.addTag("Client", "ArConnect");
       tx.addTag("Client-Version", browser.runtime.getManifest().version);
 
-      await arweave.transactions.sign(tx, wallet);
-
-      if (selectedToken === "AR") {
-        await arweave.transactions.post(tx);
-      } else {
-        const uploader = await arweave.transactions.getUploader(tx);
-
-        while (!uploader.isComplete) {
-          await uploader.uploadChunk();
-        }
-      }
-
-      setToast({
-        type: "success",
-        content: browser.i18n.getMessage("sent_tx"),
-        duration: 2000
+      // save tx json into the session
+      // to be signed and submitted
+      const storage = new Storage({
+        area: "session",
+        allSecret: true
       });
-      push(`/transaction/${tx.id}`);
+
+      await storage.set(TRANSFER_TX_STORAGE, tx.toJSON());
+
+      // push to auth & signature
+      push(`/send/auth/${tx.id}`);
     } catch {
       return setToast({
         type: "error",
-        content: browser.i18n.getMessage("txFailed"),
+        content: browser.i18n.getMessage("transaction_send_error"),
         duration: 2000
       });
     }
@@ -342,7 +308,11 @@ export default function Send({ id }: Props) {
                   {target.label || formatAddress(target.address, 6)}
                 </TargetName>
               </>
-            )) || <TargetName>Add target</TargetName>}
+            )) || (
+              <TargetName>
+                {browser.i18n.getMessage("transaction_send_add_target")}
+              </TargetName>
+            )}
           </Target>
           <AnimatePresence>
             {editingTarget && (

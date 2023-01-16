@@ -107,14 +107,6 @@
     "message": "Invalid password",
     "description": "Invalid password error"
   },
-  "txSent": {
-    "message": "Sent transaction",
-    "description": "Sent transaction successfuly message"
-  },
-  "txFailed": {
-    "message": "Could not send transaction",
-    "description": "Transaction failure"
-  },
   "testnetLive": {
     "message": "Testnet is live",
     "description": "Testnet live message"
@@ -1094,5 +1086,17 @@
   "notification_description_dispatch_tx": {
     "message": "It was submitted to The Bundlr Network",
     "description": "Notification body for dispatched tx"
+  },
+  "transaction_send_add_target": {
+    "message": "Add recipient",
+    "description": "Add recipient button"
+  },
+  "transaction_send_success": {
+    "message": "Sent transaction",
+    "description": "Sent transaction successfuly message"
+  },
+  "transaction_send_error": {
+    "message": "Could not send transaction",
+    "description": "Transaction failure"
   }
 }

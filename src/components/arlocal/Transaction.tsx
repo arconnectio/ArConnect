@@ -177,7 +177,7 @@ export default function Transaction({ arweave }: Props) {
       // notify the user
       setToast({
         type: "success",
-        content: browser.i18n.getMessage("txSent"),
+        content: browser.i18n.getMessage("transaction_send_success"),
         duration: 2400,
         action: {
           name: browser.i18n.getMessage("copyId"),
@@ -197,7 +197,7 @@ export default function Transaction({ arweave }: Props) {
       console.log("Error sending tx", e);
       setToast({
         type: "error",
-        content: browser.i18n.getMessage("txFailed"),
+        content: browser.i18n.getMessage("transaction_send_error"),
         duration: 2400
       });
     }
