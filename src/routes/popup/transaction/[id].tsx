@@ -1,16 +1,17 @@
+import { Button, Section, Spacer, Text } from "@arconnect/components";
+import { AnimatePresence, Variants, motion } from "framer-motion";
+import type { GQLNodeInterface } from "ar-gql/dist/faces";
+import { useEffect, useMemo, useState } from "react";
+import { useHistory } from "~utils/hash_router";
+import { ShareIcon } from "@iconicicons/react";
+import { formatAddress } from "~utils/format";
+import { getArPrice } from "~lib/coingecko";
 import {
   concatGatewayURL,
   defaultGateway,
   gql,
   urlToGateway
 } from "~applications/gateway";
-import { Button, Section, Spacer, Text } from "@arconnect/components";
-import { AnimatePresence, Variants, motion } from "framer-motion";
-import type { GQLNodeInterface } from "ar-gql/dist/faces";
-import { useEffect, useMemo, useState } from "react";
-import { ShareIcon } from "@iconicicons/react";
-import { formatAddress } from "~utils/format";
-import { getArPrice } from "~lib/coingecko";
 import CustomGatewayWarning from "~components/auth/CustomGatewayWarning";
 import Skeleton from "~components/Skeleton";
 import CodeArea from "~components/CodeArea";
@@ -174,10 +175,28 @@ export default function Transaction({ id, gw }: Props) {
     })();
   }, [id, transaction, gateway, isBinary]);
 
+  // get custom back params
+  const [backPath, setBackPath] = useState<string>();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const back = params.get("back");
+
+    if (!back) return;
+
+    setBackPath(back);
+  }, []);
+
+  // router push
+  const [push] = useHistory();
+
   return (
     <Wrapper>
       <div>
-        <Head title={browser.i18n.getMessage("titles_transaction")} />
+        <Head
+          title={browser.i18n.getMessage("titles_transaction")}
+          back={(backPath && (() => push(backPath))) || undefined}
+        />
         {(transaction && (
           <>
             <Section style={{ paddingBottom: 0 }}>

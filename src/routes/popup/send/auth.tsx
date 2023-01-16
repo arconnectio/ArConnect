@@ -110,7 +110,7 @@ export default function SendAuth() {
         content: browser.i18n.getMessage("sent_tx"),
         duration: 2000
       });
-      push(`/transaction/${transaction.id}`);
+      push(`/transaction/${transaction.id}?back=${encodeURIComponent("/")}`);
     } catch {
       setToast({
         type: "error",
