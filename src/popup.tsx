@@ -43,7 +43,7 @@ export default function Popup() {
             <HistoryProvider>
               <Route path="/" component={Home} />
               <Route path="/receive" component={Receive} />
-              <Route path="/send/:id?">
+              <Route path="/send/transfer/:id?">
                 {(params: { id?: string }) => <Send id={params?.id} />}
               </Route>
               <Route path="/send/auth" component={SendAuth} />

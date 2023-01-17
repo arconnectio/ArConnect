@@ -218,7 +218,7 @@ export default function Asset({ id }: Props) {
                 exit="hidden"
               >
                 <TokenActions>
-                  <TokenAction onClick={() => push(`/send/${id}`)} />
+                  <TokenAction onClick={() => push(`/send/transfer/${id}`)} />
                   <ActionSeparator />
                   <TokenAction
                     as={ArrowDownLeftIcon}

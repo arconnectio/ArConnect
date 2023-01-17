@@ -138,7 +138,7 @@ export default function SendAuth() {
       // redirect to transfer if the
       // transaction was not found
       if (!transaction) {
-        return push("/send");
+        return push("/send/transfer");
       }
 
       // check if the current wallet
@@ -148,14 +148,13 @@ export default function SendAuth() {
       // get tx UR
       try {
         setTransactionUR(await transactionToUR(transaction, wallet.xfp));
-      } catch (e) {
-        console.log(e);
+      } catch {
         setToast({
           type: "error",
           duration: 2300,
           content: browser.i18n.getMessage("transaction_auth_ur_fail")
         });
-        push("/send");
+        push("/send/transfer");
       }
     })();
   }, [wallet]);
