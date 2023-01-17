@@ -45,7 +45,14 @@ export default function KeystoneButton() {
       const account = await decodeAccount(res);
 
       // add wallet
-      await addHardwareWallet(account.address, account.owner, "keystone");
+      await addHardwareWallet(
+        {
+          address: account.address,
+          publicKey: account.owner,
+          xfp: account.xfp
+        },
+        "keystone"
+      );
 
       setToast({
         type: "success",

@@ -13,6 +13,7 @@ export interface HardwareWallet {
   nickname: string;
   address: string;
   publicKey: string;
+  xfp: string;
 }
 
 /**
@@ -20,16 +21,20 @@ export interface HardwareWallet {
  */
 export type HardwareApi = "keystone";
 
+interface InitHardwareWallet {
+  address: string;
+  publicKey: string;
+  xfp: string;
+}
+
 /**
  * Add a hardware wallet
  *
- * @param address Wallet address
- * @param publicKey Wallet public key
+ * @param init Hardware wallet data
  * @param api API type
  */
 export async function addHardwareWallet(
-  address: string,
-  publicKey: string,
+  { address, publicKey, xfp }: InitHardwareWallet,
   api: HardwareApi
 ) {
   // get wallets
@@ -51,7 +56,8 @@ export async function addHardwareWallet(
     api,
     nickname: `Keystone ${keystoneCount + 1}`,
     address,
-    publicKey
+    publicKey,
+    xfp
   });
 
   // save data
