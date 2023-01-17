@@ -75,6 +75,7 @@ const Outline = styled.div`
   padding: 10px;
   border: 2px solid rgb(${(props) => props.theme.cardBorder});
   border-radius: 18px;
+  width: max-content;
 `;
 
 const LoadingSection = styled.div`
@@ -122,8 +123,12 @@ const Wrapper = styled.div`
   }
 
   @media screen and (max-width: 720px) {
-    width: 80vw;
-    height: 80vw;
+    // what we subtract here:
+    // - section padding * 2 (2 * 20px)
+    // - scanner outline padding * 2 (2 * 10px)
+    // - scanner outline border * 2 (2 * 2px)
+    width: calc(100vw - 40px - 20px - 4px);
+    height: calc(100vw - 40px - 20px - 4px);
   }
 `;
 

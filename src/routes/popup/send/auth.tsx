@@ -1,8 +1,9 @@
+import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
 import { RawStoredTransfer, TRANSFER_TX_STORAGE } from "~utils/storage";
-import { transactionToUR } from "~wallets/hardware/keystone";
+import { ArrowRightIcon, ArrowUpRightIcon } from "@iconicicons/react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { defaultGateway } from "~applications/gateway";
-import { ArrowUpRightIcon } from "@iconicicons/react";
+import { useScanner } from "@arconnect/keystone-sdk";
 import { decryptWallet } from "~wallets/encryption";
 import { useActiveWallet } from "~wallets/hooks";
 import { useHistory } from "~utils/hash_router";
@@ -13,17 +14,21 @@ import type { UR } from "@ngraveio/bc-ur";
 import {
   Button,
   Input,
+  Loading,
   Section,
   Spacer,
   Text,
   useInput,
   useToasts
 } from "@arconnect/components";
+import AnimatedQRScanner from "~components/hardware/AnimatedQRScanner";
 import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
+import type Transaction from "arweave/web/lib/transaction";
+import Progress from "~components/Progress";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
-import Arweave from "arweave/web/common";
+import Arweave from "arweave";
 
 export default function SendAuth() {
   // loading
@@ -55,11 +60,38 @@ export default function SendAuth() {
     };
   }
 
+  /**
+   * Submit transaction to the network
+   *
+   * @param transaction
+   * @param arweave
+   * @param type
+   */
+  async function submitTx(
+    transaction: Transaction,
+    arweave: Arweave,
+    type: "native" | "token"
+  ) {
+    if (type === "native") {
+      await arweave.transactions.post(transaction);
+    } else {
+      const uploader = await arweave.transactions.getUploader(transaction);
+
+      while (!uploader.isComplete) {
+        await uploader.uploadChunk();
+      }
+    }
+  }
+
   // toasts
   const { setToast } = useToasts();
 
   // router push
   const [push] = useHistory();
+
+  /**
+   * Local wallet functionalities
+   */
 
   // local wallet sign & send
   async function sendLocal() {
@@ -97,15 +129,7 @@ export default function SendAuth() {
       await arweave.transactions.sign(transaction, keyfile);
 
       // post tx
-      if (type === "native") {
-        await arweave.transactions.post(transaction);
-      } else {
-        const uploader = await arweave.transactions.getUploader(transaction);
-
-        while (!uploader.isComplete) {
-          await uploader.uploadChunk();
-        }
-      }
+      await submitTx(transaction, arweave, type);
 
       setToast({
         type: "success",
@@ -123,6 +147,10 @@ export default function SendAuth() {
 
     setLoading(false);
   }
+
+  /**
+   * Hardware wallet functionalities
+   */
 
   // current wallet
   const wallet = useActiveWallet();
@@ -159,8 +187,59 @@ export default function SendAuth() {
     })();
   }, [wallet]);
 
-  // hardware wallet sign & send
-  async function sendHardware() {}
+  // current hardware wallet operation
+  const [hardwareStatus, setHardwareStatus] = useState<"play" | "scan">("play");
+
+  // qr-tx scanner
+  const scanner = useScanner(
+    // handle scanner success,
+    // post transfer
+    async (res) => {
+      setLoading(true);
+
+      try {
+        // get tx
+        const { transaction, gateway, type } = await getTransaction();
+        const arweave = new Arweave(gateway);
+
+        if (!transaction) {
+          throw new Error("Transaction undefined");
+        }
+
+        if (wallet?.type !== "hardware") {
+          throw new Error("Wallet switched while signing");
+        }
+
+        // decode signature
+        const { id, signature } = await decodeSignature(res);
+
+        // set signature
+        transaction.setSignature({
+          id,
+          signature,
+          owner: wallet.publicKey
+        });
+
+        // post tx
+        await submitTx(transaction, arweave, type);
+
+        setToast({
+          type: "success",
+          content: browser.i18n.getMessage("sent_tx"),
+          duration: 2000
+        });
+        push(`/transaction/${transaction.id}?back=${encodeURIComponent("/")}`);
+      } catch {
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("txFailed"),
+          duration: 2000
+        });
+      }
+
+      setLoading(false);
+    }
+  );
 
   return (
     <Wrapper>
@@ -189,24 +268,66 @@ export default function SendAuth() {
                 }}
               />
             )) ||
+              (hardwareStatus === "scan" && (
+                <>
+                  {(!loading && (
+                    <>
+                      <AnimatedQRScanner
+                        {...scanner.bindings}
+                        onError={(error) =>
+                          setToast({
+                            type: "error",
+                            duration: 2300,
+                            content: browser.i18n.getMessage(
+                              `keystone_${error}`
+                            )
+                          })
+                        }
+                      />
+                      <Spacer y={1} />
+                      <Text>
+                        {browser.i18n.getMessage(
+                          "keystone_scan_progress",
+                          `${scanner.progress.toFixed(0)}%`
+                        )}
+                      </Text>
+                      <Progress percentage={scanner.progress} />
+                    </>
+                  )) || (
+                    <SendLoading>
+                      <Loading />
+                      <LoadingText>
+                        {browser.i18n.getMessage("transaction_send_loading")}
+                      </LoadingText>
+                    </SendLoading>
+                  )}
+                </>
+              )) ||
               (transactionUR && <AnimatedQRPlayer data={transactionUR} />)}
           </Section>
         )}
       </div>
-      <Section>
-        <Button
-          disabled={wallet?.type === "local" && passwordInput.state === ""}
-          loading={loading}
-          fullWidth
-          onClick={() => {
-            if (wallet?.type === "hardware") sendHardware();
-            else sendLocal();
-          }}
-        >
-          {browser.i18n.getMessage("send")}
-          <ArrowUpRightIcon />
-        </Button>
-      </Section>
+      {wallet && (
+        <Section>
+          {(wallet.type === "local" && (
+            <Button
+              disabled={passwordInput.state === ""}
+              loading={loading}
+              fullWidth
+              onClick={sendLocal}
+            >
+              {browser.i18n.getMessage("send")}
+              <ArrowUpRightIcon />
+            </Button>
+          )) ||
+            (hardwareStatus === "play" && (
+              <Button fullWidth onClick={() => setHardwareStatus("scan")}>
+                {browser.i18n.getMessage("next")}
+                <ArrowRightIcon />
+              </Button>
+            ))}
+        </Section>
+      )}
     </Wrapper>
   );
 }
@@ -216,4 +337,24 @@ const Wrapper = styled.div`
   flex-direction: column;
   justify-content: space-between;
   height: 100vh;
+`;
+
+const SendLoading = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: rgb(${(props) => props.theme.secondaryText});
+  gap: 0.7rem;
+
+  svg {
+    width: 2rem;
+    height: 2rem;
+  }
+`;
+
+const LoadingText = styled(Text).attrs({
+  noMargin: true
+})`
+  text-align: center;
 `;

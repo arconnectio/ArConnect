@@ -1,5 +1,6 @@
 import {
   ArweaveCryptoAccount,
+  ArweaveSignature,
   ArweaveSignRequest,
   SignType
 } from "@keystonehq/bc-ur-registry-arweave";
@@ -69,4 +70,35 @@ export async function transactionToUR(
   );
 
   return signRequest.toUR();
+}
+
+/**
+ * Decode cbor result from a keystone QR code
+ * with an Arweave transaction
+ *
+ * @returns Signature
+ */
+export async function decodeSignature(res: UR) {
+  // check UR type
+  if (res.type !== "arweave-signature") {
+    throw new Error(
+      `Invalid UR result. Expected "arweave-signature", received "${res.type}".`
+    );
+  }
+
+  // decode cbor result
+  const signatureData = ArweaveSignature.fromCBOR(res.cbor);
+  const rawSignature = signatureData.getSignature();
+
+  const signature = Arweave.utils.bufferTob64Url(rawSignature);
+
+  // hash ID
+  const id = Arweave.utils.bufferTob64Url(
+    await Arweave.crypto.hash(rawSignature)
+  );
+
+  return {
+    id,
+    signature
+  };
 }

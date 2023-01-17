@@ -1110,5 +1110,9 @@
   "transaction_auth_ur_fail": {
     "message": "Could not construct transaction QR code",
     "description": "Error notification about failed signing QR generation"
-  }
+  },
+  "transaction_send_loading": {
+    "message": "Sending transaction...",
+    "description": "Sending transaction loading text"
+  } 
 }
