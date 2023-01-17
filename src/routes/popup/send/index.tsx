@@ -49,8 +49,8 @@ export default function Send({ id }: Props) {
     const amountInt = Number(amount);
 
     if (balance < amountInt) {
-      setAmount(balance.toFixed(4));
-      setDisplayedAmount(balance.toFixed(4));
+      setAmount(balance.toString());
+      setDisplayedAmount(balance.toString());
     }
   }, [balance, amount]);
 
