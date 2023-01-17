@@ -1,3 +1,16 @@
+import { RawStoredTransfer, TRANSFER_TX_STORAGE } from "~utils/storage";
+import { transactionToUR } from "~wallets/hardware/keystone";
+import type { JWKInterface } from "arweave/web/lib/wallet";
+import { AnimatedQRPlayer } from "@arconnect/keystone-sdk";
+import { defaultGateway } from "~applications/gateway";
+import { ArrowUpRightIcon } from "@iconicicons/react";
+import { decryptWallet } from "~wallets/encryption";
+import { useActiveWallet } from "~wallets/hooks";
+import { useHistory } from "~utils/hash_router";
+import { useEffect, useState } from "react";
+import { Storage } from "@plasmohq/storage";
+import { getActiveWallet } from "~wallets";
+import type { UR } from "@ngraveio/bc-ur";
 import {
   Button,
   Input,
@@ -7,16 +20,6 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
-import { RawStoredTransfer, TRANSFER_TX_STORAGE } from "~utils/storage";
-import type { JWKInterface } from "arweave/web/lib/wallet";
-import { defaultGateway } from "~applications/gateway";
-import { ArrowUpRightIcon } from "@iconicicons/react";
-import { decryptWallet } from "~wallets/encryption";
-import { useHardwareApi } from "~wallets/hooks";
-import { useHistory } from "~utils/hash_router";
-import { Storage } from "@plasmohq/storage";
-import { getActiveWallet } from "~wallets";
-import { useState } from "react";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
@@ -25,9 +28,6 @@ import Arweave from "arweave/web/common";
 export default function SendAuth() {
   // loading
   const [loading, setLoading] = useState(false);
-
-  // hardware api type
-  const hardwareApi = useHardwareApi();
 
   // password input
   const passwordInput = useInput();
@@ -42,6 +42,8 @@ export default function SendAuth() {
     // get raw tx
     const raw = await storage.get<RawStoredTransfer>(TRANSFER_TX_STORAGE);
     const gateway = raw?.gateway || defaultGateway;
+
+    if (!raw) return undefined;
 
     // gateway from raw tx
     const arweave = new Arweave(gateway);
@@ -122,6 +124,42 @@ export default function SendAuth() {
     setLoading(false);
   }
 
+  // current wallet
+  const wallet = useActiveWallet();
+
+  // load tx UR
+  const [transactionUR, setTransactionUR] = useState<UR>();
+
+  useEffect(() => {
+    (async () => {
+      // get the tx from storage
+      const { transaction } = await getTransaction();
+
+      // redirect to transfer if the
+      // transaction was not found
+      if (!transaction) {
+        return push("/send");
+      }
+
+      // check if the current wallet
+      // is a hardware wallet
+      if (wallet?.type !== "hardware") return;
+
+      // get tx UR
+      try {
+        setTransactionUR(await transactionToUR(transaction, wallet.xfp));
+      } catch (e) {
+        console.log(e);
+        setToast({
+          type: "error",
+          duration: 2300,
+          content: browser.i18n.getMessage("transaction_auth_ur_fail")
+        });
+        push("/send");
+      }
+    })();
+  }, [wallet]);
+
   // hardware wallet sign & send
   async function sendHardware() {}
 
@@ -130,31 +168,39 @@ export default function SendAuth() {
       <div>
         <Head title={browser.i18n.getMessage("titles_sign")} />
         <Spacer y={0.75} />
-        <Section>
-          <Text noMargin>{browser.i18n.getMessage("sign_enter_password")}</Text>
-          <Spacer y={1.5} />
-          {!hardwareApi && (
-            <Input
-              type="password"
-              {...passwordInput.bindings}
-              label={browser.i18n.getMessage("password")}
-              placeholder={browser.i18n.getMessage("enter_password")}
-              fullWidth
-              onKeyDown={(e) => {
-                if (e.key !== "Enter") return;
-                sendLocal();
-              }}
-            />
-          )}
-        </Section>
+        {wallet && (
+          <Section>
+            <Text noMargin>
+              {wallet.type === "local" &&
+                browser.i18n.getMessage("sign_enter_password")}
+              {wallet.type === "hardware" &&
+                browser.i18n.getMessage("sign_scan_qr")}
+            </Text>
+            <Spacer y={1.5} />
+            {(wallet.type === "local" && (
+              <Input
+                type="password"
+                {...passwordInput.bindings}
+                label={browser.i18n.getMessage("password")}
+                placeholder={browser.i18n.getMessage("enter_password")}
+                fullWidth
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter") return;
+                  sendLocal();
+                }}
+              />
+            )) ||
+              (transactionUR && <AnimatedQRPlayer data={transactionUR} />)}
+          </Section>
+        )}
       </div>
       <Section>
         <Button
-          disabled={!hardwareApi && passwordInput.state === ""}
+          disabled={wallet?.type === "local" && passwordInput.state === ""}
           loading={loading}
           fullWidth
           onClick={() => {
-            if (hardwareApi) sendHardware();
+            if (wallet?.type === "hardware") sendHardware();
             else sendLocal();
           }}
         >

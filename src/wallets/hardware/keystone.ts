@@ -7,7 +7,7 @@ import type { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import type Transaction from "arweave/web/lib/transaction";
 import { defaultGateway } from "~applications/gateway";
 import type { UR } from "@ngraveio/bc-ur";
-import { nanoid } from "nanoid";
+import { v4 as uuid } from "uuid";
 import Arweave from "arweave";
 
 /**
@@ -57,7 +57,7 @@ export async function transactionToUR(
   const txBuff = Buffer.from(JSON.stringify(transaction.toJSON()), "utf-8");
 
   // request ID
-  const requestID = nanoid();
+  const requestID = uuid();
 
   // construct request
   const signRequest = ArweaveSignRequest.constructArweaveRequest(

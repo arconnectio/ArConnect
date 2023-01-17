@@ -8,6 +8,9 @@ import type { HardwareApi } from "./hardware";
 import type { StoredWallet } from "~wallets";
 import Arweave from "arweave";
 
+/**
+ * Wallets with details hook
+ */
 export function useWalletsDetails(wallets: JWKInterface[]) {
   const [walletDetails, setWalletDetails] = useState<WalletInterface[]>([]);
 
@@ -48,7 +51,10 @@ export function useWalletsDetails(wallets: JWKInterface[]) {
   return walletDetails;
 }
 
-export function useHardwareApi() {
+/**
+ * Active wallet data (unencrypted)
+ */
+export function useActiveWallet() {
   // current address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
@@ -66,14 +72,27 @@ export function useHardwareApi() {
     []
   );
 
+  // active wallet
+  const wallet = useMemo(
+    () => wallets.find(({ address }) => address === activeAddress),
+    [activeAddress, wallets]
+  );
+
+  return wallet;
+}
+
+/**
+ * Type of the current wallet (local/hardware => what type of API for the hardware)
+ */
+export function useHardwareApi() {
+  // current wallet
+  const wallet = useActiveWallet();
+
   // hardware wallet type
-  const hardwareApi = useMemo<HardwareApi | false>(() => {
-    const wallet = wallets.find(({ address }) => address === activeAddress);
-
-    if (!wallet) return false;
-
-    return (wallet.type === "hardware" && wallet.api) || false;
-  }, [wallets, activeAddress]);
+  const hardwareApi = useMemo<HardwareApi | false>(
+    () => (wallet?.type === "hardware" && wallet.api) || false,
+    [wallet]
+  );
 
   return hardwareApi;
 }
