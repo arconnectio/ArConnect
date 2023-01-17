@@ -11,10 +11,10 @@ export default function AnimatedQRPlayer(props: ComponentProps<typeof Player>) {
     () => ({
       bgColor: "transparent",
       fgColor: `rgb(${theme.theme})`,
-      eyeRadius: 8,
-      maxFragmentLength: 200,
+      maxFragmentLength: 400,
       quietZone: 0,
-      size: 345
+      size: 345,
+      speed: 350
     }),
     [theme]
   );
