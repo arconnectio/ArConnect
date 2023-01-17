@@ -49,8 +49,13 @@ export default function Send({ id }: Props) {
     const amountInt = Number(amount);
 
     if (balance < amountInt) {
-      setAmount(balance.toString());
-      setDisplayedAmount(balance.toString());
+      const max = balance.toLocaleString(undefined, {
+        maximumFractionDigits: 2,
+        useGrouping: false
+      });
+
+      setAmount(max);
+      setDisplayedAmount(max);
     }
   }, [balance, amount]);
 
@@ -291,7 +296,13 @@ export default function Send({ id }: Props) {
           <AmountWrapper>
             <MaxAmount
               onClick={() => {
-                const maxAmount = (balance - Number(fee)).toString();
+                const maxAmount = (balance - Number(fee)).toLocaleString(
+                  undefined,
+                  {
+                    maximumFractionDigits: 2,
+                    useGrouping: false
+                  }
+                );
 
                 setAmount(maxAmount);
                 setDisplayedAmount(maxAmount);
