@@ -13,6 +13,7 @@ import { useTokens } from "~tokens";
 import {
   Button,
   Input,
+  Loading,
   Section,
   Spacer,
   Text,
@@ -78,11 +79,20 @@ export default function Send({ id }: Props) {
     })();
   }, [amount, currency]);
 
+  // loading target
+  const [loadingTarget, setLoadingTarget] = useState(false);
+
   // fetch target data
   useEffect(() => {
     (async () => {
+      setLoadingTarget(false);
+
       let targetAddress = targetInput.state;
       let ansProfile: AnsUser;
+
+      if (targetAddress === "" || !targetAddress) return;
+
+      setLoadingTarget(true);
 
       if (targetAddress.includes(".ar")) {
         // fetch profile with label
@@ -95,10 +105,12 @@ export default function Send({ id }: Props) {
         // fetch profile with address
         ansProfile = (await getAnsProfile(targetAddress)) as AnsUser;
       } else {
+        setLoadingTarget(false);
         return;
       }
 
       if (!ansProfile) {
+        setLoadingTarget(false);
         if (isAddress(targetAddress)) return;
 
         return setTarget(undefined);
@@ -113,6 +125,7 @@ export default function Send({ id }: Props) {
         label,
         avatar: ansProfile.avatar ? avatar : undefined
       });
+      setLoadingTarget(false);
     })();
   }, [targetInput.state]);
 
@@ -220,8 +233,7 @@ export default function Send({ id }: Props) {
 
       // push to auth & signature
       push(`/send/auth`);
-    } catch (e) {
-      console.log(e);
+    } catch {
       return setToast({
         type: "error",
         content: browser.i18n.getMessage("transaction_send_error"),
@@ -299,6 +311,7 @@ export default function Send({ id }: Props) {
           </Prices>
           <Spacer y={0.9} />
           <Target onClick={() => setEditingTarget((val) => !val)}>
+            {loadingTarget && <TargetLoading />}
             {(target && (
               <>
                 {target.avatar && <TargetAvatar src={target.avatar} />}
@@ -522,6 +535,12 @@ const Target = styled.div`
   &:active {
     transform: scale(0.97);
   }
+`;
+
+const TargetLoading = styled(Loading)`
+  color: #fff;
+  width: 0.9rem;
+  height: 0.9rem;
 `;
 
 const TargetName = styled.span`

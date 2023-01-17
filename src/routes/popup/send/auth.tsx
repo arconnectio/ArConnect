@@ -1,7 +1,6 @@
 import { RawStoredTransfer, TRANSFER_TX_STORAGE } from "~utils/storage";
 import { transactionToUR } from "~wallets/hardware/keystone";
 import type { JWKInterface } from "arweave/web/lib/wallet";
-import { AnimatedQRPlayer } from "@arconnect/keystone-sdk";
 import { defaultGateway } from "~applications/gateway";
 import { ArrowUpRightIcon } from "@iconicicons/react";
 import { decryptWallet } from "~wallets/encryption";
@@ -20,6 +19,7 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
+import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
