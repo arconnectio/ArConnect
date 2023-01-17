@@ -7,6 +7,7 @@ import { formatAddress, isAddress } from "~utils/format";
 import { useState, useEffect, useMemo } from "react";
 import { IconButton } from "~components/IconButton";
 import { useHistory } from "~utils/hash_router";
+import { useBalance } from "~wallets/hooks";
 import { getArPrice } from "~lib/coingecko";
 import { Storage } from "@plasmohq/storage";
 import { useTokens } from "~tokens";
@@ -39,6 +40,20 @@ export default function Send({ id }: Props) {
   const startAmount = "1";
   const [amount, setAmount] = useState(startAmount);
 
+  // balance
+  const balance = useBalance();
+
+  useEffect(() => {
+    if (balance === 0) return;
+
+    const amountInt = Number(amount);
+
+    if (balance < amountInt) {
+      setAmount(balance.toFixed(4));
+      setDisplayedAmount(balance.toFixed(4));
+    }
+  }, [balance, amount]);
+
   // currency setting
   const [currency] = useSetting<string>("currency");
 
@@ -60,12 +75,14 @@ export default function Send({ id }: Props) {
 
   useEffect(() => {
     (async () => {
+      if (!target?.address) return;
+
       const arweave = new Arweave(defaultGateway);
       const price = await arweave.transactions.getPrice(0, target.address);
 
       setFee(arweave.ar.winstonToAr(price));
     })();
-  }, [amount, target]);
+  }, [target]);
 
   // get fiat value
   const [fiatVal, setFiatVal] = useState(0);
@@ -272,6 +289,16 @@ export default function Send({ id }: Props) {
         <Spacer y={0.25} />
         <UpperSection>
           <AmountWrapper>
+            <MaxAmount
+              onClick={() => {
+                const maxAmount = (balance - Number(fee)).toString();
+
+                setAmount(maxAmount);
+                setDisplayedAmount(maxAmount);
+              }}
+            >
+              MAX
+            </MaxAmount>
             <Amount
               onInput={(e) => {
                 const val = Number(e.currentTarget.innerText);
@@ -395,7 +422,10 @@ export default function Send({ id }: Props) {
                   <ArrowLeftIcon />
                 </KeypadButton>
               </Keypad>
-              <SendButton disabled={!target?.address} onClick={send}>
+              <SendButton
+                disabled={!target?.address || balance < Number(amount)}
+                onClick={send}
+              >
                 {browser.i18n.getMessage("send")}
                 <ArrowUpRightIcon />
               </SendButton>
@@ -466,10 +496,35 @@ const UpperSection = styled(Section)`
 `;
 
 const AmountWrapper = styled.div`
+  position: relative;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   gap: 0.45rem;
+`;
+
+const MaxAmount = styled(Text).attrs({
+  noMargin: true
+})`
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: rgb(${(props) => props.theme.primaryText});
+  text-transform: uppercase;
+  cursor: pointer;
+  text-align: center;
+  transform: translateY(-50%);
+  transition: all 0.23s ease-in-out;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &:active {
+    transform: scale(0.95) translateY(-50%);
+  }
 `;
 
 const Amount = styled(Text).attrs({

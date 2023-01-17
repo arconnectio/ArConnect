@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { useHistory } from "~utils/hash_router";
 import { Spacer } from "@arconnect/components";
+import { useBalance } from "~wallets/hooks";
 import { getArPrice } from "~lib/coingecko";
 import { getAppURL } from "~utils/format";
 import {
@@ -31,20 +32,7 @@ export default function Balance() {
   });
 
   // balance in AR
-  const [balance, setBalance] = useState(0);
-
-  useEffect(() => {
-    (async () => {
-      if (!activeAddress) return;
-
-      const arweave = new Arweave(defaultGateway);
-
-      // fetch balance
-      const winstonBalance = await arweave.wallets.getBalance(activeAddress);
-
-      setBalance(Number(arweave.ar.winstonToAr(winstonBalance)));
-    })();
-  }, [activeAddress]);
+  const balance = useBalance();
 
   // balance in local currency
   const [fiat, setFiat] = useState(0);

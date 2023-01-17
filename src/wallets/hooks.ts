@@ -96,3 +96,33 @@ export function useHardwareApi() {
 
   return hardwareApi;
 }
+
+/**
+ * Active wallet balance
+ */
+export function useBalance() {
+  // grab address
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    area: "local",
+    isSecret: true
+  });
+
+  // balance in AR
+  const [balance, setBalance] = useState(0);
+
+  useEffect(() => {
+    (async () => {
+      if (!activeAddress) return;
+
+      const arweave = new Arweave(defaultGateway);
+
+      // fetch balance
+      const winstonBalance = await arweave.wallets.getBalance(activeAddress);
+
+      setBalance(Number(arweave.ar.winstonToAr(winstonBalance)));
+    })();
+  }, [activeAddress]);
+
+  return balance;
+}
