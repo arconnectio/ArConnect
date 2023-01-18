@@ -1,5 +1,16 @@
-import { DisplayTheme, Section, Text, Tooltip } from "@arconnect/components";
-import { ChevronDownIcon, GridIcon, UserIcon } from "@iconicicons/react";
+import {
+  DisplayTheme,
+  Section,
+  Text,
+  Tooltip,
+  useToasts
+} from "@arconnect/components";
+import {
+  ChevronDownIcon,
+  CopyIcon,
+  GridIcon,
+  UserIcon
+} from "@iconicicons/react";
 import { defaultGateway, concatGatewayURL } from "~applications/gateway";
 import { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -40,10 +51,18 @@ export default function WalletHeader() {
   // is the wallet selector open
   const [isOpen, setOpen] = useState(false);
 
+  // toasts
+  const { setToast } = useToasts();
+
   // copy current address
   const copyAddress: MouseEventHandler = (e) => {
     e.stopPropagation();
     copy(activeAddress);
+    setToast({
+      type: "success",
+      duration: 2000,
+      content: browser.i18n.getMessage("copied_address")
+    });
   };
 
   // fetch ANS name (cached in storage)
@@ -100,37 +119,27 @@ export default function WalletHeader() {
       scrolled={scrollY > 14}
     >
       <Wallet>
-        <WalletIcon />
-        <Text noMargin>{walletName}</Text>
+        <Avatar img={avatar}>
+          {!avatar && <NoAvatarIcon />}
+          <AnimatePresence initial={false}>
+            {hardwareApi === "keystone" && (
+              <HardwareWalletIcon
+                icon={keystoneLogo}
+                color="#2161FF"
+                {...hwIconAnimateProps}
+              />
+            )}
+          </AnimatePresence>
+        </Avatar>
         <WithArrow>
-          <Tooltip
-            content={browser.i18n.getMessage("clickToCopy")}
-            position="bottom"
-          >
-            <WalletAddress onClick={copyAddress}>
-              (
-              {formatAddress(
-                activeAddress ?? "",
-                walletName.length > 14 ? 3 : 6
-              )}
-              )
-            </WalletAddress>
-          </Tooltip>
+          <Text noMargin>{walletName}</Text>
           <ExpandArrow open={isOpen} />
         </WithArrow>
       </Wallet>
-      <Avatar img={avatar}>
-        {!avatar && <NoAvatarIcon />}
-        <AnimatePresence initial={false}>
-          {hardwareApi === "keystone" && (
-            <HardwareWalletIcon
-              icon={keystoneLogo}
-              color="#2161FF"
-              {...hwIconAnimateProps}
-            />
-          )}
-        </AnimatePresence>
-      </Avatar>
+      <WalletActions>
+        <CopyIcon onClick={copyAddress} />
+        <GridIcon />
+      </WalletActions>
       {isOpen && <CloseLayer onClick={() => setOpen(false)} />}
       <WalletSwitcher open={isOpen} close={() => setOpen(false)} />
     </Wrapper>
@@ -167,52 +176,17 @@ const Wrapper = styled(Section)<{
 const Wallet = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.36rem;
+  gap: 0.64rem;
 
   p {
     color: rgb(${(props) => props.theme.primaryText});
   }
 `;
 
-const WalletIcon = styled(GridIcon)`
-  font-size: 1.35rem;
-  width: 1em;
-  height: 1em;
-  color: rgb(${(props) => props.theme.primaryText});
-`;
-
-const WithArrow = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const WalletAddress = styled(Text).attrs(() => ({ noMargin: true }))`
-  color: rgb(${(props) => props.theme.secondaryText}) !important;
-  transition: all 0.23s ease-in-out;
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  &:active {
-    opacity: 0.4;
-  }
-`;
-
-const ExpandArrow = styled(ChevronDownIcon)<{ open: boolean }>`
-  color: rgb(${(props) => props.theme.secondaryText});
-  font-size: 1.2rem;
-  width: 1em;
-  height: 1em;
-  transition: all 0.23s ease-in-out;
-
-  transform: ${(props) => (props.open ? "rotate(180deg)" : "rotate(0)")};
-`;
-
 export const Avatar = styled(Squircle)`
   position: relative;
-  width: 2.1rem;
-  height: 2.1rem;
+  width: 1.425rem;
+  height: 1.425rem;
   transition: all 0.07s ease-in-out;
 
   ${HardwareWalletIcon} {
@@ -228,13 +202,51 @@ export const Avatar = styled(Squircle)`
 
 export const NoAvatarIcon = styled(UserIcon)`
   position: absolute;
-  font-size: 1.4rem;
+  font-size: 1rem;
   width: 1em;
   height: 1em;
   color: #fff;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+`;
+
+const WithArrow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+`;
+
+const ExpandArrow = styled(ChevronDownIcon)<{ open: boolean }>`
+  color: rgb(${(props) => props.theme.primaryText});
+  font-size: 1.2rem;
+  width: 1em;
+  height: 1em;
+  transition: all 0.23s ease-in-out;
+
+  transform: ${(props) => (props.open ? "rotate(180deg)" : "rotate(0)")};
+`;
+
+const WalletActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.34rem;
+
+  svg {
+    font-size: 1.25rem;
+    width: 1em;
+    height: 1em;
+    color: rgb(${(props) => props.theme.primaryText});
+    transition: all 0.23s ease-in-out;
+
+    &:hover {
+      opacity: 0.85;
+    }
+
+    &:active {
+      transform: scale(0.92);
+    }
+  }
 `;
 
 export const CloseLayer = styled.div`
