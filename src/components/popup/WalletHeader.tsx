@@ -1,3 +1,15 @@
+import { defaultGateway, concatGatewayURL } from "~applications/gateway";
+import { MouseEventHandler, useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useStorage } from "@plasmohq/storage/hook";
+import HardwareWalletIcon, {
+  hwIconAnimateProps
+} from "~components/hardware/HardwareWalletIcon";
+import { useHardwareApi } from "~wallets/hooks";
+import type { StoredWallet } from "~wallets";
+import { getAppURL } from "~utils/format";
+import type { AnsUser } from "~lib/ans";
+import { useTheme } from "~utils/theme";
 import {
   Card,
   DisplayTheme,
@@ -11,19 +23,10 @@ import {
   GridIcon,
   UserIcon
 } from "@iconicicons/react";
-import { defaultGateway, concatGatewayURL } from "~applications/gateway";
-import { MouseEventHandler, useEffect, useMemo, useState } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
-import HardwareWalletIcon, {
-  hwIconAnimateProps
-} from "~components/hardware/HardwareWalletIcon";
-import { useHardwareApi } from "~wallets/hooks";
-import { AnimatePresence, motion } from "framer-motion";
-import type { StoredWallet } from "~wallets";
-import type { AnsUser } from "~lib/ans";
-import { useTheme } from "~utils/theme";
 import WalletSwitcher, { popoverAnimation } from "./WalletSwitcher";
+import Application, { AppInfo } from "~applications/application";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
+import useActiveTab from "~applications/useActiveTab";
 import AppIcon, { NoAppIcon } from "./home/AppIcon";
 import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
@@ -113,6 +116,34 @@ export default function WalletHeader() {
   // app info open
   const [appDataOpen, setAppDataOpen] = useState(false);
 
+  // active app
+  const activeTab = useActiveTab();
+  const activeApp = useMemo<Application | undefined>(() => {
+    if (!activeTab?.url) {
+      return undefined;
+    }
+
+    return new Application(getAppURL(activeTab.url));
+  }, [activeTab]);
+
+  // active app data
+  const [activeAppData, setActiveAppData] = useState<AppInfo>();
+
+  useEffect(() => {
+    (async () => {
+      if (!activeApp) {
+        return setActiveAppData(undefined);
+      }
+
+      const connected = await activeApp.isConnected();
+      if (!connected) {
+        return setActiveAppData(undefined);
+      }
+
+      setActiveAppData(await activeApp.getAppData());
+    })();
+  }, [activeApp]);
+
   return (
     <Wrapper
       onClick={() => {
@@ -141,29 +172,49 @@ export default function WalletHeader() {
       </Wallet>
       <WalletActions>
         <Action onClick={copyAddress} />
-        <Action
-          as={GridIcon}
+        <AppAction
           onClick={(e) => {
             e.stopPropagation();
             setAppDataOpen(true);
           }}
-        />
+        >
+          <Action as={GridIcon} />
+          {activeAppData && <AppOnline />}
+        </AppAction>
         <AnimatePresence>
           {appDataOpen && (
-            <AppInfoWrapper variants={popoverAnimation}>
+            <AppInfoWrapper
+              variants={popoverAnimation}
+              onClick={(e) => e.stopPropagation()}
+            >
               <Card>
                 <AppInfo>
-                  <ActiveAppIcon connected={true}></ActiveAppIcon>
+                  <ActiveAppIcon connected={!!activeAppData}>
+                    {(activeAppData?.logo && (
+                      <img
+                        src={activeAppData.logo}
+                        alt={activeAppData.name || ""}
+                        draggable={false}
+                      />
+                    )) || <NoAppIcon />}
+                    {activeAppData && <AppOnline />}
+                  </ActiveAppIcon>
                   <div>
-                    <AppName>Not connected</AppName>
-                    <AppUrl>github.com</AppUrl>
+                    <AppName>
+                      {activeAppData?.name ||
+                        browser.i18n.getMessage(
+                          activeAppData ? "appConnected" : "not_connected"
+                        )}
+                    </AppName>
+                    <AppUrl>{getAppURL(activeTab.url)}</AppUrl>
                   </div>
                 </AppInfo>
                 <AppOptions>
-                  <NotConnectedNote>
-                    This app is not yet using ArConnect. Find the "Connect"
-                    button on the page to connect it.
-                  </NotConnectedNote>
+                  {!activeAppData && (
+                    <NotConnectedNote>
+                      {browser.i18n.getMessage("not_connected_text")}
+                    </NotConnectedNote>
+                  )}
                 </AppOptions>
               </Card>
             </AppInfoWrapper>
@@ -265,6 +316,22 @@ const ExpandArrow = styled(ChevronDownIcon)<{ open: boolean }>`
   transform: ${(props) => (props.open ? "rotate(180deg)" : "rotate(0)")};
 `;
 
+const AppAction = styled.div`
+  position: relative;
+  display: flex;
+`;
+
+const AppOnline = styled.div`
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 100%;
+  background-color: #00e600;
+  border: 1px solid rgb(${(props) => props.theme.background});
+`;
+
 const Action = styled(CopyIcon)`
   font-size: 1.25rem;
   width: 1em;
@@ -294,10 +361,11 @@ const AppInfoWrapper = styled(motion.div).attrs({
   exit: "closed"
 })`
   position: absolute;
-  top: 135%;
+  top: 150%;
   right: 0;
   z-index: 110;
   width: calc(100vw - 2 * 20px);
+  cursor: default;
 
   ${Card} {
     padding: 0;
@@ -332,6 +400,22 @@ const ActiveAppIcon = styled(AppIcon)<{ connected: boolean }>`
     ${(props) =>
       props.connected ? props.theme.theme : props.theme.secondaryText}
   );
+
+  ${AppOnline} {
+    width: 10px;
+    height: 10px;
+    border-width: 1.5px;
+    right: -2.5px;
+    bottom: -2.5px;
+  }
+
+  ${NoAppIcon} {
+    font-size: 1rem;
+  }
+
+  img {
+    max-width: 1.5em;
+  }
 `;
 
 const AppName = styled(Text).attrs({

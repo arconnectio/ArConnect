@@ -1114,5 +1114,13 @@
   "transaction_send_loading": {
     "message": "Sending transaction...",
     "description": "Sending transaction loading text"
-  } 
+  },
+  "not_connected": {
+    "message": "Not connected",
+    "description": "Not connected indicator"
+  },
+  "not_connected_text": {
+    "message": "This app is not yet using ArConnect. Find the \"Connect\" button on the page to connect it.",
+    "description": "Not connected indicator explainer"
+  }
 }
