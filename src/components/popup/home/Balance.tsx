@@ -78,7 +78,9 @@ export default function Balance() {
       if (!activeApp) return;
 
       const connected = await activeApp.isConnected();
-      if (!connected) return;
+      if (!connected) {
+        return setActiveAppData(undefined);
+      }
 
       setActiveAppData(await activeApp.getAppData());
     })();

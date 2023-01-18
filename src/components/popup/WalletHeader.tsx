@@ -11,6 +11,7 @@ import { getAppURL } from "~utils/format";
 import type { AnsUser } from "~lib/ans";
 import { useTheme } from "~utils/theme";
 import {
+  Button,
   Card,
   DisplayTheme,
   Section,
@@ -21,6 +22,8 @@ import {
   ChevronDownIcon,
   CopyIcon,
   GridIcon,
+  LogOutIcon,
+  SettingsIcon,
   UserIcon
 } from "@iconicicons/react";
 import WalletSwitcher, { popoverAnimation } from "./WalletSwitcher";
@@ -32,6 +35,7 @@ import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
+import { removeApp } from "~applications";
 
 export default function WalletHeader() {
   // current address
@@ -210,10 +214,42 @@ export default function WalletHeader() {
                   </div>
                 </AppInfo>
                 <AppOptions>
-                  {!activeAppData && (
+                  {(!activeAppData && (
                     <NotConnectedNote>
                       {browser.i18n.getMessage("not_connected_text")}
                     </NotConnectedNote>
+                  )) || (
+                    <>
+                      <AppActionButtons>
+                        <Button
+                          small
+                          fullWidth
+                          secondary
+                          onClick={() =>
+                            browser.tabs.create({
+                              url: browser.runtime.getURL(
+                                `tabs/dashboard.html#/apps/${activeApp.url}`
+                              )
+                            })
+                          }
+                        >
+                          <SettingsIcon />
+                          {browser.i18n.getMessage("settings")}
+                        </Button>
+                        <Button
+                          small
+                          fullWidth
+                          onClick={async () => {
+                            await removeApp(getAppURL(activeTab.url));
+                            setActiveAppData(undefined);
+                            setAppDataOpen(false);
+                          }}
+                        >
+                          <LogOutIcon />
+                          {browser.i18n.getMessage("disconnect")}
+                        </Button>
+                      </AppActionButtons>
+                    </>
                   )}
                 </AppOptions>
               </Card>
@@ -383,6 +419,13 @@ const AppInfo = styled.div`
 
 const AppOptions = styled.div`
   padding: 10px;
+`;
+
+const AppActionButtons = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 0.6rem;
 `;
 
 const NotConnectedNote = styled(Text).attrs({
