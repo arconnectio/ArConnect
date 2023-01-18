@@ -1,7 +1,5 @@
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
-import { AnimatePresence, motion, Variants } from "framer-motion";
 import { MouseEventHandler, useMemo, useRef } from "react";
-import { Spacer, Text } from "@arconnect/components";
 import { useStorage } from "@plasmohq/storage/hook";
 import { hoverEffect } from "~utils/theme";
 import { useTokens } from "~tokens";
@@ -47,24 +45,11 @@ export default function Collectible({ id, onClick }: Props) {
   return (
     <Wrapper onClick={onClick}>
       <Image src={concatGatewayURL(gateway) + `/${id}`}>
-        <AnimatePresence>
-          {state && balance !== "0" && (
-            <OwnedQty
-              variants={animation}
-              initial="hidden"
-              animate="shown"
-              exit="hidden"
-            >
-              {balance}
-            </OwnedQty>
-          )}
-        </AnimatePresence>
+        <NameAndQty>
+          <Name>{state?.name || ""}</Name>
+          <Qty>{balance}</Qty>
+        </NameAndQty>
       </Image>
-      <Spacer y={0.4} />
-      <TokenName>
-        {state?.name || state?.ticker || ""}
-        <Ticker>{state?.ticker || ""}</Ticker>
-      </TokenName>
       <iframe
         src={browser.runtime.getURL("tabs/sandbox.html")}
         ref={sandbox}
@@ -73,11 +58,6 @@ export default function Collectible({ id, onClick }: Props) {
     </Wrapper>
   );
 }
-
-const animation: Variants = {
-  hidden: { opacity: 0 },
-  shown: { opacity: 1 }
-};
 
 const Wrapper = styled.div`
   position: relative;
@@ -89,7 +69,7 @@ const Wrapper = styled.div`
   &::after {
     width: calc(100% + 15px);
     height: calc(100% + 15px);
-    border-radius: 12px;
+    border-radius: 19.5px;
   }
 
   &:active {
@@ -102,42 +82,35 @@ const Image = styled.div<{ src: string }>`
   background-image: url(${(props) => props.src});
   background-size: cover;
   padding-top: 100%;
-  border-radius: 18px;
+  border-radius: 12px;
 `;
 
-const TokenName = styled(Text).attrs({
-  noMargin: true
-})`
-  display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
-  color: rgb(${(props) => props.theme.primaryText});
-  font-weight: 500;
-  max-width: 100%;
-  overflow: hidden;
-  line-height: 1.2em;
-`;
-
-const Ticker = styled.span`
-  color: rgb(${(props) => props.theme.secondaryText});
-  text-transform: uppercase;
-  font-size: 0.73em;
-`;
-
-const OwnedQty = styled(motion.div)`
+const NameAndQty = styled.div`
   position: absolute;
-  right: 0.6rem;
-  bottom: 0.6rem;
-  padding: 0.1rem 0.3rem;
-  font-size: 0.8rem;
-  border-radius: 1rem;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  left: 0.35rem;
+  bottom: 0.35rem;
+  padding: 0.1rem 0.35rem;
+  // padding * 2 + left + right
+  max-width: calc(100% - 0.35rem * 2 - 0.55rem * 2);
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(5px);
-  padding: 0.1rem 0.55rem;
-  width: max-content;
-  text-align: center;
+`;
+
+const Name = styled.span`
+  font-size: 0.9rem;
+  color: #fff;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const Qty = styled(Name)`
+  color: #a0a0a0;
 `;
 
 interface Props {
