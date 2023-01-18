@@ -14,7 +14,7 @@ import {
   useToasts
 } from "@arconnect/components";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import type { HardwareApi } from "~wallets/hardware";
 import { useStorage } from "@plasmohq/storage/hook";
 import { AnsUser, getAnsProfile } from "~lib/ans";
@@ -163,29 +163,7 @@ export default function WalletSwitcher({
   return (
     <AnimatePresence>
       {open && (
-        <SwitcherPopover
-          exactTop={exactTop}
-          variants={{
-            closed: {
-              scale: 0.4,
-              opacity: 0,
-              transition: {
-                type: "spring",
-                duration: 0.4
-              }
-            },
-            open: {
-              scale: 1,
-              opacity: 1,
-              transition: {
-                type: "spring",
-                duration: 0.4,
-                delayChildren: 0.2,
-                staggerChildren: 0.05
-              }
-            }
-          }}
-        >
+        <SwitcherPopover exactTop={exactTop} variants={popoverAnimation}>
           <Wrapper noPadding={!!noPadding}>
             <WalletsCard
               onClick={(e) => {
@@ -271,6 +249,27 @@ export default function WalletSwitcher({
     </AnimatePresence>
   );
 }
+
+export const popoverAnimation: Variants = {
+  closed: {
+    scale: 0.4,
+    opacity: 0,
+    transition: {
+      type: "spring",
+      duration: 0.4
+    }
+  },
+  open: {
+    scale: 1,
+    opacity: 1,
+    transition: {
+      type: "spring",
+      duration: 0.4,
+      delayChildren: 0.2,
+      staggerChildren: 0.05
+    }
+  }
+};
 
 const SwitcherPopover = styled(motion.div).attrs({
   initial: "closed",

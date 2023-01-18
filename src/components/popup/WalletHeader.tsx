@@ -1,8 +1,8 @@
 import {
+  Card,
   DisplayTheme,
   Section,
   Text,
-  Tooltip,
   useToasts
 } from "@arconnect/components";
 import {
@@ -18,13 +18,13 @@ import HardwareWalletIcon, {
   hwIconAnimateProps
 } from "~components/hardware/HardwareWalletIcon";
 import { useHardwareApi } from "~wallets/hooks";
-import { AnimatePresence } from "framer-motion";
-import { formatAddress } from "~utils/format";
+import { AnimatePresence, motion } from "framer-motion";
 import type { StoredWallet } from "~wallets";
 import type { AnsUser } from "~lib/ans";
 import { useTheme } from "~utils/theme";
+import WalletSwitcher, { popoverAnimation } from "./WalletSwitcher";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
-import WalletSwitcher from "./WalletSwitcher";
+import AppIcon, { NoAppIcon } from "./home/AppIcon";
 import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -110,6 +110,9 @@ export default function WalletHeader() {
     return () => window.removeEventListener("scroll", listener);
   }, []);
 
+  // app info open
+  const [appDataOpen, setAppDataOpen] = useState(false);
+
   return (
     <Wrapper
       onClick={() => {
@@ -137,10 +140,45 @@ export default function WalletHeader() {
         </WithArrow>
       </Wallet>
       <WalletActions>
-        <CopyIcon onClick={copyAddress} />
-        <GridIcon />
+        <Action onClick={copyAddress} />
+        <Action
+          as={GridIcon}
+          onClick={(e) => {
+            e.stopPropagation();
+            setAppDataOpen(true);
+          }}
+        />
+        <AnimatePresence>
+          {appDataOpen && (
+            <AppInfoWrapper variants={popoverAnimation}>
+              <Card>
+                <AppInfo>
+                  <ActiveAppIcon connected={true}></ActiveAppIcon>
+                  <div>
+                    <AppName>Not connected</AppName>
+                    <AppUrl>github.com</AppUrl>
+                  </div>
+                </AppInfo>
+                <AppOptions>
+                  <NotConnectedNote>
+                    This app is not yet using ArConnect. Find the "Connect"
+                    button on the page to connect it.
+                  </NotConnectedNote>
+                </AppOptions>
+              </Card>
+            </AppInfoWrapper>
+          )}
+        </AnimatePresence>
       </WalletActions>
-      {isOpen && <CloseLayer onClick={() => setOpen(false)} />}
+      {(isOpen || appDataOpen) && (
+        <CloseLayer
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen(false);
+            setAppDataOpen(false);
+          }}
+        />
+      )}
       <WalletSwitcher open={isOpen} close={() => setOpen(false)} />
     </Wrapper>
   );
@@ -227,26 +265,87 @@ const ExpandArrow = styled(ChevronDownIcon)<{ open: boolean }>`
   transform: ${(props) => (props.open ? "rotate(180deg)" : "rotate(0)")};
 `;
 
+const Action = styled(CopyIcon)`
+  font-size: 1.25rem;
+  width: 1em;
+  height: 1em;
+  color: rgb(${(props) => props.theme.primaryText});
+  transition: all 0.23s ease-in-out;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+`;
+
 const WalletActions = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.34rem;
+`;
 
-  svg {
-    font-size: 1.25rem;
-    width: 1em;
-    height: 1em;
-    color: rgb(${(props) => props.theme.primaryText});
-    transition: all 0.23s ease-in-out;
+const AppInfoWrapper = styled(motion.div).attrs({
+  initial: "closed",
+  animate: "open",
+  exit: "closed"
+})`
+  position: absolute;
+  top: 135%;
+  right: 0;
+  z-index: 110;
+  width: calc(100vw - 2 * 20px);
 
-    &:hover {
-      opacity: 0.85;
-    }
-
-    &:active {
-      transform: scale(0.92);
-    }
+  ${Card} {
+    padding: 0;
+    width: 100%;
   }
+`;
+
+const AppInfo = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  gap: 10px;
+  border-bottom: 1px solid rgb(${(props) => props.theme.cardBorder});
+`;
+
+const AppOptions = styled.div`
+  padding: 10px;
+`;
+
+const NotConnectedNote = styled(Text).attrs({
+  noMargin: true
+})`
+  font-size: 0.84rem;
+  text-align: justify;
+`;
+
+const ActiveAppIcon = styled(AppIcon)<{ connected: boolean }>`
+  position: relative;
+  width: 2rem;
+  height: 2rem;
+  color: rgb(
+    ${(props) =>
+      props.connected ? props.theme.theme : props.theme.secondaryText}
+  );
+`;
+
+const AppName = styled(Text).attrs({
+  noMargin: true
+})`
+  color: rgb(${(props) => props.theme.primaryText});
+  line-height: 1.1em;
+`;
+
+const AppUrl = styled(Text).attrs({
+  noMargin: true
+})`
+  font-size: 0.75rem;
+  line-height: 1.1em;
 `;
 
 export const CloseLayer = styled.div`

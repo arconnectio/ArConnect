@@ -227,11 +227,17 @@ const PageTitle = styled(Text).attrs({
 
 const ClickableAvatar = styled(Avatar)`
   cursor: pointer;
+  width: 2.1rem;
+  height: 2.1rem;
 
   ${HardwareWalletIcon} {
     position: absolute;
     right: -5px;
     bottom: -5px;
+  }
+
+  ${NoAvatarIcon} {
+    font-size: 1.4rem;
   }
 `;
 
