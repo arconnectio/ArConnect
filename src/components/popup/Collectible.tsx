@@ -93,7 +93,7 @@ const NameAndQty = styled.div`
   left: 0.35rem;
   bottom: 0.35rem;
   padding: 0.1rem 0.35rem;
-  // padding * 2 + left + right
+  // 100 % - padding * 2 + left + right
   max-width: calc(100% - 0.35rem * 2 - 0.55rem * 2);
   border-radius: 4px;
   background-color: rgba(0, 0, 0, 0.45);

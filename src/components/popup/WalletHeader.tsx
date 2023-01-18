@@ -65,12 +65,13 @@ export default function WalletHeader() {
   }, [wallets, ans, activeAddress]);
 
   // profile picture
-  const avatar = useMemo(() => {
-    if (!!ans?.avatar) {
-      return concatGatewayURL(defaultGateway) + "/" + ans.avatar;
-    }
+  const [avatar, setAvatar] = useState<string>();
 
-    return undefined;
+  useEffect(() => {
+    if (ans?.avatar === avatar) return;
+    if (!ans?.avatar || !!avatar) return;
+
+    setAvatar(concatGatewayURL(defaultGateway) + "/" + ans.avatar);
   }, [ans]);
 
   // hardware wallet type
