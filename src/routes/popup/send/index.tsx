@@ -566,7 +566,8 @@ const MaxAmount = styled(Text).attrs({
 const Amount = styled(Text).attrs({
   title: true,
   noMargin: true,
-  contentEditable: true
+  contentEditable: true,
+  suppressContentEditableWarning: true
 })`
   font-size: 3.35rem;
   line-height: 1em;
