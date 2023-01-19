@@ -45,15 +45,11 @@ const Wrapper = styled.div`
       props.theme.displayTheme === "dark" ? qrPadding : "0"};
     bottom: ${(props) =>
       props.theme.displayTheme === "dark" ? qrPadding : "0"};
-    width: calc(
-      100% -
-        ${(props) => (props.theme.displayTheme === "dark" ? qrPadding : "0")} *
-        2
-    ) !important;
-    height: calc(
-      100% -
-        ${(props) => (props.theme.displayTheme === "dark" ? qrPadding : "0")} *
-        2
-    ) !important;
+    // prettier-ignore
+    width: calc(100% - ${(props) =>
+      props.theme.displayTheme === "dark" ? qrPadding : "0"} * 2) !important;
+    // prettier-ignore
+    height: calc(100% - ${(props) =>
+      props.theme.displayTheme === "dark" ? qrPadding : "0"} * 2) !important;
   }
 `;
