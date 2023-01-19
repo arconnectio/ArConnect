@@ -188,7 +188,7 @@ Requires the `ACCESS_ARWEAVE_CONFIG` [permission](#permissions).
 
 ### `addToken(id, type?, gateway?)`
 
-Add a token to the user's wallet. The token will show up in ArConnect assets / collectibles.
+Add a token to the user's wallet (ArConnect). The token will show up in ArConnect assets / collectibles.
 
 > **Note:** You do not need to be connected in order to add a token
 
@@ -197,6 +197,14 @@ Add a token to the user's wallet. The token will show up in ArConnect assets / c
 - `gateway`: Optional gateway to fetch the token from (see the [format](#arweave-config))
 
 > **Warning:** If the gateway is defined, ArConnect will not use the default Warp Mainnet Gateway, but the custom one. This might slow down evaluation!
+
+### `isTokenAdded(id)`
+
+Check if a token has been added to the user's wallet (ArConnect).
+
+- `id`: ID of the token to add
+  <br />
+- `returns`: Boolean value indicating if the token has been added or not.
 
 ## Permissions
 

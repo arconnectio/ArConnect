@@ -19,6 +19,8 @@ import disconnect, {
 } from "./modules/disconnect/disconnect.foreground";
 import addTokenModule from "./modules/add_token";
 import addToken from "./modules/add_token/add_token.foreground";
+import isTokenAddedModule from "./modules/is_token_added";
+import isTokenAdded from "./modules/is_token_added/is_token_added.foreground";
 import connectModule from "./modules/connect";
 import connect, {
   finalizer as connectFinalizer
@@ -57,7 +59,8 @@ const modules: ForegroundModule[] = [
   { ...encryptModule, function: encrypt, finalizer: encryptFinalizer },
   { ...decryptModule, function: decrypt },
   { ...signatureModule, function: signature, finalizer: signatureFinalizer },
-  { ...addTokenModule, function: addToken }
+  { ...addTokenModule, function: addToken },
+  { ...isTokenAddedModule, function: isTokenAdded }
 ];
 
 export default modules;

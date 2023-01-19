@@ -30,6 +30,8 @@ import signatureModule from "./modules/signature";
 import signature from "./modules/signature/signature.background";
 import addTokenModule from "./modules/add_token";
 import addToken from "./modules/add_token/add_token.background";
+import isTokenAddedModule from "./modules/is_token_added";
+import isTokenAdded from "./modules/is_token_added/is_token_added.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
@@ -42,6 +44,7 @@ const modules: BackgroundModule<any>[] = [
   { ...disconnectModule, function: disconnect },
   { ...connectModule, function: connect },
   { ...addTokenModule, function: addToken },
+  { ...isTokenAddedModule, function: isTokenAdded },
   { ...signModule, function: sign },
   // { ...dispatchModule, function: dispatch },
   { ...encryptModule, function: encrypt },
