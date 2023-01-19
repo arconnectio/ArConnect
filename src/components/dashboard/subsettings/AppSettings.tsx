@@ -200,10 +200,12 @@ export default function AppSettings({ app, showTitle = false }: Props) {
         )) ||
           arweave.ar.winstonToAr(limit)}
         {" AR "}
-        <EditLimitButton
-          as={editingLimit ? CheckIcon : EditIcon}
-          onClick={() => setEditingLimit((val) => !val)}
-        />
+        <Tooltip content={browser.i18n.getMessage("allowance_edit")}>
+          <EditLimitButton
+            as={editingLimit ? CheckIcon : EditIcon}
+            onClick={() => setEditingLimit((val) => !val)}
+          />
+        </Tooltip>
       </Text>
       <Spacer y={1} />
       <Title>{browser.i18n.getMessage("gateway")}</Title>

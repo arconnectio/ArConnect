@@ -1,4 +1,8 @@
-import { defaultGateway, concatGatewayURL } from "~applications/gateway";
+import {
+  defaultGateway,
+  concatGatewayURL,
+  Gateway
+} from "~applications/gateway";
 import {
   HTMLProps,
   MouseEventHandler,
@@ -23,6 +27,7 @@ import {
   DisplayTheme,
   Section,
   Text,
+  Tooltip,
   useToasts
 } from "@arconnect/components";
 import {
@@ -149,20 +154,31 @@ export default function WalletHeader() {
   }, [activeTab]);
 
   // active app data
-  const [activeAppData, setActiveAppData] = useState<AppInfo>();
+  const [activeAppData, setActiveAppData] = useState<
+    AppInfo & { gateway: Gateway }
+  >();
 
   useEffect(() => {
     (async () => {
+      // check if there is an active app
       if (!activeApp) {
         return setActiveAppData(undefined);
       }
 
+      // check if connected
       const connected = await activeApp.isConnected();
       if (!connected) {
         return setActiveAppData(undefined);
       }
 
-      setActiveAppData(await activeApp.getAppData());
+      // get app data
+      const appData = await activeApp.getAppData();
+      const gatewayConfig = await activeApp.getGatewayConfig();
+
+      setActiveAppData({
+        ...appData,
+        gateway: gatewayConfig
+      });
     })();
   }, [activeApp]);
 
@@ -196,15 +212,22 @@ export default function WalletHeader() {
         </WithArrow>
       </Wallet>
       <WalletActions>
-        <Action
-          as={BoxIcon}
-          onClick={() =>
-            browser.tabs.create({
-              url: `https://viewblock.io/arweave/address/${activeAddress}`
-            })
-          }
-        />
-        <Action as={copied ? CheckIcon : CopyIcon} onClick={copyAddress} />
+        <Tooltip content="Viewblock" position="bottom">
+          <Action
+            as={BoxIcon}
+            onClick={() =>
+              browser.tabs.create({
+                url: `https://viewblock.io/arweave/address/${activeAddress}`
+              })
+            }
+          />
+        </Tooltip>
+        <Tooltip
+          content={browser.i18n.getMessage("copy_address")}
+          position="bottom"
+        >
+          <Action as={copied ? CheckIcon : CopyIcon} onClick={copyAddress} />
+        </Tooltip>
         <AppAction
           onClick={(e) => {
             e.stopPropagation();
@@ -222,16 +245,31 @@ export default function WalletHeader() {
             >
               <Card>
                 <AppInfo>
-                  <ActiveAppIcon connected={!!activeAppData}>
-                    {(activeAppData?.logo && (
-                      <img
-                        src={activeAppData.logo}
-                        alt={activeAppData.name || ""}
-                        draggable={false}
-                      />
-                    )) || <NoAppIcon />}
-                    {activeAppData && <AppOnline />}
-                  </ActiveAppIcon>
+                  {(!!activeAppData && (
+                    <Tooltip
+                      content={
+                        browser.i18n.getMessage("gateway") +
+                        ": " +
+                        activeAppData.gateway.host
+                      }
+                      position="topStart"
+                    >
+                      <ActiveAppIcon connected>
+                        {(activeAppData?.logo && (
+                          <img
+                            src={activeAppData.logo}
+                            alt={activeAppData.name || ""}
+                            draggable={false}
+                          />
+                        )) || <NoAppIcon />}
+                        {activeAppData && <AppOnline />}
+                      </ActiveAppIcon>
+                    </Tooltip>
+                  )) || (
+                    <ActiveAppIcon connected={false}>
+                      <NoAppIcon />
+                    </ActiveAppIcon>
+                  )}
                   <div>
                     <AppName>
                       {activeAppData?.name ||

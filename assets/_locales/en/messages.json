@@ -1126,5 +1126,13 @@
   "disconnect": {
     "message": "Disconnect",
     "description": "Disconnect button text"
+  },
+  "copy_address": {
+    "message": "Copy address",
+    "description": "Click to copy address tooltip"
+  },
+  "allowance_edit": {
+    "message": "Edit allowance",
+    "description": "Edit allowance tooltip"
   }
 }

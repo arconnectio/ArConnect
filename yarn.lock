@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@arconnect/components@^0.1.22":
-  version "0.1.22"
-  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.1.22.tgz#414ff138d0cfdc28e21700be592f7b26f691b01b"
-  integrity sha512-6iNBd+Y8uP0HOFLAQosSfbeZNmpdKG1DDmuaUre0k0bCdpgdkQxzlRbAP4nH8uK5Cipf4JJRJets44PVjOtt/w==
+"@arconnect/components@^0.1.25":
+  version "0.1.25"
+  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.1.25.tgz#ff5d368866b1315a96ab5502fdd32e174b2806d0"
+  integrity sha512-/FV8z6flBMX72ssvuzDNdjRgP4ETTLiGev6mqY2+EufQj/L1i4jwON+OZ54huTVmUMhKHUcCsFLUsCRfvnBQQg==
   dependencies:
     "@iconicicons/react" "^1.5.0"
     "@types/jest" "^27.0.1"
