@@ -21,16 +21,8 @@ const background: ModuleFunction<void> = async (
   }
 
   // check type
-  if (type && type !== "asset" && type !== "collectible") {
+  if (type && !["asset", "collectible"].includes(type)) {
     throw new Error("Invalid token type");
-  }
-
-  // check if connected
-  const app = new Application(tabURL);
-  const permissions = await app.getPermissions();
-
-  if (permissions.length === 0) {
-    throw new Error("The app needs to be connected be able to add a new token");
   }
 
   // check if the token is added already
