@@ -22,14 +22,13 @@
     typescript "^4.4.2"
     web-vitals "^2.1.0"
 
-"@arconnect/keystone-sdk@^0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@arconnect/keystone-sdk/-/keystone-sdk-0.0.4.tgz#900fc2f3a710df7cb913083b308ad3dbbbaee5c9"
-  integrity sha512-XXy1z3ar3XvPw51afR1k70cBdXfOQlh7vB80TC1rH3Gx16xIRYlvYqfCASfXAHTKhG4NumYLq5Uxsky1BUrS4A==
+"@arconnect/keystone-sdk@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@arconnect/keystone-sdk/-/keystone-sdk-0.0.5.tgz#c9efc9f8f624c476fbee887af87f6f394b4fb34a"
+  integrity sha512-22eOyrozVXeGhEYMyMjV019JWKmdDxoKa4NsUkkywNqqI9YYm67lqExHifvKzSimvoLwdpcBdLAVnMt2qffblg==
   dependencies:
     "@ngraveio/bc-ur" "^1.1.6"
-    "@types/qrcode.react" "^1.0.2"
-    qrcode.react "1.0.1"
+    qrcode.react "3.1.0"
     react-qr-reader "2.2.1"
 
 "@arconnect/webext-bridge@^5.0.6":
@@ -1745,13 +1744,6 @@
   version "15.7.5"
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.5.tgz#5f19d2b85a98e9558036f6a3cacc8819420f05cf"
   integrity sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==
-
-"@types/qrcode.react@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@types/qrcode.react/-/qrcode.react-1.0.2.tgz#f892432cc41b5dac52e3ca8873b717c8bfea6002"
-  integrity sha512-I9Oq5Cjlkgy3Tw7krCnCXLw2/zMhizkTere49OOcta23tkvH0xBTP0yInimTh0gstLRtb8Ki9NZVujE5UI6ffQ==
-  dependencies:
-    "@types/react" "*"
 
 "@types/react-dom@^18.0.0", "@types/react-dom@^18.0.6":
   version "18.0.6"
@@ -5274,7 +5266,12 @@ qr.js@0.0.0:
   resolved "https://registry.yarnpkg.com/qr.js/-/qr.js-0.0.0.tgz#cace86386f59a0db8050fa90d9b6b0e88a1e364f"
   integrity sha512-c4iYnWb+k2E+vYpRimHqSu575b1/wKl4XFeJGpFmrJQz5I88v9aY2czh7s0w36srfCM1sXgC/xpoJz5dJfq+OQ==
 
-qrcode.react@1.0.1, qrcode.react@^1.0.1:
+qrcode.react@3.1.0, qrcode.react@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/qrcode.react/-/qrcode.react-3.1.0.tgz#5c91ddc0340f768316fbdb8fff2765134c2aecd8"
+  integrity sha512-oyF+Urr3oAMUG/OiOuONL3HXM+53wvuH3mtIWQrYmsXoAq0DkvZp2RYUWFSMFtbdOpuS++9v+WAkzNVkMlNW6Q==
+
+qrcode.react@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/qrcode.react/-/qrcode.react-1.0.1.tgz#2834bb50e5e275ffe5af6906eff15391fe9e38a5"
   integrity sha512-8d3Tackk8IRLXTo67Y+c1rpaiXjoz/Dd2HpcMdW//62/x8J1Nbho14Kh8x974t9prsLHN6XqVgcnRiBGFptQmg==
@@ -5282,11 +5279,6 @@ qrcode.react@1.0.1, qrcode.react@^1.0.1:
     loose-envify "^1.4.0"
     prop-types "^15.6.0"
     qr.js "0.0.0"
-
-qrcode.react@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/qrcode.react/-/qrcode.react-3.1.0.tgz#5c91ddc0340f768316fbdb8fff2765134c2aecd8"
-  integrity sha512-oyF+Urr3oAMUG/OiOuONL3HXM+53wvuH3mtIWQrYmsXoAq0DkvZp2RYUWFSMFtbdOpuS++9v+WAkzNVkMlNW6Q==
 
 qs@^6.9.4:
   version "6.11.0"
