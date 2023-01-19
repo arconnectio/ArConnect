@@ -190,6 +190,8 @@ Requires the `ACCESS_ARWEAVE_CONFIG` [permission](#permissions).
 
 Add a token to the user's wallet. The token will show up in ArConnect assets / collectibles.
 
+> **Note:** You do not need to be connected in order to add a token
+
 - `id`: ID of the token to add
 - `type`: Optional token type (`asset` or `collectible`)
 - `gateway`: Optional gateway to fetch the token from (see the [format](#arweave-config))
