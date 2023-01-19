@@ -9,12 +9,12 @@ export default function AnimatedQRPlayer(props: ComponentProps<typeof Player>) {
   // qr style config
   const config = useMemo(
     () => ({
-      bgColor: "transparent",
-      fgColor: `rgb(${theme.theme})`,
+      bgColor: "#fff",
+      fgColor: "#000",
       maxFragmentLength: 400,
-      quietZone: 0,
-      size: 345,
-      speed: 350
+      size: 288,
+      level: "L" as any,
+      speed: 300
     }),
     [theme]
   );
@@ -26,16 +26,34 @@ export default function AnimatedQRPlayer(props: ComponentProps<typeof Player>) {
   );
 }
 
+// padding on dark theme
+const qrPadding = "15px";
+
 const Wrapper = styled.div`
   position: relative;
   width: 100%;
   padding-top: 100%;
+  background-color: #fff;
+  border-radius: ${(props) =>
+    props.theme.displayTheme === "dark" ? "14px" : "0"};
 
   canvas {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100% !important;
-    height: 100% !important;
+    top: ${(props) => (props.theme.displayTheme === "dark" ? qrPadding : "0")};
+    left: ${(props) => (props.theme.displayTheme === "dark" ? qrPadding : "0")};
+    right: ${(props) =>
+      props.theme.displayTheme === "dark" ? qrPadding : "0"};
+    bottom: ${(props) =>
+      props.theme.displayTheme === "dark" ? qrPadding : "0"};
+    width: calc(
+      100% -
+        ${(props) => (props.theme.displayTheme === "dark" ? qrPadding : "0")} *
+        2
+    ) !important;
+    height: calc(
+      100% -
+        ${(props) => (props.theme.displayTheme === "dark" ? qrPadding : "0")} *
+        2
+    ) !important;
   }
 `;

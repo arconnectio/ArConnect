@@ -65,13 +65,19 @@ export default function Head({
   });
 
   // user avatar
-  const [avatar, setAvatar] = useState<string>();
+  const [avatar, setAvatar] = useState<{
+    for: string;
+    img: string;
+  }>();
 
   useEffect(() => {
-    if (ans?.avatar === avatar) return;
+    if (ans?.user === avatar?.for) return;
     if (!ans?.avatar || !!avatar) return;
 
-    setAvatar(concatGatewayURL(defaultGateway) + "/" + ans.avatar);
+    setAvatar({
+      for: ans.user,
+      img: concatGatewayURL(defaultGateway) + "/" + ans.avatar
+    });
   }, [ans]);
 
   // first render for animation
@@ -109,7 +115,7 @@ export default function Head({
       >
         <PageTitle>{title}</PageTitle>
         <ClickableAvatar
-          img={avatar}
+          img={avatar?.img}
           onClick={() => {
             if (!allowOpen) return;
             setOpen(true);
