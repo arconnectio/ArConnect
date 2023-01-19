@@ -287,6 +287,30 @@ export default function Send({ id }: Props) {
     });
   }
 
+  // try to paste target from clipboard on focus
+  async function pasteTarget() {
+    try {
+      // get clipboard permission
+      const permission = await navigator.permissions.query({
+        // @ts-expect-error
+        name: "clipboard-read"
+      });
+
+      if (permission.state === "denied") return;
+
+      // get clipboard items
+      const clipboard = await navigator.clipboard.readText();
+
+      // check if clipboard contains an address
+      // or an ANS name
+      if (!clipboard || (!isAddress(clipboard) && !clipboard.includes(".ar")))
+        return;
+
+      // set target input
+      targetInput.setState(clipboard);
+    } catch {}
+  }
+
   return (
     <Wrapper>
       <div>
@@ -380,6 +404,7 @@ export default function Send({ id }: Props) {
                       label={browser.i18n.getMessage("target")}
                       placeholder="ljvCPN31XCLPkBo9FUeB7vAK0VC6-eY52-CS-6Iho8U"
                       fullWidth
+                      onFocus={pasteTarget}
                     />
                   </InputWrapper>
                   <IconButton secondary onClick={() => setEditingTarget(false)}>
