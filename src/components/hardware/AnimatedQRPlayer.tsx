@@ -45,11 +45,13 @@ const Wrapper = styled.div`
       props.theme.displayTheme === "dark" ? qrPadding : "0"};
     bottom: ${(props) =>
       props.theme.displayTheme === "dark" ? qrPadding : "0"};
-    // prettier-ignore
-    width: calc(100% - ${(props) =>
-      props.theme.displayTheme === "dark" ? qrPadding : "0"} * 2) !important;
-    // prettier-ignore
-    height: calc(100% - ${(props) =>
-      props.theme.displayTheme === "dark" ? qrPadding : "0"} * 2) !important;
+    width: ${(props) =>
+      props.theme.displayTheme === "dark"
+        ? `calc(100% - ${qrPadding} * 2)`
+        : "100%"} !important;
+    height: ${(props) =>
+      props.theme.displayTheme === "dark"
+        ? `calc(100% - ${qrPadding} * 2)`
+        : "100%"} !important;
   }
 `;
