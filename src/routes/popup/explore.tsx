@@ -170,13 +170,16 @@ export default function Explore() {
           </Shortcuts>
         </Card>
       </Wrapper>
-      <LoadingArticle />
       {feed &&
         feed
           .slice(4)
           .map((article, i) => (
             <Article {...article} source="arweave.news" key={i} />
           ))}
+      {!feed &&
+        Array(6)
+          .fill("")
+          .map((_, i) => <LoadingArticle key={i} />)}
     </>
   );
 }

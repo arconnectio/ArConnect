@@ -46,7 +46,7 @@ export default function Article({
 export const LoadingArticle = () => (
   <Wrapper>
     <Date>
-      <Skeleton width="4rem" />
+      <Skeleton width="40%" />
     </Date>
     <Spacer y={0.3} />
     <Content>
