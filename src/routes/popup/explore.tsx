@@ -1,8 +1,10 @@
 import { Card, Section, Spacer, Text } from "@arconnect/components";
 import { getMarketChart, getArPrice } from "~lib/coingecko";
-import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { parseCoverImageFromContent } from "~lib/ans";
+import { useEffect, useState } from "react";
 import getArweaveNewsFeed, { ArweaveNewsArticle } from "~lib/arweave_news";
+import Article, { LoadingArticle } from "~components/popup/Article";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import viewblockLogo from "url:/assets/ecosystem/viewblock.png";
 import metaweaveLogo from "url:/assets/ecosystem/metaweave.png";
@@ -11,13 +13,10 @@ import PriceChart from "~components/popup/asset/PriceChart";
 import arDriveLogo from "url:/assets/ecosystem/ardrive.svg";
 import aftrLogo from "url:/assets/ecosystem/aftrmarket.png";
 import AppIcon from "~components/popup/home/AppIcon";
-import Article, { LoadingArticle } from "~components/popup/Article";
 import browser from "webextension-polyfill";
-import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
-import { parseCoverImageFromContent } from "~lib/ans";
 
 export default function Explore() {
   // ar price period
@@ -93,79 +92,67 @@ export default function Explore() {
       >
         <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />
       </PriceChart>
-      <Wrapper>
+      <Section>
         <Shortcuts>
-          <AppIcon
+          <AppShortcut
             color="#ffa4b5"
             onClick={() =>
               browser.tabs.create({ url: "https://app.ardrive.io" })
             }
           >
             <img src={arDriveLogo} alt={"ArDrive"} draggable={false} />
-          </AppIcon>
-          <AppIcon
+          </AppShortcut>
+          <AppShortcut
             color="#1a1717"
             onClick={() => browser.tabs.create({ url: "https://aftr.market" })}
           >
             <img src={aftrLogo} alt={"AFTR"} draggable={false} />
-          </AppIcon>
-          <AppIcon
+          </AppShortcut>
+          <AppShortcut
             color="#7bc0de"
             onClick={() =>
               browser.tabs.create({ url: "https://viewblock.io/arweave" })
             }
           >
             <img src={viewblockLogo} alt={"Viewblock"} draggable={false} />
-          </AppIcon>
-          <AppIcon
+          </AppShortcut>
+          <AppShortcut
             color="#ffbdfd"
             onClick={() =>
               browser.tabs.create({ url: "https://metaweave.xyz" })
             }
           >
             <img src={metaweaveLogo} alt={"Metaweave"} draggable={false} />
-          </AppIcon>
-          <AppIcon
+          </AppShortcut>
+          <AppShortcut
             color="#79d483"
             onClick={() =>
               browser.tabs.create({ url: "https://permaswap.network" })
             }
           >
             <img src={permaswapLogo} alt={"Permaswap"} draggable={false} />
-          </AppIcon>
+          </AppShortcut>
         </Shortcuts>
-        <Spacer y={1} />
-        <Title noMargin>{browser.i18n.getMessage("news_and_updates")}</Title>
-        <Spacer y={0.75} />
-        <FeaturedArticles>
-          <AnimatePresence>
-            <FeaturedArticle
-              key={featuredPage}
-              background={parseCoverImageFromContent(
-                feed?.[featuredPage]?.content || ""
-              )}
-              onClick={() =>
-                browser.tabs.create({
-                  url: feed?.[featuredPage]?.link
-                })
-              }
-            >
-              <ArticleTitle style={{ textAlign: "center" }}>
-                {feed?.[featuredPage]?.title || ""}
-              </ArticleTitle>
-            </FeaturedArticle>
-          </AnimatePresence>
-          <Paginator>
-            {new Array(3).fill("").map((_, i) => (
-              <Page
-                active={i === featuredPage}
-                onClick={() => setFeaturedPage(i)}
-                key={i}
-              />
-            ))}
-          </Paginator>
-        </FeaturedArticles>
-      </Wrapper>
+      </Section>
+      <Spacer y={0.1} />
+      <FeaturedArticles>
+        <AnimatePresence>
+          <FeaturedArticle
+            key={featuredPage}
+            background={parseCoverImageFromContent(
+              feed?.[featuredPage]?.content || ""
+            )}
+            onClick={() =>
+              browser.tabs.create({
+                url: feed?.[featuredPage]?.link
+              })
+            }
+          >
+            <ArticleTitle>{feed?.[featuredPage]?.title || ""}</ArticleTitle>
+          </FeaturedArticle>
+        </AnimatePresence>
+      </FeaturedArticles>
+      <Spacer y={0.6} />
       {feed &&
         feed
           .slice(4)
@@ -180,40 +167,17 @@ export default function Explore() {
   );
 }
 
-const Wrapper = styled(Section)`
-  padding-bottom: 0.6rem;
-`;
-
-const FeaturedArticles = styled(Card)`
+const FeaturedArticles = styled.div`
   position: relative;
   display: flex;
   background-color: #000;
-  padding: 0;
   overflow: hidden;
-  border: none;
   height: 125px;
-`;
+  transition: transform 0.07s ease-in-out;
 
-const Paginator = styled.div`
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  gap: 0.42rem;
-  bottom: 0.9rem;
-  left: 50%;
-  transform: translateX(-50%);
-`;
-
-const Page = styled.div<{ active?: boolean }>`
-  width: 4px;
-  height: 4px;
-  border-radius: 100%;
-  border: 1px solid #fff;
-  background-color: ${(props) => (props.active ? "#fff" : "transparent")};
-  cursor: pointer;
-  transition: all 0.23s ease-in-out;
+  &:active {
+    transform: scale(0.98);
+  }
 `;
 
 const FeaturedArticle = styled(motion.div).attrs({
@@ -231,29 +195,48 @@ const FeaturedArticle = styled(motion.div).attrs({
   width: 100%;
   background-image: url(${(props) => props.background});
   background-size: cover;
+  background-position: center;
   cursor: pointer;
-  padding: 3rem 0 1.95rem;
 `;
 
-const ArticleTitle = styled(Text)`
-  color: #fff;
-  margin: 0;
-`;
-
-const ShortcutsLabel = styled(Text)`
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.73rem;
+const ArticleTitle = styled(Text).attrs({
+  noMargin: true
+})`
+  display: -webkit-box;
+  position: absolute;
+  font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
+  left: 0.5rem;
+  bottom: 0.5rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  // 100 % - padding * 2 + left + right
+  max-width: calc(100% - 0.35rem * 2 - 0.5rem * 2);
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(5px);
+  line-clamp: 2;
+  box-orient: vertical;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Shortcuts = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+`;
 
-  ${AppIcon}:active {
-    transform: scale(0.95);
+const AppShortcut = styled(AppIcon)`
+  transition: all 0.125s ease-in-out;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:active {
+    transform: scale(0.92);
   }
 `;

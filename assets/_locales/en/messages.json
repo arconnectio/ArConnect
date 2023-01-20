@@ -797,10 +797,6 @@
     "message": "Explore",
     "description": "Explore title"
   },
-  "news_and_updates": {
-    "message": "News & Updates",
-    "description": "Title for explore news"
-  },
   "addToken": {
     "message": "Add token",
     "description": "Add token title"
