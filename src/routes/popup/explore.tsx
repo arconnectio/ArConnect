@@ -11,12 +11,12 @@ import PriceChart from "~components/popup/asset/PriceChart";
 import arDriveLogo from "url:/assets/ecosystem/ardrive.svg";
 import aftrLogo from "url:/assets/ecosystem/aftrmarket.png";
 import AppIcon from "~components/popup/home/AppIcon";
+import Article, { LoadingArticle } from "~components/popup/Article";
 import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
-import dayjs from "dayjs";
 
 export default function Explore() {
   // ar price period
@@ -92,7 +92,7 @@ export default function Explore() {
       >
         <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />
       </PriceChart>
-      <Section>
+      <Wrapper>
         <Title noMargin>{browser.i18n.getMessage("news_and_updates")}</Title>
         <Spacer y={0.75} />
         <FeaturedArticles>
@@ -169,23 +169,21 @@ export default function Explore() {
             </AppIcon>
           </Shortcuts>
         </Card>
-        <Spacer y={1} />
-        {feed?.[4] && (
-          <OtherArticles>
-            {feed.slice(4).map((article, i) => (
-              <Article key={i} href={article.link}>
-                <Text noMargin>{article.title}</Text>
-                <SmallText>
-                  {dayjs(article.pubDate).format("MMM DD, YYYY")}
-                </SmallText>
-              </Article>
-            ))}
-          </OtherArticles>
-        )}
-      </Section>
+      </Wrapper>
+      <LoadingArticle />
+      {feed &&
+        feed
+          .slice(4)
+          .map((article, i) => (
+            <Article {...article} source="arweave.news" key={i} />
+          ))}
     </>
   );
 }
+
+const Wrapper = styled(Section)`
+  padding-bottom: 0.4rem;
+`;
 
 const FeaturedArticles = styled(Card)`
   position: relative;
@@ -255,47 +253,4 @@ const Shortcuts = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-`;
-
-const OtherArticles = styled(Card).attrs({
-  smallPadding: true
-})`
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-`;
-
-const Article = styled.a.attrs({
-  target: "_blank",
-  rel: "noopener noreferer"
-})`
-  position: relative;
-  display: block;
-  padding-left: calc(0.35rem + 3px);
-  margin-bottom: 0.25rem;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.23s ease-in-out;
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 3px;
-    border-radius: 2px;
-    background-color: rgb(${(props) => props.theme.theme});
-  }
-`;
-
-const SmallText = styled(Text).attrs({
-  noMargin: true
-})`
-  font-size: 0.7rem;
-  color: rgba(${(props) => props.theme.primaryText}, 0.4);
 `;

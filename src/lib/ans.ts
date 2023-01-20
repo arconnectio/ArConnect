@@ -62,3 +62,20 @@ export interface AnsUser {
   subdomains: any; // TODO
   freeSubdomains: number;
 }
+
+/**
+ * Parse the cover image from the article HTML content
+ *
+ * @param content HTML content of the article
+ * @returns Cover image link
+ */
+export function parseCoverImageFromContent(content: string) {
+  // create simulated dom
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = content;
+
+  // find cover image element
+  const coverElement = wrapper.getElementsByTagName("img")[0];
+
+  return coverElement?.src;
+}
