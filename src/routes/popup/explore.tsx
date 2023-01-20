@@ -170,6 +170,7 @@ export default function Explore() {
           </Shortcuts>
         </Card>
       </Wrapper>
+      <LoadingArticle />
       {feed &&
         feed
           .slice(4)

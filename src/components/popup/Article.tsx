@@ -69,6 +69,7 @@ export const LoadingArticle = () => (
           <Skeleton width="30%" />
         </ReadMore>
       </div>
+      <CoverLoading />
     </Content>
   </Wrapper>
 );
@@ -144,6 +145,11 @@ const ArticleCoverImage = styled.div<{
   background-size: cover;
   aspect-ratio: 1;
   border-radius: 12px;
+`;
+
+const CoverLoading = styled(Skeleton)`
+  aspect-ratio: 1;
+  height: unset;
 `;
 
 interface Props extends ArweaveNewsArticle {
