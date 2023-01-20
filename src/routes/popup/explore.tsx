@@ -17,6 +17,7 @@ import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
+import { parseCoverImageFromContent } from "~lib/ans";
 
 export default function Explore() {
   // ar price period
@@ -140,7 +141,9 @@ export default function Explore() {
           <AnimatePresence>
             <FeaturedArticle
               key={featuredPage}
-              background="https://arweave.news/wp-content/uploads/2022/11/bdfgbndgbdgnsgnsns.png"
+              background={parseCoverImageFromContent(
+                feed?.[featuredPage]?.content || ""
+              )}
               onClick={() =>
                 browser.tabs.create({
                   url: feed?.[featuredPage]?.link
