@@ -3,10 +3,10 @@ import type { ArweaveNewsArticle } from "~lib/arweave_news";
 import { parseCoverImageFromContent } from "~lib/ans";
 import { hoverEffect } from "~utils/theme";
 import { useMemo } from "react";
+import Skeleton from "~components/Skeleton";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import dayjs from "dayjs";
-import Skeleton from "~components/Skeleton";
 
 export default function Article({
   source,

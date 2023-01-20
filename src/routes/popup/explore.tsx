@@ -93,6 +93,47 @@ export default function Explore() {
         <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />
       </PriceChart>
       <Wrapper>
+        <Shortcuts>
+          <AppIcon
+            color="#ffa4b5"
+            onClick={() =>
+              browser.tabs.create({ url: "https://app.ardrive.io" })
+            }
+          >
+            <img src={arDriveLogo} alt={"ArDrive"} draggable={false} />
+          </AppIcon>
+          <AppIcon
+            color="#1a1717"
+            onClick={() => browser.tabs.create({ url: "https://aftr.market" })}
+          >
+            <img src={aftrLogo} alt={"AFTR"} draggable={false} />
+          </AppIcon>
+          <AppIcon
+            color="#7bc0de"
+            onClick={() =>
+              browser.tabs.create({ url: "https://viewblock.io/arweave" })
+            }
+          >
+            <img src={viewblockLogo} alt={"Viewblock"} draggable={false} />
+          </AppIcon>
+          <AppIcon
+            color="#ffbdfd"
+            onClick={() =>
+              browser.tabs.create({ url: "https://metaweave.xyz" })
+            }
+          >
+            <img src={metaweaveLogo} alt={"Metaweave"} draggable={false} />
+          </AppIcon>
+          <AppIcon
+            color="#79d483"
+            onClick={() =>
+              browser.tabs.create({ url: "https://permaswap.network" })
+            }
+          >
+            <img src={permaswapLogo} alt={"Permaswap"} draggable={false} />
+          </AppIcon>
+        </Shortcuts>
+        <Spacer y={1} />
         <Title noMargin>{browser.i18n.getMessage("news_and_updates")}</Title>
         <Spacer y={0.75} />
         <FeaturedArticles>
@@ -121,56 +162,7 @@ export default function Explore() {
             ))}
           </Paginator>
         </FeaturedArticles>
-        <Spacer y={1} />
-        <Card smallPadding>
-          <ShortcutsLabel>
-            {browser.i18n.getMessage("shortcuts")}
-          </ShortcutsLabel>
-          <Shortcuts>
-            <AppIcon
-              color="#ffa4b5"
-              onClick={() =>
-                browser.tabs.create({ url: "https://app.ardrive.io" })
-              }
-            >
-              <img src={arDriveLogo} alt={"ArDrive"} draggable={false} />
-            </AppIcon>
-            <AppIcon
-              color="#000"
-              onClick={() =>
-                browser.tabs.create({ url: "https://aftr.market" })
-              }
-            >
-              <img src={aftrLogo} alt={"AFTR"} draggable={false} />
-            </AppIcon>
-            <AppIcon
-              color="#7bc0de"
-              onClick={() =>
-                browser.tabs.create({ url: "https://viewblock.io/arweave" })
-              }
-            >
-              <img src={viewblockLogo} alt={"Viewblock"} draggable={false} />
-            </AppIcon>
-            <AppIcon
-              color="#ffbdfd"
-              onClick={() =>
-                browser.tabs.create({ url: "https://metaweave.xyz" })
-              }
-            >
-              <img src={metaweaveLogo} alt={"Metaweave"} draggable={false} />
-            </AppIcon>
-            <AppIcon
-              color="#79d483"
-              onClick={() =>
-                browser.tabs.create({ url: "https://permaswap.network" })
-              }
-            >
-              <img src={permaswapLogo} alt={"Permaswap"} draggable={false} />
-            </AppIcon>
-          </Shortcuts>
-        </Card>
       </Wrapper>
-      <LoadingArticle />
       {feed &&
         feed
           .slice(4)
@@ -186,7 +178,7 @@ export default function Explore() {
 }
 
 const Wrapper = styled(Section)`
-  padding-bottom: 0.4rem;
+  padding-bottom: 0.6rem;
 `;
 
 const FeaturedArticles = styled(Card)`
@@ -257,4 +249,8 @@ const Shortcuts = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  ${AppIcon}:active {
+    transform: scale(0.95);
+  }
 `;
