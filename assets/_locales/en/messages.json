@@ -797,6 +797,10 @@
     "message": "Explore",
     "description": "Explore title"
   },
+  "explore_article_read_more": {
+    "message": "Read more",
+    "description": "Read more link text"
+  },
   "addToken": {
     "message": "Add token",
     "description": "Add token title"

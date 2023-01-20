@@ -35,7 +35,9 @@ export default function Article({
           <Spacer y={0.35} />
           <ArticleContent>{contentSnippet}</ArticleContent>
           <Spacer y={0.45} />
-          <ReadMore>Read more</ReadMore>
+          <ReadMore>
+            {browser.i18n.getMessage("explore_article_read_more")}
+          </ReadMore>
         </div>
         <ArticleCoverImage src={coverImage} />
       </Content>
