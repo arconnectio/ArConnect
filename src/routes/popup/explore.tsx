@@ -179,7 +179,6 @@ export default function Explore() {
 const FeaturedArticles = styled.div`
   position: relative;
   display: flex;
-  background-color: #000;
   overflow: hidden;
   height: 125px;
   transition: transform 0.07s ease-in-out;

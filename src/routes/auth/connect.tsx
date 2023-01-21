@@ -152,7 +152,10 @@ export default function Connect() {
                   <Label>{browser.i18n.getMessage("wallet")}</Label>
                   <Spacer y={0.4} />
                   <WalletSelectWrapper>
-                    <WalletSelect onClick={() => setSwitcherOpen(true)}>
+                    <WalletSelect
+                      onClick={() => setSwitcherOpen(true)}
+                      open={switcherOpen}
+                    >
                       <Address>
                         {formatAddress(activeAddress || "", 10)}
                       </Address>
@@ -253,26 +256,39 @@ const WalletSelectWrapper = styled.div`
   position: relative;
 `;
 
-const WalletSelect = styled(Card)`
+const SelectIcon = styled(ChevronDownIcon)`
+  font-size: 1.25rem;
+  width: 1em;
+  height: 1em;
+  color: rgb(${(props) => props.theme.theme});
+  transition: all 0.23s ease-in-out;
+`;
+
+const WalletSelect = styled(Card)<{ open: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  border-width: 2.5px;
-  border-radius: 22px;
+  background-color: transparent;
+  padding: 0.75rem 1.25rem;
+  border-radius: 18px;
+  transition: all 0.23s ease-in-out;
+
+  ${(props) =>
+    props.open
+      ? `border-color: rgba(${props.theme.theme}, .5); box-shadow: 0 0 0 1px rgba(${props.theme.theme}, .5);`
+      : ""}
+
+  ${SelectIcon} {
+    transform: ${(props) => (props.open ? "rotate(180deg)" : "rotate(0)")};
+  }
 `;
 
 const Address = styled(Text).attrs({
   noMargin: true
 })`
-  color: rgb(${(props) => props.theme.theme});
-`;
-
-const SelectIcon = styled(ChevronDownIcon)`
-  font-size: 1.25rem;
-  width: 1em;
-  height: 1em;
+  font-size: 1.2rem;
   color: rgb(${(props) => props.theme.theme});
 `;
 
@@ -289,6 +305,10 @@ const UnlockWrapper = styled(motion.div).attrs({
   }
 })`
   width: 100vw;
+
+  ${Label} {
+    font-weight: 500;
+  }
 `;
 
 const PermissionsContent = styled(motion.div).attrs({
