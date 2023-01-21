@@ -1095,6 +1095,10 @@
     "message": "Add recipient",
     "description": "Add recipient button"
   },
+  "transaction_send_scan_address": {
+    "message": "Scan address",
+    "description": "Scan address tooltip content"
+  },
   "transaction_send_success": {
     "message": "Sent transaction",
     "description": "Sent transaction successfuly message"

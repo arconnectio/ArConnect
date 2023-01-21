@@ -18,15 +18,18 @@ import {
   Section,
   Spacer,
   Text,
+  Tooltip,
   useInput,
   useToasts
 } from "@arconnect/components";
 import {
   ArrowLeftIcon,
   ArrowUpRightIcon,
+  CameraIcon,
   CheckIcon,
   ChevronDownIcon
 } from "@iconicicons/react";
+import AddressScanner from "~components/popup/AddressScanner";
 import Token, { ArToken } from "~components/popup/Token";
 import Collectible from "~components/popup/Collectible";
 import browser from "webextension-polyfill";
@@ -311,6 +314,9 @@ export default function Send({ id }: Props) {
     } catch {}
   }
 
+  // address scanner
+  const [showAddressScanner, setShowAddressScanner] = useState(false);
+
   return (
     <Wrapper>
       <div>
@@ -372,21 +378,28 @@ export default function Send({ id }: Props) {
             {browser.i18n.getMessage("network_fee")}
           </Prices>
           <Spacer y={0.9} />
-          <Target onClick={() => setEditingTarget((val) => !val)}>
-            {loadingTarget && <TargetLoading />}
-            {(target && (
-              <>
-                {target.avatar && <TargetAvatar src={target.avatar} />}
+          <TargetWrapper>
+            <Target onClick={() => setEditingTarget((val) => !val)}>
+              {loadingTarget && <TargetLoading />}
+              {(target && (
+                <>
+                  {target.avatar && <TargetAvatar src={target.avatar} />}
+                  <TargetName>
+                    {target.label || formatAddress(target.address, 6)}
+                  </TargetName>
+                </>
+              )) || (
                 <TargetName>
-                  {target.label || formatAddress(target.address, 6)}
+                  {browser.i18n.getMessage("transaction_send_add_target")}
                 </TargetName>
-              </>
-            )) || (
-              <TargetName>
-                {browser.i18n.getMessage("transaction_send_add_target")}
-              </TargetName>
-            )}
-          </Target>
+              )}
+            </Target>
+            <Tooltip
+              content={browser.i18n.getMessage("transaction_send_scan_address")}
+            >
+              <ScanIcon onClick={() => setShowAddressScanner(true)} />
+            </Tooltip>
+          </TargetWrapper>
           <AnimatePresence>
             {editingTarget && (
               <motion.div
@@ -514,6 +527,19 @@ export default function Send({ id }: Props) {
           </TokenSelector>
         )}
       </AnimatePresence>
+      <AddressScanner
+        onScan={(data) => {
+          if (!data) return;
+          if (!isAddress(data) && !data.includes(".ar")) {
+            return;
+          }
+
+          targetInput.setState(data);
+          setShowAddressScanner(false);
+        }}
+        active={showAddressScanner}
+        close={() => setShowAddressScanner(false)}
+      />
     </Wrapper>
   );
 }
@@ -609,6 +635,30 @@ const Prices = styled(Text).attrs({
   }
 `;
 
+const TargetWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+`;
+
+const ScanIcon = styled(CameraIcon)`
+  font-size: 1.2rem;
+  width: 1em;
+  height: 1em;
+  color: rgb(${(props) => props.theme.secondaryText});
+  cursor: pointer;
+  transition: all 0.23s ease-in-out;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+`;
+
 const Target = styled.div`
   display: flex;
   align-items: center;
@@ -617,7 +667,6 @@ const Target = styled.div`
   font-weight: 500;
   padding: 0.05rem 0.5rem;
   border-radius: 18px;
-  margin: 0 auto;
   background-color: rgb(${(props) => props.theme.theme});
   color: #fff;
   width: max-content;
