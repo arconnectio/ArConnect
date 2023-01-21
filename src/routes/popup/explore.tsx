@@ -17,6 +17,7 @@ import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
+import Skeleton from "~components/Skeleton";
 
 export default function Explore() {
   // ar price period
@@ -137,19 +138,27 @@ export default function Explore() {
       <Spacer y={0.1} />
       <FeaturedArticles>
         <AnimatePresence>
-          <FeaturedArticle
-            key={featuredPage}
-            background={parseCoverImageFromContent(
-              feed?.[featuredPage]?.content || ""
-            )}
-            onClick={() =>
-              browser.tabs.create({
-                url: feed?.[featuredPage]?.link
-              })
-            }
-          >
-            <ArticleTitle>{feed?.[featuredPage]?.title || ""}</ArticleTitle>
-          </FeaturedArticle>
+          {(feed && (
+            <FeaturedArticle
+              key={featuredPage}
+              background={parseCoverImageFromContent(
+                feed?.[featuredPage]?.content || ""
+              )}
+              onClick={() =>
+                browser.tabs.create({
+                  url: feed?.[featuredPage]?.link
+                })
+              }
+            >
+              <ArticleTitle>{feed?.[featuredPage]?.title || ""}</ArticleTitle>
+            </FeaturedArticle>
+          )) || (
+            <FeaturedSkeleton>
+              <ArticleTitle>
+                <Skeleton width="15rem" height="1.2rem" />
+              </ArticleTitle>
+            </FeaturedSkeleton>
+          )}
         </AnimatePresence>
       </FeaturedArticles>
       <Spacer y={0.6} />
@@ -221,6 +230,20 @@ const ArticleTitle = styled(Text).attrs({
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+`;
+
+const FeaturedSkeleton = styled(Skeleton)`
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  width: auto;
+  height: auto;
+
+  ${ArticleTitle} {
+    padding: 0;
+  }
 `;
 
 const Shortcuts = styled.div`
