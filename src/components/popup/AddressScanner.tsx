@@ -102,7 +102,7 @@ const LoadingScanner = styled(Loading)`
 
 const Scanner = styled(QrReader).attrs({
   showViewFinder: false,
-  onError: (e) => console.log(e)
+  onError: () => {}
 })`
   position: absolute;
   top: 0;
