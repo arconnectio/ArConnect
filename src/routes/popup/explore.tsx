@@ -1,10 +1,12 @@
-import { Card, Section, Spacer, Text } from "@arconnect/components";
+import Article, {
+  ArticleInterface,
+  LoadingArticle
+} from "~components/popup/Article";
+import { Section, Spacer, Text } from "@arconnect/components";
 import { getMarketChart, getArPrice } from "~lib/coingecko";
 import { AnimatePresence, motion } from "framer-motion";
 import { parseCoverImageFromContent } from "~lib/ans";
 import { useEffect, useState } from "react";
-import getArweaveNewsFeed, { ArweaveNewsArticle } from "~lib/arweave_news";
-import Article, { LoadingArticle } from "~components/popup/Article";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import viewblockLogo from "url:/assets/ecosystem/viewblock.png";
 import metaweaveLogo from "url:/assets/ecosystem/metaweave.png";
@@ -13,11 +15,12 @@ import PriceChart from "~components/popup/asset/PriceChart";
 import arDriveLogo from "url:/assets/ecosystem/ardrive.svg";
 import aftrLogo from "url:/assets/ecosystem/aftrmarket.png";
 import AppIcon from "~components/popup/home/AppIcon";
+import getArweaveNewsFeed from "~lib/arweave_news";
+import Skeleton from "~components/Skeleton";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
-import Skeleton from "~components/Skeleton";
 
 export default function Explore() {
   // ar price period
@@ -72,12 +75,31 @@ export default function Explore() {
   }, [featuredPage]);
 
   // parse arweave.news RSS
-  const [feed, setFeed] = useState<ArweaveNewsArticle[]>();
+  const [feed, setFeed] = useState<ArticleInterface[]>();
 
   useEffect(() => {
-    getArweaveNewsFeed()
-      .then((res) => setFeed(res.items as any))
-      .catch();
+    (async () => {
+      // get feed
+      const arweaveNews = await getArweaveNewsFeed();
+
+      // TODO: add other sources
+
+      // construct feed
+      const unsortedFeed: ArticleInterface[] = arweaveNews.map((article) => ({
+        source: "arweave.news",
+        title: article.title,
+        date: article.pubDate,
+        link: article.link,
+        content: article.contentSnippet,
+        cover: parseCoverImageFromContent(article.content)
+      }));
+
+      setFeed(
+        unsortedFeed.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        )
+      );
+    })();
   }, []);
 
   return (
@@ -141,16 +163,14 @@ export default function Explore() {
           {(feed && (
             <FeaturedArticle
               key={featuredPage}
-              background={parseCoverImageFromContent(
-                feed?.[featuredPage]?.content || ""
-              )}
+              background={feed[featuredPage]?.cover}
               onClick={() =>
                 browser.tabs.create({
-                  url: feed?.[featuredPage]?.link
+                  url: feed[featuredPage]?.link
                 })
               }
             >
-              <ArticleTitle>{feed?.[featuredPage]?.title || ""}</ArticleTitle>
+              <ArticleTitle>{feed[featuredPage]?.title || ""}</ArticleTitle>
             </FeaturedArticle>
           )) || (
             <FeaturedSkeleton>
@@ -163,11 +183,7 @@ export default function Explore() {
       </FeaturedArticles>
       <Spacer y={0.6} />
       {feed &&
-        feed
-          .slice(4)
-          .map((article, i) => (
-            <Article {...article} source="arweave.news" key={i} />
-          ))}
+        feed.slice(4).map((article, i) => <Article {...article} key={i} />)}
       {!feed &&
         Array(6)
           .fill("")

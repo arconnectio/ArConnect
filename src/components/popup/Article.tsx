@@ -1,8 +1,5 @@
 import { Section, Spacer, Text } from "@arconnect/components";
-import type { ArweaveNewsArticle } from "~lib/arweave_news";
-import { parseCoverImageFromContent } from "~lib/ans";
 import { hoverEffect } from "~utils/theme";
-import { useMemo } from "react";
 import Skeleton from "~components/Skeleton";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -11,35 +8,30 @@ import dayjs from "dayjs";
 export default function Article({
   source,
   title,
-  pubDate,
+  date,
   link,
-  contentSnippet,
-  content
-}: Props) {
-  const coverImage = useMemo(
-    () => parseCoverImageFromContent(content),
-    [content]
-  );
-
+  content,
+  cover
+}: ArticleInterface) {
   return (
     <Wrapper onClick={() => browser.tabs.create({ url: link })}>
       <Date>
         {source}
         {" • "}
-        {dayjs(pubDate).format("MMM DD, YYYY")}
+        {dayjs(date).format("MMM DD, YYYY")}
       </Date>
       <Spacer y={0.15} />
       <Content>
         <div>
           <ArticleTitle>{title}</ArticleTitle>
           <Spacer y={0.35} />
-          <ArticleContent>{contentSnippet}</ArticleContent>
+          <ArticleContent>{content}</ArticleContent>
           <Spacer y={0.45} />
           <ReadMore>
             {browser.i18n.getMessage("explore_article_read_more")}
           </ReadMore>
         </div>
-        <ArticleCoverImage src={coverImage} />
+        <ArticleCoverImage src={cover} />
       </Content>
     </Wrapper>
   );
@@ -154,6 +146,11 @@ const CoverLoading = styled(Skeleton)`
   height: unset;
 `;
 
-interface Props extends ArweaveNewsArticle {
-  source: "arweave.news";
+export interface ArticleInterface {
+  source: string;
+  title: string;
+  date: string;
+  link: string;
+  content: string;
+  cover?: string;
 }

@@ -3,11 +3,17 @@ import Parser from "rss-parser";
 /**
  * Fetch the RSS feed of arweave.news
  */
-export default async function getArweaveNewsFeed() {
-  const parser = new Parser<ArweaveNewsFeed[]>();
-  const feed = await parser.parseURL("https://arweave.news/feed");
+export default async function getArweaveNewsFeed(): Promise<
+  ArweaveNewsArticle[]
+> {
+  try {
+    const parser = new Parser<ArweaveNewsFeed>();
+    const feed = await parser.parseURL("https://arweave.news/feed");
 
-  return feed;
+    return feed.items;
+  } catch {
+    return [];
+  }
 }
 
 export interface ArweaveNewsFeed {
