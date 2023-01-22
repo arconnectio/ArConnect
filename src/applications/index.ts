@@ -14,7 +14,7 @@ const storage = new Storage(getStorageConfig());
 /**
  * Get all connected app keys
  */
-async function getStoredApps(): Promise<string[]> {
+export async function getStoredApps(): Promise<string[]> {
   return (await storage.get("apps")) || [];
 }
 

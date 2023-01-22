@@ -1,7 +1,7 @@
 import { Allowance, defaultAllowance } from "./allowance";
 import { useStorage } from "@plasmohq/storage/hook";
 import { Storage } from "@plasmohq/storage";
-import type { PermissionType } from "./permissions";
+import { getMissingPermissions, PermissionType } from "./permissions";
 import { defaultGateway, Gateway } from "./gateway";
 import { getStorageConfig } from "~utils/storage";
 
@@ -94,13 +94,7 @@ export default class Application {
     missing: PermissionType[];
   }> {
     const existingPermissions = await this.getPermissions();
-    const missing: PermissionType[] = [];
-
-    for (const permission of permissions) {
-      if (!existingPermissions.includes(permission)) {
-        missing.push(permission);
-      }
-    }
+    const missing = getMissingPermissions(existingPermissions, permissions);
 
     return {
       result: missing.length === 0,

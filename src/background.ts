@@ -1,5 +1,6 @@
 import { addressChangeListener, walletsChangeListener } from "~wallets/event";
 import { keyRemoveAlarmListener, onWindowClose } from "~wallets/auth";
+import { appConfigChangeListener } from "~applications/events";
 import { handleApiCalls, handleChunkCalls } from "~api";
 import { onMessage } from "@arconnect/webext-bridge";
 import { handleTabUpdate } from "~applications/tab";
@@ -52,6 +53,9 @@ storage.watch({
   apps: appsChangeListener,
   wallets: walletsChangeListener
 });
+
+// listen for app config updates
+browser.storage.onChanged.addListener(appConfigChangeListener);
 
 // open welcome page on extension install
 browser.runtime.onInstalled.addListener(onInstalled);

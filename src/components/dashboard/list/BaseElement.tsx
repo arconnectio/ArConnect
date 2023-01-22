@@ -58,6 +58,7 @@ const ContentWrapper = styled.div`
 
 const SettingIconWrapper = styled(Squircle)`
   position: relative;
+  flex-shrink: 0;
   width: 2.6rem;
   height: 2.6rem;
   color: rgb(${(props) => props.theme.theme});

@@ -107,6 +107,11 @@ export async function gql(
   return data;
 }
 
+/**
+ * Convert URL string to a Gateway config object
+ *
+ * @param url URL to convert
+ */
 export function urlToGateway(url: string): Gateway {
   const gatewayURL = new URL(url);
 
@@ -116,4 +121,28 @@ export function urlToGateway(url: string): Gateway {
     // @ts-expect-error
     protocol: gatewayURL.protocol?.replace(":", "") || "http"
   };
+}
+
+/**
+ * Compare two gateway objects
+ *
+ * @returns Same or not
+ */
+export function compareGateways(
+  first: Partial<Gateway>,
+  second: Partial<Gateway>
+) {
+  // compare the count of keys each object has
+  if (Object.keys(first).length !== Object.keys(second).length) {
+    return false;
+  }
+
+  // deep equal object keys
+  for (const key in first) {
+    if (first[key] !== second[key]) {
+      return false;
+    }
+  }
+
+  return true;
 }

@@ -1,4 +1,7 @@
-import type { PermissionType } from "~applications/permissions";
+import {
+  getMissingPermissions,
+  PermissionType
+} from "~applications/permissions";
 import Application from "~applications/application";
 
 /**
@@ -23,8 +26,9 @@ export default async function validatePermissions(
   // compare existing permissions
   if (existingPermissions) {
     // the permissions the dApp does not have yet
-    const requiredPermissions = permissions.filter(
-      (permission) => !existingPermissions.includes(permission)
+    const requiredPermissions = getMissingPermissions(
+      existingPermissions,
+      permissions
     );
 
     // check if all requested permissions are available for the app

@@ -26,3 +26,22 @@ export const permissionData: Record<PermissionType, string> = {
   ACCESS_ARWEAVE_CONFIG: "permissionDescriptionArweaveConfig",
   DISPATCH: "permissionDescriptionDispatch"
 };
+
+/**
+ * Get permissions that are missing from the
+ * allowed permissions list
+ *
+ * @param existing The permissions the app already has
+ * @param required The permissions the app is required to have
+ * @returns The missing permissions
+ */
+export function getMissingPermissions(
+  existing: PermissionType[],
+  required: PermissionType[]
+) {
+  const missing = required.filter(
+    (permission) => !existing.includes(permission)
+  );
+
+  return missing;
+}
