@@ -7,7 +7,19 @@ export const config: PlasmoContentScript = {
   all_frames: true
 };
 
+// event emitter events
+onMessage("event", ({ data, sender }) => {
+  if (sender.context !== "background") return;
+
+  // send to mitt instance
+  postMessage({
+    type: "arconnect_event",
+    event: data
+  });
+});
+
 // listen for wallet switches
+/** @deprecated */
 onMessage("switch_wallet_event", ({ data, sender }) => {
   if (sender.context !== "background") return;
 
@@ -15,18 +27,6 @@ onMessage("switch_wallet_event", ({ data, sender }) => {
   dispatchEvent(
     new CustomEvent("walletSwitch", {
       detail: { address: data }
-    })
-  );
-});
-
-// listen for disconnect
-onMessage("disconnect_app_event", ({ sender }) => {
-  if (sender.context !== "background") return;
-
-  // dispatch custom event
-  dispatchEvent(
-    new CustomEvent("disconnect", {
-      detail: {}
     })
   );
 });

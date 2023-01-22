@@ -1,4 +1,4 @@
-import browser, { Runtime } from "webextension-polyfill";
+import browser, { Runtime, Storage } from "webextension-polyfill";
 
 export const isManifestv3 = () =>
   browser.runtime.getManifest().manifest_version === 3;
@@ -14,4 +14,9 @@ export async function onInstalled(details: Runtime.OnInstalledDetailsType) {
   browser.tabs.create({
     url: browser.runtime.getURL("tabs/welcome.html")
   });
+}
+
+export interface StorageChange<T = unknown> extends Storage.StorageChange {
+  newValue?: T;
+  oldValue?: T;
 }

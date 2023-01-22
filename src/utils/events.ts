@@ -1,5 +1,8 @@
+import type { PermissionType } from "~applications/permissions";
+import type { Gateway } from "~applications/gateway";
 import { getStorageConfig } from "./storage";
 import { Storage } from "@plasmohq/storage";
+import type { EventType } from "mitt";
 
 interface SecurityEvent {
   type: string;
@@ -22,4 +25,14 @@ export async function pushEvent(event: SecurityEvent) {
   events.push(event);
 
   await storage.set("events", events);
+}
+
+/** Injected wallet events */
+export interface InjectedEvents extends Record<EventType, unknown> {
+  connect: null;
+  disconnect: null;
+  activeAddress: string;
+  addresses: string[];
+  permissions: PermissionType[];
+  gateway: Gateway;
 }

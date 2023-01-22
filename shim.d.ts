@@ -1,6 +1,7 @@
 import type { ProtocolWithReturn } from "@arconnect/webext-bridge";
 import type { DisplayTheme } from "@arconnect/components";
 import type { Chunk } from "~api/modules/sign/chunks";
+import type { InjectedEvents } from "~utils/events";
 import "styled-components";
 
 declare module "@arconnect/webext-bridge" {
@@ -10,6 +11,7 @@ declare module "@arconnect/webext-bridge" {
     switch_wallet_event: string | null;
     copy_address: string;
     chunk: ProtocolWithReturn<ApiCall<Chunk>, ApiResponse<number>>;
+    event: Event;
   }
 }
 
@@ -28,6 +30,11 @@ interface AuthResult {
   authID: string;
   error?: boolean;
   data?: any;
+}
+
+interface Event {
+  name: keyof InjectedEvents;
+  value: unknown;
 }
 
 declare module "styled-components" {

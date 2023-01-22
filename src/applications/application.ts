@@ -88,6 +88,8 @@ export default class Application {
   async hasPermissions(permissions: PermissionType[]): Promise<{
     /** App has permissions or not */
     result: boolean;
+    /** Existing permissions */
+    has: PermissionType[];
     /** Missing permissions */
     missing: PermissionType[];
   }> {
@@ -102,6 +104,7 @@ export default class Application {
 
     return {
       result: missing.length === 0,
+      has: existingPermissions,
       missing
     };
   }

@@ -1,12 +1,18 @@
-import type { ApiCall, ApiResponse } from "shim";
+import type { ApiCall, ApiResponse, Event } from "shim";
+import type { InjectedEvents } from "~utils/events";
 import { version } from "../package.json";
 import { nanoid } from "nanoid";
 import modules from "~api/foreground";
+import mitt from "mitt";
+
+/** Init events */
+const events = mitt<InjectedEvents>();
 
 /** Init wallet API */
 const WalletAPI: Record<string, any> = {
   walletName: "ArConnect",
-  walletVersion: version
+  walletVersion: version,
+  events
 };
 
 /** Inject each module */
@@ -82,5 +88,19 @@ window.arweaveWallet = WalletAPI;
 // at the end of the injected script,
 // we dispatch the wallet loaded event
 dispatchEvent(new CustomEvent("arweaveWalletLoaded", { detail: {} }));
+
+/** Handle events */
+window.addEventListener(
+  "message",
+  (
+    e: MessageEvent<{
+      type: "arconnect_event";
+      event: Event;
+    }>
+  ) => {
+    if (e.data.type !== "arconnect_event") return;
+    events.emit(e.data.event.name, e.data.event.value);
+  }
+);
 
 export {};

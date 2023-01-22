@@ -71,6 +71,7 @@
     "dayjs": "^1.11.6",
     "framer-motion": "^7.5.3",
     "human-crypto-keys": "^0.1.4",
+    "mitt": "^3.0.0",
     "nanoid": "^4.0.0",
     "pretty-bytes": "^6.0.0",
     "qrcode.react": "^3.1.0",

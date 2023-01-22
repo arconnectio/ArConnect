@@ -1,8 +1,10 @@
-import Application from "~applications/application";
-import browser, { Storage } from "webextension-polyfill";
-import { sendMessage } from "@arconnect/webext-bridge";
 import { getActiveAddress, setActiveWallet, StoredWallet } from "~wallets";
+import { sendMessage } from "@arconnect/webext-bridge";
+import type { StorageChange } from "~utils/runtime";
+import Application from "~applications/application";
+import { forEachTab } from "~applications/tab";
 import { getAppURL } from "~utils/format";
+import browser from "webextension-polyfill";
 
 /**
  * Active address change event listener.
@@ -11,18 +13,13 @@ import { getAppURL } from "~utils/format";
  */
 export async function addressChangeListener({
   newValue: newAddress
-}: Storage.StorageChange) {
+}: StorageChange<string>) {
   if (!newAddress) return;
-
-  // get all tabs
-  const tabs = await browser.tabs.query({});
 
   // go through all tabs and check if they
   // have the permissions to receive the
   // wallet switch event
-  for (const tab of tabs) {
-    if (!tab.id || !tab.url) continue;
-
+  await forEachTab(async (tab) => {
     const app = new Application(getAppURL(tab.url));
 
     // check required permissions
@@ -31,9 +28,14 @@ export async function addressChangeListener({
       "ACCESS_ADDRESS"
     ]);
 
-    if (!permissionCheck.result) {
-      continue;
-    }
+    // app not connected
+    if (permissionCheck.has.length === 0) return;
+
+    // trigger emiter
+    await sendMessage("event", {
+      name: "activeAddress",
+      value: permissionCheck.result ? newAddress : null
+    });
 
     // trigger event via message
     await sendMessage(
@@ -41,7 +43,7 @@ export async function addressChangeListener({
       permissionCheck ? newAddress : null,
       `content-script@${tab.id}`
     );
-  }
+  });
 }
 
 /**
@@ -52,9 +54,29 @@ export async function addressChangeListener({
 export async function walletsChangeListener({
   newValue,
   oldValue
-}: Storage.StorageChange) {
-  const wallets: StoredWallet[] = newValue;
-  const previousWallets: StoredWallet[] = oldValue || [];
+}: StorageChange<StoredWallet[]>) {
+  const wallets = newValue;
+  const previousWallets = oldValue || [];
+
+  // addresses
+  const addresses = wallets.map((w) => w.address);
+
+  // emit wallet change event
+  await forEachTab(async (tab) => {
+    const app = new Application(getAppURL(tab.url));
+
+    // check required permissions
+    const permissionCheck = await app.hasPermissions(["ACCESS_ALL_ADDRESSES"]);
+
+    // app not connected
+    if (permissionCheck.has.length === 0) return;
+
+    // trigger emiter
+    await sendMessage("event", {
+      name: "addresses",
+      value: permissionCheck.result ? addresses : null
+    });
+  });
 
   // add or remove ANS label change listener
   if (wallets.length > 0 && previousWallets.length === 0) {

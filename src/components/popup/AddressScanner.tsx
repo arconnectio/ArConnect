@@ -1,9 +1,9 @@
 import { AnimatePresence, motion, Variants } from "framer-motion";
+import styled, { css } from "styled-components";
+import { CloseIcon } from "@iconicicons/react";
 import { Loading, Text } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import QrReader from "react-qr-reader";
-import styled, { css } from "styled-components";
-import { CloseIcon } from "@iconicicons/react";
 
 export default function AddressScanner({ active, close, onScan }: Props) {
   return (

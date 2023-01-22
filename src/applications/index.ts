@@ -1,11 +1,12 @@
-import type { Storage as BrowserStorage } from "webextension-polyfill";
+import Application, { InitAppParams, PREFIX } from "./application";
 import { createContextMenus } from "~utils/context_menus";
+import { sendMessage } from "@arconnect/webext-bridge";
+import type { StorageChange } from "~utils/runtime";
 import { getStorageConfig } from "~utils/storage";
 import { Storage } from "@plasmohq/storage";
-import { sendMessage } from "@arconnect/webext-bridge";
 import { getAppURL } from "~utils/format";
 import { updateIcon } from "~utils/icon";
-import Application, { InitAppParams, PREFIX } from "./application";
+import { forEachTab } from "./tab";
 import browser from "webextension-polyfill";
 
 const storage = new Storage(getStorageConfig());
@@ -90,34 +91,52 @@ export const getActiveTab = async () =>
 export async function appsChangeListener({
   oldValue,
   newValue
-}: BrowserStorage.StorageChange) {
-  // get all tabs
-  const tabs = await browser.tabs.query({});
-
+}: StorageChange<string[]>) {
   // message to send the event
-  const triggerEvent = (tabID) =>
-    sendMessage("disconnect_app_event", {}, `content-script@${tabID}`);
+  const triggerEvent = (tabID: number, type: "connect" | "disconnect") =>
+    sendMessage(
+      "event",
+      {
+        name: type,
+        value: null
+      },
+      `content-script@${tabID}`
+    );
 
-  // go through all tabs and check if they
-  // have the permissions to receive the
-  // disconnect event
-  for (const tab of tabs) {
-    if (!newValue && !!oldValue) {
-      await triggerEvent(tab.id);
-      continue;
-    } else if (!newValue) {
-      break;
-    }
-
+  // trigger events
+  forEachTab(async (tab) => {
+    // get app url
     const appURL = getAppURL(tab.url);
 
-    // if the new value doesn't have the app
-    // url, but the old one had it, that means
-    // that the app was disconnected
-    if (!newValue.includes(appURL) && oldValue.includes(appURL)) {
-      await triggerEvent(tab.id);
+    // if the new value is undefined
+    // and the old value was defined
+    // we need to emit the disconnect
+    // event for all tabs that were
+    // connected
+    if (!newValue && !!oldValue) {
+      if (!oldValue.includes(appURL)) return;
+
+      return await triggerEvent(tab.id, "disconnect");
+    } else if (!newValue) {
+      // if the new value is undefined
+      // and the old value was also
+      // undefined, we just return
+      return;
     }
-  }
+
+    const oldAppsList = oldValue || [];
+
+    // if the new value includes the app url
+    // and the old value does not, than the
+    // app has just been connected
+    // if the reverse is true, than the app
+    // has just been disconnected
+    if (newValue.includes(appURL) && !oldAppsList.includes(appURL)) {
+      await triggerEvent(tab.id, "connect");
+    } else if (!newValue.includes(appURL) && oldAppsList.includes(appURL)) {
+      await triggerEvent(tab.id, "disconnect");
+    }
+  });
 
   // update icon and context menus
   const activeTab = await getActiveTab();
