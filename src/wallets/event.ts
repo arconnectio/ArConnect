@@ -12,9 +12,10 @@ import browser from "webextension-polyfill";
  * event in the tab.
  */
 export async function addressChangeListener({
+  oldValue,
   newValue: newAddress
 }: StorageChange<string>) {
-  if (!newAddress) return;
+  if (!newAddress || oldValue === newAddress) return;
 
   // go through all tabs and check if they
   // have the permissions to receive the
@@ -32,10 +33,14 @@ export async function addressChangeListener({
     if (permissionCheck.has.length === 0) return;
 
     // trigger emiter
-    await sendMessage("event", {
-      name: "activeAddress",
-      value: permissionCheck.result ? newAddress : null
-    });
+    await sendMessage(
+      "event",
+      {
+        name: "activeAddress",
+        value: permissionCheck.result ? newAddress : null
+      },
+      `content-script@${tab.id}`
+    );
 
     // trigger event via message
     await sendMessage(
@@ -72,10 +77,14 @@ export async function walletsChangeListener({
     if (permissionCheck.has.length === 0) return;
 
     // trigger emiter
-    await sendMessage("event", {
-      name: "addresses",
-      value: permissionCheck.result ? addresses : null
-    });
+    await sendMessage(
+      "event",
+      {
+        name: "addresses",
+        value: permissionCheck.result ? addresses : null
+      },
+      `content-script@${tab.id}`
+    );
   });
 
   // add or remove ANS label change listener
