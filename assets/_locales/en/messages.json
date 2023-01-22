@@ -1134,5 +1134,13 @@
   "allowance_edit": {
     "message": "Edit allowance",
     "description": "Edit allowance tooltip"
+  },
+  "balance_hide": {
+    "message": "Hide balance",
+    "description": "Hide balance tooltip"
+  },
+  "balance_show": {
+    "message": "Show balance",
+    "description": "Show balance tooltip"
   }
 }

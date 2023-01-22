@@ -4,6 +4,7 @@ import {
   Modal,
   Spacer,
   Text,
+  Tooltip,
   useInput,
   useModal,
   useToasts
@@ -165,23 +166,32 @@ export default function WalletSettings({ address }: Props) {
         <WalletName>
           {ansLabel || wallet.nickname}
           {wallet.type === "hardware" && (
-            <HardwareWalletIcon
-              src={wallet.api === "keystone" ? keystoneLogo : undefined}
-            />
+            <Tooltip
+              content={
+                wallet.api.slice(0, 1).toUpperCase() + wallet.api.slice(1)
+              }
+              position="bottom"
+            >
+              <HardwareWalletIcon
+                src={wallet.api === "keystone" ? keystoneLogo : undefined}
+              />
+            </Tooltip>
           )}
         </WalletName>
         <WalletAddress>
           {wallet.address}
-          <CopyButton
-            onClick={() => {
-              copy(wallet.address);
-              setToast({
-                type: "info",
-                content: browser.i18n.getMessage("copied_address"),
-                duration: 2200
-              });
-            }}
-          />
+          <Tooltip content={browser.i18n.getMessage("copy_address")}>
+            <CopyButton
+              onClick={() => {
+                copy(wallet.address);
+                setToast({
+                  type: "info",
+                  content: browser.i18n.getMessage("copied_address"),
+                  duration: 2200
+                });
+              }}
+            />
+          </Tooltip>
         </WalletAddress>
         <Title>{browser.i18n.getMessage("edit_wallet_name")}</Title>
         {!!ansLabel && (

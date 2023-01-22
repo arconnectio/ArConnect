@@ -4,7 +4,7 @@ import Graph, { GraphText } from "~components/popup/Graph";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { useHistory } from "~utils/hash_router";
-import { Spacer } from "@arconnect/components";
+import { Spacer, Tooltip } from "@arconnect/components";
 import { useBalance } from "~wallets/hooks";
 import { getArPrice } from "~lib/coingecko";
 import { getAppURL } from "~utils/format";
@@ -150,10 +150,16 @@ export default function Balance() {
                 maximumFractionDigits: 2
               })) ||
               "*".repeat(fiat.toFixed(2).length) + " " + currency.toUpperCase()}
-            <HideBalanceButton
-              onClick={() => setHideBalance((val) => !val)}
-              as={hideBalance ? EyeOffIcon : EyeIcon}
-            />
+            <Tooltip
+              content={browser.i18n.getMessage(
+                hideBalance ? "balance_show" : "balance_hide"
+              )}
+            >
+              <HideBalanceButton
+                onClick={() => setHideBalance((val) => !val)}
+                as={hideBalance ? EyeOffIcon : EyeIcon}
+              />
+            </Tooltip>
           </FiatBalanceText>
         </div>
         {activeAppData && (

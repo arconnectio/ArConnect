@@ -1,4 +1,4 @@
-import { Button, Section } from "@arconnect/components";
+import { Button, Section, Tooltip } from "@arconnect/components";
 import { CopyIcon, ShareIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { formatAddress } from "~utils/format";
@@ -22,7 +22,12 @@ export default function Receive() {
         <Head title={browser.i18n.getMessage("receive")} />
         <AddressField>
           {formatAddress(activeAddress ?? "", 6)}
-          <CopyButton onClick={() => copy(activeAddress)} />
+          <Tooltip
+            content={browser.i18n.getMessage("copy_address")}
+            position="bottom"
+          >
+            <CopyButton onClick={() => copy(activeAddress)} />
+          </Tooltip>
         </AddressField>
       </div>
       <Section>
