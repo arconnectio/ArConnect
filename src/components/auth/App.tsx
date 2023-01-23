@@ -57,7 +57,7 @@ export default function App({
                 <AppUrl>
                   {browser.i18n.getMessage("gateway")}
                   {": "}
-                  {concatGatewayURL(gateway)}
+                  {gateway.host}
                 </AppUrl>
               )) ||
                 (allowance && (

@@ -22,6 +22,7 @@ import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
+import { useTheme } from "~utils/theme";
 
 export default function Balance() {
   // grab address
@@ -107,6 +108,9 @@ export default function Balance() {
   // router push
   const [push] = useHistory();
 
+  // display theme
+  const theme = useTheme();
+
   return (
     <Graph
       actionBar={
@@ -164,7 +168,7 @@ export default function Balance() {
         </div>
         {activeAppData && (
           <ActiveAppIcon
-            outline="#000"
+            outline={theme === "light" ? "#000" : "#232323"}
             onClick={() =>
               browser.tabs.create({
                 url: browser.runtime.getURL(
