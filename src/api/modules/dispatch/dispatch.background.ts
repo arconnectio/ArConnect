@@ -1,4 +1,6 @@
+import { constructTransaction } from "../sign/transaction_builder";
 import { arconfettiIcon, signNotification } from "../sign/utils";
+import { cleanUpChunks, getChunks } from "../sign/chunks";
 import type { ModuleFunction } from "~api/background";
 import { createData, signers } from "arbundles";
 import { uploadDataToBundlr } from "./uploader";
@@ -6,6 +8,7 @@ import type { DispatchResult } from "./index";
 import { signedTxTags } from "../sign/tags";
 import { getActiveKeyfile } from "~wallets";
 import { getAppURL } from "~utils/format";
+import type Transaction from "arweave/web/lib/transaction";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
@@ -17,15 +20,13 @@ type ReturnType = {
 
 const background: ModuleFunction<ReturnType> = async (
   tab,
-  tx: Record<any, any>
+  tx: Transaction,
+  chunkCollectionID: string
 ) => {
   // create client
   const appURL = getAppURL(tab.url);
   const app = new Application(appURL);
   const arweave = new Arweave(await app.getGatewayConfig());
-
-  // build tx
-  const transaction = arweave.transactions.fromRaw(tx);
 
   // grab the user's keyfile
   const decryptedWallet = await getActiveKeyfile().catch(() => {
@@ -42,6 +43,18 @@ const background: ModuleFunction<ReturnType> = async (
   }
 
   const keyfile = decryptedWallet.keyfile;
+
+  // get chunks for transaction
+  const chunks = getChunks(chunkCollectionID, getAppURL(tab.url));
+
+  // reconstruct the transaction from the chunks
+  let transaction = arweave.transactions.fromRaw({
+    ...constructTransaction(tx, chunks || []),
+    owner: keyfile.n
+  });
+
+  // clean up chunks
+  cleanUpChunks(chunkCollectionID);
 
   // grab tx data and tags
   const data = transaction.get("data", { decode: true, string: false });
