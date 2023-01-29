@@ -52,8 +52,12 @@ export async function decodeAccount(res: UR) {
 export async function transactionToUR(
   transaction: Transaction,
   xfp: string,
+  publicKey: string,
   options: SignatureOptions = { saltLength: 32 }
 ) {
+  // set transaction public key
+  transaction.owner = publicKey;
+
   // create buffer object from transaction
   const txBuff = Buffer.from(JSON.stringify(transaction.toJSON()), "utf-8");
 

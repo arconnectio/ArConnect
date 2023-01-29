@@ -1643,13 +1643,6 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-5.3.0.tgz#0ec9264cf54a527671d990eb874e030b55b70dcc"
   integrity sha512-CX6t4SYQ37lzxicAqsBtxA3OseeoVrh9cSJ5PFYam0GksYlupRfy1A+Q4aYD3zvcfECLc0zO2u+ZnR2UYKvCrw==
 
-"@solana/wallet-adapter-base@^0.9.2":
-  version "0.9.16"
-  resolved "https://registry.yarnpkg.com/@solana/wallet-adapter-base/-/wallet-adapter-base-0.9.16.tgz#7b67e145f47a9cdc8e702eacc02fa867084a9bf4"
-  integrity sha512-nwzpzo3SjjsCkgN5ROQqoL7Y90j4QUlqxL17sg/qMcoYIBVfalyu87IZAfL5B06eSQ8jmtgnuQJW+91WcLo1ag==
-  dependencies:
-    eventemitter3 "^4.0.0"
-
 "@swc/helpers@^0.4.2":
   version "0.4.11"
   resolved "https://registry.yarnpkg.com/@swc/helpers/-/helpers-0.4.11.tgz#db23a376761b3d31c26502122f349a21b592c8de"
@@ -2001,26 +1994,23 @@ ar-gql@^0.0.6:
   dependencies:
     axios "^0.21.1"
 
-arbundles@^0.6.21:
-  version "0.6.21"
-  resolved "https://registry.yarnpkg.com/arbundles/-/arbundles-0.6.21.tgz#bb58df31386b8eabf9b5851d79190e9a82b16842"
-  integrity sha512-QB5Slc84ZF/fBYEMQ376cvKchad3eHoJOPUsAlrFQXe6fmTAFqLLyKSeqLlcAgzRyecZYdBHCARN0212qgbFYA==
+arbundles@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/arbundles/-/arbundles-0.8.0.tgz#1aee36fb09ea77ec32a3c6b9a43bf40e205779f8"
+  integrity sha512-bwlptLa9poz+Coe5hy756i093BgG+2HpNITBpFsyCfkOT2AxW9C4lP6yK+kHpmURs+j7IElK6XdaDnVujq2Pow==
   dependencies:
     "@noble/ed25519" "^1.6.1"
-    "@randlabs/myalgo-connect" "^1.1.2"
-    "@solana/wallet-adapter-base" "^0.9.2"
-    algosdk "^1.13.1"
     arweave "^1.11.4"
-    arweave-stream-tx "^1.1.0"
-    avsc "https://github.com/Bundlr-Network/avsc#csp-fixes"
-    axios "^0.21.3"
     base64url "^3.0.1"
     bs58 "^4.0.1"
     ethers "^5.5.1"
     keccak "^3.0.2"
-    multistream "^4.1.0"
-    process "^0.11.10"
     secp256k1 "^4.0.2"
+  optionalDependencies:
+    "@randlabs/myalgo-connect" "^1.1.2"
+    algosdk "^1.13.1"
+    arweave-stream-tx "^1.1.0"
+    multistream "^4.1.0"
     tmp-promise "^3.0.2"
 
 archiver-utils@^2.1.0:
@@ -2139,11 +2129,7 @@ available-typed-arrays@^1.0.5:
   resolved "https://registry.yarnpkg.com/available-typed-arrays/-/available-typed-arrays-1.0.5.tgz#92f95616501069d07d10edb2fc37d3e1c65123b7"
   integrity sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw==
 
-"avsc@https://github.com/Bundlr-Network/avsc#csp-fixes":
-  version "5.4.7"
-  resolved "https://github.com/Bundlr-Network/avsc#a730cc8018b79e114b6a3381bbb57760a24c6cef"
-
-axios@^0.21.1, axios@^0.21.3:
+axios@^0.21.1:
   version "0.21.4"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
   integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==
@@ -3350,11 +3336,6 @@ ethers@^5.5.1:
     "@ethersproject/wallet" "5.7.0"
     "@ethersproject/web" "5.7.0"
     "@ethersproject/wordlists" "5.7.0"
-
-eventemitter3@^4.0.0:
-  version "4.0.7"
-  resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-4.0.7.tgz#2de9b68f6528d5644ef5c59526a1b4a07306169f"
-  integrity sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==
 
 events@3.3.0:
   version "3.3.0"
@@ -5219,7 +5200,7 @@ process-nextick-args@~2.0.0:
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-2.0.1.tgz#7820d9b16120cc55ca9ae7792680ae7dba6d7fe2"
   integrity sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==
 
-process@0.11.10, process@^0.11.10:
+process@0.11.10:
   version "0.11.10"
   resolved "https://registry.yarnpkg.com/process/-/process-0.11.10.tgz#7332300e840161bda3e69a1d1d91a7d4bc16f182"
   integrity sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==

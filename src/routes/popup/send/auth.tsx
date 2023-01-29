@@ -175,7 +175,9 @@ export default function SendAuth() {
 
       // get tx UR
       try {
-        setTransactionUR(await transactionToUR(transaction, wallet.xfp));
+        setTransactionUR(
+          await transactionToUR(transaction, wallet.xfp, wallet.publicKey)
+        );
       } catch {
         setToast({
           type: "error",
