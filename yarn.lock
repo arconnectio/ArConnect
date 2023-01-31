@@ -611,21 +611,13 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@keystonehq/arweave-keyring@0.0.1-alpha.5":
-  version "0.0.1-alpha.5"
-  resolved "https://registry.yarnpkg.com/@keystonehq/arweave-keyring/-/arweave-keyring-0.0.1-alpha.5.tgz#4d9c2d7501fac8f7853a542c8d3f7499197dcb5b"
-  integrity sha512-GztOC2qXiiSLWDLYruqlViFv9AjzXbBBDAjZq1ZajXo/QO1brceF1MYE12nxa5xKegmGBdFWHQhE4aCLSh8bCw==
+"@keystonehq/arweave-keyring@^0.1.1-alpha.0":
+  version "0.1.1-alpha.0"
+  resolved "https://registry.yarnpkg.com/@keystonehq/arweave-keyring/-/arweave-keyring-0.1.1-alpha.0.tgz#87d74b9f337c7096e109d37707c342020a931d23"
+  integrity sha512-7S8DONzMRaIY0hlJBOrmdr8NPwMLmZOcILWToW8jlrvtcBlZMjww8DKzRiLnGhmLQ7/FvIUSxpYdK6Af33uvJg==
   dependencies:
-    "@keystonehq/bc-ur-registry-arweave" "^0.0.1-alpha.0"
+    "@keystonehq/bc-ur-registry-arweave" "^0.1.1-alpha.0"
     "@keystonehq/sdk" "^0.14.1-alpha.2"
-    uuid "^8.3.2"
-
-"@keystonehq/bc-ur-registry-arweave@^0.0.1-alpha.0":
-  version "0.0.1-alpha.0"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry-arweave/-/bc-ur-registry-arweave-0.0.1-alpha.0.tgz#9f15572068f94a5fee0acc8ecc915b82b182f971"
-  integrity sha512-eWu4rS1Pn525lUhfec6ogCZT2J3OFY1TAv7fAiZvrg8hQiEXDOqcQSetyLzrtJgxk6cawU5fBoWDIvNme7t4kQ==
-  dependencies:
-    "@keystonehq/bc-ur-registry" "^0.5.3"
     uuid "^8.3.2"
 
 "@keystonehq/bc-ur-registry-arweave@^0.1.1-alpha.0":
@@ -640,15 +632,6 @@
   version "0.5.4"
   resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry/-/bc-ur-registry-0.5.4.tgz#5802486a29f5d772520d15579d40fba02860e27f"
   integrity sha512-z7bZe10I5k0zz9znmDTXh+o3Rzb5XsRVpwAzexubOaLxVdZ0F7aMbe2LoEsw766Hpox/7zARi7UGmLz5C8BAzA==
-  dependencies:
-    "@ngraveio/bc-ur" "^1.1.5"
-    bs58check "^2.1.2"
-    tslib "^2.3.0"
-
-"@keystonehq/bc-ur-registry@^0.5.3":
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry/-/bc-ur-registry-0.5.3.tgz#c3861f18ccc402f006d417da2db5a8bb6a0bb5c5"
-  integrity sha512-HMFdfTeJB9C2gxvNf4FLmddRbBaLxouokj3QFg0/bMRwDU1w2usAo8VnXURrWsRV256RJLalbX52V6CerjW17w==
   dependencies:
     "@ngraveio/bc-ur" "^1.1.5"
     bs58check "^2.1.2"
