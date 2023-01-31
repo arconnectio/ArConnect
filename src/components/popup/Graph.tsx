@@ -42,7 +42,7 @@ const Wrapper = styled.div<{ displayTheme: DisplayTheme }>`
     ${(props) =>
       props.displayTheme === "light" ? "0, 0, 0" : props.theme.cardBackground}
   );
-  border-radius: 40px;
+  border-radius: 27.5px;
   overflow: hidden;
   z-index: 1;
 `;
