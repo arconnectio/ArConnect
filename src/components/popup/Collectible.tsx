@@ -101,9 +101,9 @@ const NameAndQty = styled.div`
 `;
 
 const Name = styled.span`
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #fff;
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
