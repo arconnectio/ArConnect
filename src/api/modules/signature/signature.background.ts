@@ -38,12 +38,11 @@ const background: ModuleFunction<number[]> = async (
     ["sign"]
   );
 
+  // uint8array data to sign
+  const dataToSign = new Uint8Array(data);
+
   // grab signature
-  const signature = await crypto.subtle.sign(
-    algorithm,
-    cryptoKey,
-    new Uint8Array(data)
-  );
+  const signature = await crypto.subtle.sign(algorithm, cryptoKey, dataToSign);
 
   return Array.from(new Uint8Array(signature));
 };
