@@ -12,6 +12,7 @@ declare module "@arconnect/webext-bridge" {
     copy_address: string;
     chunk: ProtocolWithReturn<ApiCall<Chunk>, ApiResponse<number>>;
     event: Event;
+    auth_listening: null;
   }
 }
 
@@ -25,11 +26,11 @@ interface ApiResponse<DataType = any> extends ApiCall<DataType> {
   error?: boolean;
 }
 
-interface AuthResult {
+interface AuthResult<DataType = any> {
   type: string;
   authID: string;
   error?: boolean;
-  data?: any;
+  data?: DataType;
 }
 
 interface Event {

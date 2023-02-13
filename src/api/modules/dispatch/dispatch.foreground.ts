@@ -10,15 +10,13 @@ import type Transaction from "arweave/web/lib/transaction";
 const foreground: ModuleFunction<Record<any, any>> = async (
   transaction: Transaction
 ) => {
-  // id for the chunk collection that is going to be sent
-  const chunkCollectionID = nanoid();
-
   // create chunks
   const {
     transaction: tx, // transaction without data and tags
     dataChunks,
-    tagChunks
-  } = deconstructTransaction(transaction, chunkCollectionID);
+    tagChunks,
+    chunkCollectionID
+  } = deconstructTransaction(transaction);
 
   // we call the api and request it to start receiving
   // the chunks

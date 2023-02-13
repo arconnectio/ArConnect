@@ -3,7 +3,6 @@ import type { TransformFinalizer } from "~api/foreground";
 import { createCoinWithAnimation } from "./animation";
 import type { ModuleFunction } from "~api/module";
 import { sendChunk } from "./chunks";
-import { nanoid } from "nanoid";
 import {
   deconstructTransaction,
   SplitTransaction
@@ -18,10 +17,6 @@ const foreground: ModuleFunction<ReturnParams> = async (
   transaction: Transaction,
   options: SignatureOptions
 ) => {
-  // generate a unique ID for this transaction's chunks
-  // since the transaction does not have an ID yet
-  const chunkCollectionID = nanoid();
-
   /**
    * Part one, create chunks from the tags
    * and the data of the transaction
@@ -29,8 +24,9 @@ const foreground: ModuleFunction<ReturnParams> = async (
   const {
     transaction: tx, // transaction without data and tags
     dataChunks,
-    tagChunks
-  } = deconstructTransaction(transaction, chunkCollectionID);
+    tagChunks,
+    chunkCollectionID
+  } = deconstructTransaction(transaction);
 
   /**
    * Part two, send the chunks to the background script

@@ -1,6 +1,7 @@
 import type { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { arconfettiIcon, calculateReward, signNotification } from "./utils";
 import { allowanceAuth, getAllowance, updateAllowance } from "./allowance";
+import type { JWKInterface } from "arbundles/src/interface-jwk";
 import type { ModuleFunction } from "~api/background";
 import { cleanUpChunks, getChunks } from "./chunks";
 import type { BackgroundResult } from "./index";
@@ -34,14 +35,6 @@ const background: ModuleFunction<BackgroundResult> = async (
     throw new Error("No wallets added");
   });
 
-  if (activeWallet.type === "hardware") {
-    throw new Error(
-      "Active wallet type: hardware. This does not support transaction signing currently."
-    );
-  }
-
-  const keyfile = activeWallet.keyfile;
-
   // app instance
   const app = new Application(tabURL);
 
@@ -51,10 +44,14 @@ const background: ModuleFunction<BackgroundResult> = async (
   // get chunks for transaction
   const chunks = getChunks(chunkCollectionID, getAppURL(tab.url));
 
+  // get keyfile for active wallet
+  // @ts-expect-error
+  const keyfile: JWKInterface | undefined = activeWallet.keyfile;
+
   // reconstruct the transaction from the chunks
   let transaction = arweave.transactions.fromRaw({
     ...constructTransaction(tx, chunks || []),
-    owner: keyfile.n
+    owner: keyfile?.n
   });
 
   // clean up chunks
@@ -84,30 +81,37 @@ const background: ModuleFunction<BackgroundResult> = async (
   // check if there is an allowance limit
   // if there isn't, we need to ask the user
   // to manually confirm the transaction
-  if (allowance.enabled) {
+  if (allowance.enabled && activeWallet.type === "local") {
     // authenticate user if the allowance
     // limit is reached
     await allowanceAuth(allowance, tabURL, price);
   } else {
     // get address of keyfile
-    const addr = await arweave.wallets.jwkToAddress(keyfile);
+    const addr =
+      activeWallet.type === "local"
+        ? await arweave.wallets.jwkToAddress(keyfile)
+        : activeWallet.address;
 
     try {
       // auth before signing
-      await signAuth(tabURL, transaction, addr);
+      const res = await signAuth(tabURL, transaction, addr);
+
+      if (res.data) {
+        transaction.signature = res.data;
+      }
     } catch {
       throw new Error("User failed to sign the transaction manually");
     }
   }
 
-  // sign the transaction
-  await arweave.transactions.sign(transaction, keyfile, options);
+  // sign the transaction if local wallet
+  if (activeWallet.type === "local") {
+    await arweave.transactions.sign(transaction, keyfile, options);
 
-  // schedule fee transaction for later execution
-  // this is needed for a faster transaction signing
-  browser.alarms.create(`scheduled-fee.${transaction.id}.${tabURL}`, {
-    when: Date.now() + 2000
-  });
+    browser.alarms.create(`scheduled-fee.${transaction.id}.${tabURL}`, {
+      when: Date.now() + 2000
+    });
+  }
 
   // notify the user of the signing
   await signNotification(price, transaction.id, tabURL);
