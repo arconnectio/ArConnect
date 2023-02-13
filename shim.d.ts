@@ -13,6 +13,7 @@ declare module "@arconnect/webext-bridge" {
     chunk: ProtocolWithReturn<ApiCall<Chunk>, ApiResponse<number>>;
     event: Event;
     auth_listening: null;
+    auth_chunk: Chunk;
   }
 }
 

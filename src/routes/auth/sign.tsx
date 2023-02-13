@@ -155,6 +155,7 @@ export default function Sign() {
               {browser.i18n.getMessage("transaction_tags")}
             </PropertyName>
             <Spacer y={0.05} />
+            {/** TODO: load this from the chunks instead */}
             {params.transaction.tags.map((tag, i) => (
               <TransactionProperty key={i}>
                 <PropertyName>{tag.name}</PropertyName>
