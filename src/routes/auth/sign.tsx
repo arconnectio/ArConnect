@@ -1,4 +1,5 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
+import { onMessage, sendMessage } from "@arconnect/webext-bridge";
 import { defaultGateway } from "~applications/gateway";
 import { useEffect, useMemo, useState } from "react";
 import { formatAddress } from "~utils/format";
@@ -19,6 +20,7 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
+import type Transaction from "arweave/web/lib/transaction";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
@@ -31,16 +33,30 @@ export default function Sign() {
   const params = useAuthParams<{
     url: string;
     address: string;
-    transaction: {
-      quantity: string;
-      reward: string;
-      tags: {
-        name: string;
-        value: string;
-      }[];
-      size: string;
-    };
+    transaction: StrippedTx;
+    collectionID: string;
   }>();
+
+  // reconstructed transaction
+  const [transaction, setTransaction] = useState<Transaction>();
+
+  useEffect(() => {
+    (async () => {
+      if (!params?.transaction) return;
+
+      // reset tx
+      setTransaction(undefined);
+
+      // request chunks
+      sendMessage("auth_listening", null);
+
+      // listen for chunks
+      onMessage("auth_chunk", ({ sender, data }) => {
+        if (data.collectionID !== params.collectionID) return;
+        // TODO: handle chunks
+      });
+    })();
+  }, [params]);
 
   // get auth utils
   const { closeWindow, cancel } = useAuthUtils("sign", params?.authID);
@@ -155,13 +171,13 @@ export default function Sign() {
               {browser.i18n.getMessage("transaction_tags")}
             </PropertyName>
             <Spacer y={0.05} />
-            {/** TODO: load this from the chunks instead */}
-            {params.transaction.tags.map((tag, i) => (
-              <TransactionProperty key={i}>
-                <PropertyName>{tag.name}</PropertyName>
-                <TagValue>{tag.value}</TagValue>
-              </TransactionProperty>
-            ))}
+            {transaction &&
+              transaction.tags.map((tag, i) => (
+                <TransactionProperty key={i}>
+                  <PropertyName>{tag.name}</PropertyName>
+                  <TagValue>{tag.value}</TagValue>
+                </TransactionProperty>
+              ))}
           </Properties>
         </Section>
       </div>
@@ -176,4 +192,9 @@ export default function Sign() {
       </Section>
     </Wrapper>
   );
+}
+
+interface StrippedTx extends Transaction {
+  data: undefined;
+  tags: undefined;
 }

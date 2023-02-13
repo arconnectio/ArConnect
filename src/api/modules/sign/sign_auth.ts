@@ -32,7 +32,8 @@ export const signAuth = (
       type: "sign",
       url: tabURL,
       address,
-      transaction: tx
+      transaction: tx,
+      collectionID: chunkCollectionID
     })
       .then((res) => resolve(res))
       .catch((err) => reject(err));
