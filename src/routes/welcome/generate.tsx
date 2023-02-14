@@ -179,7 +179,7 @@ export default function Generate() {
             {page === 4 && seed && (
               <ConfirmSeedPage seed={seed} setSorted={setSorted} />
             )}
-            {page === 54 && <GeneratedPage address={address} />}
+            {page === 5 && <GeneratedPage address={address} />}
             {page !== 1 && page !== 2 && (
               <>
                 <Spacer y={1.25} />
