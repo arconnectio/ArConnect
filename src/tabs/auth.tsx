@@ -25,7 +25,7 @@ export default function Auth() {
     <Provider theme={theme}>
       <HardwareWalletTheme>
         <GlobalStyle />
-        <Wrapper>
+        <Wrapper responsive>
           <Router hook={useHashLocation}>
             <Route path="/connect" component={Connect} />
             <Route path="/allowance" component={Allowance} />

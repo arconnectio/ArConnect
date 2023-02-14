@@ -24,15 +24,16 @@ const Route: typeof BaseRoute = ({ path, component, children }) => {
   );
 };
 
-export const Wrapper = styled(motion.div)`
+export const Wrapper = styled(motion.div)<{ responsive?: boolean }>`
   position: relative;
-  width: 100%;
+  width: ${(props) => (props.responsive ? "100%" : "377.5px")};
   min-height: 600px;
 `;
 
 const PageWrapper = styled(Wrapper)`
   position: absolute;
   top: 0;
+  width: 100%;
   background-color: rgb(${(props) => props.theme.background});
   transition: background-color 0.23s ease-in-out;
 `;
