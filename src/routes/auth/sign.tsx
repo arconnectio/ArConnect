@@ -141,9 +141,9 @@ export default function Sign() {
   }, [params]);
 
   // authorize
-  async function authorize() {
+  async function authorize(data?: any) {
     // reply to request
-    await replyToAuthRequest("sign", params.authID);
+    await replyToAuthRequest("sign", params.authID, undefined, data);
 
     // close the window
     closeWindow();
@@ -202,17 +202,26 @@ export default function Sign() {
       }
 
       // decode signature
-      const { id, signature } = await decodeSignature(res);
+      const data = await decodeSignature(res);
 
-      // set signature
-      transaction.setSignature({
-        id,
-        signature,
-        owner: wallet.publicKey
-      });
+      // reply
+      await authorize(data);
+    } catch (e) {
+      // log error
+      console.error(
+        `[ArConnect] Error decoding signature from keystone\n${e?.message || e}`
+      );
 
-      console.log(transaction);
-    } catch {}
+      // reply to request
+      await replyToAuthRequest(
+        "sign",
+        params.authID,
+        "Failed to decode signature from keystone"
+      );
+
+      // close the window
+      closeWindow();
+    }
 
     setLoading(false);
   });

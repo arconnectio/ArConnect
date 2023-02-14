@@ -29,17 +29,19 @@ export function useAuthParams<T = {}>() {
  * @param type Type of the auth
  * @param authID ID of the auth
  * @param errorMessage Optional error message. If defined, the auth will fail with this message
+ * @param data Auth data
  */
 export async function replyToAuthRequest(
   type: AuthType,
   authID: string,
-  errorMessage?: string
+  errorMessage?: string,
+  data?: any
 ) {
   const response: AuthResult = {
     type,
     authID,
     error: !!errorMessage,
-    data: errorMessage
+    data: data || errorMessage
   };
 
   // send the response message
