@@ -96,8 +96,11 @@ const background: ModuleFunction<BackgroundResult> = async (
       // auth before signing
       const res = await signAuth(tabURL, transaction, addr);
 
-      if (res.data) {
-        transaction.signature = res.data;
+      if (res.data && activeWallet.type === "hardware") {
+        transaction.setSignature({
+          ...res.data,
+          owner: activeWallet.publicKey
+        });
       }
     } catch {
       throw new Error("User failed to sign the transaction manually");

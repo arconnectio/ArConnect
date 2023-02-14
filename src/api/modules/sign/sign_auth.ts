@@ -18,55 +18,57 @@ export const signAuth = (
   transaction: Transaction,
   address: string
 ) =>
-  new Promise<AuthResult<string | undefined>>((resolve, reject) => {
-    // generate chunks
-    const {
-      transaction: tx,
-      dataChunks,
-      tagChunks,
-      chunkCollectionID
-    } = deconstructTransaction(transaction);
+  new Promise<AuthResult<{ id: string; signature: string } | undefined>>(
+    (resolve, reject) => {
+      // generate chunks
+      const {
+        transaction: tx,
+        dataChunks,
+        tagChunks,
+        chunkCollectionID
+      } = deconstructTransaction(transaction);
 
-    // start auth
-    authenticate({
-      type: "sign",
-      url: tabURL,
-      address,
-      transaction: tx,
-      collectionID: chunkCollectionID
-    })
-      .then((res) => resolve(res))
-      .catch((err) => reject(err));
+      // start auth
+      authenticate({
+        type: "sign",
+        url: tabURL,
+        address,
+        transaction: tx,
+        collectionID: chunkCollectionID
+      })
+        .then((res) => resolve(res))
+        .catch((err) => reject(err));
 
-    // send tx in chunks to sign if requested
-    onMessage("auth_listening", async ({ sender }) => {
-      if (sender.context !== "web_accessible") return;
+      // send tx in chunks to sign if requested
+      onMessage("auth_listening", async ({ sender }) => {
+        if (sender.context !== "web_accessible") return;
 
-      // send data chunks
-      for (const chunk of dataChunks.concat(tagChunks)) {
-        try {
-          await sendMessage(
-            "auth_chunk",
-            chunk,
-            `web_accessible@${sender.tabId}`
-          );
-        } catch (e) {
-          // chunk fail
-          return reject(
-            `Error while sending a data chunk of collection "${chunkCollectionID}": \n${e}`
-          );
+        // send data chunks
+        for (const chunk of dataChunks.concat(tagChunks)) {
+          try {
+            await sendMessage(
+              "auth_chunk",
+              chunk,
+              `web_accessible@${sender.tabId}`
+            );
+          } catch (e) {
+            // chunk fail
+            return reject(
+              `Error while sending a data chunk of collection "${chunkCollectionID}": \n${e}`
+            );
+          }
         }
-      }
 
-      // end chunk
-      await sendMessage(
-        "auth_chunk",
-        {
-          collectionID: chunkCollectionID,
-          type: "end",
-          index: dataChunks.concat(tagChunks).length
-        },
-        `web_accessible@${sender.tabId}`
-      );
-    });
-  });
+        // end chunk
+        await sendMessage(
+          "auth_chunk",
+          {
+            collectionID: chunkCollectionID,
+            type: "end",
+            index: dataChunks.concat(tagChunks).length
+          },
+          `web_accessible@${sender.tabId}`
+        );
+      });
+    }
+  );
