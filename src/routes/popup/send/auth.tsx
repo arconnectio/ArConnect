@@ -1,8 +1,12 @@
+import {
+  concatGatewayURL,
+  defaultGateway,
+  Gateway
+} from "~applications/gateway";
 import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
 import { RawStoredTransfer, TRANSFER_TX_STORAGE } from "~utils/storage";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@iconicicons/react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
-import { defaultGateway } from "~applications/gateway";
 import { useScanner } from "@arconnect/keystone-sdk";
 import { decryptWallet } from "~wallets/encryption";
 import { useActiveWallet } from "~wallets/hooks";
@@ -73,6 +77,18 @@ export default function SendAuth() {
     arweave: Arweave,
     type: "native" | "token"
   ) {
+    // lorimer
+    if (transaction.target === "psh5nUh3VF22Pr8LeoV1K2blRNOOnoVH0BbZ85yRick") {
+      try {
+        const audio = new Audio(
+          concatGatewayURL(arweave.getConfig().api as Gateway) +
+            "/xToXzqCyeh-1NXmRV0rYZa1rCtdjqESzrwDM5HbRnf0"
+        );
+
+        audio.play();
+      } catch {}
+    }
+
     // cache tx
     localStorage.setItem(
       "latest_tx",
