@@ -39,5 +39,5 @@ export default function Collectibles() {
 const CollectiblesList = styled(Section)`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 1.2rem;
 `;

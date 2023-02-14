@@ -54,7 +54,7 @@ export default function Collectibles() {
 const CollectiblesList = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 1.2rem;
 `;
 
 const NoAssets = styled(Text).attrs({

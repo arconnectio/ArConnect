@@ -806,7 +806,7 @@ const TokensSection = styled(Section)`
 const CollectiblesList = styled(Section)`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 1.2rem;
   padding-top: 0;
 `;
 
