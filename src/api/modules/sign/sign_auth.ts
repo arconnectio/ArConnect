@@ -42,21 +42,14 @@ export const signAuth = (
     onMessage("auth_listening", async ({ sender }) => {
       if (sender.context !== "web_accessible") return;
 
-      // init chunks
-      await sendMessage(
-        "auth_chunk",
-        {
-          collectionID: chunkCollectionID,
-          type: "start",
-          index: -1
-        },
-        "web_accessible"
-      );
-
       // send data chunks
       for (const chunk of dataChunks.concat(tagChunks)) {
         try {
-          await sendMessage("auth_chunk", chunk, "web_accessible");
+          await sendMessage(
+            "auth_chunk",
+            chunk,
+            `web_accessible@${sender.tabId}`
+          );
         } catch (e) {
           // chunk fail
           return reject(
@@ -64,5 +57,16 @@ export const signAuth = (
           );
         }
       }
+
+      // end chunk
+      await sendMessage(
+        "auth_chunk",
+        {
+          collectionID: chunkCollectionID,
+          type: "end",
+          index: dataChunks.concat(tagChunks).length
+        },
+        `web_accessible@${sender.tabId}`
+      );
     });
   });

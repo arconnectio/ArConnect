@@ -1,6 +1,7 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { onMessage, sendMessage } from "@arconnect/webext-bridge";
 import { defaultGateway } from "~applications/gateway";
+import type { Chunk } from "~api/modules/sign/chunks";
 import { useEffect, useMemo, useState } from "react";
 import { formatAddress } from "~utils/format";
 import { getArPrice } from "~lib/coingecko";
@@ -27,6 +28,8 @@ import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import prettyBytes from "pretty-bytes";
 import Arweave from "arweave";
+import { constructTransaction } from "~api/modules/sign/transaction_builder";
+import type { Tag } from "arweave/web/lib/transaction";
 
 export default function Sign() {
   // sign params
@@ -48,12 +51,33 @@ export default function Sign() {
       setTransaction(undefined);
 
       // request chunks
-      sendMessage("auth_listening", null);
+      sendMessage("auth_listening", null, "background");
+
+      const chunks: Chunk[] = [];
+      const arweave = new Arweave(defaultGateway);
 
       // listen for chunks
       onMessage("auth_chunk", ({ sender, data }) => {
-        if (data.collectionID !== params.collectionID) return;
-        // TODO: handle chunks
+        // check data type
+        if (
+          data.collectionID !== params.collectionID ||
+          sender.context !== "background" ||
+          data.type === "start"
+        ) {
+          return;
+        }
+
+        // end chunk stream
+        if (data.type === "end") {
+          setTransaction(
+            arweave.transactions.fromRaw(
+              constructTransaction(params.transaction, chunks)
+            )
+          );
+        } else {
+          // add chunk
+          chunks.push(data);
+        }
       });
     })();
   }, [params]);
@@ -117,6 +141,24 @@ export default function Sign() {
     closeWindow();
   }
 
+  // tags
+  const tags = useMemo<
+    {
+      name: string;
+      value: string;
+    }[]
+  >(() => {
+    if (!transaction) return [];
+
+    // @ts-expect-error
+    const tags = transaction.get("tags") as Tag[];
+
+    return tags.map((tag) => ({
+      name: tag.get("name", { decode: true, string: true }),
+      value: tag.get("value", { decode: true, string: true })
+    }));
+  }, [transaction]);
+
   if (!params) return <></>;
 
   return (
@@ -171,13 +213,12 @@ export default function Sign() {
               {browser.i18n.getMessage("transaction_tags")}
             </PropertyName>
             <Spacer y={0.05} />
-            {transaction &&
-              transaction.tags.map((tag, i) => (
-                <TransactionProperty key={i}>
-                  <PropertyName>{tag.name}</PropertyName>
-                  <TagValue>{tag.value}</TagValue>
-                </TransactionProperty>
-              ))}
+            {tags.map((tag, i) => (
+              <TransactionProperty key={i}>
+                <PropertyName>{tag.name}</PropertyName>
+                <TagValue>{tag.value}</TagValue>
+              </TransactionProperty>
+            ))}
           </Properties>
         </Section>
       </div>
