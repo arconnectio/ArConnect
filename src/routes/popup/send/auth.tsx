@@ -29,6 +29,7 @@ import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
 import Arweave from "arweave";
+import type { Tag } from "arweave/web/lib/transaction";
 
 export default function SendAuth() {
   // loading
@@ -72,6 +73,25 @@ export default function SendAuth() {
     arweave: Arweave,
     type: "native" | "token"
   ) {
+    // cache tx
+    localStorage.setItem(
+      "latest_tx",
+      JSON.stringify({
+        quantity: { ar: arweave.ar.winstonToAr(transaction.quantity) },
+        owner: {
+          address: await arweave.wallets.ownerToAddress(transaction.owner)
+        },
+        recipient: transaction.target,
+        fee: { ar: transaction.reward },
+        data: { size: transaction.data_size },
+        // @ts-expect-error
+        tags: (transaction.get("tags") as Tag[]).map((tag) => ({
+          name: tag.get("name", { string: true, decode: true }),
+          value: tag.get("value", { string: true, decode: true })
+        }))
+      })
+    );
+
     if (type === "native") {
       await arweave.transactions.post(transaction);
     } else {

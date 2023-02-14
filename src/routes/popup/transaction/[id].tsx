@@ -23,7 +23,10 @@ import styled from "styled-components";
 import Arweave from "arweave";
 import dayjs from "dayjs";
 
-export default function Transaction({ id, gw }: Props) {
+export default function Transaction({ id: rawId, gw }: Props) {
+  // fixup id
+  const id = useMemo(() => rawId.split("?")[0], [rawId]);
+
   if (!id) return <></>;
 
   // fetch tx data
@@ -47,6 +50,11 @@ export default function Transaction({ id, gw }: Props) {
     let timeoutID: number | undefined;
 
     const fetchTx = async () => {
+      const cachedTx = JSON.parse(localStorage.getItem("latest_tx") || "{}");
+
+      // load cached tx
+      if (cachedTx?.id === id) setTransaction(cachedTx);
+
       const { data } = await gql(
         `
           query($id: ID!) {
@@ -179,7 +187,8 @@ export default function Transaction({ id, gw }: Props) {
   const [backPath, setBackPath] = useState<string>();
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const search = window.location.href.split("?");
+    const params = new URLSearchParams(search[search.length - 1]);
     const back = params.get("back");
 
     if (!back) return;
