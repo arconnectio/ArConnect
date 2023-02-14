@@ -26,7 +26,7 @@ const Route: typeof BaseRoute = ({ path, component, children }) => {
 
 export const Wrapper = styled(motion.div)`
   position: relative;
-  width: 377.5px;
+  width: 100%;
   min-height: 600px;
 `;
 
