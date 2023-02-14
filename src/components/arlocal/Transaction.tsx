@@ -2,6 +2,7 @@ import type { CreateTransactionInterface } from "arweave/web/common";
 import { getActiveKeyfile, useDecryptionKey } from "~wallets";
 import { InputWithBtn, InputWrapper } from "./InputWrapper";
 import { PlusIcon, TrashIcon } from "@iconicicons/react";
+import type { DecodedTag } from "~api/modules/sign/tags";
 import { IconButton } from "~components/IconButton";
 import { readFileBinary } from "~utils/file";
 import { useRef, useState } from "react";
@@ -33,7 +34,7 @@ export default function Transaction({ arweave }: Props) {
   // tx data
   const txTargetInput = useInput();
   const txQtyInput = useInput();
-  const [tags, setTags] = useState<{ name: string; value: string }[]>([]);
+  const [tags, setTags] = useState<DecodedTag[]>([]);
   const [sendingTx, setSendingTx] = useState(false);
   const fileInput = useRef<HTMLInputElement>();
 

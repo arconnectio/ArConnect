@@ -1,10 +1,15 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
+import { constructTransaction } from "~api/modules/sign/transaction_builder";
 import { onMessage, sendMessage } from "@arconnect/webext-bridge";
+import type { DecodedTag } from "~api/modules/sign/tags";
 import { defaultGateway } from "~applications/gateway";
+import type { Tag } from "arweave/web/lib/transaction";
 import type { Chunk } from "~api/modules/sign/chunks";
 import { useEffect, useMemo, useState } from "react";
+import { useActiveWallet } from "~wallets/hooks";
 import { formatAddress } from "~utils/format";
 import { getArPrice } from "~lib/coingecko";
+import type { UR } from "@ngraveio/bc-ur";
 import {
   AmountTitle,
   FiatAmount,
@@ -18,7 +23,7 @@ import {
   Button,
   Section,
   Spacer,
-  useInput,
+  Text,
   useToasts
 } from "@arconnect/components";
 import type Transaction from "arweave/web/lib/transaction";
@@ -28,8 +33,11 @@ import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import prettyBytes from "pretty-bytes";
 import Arweave from "arweave";
-import { constructTransaction } from "~api/modules/sign/transaction_builder";
-import type { Tag } from "arweave/web/lib/transaction";
+import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
+import Progress from "~components/Progress";
+import { useScanner } from "@arconnect/keystone-sdk";
+import AnimatedQRScanner from "~components/hardware/AnimatedQRScanner";
+import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
 
 export default function Sign() {
   // sign params
@@ -142,12 +150,7 @@ export default function Sign() {
   }
 
   // tags
-  const tags = useMemo<
-    {
-      name: string;
-      value: string;
-    }[]
-  >(() => {
+  const tags = useMemo<DecodedTag[]>(() => {
     if (!transaction) return [];
 
     // @ts-expect-error
@@ -158,6 +161,64 @@ export default function Sign() {
       value: tag.get("value", { decode: true, string: true })
     }));
   }, [transaction]);
+
+  /**
+   * Hardware wallet logic
+   */
+
+  // current wallet
+  const wallet = useActiveWallet();
+
+  // current page
+  const [page, setPage] = useState<"qr" | "scanner">();
+
+  // load tx UR
+  const [transactionUR, setTransactionUR] = useState<UR>();
+
+  async function loadTransactionUR() {
+    if (wallet.type !== "hardware" || !transaction) return;
+
+    // load the ur data
+    const ur = await transactionToUR(transaction, wallet.xfp, wallet.publicKey);
+
+    setTransactionUR(ur);
+  }
+
+  // loading
+  const [loading, setLoading] = useState(false);
+
+  // qr-tx scanner
+  const scanner = useScanner(async (res) => {
+    setLoading(true);
+
+    try {
+      // validation
+      if (!transaction) {
+        throw new Error("Transaction undefined");
+      }
+
+      if (wallet?.type !== "hardware") {
+        throw new Error("Wallet switched while signing");
+      }
+
+      // decode signature
+      const { id, signature } = await decodeSignature(res);
+
+      // set signature
+      transaction.setSignature({
+        id,
+        signature,
+        owner: wallet.publicKey
+      });
+
+      console.log(transaction);
+    } catch {}
+
+    setLoading(false);
+  });
+
+  // toast
+  const { setToast } = useToasts();
 
   if (!params) return <></>;
 
@@ -171,62 +232,111 @@ export default function Sign() {
           allowOpen={false}
         />
         <Spacer y={0.75} />
-        <Section>
-          <FiatAmount>
-            {fiatPrice.toLocaleString(undefined, {
-              style: "currency",
-              currency: currency.toLowerCase(),
-              currencyDisplay: "narrowSymbol",
-              maximumFractionDigits: 2
-            })}
-          </FiatAmount>
-          <AmountTitle>
-            {quantity.toLocaleString(undefined, {
-              maximumFractionDigits: 4
-            })}
-            <span>AR</span>
-          </AmountTitle>
-          <Properties>
-            <TransactionProperty>
-              <PropertyName>
-                {browser.i18n.getMessage("transaction_from")}
-              </PropertyName>
-              <PropertyValue>{formatAddress(params.address, 6)}</PropertyValue>
-            </TransactionProperty>
-            <TransactionProperty>
-              <PropertyName>
-                {browser.i18n.getMessage("transaction_fee")}
-              </PropertyName>
-              <PropertyValue>
-                {fee}
-                {" AR"}
-              </PropertyValue>
-            </TransactionProperty>
-            <TransactionProperty>
-              <PropertyName>
-                {browser.i18n.getMessage("transaction_size")}
-              </PropertyName>
-              <PropertyValue>{prettyBytes(size)}</PropertyValue>
-            </TransactionProperty>
-            <Spacer y={0.1} />
-            <PropertyName>
-              {browser.i18n.getMessage("transaction_tags")}
-            </PropertyName>
-            <Spacer y={0.05} />
-            {tags.map((tag, i) => (
-              <TransactionProperty key={i}>
-                <PropertyName>{tag.name}</PropertyName>
-                <TagValue>{tag.value}</TagValue>
+        {(!page && (
+          <Section>
+            <FiatAmount>
+              {fiatPrice.toLocaleString(undefined, {
+                style: "currency",
+                currency: currency.toLowerCase(),
+                currencyDisplay: "narrowSymbol",
+                maximumFractionDigits: 2
+              })}
+            </FiatAmount>
+            <AmountTitle>
+              {quantity.toLocaleString(undefined, {
+                maximumFractionDigits: 4
+              })}
+              <span>AR</span>
+            </AmountTitle>
+            <Properties>
+              <TransactionProperty>
+                <PropertyName>
+                  {browser.i18n.getMessage("transaction_from")}
+                </PropertyName>
+                <PropertyValue>
+                  {formatAddress(params.address, 6)}
+                </PropertyValue>
               </TransactionProperty>
-            ))}
-          </Properties>
-        </Section>
+              <TransactionProperty>
+                <PropertyName>
+                  {browser.i18n.getMessage("transaction_fee")}
+                </PropertyName>
+                <PropertyValue>
+                  {fee}
+                  {" AR"}
+                </PropertyValue>
+              </TransactionProperty>
+              <TransactionProperty>
+                <PropertyName>
+                  {browser.i18n.getMessage("transaction_size")}
+                </PropertyName>
+                <PropertyValue>{prettyBytes(size)}</PropertyValue>
+              </TransactionProperty>
+              <Spacer y={0.1} />
+              <PropertyName>
+                {browser.i18n.getMessage("transaction_tags")}
+              </PropertyName>
+              <Spacer y={0.05} />
+              {tags.map((tag, i) => (
+                <TransactionProperty key={i}>
+                  <PropertyName>{tag.name}</PropertyName>
+                  <TagValue>{tag.value}</TagValue>
+                </TransactionProperty>
+              ))}
+            </Properties>
+          </Section>
+        )) || (
+          <Section>
+            <Text noMargin>{browser.i18n.getMessage("sign_scan_qr")}</Text>
+            <Spacer y={1.5} />
+            {(page === "qr" && <AnimatedQRPlayer data={transactionUR} />) || (
+              <>
+                <AnimatedQRScanner
+                  {...scanner.bindings}
+                  onError={(error) =>
+                    setToast({
+                      type: "error",
+                      duration: 2300,
+                      content: browser.i18n.getMessage(`keystone_${error}`)
+                    })
+                  }
+                />
+                <Spacer y={1} />
+                <Text>
+                  {browser.i18n.getMessage(
+                    "keystone_scan_progress",
+                    `${scanner.progress.toFixed(0)}%`
+                  )}
+                </Text>
+                <Progress percentage={scanner.progress} />
+              </>
+            )}
+          </Section>
+        )}
       </div>
       <Section>
-        <Button fullWidth onClick={authorize}>
-          {browser.i18n.getMessage("sign_authorize")}
-        </Button>
-        <Spacer y={0.75} />
+        {page !== "scanner" && (
+          <>
+            <Button
+              fullWidth
+              disabled={!transaction || loading}
+              loading={!transaction || loading}
+              onClick={async () => {
+                if (!transaction) return;
+                if (wallet.type === "hardware") {
+                  // load tx ur
+                  if (!page) await loadTransactionUR();
+
+                  // update page
+                  setPage((val) => (!val ? "qr" : "scanner"));
+                } else await authorize();
+              }}
+            >
+              {browser.i18n.getMessage("sign_authorize")}
+            </Button>
+            <Spacer y={0.75} />
+          </>
+        )}
         <Button fullWidth secondary onClick={cancel}>
           {browser.i18n.getMessage("cancel")}
         </Button>
