@@ -24,7 +24,7 @@ export default function CustomGatewayWarning({ simple = false }: Props) {
   );
 }
 
-const Alert = styled.div`
+export const Alert = styled.div`
   display: flex;
   align-items: center;
   gap: 0.7rem;
@@ -36,7 +36,7 @@ const Alert = styled.div`
   border-radius: 19px;
 `;
 
-const Icon = styled(WarningTriangleIcon)`
+export const Icon = styled(WarningTriangleIcon)`
   width: 40px;
   height: 40px;
 `;

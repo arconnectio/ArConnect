@@ -1041,6 +1041,10 @@
     "message": "You've granted camera permissions. Please refresh the page!",
     "description": "Request to refresh the page after granting camera permissions"
   },
+  "keystone_features_warning": {
+    "message": "Keystone support is in beta. Some API features might not be supported.",
+    "description": "Warning about keystone support"
+  },
   "token_price_estimate_warning": {
     "message": "Price estimate by",
     "description": "Price estimate warning text. Full text is displayed with a link to Redstone.finance"

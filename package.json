@@ -53,7 +53,7 @@
     }
   },
   "dependencies": {
-    "@arconnect/components": "^0.1.26",
+    "@arconnect/components": "^0.1.27",
     "@arconnect/keystone-sdk": "^0.0.5",
     "@arconnect/webext-bridge": "^5.0.6",
     "@iconicicons/react": "^1.5.0",

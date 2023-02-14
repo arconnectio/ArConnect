@@ -1,6 +1,10 @@
 import { decodeAccount } from "~wallets/hardware/keystone";
 import { addHardwareWallet } from "~wallets/hardware";
 import { useScanner } from "@arconnect/keystone-sdk";
+import {
+  Alert,
+  Icon as WarningIcon
+} from "~components/auth/CustomGatewayWarning";
 import { useState } from "react";
 import {
   Button,
@@ -102,6 +106,11 @@ export default function KeystoneButton() {
         </Text>
         <Progress percentage={scanner.progress} />
         <Spacer y={1.75} />
+        <FeatureAlert>
+          <WarningIcon />
+          {browser.i18n.getMessage("keystone_features_warning")}
+        </FeatureAlert>
+        <Spacer y={1} />
         <CancelButton onClick={cancel}>
           {browser.i18n.getMessage("cancel")}
         </CancelButton>
@@ -135,6 +144,18 @@ const QRModal = styled(Modal)`
 
 const ModalText = styled(Text)`
   text-align: center;
+`;
+
+const FeatureAlert = styled(Alert)`
+  width: calc(400px + 24px - 2 * 1rem);
+
+  @media screen and (max-width: 1080px) {
+    width: calc(340px + 24px - 2 * 1rem);
+  }
+
+  @media screen and (max-width: 720px) {
+    width: calc(100vw - 40px - 20px - 4px + 24px - 2 * 1rem);
+  }
 `;
 
 const CancelButton = styled(Button).attrs({
