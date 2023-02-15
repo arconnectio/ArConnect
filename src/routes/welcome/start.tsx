@@ -75,7 +75,10 @@ export default function Start() {
           images={Array(27)
             .fill("")
             .map(
-              (_, i) => `https://www.arweave.org/images/hexagonbg/${i + 1}.jpg`
+              (_, i) =>
+                `https://arweave.net/znt7SIsoHyYA28BBiPXquYnk2jtxraLKeVTBEp1e3XA/${
+                  i + 1
+                }.jpg`
             )}
         />
       )}
