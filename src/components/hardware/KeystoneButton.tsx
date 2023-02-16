@@ -19,7 +19,7 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Progress from "../Progress";
 
-export default function KeystoneButton() {
+export default function KeystoneButton({ onSuccess }: Props) {
   // toasts
   const { setToast } = useToasts();
 
@@ -63,6 +63,8 @@ export default function KeystoneButton() {
         content: browser.i18n.getMessage("wallet_hardware_added", "Keystone"),
         duration: 2300
       });
+
+      if (onSuccess) await onSuccess();
     } catch {
       setToast({
         type: "error",
@@ -164,3 +166,7 @@ const CancelButton = styled(Button).attrs({
 })`
   width: 100% !important;
 `;
+
+interface Props {
+  onSuccess?: () => any | Promise<any>;
+}

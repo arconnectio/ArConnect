@@ -41,6 +41,9 @@ export default function Load() {
   // password input
   const passwordInput = useInput("");
 
+  // second password input
+  const validPasswordInput = useInput("");
+
   // seed input
   const seedInput = useInput("");
 
@@ -56,6 +59,14 @@ export default function Load() {
   // handle next btn click
   async function handleBtn() {
     if (page === 1) {
+      if (validPasswordInput.state !== passwordInput.state) {
+        return setToast({
+          type: "error",
+          content: browser.i18n.getMessage("passwords_not_match"),
+          duration: 2300
+        });
+      }
+
       if (checkPasswordValid(passwordInput.state)) {
         setPage((v) => v + 1);
       } else {
@@ -199,7 +210,12 @@ export default function Load() {
             animate="init"
             key={page}
           >
-            {page === 1 && <PasswordPage passwordInput={passwordInput} />}
+            {page === 1 && (
+              <PasswordPage
+                passwordInput={passwordInput}
+                validPasswordInput={validPasswordInput}
+              />
+            )}
             {page === 2 && (
               <>
                 <Seed seedInput={seedInput} fileInputRef={fileInputRef} />
@@ -215,7 +231,7 @@ export default function Load() {
         <Spacer y={1.25} />
         {page === 2 && (
           <>
-            <KeystoneButton />
+            <KeystoneButton onSuccess={handleBtn} />
             <Spacer y={1} />
           </>
         )}

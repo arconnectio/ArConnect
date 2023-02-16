@@ -451,6 +451,14 @@
     "message": "Enter your password...",
     "description": "Password input placeholder"
   },
+  "enter_password_again": {
+    "message": "Re-enter your passwor...",
+    "description": "Re-enter password input placeholder"
+  },
+  "passwords_not_match": {
+    "message": "Passwords don't match",
+    "description": "Invalid re-entered password error"
+  },
   "added_wallets": {
     "message": "Added wallets",
     "description": "Added wallets notification"

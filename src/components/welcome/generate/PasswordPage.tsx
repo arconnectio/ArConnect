@@ -3,7 +3,10 @@ import PasswordStrength from "../PasswordStrength";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 
-export default function PasswordPage({ passwordInput }: Props) {
+export default function PasswordPage({
+  passwordInput,
+  validPasswordInput
+}: Props) {
   return (
     <>
       <Text heading>{browser.i18n.getMessage("create_password")}</Text>
@@ -16,13 +19,21 @@ export default function PasswordPage({ passwordInput }: Props) {
         placeholder={browser.i18n.getMessage("enter_password")}
         fullWidth
       />
+      <Spacer y={1} />
+      <Input
+        type="password"
+        {...validPasswordInput.bindings}
+        placeholder={browser.i18n.getMessage("enter_password_again")}
+        fullWidth
+      />
       <Spacer y={1.55} />
       <PasswordStrength password={passwordInput.state} />
-      <Spacer y={2.5} />
+      <Spacer y={1} />
     </>
   );
 }
 
 interface Props {
   passwordInput: ReturnType<typeof useInput>;
+  validPasswordInput: ReturnType<typeof useInput>;
 }
