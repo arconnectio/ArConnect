@@ -1,7 +1,7 @@
 import { getStorageConfig } from "~utils/storage";
 import { decryptWallet } from "./encryption";
 import { Storage } from "@plasmohq/storage";
-import { getWallets } from "./index";
+import { getWallets, LocalWallet } from "./index";
 import browser, { Alarms } from "webextension-polyfill";
 
 const storage = new Storage(getStorageConfig());
@@ -43,14 +43,17 @@ export async function checkPassword(password: string) {
 
   // try decrypting
   const wallets = await getWallets();
+  const localWallets = wallets.filter(
+    (w) => w.type === "local"
+  ) as LocalWallet[];
 
   // if there are no wallets, this is a new password
-  if (wallets.length === 0) {
+  if (localWallets.length === 0) {
     return true;
   }
 
   try {
-    await decryptWallet(wallets[0].keyfile, password);
+    await decryptWallet(localWallets[0].keyfile, password);
 
     return true;
   } catch {

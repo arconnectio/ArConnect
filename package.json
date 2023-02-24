@@ -24,7 +24,6 @@
       "contextMenus",
       "tabs",
       "declarativeNetRequest",
-      "scripting",
       "notifications",
       "<all_urls>"
     ],

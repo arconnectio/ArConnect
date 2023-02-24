@@ -64,7 +64,7 @@ export default function KeystoneButton({ onSuccess }: Props) {
         duration: 2300
       });
 
-      if (onSuccess) await onSuccess();
+      if (onSuccess) await onSuccess(account);
     } catch {
       setToast({
         type: "error",
@@ -168,5 +168,9 @@ const CancelButton = styled(Button).attrs({
 `;
 
 interface Props {
-  onSuccess?: () => any | Promise<any>;
+  onSuccess?: (account: {
+    address: string;
+    owner: string;
+    xfp: string;
+  }) => any | Promise<any>;
 }

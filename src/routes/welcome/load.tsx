@@ -22,7 +22,7 @@ import {
   Page,
   Paginator
 } from "~components/welcome/Wrapper";
-import { addWallet } from "~wallets";
+import { addWallet, setActiveWallet } from "~wallets";
 import PasswordPage from "~components/welcome/generate/PasswordPage";
 import KeystoneButton from "~components/hardware/KeystoneButton";
 import Migrate from "~components/welcome/load/Migrate";
@@ -125,7 +125,7 @@ export default function Load() {
 
         setPage(3);
       } catch (e) {
-        console.log("Failed to load wallet from mnemonic", e);
+        console.log("Failed to load wallet", e);
         setToast({
           type: "error",
           content: browser.i18n.getMessage("error_adding_wallets"),
@@ -231,7 +231,11 @@ export default function Load() {
         <Spacer y={1.25} />
         {page === 2 && (
           <>
-            <KeystoneButton onSuccess={handleBtn} />
+            <KeystoneButton
+              onSuccess={async (account) =>
+                await setActiveWallet(account.address)
+              }
+            />
             <Spacer y={1} />
           </>
         )}

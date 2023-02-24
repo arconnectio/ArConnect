@@ -141,7 +141,7 @@ export async function setActiveWallet(address?: string) {
     return await storage.remove("active_address");
   }
 
-  if (!wallets.find((wallet) => wallet.address !== address)) {
+  if (!wallets.find((wallet) => wallet.address === address)) {
     return;
   }
 
