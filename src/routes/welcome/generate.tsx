@@ -100,17 +100,32 @@ export default function Generate() {
   // password input
   const passwordInput = useInput("");
 
+  // second password input
+  const validPasswordInput = useInput("");
+
   // next button click event
   async function handleBtn() {
-    if (page === 2 && !checkPasswordValid(passwordInput.state)) {
-      // we check the password strength on page 1
-      passwordInput.setStatus("error");
+    if (page === 2) {
+      if (validPasswordInput.state !== passwordInput.state) {
+        return setToast({
+          type: "error",
+          content: browser.i18n.getMessage("passwords_not_match"),
+          duration: 2300
+        });
+      }
 
-      return setToast({
-        type: "error",
-        content: browser.i18n.getMessage("password_not_strong"),
-        duration: 2300
-      });
+      // we check the password strength
+      if (!checkPasswordValid(passwordInput.state)) {
+        passwordInput.setStatus("error");
+
+        return setToast({
+          type: "error",
+          content: browser.i18n.getMessage("password_not_strong"),
+          duration: 2300
+        });
+      }
+
+      return setPage((v) => v + 1);
     } else if (!writtenDown.state && page !== 1 && page !== 2) {
       // we check if the written down seed checbox is checked
       // on every page, except page 1
@@ -174,7 +189,12 @@ export default function Generate() {
             key={page}
           >
             {page === 1 && <Theme />}
-            {page === 2 && <PasswordPage passwordInput={passwordInput} />}
+            {page === 2 && (
+              <PasswordPage
+                passwordInput={passwordInput}
+                validPasswordInput={validPasswordInput}
+              />
+            )}
             {page === 3 && seed && <BackupWalletPage seed={seed} />}
             {page === 4 && seed && (
               <ConfirmSeedPage seed={seed} setSorted={setSorted} />
