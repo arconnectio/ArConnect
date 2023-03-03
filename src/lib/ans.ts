@@ -7,16 +7,21 @@
 export async function getAnsProfile(
   address: string | string[]
 ): Promise<AnsUser[] | AnsUser> {
-  const { res } = await (
-    await fetch("https://ans-stats.decent.land/users")
-  ).json();
-
   if (typeof address === "string") {
-    const user = res.find(({ user }) => user === address);
-
-    return user;
+    return await (
+      await fetch(`https://ans-resolver.herokuapp.com/resolve/${address}/full`)
+    ).json();
   } else {
-    return res.filter(({ user }) => address?.includes(user));
+    return await Promise.all(
+      address.map(
+        async (addr) =>
+          await (
+            await fetch(
+              `https://ans-resolver.herokuapp.com/resolve/${addr}/full`
+            )
+          ).json()
+      )
+    );
   }
 }
 
@@ -39,28 +44,15 @@ export interface AnsUsers {
 }
 
 export interface AnsUser {
-  user: string;
-  currentLabel: string;
-  ownedLabels: {
-    label: string;
-    scarcity: string;
-    acquisationBlock: number;
-    mintedFor: 3;
+  address: string;
+  primary_domain: string;
+  ownedDomains: {
+    domain: string;
+    color: string;
+    subdomains: string[];
+    record: unknown;
+    created_at: number;
   }[];
-  nickname: string;
-  address_color: string;
-  bio: string;
-  url?: string;
-  avatar: string;
-  earnings?: number;
-  links: {
-    github: string;
-    twitter: string;
-    customUrl: string;
-    [platform: string]: string;
-  };
-  subdomains: any; // TODO
-  freeSubdomains: number;
 }
 
 /**
