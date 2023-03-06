@@ -10,7 +10,8 @@ export default function Arweave() {
         `https://arweave.net/znt7SIsoHyYA28BBiPXquYnk2jtxraLKeVTBEp1e3XA/${
           i + 1
         }.jpg`
-    );
+    )
+    .sort(() => 0.5 - Math.random());
 
   return (
     <Wrapper>
