@@ -1,20 +1,29 @@
 import { Button, Spacer, Text } from "@arconnect/components";
 import { ArrowRightIcon } from "@iconicicons/react";
-import { useMemo, useState } from "react";
+import { useLocation, useRoute } from "wouter";
 import { motion } from "framer-motion";
-import { useLocation } from "wouter";
-import HexagonBackground from "~components/welcome/start/HexagonBackground";
-import Screenshots from "~components/welcome/start/Screenshots";
-import Ecosystem from "~components/welcome/start/Ecosystem";
+import { useMemo } from "react";
+import Screenshots from "~components/welcome/Screenshots";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
+import Ecosystem from "./ecosystem";
+import Arweave from "./arweave";
 
 export default function Start() {
   // router
   const [, setLocation] = useLocation();
 
+  // route
+  const [, params] = useRoute<{ page: string }>("/start/:page");
+
   // page of the setup
-  const [page, setPage] = useState(1);
+  const page = useMemo(() => {
+    const page = Number(params?.page || "1");
+
+    if (![1, 2, 3].includes(page)) return 1;
+
+    return page;
+  }, [params]);
 
   // active page
   const activePage = useMemo(
@@ -50,10 +59,9 @@ export default function Start() {
         <Spacer y={1.25} />
         <Button
           fullWidth
-          onClick={() => {
-            if (page === 3) return setLocation("/generate");
-            setPage((val) => val + 1);
-          }}
+          onClick={() =>
+            setLocation(page === 3 ? "/generate" : `/start/${page + 1}`)
+          }
         >
           {browser.i18n.getMessage("next")}
           <ArrowRightIcon />
@@ -64,24 +72,13 @@ export default function Start() {
           .fill("")
           .map((_, i) => (
             <Page
-              onClick={() => setPage(i + 1)}
+              onClick={() => setLocation(`/start/${i + 1}`)}
               key={i}
               active={page === i + 1}
             />
           ))}
       </Pagination>
-      {page === 1 && (
-        <HexagonBackground
-          images={Array(27)
-            .fill("")
-            .map(
-              (_, i) =>
-                `https://arweave.net/znt7SIsoHyYA28BBiPXquYnk2jtxraLKeVTBEp1e3XA/${
-                  i + 1
-                }.jpg`
-            )}
-        />
-      )}
+      {page === 1 && <Arweave />}
       {page === 2 && <Ecosystem />}
       {page === 3 && <Screenshots />}
     </Wrapper>
@@ -165,13 +162,6 @@ const Skip = styled(Text)`
   right: 3rem;
   text-decoration: underline;
   cursor: pointer;
-`;
-
-const ArweaveContentWrapper = styled.div`
-  top: 0;
-  right: 0;
-  width: 55%;
-  height: 70%;
 `;
 
 interface PageInterface {

@@ -2,7 +2,16 @@ import { motion } from "framer-motion";
 import styled from "styled-components";
 
 // inspired by arweave.org
-export default function HexagonBackground({ images }: Props) {
+export default function Arweave() {
+  const images = Array(27)
+    .fill("")
+    .map(
+      (_, i) =>
+        `https://arweave.net/znt7SIsoHyYA28BBiPXquYnk2jtxraLKeVTBEp1e3XA/${
+          i + 1
+        }.jpg`
+    );
+
   return (
     <Wrapper>
       {images.map((src, i) => (
@@ -60,7 +69,3 @@ const Hexagon = styled(motion.div)<{ src: string }>`
     transform: translateX(calc(50% + 7px));
   }
 `;
-
-interface Props {
-  images: string[];
-}

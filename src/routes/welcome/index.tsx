@@ -4,7 +4,7 @@ import { ArrowRightIcon, KeyIcon } from "@iconicicons/react";
 import { AnimatePresence, motion } from "framer-motion";
 import styled, { keyframes } from "styled-components";
 import { useLocation } from "wouter";
-import Screenshots from "~components/welcome/start/Screenshots";
+import Screenshots from "~components/welcome/Screenshots";
 import browser from "webextension-polyfill";
 
 export default function Home() {
@@ -59,7 +59,7 @@ export default function Home() {
               ref={startButton}
               onClick={async () => {
                 await animate(startButton);
-                setLocation("/start");
+                setLocation("/start/1");
               }}
             >
               {browser.i18n.getMessage("get_me_started")}

@@ -16,7 +16,7 @@ export default function Welcome() {
       <GlobalStyle />
       <Router hook={useHashLocation}>
         <Route path="/" component={Home} />
-        <Route path="/start" component={Start} />
+        <Route path="/start/:page" component={Start} />
         <Route path="/generate" component={Generate} />
         <Route path="/load" component={Load} />
       </Router>
