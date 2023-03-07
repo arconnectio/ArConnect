@@ -1154,5 +1154,19 @@
   "balance_show": {
     "message": "Show balance",
     "description": "Show balance tooltip"
+  },
+  "home_no_balance": {
+    "message": "Add $AR$ to get started",
+    "description": "No balance message on homescreen",
+    "placeholders": {
+      "ar": {
+        "content": "$1",
+        "example": "$AR"
+      }
+    }
+  },
+  "home_add_balance": {
+    "message": "Add",
+    "description": "Add balance button text"
   }
 }
