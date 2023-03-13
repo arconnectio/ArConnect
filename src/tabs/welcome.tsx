@@ -5,8 +5,7 @@ import { Router, Route } from "wouter";
 
 import Home from "~routes/welcome";
 import Start from "~routes/welcome/start";
-import Generate from "~routes/welcome/generate";
-import Load from "~routes/welcome/load";
+import Setup from "~routes/welcome/setup";
 
 export default function Welcome() {
   const theme = useTheme();
@@ -17,8 +16,8 @@ export default function Welcome() {
       <Router hook={useHashLocation}>
         <Route path="/" component={Home} />
         <Route path="/start/:page" component={Start} />
-        <Route path="/generate" component={Generate} />
-        <Route path="/load" component={Load} />
+        <Route path="/generate" component={Setup} />
+        <Route path="/load" component={Setup} />
       </Router>
     </Provider>
   );
