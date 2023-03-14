@@ -1,10 +1,11 @@
+import { Button, Spacer, Text } from "@arconnect/components";
+import { useLocation, useRoute } from "wouter";
 import {
   ArrowRightIcon,
   DashboardIcon,
   MoonIcon,
   SunIcon
 } from "@iconicicons/react";
-import { Button, Spacer, Text } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
@@ -12,6 +13,10 @@ import styled from "styled-components";
 export default function Theme() {
   // theme
   const [theme, setTheme] = useSetting("display_theme");
+
+  // route
+  const [, params] = useRoute<{ setup: string; page: string }>("/:setup/:page");
+  const [, setLocation] = useLocation();
 
   return (
     <>
@@ -34,7 +39,12 @@ export default function Theme() {
         {browser.i18n.getMessage("system_theme")}
       </ThemeOption>
       <Spacer y={2.5} />
-      <Button fullWidth>
+      <Button
+        fullWidth
+        onClick={() =>
+          setLocation(`/${params.setup}/${Number(params.page) + 1}`)
+        }
+      >
         {browser.i18n.getMessage("next")}
         <ArrowRightIcon />
       </Button>

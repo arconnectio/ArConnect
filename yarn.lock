@@ -1783,9 +1783,9 @@
   integrity sha512-GN+Hjzy9mXjWoXKmaicTegv3FJ0WFZ3aYz77Wk8TMp1IY3vEzvzj1vnsa0ggV7vMI1i+PUxe4qqnIJKCzf9aTg==
 
 "@types/webextension-polyfill@^0.9.0":
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/@types/webextension-polyfill/-/webextension-polyfill-0.9.0.tgz#a50b5f03161ef83e46721719b49668cfcaac804a"
-  integrity sha512-HG1y1o2hK8ag6Y7dfkrAbfKmMIP+B0E6SwAzUfmQ1dDxEIdLTtMyrStY26suHBPrAL7Xw/chlDW02ugc3uXWtQ==
+  version "0.9.2"
+  resolved "https://registry.yarnpkg.com/@types/webextension-polyfill/-/webextension-polyfill-0.9.2.tgz#4459174d25e83b38fd6d2b2cacb0fc87ad99dfa4"
+  integrity sha512-op8YeoK60K6/GIx3snWs3JowBZ+/aeSnZzZuuwynA7VARWfzr3st9aQNk9RWfoBx5xqlNZjAsh2QttPUZnabCw==
 
 "@ungap/promise-all-settled@1.1.2":
   version "1.1.2"
@@ -5015,6 +5015,11 @@ path-parse@^1.0.7:
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/path-parse/-/path-parse-1.0.7.tgz#fbc114b60ca42b30d9daf5858e4bd68bbedb6735"
   integrity sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==
+
+path-to-regexp@^6.2.1:
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-6.2.1.tgz#d54934d6798eb9e5ef14e7af7962c945906918e5"
+  integrity sha512-JLyh7xT1kizaEvcaXOQwOc2/Yhw6KZOvPf1S8401UyLk86CU79LN3vl7ztXGm/pZ+YjoyAJ4rxmHwbkBXJX+yw==
 
 path-type@^4.0.0:
   version "4.0.0"

@@ -1,7 +1,7 @@
+import { createContext, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, Variants, motion } from "framer-motion";
 import { Card, Spacer } from "@arconnect/components";
-import { useRoute } from "wouter";
-import { useMemo } from "react";
+import { useLocation, useRoute } from "wouter";
 import styled from "styled-components";
 
 import GenerateDone from "./generate/done";
@@ -30,19 +30,38 @@ const loadPages = [<Password />, <Wallets />, <Theme />, <LoadDone />];
 
 export default function Setup() {
   // get if the route is the load wallet route
-  const [isLoadPage, params] = useRoute<{ page?: string }>("/load/:page");
-
-  // load or generate wallet
-  const setupMode = useMemo<SetupMode>(
-    () => (isLoadPage ? "load" : "generate"),
-    [isLoadPage]
-  );
+  const [, params] = useRoute<{
+    setup?: "load" | "generate";
+    page?: string;
+  }>("/:setup/:page?");
 
   // page index
   const page = useMemo(() => {
-    if (!params?.page) return 0;
-    return Number(params.page) - 1;
+    if (!params?.page) return 1;
+    return Number(params.page);
   }, [params]);
+
+  // location
+  const [, setLocation] = useLocation();
+
+  // redirect if not on a page
+  useEffect(() => {
+    console.log(params.setup);
+    // wrong setup mode
+    if (!params?.setup || !["load", "generate"].includes(params.setup)) {
+      setLocation("/generate/1");
+    } else if (
+      !params?.page ||
+      Number.isNaN(page) ||
+      page < 1 ||
+      page > (params.setup === "load" ? loadPages : generatePages).length
+    ) {
+      setLocation(`/${params.setup}/1`);
+    }
+  }, [params, page]);
+
+  // temporarily stored password
+  const [password, setPassword] = useState("");
 
   return (
     <Wrapper>
@@ -55,22 +74,22 @@ export default function Setup() {
             ))}
         </Paginator>
         <Spacer y={1} />
-        <AnimatePresence initial={false}>
-          <motion.div
-            variants={pageAnimation}
-            initial="exit"
-            animate="init"
-            key={page}
-          >
-            {(setupMode === "load" ? loadPages : generatePages)[page]}
-          </motion.div>
-        </AnimatePresence>
+        <PasswordContext.Provider value={{ password, setPassword }}>
+          <AnimatePresence initial={false}>
+            <motion.div
+              variants={pageAnimation}
+              initial="exit"
+              animate="init"
+              key={page}
+            >
+              {(params?.setup === "load" ? loadPages : generatePages)[page - 1]}
+            </motion.div>
+          </AnimatePresence>
+        </PasswordContext.Provider>
       </SetupCard>
     </Wrapper>
   );
 }
-
-type SetupMode = "load" | "generate";
 
 const Wrapper = styled.div`
   position: relative;
@@ -111,3 +130,8 @@ const pageAnimation: Variants = {
     opacity: 0
   }
 };
+
+export const PasswordContext = createContext({
+  setPassword: (password: string) => {},
+  password: ""
+});

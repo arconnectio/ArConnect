@@ -33,8 +33,10 @@ export default function Start() {
 
   return (
     <Wrapper>
-      <Skip onClick={() => setLocation("/generate")}>
-        {browser.i18n.getMessage("skip")}
+      <Skip>
+        <Button secondary small onClick={() => setLocation("/generate")}>
+          {browser.i18n.getMessage("skip")}
+        </Button>
       </Skip>
       <ExplainerSection>
         <ExplainTitle>{browser.i18n.getMessage(activePage.title)}</ExplainTitle>
@@ -156,12 +158,10 @@ const Page = styled.span<{ active?: boolean }>`
   transition: all 0.23s ease-in-out;
 `;
 
-const Skip = styled(Text)`
+const Skip = styled.div`
   position: absolute;
   top: 3rem;
   right: 3rem;
-  text-decoration: underline;
-  cursor: pointer;
 `;
 
 interface PageInterface {

@@ -15,7 +15,7 @@ export default function PasswordStrength({ password }: Props) {
     <>
       <ProgressBar>
         {new Array(5).fill("").map((_, i) => (
-          <Bar active={strength >= i + 1} />
+          <Bar active={strength >= i + 1} key={i} />
         ))}
       </ProgressBar>
       <Spacer y={0.35} />
