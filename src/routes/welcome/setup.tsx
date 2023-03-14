@@ -19,9 +19,6 @@ import Wallets from "./load/wallets";
 import LoadDone from "./load/done";
 import Theme from "./load/theme";
 
-/** Prefix for setup storage */
-export const SETUP_PREFIX = "setup_";
-
 /** Wallet generate pages */
 const generatePages = [
   <Password />,
