@@ -19,8 +19,11 @@ export default function Welcome() {
       <Router hook={useHashLocation} matcher={customMatcher}>
         <Route path="/" component={Home} />
         <Route path="/start/:page" component={Start} />
-        <Route path="/generate" component={Setup} />
-        <Route path="/load" component={Setup} />
+        <Route path="/:setupMode(generate|load)/:page">
+          {(params: { setupMode: "generate" | "load"; page: string }) => (
+            <Setup setupMode={params.setupMode} page={Number(params.page)} />
+          )}
+        </Route>
       </Router>
     </Provider>
   );
