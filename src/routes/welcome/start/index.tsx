@@ -34,7 +34,7 @@ export default function Start() {
   return (
     <Wrapper>
       <Skip>
-        <Button secondary small onClick={() => setLocation("/generate")}>
+        <Button secondary small onClick={() => setLocation("/generate/1")}>
           {browser.i18n.getMessage("skip")}
         </Button>
       </Skip>
@@ -62,7 +62,7 @@ export default function Start() {
         <Button
           fullWidth
           onClick={() =>
-            setLocation(page === 3 ? "/generate" : `/start/${page + 1}`)
+            setLocation(page === 3 ? "/generate/1" : `/start/${page + 1}`)
           }
         >
           {browser.i18n.getMessage("next")}

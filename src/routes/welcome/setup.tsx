@@ -1,8 +1,14 @@
 import { AnimatePresence, Variants, motion } from "framer-motion";
 import { createContext, useEffect, useMemo, useState } from "react";
-import { Card, Spacer } from "@arconnect/components";
-import { useLocation } from "wouter";
+import { defaultGateway } from "~applications/gateway";
+import { JWKInterface } from "arweave/web/lib/wallet";
+import { jwkFromMnemonic } from "~wallets/generator";
+import { Card, Spacer, useToasts } from "@arconnect/components";
+import { useLocation, useRoute } from "wouter";
+import browser from "webextension-polyfill";
+import * as bip39 from "bip39-web-crypto";
 import styled from "styled-components";
+import Arweave from "arweave";
 
 import GenerateDone from "./generate/done";
 import Confirm from "./generate/confirm";
@@ -49,6 +55,51 @@ export default function Setup({ setupMode, page }: Props) {
   // temporarily stored password
   const [password, setPassword] = useState("");
 
+  // is the setup mode "wallet generation"
+  const [isGenerateWallet] = useRoute("/generate/:page");
+
+  // toasts
+  const { setToast } = useToasts();
+
+  // generate wallet in the background
+  const [generatedWallet, setGeneratedWallet] = useState<WalletContextValue>(
+    {}
+  );
+
+  useEffect(() => {
+    (async () => {
+      // only generate wallet if the
+      // setup mode is wallet generation
+      if (!isGenerateWallet || generatedWallet.address) return;
+
+      try {
+        const arweave = new Arweave(defaultGateway);
+
+        // generate seed
+        const seed = await bip39.generateMnemonic();
+
+        setGeneratedWallet({ mnemonic: seed });
+
+        // generate wallet from seedphrase
+        const generatedKeyfile = await jwkFromMnemonic(seed);
+
+        setGeneratedWallet((val) => ({ ...val, jwk: generatedKeyfile }));
+
+        // get address
+        const address = await arweave.wallets.jwkToAddress(generatedKeyfile);
+
+        setGeneratedWallet((val) => ({ ...val, address }));
+      } catch (e) {
+        console.log("Error generating wallet", e);
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("error_generating_wallet"),
+          duration: 2300
+        });
+      }
+    })();
+  }, [isGenerateWallet]);
+
   return (
     <Wrapper>
       <SetupCard>
@@ -61,16 +112,18 @@ export default function Setup({ setupMode, page }: Props) {
         </Paginator>
         <Spacer y={1} />
         <PasswordContext.Provider value={{ password, setPassword }}>
-          <AnimatePresence initial={false}>
-            <motion.div
-              variants={pageAnimation}
-              initial="exit"
-              animate="init"
-              key={page}
-            >
-              {(setupMode === "load" ? loadPages : generatePages)[page - 1]}
-            </motion.div>
-          </AnimatePresence>
+          <WalletContext.Provider value={generatedWallet}>
+            <AnimatePresence initial={false}>
+              <motion.div
+                variants={pageAnimation}
+                initial="exit"
+                animate="init"
+                key={page}
+              >
+                {(setupMode === "load" ? loadPages : generatePages)[page - 1]}
+              </motion.div>
+            </AnimatePresence>
+          </WalletContext.Provider>
         </PasswordContext.Provider>
       </SetupCard>
     </Wrapper>
@@ -121,6 +174,14 @@ export const PasswordContext = createContext({
   setPassword: (password: string) => {},
   password: ""
 });
+
+export const WalletContext = createContext<WalletContextValue>({});
+
+interface WalletContextValue {
+  address?: string;
+  mnemonic?: string;
+  jwk?: JWKInterface;
+}
 
 interface Props {
   setupMode: "generate" | "load";

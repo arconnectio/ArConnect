@@ -70,7 +70,7 @@ export default function Home() {
               ref={walletButton}
               onClick={async () => {
                 await animate(walletButton);
-                setLocation("/load");
+                setLocation("/load/1");
               }}
             >
               {browser.i18n.getMessage("have_wallet")}
