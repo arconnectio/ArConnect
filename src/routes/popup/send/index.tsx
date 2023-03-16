@@ -342,13 +342,43 @@ export default function Send({ id }: Props) {
             </MaxAmount>
             <Amount
               onInput={(e) => {
-                const val = Number(e.currentTarget.innerText);
+                const val = Number(
+                  e.currentTarget.innerText.replace(/[\n\r]/g, "")
+                );
 
                 if (Number.isNaN(val)) {
                   return setAmount("0");
                 }
 
                 return setAmount(val.toString());
+              }}
+              onKeyDown={async (e) => {
+                // don't let the user type anything other than numbers
+                if (
+                  ![
+                    "0",
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                    "7",
+                    "8",
+                    "9",
+                    ".",
+                    "Backspace",
+                    "ArrowLeft",
+                    "ArrowRight"
+                  ].includes(e.key)
+                ) {
+                  e.preventDefault();
+                }
+
+                // handle enter submit
+                if (e.key !== "Enter") return;
+                if (!target?.address || balance < Number(amount)) return;
+                await send();
               }}
             >
               {displayedAmount}
