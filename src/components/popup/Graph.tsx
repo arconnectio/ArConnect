@@ -119,12 +119,14 @@ const Chart = ({ data, blur }: ChartProps) => {
         stroke={`rgb(${theme.theme})`}
         strokeWidth="2"
       />
-      <rect
-        y={height}
-        width={width}
-        height="115"
-        fill={`rgb(${theme.theme})`}
-      />
+      {data.length > 0 && !(data.length === 1 && data[0] === 0) && (
+        <rect
+          y={height}
+          width={width}
+          height="115"
+          fill={`rgb(${theme.theme})`}
+        />
+      )}
     </ChartSvg>
   );
 };

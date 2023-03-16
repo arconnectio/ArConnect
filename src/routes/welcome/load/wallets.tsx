@@ -1,3 +1,14 @@
+import { useContext, useEffect, useRef, useState } from "react";
+import type { JWKInterface } from "arweave/web/lib/wallet";
+import { addWallet, setActiveWallet } from "~wallets";
+import { jwkFromMnemonic } from "~wallets/generator";
+import { ArrowRightIcon } from "@iconicicons/react";
+import { useStorage } from "@plasmohq/storage/hook";
+import { getStorageConfig } from "~utils/storage";
+import { useLocation, useRoute } from "wouter";
+import { readFileString } from "~utils/file";
+import { Storage } from "@plasmohq/storage";
+import { PasswordContext } from "../setup";
 import {
   Button,
   Modal,
@@ -7,17 +18,6 @@ import {
   useModal,
   useToasts
 } from "@arconnect/components";
-import { useContext, useEffect, useRef, useState } from "react";
-import { addWallet, setActiveWallet } from "~wallets";
-import { JWKInterface } from "arweave/web/lib/wallet";
-import { jwkFromMnemonic } from "~wallets/generator";
-import { ArrowRightIcon } from "@iconicicons/react";
-import { useStorage } from "@plasmohq/storage/hook";
-import { getStorageConfig } from "~utils/storage";
-import { useLocation, useRoute } from "wouter";
-import { readFileString } from "~utils/file";
-import { Storage } from "@plasmohq/storage";
-import { PasswordContext } from "../setup";
 import KeystoneButton from "~components/hardware/KeystoneButton";
 import Migrate from "~components/welcome/load/Migrate";
 import Seed from "~components/welcome/load/Seed";

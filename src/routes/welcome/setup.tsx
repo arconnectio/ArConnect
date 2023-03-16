@@ -1,9 +1,9 @@
-import { AnimatePresence, Variants, motion } from "framer-motion";
 import { createContext, useEffect, useMemo, useState } from "react";
-import { defaultGateway } from "~applications/gateway";
-import { JWKInterface } from "arweave/web/lib/wallet";
-import { jwkFromMnemonic } from "~wallets/generator";
+import { AnimatePresence, Variants, motion } from "framer-motion";
 import { Card, Spacer, useToasts } from "@arconnect/components";
+import type { JWKInterface } from "arweave/web/lib/wallet";
+import { defaultGateway } from "~applications/gateway";
+import { jwkFromMnemonic } from "~wallets/generator";
 import { useLocation, useRoute } from "wouter";
 import browser from "webextension-polyfill";
 import * as bip39 from "bip39-web-crypto";
