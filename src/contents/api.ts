@@ -5,22 +5,20 @@ import injectedScript from "url:../injected.ts";
 
 export const config: PlasmoContentScript = {
   matches: ["file://*/*", "http://*/*", "https://*/*"],
-  run_at: "document_end",
+  run_at: "document_start",
   all_frames: true
 };
 
 // inject API script into the window
-window.addEventListener("load", () => {
-  const container = document.head || document.documentElement;
-  const script = document.createElement("script");
+const container = document.head || document.documentElement;
+const script = document.createElement("script");
 
-  script.setAttribute("async", "false");
-  script.setAttribute("type", "text/javascript");
-  script.setAttribute("src", injectedScript);
+script.setAttribute("async", "false");
+script.setAttribute("type", "text/javascript");
+script.setAttribute("src", injectedScript);
 
-  container.insertBefore(script, container.children[0]);
-  container.removeChild(script);
-});
+container.insertBefore(script, container.children[0]);
+container.removeChild(script);
 
 // receive API calls
 window.addEventListener(
