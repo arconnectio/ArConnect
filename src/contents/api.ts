@@ -20,6 +20,12 @@ script.setAttribute("src", injectedScript);
 container.insertBefore(script, container.children[0]);
 container.removeChild(script);
 
+// send wallet loaded event again if page loaded
+window.addEventListener("load", () => {
+  if (!window.arweaveWallet) return;
+  dispatchEvent(new CustomEvent("arweaveWalletLoaded", { detail: {} }));
+});
+
 // receive API calls
 window.addEventListener(
   "message",
