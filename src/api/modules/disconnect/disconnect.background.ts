@@ -1,14 +1,10 @@
 import type { ModuleFunction } from "~api/background";
 import { removeApp } from "~applications";
-import { getAppURL } from "~utils/format";
 import { updateIcon } from "~utils/icon";
 
-const background: ModuleFunction<void> = async (tab) => {
-  // grab tab url
-  const tabURL = getAppURL(tab.url);
-
+const background: ModuleFunction<void> = async (appData) => {
   // remove app
-  await removeApp(tabURL);
+  await removeApp(appData.appURL);
 
   // remove connected icon
   await updateIcon(false);

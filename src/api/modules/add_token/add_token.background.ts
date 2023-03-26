@@ -1,20 +1,16 @@
 import type { ModuleFunction } from "~api/background";
 import type { Gateway } from "~applications/gateway";
-import { getAppURL, isAddress } from "~utils/format";
 import type { TokenType } from "~tokens/token";
+import { isAddress } from "~utils/format";
 import { getTokens } from "~tokens";
-import Application from "~applications/application";
 import authenticate from "../connect/auth";
 
 const background: ModuleFunction<void> = async (
-  tab,
+  appData,
   id: string,
   type?: TokenType,
   gateway?: Gateway
 ) => {
-  // grab tab url
-  const tabURL = getAppURL(tab.url);
-
   // check id
   if (!isAddress(id)) {
     throw new Error("Invalid token contract ID");
@@ -35,7 +31,7 @@ const background: ModuleFunction<void> = async (
   // request "add token" popup
   await authenticate({
     type: "token",
-    url: tabURL,
+    url: appData.appURL,
     tokenID: id,
     tokenType: type,
     gateway

@@ -19,14 +19,11 @@ import browser from "webextension-polyfill";
 import Arweave from "arweave";
 
 const background: ModuleFunction<BackgroundResult> = async (
-  tab,
+  appData,
   tx: Transaction,
   options: SignatureOptions | undefined | null,
   chunkCollectionID: string
 ) => {
-  // grab tab url
-  const tabURL = getAppURL(tab.url);
-
   // grab the user's keyfile
   const activeWallet = await getActiveKeyfile().catch(() => {
     // if there are no wallets added, open the welcome page
@@ -36,13 +33,13 @@ const background: ModuleFunction<BackgroundResult> = async (
   });
 
   // app instance
-  const app = new Application(tabURL);
+  const app = new Application(appData.appURL);
 
   // create arweave client
   const arweave = new Arweave(await app.getGatewayConfig());
 
   // get chunks for transaction
-  const chunks = getChunks(chunkCollectionID, getAppURL(tab.url));
+  const chunks = getChunks(chunkCollectionID, appData.appURL);
 
   // get keyfile for active wallet
   // @ts-expect-error
@@ -76,7 +73,7 @@ const background: ModuleFunction<BackgroundResult> = async (
   const price = +transaction.reward + parseInt(transaction.quantity);
 
   // get allowance
-  const allowance = await getAllowance(tabURL);
+  const allowance = await getAllowance(appData.appURL);
 
   // check if there is an allowance limit
   // if there isn't, we need to ask the user
@@ -84,7 +81,7 @@ const background: ModuleFunction<BackgroundResult> = async (
   if (allowance.enabled && activeWallet.type === "local") {
     // authenticate user if the allowance
     // limit is reached
-    await allowanceAuth(allowance, tabURL, price);
+    await allowanceAuth(allowance, appData.appURL, price);
   } else {
     // get address of keyfile
     const addr =
@@ -94,7 +91,7 @@ const background: ModuleFunction<BackgroundResult> = async (
 
     try {
       // auth before signing
-      const res = await signAuth(tabURL, transaction, addr);
+      const res = await signAuth(appData.appURL, transaction, addr);
 
       if (res.data && activeWallet.type === "hardware") {
         transaction.setSignature({
@@ -111,16 +108,16 @@ const background: ModuleFunction<BackgroundResult> = async (
   if (activeWallet.type === "local") {
     await arweave.transactions.sign(transaction, keyfile, options);
 
-    browser.alarms.create(`scheduled-fee.${transaction.id}.${tabURL}`, {
+    browser.alarms.create(`scheduled-fee.${transaction.id}.${appData.appURL}`, {
       when: Date.now() + 2000
     });
   }
 
   // notify the user of the signing
-  await signNotification(price, transaction.id, tabURL);
+  await signNotification(price, transaction.id, appData.appURL);
 
   // update allowance spent amount (in winstons)
-  await updateAllowance(tabURL, price);
+  await updateAllowance(appData.appURL, price);
 
   // de-construct the transaction:
   // remove "tags" and "data", so we don't have to

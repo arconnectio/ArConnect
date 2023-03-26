@@ -76,8 +76,9 @@ export const sendChunk = (chunk: Chunk) =>
  * Handle incoming chunks and add them to the chunk storage
  *
  * @param chunk Chunk object to handle
+ * @param appURL URL the chunk originates from
  */
-export function handleChunk(chunk: Chunk, tab: Tabs.Tab): number {
+export function handleChunk(chunk: Chunk, appURL: string): number {
   // handle start chunk
   if (chunk.type === "start") {
     // begin listening for chunks
@@ -87,7 +88,7 @@ export function handleChunk(chunk: Chunk, tab: Tabs.Tab): number {
     // here
     chunks.push({
       chunkCollectionID: chunk.collectionID,
-      origin: getAppURL(tab.url),
+      origin: appURL,
       rawChunks: []
     });
     // handle other chunks
@@ -98,8 +99,7 @@ export function handleChunk(chunk: Chunk, tab: Tabs.Tab): number {
     // the origin of the tx creation
     const collectionID = chunks.findIndex(
       ({ chunkCollectionID, origin }) =>
-        chunkCollectionID === chunk.collectionID &&
-        origin === getAppURL(tab.url)
+        chunkCollectionID === chunk.collectionID && origin === appURL
     );
 
     // check if the chunk has a valid origin
@@ -119,15 +119,15 @@ export function handleChunk(chunk: Chunk, tab: Tabs.Tab): number {
  * Get chunks for a collectionID
  *
  * @param collectionID ID of the chunk collection to retrieve
- * @param tabID ID of the tab the chunks originate from
+ * @param appURL URL of the app the chunks originate from
  *
  * @returns Chunk collection
  */
-export function getChunks(collectionID: string, tabID: string) {
+export function getChunks(collectionID: string, appURL: string) {
   // find collection
   const collection = chunks.find(
     ({ chunkCollectionID, origin }) =>
-      chunkCollectionID === collectionID && origin === tabID
+      chunkCollectionID === collectionID && origin === appURL
   );
 
   return collection?.rawChunks;

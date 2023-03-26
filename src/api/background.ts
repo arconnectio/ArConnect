@@ -63,6 +63,11 @@ interface BackgroundModule<T> extends Module<T> {
  * Extended module function
  */
 export type ModuleFunction<ResultType> = (
-  tab: Tabs.Tab,
+  appData: ModuleAppData,
   ...params: any[]
 ) => Promise<ResultType> | ResultType;
+
+export interface ModuleAppData {
+  appURL: string;
+  favicon?: string;
+}

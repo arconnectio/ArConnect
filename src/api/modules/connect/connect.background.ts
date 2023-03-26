@@ -3,7 +3,6 @@ import { createContextMenus } from "~utils/context_menus";
 import type { AppInfo } from "~applications/application";
 import type { ModuleFunction } from "~api/background";
 import type { Gateway } from "~applications/gateway";
-import { getAppURL } from "~utils/format";
 import { updateIcon } from "~utils/icon";
 import { getWallets } from "~wallets";
 import validatePermissions from "./permissions";
@@ -11,7 +10,7 @@ import browser from "webextension-polyfill";
 import authenticate from "./auth";
 
 const background: ModuleFunction<void> = async (
-  tab,
+  appData,
   permissions: PermissionType[],
   appInfo: AppInfo = {},
   gateway?: Gateway
@@ -27,22 +26,19 @@ const background: ModuleFunction<void> = async (
     throw new Error("No wallets added");
   }
 
-  // grab tab url
-  const tabURL = getAppURL(tab.url);
-
   // validate requested permissions
-  await validatePermissions(permissions, tabURL);
+  await validatePermissions(permissions, appData.appURL);
 
   // add app logo if there isn't one
   if (!appInfo.logo) {
-    appInfo.logo = tab.favIconUrl;
+    appInfo.logo = appData.favicon;
   }
 
   try {
     // authenticate the user with the requested permissions
     await authenticate({
       type: "connect",
-      url: tabURL,
+      url: appData.appURL,
       permissions,
       appInfo,
       gateway

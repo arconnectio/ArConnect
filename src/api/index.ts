@@ -5,6 +5,7 @@ import type { ApiCall, ApiResponse } from "shim";
 import { getTab } from "~applications/tab";
 import { pushEvent } from "~utils/events";
 import Application from "~applications/application";
+import browser from "webextension-polyfill";
 import modules from "./background";
 
 export const handleApiCalls: OnMessageCallback<
@@ -47,7 +48,25 @@ export const handleApiCalls: OnMessageCallback<
     }
 
     // grab app info
-    const app = new Application(getAppURL(tab.url));
+    let app = new Application(getAppURL(tab.url));
+
+    // if the frame ID is defined, the API
+    // request is not coming from the main tab
+    // but from an iframe in the tab.
+    // we need to treat the iframe as a separate
+    // application to ensure the user does not
+    // mistake it for the actual app
+    if (typeof sender.frameId !== "undefined") {
+      const frame = await browser.webNavigation.getFrame({
+        frameId: sender.frameId,
+        tabId: sender.tabId
+      });
+
+      // update app value with the app belonging to the frame
+      if (frame.url) {
+        app = new Application(getAppURL(frame.url));
+      }
+    }
 
     // check permissions
     const permissionCheck = await app.hasPermissions(mod.permissions);
@@ -73,7 +92,13 @@ export const handleApiCalls: OnMessageCallback<
     });
 
     // handle function
-    const functionResult = await mod.function(tab, ...(data.data.params || []));
+    const functionResult = await mod.function(
+      {
+        appURL: app.url,
+        favicon: tab.favIconUrl
+      },
+      ...(data.data.params || [])
+    );
 
     // return result
     return {
@@ -119,8 +144,27 @@ export const handleChunkCalls: OnMessageCallback<
       throw new Error("Call coming from invalid tab");
     }
 
+    // raw url where the chunk originates from
+    let url = tab.url;
+
+    // if the frame ID is defined, the API
+    // request is not coming from the main tab
+    // but from an iframe in the tab.
+    // we need to treat the iframe as a separate
+    // application to ensure the user does not
+    // mistake it for the actual app
+    if (typeof sender.frameId !== "undefined") {
+      const frame = await browser.webNavigation.getFrame({
+        frameId: sender.frameId,
+        tabId: sender.tabId
+      });
+
+      // update url value with the url belonging to the frame
+      if (frame.url) url = frame.url;
+    }
+
     // call the chunk handler
-    const index = handleChunk(data.data, tab);
+    const index = handleChunk(data.data, getAppURL(url));
 
     return {
       ...baseMessage,

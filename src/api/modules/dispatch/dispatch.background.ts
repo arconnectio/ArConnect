@@ -7,7 +7,6 @@ import { uploadDataToBundlr } from "./uploader";
 import type { DispatchResult } from "./index";
 import { signedTxTags } from "../sign/tags";
 import { getActiveKeyfile } from "~wallets";
-import { getAppURL } from "~utils/format";
 import type Transaction from "arweave/web/lib/transaction";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
@@ -19,13 +18,12 @@ type ReturnType = {
 };
 
 const background: ModuleFunction<ReturnType> = async (
-  tab,
+  appData,
   tx: Transaction,
   chunkCollectionID: string
 ) => {
   // create client
-  const appURL = getAppURL(tab.url);
-  const app = new Application(appURL);
+  const app = new Application(appData.appURL);
   const arweave = new Arweave(await app.getGatewayConfig());
 
   // grab the user's keyfile
@@ -45,7 +43,7 @@ const background: ModuleFunction<ReturnType> = async (
   const keyfile = decryptedWallet.keyfile;
 
   // get chunks for transaction
-  const chunks = getChunks(chunkCollectionID, getAppURL(tab.url));
+  const chunks = getChunks(chunkCollectionID, appData.appURL);
 
   // reconstruct the transaction from the chunks
   let transaction = arweave.transactions.fromRaw({
@@ -78,7 +76,7 @@ const background: ModuleFunction<ReturnType> = async (
     await uploadDataToBundlr(dataEntry, await app.getBundler());
 
     // show notification
-    await signNotification(0, dataEntry.id, appURL, "dispatch");
+    await signNotification(0, dataEntry.id, appData.appURL, "dispatch");
 
     return {
       arConfetti: await arconfettiIcon(),
@@ -105,7 +103,7 @@ const background: ModuleFunction<ReturnType> = async (
     const price = +transaction.reward + parseInt(transaction.quantity);
 
     // show notification
-    await signNotification(price, transaction.id, appURL);
+    await signNotification(price, transaction.id, appData.appURL);
 
     return {
       arConfetti: await arconfettiIcon(),
