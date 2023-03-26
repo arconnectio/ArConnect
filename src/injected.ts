@@ -89,6 +89,12 @@ window.arweaveWallet = WalletAPI;
 // we dispatch the wallet loaded event
 dispatchEvent(new CustomEvent("arweaveWalletLoaded", { detail: {} }));
 
+// send wallet loaded event again if page loaded
+window.addEventListener("load", () => {
+  if (!window.arweaveWallet) return;
+  dispatchEvent(new CustomEvent("arweaveWalletLoaded", { detail: {} }));
+});
+
 /** Handle events */
 window.addEventListener(
   "message",
