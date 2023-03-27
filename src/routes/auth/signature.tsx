@@ -26,12 +26,12 @@ export default function Signature() {
     window.addEventListener("keydown", listener);
 
     return () => window.removeEventListener("keydown", listener);
-  }, []);
+  }, [params?.authID]);
 
   // sign message
   async function sign() {
     // send response
-    await replyToAuthRequest("signature", params.authID);
+    await replyToAuthRequest("signature", params?.authID);
 
     // close the window
     closeWindow();
