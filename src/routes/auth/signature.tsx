@@ -1,9 +1,10 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
-import { useEffect } from "react";
-import { Button, Section, Spacer, Text } from "@arconnect/components";
+import { Button, Card, Section, Spacer, Text } from "@arconnect/components";
+import { useEffect, useMemo, useState } from "react";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
+import styled from "styled-components";
 
 export default function Signature() {
   // connect params
@@ -27,6 +28,7 @@ export default function Signature() {
     return () => window.removeEventListener("keydown", listener);
   }, []);
 
+  // sign message
   async function sign() {
     // send response
     await replyToAuthRequest("signature", params.authID);
@@ -34,6 +36,34 @@ export default function Signature() {
     // close the window
     closeWindow();
   }
+
+  // message decode type
+  const [decodeType, setDecodeType] = useState("UTF-8");
+  const availableDecodeTypes = [
+    "utf-8",
+    "hex",
+    "ibm866",
+    "mac",
+    "windows-1251",
+    "gbk",
+    "utf-16"
+  ];
+
+  // current message
+  const message = useMemo(() => {
+    if (typeof params?.message === "undefined") return "";
+    const messageBytes = new Uint8Array(params.message);
+
+    // handle hex
+    if (decodeType === "hex") {
+      return [...new Uint8Array(messageBytes.buffer)]
+        .map((v) => "0x" + v.toString(16).padStart(2, "0"))
+        .join(" ");
+    }
+
+    // handle other types
+    return new TextDecoder(decodeType).decode(messageBytes);
+  }, [params?.message, decodeType]);
 
   return (
     <Wrapper>
@@ -51,6 +81,21 @@ export default function Signature() {
         </Section>
       </div>
       <Section>
+        <MessageHeader>
+          <Text noMargin>{browser.i18n.getMessage("signature_message")}</Text>
+          <EncodingSelect onChange={(e) => setDecodeType(e.target.value)}>
+            {availableDecodeTypes.map((type, i) => (
+              <option value={type} key={i} selected={type === decodeType}>
+                {type}
+              </option>
+            ))}
+          </EncodingSelect>
+        </MessageHeader>
+        <Spacer y={0.3} />
+        <Card smallPadding>
+          <MessageText>{message}</MessageText>
+        </Card>
+        <Spacer y={1.25} />
         <Button fullWidth onClick={sign}>
           {browser.i18n.getMessage("signature_authorize")}
         </Button>
@@ -62,3 +107,30 @@ export default function Signature() {
     </Wrapper>
   );
 }
+
+const MessageHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  p,
+  select {
+    font-size: 0.95rem;
+  }
+`;
+
+const EncodingSelect = styled.select`
+  font-weight: 500;
+  color: rgb(${(props) => props.theme.secondaryText});
+  outline: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
+`;
+
+const MessageText = styled(Text).attrs({
+  noMargin: true
+})`
+  font-size: 0.9rem;
+`;

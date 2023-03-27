@@ -1013,6 +1013,10 @@
       }
     }
   },
+  "signature_message": {
+    "message": "Message",
+    "description": "Signature message label"
+  },
   "signature_authorize": {
     "message": "Sign",
     "description": "Sign message authorize button"
