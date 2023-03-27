@@ -42,6 +42,18 @@ export default function Allowance() {
     limitInput.setState(arweave.ar.winstonToAr(allowance.limit.toString()));
   }, [allowance]);
 
+  // listen for enter to reset
+  useEffect(() => {
+    const listener = async (e: KeyboardEvent) => {
+      if (e.key !== "Enter") return;
+      await reset();
+    };
+
+    window.addEventListener("keydown", listener);
+
+    return () => window.removeEventListener("keydown", listener);
+  }, []);
+
   // app data
   const [appData, setAppData] = useState<AppInfo>();
 

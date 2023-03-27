@@ -106,6 +106,12 @@ export default function Connect() {
     }
 
     setPage("permissions");
+
+    // listen for enter to connect
+    window.addEventListener("keydown", async (e) => {
+      if (e.key !== "Enter") return;
+      await connect();
+    });
   }
 
   // connect
