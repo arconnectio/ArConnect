@@ -4,7 +4,13 @@ import type { AuthResult } from "shim";
 import { nanoid } from "nanoid";
 import browser from "webextension-polyfill";
 
-export type AuthType = "connect" | "allowance" | "unlock" | "token" | "sign";
+export type AuthType =
+  | "connect"
+  | "allowance"
+  | "unlock"
+  | "token"
+  | "sign"
+  | "signature";
 
 export interface AuthData {
   // type of auth to request from the user

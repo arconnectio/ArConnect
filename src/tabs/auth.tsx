@@ -8,8 +8,9 @@ import { Router } from "wouter";
 
 import HardwareWalletTheme from "~components/hardware/HardwareWalletTheme";
 
-import Connect from "~routes/auth/connect";
 import Allowance from "~routes/auth/allowance";
+import Signature from "~routes/auth/signature";
+import Connect from "~routes/auth/connect";
 import Unlock from "~routes/auth/unlock";
 import Token from "~routes/auth/token";
 import Sign from "~routes/auth/sign";
@@ -32,6 +33,7 @@ export default function Auth() {
             <Route path="/unlock" component={Unlock} />
             <Route path="/token" component={Token} />
             <Route path="/sign" component={Sign} />
+            <Route path="/signature" component={Signature} />
           </Router>
         </Wrapper>
       </HardwareWalletTheme>

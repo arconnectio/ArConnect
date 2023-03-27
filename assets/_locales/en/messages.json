@@ -999,6 +999,24 @@
     "message": "Click to view your last signed transaction",
     "description": "View last tx prompt content"
   },
+  "titles_signature": {
+    "message": "Sign message",
+    "description": "Sign message popup title"
+  },
+  "signature_description": {
+    "message": "$APPNAME$ wants to sign a message. Review the message below.",
+    "description": "App signature request for data that cannot be decoded to string",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "permafacts.arweave.dev"
+      }
+    }
+  },
+  "signature_authorize": {
+    "message": "Sign",
+    "description": "Sign message authorize button"
+  },
   "titles_sign": {
     "message": "Sign transaction",
     "description": "Sign transaction popup title"

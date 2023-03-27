@@ -1,12 +1,24 @@
 import type { ModuleFunction } from "~api/background";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
+import authenticate from "../connect/auth";
 
 const background: ModuleFunction<number[]> = async (
-  _,
+  appData,
   data: number[],
   algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams
 ) => {
+  // request user to authorize
+  try {
+    await authenticate({
+      type: "signature",
+      url: appData.appURL,
+      message: data
+    });
+  } catch {
+    throw new Error("User rejected the signature request");
+  }
+
   // grab the user's keyfile
   const decryptedWallet = await getActiveKeyfile().catch(() => {
     // if there are no wallets added, open the welcome page
