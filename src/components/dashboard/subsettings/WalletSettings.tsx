@@ -22,6 +22,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { IconButton } from "~components/IconButton";
 import { decryptWallet } from "~wallets/encryption";
 import { AnsUser, getAnsProfile } from "~lib/ans";
+import { ExtensionStorage } from "~utils/storage";
 import { downloadFile } from "~utils/file";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
 import browser from "webextension-polyfill";
@@ -33,8 +34,7 @@ export default function WalletSettings({ address }: Props) {
   const [wallets, setWallets] = useStorage<StoredWallet[]>(
     {
       key: "wallets",
-      area: "local",
-      isSecret: true
+      instance: ExtensionStorage
     },
     []
   );
@@ -233,7 +233,10 @@ export default function WalletSettings({ address }: Props) {
           {browser.i18n.getMessage("remove_wallet")}
         </Button>
       </div>
-      <Modal {...removeModal.bindings}>
+      <Modal
+        {...removeModal.bindings}
+        root={document.getElementById("__plasmo")}
+      >
         <CenterText heading>
           {browser.i18n.getMessage("remove_wallet_modal_title")}
         </CenterText>
@@ -270,7 +273,10 @@ export default function WalletSettings({ address }: Props) {
           {browser.i18n.getMessage("cancel")}
         </Button>
       </Modal>
-      <Modal {...exportModal.bindings}>
+      <Modal
+        {...exportModal.bindings}
+        root={document.getElementById("__plasmo")}
+      >
         <CenterText heading>
           {browser.i18n.getMessage("export_wallet_modal_title")}
         </CenterText>

@@ -2,6 +2,7 @@ import { Card, Provider, Spacer, Text } from "@arconnect/components";
 import { GlobalStyle, useTheme } from "~utils/theme";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 import { getTab } from "~applications/tab";
 import { getAppURL } from "~utils/format";
 import { useNoWallets } from "~wallets";
@@ -31,8 +32,7 @@ export default function Devtools() {
   const [connectedApps] = useStorage<string[]>(
     {
       key: "apps",
-      area: "local",
-      isSecret: true
+      instance: ExtensionStorage
     },
     []
   );

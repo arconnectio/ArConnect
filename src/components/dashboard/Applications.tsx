@@ -1,6 +1,7 @@
 import { Spacer, Text, useInput } from "@arconnect/components";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 import { SettingsList } from "./list/BaseElement";
 import { useLocation, useRoute } from "wouter";
 import Application from "~applications/application";
@@ -14,8 +15,7 @@ export default function Applications() {
   const [connectedApps] = useStorage<string[]>(
     {
       key: "apps",
-      area: "local",
-      isSecret: true
+      instance: ExtensionStorage
     },
     []
   );

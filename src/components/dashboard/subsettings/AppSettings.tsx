@@ -301,7 +301,10 @@ export default function AppSettings({ app, showTitle = false }: Props) {
       >
         {browser.i18n.getMessage(settings.blocked ? "unblock" : "block")}
       </Button>
-      <Modal {...removeModal.bindings}>
+      <Modal
+        {...removeModal.bindings}
+        root={document.getElementById("__plasmo")}
+      >
         <CenterText heading>{browser.i18n.getMessage("removeApp")}</CenterText>
         <Spacer y={0.55} />
         <CenterText noMargin>

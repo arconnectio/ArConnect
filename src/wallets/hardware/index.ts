@@ -1,8 +1,5 @@
-import { getStorageConfig } from "~utils/storage";
-import { Storage } from "@plasmohq/storage";
+import { ExtensionStorage } from "~utils/storage";
 import { getWallets } from "~wallets";
-
-const storage = new Storage(getStorageConfig());
 
 /**
  * Hardware wallet reference
@@ -61,5 +58,5 @@ export async function addHardwareWallet(
   });
 
   // save data
-  await storage.set("wallets", wallets);
+  await ExtensionStorage.set("wallets", wallets);
 }

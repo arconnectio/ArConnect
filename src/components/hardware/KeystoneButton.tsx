@@ -85,7 +85,10 @@ export default function KeystoneButton({ onSuccess }: Props) {
         <KeystoneIcon />
         {browser.i18n.getMessage("keystone_connect_title")}
       </Button>
-      <QRModal {...connectModal.bindings}>
+      <QRModal
+        {...connectModal.bindings}
+        root={document.getElementById("__plasmo")}
+      >
         <ModalText heading>
           {browser.i18n.getMessage("keystone_connect_title")}
         </ModalText>

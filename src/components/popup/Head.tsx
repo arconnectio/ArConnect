@@ -1,17 +1,18 @@
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { DisplayTheme, Section, Text } from "@arconnect/components";
 import { Avatar, CloseLayer, NoAvatarIcon } from "./WalletHeader";
-import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { hoverEffect, useTheme } from "~utils/theme";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ArrowLeftIcon } from "@iconicicons/react";
+import { ExtensionStorage } from "~utils/storage";
 import HardwareWalletIcon, {
   hwIconAnimateProps
 } from "~components/hardware/HardwareWalletIcon";
 import { useHardwareApi } from "~wallets/hooks";
 import { useHistory } from "~utils/hash_router";
+import { useEffect, useState } from "react";
 import type { AnsUser } from "~lib/ans";
-import { AnimatePresence, motion } from "framer-motion";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
 import WalletSwitcher from "./WalletSwitcher";
 import styled from "styled-components";
@@ -60,8 +61,7 @@ export default function Head({
   // load ans cache
   const [ans] = useStorage<AnsUser>({
     key: "ans_data",
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   // user avatar

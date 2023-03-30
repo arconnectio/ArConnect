@@ -18,6 +18,7 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 import type { HardwareApi } from "~wallets/hardware";
 import { useStorage } from "@plasmohq/storage/hook";
 import { AnsUser, getAnsProfile } from "~lib/ans";
+import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
 import { useEffect, useState } from "react";
@@ -38,16 +39,14 @@ export default function WalletSwitcher({
   // current address
   const [activeAddress, setActiveAddress] = useStorage<string>({
     key: "active_address",
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   // all wallets added
   const [storedWallets] = useStorage<StoredWallet[]>(
     {
       key: "wallets",
-      area: "local",
-      isSecret: true
+      instance: ExtensionStorage
     },
     []
   );
@@ -144,8 +143,7 @@ export default function WalletSwitcher({
   // fetch ANS name (cached in storage)
   const [_, setAns] = useStorage<AnsUser | {}>({
     key: "ans_data",
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   useEffect(() => {

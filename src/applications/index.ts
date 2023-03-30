@@ -2,20 +2,17 @@ import Application, { InitAppParams, PREFIX } from "./application";
 import { createContextMenus } from "~utils/context_menus";
 import { sendMessage } from "@arconnect/webext-bridge";
 import type { StorageChange } from "~utils/runtime";
-import { getStorageConfig } from "~utils/storage";
-import { Storage } from "@plasmohq/storage";
+import { ExtensionStorage } from "~utils/storage";
 import { getAppURL } from "~utils/format";
 import { updateIcon } from "~utils/icon";
 import { forEachTab } from "./tab";
 import browser from "webextension-polyfill";
 
-const storage = new Storage(getStorageConfig());
-
 /**
  * Get all connected app keys
  */
 export async function getStoredApps(): Promise<string[]> {
-  return (await storage.get("apps")) || [];
+  return (await ExtensionStorage.get("apps")) || [];
 }
 
 /**
@@ -46,10 +43,10 @@ export async function addApp({ url, ...rest }: InitAppParams) {
   if (storedApps.includes(url)) return;
 
   // add app url
-  await storage.set("apps", [...storedApps, url]);
+  await ExtensionStorage.set("apps", [...storedApps, url]);
 
   // save app settings
-  await storage.set(`${PREFIX}${url}`, {
+  await ExtensionStorage.set(`${PREFIX}${url}`, {
     url,
     ...rest
   });
@@ -64,13 +61,13 @@ export async function removeApp(url: string) {
   const storedApps = await getStoredApps();
 
   // remove app key
-  await storage.set(
+  await ExtensionStorage.set(
     "apps",
     storedApps.filter((val) => val !== url)
   );
 
   // remove app settings
-  await storage.remove(`${PREFIX}${url}`);
+  await ExtensionStorage.remove(`${PREFIX}${url}`);
 }
 
 /**

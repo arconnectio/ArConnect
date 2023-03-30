@@ -1,6 +1,7 @@
 import { Button, Select, Spacer, Text } from "@arconnect/components";
 import type { Token, TokenType } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 import { AnimatePresence } from "framer-motion";
 import { TrashIcon } from "@iconicicons/react";
 import { removeToken } from "~tokens";
@@ -14,8 +15,7 @@ export default function TokenSettings({ id }: Props) {
   const [tokens, setTokens] = useStorage<Token[]>(
     {
       key: "tokens",
-      area: "local",
-      isSecret: true
+      instance: ExtensionStorage
     },
     []
   );

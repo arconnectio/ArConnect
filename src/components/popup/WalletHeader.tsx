@@ -3,15 +3,10 @@ import {
   concatGatewayURL,
   Gateway
 } from "~applications/gateway";
-import {
-  HTMLProps,
-  MouseEventHandler,
-  useEffect,
-  useMemo,
-  useState
-} from "react";
+import { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 import HardwareWalletIcon, {
   hwIconAnimateProps
 } from "~components/hardware/HardwareWalletIcon";
@@ -54,16 +49,14 @@ export default function WalletHeader() {
   // current address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   // all wallets added
   const [wallets] = useStorage<StoredWallet[]>(
     {
       key: "wallets",
-      area: "local",
-      isSecret: true
+      instance: ExtensionStorage
     },
     []
   );
@@ -90,8 +83,7 @@ export default function WalletHeader() {
   // fetch ANS name (cached in storage)
   const [ans] = useStorage<AnsUser>({
     key: "ans_data",
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   // wallet name

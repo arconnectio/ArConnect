@@ -1,6 +1,7 @@
 import { Button, Section, Tooltip } from "@arconnect/components";
 import { CopyIcon, ShareIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";
 import { QRCodeSVG } from "qrcode.react";
 import browser from "webextension-polyfill";
@@ -12,8 +13,7 @@ export default function Receive() {
   // active address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   return (

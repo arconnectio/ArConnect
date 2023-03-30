@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { GlobalStyle, useTheme } from "~utils/theme";
 import { urlToGateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 import { RefreshIcon } from "@iconicicons/react";
 import { useNoWallets } from "~wallets";
 import {
@@ -36,8 +37,7 @@ function ArLocal() {
   const [lastUsedTestnet, setLastUsedTestnet] = useStorage<string>(
     {
       key: "last_used_testnet",
-      area: "local",
-      isSecret: true
+      instance: ExtensionStorage
     },
     (val) => val || "http://localhost:1984"
   );

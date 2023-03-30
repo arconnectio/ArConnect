@@ -3,6 +3,7 @@ import { AnimatePresence, motion, Variants } from "framer-motion";
 import { defaultGateway } from "~applications/gateway";
 import { hoverEffect, useTheme } from "~utils/theme";
 import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 import { Text } from "@arconnect/components";
 import { getArPrice } from "~lib/coingecko";
 import { usePrice } from "~lib/redstone";
@@ -22,8 +23,7 @@ export default function Token({ id, onClick }: Props) {
   // active address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   // load state
@@ -234,8 +234,7 @@ export function ArToken({ onClick }: ArTokenProps) {
   // active address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   // load ar balance

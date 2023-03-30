@@ -1,6 +1,7 @@
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { MouseEventHandler, useMemo, useRef } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 import { hoverEffect } from "~utils/theme";
 import { useTokens } from "~tokens";
 import useSandboxedTokenState from "~tokens/hook";
@@ -15,8 +16,7 @@ export default function Collectible({ id, onClick }: Props) {
   // active address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   // balance

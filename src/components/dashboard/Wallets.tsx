@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { IconButton } from "~components/IconButton";
 import { useStorage } from "@plasmohq/storage/hook";
 import { AnsUser, getAnsProfile } from "~lib/ans";
+import { ExtensionStorage } from "~utils/storage";
 import { useLocation, useRoute } from "wouter";
 import { PlusIcon } from "@iconicicons/react";
 import type { StoredWallet } from "~wallets";
@@ -18,8 +19,7 @@ export default function Wallets() {
   const [wallets, setWallets] = useStorage<StoredWallet[]>(
     {
       key: "wallets",
-      area: "local",
-      isSecret: true
+      instance: ExtensionStorage
     },
     []
   );

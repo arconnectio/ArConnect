@@ -4,12 +4,10 @@ import {
   Button,
   useModal,
   Modal,
-  ModalButton,
   useToasts
 } from "@arconnect/components";
-import { getStorageConfig } from "~utils/storage";
+import { ExtensionStorage } from "~utils/storage";
 import { TrashIcon } from "@iconicicons/react";
-import { Storage } from "@plasmohq/storage";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 
@@ -24,14 +22,13 @@ export default function Reset() {
   async function reset() {
     try {
       // get all keys
-      const storage = new Storage(getStorageConfig());
       const allStoredKeys = Object.keys(
         (await browser.storage.local.get(null)) || {}
       );
 
       // remove all keys
       for (const key of allStoredKeys) {
-        await storage.remove(key);
+        await ExtensionStorage.remove(key);
       }
 
       // close window
@@ -65,7 +62,10 @@ export default function Reset() {
         <TrashIcon />
         {browser.i18n.getMessage("reset")}
       </ResetButton>
-      <Modal {...resetModal.bindings}>
+      <Modal
+        {...resetModal.bindings}
+        root={document.getElementById("__plasmo")}
+      >
         <ModalText heading>{browser.i18n.getMessage("reset")}</ModalText>
         <ModalText>
           {browser.i18n.getMessage("setting_reset_description")}

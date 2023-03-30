@@ -2,18 +2,15 @@ import { Token, TokenState, TokenType, validateTokenState } from "./token";
 import type { EvalStateResult } from "warp-contracts";
 import type { Gateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
-import { getStorageConfig } from "~utils/storage";
+import { ExtensionStorage } from "~utils/storage";
 import { getActiveAddress } from "~wallets";
-import { Storage } from "@plasmohq/storage";
 import { clearCache } from "./cache";
-
-const storage = new Storage(getStorageConfig());
 
 /**
  * Get stored tokens
  */
 export async function getTokens() {
-  const tokens = await storage.get<Token[]>("tokens");
+  const tokens = await ExtensionStorage.get<Token[]>("tokens");
 
   return tokens || [];
 }
@@ -52,7 +49,7 @@ export async function addToken(
     type,
     gateway
   });
-  await storage.set("tokens", tokens);
+  await ExtensionStorage.set("tokens", tokens);
 }
 
 /**
@@ -63,7 +60,7 @@ export async function addToken(
 export async function removeToken(id: string) {
   const tokens = await getTokens();
 
-  await storage.set(
+  await ExtensionStorage.set(
     "tokens",
     tokens.filter((token) => token.id !== id)
   );
@@ -77,8 +74,7 @@ export const useTokens = () =>
   useStorage<Token[]>(
     {
       key: "tokens",
-      area: "local",
-      isSecret: true
+      instance: ExtensionStorage
     },
     []
   );

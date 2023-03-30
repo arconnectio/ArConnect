@@ -1,13 +1,15 @@
 import Application, { AppInfo } from "~applications/application";
 import { defaultGateway, gql } from "~applications/gateway";
 import Graph, { GraphText } from "~components/popup/Graph";
+import { Spacer, Tooltip } from "@arconnect/components";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 import { useHistory } from "~utils/hash_router";
-import { Spacer, Tooltip } from "@arconnect/components";
 import { useBalance } from "~wallets/hooks";
 import { getArPrice } from "~lib/coingecko";
 import { getAppURL } from "~utils/format";
+import { useTheme } from "~utils/theme";
 import {
   ArrowDownLeftIcon,
   ArrowUpRightIcon,
@@ -22,14 +24,12 @@ import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
-import { useTheme } from "~utils/theme";
 
 export default function Balance() {
   // grab address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   // balance in AR
@@ -55,8 +55,7 @@ export default function Balance() {
   const [hideBalance, setHideBalance] = useStorage<boolean>(
     {
       key: "hide_balance",
-      area: "local",
-      isSecret: true
+      instance: ExtensionStorage
     },
     false
   );
@@ -91,8 +90,7 @@ export default function Balance() {
   const [historicalBalance, setHistoricalBalance] = useStorage<number[]>(
     {
       key: "historical_balance",
-      area: "local",
-      isSecret: true
+      instance: ExtensionStorage
     },
     []
   );

@@ -1,13 +1,12 @@
 import { decryptWallet, encryptWallet } from "./encryption";
 import type { JWKInterface } from "arweave/node/lib/wallet";
 import { checkPassword, getDecryptionKey } from "./auth";
+import browser, { Alarms } from "webextension-polyfill";
 import { useStorage } from "@plasmohq/storage/hook";
 import { AnsUser, getAnsProfile } from "~lib/ans";
-import { getStorageConfig } from "~utils/storage";
+import { ExtensionStorage } from "~utils/storage";
 import type { HardwareWallet } from "./hardware";
-import { Storage } from "@plasmohq/storage";
 import { useEffect, useState } from "react";
-import browser, { Alarms } from "webextension-polyfill";
 import authenticate from "~api/modules/connect/auth";
 import Arweave from "arweave/web/common";
 
@@ -30,15 +29,13 @@ export type StoredWallet<KeyfileFormat = string> =
   | LocalWallet<KeyfileFormat>
   | HardwareWallet;
 
-const storage = new Storage(getStorageConfig());
-
 /**
  * Get wallets from storage
  *
  * @returns Wallets in storage
  */
 export async function getWallets() {
-  let wallets: StoredWallet[] = await storage.get("wallets");
+  let wallets: StoredWallet[] = await ExtensionStorage.get("wallets");
 
   return wallets || [];
 }
@@ -91,8 +88,7 @@ export function useDecryptionKey(): [string, (val: string) => void] {
   const [decryptionKey, setDecryptionKey] = useStorage<string>(
     {
       key: "decryption_key",
-      area: "local",
-      isSecret: true
+      instance: ExtensionStorage
     },
     (val) => {
       if (!val) return undefined;
@@ -109,7 +105,7 @@ export function useDecryptionKey(): [string, (val: string) => void] {
  * Get the active address
  */
 export async function getActiveAddress() {
-  const activeAddress = await storage.get("active_address");
+  const activeAddress = await ExtensionStorage.get("active_address");
 
   return activeAddress;
 }
@@ -138,7 +134,7 @@ export async function setActiveWallet(address?: string) {
 
   // remove if the address is undefined
   if (!address) {
-    return await storage.remove("active_address");
+    return await ExtensionStorage.remove("active_address");
   }
 
   if (!wallets.find((wallet) => wallet.address === address)) {
@@ -146,7 +142,7 @@ export async function setActiveWallet(address?: string) {
   }
 
   // save new active address
-  await storage.set("active_address", address);
+  await ExtensionStorage.set("active_address", address);
 }
 
 type DecryptedWallet = StoredWallet<JWKInterface>;
@@ -247,11 +243,11 @@ export async function addWallet(
   }
 
   // save data
-  await storage.set("wallets", wallets);
+  await ExtensionStorage.set("wallets", wallets);
 
   // set active address if this was the first wallet added
   if (freshInstall) {
-    await storage.set("active_address", wallets[0].address);
+    await ExtensionStorage.set("active_address", wallets[0].address);
   }
 }
 
@@ -268,7 +264,7 @@ export async function removeWallet(address: string) {
   wallets = wallets.filter((wallet) => wallet.address !== address);
 
   // save updated wallets array
-  await storage.set("wallets", wallets);
+  await ExtensionStorage.set("wallets", wallets);
 
   // handle active address change
   const activeAddress = await getActiveAddress();
@@ -276,7 +272,7 @@ export async function removeWallet(address: string) {
   if (activeAddress === address) {
     const newActiveAddress = wallets[0]?.address;
 
-    await storage.set("active_address", newActiveAddress);
+    await ExtensionStorage.set("active_address", newActiveAddress);
   }
 }
 
@@ -336,7 +332,7 @@ export async function syncLabels(alarmInfo?: Alarms.Alarm) {
     profiles.find((w) => w.user === addr)?.currentLabel;
 
   // save updated wallets
-  await storage.set(
+  await ExtensionStorage.set(
     "wallets",
     wallets.map((wallet) => ({
       ...wallet,

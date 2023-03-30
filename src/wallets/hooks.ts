@@ -4,6 +4,7 @@ import { defaultGateway } from "~applications/gateway";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { AnsUser, getAnsProfile } from "~lib/ans";
+import { ExtensionStorage } from "~utils/storage";
 import type { HardwareApi } from "./hardware";
 import type { StoredWallet } from "~wallets";
 import Arweave from "arweave";
@@ -58,16 +59,14 @@ export function useActiveWallet() {
   // current address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   // all wallets added
   const [wallets] = useStorage<StoredWallet[]>(
     {
       key: "wallets",
-      area: "local",
-      isSecret: true
+      instance: ExtensionStorage
     },
     []
   );
@@ -104,8 +103,7 @@ export function useBalance() {
   // grab address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   // balance in AR

@@ -1,5 +1,5 @@
-import { getStorageConfig } from "~utils/storage";
-import { Storage } from "@plasmohq/storage";
+import { ExtensionStorage } from "~utils/storage";
+import type { Storage } from "@plasmohq/storage";
 import { PREFIX } from "~settings";
 
 export default class Setting {
@@ -50,7 +50,7 @@ export default class Setting {
     this.storageName = `${PREFIX}${name}`;
 
     // init storage
-    this.#storage = new Storage(getStorageConfig());
+    this.#storage = ExtensionStorage;
 
     // add options
     if (type === "pick") {

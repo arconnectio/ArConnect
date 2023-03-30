@@ -1,10 +1,14 @@
 import {
+  RawStoredTransfer,
+  TempTransactionStorage,
+  TRANSFER_TX_STORAGE
+} from "~utils/storage";
+import {
   concatGatewayURL,
   defaultGateway,
   Gateway
 } from "~applications/gateway";
 import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
-import { RawStoredTransfer, TRANSFER_TX_STORAGE } from "~utils/storage";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@iconicicons/react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { useScanner } from "@arconnect/keystone-sdk";
@@ -12,7 +16,6 @@ import { decryptWallet } from "~wallets/encryption";
 import { useActiveWallet } from "~wallets/hooks";
 import { useHistory } from "~utils/hash_router";
 import { useEffect, useState } from "react";
-import { Storage } from "@plasmohq/storage";
 import { getActiveWallet } from "~wallets";
 import type { UR } from "@ngraveio/bc-ur";
 import {
@@ -44,13 +47,10 @@ export default function SendAuth() {
 
   // get transaction from session storage
   async function getTransaction() {
-    const storage = new Storage({
-      area: "session",
-      allSecret: true
-    });
-
     // get raw tx
-    const raw = await storage.get<RawStoredTransfer>(TRANSFER_TX_STORAGE);
+    const raw = await TempTransactionStorage.get<RawStoredTransfer>(
+      TRANSFER_TX_STORAGE
+    );
     const gateway = raw?.gateway || defaultGateway;
 
     if (!raw) return undefined;

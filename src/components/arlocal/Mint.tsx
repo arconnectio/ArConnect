@@ -7,6 +7,7 @@ import {
 } from "@arconnect/components";
 import { InputWithBtn, InputWrapper } from "./InputWrapper";
 import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";
 import browser from "webextension-polyfill";
 import type Arweave from "arweave";
@@ -18,8 +19,7 @@ export default function Mint({ arweave }: Props) {
   // active address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   // toasts

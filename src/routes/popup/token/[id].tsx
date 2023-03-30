@@ -4,6 +4,7 @@ import { AnimatePresence, motion, Variants } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePrice, usePriceHistory } from "~lib/redstone";
 import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 import { getCommunityUrl } from "~utils/format";
 import { useHistory } from "~utils/hash_router";
 import { getTokenLogo } from "~lib/viewblock";
@@ -62,8 +63,7 @@ export default function Asset({ id }: Props) {
   // current address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   // balance in units of the token
@@ -152,7 +152,7 @@ export default function Asset({ id }: Props) {
 
   const [priceWarningShown, setPriceWarningShown] = useStorage({
     key: "price_warning_shown",
-    area: "local"
+    instance: ExtensionStorage
   });
 
   return (

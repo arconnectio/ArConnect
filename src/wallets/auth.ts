@@ -1,10 +1,7 @@
-import { getStorageConfig } from "~utils/storage";
-import { decryptWallet } from "./encryption";
-import { Storage } from "@plasmohq/storage";
-import { getWallets, LocalWallet } from "./index";
 import browser, { Alarms } from "webextension-polyfill";
-
-const storage = new Storage(getStorageConfig());
+import { getWallets, LocalWallet } from "./index";
+import { ExtensionStorage } from "~utils/storage";
+import { decryptWallet } from "./encryption";
 
 /**
  * Unlock wallets and save decryption key
@@ -65,7 +62,7 @@ export async function checkPassword(password: string) {
  * Get wallet decryption key
  */
 export async function getDecryptionKey() {
-  const val = await storage.get("decryption_key");
+  const val = await ExtensionStorage.get("decryption_key");
 
   // check if defined
   if (!val) {
@@ -81,14 +78,14 @@ export async function getDecryptionKey() {
  * @param val Decryption key to set
  */
 export async function setDecryptionKey(val: string) {
-  return await storage.set("decryption_key", btoa(val));
+  return await ExtensionStorage.set("decryption_key", btoa(val));
 }
 
 /**
  * Remove decryption key
  */
 export async function removeDecryptionKey() {
-  return await storage.remove("decryption_key");
+  return await ExtensionStorage.remove("decryption_key");
 }
 
 /**

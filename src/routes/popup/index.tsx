@@ -1,5 +1,6 @@
 import { defaultGateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 import { useEffect, useState } from "react";
 import Collectibles from "~components/popup/home/Collectibles";
 import WalletHeader from "~components/popup/WalletHeader";
@@ -13,8 +14,7 @@ export default function Home() {
   const [noBalance, setNoBalance] = useState(false);
   const [activeAddress] = useStorage<string>({
     key: "active_address",
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   useEffect(() => {

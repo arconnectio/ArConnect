@@ -5,6 +5,7 @@
   "description": "__MSG_extensionDescription__",
   "author": "th8ta",
   "packageManager": "yarn@1.22.18",
+  "homepage": "https://arconnect.io",
   "scripts": {
     "dev:chrome": "plasmo dev",
     "build:chrome": "plasmo build",
@@ -53,14 +54,14 @@
     }
   },
   "dependencies": {
-    "@arconnect/components": "^0.1.28",
+    "@arconnect/components": "^0.2.1",
     "@arconnect/keystone-sdk": "^0.0.5",
     "@arconnect/webext-bridge": "^5.0.6",
     "@iconicicons/react": "^1.5.0",
     "@keystonehq/arweave-keyring": "^0.1.1-alpha.0",
     "@keystonehq/bc-ur-registry-arweave": "^0.1.1-alpha.0",
     "@ngraveio/bc-ur": "^1.1.6",
-    "@plasmohq/storage": "^0.12.1",
+    "@plasmohq/storage": "^1.4.0",
     "ar-gql": "^0.0.6",
     "arbundles": "^0.8.0",
     "arweave": "^1.13.0",
@@ -104,7 +105,7 @@
     "https-browserify": "^1.0.0",
     "husky": "^8.0.0",
     "path-browserify": "^1.0.1",
-    "plasmo": "^0.55.0",
+    "plasmo": "^0.67.4",
     "prettier": "^2.2.1",
     "querystring-es3": "^0.2.1",
     "stream-browserify": "^3.0.0",

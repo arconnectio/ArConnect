@@ -1,7 +1,11 @@
+import {
+  RawStoredTransfer,
+  TempTransactionStorage,
+  TRANSFER_TX_STORAGE
+} from "~utils/storage";
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { getAnsProfile, AnsUser, getAnsProfileByLabel } from "~lib/ans";
-import { RawStoredTransfer, TRANSFER_TX_STORAGE } from "~utils/storage";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { formatAddress, isAddress } from "~utils/format";
 import { useState, useEffect, useMemo } from "react";
@@ -9,7 +13,6 @@ import { IconButton } from "~components/IconButton";
 import { useHistory } from "~utils/hash_router";
 import { useBalance } from "~wallets/hooks";
 import { getArPrice } from "~lib/coingecko";
-import { Storage } from "@plasmohq/storage";
 import { useTokens } from "~tokens";
 import {
   Button,
@@ -244,17 +247,13 @@ export default function Send({ id }: Props) {
 
       // save tx json into the session
       // to be signed and submitted
-      const storage = new Storage({
-        area: "session",
-        allSecret: true
-      });
       const storedTx: RawStoredTransfer = {
         type: selectedToken === "AR" ? "native" : "token",
         gateway: selectedTokenData?.gateway || defaultGateway,
         transaction: tx.toJSON()
       };
 
-      await storage.set(TRANSFER_TX_STORAGE, storedTx);
+      await TempTransactionStorage.set(TRANSFER_TX_STORAGE, storedTx);
 
       // push to auth & signature
       push(`/send/auth`);

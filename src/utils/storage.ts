@@ -1,18 +1,17 @@
 import type Transaction from "arweave/web/lib/transaction";
 import type { Gateway } from "~applications/gateway";
+import { Storage } from "@plasmohq/storage";
 
 /**
- * Get a secure config for the storage module.
- * This prevents wallets leaking into
- * window.localStorage
+ * Default local extension storage, with values
+ * that are NOT copied to window.localStorage
  */
-export const getStorageConfig = (): {
-  area?: "local" | "sync" | "managed" | "session";
-  allSecret?: boolean;
-} => ({
-  area: "local",
-  allSecret: true
-});
+export const ExtensionStorage = new Storage({ area: "local" });
+
+/**
+ * Temporary storage for submitted transfers
+ */
+export const TempTransactionStorage = new Storage({ area: "session" });
 
 /**
  * Session storage raw transfer tx. This will

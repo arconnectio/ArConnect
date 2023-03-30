@@ -4,10 +4,9 @@ import { addWallet, setActiveWallet } from "~wallets";
 import { jwkFromMnemonic } from "~wallets/generator";
 import { ArrowRightIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
-import { getStorageConfig } from "~utils/storage";
+import { ExtensionStorage } from "~utils/storage";
 import { useLocation, useRoute } from "wouter";
 import { readFileString } from "~utils/file";
-import { Storage } from "@plasmohq/storage";
 import { PasswordContext } from "../setup";
 import {
   Button,
@@ -33,8 +32,7 @@ export default function Wallets() {
   // migration available
   const [oldState] = useStorage({
     key: OLD_STORAGE_NAME,
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   // migration modal
@@ -151,7 +149,10 @@ export default function Wallets() {
         {browser.i18n.getMessage("next")}
         <ArrowRightIcon />
       </Button>
-      <Modal {...migrationModal.bindings}>
+      <Modal
+        {...migrationModal.bindings}
+        root={document.getElementById("__plasmo")}
+      >
         <ModalText heading>
           {browser.i18n.getMessage("migration_available")}
         </ModalText>
@@ -175,9 +176,7 @@ export default function Wallets() {
               migrationModal.setOpen(false);
 
               // remove old storage
-              const storage = new Storage(getStorageConfig());
-
-              await storage.remove(OLD_STORAGE_NAME);
+              await ExtensionStorage.remove(OLD_STORAGE_NAME);
             } catch {}
           }}
         >

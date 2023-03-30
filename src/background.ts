@@ -5,9 +5,8 @@ import { handleApiCalls, handleChunkCalls } from "~api";
 import { onMessage } from "@arconnect/webext-bridge";
 import { handleTabUpdate } from "~applications/tab";
 import { appsChangeListener } from "~applications";
-import { getStorageConfig } from "~utils/storage";
+import { ExtensionStorage } from "~utils/storage";
 import { onInstalled } from "~utils/runtime";
-import { Storage } from "@plasmohq/storage";
 import { syncLabels } from "~wallets";
 import registerProtocolHandler from "~ar_protocol";
 import handleFeeAlarm from "~api/modules/sign/fee";
@@ -41,14 +40,11 @@ browser.alarms.onAlarm.addListener(keyRemoveAlarmListener);
 // handle window close
 browser.windows.onRemoved.addListener(onWindowClose);
 
-// create storage client
-const storage = new Storage(getStorageConfig());
-
 // watch for active address changes / app
 // list changes
 // and send them to the content script to
 // fire the wallet switch event
-storage.watch({
+ExtensionStorage.watch({
   active_address: addressChangeListener,
   apps: appsChangeListener,
   wallets: walletsChangeListener

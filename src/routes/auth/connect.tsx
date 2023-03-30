@@ -18,6 +18,7 @@ import { unlock as globalUnlock } from "~wallets/auth";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronDownIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";
 import PermissionCheckbox, {
   PermissionDescription
@@ -35,8 +36,7 @@ export default function Connect() {
   // active address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
-    area: "local",
-    isSecret: true
+    instance: ExtensionStorage
   });
 
   // wallet switcher open

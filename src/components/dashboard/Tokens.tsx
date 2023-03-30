@@ -1,4 +1,5 @@
 import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 import { useLocation, useRoute } from "wouter";
 import { useEffect, useMemo } from "react";
 import type { Token } from "~tokens/token";
@@ -10,8 +11,7 @@ export default function Tokens() {
   const [tokens, setTokens] = useStorage<Token[]>(
     {
       key: "tokens",
-      area: "local",
-      isSecret: true
+      instance: ExtensionStorage
     },
     []
   );

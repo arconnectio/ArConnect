@@ -1,9 +1,9 @@
+import { getMissingPermissions, PermissionType } from "./permissions";
 import { Allowance, defaultAllowance } from "./allowance";
 import { useStorage } from "@plasmohq/storage/hook";
-import { Storage } from "@plasmohq/storage";
-import { getMissingPermissions, PermissionType } from "./permissions";
 import { defaultGateway, Gateway } from "./gateway";
-import { getStorageConfig } from "~utils/storage";
+import { ExtensionStorage } from "~utils/storage";
+import type { Storage } from "@plasmohq/storage";
 
 export const PREFIX = "app_";
 export const defaultBundler = "https://node2.bundlr.network";
@@ -16,7 +16,7 @@ export default class Application {
 
   constructor(url: string) {
     this.url = url;
-    this.#storage = new Storage(getStorageConfig());
+    this.#storage = ExtensionStorage;
   }
 
   /**
@@ -153,8 +153,7 @@ export default class Application {
     return useStorage<InitAppParams>(
       {
         key: `${PREFIX}${this.url}`,
-        area: "local",
-        isSecret: true
+        instance: ExtensionStorage
       },
       (val) => {
         if (typeof val === "undefined") return val;
