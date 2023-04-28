@@ -41,7 +41,11 @@ export default function Confirm() {
     <>
       <Text heading>{browser.i18n.getMessage("confirm_seed")}</Text>
       <Paragraph>{browser.i18n.getMessage("confirm_seed_paragraph")}</Paragraph>
-      <SeedInput verifyMode onChange={(val) => setSeedInputState(val)} />
+      <SeedInput
+        verifyMode
+        onChange={(val) => setSeedInputState(val)}
+        onReady={validateSeedphrase}
+      />
       <Spacer y={1.5} />
       <Button fullWidth onClick={validateSeedphrase}>
         {browser.i18n.getMessage("next")}

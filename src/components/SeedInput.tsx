@@ -4,12 +4,17 @@ import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 
-export default function SeedInput({ verifyMode, onChange }: Props) {
+export default function SeedInput({
+  verifyMode,
+  onChange,
+  onReady,
+  defaultLength = 12
+}: Props) {
   // length of the seedphrase
-  const [activeLength, setActiveLength] = useState<12 | 24>(12);
+  const [activeLength, setActiveLength] = useState<SeedLength>(defaultLength);
 
   // update the active length
-  function updateActiveLength(length: 12 | 24) {
+  function updateActiveLength(length: SeedLength) {
     if (verifyMode) return;
     setActiveLength(length);
   }
@@ -92,7 +97,10 @@ export default function SeedInput({ verifyMode, onChange }: Props) {
 
                 // don't progress for the last input
                 // in the seedphrase
-                if (i === activeLength - 1) return;
+                if (i === activeLength - 1) {
+                  if (onReady) onReady();
+                  return;
+                }
 
                 // trick to move to the next input
                 const inputs = document.getElementsByTagName("input");
@@ -217,4 +225,12 @@ interface Props {
    */
   verifyMode?: boolean;
   onChange?: (val: string) => void;
+  /**
+   * Enter key press on the last word's
+   * input.
+   */
+  onReady?: () => void;
+  defaultLength?: SeedLength;
 }
+
+type SeedLength = 12 | 24;
