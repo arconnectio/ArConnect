@@ -1,13 +1,16 @@
 import { Card, Text } from "@arconnect/components";
 import { FolderIcon } from "@iconicicons/react";
+import { readFileString } from "~utils/file";
 import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
+import type { JWKInterface } from "arweave/web/lib/wallet";
 
 export default function SeedInput({
   verifyMode,
   onChange,
   onReady,
+  onWalletRead,
   defaultLength = 12
 }: Props) {
   // length of the seedphrase
@@ -28,8 +31,56 @@ export default function SeedInput({
     onChange(words.slice(0, activeLength).join(" "));
   }, [words, onChange]);
 
+  // drop effect show
+  const [dropShow, setDropShow] = useState(false);
+
   return (
-    <Wrapper>
+    <Wrapper
+      onDragOver={(e) => e.preventDefault()}
+      onDragEnter={(e) => {
+        e.preventDefault();
+        if (!e.dataTransfer.types.includes("Files") || verifyMode) return;
+        setDropShow(true);
+      }}
+      onDragLeave={(e) => {
+        e.preventDefault();
+        if (!dropShow || verifyMode) return;
+        setDropShow(false);
+      }}
+      onDrop={async (e) => {
+        // prevent default open behavior
+        e.preventDefault();
+
+        if (verifyMode) return;
+
+        let file: File;
+
+        // get with itemlist
+        if (e.dataTransfer.items) {
+          const item = e.dataTransfer.items[0];
+
+          // check item type
+          if (item.kind === "file") {
+            // get file
+            file = item.getAsFile();
+          }
+        }
+
+        // get with filelist
+        if (!file) {
+          file = e.dataTransfer.files[0];
+        }
+
+        // check file type
+        if (!file.type.includes("application/json")) return;
+
+        // read file and convert it to json
+        const fileData = JSON.parse(await readFileString(file));
+
+        // call wallet read event
+        if (onWalletRead) onWalletRead(fileData);
+      }}
+    >
       <Head>
         <LengthSelector>
           <LengthButton
@@ -231,6 +282,7 @@ interface Props {
    */
   onReady?: () => void;
   defaultLength?: SeedLength;
+  onWalletRead?: (wallet: JWKInterface) => void;
 }
 
 type SeedLength = 12 | 24;

@@ -18,8 +18,9 @@ import {
   useToasts
 } from "@arconnect/components";
 import KeystoneButton from "~components/hardware/KeystoneButton";
-import WalletLoader from "~components/welcome/load/WalletLoader";
 import Migrate from "~components/welcome/load/Migrate";
+import SeedInput from "~components/SeedInput";
+import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 
@@ -138,7 +139,11 @@ export default function Wallets() {
 
   return (
     <>
-      <WalletLoader seedInput={seedInput} fileInputRef={fileInputRef} />
+      <Text heading>{browser.i18n.getMessage("provide_seedphrase")}</Text>
+      <Paragraph>
+        {browser.i18n.getMessage("provide_seedphrase_paragraph")}
+      </Paragraph>
+      <SeedInput />
       {walletsToMigrate.length > 0 && <Migrate wallets={walletsToMigrate} />}
       <Spacer y={1.25} />
       <KeystoneButton
