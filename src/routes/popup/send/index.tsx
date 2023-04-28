@@ -447,6 +447,10 @@ export default function Send({ id }: Props) {
                       placeholder="ljvCPN31XCLPkBo9FUeB7vAK0VC6-eY52-CS-6Iho8U"
                       fullWidth
                       onFocus={pasteTarget}
+                      onKeyDown={(e) => {
+                        if (e.key !== "Enter") return;
+                        setEditingTarget(false);
+                      }}
                     />
                   </InputWrapper>
                   <IconButton secondary onClick={() => setEditingTarget(false)}>

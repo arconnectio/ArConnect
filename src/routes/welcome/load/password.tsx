@@ -68,6 +68,10 @@ export default function Password() {
         {...passwordInput.bindings}
         placeholder={browser.i18n.getMessage("enter_password")}
         fullWidth
+        onKeyDown={(e) => {
+          if (e.key !== "Enter") return;
+          done();
+        }}
       />
       <Spacer y={1} />
       <Input
@@ -75,6 +79,10 @@ export default function Password() {
         {...validPasswordInput.bindings}
         placeholder={browser.i18n.getMessage("enter_password_again")}
         fullWidth
+        onKeyDown={(e) => {
+          if (e.key !== "Enter") return;
+          done();
+        }}
       />
       <Spacer y={1.55} />
       <PasswordStrength password={passwordInput.state} />
