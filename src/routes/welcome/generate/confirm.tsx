@@ -2,6 +2,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { Button, Text, useToasts } from "@arconnect/components";
 import { useLocation, useRoute } from "wouter";
 import { WalletContext } from "../setup";
+import SeedphraseInput from "~components/SeedphraseInput";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -57,6 +58,7 @@ export default function Confirm() {
     <>
       <Text heading>{browser.i18n.getMessage("confirm_seed")}</Text>
       <Paragraph>{browser.i18n.getMessage("confirm_seed_paragraph")}</Paragraph>
+      <SeedphraseInput verifyMode />
       <ConfirmWords>
         {randomWords.map((word, i) => (
           <Word

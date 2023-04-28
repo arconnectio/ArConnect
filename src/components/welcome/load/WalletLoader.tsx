@@ -10,7 +10,7 @@ import SeedTextarea from "./SeedTextarea";
 import styled from "styled-components";
 import Wallet from "./Wallet";
 
-export default function Seed({ seedInput, fileInputRef }: Props) {
+export default function WalletLoader({ seedInput, fileInputRef }: Props) {
   const [wallets, setWallets] = useState<JWKInterface[]>([]);
 
   // fetch added wallets

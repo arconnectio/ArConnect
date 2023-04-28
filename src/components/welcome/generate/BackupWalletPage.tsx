@@ -1,4 +1,4 @@
-import { CopyIcon, EyeIcon, EyeOffIcon } from "@iconicicons/react";
+import { CheckIcon, CopyIcon, EyeIcon, EyeOffIcon } from "@iconicicons/react";
 import { Spacer, Text } from "@arconnect/components";
 import { useState } from "react";
 import Paragraph from "~components/Paragraph";
@@ -10,6 +10,16 @@ export default function BackupWalletPage({ seed }: Props) {
   // seed blur status
   const [shown, setShown] = useState(false);
 
+  // icon displayed for "copy seedphrase"
+  const [copyDisplay, setCopyDisplay] = useState(true);
+
+  // copy the seedphrase
+  function copySeed() {
+    copy(seed);
+    setCopyDisplay(false);
+    setTimeout(() => setCopyDisplay(true), 1050);
+  }
+
   return (
     <>
       <Text heading>{browser.i18n.getMessage("backup_wallet_title")}</Text>
@@ -19,8 +29,9 @@ export default function BackupWalletPage({ seed }: Props) {
         <SeedShownIcon as={shown ? EyeIcon : EyeOffIcon} />
       </SeedContainer>
       <Spacer y={0.5} />
-      <CopySeed onClick={() => copy(seed)}>
-        <CopyIcon /> {browser.i18n.getMessage("copySeed")}
+      <CopySeed onClick={copySeed}>
+        {(copyDisplay && <CopyIcon />) || <CheckIcon />}
+        {browser.i18n.getMessage("copySeed")}
       </CopySeed>
     </>
   );

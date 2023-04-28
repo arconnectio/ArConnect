@@ -617,13 +617,17 @@
     "message": "Generating wallet...",
     "description": "Generating wallet in progress text"
   },
+  "keyfile": {
+    "message": "Keyfile",
+    "description": "Keyfile text"
+  },
   "confirm_seed": {
     "message": "Confirm your seedphrase",
     "description": "Confirm seedphrase title"
   },
   "confirm_seed_paragraph": {
-    "message": "Verify your seedphrase by clicking the first and the last words.",
-    "description": "Confirm seedphrase explainer paragraph"
+    "message": "Verify your seedphrase by clicking the **first** and the **last** words.",
+    "description": "Confirm seedphrase explainer paragraph. FOR TRANSLATORS: make sure the words 'first' and 'last' are wrapped in '**', like in the english translation"
   },
   "correct": {
     "message": "Correct",

@@ -18,8 +18,8 @@ import {
   useToasts
 } from "@arconnect/components";
 import KeystoneButton from "~components/hardware/KeystoneButton";
+import WalletLoader from "~components/welcome/load/WalletLoader";
 import Migrate from "~components/welcome/load/Migrate";
-import Seed from "~components/welcome/load/Seed";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 
@@ -138,7 +138,7 @@ export default function Wallets() {
 
   return (
     <>
-      <Seed seedInput={seedInput} fileInputRef={fileInputRef} />
+      <WalletLoader seedInput={seedInput} fileInputRef={fileInputRef} />
       {walletsToMigrate.length > 0 && <Migrate wallets={walletsToMigrate} />}
       <Spacer y={1.25} />
       <KeystoneButton

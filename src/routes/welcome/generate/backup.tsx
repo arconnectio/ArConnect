@@ -1,6 +1,7 @@
 import {
   ArrowRightIcon,
   CopyIcon,
+  CheckIcon,
   EyeIcon,
   EyeOffIcon
 } from "@iconicicons/react";
@@ -24,6 +25,16 @@ export default function Backup() {
   const [, params] = useRoute<{ setup: string; page: string }>("/:setup/:page");
   const [, setLocation] = useLocation();
 
+  // icon displayed for "copy seedphrase"
+  const [copyDisplay, setCopyDisplay] = useState(true);
+
+  // copy the seedphrase
+  function copySeed() {
+    copy(generatedWallet.mnemonic || "");
+    setCopyDisplay(false);
+    setTimeout(() => setCopyDisplay(true), 1050);
+  }
+
   return (
     <>
       <Text heading>{browser.i18n.getMessage("backup_wallet_title")}</Text>
@@ -33,8 +44,9 @@ export default function Backup() {
         <SeedShownIcon as={shown ? EyeIcon : EyeOffIcon} />
       </SeedContainer>
       <Spacer y={0.5} />
-      <CopySeed onClick={() => copy(generatedWallet.mnemonic || "")}>
-        <CopyIcon /> {browser.i18n.getMessage("copySeed")}
+      <CopySeed onClick={copySeed}>
+        {(copyDisplay && <CopyIcon />) || <CheckIcon />}
+        {browser.i18n.getMessage("copySeed")}
       </CopySeed>
       <Spacer y={1} />
       <Button
