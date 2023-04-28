@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 
-export default function SeedphraseInput({ verifyMode }: Props) {
+export default function SeedInput({ verifyMode, onChange }: Props) {
   // length of the seedphrase
   const [activeLength, setActiveLength] = useState<12 | 24>(12);
 
@@ -16,6 +16,12 @@ export default function SeedphraseInput({ verifyMode }: Props) {
 
   // words
   const [words, setWords] = useState<string[]>(Array(24).fill(""));
+
+  // onchange event
+  useEffect(() => {
+    if (!onChange) return;
+    onChange(words.slice(0, activeLength).join(" "));
+  }, [words, onChange]);
 
   return (
     <Wrapper>
@@ -47,6 +53,11 @@ export default function SeedphraseInput({ verifyMode }: Props) {
             <Text noMargin>{i + 1}</Text>
             <WordInput
               onPaste={(e) => {
+                // return if verify mode is enabled
+                // we don't want the user to paste in
+                // their entire seedphrase
+                if (verifyMode) return e.preventDefault();
+
                 // get pasted words
                 const pastedWords = e.clipboardData.getData("Text").split(" ");
 
@@ -71,6 +82,30 @@ export default function SeedphraseInput({ verifyMode }: Props) {
                 words[i] = e.target.value;
 
                 setWords([...words]);
+              }}
+              onKeyDown={(e) => {
+                // check key code
+                if (e.key !== " " && e.key !== "Enter") return;
+
+                // prevent default action
+                e.preventDefault();
+
+                // don't progress for the last input
+                // in the seedphrase
+                if (i === activeLength - 1) return;
+
+                // trick to move to the next input
+                const inputs = document.getElementsByTagName("input");
+
+                let currentInputIndex = 0;
+
+                // find the current input's index
+                while (inputs[currentInputIndex] !== e.target) {
+                  currentInputIndex++;
+                }
+
+                // progress to the next input
+                inputs[currentInputIndex + 1].focus();
               }}
             />
           </WordInputWrapper>
@@ -181,4 +216,5 @@ interface Props {
    * user wrote down their seedphrase.
    */
   verifyMode?: boolean;
+  onChange?: (val: string) => void;
 }

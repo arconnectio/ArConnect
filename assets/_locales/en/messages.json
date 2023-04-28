@@ -626,15 +626,15 @@
     "description": "Confirm seedphrase title"
   },
   "confirm_seed_paragraph": {
-    "message": "Verify your seedphrase by clicking the **first** and the **last** words.",
-    "description": "Confirm seedphrase explainer paragraph. FOR TRANSLATORS: make sure the words 'first' and 'last' are wrapped in '**', like in the english translation"
+    "message": "Verify your seedphrase by re-entering it in the following section",
+    "description": "Confirm seedphrase explainer paragraph"
   },
   "correct": {
     "message": "Correct",
     "description": "Correct text"
   },
   "invalid_seed": {
-    "message": "Invalid words selected. Please try again",
+    "message": "Invalid words entered. Please try again",
     "description": "Invalid seed order notification"
   },
   "create_password": {
