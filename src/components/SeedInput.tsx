@@ -1,10 +1,11 @@
+import { AnimatePresence, motion, Variants } from "framer-motion";
+import type { JWKInterface } from "arweave/web/lib/wallet";
+import { DragEvent, useEffect, useState } from "react";
 import { Card, Text } from "@arconnect/components";
 import { FolderIcon } from "@iconicicons/react";
 import { readFileString } from "~utils/file";
-import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import type { JWKInterface } from "arweave/web/lib/wallet";
 
 export default function SeedInput({
   verifyMode,
@@ -34,53 +35,84 @@ export default function SeedInput({
   // drop effect show
   const [dropShow, setDropShow] = useState(false);
 
+  // parse file from event data transfer
+  function parseFileFromEvent(e: DragEvent<unknown>) {
+    let file: File;
+
+    // get with itemlist
+    if (e.dataTransfer.items) {
+      const item = e.dataTransfer.items[0];
+
+      // check item type
+      if (item.kind === "file") {
+        // get file
+        file = item.getAsFile();
+      }
+    }
+
+    // get with filelist
+    if (!file) {
+      file = e.dataTransfer.files[0];
+    }
+
+    return file;
+  }
+
+  // try to trigger the wallet read event
+  async function triggerWalletRead(file: File) {
+    // check file type
+    if (!file?.type?.includes("application/json")) return;
+
+    // read file and convert it to json
+    const fileData = JSON.parse(await readFileString(file));
+
+    // call wallet read event
+    if (onWalletRead) onWalletRead(fileData);
+  }
+
+  // to correct the drag layer
+  const [dragCounter, setDragCounter] = useState(0);
+
+  useEffect(() => setDropShow(dragCounter === 1), [dragCounter]);
+
   return (
     <Wrapper
+      dragging={dropShow}
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={(e) => {
         e.preventDefault();
-        if (!e.dataTransfer.types.includes("Files") || verifyMode) return;
-        setDropShow(true);
+        if (verifyMode) return;
+        setDragCounter((val) => val + 1);
       }}
       onDragLeave={(e) => {
         e.preventDefault();
-        if (!dropShow || verifyMode) return;
-        setDropShow(false);
+        setDragCounter((val) => val - 1);
       }}
-      onDrop={async (e) => {
+      onDrop={(e) => {
         // prevent default open behavior
         e.preventDefault();
 
         if (verifyMode) return;
 
-        let file: File;
-
-        // get with itemlist
-        if (e.dataTransfer.items) {
-          const item = e.dataTransfer.items[0];
-
-          // check item type
-          if (item.kind === "file") {
-            // get file
-            file = item.getAsFile();
-          }
+        if (dropShow) {
+          setDragCounter(0);
         }
 
-        // get with filelist
-        if (!file) {
-          file = e.dataTransfer.files[0];
-        }
+        // get file
+        const file = parseFileFromEvent(e);
 
-        // check file type
-        if (!file.type.includes("application/json")) return;
-
-        // read file and convert it to json
-        const fileData = JSON.parse(await readFileString(file));
-
-        // call wallet read event
-        if (onWalletRead) onWalletRead(fileData);
+        // trigger event
+        triggerWalletRead(file);
       }}
     >
+      <AnimatePresence>
+        {dropShow && (
+          <DragLayer>
+            <FolderIcon />
+            {browser.i18n.getMessage("dragAndDropFile")}
+          </DragLayer>
+        )}
+      </AnimatePresence>
       <Head>
         <LengthSelector>
           <LengthButton
@@ -98,7 +130,31 @@ export default function SeedInput({
             24
           </LengthButton>
         </LengthSelector>
-        <HeadButton disabled={verifyMode}>
+        <HeadButton
+          disabled={verifyMode}
+          onClick={() => {
+            if (verifyMode) return;
+
+            // create fake input
+            const input = document.createElement("input");
+
+            input.type = "file";
+            input.accept = ".json,application/json";
+            input.click();
+
+            // on file selected
+            input.addEventListener("change", (e: Event) => {
+              // get file
+              const file = (e.target as HTMLInputElement).files[0];
+
+              // trigger event
+              triggerWalletRead(file);
+
+              // remove input
+              input.remove();
+            });
+          }}
+        >
           <FolderIcon />
           {browser.i18n.getMessage("keyfile")}
         </HeadButton>
@@ -174,8 +230,11 @@ export default function SeedInput({
   );
 }
 
-const Wrapper = styled(Card)`
+const Wrapper = styled(Card)<{ dragging?: boolean }>`
+  position: relative;
   padding: 0;
+  border-style: ${(props) => (props.dragging ? "dashed" : "solid")};
+  overflow: hidden;
 `;
 
 const Head = styled.div`
@@ -267,6 +326,42 @@ const WordInput = styled.input.attrs({
   width: 100%;
   color: rgb(${(props) => props.theme.theme});
   font-weight: 500;
+`;
+
+const dragLayerVariants: Variants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1 }
+};
+
+const DragLayer = styled(motion.div).attrs({
+  initial: "hidden",
+  animate: "show",
+  exit: "hidden",
+  variants: dragLayerVariants
+})`
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: rgba(${(props) => props.theme.theme}, 0.2);
+  color: rgb(${(props) => props.theme.theme});
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-align: center;
+  gap: 0.2rem;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  backdrop-filter: blur(3px);
+
+  svg {
+    font-size: 4rem;
+    width: 1em;
+    height: 1em;
+  }
 `;
 
 interface Props {

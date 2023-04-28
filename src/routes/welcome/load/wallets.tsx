@@ -143,7 +143,7 @@ export default function Wallets() {
       <Paragraph>
         {browser.i18n.getMessage("provide_seedphrase_paragraph")}
       </Paragraph>
-      <SeedInput />
+      <SeedInput onWalletRead={(wallet) => console.log(wallet)} />
       {walletsToMigrate.length > 0 && <Migrate wallets={walletsToMigrate} />}
       <Spacer y={1.25} />
       <KeystoneButton

@@ -710,7 +710,7 @@
     "description": "Provide seedphrase for title in load wallet setup"
   },
   "provide_seedphrase_paragraph": {
-    "message": "Enter the 12 word seedphrase you saved when you generated your wallet. Make sure it is in the right order.",
+    "message": "Drag and drop your keyfile or enter the 12 word seedphrase you saved when you generated your wallet. Make sure it is in the right order.",
     "description": "Explainer about the seedphrase loading"
   },
   "sign_in": {
