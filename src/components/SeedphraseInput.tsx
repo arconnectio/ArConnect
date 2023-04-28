@@ -1,6 +1,6 @@
 import { Card, Text } from "@arconnect/components";
 import { FolderIcon } from "@iconicicons/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 
@@ -42,7 +42,7 @@ export default function SeedphraseInput({ verifyMode }: Props) {
         </HeadButton>
       </Head>
       <WordsWrapper>
-        {new Array(activeLength).fill("").map((_, i) => (
+        {words.slice(0, activeLength).map((word, i) => (
           <WordInputWrapper key={i}>
             <Text noMargin>{i + 1}</Text>
             <WordInput
@@ -54,28 +54,24 @@ export default function SeedphraseInput({ verifyMode }: Props) {
                 if (pastedWords.length <= 1) return;
 
                 // update words
-                setWords((val) => {
-                  for (let j = i; j < pastedWords.length + i; j++) {
-                    if (j > activeLength) break;
+                for (let j = i; j < pastedWords.length + i; j++) {
+                  if (j > activeLength) break;
 
-                    val[j] = pastedWords[j - i];
-                  }
+                  words[j] = pastedWords[j - i];
+                }
 
-                  return val;
-                });
+                // update state
+                setWords([...words]);
 
                 // prevent default paste
                 e.preventDefault();
               }}
-              value={words[i]}
-              onChange={(e) =>
-                setWords((val) => {
-                  // update one word
-                  val[i] = e.target.value;
+              value={word}
+              onChange={(e) => {
+                words[i] = e.target.value;
 
-                  return val;
-                })
-              }
+                setWords([...words]);
+              }}
             />
           </WordInputWrapper>
         ))}
