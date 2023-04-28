@@ -84,44 +84,26 @@ export default function Wallets() {
   const [, params] = useRoute<{ setup: string; page: string }>("/:setup/:page");
   const [, setLocation] = useLocation();
 
-  // seed input
-  const seedInput = useInput("");
-
-  // wallets file input
-  const fileInputRef = useRef<HTMLInputElement>();
-
   // loading
   const [loading, setLoading] = useState(false);
 
+  // wallet loaded from seed input
+  const [loadedWallet, setLoadedWallet] = useState<JWKInterface>();
+
+  // seedphrase from seed input
+  const [seedphrase, setSeedphrase] = useState<string>();
+
   // done
   async function done() {
-    const files = fileInputRef?.current?.files;
-
-    if (!files && seedInput.state === "") return;
+    if (!loadedWallet) return;
     setLoading(true);
 
     try {
-      const walletsToAdd: JWKInterface[] = [];
-
-      // generate from mnemonic
-      if (seedInput.state !== "") {
-        const wallet = await jwkFromMnemonic(seedInput.state);
-
-        walletsToAdd.push(wallet);
-      }
-
-      // load from files
-      if (files) {
-        for (const wallet of files) {
-          const jwkText = await readFileString(wallet);
-          const jwk = JSON.parse(jwkText);
-
-          walletsToAdd.push(jwk);
-        }
-      }
-
-      // add wallet
-      await addWallet(walletsToAdd, password);
+      // add wallet from seedphrase input
+      await addWallet(
+        loadedWallet || (await jwkFromMnemonic(seedphrase)),
+        password
+      );
 
       // continue to the next page
       setLocation(`/${params.setup}/${Number(params.page) + 1}`);
@@ -143,7 +125,11 @@ export default function Wallets() {
       <Paragraph>
         {browser.i18n.getMessage("provide_seedphrase_paragraph")}
       </Paragraph>
-      <SeedInput onWalletRead={(wallet) => console.log(wallet)} />
+      <SeedInput
+        onWalletRead={(wallet) => setLoadedWallet(wallet)}
+        onChange={(val) => setSeedphrase(val)}
+        onReady={done}
+      />
       {walletsToMigrate.length > 0 && <Migrate wallets={walletsToMigrate} />}
       <Spacer y={1.25} />
       <KeystoneButton
