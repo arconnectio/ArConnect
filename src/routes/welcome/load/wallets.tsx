@@ -114,7 +114,7 @@ export default function Wallets() {
       console.log("Failed to load wallet", e);
       setToast({
         type: "error",
-        content: browser.i18n.getMessage("error_adding_wallets"),
+        content: browser.i18n.getMessage("error_adding_wallet"),
         duration: 2000
       });
     }

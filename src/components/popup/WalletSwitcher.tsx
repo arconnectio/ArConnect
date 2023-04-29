@@ -226,7 +226,7 @@ export default function WalletSwitcher({
                       }
                     >
                       <PlusIcon />
-                      {browser.i18n.getMessage("addWallet")}
+                      {browser.i18n.getMessage("add_wallet")}
                     </AddWalletButton>
                     <Tooltip content={browser.i18n.getMessage("edit")}>
                       <EditButton

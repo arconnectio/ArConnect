@@ -1,10 +1,11 @@
 import { PlusIcon, SettingsIcon } from "@iconicicons/react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
+import { defaultGateway } from "~applications/gateway";
 import { jwkFromMnemonic } from "~wallets/generator";
 import { checkPassword } from "~wallets/auth";
-import { readFileString } from "~utils/file";
-import { useRef, useState } from "react";
+import { useLocation } from "wouter";
 import { addWallet } from "~wallets";
+import { useState } from "react";
 import {
   Button,
   FileInput,
@@ -17,14 +18,13 @@ import {
 import BackupWalletPage from "~components/welcome/generate/BackupWalletPage";
 import KeystoneButton from "~components/hardware/KeystoneButton";
 import SeedTextarea from "~components/welcome/load/SeedTextarea";
+import SeedInput from "~components/SeedInput";
 import browser from "webextension-polyfill";
 import * as bip39 from "bip39-web-crypto";
+import Arweave from "arweave/web/common";
 import styled from "styled-components";
 
 export default function AddWallet() {
-  // file input ref
-  const fileInput = useRef<HTMLInputElement>();
-
   // password input
   const passwordInput = useInput();
 
@@ -34,54 +34,56 @@ export default function AddWallet() {
   // loading
   const [loading, setLoading] = useState(false);
 
-  // add wallets
-  async function addWallets() {
-    const files = fileInput?.current?.files;
-    const walletsToAdd: JWKInterface[] = [];
+  // seedphrase or jwk loaded from
+  // the seedphrase component
+  const [providedWallet, setProvidedWallet] = useState<JWKInterface | string>();
 
-    if (!files && seedInput.state === "") return;
+  // router location
+  const [, setLocation] = useLocation();
 
+  // add wallet
+  async function loadWallet() {
+    if (!providedWallet) return;
     setLoading(true);
 
+    // prevent user from closing the window
+    // while ArConnect is loading the wallet
+    window.onbeforeunload = () =>
+      browser.i18n.getMessage("close_tab_load_wallet_message");
+
     try {
-      // load from files
-      if (files) {
-        for (const wallet of files) {
-          const jwkText = await readFileString(wallet);
-          const jwk = JSON.parse(jwkText);
+      // load jwk from seedphrase input state
+      const jwk =
+        typeof providedWallet === "string"
+          ? await jwkFromMnemonic(providedWallet)
+          : providedWallet;
 
-          walletsToAdd.push(jwk);
-        }
-      }
+      await addWallet(jwk, passwordInput.state);
 
-      // load from menmonic
-      if (seedInput.state !== "") {
-        walletsToAdd.push(await jwkFromMnemonic(seedInput.state));
-      }
-
-      await addWallet(walletsToAdd, passwordInput.state);
-
+      // send success toast
       setToast({
         type: "success",
-        content: browser.i18n.getMessage("added_wallets"),
+        content: browser.i18n.getMessage("added_wallet"),
         duration: 2300
       });
+
+      // redirect to the wallet in settings
+      const arweave = new Arweave(defaultGateway);
+
+      setLocation(`/wallets/${await arweave.wallets.jwkToAddress(jwk)}`);
     } catch (e) {
-      console.log("Error adding wallet(s)", e);
+      console.log("Failed to load wallet", e);
       setToast({
         type: "error",
-        content: browser.i18n.getMessage("error_adding_wallets"),
+        content: browser.i18n.getMessage("error_adding_wallet"),
         duration: 2000
       });
     }
 
-    passwordInput.setState("");
-    seedInput.setState("");
+    // reset before unload
+    window.onbeforeunload = null;
     setLoading(false);
   }
-
-  // seedphrase input
-  const seedInput = useInput();
 
   // generated seedphrase
   const [generatedSeed, setGeneratedSeed] = useState<string>();
@@ -142,34 +144,45 @@ export default function AddWallet() {
   return (
     <Wrapper>
       <div>
-        <Title>{browser.i18n.getMessage("addWallet")}</Title>
-        <Text>{browser.i18n.getMessage("add_wallet_subtitle")}</Text>
-        {(!generatedSeed && (
-          <>
-            <WalletInput
-              inputRef={fileInput}
-              multiple
-              accept=".json,application/json"
-            >
-              {browser.i18n.getMessage("drag_and_drop_wallet")}
-            </WalletInput>
-            <Spacer y={1} />
-            <Or>{browser.i18n.getMessage("or").toUpperCase()}</Or>
-            <Spacer y={1} />
-            <ShortSeedTextarea
-              {...(seedInput.bindings as any)}
-              placeholder={browser.i18n.getMessage("enter_seedphrase")}
-            />
-            <Spacer y={1} />
-            <Input
-              type="password"
-              {...passwordInput.bindings}
-              placeholder={browser.i18n.getMessage("enter_password")}
-              label={browser.i18n.getMessage("password")}
-              fullWidth
-            />
-          </>
-        )) || (
+        <Title>{browser.i18n.getMessage("add_wallet")}</Title>
+        <Text>{browser.i18n.getMessage("provide_seedphrase_paragraph")}</Text>
+        <SeedInput
+          onChange={(val) => setProvidedWallet(val)}
+          onReady={loadWallet}
+        />
+        <Spacer y={1} />
+        <Input
+          type="password"
+          {...passwordInput.bindings}
+          placeholder={browser.i18n.getMessage("enter_password")}
+          label={browser.i18n.getMessage("password")}
+          fullWidth
+          onKeyDown={(e) => {
+            if (e.key !== "Enter") return;
+            loadWallet();
+          }}
+        />
+        <Spacer y={1} />
+        <Button fullWidth onClick={loadWallet} loading={loading}>
+          <PlusIcon />
+          {browser.i18n.getMessage("add_wallet")}
+        </Button>
+        <Spacer y={1.3} />
+        <Or>{browser.i18n.getMessage("or").toUpperCase()}</Or>
+        <Spacer y={1.3} />
+        <KeystoneButton />
+        <Spacer y={1} />
+        <Button
+          fullWidth
+          secondary
+          onClick={generateWallet}
+          loading={generating}
+          disabled={!!generatedSeed}
+        >
+          <SettingsIcon />
+          {browser.i18n.getMessage("generate_wallet")}
+        </Button>
+        {/*(
           <>
             <BackupWalletPage seed={generatedSeed} />
             <Spacer y={1} />
@@ -180,31 +193,7 @@ export default function AddWallet() {
               </Text>
             )}
           </>
-        )}
-      </div>
-      <div>
-        {!generatedSeed && (
-          <>
-            <Button fullWidth onClick={addWallets} loading={loading}>
-              <PlusIcon />
-              {browser.i18n.getMessage("addWallet")}
-            </Button>
-            <Spacer y={2} />
-          </>
-        )}
-        <Btns>
-          <KeystoneButton />
-          <Button
-            fullWidth
-            secondary
-            onClick={generateWallet}
-            loading={generating}
-            disabled={!!generatedSeed}
-          >
-            <SettingsIcon />
-            {browser.i18n.getMessage("generate_wallet")}
-          </Button>
-        </Btns>
+            )*/}
       </div>
     </Wrapper>
   );

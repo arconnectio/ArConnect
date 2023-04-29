@@ -347,6 +347,9 @@ const Wrapper = styled(Card)<{ dragging?: boolean }>`
         props.dragging ? props.theme.theme : props.theme.cardBorder}
     );
   transition: all 0.2s ease-in-out;
+  // this fixes overflow-hidden not working
+  // with the blurred drag & drop layer
+  filter: blur(0);
 `;
 
 const Head = styled.div`
