@@ -1,8 +1,14 @@
 import { AnimatePresence, motion, Variants } from "framer-motion";
-import { FolderIcon, TrashIcon } from "@iconicicons/react";
+import {
+  CloseIcon,
+  FolderIcon,
+  TrashIcon,
+  WalletIcon
+} from "@iconicicons/react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
-import { DragEvent, useEffect, useState } from "react";
+import { DragEvent, useEffect, useMemo, useState } from "react";
 import { Card, Text } from "@arconnect/components";
+import { formatAddress } from "~utils/format";
 import { readFileString } from "~utils/file";
 import { wordlists } from "bip39-web-crypto";
 import browser from "webextension-polyfill";
@@ -12,7 +18,6 @@ export default function SeedInput({
   verifyMode,
   onChange,
   onReady,
-  onWalletRead,
   defaultLength = 12
 }: Props) {
   // length of the seedphrase
@@ -26,15 +31,29 @@ export default function SeedInput({
 
   // words
   const [words, setWords] = useState<string[]>(Array(24).fill(""));
+  const resetWords = () => setWords(Array(24).fill(""));
+
+  // are all the word inputs empty
+  const isEmpty = useMemo(() => words.every((word) => word === ""), [words]);
+
+  // current seedphrase state joined
+  // from the words array
+  const currentSeedphrase = useMemo(
+    () => words.slice(0, activeLength).join(" "),
+    [words, activeLength]
+  );
 
   // onchange event
   useEffect(() => {
     if (!onChange) return;
-    onChange(words.slice(0, activeLength).join(" "));
-  }, [words, onChange]);
+    onChange(!isEmpty ? currentSeedphrase : undefined);
+  }, [currentSeedphrase, isEmpty]);
 
   // drop effect show
   const [dropShow, setDropShow] = useState(false);
+
+  // loaded wallet file name
+  const [loadedFileName, setLoadedFileName] = useState<string>();
 
   // parse file from event data transfer
   function parseFileFromEvent(e: DragEvent<unknown>) {
@@ -65,10 +84,16 @@ export default function SeedInput({
     if (!file?.type?.includes("application/json")) return;
 
     // read file and convert it to json
-    const fileData = JSON.parse(await readFileString(file));
+    const fileData: JWKInterface = JSON.parse(await readFileString(file));
 
     // call wallet read event
-    if (onWalletRead) onWalletRead(fileData);
+    if (onChange) onChange(fileData);
+
+    // set file name
+    setLoadedFileName(formatAddress(file.name, 8));
+
+    // show layer
+    setDropShow(true);
   }
 
   // to correct the drag layer
@@ -82,7 +107,7 @@ export default function SeedInput({
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={(e) => {
         e.preventDefault();
-        if (verifyMode || !words.every((word) => word === "")) return;
+        if (verifyMode) return;
         setDragCounter((val) => val + 1);
       }}
       onDragLeave={(e) => {
@@ -93,7 +118,7 @@ export default function SeedInput({
         // prevent default open behavior
         e.preventDefault();
 
-        if (verifyMode || !words.every((word) => word === "")) return;
+        if (verifyMode) return;
 
         if (dropShow) {
           setDragCounter(0);
@@ -109,8 +134,42 @@ export default function SeedInput({
       <AnimatePresence>
         {dropShow && (
           <DragLayer>
-            <FolderIcon />
-            {browser.i18n.getMessage("dragAndDropFile")}
+            {loadedFileName && (
+              <CloseDragLayerButton
+                onClick={() => {
+                  setLoadedFileName(undefined);
+                  setDropShow(false);
+
+                  // trigger onChange event
+                  onChange(!isEmpty ? currentSeedphrase : undefined);
+                }}
+              />
+            )}
+            <AnimatePresence>
+              {(loadedFileName && (
+                <motion.div
+                  initial="hidden"
+                  animate="shown"
+                  variants={scaleAppearAnimation}
+                  key="walleticon"
+                >
+                  <WalletIcon />
+                </motion.div>
+              )) || (
+                <motion.div
+                  initial="hidden"
+                  animate="shown"
+                  variants={scaleAppearAnimation}
+                  key="fileicon"
+                >
+                  <FolderIcon />
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <DragText>
+              {loadedFileName ||
+                browser.i18n.getMessage("drag_and_drop_wallet")}
+            </DragText>
           </DragLayer>
         )}
       </AnimatePresence>
@@ -132,14 +191,14 @@ export default function SeedInput({
           </LengthButton>
         </LengthSelector>
         <AnimatePresence>
-          {(!words.every((word) => word === "") && (
+          {(!isEmpty && (
             <motion.div
               initial="hidden"
               animate="shown"
-              variants={headButtonAnimation}
+              variants={scaleAppearAnimation}
               key="resetbutton"
             >
-              <HeadButton onClick={() => setWords(Array(24).fill(""))}>
+              <HeadButton onClick={resetWords}>
                 <TrashIcon />
                 {browser.i18n.getMessage("reset")}
               </HeadButton>
@@ -148,13 +207,13 @@ export default function SeedInput({
             <motion.div
               initial="hidden"
               animate="shown"
-              variants={headButtonAnimation}
+              variants={scaleAppearAnimation}
               key="keyfilebutton"
             >
               <HeadButton
                 disabled={verifyMode}
                 onClick={() => {
-                  if (verifyMode || !words.every((word) => word === "")) return;
+                  if (verifyMode || !isEmpty) return;
 
                   // create fake input
                   const input = document.createElement("input");
@@ -281,8 +340,13 @@ export default function SeedInput({
 const Wrapper = styled(Card)<{ dragging?: boolean }>`
   position: relative;
   padding: 0;
-  border-style: ${(props) => (props.dragging ? "dashed" : "solid")};
   overflow: hidden;
+  border: ${(props) => (props.dragging ? "2px" : "1px")} solid
+    rgb(
+      ${(props) =>
+        props.dragging ? props.theme.theme : props.theme.cardBorder}
+    );
+  transition: all 0.2s ease-in-out;
 `;
 
 const Head = styled.div`
@@ -417,10 +481,6 @@ const DragLayer = styled(motion.div).attrs({
   justify-content: center;
   flex-direction: column;
   background-color: rgba(${(props) => props.theme.theme}, 0.2);
-  color: rgb(${(props) => props.theme.theme});
-  font-size: 1.1rem;
-  font-weight: 500;
-  text-align: center;
   gap: 0.2rem;
   z-index: 100;
   top: 0;
@@ -430,13 +490,41 @@ const DragLayer = styled(motion.div).attrs({
   backdrop-filter: blur(3px);
 
   svg {
+    color: rgb(${(props) => props.theme.theme});
     font-size: 4rem;
     width: 1em;
     height: 1em;
   }
 `;
 
-const headButtonAnimation: Variants = {
+const DragText = styled.p`
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: center;
+  color: rgb(${(props) => props.theme.theme});
+  margin: 0;
+`;
+
+const CloseDragLayerButton = styled(CloseIcon)`
+  position: absolute;
+  font-size: 1.3rem !important;
+  top: 1rem;
+  right: 1rem;
+  bottom: unset;
+  left: unset;
+  cursor: pointer;
+  transition: 0.18s ease-in-out;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    transform: scale(0.82);
+  }
+`;
+
+const scaleAppearAnimation: Variants = {
   hidden: {
     opacity: 0,
     scale: 0.6,
@@ -463,14 +551,13 @@ interface Props {
    * user wrote down their seedphrase.
    */
   verifyMode?: boolean;
-  onChange?: (val: string) => void;
+  onChange?: (val: string | JWKInterface) => void;
   /**
    * Enter key press on the last word's
    * input.
    */
   onReady?: () => void;
   defaultLength?: SeedLength;
-  onWalletRead?: (wallet: JWKInterface) => void;
 }
 
 type SeedLength = 12 | 24;

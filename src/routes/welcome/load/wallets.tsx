@@ -85,11 +85,9 @@ export default function Wallets() {
   // loading
   const [loading, setLoading] = useState(false);
 
-  // wallet loaded from seed input
-  const [loadedWallet, setLoadedWallet] = useState<JWKInterface>();
-
-  // seedphrase from seed input
-  const [seedphrase, setSeedphrase] = useState<string>();
+  // seedphrase or jwk loaded from
+  // the seedphrase component
+  const [loadedWallet, setLoadedWallet] = useState<JWKInterface | string>();
 
   // done
   async function done() {
@@ -101,11 +99,14 @@ export default function Wallets() {
       browser.i18n.getMessage("close_tab_load_wallet_message");
 
     try {
-      // add wallet from seedphrase input
-      await addWallet(
-        loadedWallet || (await jwkFromMnemonic(seedphrase)),
-        password
-      );
+      // load jwk from seedphrase input state
+      const jwk =
+        typeof loadedWallet === "string"
+          ? await jwkFromMnemonic(loadedWallet)
+          : loadedWallet;
+
+      // add wallet
+      await addWallet(jwk, password);
 
       // continue to the next page
       setLocation(`/${params.setup}/${Number(params.page) + 1}`);
@@ -129,11 +130,7 @@ export default function Wallets() {
       <Paragraph>
         {browser.i18n.getMessage("provide_seedphrase_paragraph")}
       </Paragraph>
-      <SeedInput
-        onWalletRead={(wallet) => setLoadedWallet(wallet)}
-        onChange={(val) => setSeedphrase(val)}
-        onReady={done}
-      />
+      <SeedInput onChange={(val) => setLoadedWallet(val)} onReady={done} />
       {walletsToMigrate.length > 0 && <Migrate wallets={walletsToMigrate} />}
       <Spacer y={1.25} />
       <KeystoneButton

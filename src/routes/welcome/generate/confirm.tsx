@@ -15,7 +15,7 @@ export default function Confirm() {
   const { setToast } = useToasts();
 
   // confirm seedphrase input state
-  const [seedInputState, setSeedInputState] = useState<string>("");
+  const [seedInputState, setSeedInputState] = useState<string>();
 
   // route
   const [, params] = useRoute<{ setup: string; page: string }>("/:setup/:page");
@@ -43,7 +43,10 @@ export default function Confirm() {
       <Paragraph>{browser.i18n.getMessage("confirm_seed_paragraph")}</Paragraph>
       <SeedInput
         verifyMode
-        onChange={(val) => setSeedInputState(val)}
+        onChange={(val) => {
+          if (typeof val !== "string") return;
+          setSeedInputState(val);
+        }}
         onReady={validateSeedphrase}
       />
       <Spacer y={1.5} />

@@ -444,7 +444,7 @@
     "description": "Subtitle for add wallet section"
   },
   "drag_and_drop_wallet": {
-    "message": "Drag and drop your wallet(s)...",
+    "message": "Drag and drop wallet...",
     "description": "Wallet input text"
   },
   "enter_password": {
