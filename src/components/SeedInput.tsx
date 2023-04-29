@@ -229,7 +229,7 @@ export default function SeedInput({
                 }}
                 onKeyDown={(e) => {
                   // autocomplete
-                  if (e.key === "Tab" && !verifyMode && word !== "") {
+                  if (e.key === "Tab" && word !== "") {
                     // get suggested word
                     const suggestedWord = wordlists.english.filter((val) =>
                       val.startsWith(word)
