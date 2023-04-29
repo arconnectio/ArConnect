@@ -93,8 +93,12 @@ export default function Wallets() {
 
   // done
   async function done() {
-    if (!loadedWallet) return;
     setLoading(true);
+
+    // prevent user from closing the window
+    // while ArConnect is loading the wallet
+    window.onbeforeunload = () =>
+      browser.i18n.getMessage("close_tab_load_wallet_message");
 
     try {
       // add wallet from seedphrase input
@@ -114,6 +118,8 @@ export default function Wallets() {
       });
     }
 
+    // reset before unload
+    window.onbeforeunload = null;
     setLoading(false);
   }
 

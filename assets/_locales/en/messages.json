@@ -1196,7 +1196,11 @@
     "description": "Add balance button text"
   },
   "close_tab_generate_wallet_message": {
-    "message": "Are you sure you want to exit? Your wallet is still being generated and will be lost.",
+    "message": "Are you sure you want to exit? Your new wallet is still being generated and will be lost.",
     "description": "Confirmation message for the user who tries to close a tab where a wallet is still being generated"
+  },
+  "close_tab_load_wallet_message": {
+    "message": "Are you sure you want to exit? Your wallet is still being loaded, closing the tab will stop the process.",
+    "description": "Confirmation message for the user who tries to close a tab where a wallet is still being loaded"
   }
 }
