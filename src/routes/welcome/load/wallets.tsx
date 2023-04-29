@@ -1,19 +1,17 @@
-import { useContext, useEffect, useRef, useState } from "react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
+import { useContext, useEffect, useState } from "react";
 import { addWallet, setActiveWallet } from "~wallets";
 import { jwkFromMnemonic } from "~wallets/generator";
 import { ArrowRightIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useLocation, useRoute } from "wouter";
-import { readFileString } from "~utils/file";
 import { PasswordContext } from "../setup";
 import {
   Button,
   Modal,
   Spacer,
   Text,
-  useInput,
   useModal,
   useToasts
 } from "@arconnect/components";

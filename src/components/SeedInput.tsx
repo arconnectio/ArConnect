@@ -1,9 +1,10 @@
 import { AnimatePresence, motion, Variants } from "framer-motion";
+import { FolderIcon, TrashIcon } from "@iconicicons/react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { DragEvent, useEffect, useState } from "react";
 import { Card, Text } from "@arconnect/components";
-import { FolderIcon } from "@iconicicons/react";
 import { readFileString } from "~utils/file";
+import { wordlists } from "bip39-web-crypto";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 
@@ -81,7 +82,7 @@ export default function SeedInput({
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={(e) => {
         e.preventDefault();
-        if (verifyMode) return;
+        if (verifyMode || !words.every((word) => word === "")) return;
         setDragCounter((val) => val + 1);
       }}
       onDragLeave={(e) => {
@@ -92,7 +93,7 @@ export default function SeedInput({
         // prevent default open behavior
         e.preventDefault();
 
-        if (verifyMode) return;
+        if (verifyMode || !words.every((word) => word === "")) return;
 
         if (dropShow) {
           setDragCounter(0);
@@ -130,99 +131,146 @@ export default function SeedInput({
             24
           </LengthButton>
         </LengthSelector>
-        <HeadButton
-          disabled={verifyMode}
-          onClick={() => {
-            if (verifyMode) return;
+        <AnimatePresence>
+          {(!words.every((word) => word === "") && (
+            <motion.div
+              initial="hidden"
+              animate="shown"
+              variants={headButtonAnimation}
+              key="resetbutton"
+            >
+              <HeadButton onClick={() => setWords(Array(24).fill(""))}>
+                <TrashIcon />
+                {browser.i18n.getMessage("reset")}
+              </HeadButton>
+            </motion.div>
+          )) || (
+            <motion.div
+              initial="hidden"
+              animate="shown"
+              variants={headButtonAnimation}
+              key="keyfilebutton"
+            >
+              <HeadButton
+                disabled={verifyMode}
+                onClick={() => {
+                  if (verifyMode || !words.every((word) => word === "")) return;
 
-            // create fake input
-            const input = document.createElement("input");
+                  // create fake input
+                  const input = document.createElement("input");
 
-            input.type = "file";
-            input.accept = ".json,application/json";
-            input.click();
+                  input.type = "file";
+                  input.accept = ".json,application/json";
+                  input.click();
 
-            // on file selected
-            input.addEventListener("change", (e: Event) => {
-              // get file
-              const file = (e.target as HTMLInputElement).files[0];
+                  // on file selected
+                  input.addEventListener("change", (e: Event) => {
+                    // get file
+                    const file = (e.target as HTMLInputElement).files[0];
 
-              // trigger event
-              triggerWalletRead(file);
+                    // trigger event
+                    triggerWalletRead(file);
 
-              // remove input
-              input.remove();
-            });
-          }}
-        >
-          <FolderIcon />
-          {browser.i18n.getMessage("keyfile")}
-        </HeadButton>
+                    // remove input
+                    input.remove();
+                  });
+                }}
+              >
+                <FolderIcon />
+                {browser.i18n.getMessage("keyfile")}
+              </HeadButton>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Head>
       <WordsWrapper>
         {words.slice(0, activeLength).map((word, i) => (
           <WordInputWrapper key={i}>
             <Text noMargin>{i + 1}</Text>
-            <WordInput
-              onPaste={(e) => {
-                // return if verify mode is enabled
-                // we don't want the user to paste in
-                // their entire seedphrase
-                if (verifyMode) return e.preventDefault();
+            <SuggestionWrapper>
+              <WordInputSuggestion>
+                {(word !== "" &&
+                  wordlists.english.filter((val) => val.startsWith(word))[0]) ||
+                  ""}
+              </WordInputSuggestion>
+              <WordInput
+                onPaste={(e) => {
+                  // return if verify mode is enabled
+                  // we don't want the user to paste in
+                  // their entire seedphrase
+                  if (verifyMode) return e.preventDefault();
 
-                // get pasted words
-                const pastedWords = e.clipboardData.getData("Text").split(" ");
+                  // get pasted words
+                  const pastedWords = e.clipboardData
+                    .getData("Text")
+                    .split(" ");
 
-                // check length
-                if (pastedWords.length <= 1) return;
+                  // check length
+                  if (pastedWords.length <= 1) return;
 
-                // update words
-                for (let j = i; j < pastedWords.length + i; j++) {
-                  if (j > activeLength) break;
+                  // update words
+                  for (let j = i; j < pastedWords.length + i; j++) {
+                    if (j > activeLength) break;
 
-                  words[j] = pastedWords[j - i];
-                }
+                    words[j] = pastedWords[j - i];
+                  }
 
-                // update state
-                setWords([...words]);
+                  // update state
+                  setWords([...words]);
 
-                // prevent default paste
-                e.preventDefault();
-              }}
-              value={word}
-              onChange={(e) => {
-                words[i] = e.target.value;
+                  // prevent default paste
+                  e.preventDefault();
+                }}
+                value={word}
+                onChange={(e) => {
+                  words[i] = e.target.value;
 
-                setWords([...words]);
-              }}
-              onKeyDown={(e) => {
-                // check key code
-                if (e.key !== " " && e.key !== "Enter") return;
+                  setWords([...words]);
+                }}
+                onKeyDown={(e) => {
+                  // autocomplete
+                  if (e.key === "Tab" && !verifyMode && word !== "") {
+                    // get suggested word
+                    const suggestedWord = wordlists.english.filter((val) =>
+                      val.startsWith(word)
+                    )[0];
 
-                // prevent default action
-                e.preventDefault();
+                    // fill input with the suggested word
+                    if (suggestedWord) {
+                      words[i] = suggestedWord;
 
-                // don't progress for the last input
-                // in the seedphrase
-                if (i === activeLength - 1) {
-                  if (onReady) onReady();
-                  return;
-                }
+                      setWords([...words]);
+                    }
+                  }
 
-                // trick to move to the next input
-                const inputs = document.getElementsByTagName("input");
+                  // check key code
+                  if (e.key !== " " && e.key !== "Enter") return;
 
-                let currentInputIndex = 0;
+                  // prevent default action
+                  e.preventDefault();
 
-                // find the current input's index
-                while (inputs[currentInputIndex] !== e.target) {
-                  currentInputIndex++;
-                }
+                  // don't progress for the last input
+                  // in the seedphrase
+                  if (i === activeLength - 1) {
+                    if (onReady) onReady();
+                    return;
+                  }
 
-                // progress to the next input
-                inputs[currentInputIndex + 1].focus();
-              }}
-            />
+                  // trick to move to the next input
+                  const inputs = document.getElementsByTagName("input");
+
+                  let currentInputIndex = 0;
+
+                  // find the current input's index
+                  while (inputs[currentInputIndex] !== e.target) {
+                    currentInputIndex++;
+                  }
+
+                  // progress to the next input
+                  inputs[currentInputIndex + 1].focus();
+                }}
+              />
+            </SuggestionWrapper>
           </WordInputWrapper>
         ))}
       </WordsWrapper>
@@ -322,10 +370,34 @@ const WordInput = styled.input.attrs({
   border: none;
   padding: 0.15rem 0.25rem;
   font-size: 1rem;
+  font-weight: 500;
   outline: none;
   width: 100%;
   color: rgb(${(props) => props.theme.theme});
+  z-index: 2;
+`;
+
+const WordInputSuggestion = styled.span`
+  position: absolute;
+  top: 0.15rem;
+  left: 0.25rem;
+  font-size: 1rem;
   font-weight: 500;
+  color: rgb(${(props) => props.theme.theme}, 0.35);
+  z-index: -1;
+  user-select: none;
+  transition: all 0.23s ease-in-out;
+`;
+
+const SuggestionWrapper = styled.div`
+  position: relative;
+  z-index: 1;
+
+  &:not(:focus-within) {
+    ${WordInputSuggestion} {
+      opacity: 0;
+    }
+  }
 `;
 
 const dragLayerVariants: Variants = {
@@ -363,6 +435,27 @@ const DragLayer = styled(motion.div).attrs({
     height: 1em;
   }
 `;
+
+const headButtonAnimation: Variants = {
+  hidden: {
+    opacity: 0,
+    scale: 0.6,
+    transition: {
+      type: "spring",
+      duration: 0.4
+    }
+  },
+  shown: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: "spring",
+      duration: 0.4,
+      delayChildren: 0.2,
+      staggerChildren: 0.05
+    }
+  }
+};
 
 interface Props {
   /**
