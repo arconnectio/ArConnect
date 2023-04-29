@@ -69,6 +69,11 @@ export default function Setup({ setupMode, page }: Props) {
       // setup mode is wallet generation
       if (!isGenerateWallet || generatedWallet.address) return;
 
+      // prevent user from closing the window
+      // while ArConnect is generating a wallet
+      window.onbeforeunload = () =>
+        browser.i18n.getMessage("close_tab_generate_wallet_message");
+
       try {
         const arweave = new Arweave(defaultGateway);
 
@@ -94,6 +99,9 @@ export default function Setup({ setupMode, page }: Props) {
           duration: 2300
         });
       }
+
+      // reset before unload
+      window.onbeforeunload = null;
     })();
   }, [isGenerateWallet]);
 
