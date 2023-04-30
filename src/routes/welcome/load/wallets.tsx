@@ -1,3 +1,4 @@
+import type { KeystoneAccount } from "~wallets/hardware/keystone";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { useContext, useEffect, useState } from "react";
 import { addWallet, setActiveWallet } from "~wallets";
@@ -124,6 +125,17 @@ export default function Wallets() {
     setLoading(false);
   }
 
+  // done for keystone wallet
+  async function keystoneDone(account: KeystoneAccount) {
+    // update active address
+    // we need this because we don't
+    // have any other wallets added yet
+    await setActiveWallet(account.address);
+
+    // redirect
+    setLocation(`/${params.setup}/${Number(params.page) + 1}`);
+  }
+
   return (
     <>
       <Text heading>{browser.i18n.getMessage("provide_seedphrase")}</Text>
@@ -133,9 +145,7 @@ export default function Wallets() {
       <SeedInput onChange={(val) => setLoadedWallet(val)} onReady={done} />
       {walletsToMigrate.length > 0 && <Migrate wallets={walletsToMigrate} />}
       <Spacer y={1.25} />
-      <KeystoneButton
-        onSuccess={async (account) => await setActiveWallet(account.address)}
-      />
+      <KeystoneButton onSuccess={keystoneDone} />
       <Spacer y={1} />
       <Button fullWidth onClick={done} loading={loading}>
         {browser.i18n.getMessage("next")}

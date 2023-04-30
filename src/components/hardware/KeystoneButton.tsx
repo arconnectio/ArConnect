@@ -1,4 +1,4 @@
-import { decodeAccount } from "~wallets/hardware/keystone";
+import { decodeAccount, KeystoneAccount } from "~wallets/hardware/keystone";
 import { addHardwareWallet } from "~wallets/hardware";
 import { useScanner } from "@arconnect/keystone-sdk";
 import {
@@ -171,9 +171,5 @@ const CancelButton = styled(Button).attrs({
 `;
 
 interface Props {
-  onSuccess?: (account: {
-    address: string;
-    owner: string;
-    xfp: string;
-  }) => any | Promise<any>;
+  onSuccess?: (account: KeystoneAccount) => any | Promise<any>;
 }

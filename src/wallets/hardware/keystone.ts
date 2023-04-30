@@ -17,7 +17,7 @@ import Arweave from "arweave";
  *
  * @returns Wallet address & public key
  */
-export async function decodeAccount(res: UR) {
+export async function decodeAccount(res: UR): Promise<KeystoneAccount> {
   // check UR type
   if (res.type !== "arweave-crypto-account") {
     throw new Error(
@@ -105,4 +105,13 @@ export async function decodeSignature(res: UR) {
     id,
     signature
   };
+}
+
+/**
+ * Keystone account object interface
+ */
+export interface KeystoneAccount {
+  address: string;
+  owner: string;
+  xfp: string;
 }
