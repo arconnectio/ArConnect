@@ -144,6 +144,14 @@ const SettingsWrapper = styled.div`
   gap: 1.5rem;
   width: calc(100vw - 2rem * 2);
   height: calc(100vh - 2rem * 2);
+
+  @media screen and (max-width: 900px) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    height: auto;
+    justify-content: space-between;
+  }
 `;
 
 const isMac = () => {
@@ -167,6 +175,25 @@ const Panel = styled(Card)<{ normalPadding?: boolean }>`
       display: none;
     }`
     : ""}
+
+  @media screen and (max-width: 900px) {
+    width: calc(50% - 2.5rem);
+    height: 55vh;
+
+    &:last-child {
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  @media screen and (max-width: 645px) {
+    width: 100%;
+    height: 55vh;
+
+    &:last-child {
+      height: auto;
+    }
+  }
 `;
 
 const SettingsTitle = styled(Text).attrs({
