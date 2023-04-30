@@ -26,15 +26,15 @@ export default function ReorderIcon({ dragControls }: Props) {
           d="M4.25 8.75H19.25"
           stroke="currentColor"
           stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
         <path
           d="M4.25 15.25H19.25"
           stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </Icon>
     </Wrapper>

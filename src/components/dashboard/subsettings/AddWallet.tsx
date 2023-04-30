@@ -3,12 +3,11 @@ import type { JWKInterface } from "arweave/web/lib/wallet";
 import { defaultGateway } from "~applications/gateway";
 import { jwkFromMnemonic } from "~wallets/generator";
 import { checkPassword } from "~wallets/auth";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { addWallet } from "~wallets";
-import { useState } from "react";
 import {
   Button,
-  FileInput,
   Input,
   Text,
   useInput,
@@ -17,7 +16,6 @@ import {
 } from "@arconnect/components";
 import BackupWalletPage from "~components/welcome/generate/BackupWalletPage";
 import KeystoneButton from "~components/hardware/KeystoneButton";
-import SeedTextarea from "~components/welcome/load/SeedTextarea";
 import SeedInput from "~components/SeedInput";
 import browser from "webextension-polyfill";
 import * as bip39 from "bip39-web-crypto";
@@ -85,16 +83,63 @@ export default function AddWallet() {
     setLoading(false);
   }
 
-  // generated seedphrase
-  const [generatedSeed, setGeneratedSeed] = useState<string>();
-
   // generating status
   const [generating, setGenerating] = useState(false);
 
+  // generated wallet
+  const [generatedWallet, setGeneratedWallet] = useState<{
+    jwk?: JWKInterface;
+    seedphrase: string;
+  }>();
+
+  // start generating a wallet when
+  // the component is mounted so the
+  // user doesn't have to wait for it
+  // in case they want to create a new
+  // wallet
+  useEffect(() => {
+    generateWallet();
+  }, []);
+
   // generate new wallet
   async function generateWallet() {
-    if (!!generatedSeed) return;
+    setGenerating(true);
 
+    // generate a seedphrase
+    const seedphrase = await bip39.generateMnemonic();
+
+    setGeneratedWallet({ seedphrase });
+
+    // generate from seedphrase
+    const jwk = await jwkFromMnemonic(seedphrase);
+
+    setGeneratedWallet((val) => ({ ...val, jwk }));
+    setGenerating(false);
+
+    return { jwk, seedphrase };
+  }
+
+  // add the wallet on generation or no
+  const [isAddGeneratedWallet, setIsAddGeneratedWallet] = useState(false);
+
+  // remove tab close warning when generated
+  useEffect(() => {
+    if (generating || !isAddGeneratedWallet) return;
+    window.onbeforeunload = null;
+  }, [isAddGeneratedWallet, generating]);
+
+  // add the generated wallet to ArConnect
+  async function addGeneratedWallet() {
+    // check if jwk was properly generated from seedphrase
+    if (!generatedWallet?.jwk) {
+      return setToast({
+        type: "error",
+        content: browser.i18n.getMessage("error_generating_wallet"),
+        duration: 2200
+      });
+    }
+
+    // check the password
     if (passwordInput.state === "") {
       return setToast({
         type: "error",
@@ -111,45 +156,56 @@ export default function AddWallet() {
       });
     }
 
-    setGenerating(true);
-
     try {
-      // generate seed
-      const mnemonic = await bip39.generateMnemonic();
+      // add the wallet
+      await addWallet(generatedWallet.jwk, passwordInput.state);
 
-      setGeneratedSeed(mnemonic);
-
-      // generate from mnemonic
-      const wallet = await jwkFromMnemonic(mnemonic);
-
-      // add wallet
-      await addWallet(wallet, passwordInput.state);
-
+      // indicate success
       setToast({
         type: "success",
         content: browser.i18n.getMessage("generated_wallet_dashboard"),
         duration: 2200
       });
-    } catch (e) {
+
+      // redirect to the wallet in settings
+      const arweave = new Arweave(defaultGateway);
+
+      setLocation(
+        `/wallets/${await arweave.wallets.jwkToAddress(generatedWallet.jwk)}`
+      );
+    } catch {
       setToast({
         type: "error",
         content: browser.i18n.getMessage("error_generating_wallet"),
         duration: 2200
       });
     }
+  }
 
-    setGenerating(false);
+  // handle add wallet button press
+  // and add check before the action
+  function handleAddButton() {
+    if (generating && isAddGeneratedWallet) return;
+    if (!isAddGeneratedWallet) loadWallet();
+    else addGeneratedWallet();
   }
 
   return (
     <Wrapper>
       <div>
-        <Title>{browser.i18n.getMessage("add_wallet")}</Title>
-        <Text>{browser.i18n.getMessage("provide_seedphrase_paragraph")}</Text>
-        <SeedInput
-          onChange={(val) => setProvidedWallet(val)}
-          onReady={loadWallet}
-        />
+        {(!generating &&
+          isAddGeneratedWallet &&
+          generatedWallet?.seedphrase && (
+            <BackupWalletPage seed={generatedWallet.seedphrase} />
+          )) || (
+          <>
+            <Title>{browser.i18n.getMessage("add_wallet")}</Title>
+            <Text>
+              {browser.i18n.getMessage("provide_seedphrase_paragraph")}
+            </Text>
+            <SeedInput onChange={(val) => setProvidedWallet(val)} />
+          </>
+        )}
         <Spacer y={1} />
         <Input
           type="password"
@@ -159,11 +215,16 @@ export default function AddWallet() {
           fullWidth
           onKeyDown={(e) => {
             if (e.key !== "Enter") return;
-            loadWallet();
+            handleAddButton();
           }}
         />
         <Spacer y={1} />
-        <Button fullWidth onClick={loadWallet} loading={loading}>
+        <Button
+          fullWidth
+          onClick={handleAddButton}
+          loading={loading}
+          disabled={generating && isAddGeneratedWallet}
+        >
           <PlusIcon />
           {browser.i18n.getMessage("add_wallet")}
         </Button>
@@ -175,25 +236,22 @@ export default function AddWallet() {
         <Button
           fullWidth
           secondary
-          onClick={generateWallet}
-          loading={generating}
-          disabled={!!generatedSeed}
+          onClick={() => {
+            if (!generating && isAddGeneratedWallet) return;
+
+            // signal that the generated wallet should be added
+            setIsAddGeneratedWallet(true);
+
+            // warn the user about closing the window
+            window.onbeforeunload = () =>
+              browser.i18n.getMessage("close_tab_generate_wallet_message");
+          }}
+          loading={generating && isAddGeneratedWallet}
+          disabled={!generating && isAddGeneratedWallet}
         >
           <SettingsIcon />
           {browser.i18n.getMessage("generate_wallet")}
         </Button>
-        {/*(
-          <>
-            <BackupWalletPage seed={generatedSeed} />
-            <Spacer y={1} />
-            {generating && (
-              <Text noMargin>
-                {browser.i18n.getMessage("generating_wallet")}{" "}
-                {browser.i18n.getMessage("no_close_window")}
-              </Text>
-            )}
-          </>
-            )*/}
       </div>
     </Wrapper>
   );
@@ -214,27 +272,8 @@ const Title = styled(Text).attrs({
   font-weight: 600;
 `;
 
-const WalletInput = styled(FileInput)`
-  padding-top: 2.6rem;
-  padding-bottom: 2.6rem;
-`;
-
 const Or = styled(Text).attrs({
   noMargin: true
 })`
   text-align: center;
-`;
-
-const ShortSeedTextarea = styled(SeedTextarea)`
-  height: 110px;
-`;
-
-const Btns = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  ${Button} {
-    width: 49%;
-  }
 `;
