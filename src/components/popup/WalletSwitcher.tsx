@@ -240,20 +240,6 @@ export default function WalletSwitcher({
                       />
                     </Tooltip>
                   </ActionBar>
-                  <ActionBar>
-                    <AddWalletButton
-                      secondary
-                      fullWidth
-                      onClick={() =>
-                        browser.tabs.create({
-                          url: "https://discord.com/invite/73MthKeP75"
-                        })
-                      }
-                    >
-                      <DiscordIcon />
-                      Discord feedback
-                    </AddWalletButton>
-                  </ActionBar>
                 </>
               )}
             </WalletsCard>
@@ -438,57 +424,6 @@ const EditButton = styled(EditIcon)`
     transform: scale(0.8);
   }
 `;
-
-const DeleteIcon = styled(TrashIcon)`
-  position: absolute;
-  font-size: 1.25rem;
-  color: #fff;
-  width: 1em;
-  height: 1em;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-`;
-
-const DiscordIcon = () => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <g clipPath="url(#clip0_1002_15)">
-      <mask
-        id="mask0_1002_15"
-        style={{ maskType: "luminance" }}
-        maskUnits="userSpaceOnUse"
-        x="5"
-        y="6"
-        width="15"
-        height="11"
-      >
-        <path d="M19.5 6H5V16.9897H19.5V6Z" fill="currentColor" />
-      </mask>
-      <g mask="url(#mask0_1002_15)">
-        <path
-          d="M17.2829 6.92036C16.3302 6.48421 15.3245 6.17479 14.2914 6C14.1501 6.25272 14.0222 6.51273 13.9082 6.77894C12.8078 6.61312 11.6887 6.61312 10.5883 6.77894C10.4743 6.51275 10.3464 6.25275 10.2051 6C9.17137 6.17626 8.165 6.48642 7.21137 6.92264C5.31818 9.72365 4.80497 12.4551 5.06157 15.1477C6.17027 15.9669 7.41123 16.5899 8.73049 16.9897C9.02754 16.5901 9.2904 16.1662 9.51627 15.7226C9.08726 15.5623 8.67319 15.3646 8.27885 15.1318C8.38264 15.0565 8.48414 14.979 8.58222 14.9037C9.72965 15.4433 10.982 15.7231 12.25 15.7231C13.518 15.7231 14.7703 15.4433 15.9178 14.9037C16.017 14.9847 16.1185 15.0622 16.2211 15.1318C15.826 15.365 15.4112 15.5631 14.9814 15.7237C15.207 16.1672 15.4699 16.5907 15.7672 16.9897C17.0876 16.5915 18.3295 15.9688 19.4384 15.1489C19.7395 12.0263 18.924 9.31992 17.2829 6.92036ZM9.8413 13.4918C9.12622 13.4918 8.53546 12.8429 8.53546 12.0445C8.53546 11.2462 9.1057 10.5915 9.83902 10.5915C10.5724 10.5915 11.1586 11.2462 11.146 12.0445C11.1335 12.8429 10.5701 13.4918 9.8413 13.4918ZM14.6587 13.4918C13.9425 13.4918 13.354 12.8429 13.354 12.0445C13.354 11.2462 13.9242 10.5915 14.6587 10.5915C15.3932 10.5915 15.9747 11.2462 15.9622 12.0445C15.9497 12.8429 15.3874 13.4918 14.6587 13.4918Z"
-          fill="currentColor"
-        />
-      </g>
-    </g>
-    <defs>
-      <clipPath id="clip0_1002_15">
-        <rect
-          width="14.5"
-          height="11.3929"
-          fill="currentColor"
-          transform="translate(5 6)"
-        />
-      </clipPath>
-    </defs>
-  </svg>
-);
 
 interface Props {
   open: boolean;
