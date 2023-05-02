@@ -1,4 +1,4 @@
-import type { Allowance } from "~applications/allowance";
+import { Allowance, defaultAllowance } from "~applications/allowance";
 import Application from "~applications/application";
 import authenticate from "../connect/auth";
 
@@ -31,6 +31,7 @@ export async function updateAllowance(tabURL: string, price: number) {
   await app.updateSettings(({ allowance }) => {
     return {
       allowance: {
+        ...defaultAllowance,
         ...allowance,
         spent: (allowance?.spent || 0) + price
       }

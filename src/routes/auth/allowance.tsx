@@ -1,6 +1,6 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
+import { Allowance, defaultAllowance } from "~applications/allowance";
 import Application, { AppInfo } from "~applications/application";
-import type { Allowance } from "~applications/allowance";
 import { defaultGateway } from "~applications/gateway";
 import { checkPassword } from "~wallets/auth";
 import { useEffect, useState } from "react";
@@ -92,7 +92,10 @@ export default function Allowance() {
 
     // update allowance
     await app.updateSettings(() => {
-      const updatedAllowance: Allowance = allowance;
+      const updatedAllowance: Allowance = {
+        ...defaultAllowance,
+        ...allowance
+      };
 
       if (limitInput.state !== "") {
         const limitInputState = Number(

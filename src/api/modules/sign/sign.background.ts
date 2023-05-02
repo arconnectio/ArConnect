@@ -1,12 +1,11 @@
 import type { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { arconfettiIcon, calculateReward, signNotification } from "./utils";
 import { allowanceAuth, getAllowance, updateAllowance } from "./allowance";
-import type { JWKInterface } from "arbundles/src/interface-jwk";
 import type { ModuleFunction } from "~api/background";
+import { JWKInterface } from "arweave/web/lib/wallet";
 import { cleanUpChunks, getChunks } from "./chunks";
 import type { BackgroundResult } from "./index";
 import { getActiveKeyfile } from "~wallets";
-import { getAppURL } from "~utils/format";
 import { signAuth } from "./sign_auth";
 import { signedTxTags } from "./tags";
 import {

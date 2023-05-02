@@ -1,5 +1,6 @@
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { permissionData, PermissionType } from "~applications/permissions";
+import { defaultAllowance } from "~applications/allowance";
 import { CheckIcon, EditIcon } from "@iconicicons/react";
 import { useEffect, useMemo, useState } from "react";
 import { IconButton } from "~components/IconButton";
@@ -149,6 +150,7 @@ export default function AppSettings({ app, showTitle = false }: Props) {
           updateSettings((val) => ({
             ...val,
             allowance: {
+              ...defaultAllowance,
               ...val.allowance,
               enabled: checked
             }
