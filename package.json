@@ -8,9 +8,9 @@
   "homepage": "https://arconnect.io",
   "scripts": {
     "dev:chrome": "plasmo dev",
-    "build:chrome": "plasmo build",
+    "build:chrome": "plasmo build --no-hoist",
     "dev:firefox": "plasmo dev --target=firefox-mv2",
-    "build:firefox": "plasmo build --target=firefox-mv2",
+    "build:firefox": "plasmo build --target=firefox-mv2 --no-hoist",
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check .",
     "prepare": "husky install"
