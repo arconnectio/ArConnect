@@ -2,7 +2,7 @@ import { constructTransaction } from "../sign/transaction_builder";
 import { arconfettiIcon, signNotification } from "../sign/utils";
 import { cleanUpChunks, getChunks } from "../sign/chunks";
 import type { ModuleFunction } from "~api/background";
-import { createData, signers } from "arbundles";
+import { createData, ArweaveSigner } from "arbundles";
 import { uploadDataToBundlr } from "./uploader";
 import type { DispatchResult } from "./index";
 import { signedTxTags } from "../sign/tags";
@@ -68,7 +68,7 @@ const background: ModuleFunction<ReturnType> = async (
   // attempt to create a bundle
   try {
     // create bundlr tx as a data entry
-    const dataSigner = new signers.ArweaveSigner(keyfile);
+    const dataSigner = new ArweaveSigner(keyfile);
     const dataEntry = createData(data, dataSigner, { tags });
 
     // sign and upload bundler tx
