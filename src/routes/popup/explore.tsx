@@ -14,8 +14,8 @@ import permaswapLogo from "url:/assets/ecosystem/permaswap.svg";
 import PriceChart from "~components/popup/asset/PriceChart";
 import arDriveLogo from "url:/assets/ecosystem/ardrive.svg";
 import aftrLogo from "url:/assets/ecosystem/aftrmarket.png";
+import getPermawebNewsFeed from "~lib/permaweb_news";
 import AppIcon from "~components/popup/home/AppIcon";
-import getArweaveNewsFeed from "~lib/arweave_news";
 import Skeleton from "~components/Skeleton";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
@@ -74,18 +74,18 @@ export default function Explore() {
     return () => clearInterval(id);
   }, [featuredPage]);
 
-  // parse arweave.news RSS
+  // parse permaweb.news RSS
   const [feed, setFeed] = useState<ArticleInterface[]>();
 
   useEffect(() => {
     (async () => {
       // get feed
-      const arweaveNews = await getArweaveNewsFeed();
+      const permawebNews = await getPermawebNewsFeed();
 
       // TODO: add other sources
 
       // construct feed
-      const unsortedFeed: ArticleInterface[] = arweaveNews.map((article) => ({
+      const unsortedFeed: ArticleInterface[] = permawebNews.map((article) => ({
         source: "permaweb.news",
         title: article.title,
         date: article.pubDate,

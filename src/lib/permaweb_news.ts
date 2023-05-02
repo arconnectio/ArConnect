@@ -3,11 +3,11 @@ import Parser from "rss-parser";
 /**
  * Fetch the RSS feed of arweave.news
  */
-export default async function getArweaveNewsFeed(): Promise<
-  ArweaveNewsArticle[]
+export default async function getPermawebNewsFeed(): Promise<
+  PermawebNewsArticle[]
 > {
   try {
-    const parser = new Parser<ArweaveNewsFeed>();
+    const parser = new Parser<PermawebNewsFeed>();
     const feed = await parser.parseURL("https://arweave.news/feed");
 
     return feed.items;
@@ -16,11 +16,11 @@ export default async function getArweaveNewsFeed(): Promise<
   }
 }
 
-export interface ArweaveNewsFeed {
-  items: ArweaveNewsArticle[];
+export interface PermawebNewsFeed {
+  items: PermawebNewsArticle[];
 }
 
-export interface ArweaveNewsArticle {
+export interface PermawebNewsArticle {
   creator: string;
   title: string;
   link: string;
