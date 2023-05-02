@@ -11,11 +11,15 @@ export async function getAnsProfile(
   address: string | string[]
 ): Promise<AnsUser[] | AnsUser> {
   if (typeof address === "string") {
-    const user = await (
-      await fetch(`http://ans-stats.decent.land/profile/${address}`)
-    ).json();
+    try {
+      const user = await (
+        await fetch(`http://ans-stats.decent.land/profile/${address}`)
+      ).json();
 
-    return user;
+      return user;
+    } catch {
+      return undefined;
+    }
   }
   const { res } = await (
     await fetch("https://ans-stats.decent.land/users")
