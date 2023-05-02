@@ -86,7 +86,7 @@ export default function Explore() {
 
       // construct feed
       const unsortedFeed: ArticleInterface[] = arweaveNews.map((article) => ({
-        source: "arweave.news",
+        source: "permaweb.news",
         title: article.title,
         date: article.pubDate,
         link: article.link,
