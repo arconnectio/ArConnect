@@ -63,7 +63,7 @@
     "@ngraveio/bc-ur": "^1.1.6",
     "@plasmohq/storage": "^1.4.0",
     "ar-gql": "^0.0.6",
-    "arbundles": "^0.8.0",
+    "arbundles": "^0.9.5",
     "arweave": "^1.13.0",
     "axios": "^1.1.3",
     "bip39-web-crypto": "^4.0.1",

@@ -1,4 +1,3 @@
-import type { Tabs } from "webextension-polyfill";
 import type { Module } from "./module";
 
 // import modules
@@ -46,7 +45,7 @@ const modules: BackgroundModule<any>[] = [
   { ...addTokenModule, function: addToken },
   { ...isTokenAddedModule, function: isTokenAdded },
   { ...signModule, function: sign },
-  // { ...dispatchModule, function: dispatch },
+  { ...dispatchModule, function: dispatch },
   { ...encryptModule, function: encrypt },
   { ...decryptModule, function: decrypt },
   { ...signatureModule, function: signature }
