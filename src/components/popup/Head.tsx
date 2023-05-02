@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { hoverEffect, useTheme } from "~utils/theme";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ArrowLeftIcon } from "@iconicicons/react";
+import { AnsUser, getAnsProfile, useAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import HardwareWalletIcon, {
   hwIconAnimateProps
@@ -12,7 +13,6 @@ import HardwareWalletIcon, {
 import { useHardwareApi } from "~wallets/hooks";
 import { useHistory } from "~utils/hash_router";
 import { useEffect, useState } from "react";
-import type { AnsUser } from "~lib/ans";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
 import WalletSwitcher from "./WalletSwitcher";
 import styled from "styled-components";
@@ -58,27 +58,13 @@ export default function Head({
   // ui theme
   const theme = useTheme();
 
-  // load ans cache
-  const [ans] = useStorage<AnsUser>({
-    key: "ans_data",
+  // current address
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
     instance: ExtensionStorage
   });
 
-  // user avatar
-  const [avatar, setAvatar] = useState<{
-    for: string;
-    img: string;
-  }>();
-
-  useEffect(() => {
-    if (ans?.user === avatar?.for) return;
-    if (!ans?.avatar || !!avatar) return;
-
-    setAvatar({
-      for: ans.user,
-      img: concatGatewayURL(defaultGateway) + "/" + ans.avatar
-    });
-  }, [ans]);
+  const ans = useAnsProfile(activeAddress);
 
   // first render for animation
   const [firstRender, setFirstRender] = useState(true);
@@ -115,13 +101,13 @@ export default function Head({
       >
         <PageTitle>{title}</PageTitle>
         <ClickableAvatar
-          img={avatar?.img}
+          img={ans?.avatar}
           onClick={() => {
             if (!allowOpen) return;
             setOpen(true);
           }}
         >
-          {!avatar && <NoAvatarIcon />}
+          {!ans?.avatar && <NoAvatarIcon />}
           <AnimatePresence initial={false}>
             {hardwareApi === "keystone" && (
               <HardwareWalletIcon

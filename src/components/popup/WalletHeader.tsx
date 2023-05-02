@@ -1,8 +1,3 @@
-import {
-  defaultGateway,
-  concatGatewayURL,
-  Gateway
-} from "~applications/gateway";
 import { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -11,10 +6,11 @@ import HardwareWalletIcon, {
   hwIconAnimateProps
 } from "~components/hardware/HardwareWalletIcon";
 import { useHardwareApi } from "~wallets/hooks";
+import { Gateway } from "~applications/gateway";
 import type { StoredWallet } from "~wallets";
 import { getAppURL } from "~utils/format";
 import { removeApp } from "~applications";
-import type { AnsUser } from "~lib/ans";
+import { useAnsProfile } from "~lib/ans";
 import { useTheme } from "~utils/theme";
 import {
   Button,
@@ -80,40 +76,19 @@ export default function WalletHeader() {
     });
   };
 
-  // fetch ANS name (cached in storage)
-  const [ans] = useStorage<AnsUser>({
-    key: "ans_data",
-    instance: ExtensionStorage
-  });
+  // profile picture
+  const ansProfile = useAnsProfile(activeAddress);
 
   // wallet name
   const walletName = useMemo(() => {
-    if (!ans?.currentLabel) {
+    if (!ansProfile?.label) {
       const wallet = wallets.find(({ address }) => address === activeAddress);
 
       return wallet?.nickname || "Wallet";
     }
 
-    return ans.currentLabel + ".ar";
-  }, [wallets, ans, activeAddress]);
-
-  // profile picture
-  const [avatar, setAvatar] = useState<{
-    for: string;
-    img: string;
-  }>();
-
-  useEffect(() => {
-    if (ans?.user === avatar?.for) return;
-    if (!ans?.avatar || !!avatar) return;
-
-    setAvatar({
-      for: ans.user,
-      img: concatGatewayURL(defaultGateway) + "/" + ans.avatar
-    });
-  }, [ans]);
-
-  useEffect(() => setAvatar(undefined), [activeAddress]);
+    return ansProfile.label;
+  }, [wallets, ansProfile, activeAddress]);
 
   // hardware wallet type
   const hardwareApi = useHardwareApi();
@@ -186,8 +161,8 @@ export default function WalletHeader() {
       scrolled={scrollY > 14}
     >
       <Wallet>
-        <Avatar img={avatar?.img}>
-          {!avatar?.img && <NoAvatarIcon />}
+        <Avatar img={ansProfile?.avatar}>
+          {!ansProfile?.avatar && <NoAvatarIcon />}
           <AnimatePresence initial={false}>
             {hardwareApi === "keystone" && (
               <HardwareWalletIcon

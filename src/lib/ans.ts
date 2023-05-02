@@ -1,3 +1,6 @@
+import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { useEffect, useState } from "react";
+
 /**
  * Get the ANS profile for an address
  *
@@ -7,17 +10,18 @@
 export async function getAnsProfile(
   address: string | string[]
 ): Promise<AnsUser[] | AnsUser> {
+  if (typeof address === "string") {
+    const user = await (
+      await fetch(`http://ans-stats.decent.land/profile/${address}`)
+    ).json();
+
+    return user;
+  }
   const { res } = await (
     await fetch("https://ans-stats.decent.land/users")
   ).json();
 
-  if (typeof address === "string") {
-    const user = res.find(({ user }) => user === address);
-
-    return user;
-  } else {
-    return res.filter(({ user }) => address?.includes(user));
-  }
+  return res.filter(({ user }) => address?.includes(user));
 }
 
 /**
@@ -27,11 +31,51 @@ export async function getAnsProfile(
  * @returns Profile data
  */
 export async function getAnsProfileByLabel(label: string): Promise<AnsUser> {
-  const { res } = await (
-    await fetch("https://ans-stats.decent.land/users")
-  ).json();
+  try {
+    const user = await (
+      await fetch(`http://ans-stats.decent.land/profile/${label}`)
+    ).json();
+    return user;
+  } catch {
+    return undefined;
+  }
+}
 
-  return res.find(({ currentLabel }) => currentLabel === label);
+/**
+ * React hook for a simple ANS profile
+ *
+ * @param query Address or label
+ */
+export function useAnsProfile(query: string) {
+  const [profile, setProfile] = useState<{
+    address: string;
+    label: string;
+    avatar?: string;
+  }>();
+
+  useEffect(() => {
+    (async () => {
+      if (!query) {
+        return setProfile(undefined);
+      }
+
+      const profile = (await getAnsProfile(query)) as AnsUser;
+
+      if (!profile) {
+        return setProfile(undefined);
+      }
+
+      setProfile({
+        address: profile.user,
+        label: profile.currentLabel + ".ar",
+        avatar: profile.avatar
+          ? concatGatewayURL(defaultGateway) + "/" + profile.avatar
+          : undefined
+      });
+    })();
+  }, [query]);
+
+  return profile;
 }
 
 export interface AnsUsers {

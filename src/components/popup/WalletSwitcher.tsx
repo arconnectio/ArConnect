@@ -1,10 +1,4 @@
-import {
-  CheckIcon,
-  EditIcon,
-  PlusIcon,
-  TrashIcon,
-  WalletIcon
-} from "@iconicicons/react";
+import { EditIcon, PlusIcon, WalletIcon } from "@iconicicons/react";
 import {
   Button,
   Card,
@@ -139,24 +133,6 @@ export default function WalletSwitcher({
 
   // toasts
   const { setToast } = useToasts();
-
-  // fetch ANS name (cached in storage)
-  const [_, setAns] = useStorage<AnsUser | {}>({
-    key: "ans_data",
-    instance: ExtensionStorage
-  });
-
-  useEffect(() => {
-    (async () => {
-      const user = await getAnsProfile(activeAddress);
-
-      if (!user) {
-        return setAns({});
-      }
-
-      setAns(user as AnsUser);
-    })();
-  }, [activeAddress]);
 
   return (
     <AnimatePresence>
