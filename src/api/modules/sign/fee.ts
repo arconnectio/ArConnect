@@ -43,18 +43,10 @@ export default async function handleFeeAlarm(alarmInfo: Alarms.Alarm) {
     const feeTarget = await selectVRTHolder();
 
     if (feeTarget) {
-      const data = Math.random().toString().slice(-4);
-      const reward = await arApi(
-        `price/${new TextEncoder().encode(data).byteLength}/${feeTarget}`,
-        defaultGateway
-      );
       const feeTx = await arweave.createTransaction(
         {
           target: feeTarget,
-          quantity: await getFeeAmount(address, new Application(appURL)),
-          data,
-          last_tx: await arApi("tx_anchor", defaultGateway),
-          reward
+          quantity: await getFeeAmount(address, new Application(appURL))
         },
         keyfile
       );
