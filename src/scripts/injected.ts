@@ -18,6 +18,21 @@ window.addEventListener("message", ({ data }) => {
   );
 });
 
+window.addEventListener("message", ({ data }) => {
+  if (
+    !validateMessage(data, "popup", "switch_gateway_event_forward") ||
+    !data?.data?.config
+  ) {
+    return;
+  }
+
+  dispatchEvent(
+    new CustomEvent("gatewaySwitch", {
+      detail: { config: data.data.config }
+    })
+  );
+});
+
 /** Init wallet API */
 const WalletAPI: Record<string, any> = {
   walletName: "ArConnect",

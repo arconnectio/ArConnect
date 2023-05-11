@@ -56,6 +56,7 @@ import axios from "axios";
 import manifest from "../../../../public/manifest.json";
 import SubPageTopStyles from "../../../styles/components/SubPageTop.module.sass";
 import styles from "../../../styles/views/Popup/settings.module.sass";
+import { MessageFormat } from "../../../utils/messenger";
 
 export default function Settings({
   initialSetting
@@ -205,6 +206,14 @@ export default function Settings({
             gateway: config
           })
         );
+        const message: MessageFormat = {
+          type: "switch_gateway_event",
+          ext: "arconnect",
+          data: { config },
+          origin: "popup"
+        };
+    
+        browser.runtime.sendMessage(message);
       }
     } catch {}
 

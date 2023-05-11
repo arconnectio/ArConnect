@@ -248,6 +248,21 @@ browser.runtime.onMessage.addListener(async (message: MessageFormat) => {
       });
 
       break;
+      case "switch_gateway_event":
+        if (
+          !(await checkPermissions(
+            ["ACCESS_ARWEAVE_CONFIG"],
+            activeTab.url as string
+          ))
+        )
+          return;
+  
+        await browser.tabs.sendMessage(activeTab.id as number, {
+          ...message,
+          type: "switch_gateway_event_forward"
+        });
+  
+        break;
   }
 });
 

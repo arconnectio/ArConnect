@@ -66,6 +66,10 @@ browser.runtime.onMessage.addListener(async (message: MessageFormat) => {
   // handle wallet switch event
   if (validateMessage(message, "popup", "switch_wallet_event_forward"))
     window.postMessage(message, window.location.origin);
+      // handle gateway switch event
+  if (validateMessage(message, "popup", "switch_gateway_event_forward"))
+  window.postMessage(message, window.location.origin);
 });
+
 
 export {};
