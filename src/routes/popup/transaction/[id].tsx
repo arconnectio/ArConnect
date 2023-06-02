@@ -199,6 +199,15 @@ export default function Transaction({ id: rawId, gw }: Props) {
   // router push
   const [push] = useHistory();
 
+  // interaction input
+  const input = useMemo(() => {
+    const value = transaction?.tags?.find((tag) => tag.name === "Input")?.value;
+
+    if (!value) return undefined;
+
+    return JSON.parse(value);
+  }, [transaction]);
+
   return (
     <Wrapper>
       <div>
@@ -306,12 +315,24 @@ export default function Transaction({ id: rawId, gw }: Props) {
                   {browser.i18n.getMessage("transaction_tags")}
                 </PropertyName>
                 <Spacer y={0.05} />
-                {transaction.tags.map((tag, i) => (
-                  <TransactionProperty key={i}>
-                    <PropertyName>{tag.name}</PropertyName>
-                    <TagValue>{tag.value}</TagValue>
-                  </TransactionProperty>
-                ))}
+                {transaction.tags.map(
+                  (tag, i) =>
+                    tag.name !== "Input" && (
+                      <TransactionProperty key={i}>
+                        <PropertyName>{tag.name}</PropertyName>
+                        <TagValue>{tag.value}</TagValue>
+                      </TransactionProperty>
+                    )
+                )}
+                {input && (
+                  <>
+                    <Spacer y={0.1} />
+                    <PropertyName>
+                      {browser.i18n.getMessage("transaction_input")}
+                    </PropertyName>
+                    <CodeArea>{JSON.stringify(input, undefined, 2)}</CodeArea>
+                  </>
+                )}
                 {(data || isBinary) && (
                   <>
                     <Spacer y={0.1} />

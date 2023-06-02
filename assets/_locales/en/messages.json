@@ -987,6 +987,10 @@
     "message": "Tags",
     "description": "Transaction \"tags\" label"
   },
+  "transaction_input": {
+    "message": "Input",
+    "description": "Contract interaction input label"
+  },
   "transaction_data": {
     "message": "Data",
     "description": "Transaction \"data\" label"
