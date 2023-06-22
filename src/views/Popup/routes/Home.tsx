@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useEffect, useState } from "react";
+import React, { PropsWithChildren, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/reducers";
 import {
@@ -38,9 +38,10 @@ export default function Home() {
     storedBalances = useSelector((state: RootState) => state.balances),
     arweave = new Arweave(arweaveConfig),
     profile = useSelector((state: RootState) => state.profile),
-    psts = useSelector((state: RootState) => state.assets).find(
+    storedAssets = useSelector((state: RootState) => state.assets),
+    psts = useMemo(() => storedAssets.find(
       ({ address }) => address === profile
-    )?.assets,
+    )?.assets, [storedAssets]),
     [transactions, setTransactions] = useState<
       {
         id: string;
@@ -62,11 +63,14 @@ export default function Home() {
 
   useEffect(() => {
     loadBalance();
-    loadPSTs();
     loadTransactions();
     loadContentType();
     // eslint-disable-next-line
   }, [profile]);
+
+  useEffect(() => {
+    loadPSTs();
+  }, [profile])
 
   useEffect(() => {
     calculateArPriceInCurrency();
@@ -104,28 +108,74 @@ export default function Home() {
   async function loadPSTs() {
     setLoading((val) => ({ ...val, psts: true }));
     try {
-      const { data }: { data: any[] } = await axios.get(
-          `https://v2.cache.verto.exchange/user/${profile}/balances`
-        ),
-        verto = new Verto(),
-        pstsLoaded: Asset[] = await Promise.all(
-          data.map(async (pst: any) => ({
-            ...pst,
-            arBalance:
-              ((await verto.latestPrice(pst.id)) ?? 0) * (pst.balance ?? 0),
-            removed: psts?.find(({ id }) => id === pst.id)?.removed ?? false,
-            type:
-              (
-                (await axios.get(
-                  `https://v2.cache.verto.exchange/site/type/${pst.id}`
-                )) as any
-              ).data.type === "community"
-                ? "community"
-                : "collectible"
-          }))
-        );
+      const { data: ownedTokens } = await axios.get<Record<string, any>[]>(
+        `https://v2.cache.verto.exchange/user/${profile}/balances`
+      );
 
-      dispatch(setAssets(profile, pstsLoaded));
+      let oldBalances = storedAssets.find((val) => val.address === profile) || {
+        address: profile,
+        assets: []
+      };
+
+      // update existing
+      for (const asset of oldBalances.assets) {
+        const newStateForAsset = ownedTokens.find((val) => val.id === asset.id);
+
+        asset.arBalance = 0;
+
+        // migrate divisibility
+        if (typeof asset.divisibility !== "number") {
+          try {
+            const { data } = await axios.get<{ state: { divisibility?: number } }>(
+              `https://v2.cache.verto.exchange/${asset.id}`
+            );
+  
+            asset.divisibility = data?.state?.divisibility || 1;
+          } catch {
+            asset.divisibility = 1;
+          }
+        }
+
+        if (asset.balance === newStateForAsset?.balance) continue;
+        asset.balance = (newStateForAsset?.balance || 0) / (asset.divisibility || 1);
+      }
+
+      // update existing assets
+      dispatch(setAssets(oldBalances.address, oldBalances.assets));
+
+      for (const asset of ownedTokens) {
+        if (oldBalances.assets.find((val) => val.id === asset.id)) continue;
+
+        let divisibility = 1;
+
+        try {
+          const { data } = await axios.get<{ state: { divisibility?: number } }>(
+            `https://v2.cache.verto.exchange/${asset.id}`
+          );
+
+          divisibility = data?.state?.divisibility || 1;
+        } catch {}
+
+        oldBalances.assets.push({
+          id: asset.id,
+          name: asset.name,
+          ticker: asset.ticker,
+          balance: asset.balance / divisibility,
+          logo: asset.logo,
+          divisibility,
+          arBalance: 0,
+          removed: false,
+          type: (
+            (await axios.get(
+              `https://v2.cache.verto.exchange/site/type/${asset.id}`
+            )) as any
+          ).data.type === "community"
+            ? "community"
+            : "collectible"
+        })
+      }
+
+      dispatch(setAssets(oldBalances.address, oldBalances.assets));
     } catch {}
     setLoading((val) => ({ ...val, psts: false }));
   }

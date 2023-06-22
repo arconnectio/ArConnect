@@ -429,12 +429,7 @@ export default function App() {
           </p>
         </Card>
       </div>
-      <a
-        className={styles.th8ta}
-        href="https://th8ta.org"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <a className={styles.th8ta} target="_blank" rel="noopener noreferrer">
         th<span>8</span>ta
       </a>
       <Modal {...loadWalletsModal.bindings}>
@@ -510,11 +505,7 @@ export default function App() {
         <Modal.Content>
           <p style={{ textAlign: "justify" }}>
             We at{" "}
-            <a
-              href="https://th8ta.org"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a target="_blank" rel="noopener noreferrer">
               th8ta
             </a>{" "}
             are working hard to bring you the best experiences on the permaweb.

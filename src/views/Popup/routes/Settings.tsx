@@ -1118,7 +1118,7 @@ export default function Settings({
                   <p
                     onClick={() =>
                       browser.tabs.create({
-                        url: "https://docs.th8ta.org/arconnect"
+                        url: "https://github.com/arconnectio/ArConnect"
                       })
                     }
                     style={{ color: theme.palette.success }}
@@ -1126,12 +1126,7 @@ export default function Settings({
                     Docs
                   </p>
                 </div>
-                <p
-                  onClick={() =>
-                    browser.tabs.create({ url: "https://th8ta.org" })
-                  }
-                  className={styles.Th8ta}
-                >
+                <p className={styles.Th8ta}>
                   th<span>8</span>ta
                 </p>
               </div>
