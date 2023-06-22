@@ -7,7 +7,7 @@ export interface Asset {
   logo?: string;
   removed: boolean;
   type: "community" | "collectible";
-  divisibility?: number;
+  divisibility: number;
 }
 
 export interface AssetStateItem {

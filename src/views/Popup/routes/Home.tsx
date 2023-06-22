@@ -121,6 +121,19 @@ export default function Home() {
       for (const asset of oldBalances.assets) {
         const newStateForAsset = ownedTokens.find((val) => val.id === asset.id);
 
+        // migrate divisibility
+        if (typeof asset.divisibility !== "number") {
+          try {
+            const { data } = await axios.get<{ state: { divisibility?: number } }>(
+              `https://v2.cache.verto.exchange/${asset.id}`
+            );
+  
+            asset.divisibility = data?.state?.divisibility || 1;
+          } catch {
+            asset.divisibility = 1;
+          }
+        }
+
         if (asset.balance === newStateForAsset?.balance) continue;
         asset.balance = (newStateForAsset?.balance || 0) / (asset.divisibility || 1);
       }
@@ -134,21 +147,21 @@ export default function Home() {
       for (const asset of ownedTokens) {
         if (oldBalances.assets.find((val) => val.id === asset.id)) continue;
 
-        let divisibility: number | undefined;
+        let divisibility = 1;
 
         try {
           const { data } = await axios.get<{ state: { divisibility?: number } }>(
             `https://v2.cache.verto.exchange/${asset.id}`
           );
 
-          divisibility = data?.state?.divisibility;
+          divisibility = data?.state?.divisibility || 1;
         } catch {}
 
         oldBalances.assets.push({
           id: asset.id,
           name: asset.name,
           ticker: asset.ticker,
-          balance: asset.balance / (divisibility || 1),
+          balance: asset.balance / divisibility,
           logo: asset.logo,
           divisibility,
           arBalance: ((await verto.latestPrice(asset.id)) ?? 0) * (asset.balance ?? 0),
