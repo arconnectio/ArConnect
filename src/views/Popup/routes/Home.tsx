@@ -121,6 +121,8 @@ export default function Home() {
       for (const asset of oldBalances.assets) {
         const newStateForAsset = ownedTokens.find((val) => val.id === asset.id);
 
+        asset.arBalance = 0;
+
         // migrate divisibility
         if (typeof asset.divisibility !== "number") {
           try {
@@ -140,9 +142,6 @@ export default function Home() {
 
       // update existing assets
       dispatch(setAssets(oldBalances.address, oldBalances.assets));
-
-      // add new assets
-      const verto = new Verto();
 
       for (const asset of ownedTokens) {
         if (oldBalances.assets.find((val) => val.id === asset.id)) continue;
@@ -164,7 +163,7 @@ export default function Home() {
           balance: asset.balance / divisibility,
           logo: asset.logo,
           divisibility,
-          arBalance: ((await verto.latestPrice(asset.id)) ?? 0) * (asset.balance ?? 0),
+          arBalance: 0,
           removed: false,
           type: (
             (await axios.get(

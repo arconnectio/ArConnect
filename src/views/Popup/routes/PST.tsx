@@ -94,14 +94,14 @@ export default function PST({ id, name, balance, ticker }: Asset) {
   }, [addressInput.state]);
 
   async function loadArPrice() {
-    const verto = new Verto(),
+    /*const verto = new Verto(),
       prices = await verto.getPriceHistory(id);
 
     if (prices)
       setPrices({
         dates: Object.keys(prices).filter((date) => !!prices[date]),
         prices: Object.values(prices).filter((price) => !!price)
-      });
+      });*/
   }
 
   const [type, setType] = useState<"community" | "collectible">("community");
