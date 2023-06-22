@@ -122,12 +122,11 @@ export default function Home() {
         const newStateForAsset = ownedTokens.find((val) => val.id === asset.id);
 
         if (asset.balance === newStateForAsset?.balance) continue;
-
-        asset.balance = newStateForAsset?.balace || 0;
+        asset.balance = (newStateForAsset?.balance || 0) / (asset.divisibility || 1);
       }
 
       // update existing assets
-      dispatch(storedAssets);
+      dispatch(setAssets(oldBalances.address, oldBalances.assets));
 
       // add new assets
       const verto = new Verto();
@@ -135,12 +134,23 @@ export default function Home() {
       for (const asset of ownedTokens) {
         if (oldBalances.assets.find((val) => val.id === asset.id)) continue;
 
+        let divisibility: number | undefined;
+
+        try {
+          const { data } = await axios.get<{ state: { divisibility?: number } }>(
+            `https://v2.cache.verto.exchange/${asset.id}`
+          );
+
+          divisibility = data?.state?.divisibility;
+        } catch {}
+
         oldBalances.assets.push({
           id: asset.id,
           name: asset.name,
           ticker: asset.ticker,
-          balance: asset.balance,
+          balance: asset.balance / (divisibility || 1),
           logo: asset.logo,
+          divisibility,
           arBalance: ((await verto.latestPrice(asset.id)) ?? 0) * (asset.balance ?? 0),
           removed: false,
           type: (
@@ -153,7 +163,7 @@ export default function Home() {
         })
       }
 
-      dispatch(storedAssets);
+      dispatch(setAssets(oldBalances.address, oldBalances.assets));
     } catch {}
     setLoading((val) => ({ ...val, psts: false }));
   }
