@@ -1,8 +1,8 @@
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { Loading, Section, Spacer, Text } from "@arconnect/components";
 import { AnimatePresence, motion, Variants } from "framer-motion";
-import { useEffect, useMemo, useRef, useState } from "react";
 import { usePrice, usePriceHistory } from "~lib/redstone";
+import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { getCommunityUrl } from "~utils/format";
@@ -22,14 +22,14 @@ import {
 import {
   getInteractionsTxsForAddress,
   parseInteractions,
-  TokenInteraction
+  TokenInteraction,
+  TokenState
 } from "~tokens/token";
 import Title, { Heading } from "~components/popup/Title";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import Interaction from "~components/popup/asset/Interaction";
 import PriceChart from "~components/popup/asset/PriceChart";
 import TokenLoading from "~components/popup/asset/Loading";
-import useSandboxedTokenState from "~tokens/hook";
 import browser from "webextension-polyfill";
 import Skeleton from "~components/Skeleton";
 import Head from "~components/popup/Head";
@@ -38,8 +38,23 @@ import styled from "styled-components";
 
 export default function Asset({ id }: Props) {
   // load state
-  const sandbox = useRef<HTMLIFrameElement>();
-  const { state, validity, loading } = useSandboxedTokenState(id, sandbox, 270);
+  const [state, setState] = useState<TokenState>();
+  const [validity, setValidity] = useState<{ [id: string]: boolean }>();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+
+      const res = await (
+        await fetch(`https://dre-1.warp.cc/contract?id=${id}&validity=true`)
+      ).json();
+
+      setState(res.state);
+      setValidity(res.validity);
+      setLoading(false);
+    })();
+  }, [id]);
 
   // price period
   const [period, setPeriod] = useState("Day");
@@ -370,11 +385,6 @@ export default function Asset({ id }: Props) {
         </InteractionsList>
       </Section>
       <AnimatePresence>{loading && <TokenLoading />}</AnimatePresence>
-      <iframe
-        src={browser.runtime.getURL("tabs/sandbox.html")}
-        ref={sandbox}
-        style={{ display: "none" }}
-      ></iframe>
     </>
   );
 }

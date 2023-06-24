@@ -1,17 +1,16 @@
-import { MouseEventHandler, useEffect, useMemo, useRef, useState } from "react";
+import { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { defaultGateway } from "~applications/gateway";
 import { hoverEffect, useTheme } from "~utils/theme";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
+import type { TokenState } from "~tokens/token";
 import { Text } from "@arconnect/components";
 import { getArPrice } from "~lib/coingecko";
 import { usePrice } from "~lib/redstone";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
-import useSandboxedTokenState from "~tokens/hook";
 import Squircle from "~components/Squircle";
-import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
@@ -27,8 +26,17 @@ export default function Token({ id, onClick }: Props) {
   });
 
   // load state
-  const sandbox = useRef<HTMLIFrameElement>();
-  const { state } = useSandboxedTokenState(id, sandbox, 270);
+  const [state, setState] = useState<TokenState>();
+
+  useEffect(() => {
+    (async () => {
+      const res = await (
+        await fetch(`https://dre-1.warp.cc/contract?id=${id}&validity=true`)
+      ).json();
+
+      setState(res.state);
+    })();
+  }, [id]);
 
   // token balance
   const balance = useMemo(() => {
@@ -99,11 +107,6 @@ export default function Token({ id, onClick }: Props) {
           </Wrapper>
         )}
       </AnimatePresence>
-      <iframe
-        src={browser.runtime.getURL("tabs/sandbox.html")}
-        ref={sandbox}
-        style={{ display: "none" }}
-      ></iframe>
     </>
   );
 }
