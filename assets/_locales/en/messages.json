@@ -360,7 +360,7 @@
     "description": "App settings description"
   },
   "setting_wallets_description": {
-    "message": "Manager your wallets",
+    "message": "Manage your wallets",
     "description": "Wallet settings description"
   },
   "setting_config_description": {

@@ -40,7 +40,7 @@ export default function Collectible({ id }: Props) {
   const [price, setPrice] = useState<number>();
 
   // token gateway
-  const [tokens] = useTokens();
+  const tokens = useTokens();
   const gateway = useMemo(
     () => tokens.find((t) => t.id === id)?.gateway || defaultGateway,
     [id]

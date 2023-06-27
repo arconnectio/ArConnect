@@ -9,7 +9,7 @@ import Token from "../Token";
 
 export default function Tokens() {
   // all tokens
-  const [tokens] = useTokens();
+  const tokens = useTokens();
 
   // assets
   const assets = useMemo(
@@ -42,6 +42,9 @@ export default function Tokens() {
         {assets.slice(0, 3).map((token, i) => (
           <Token
             id={token.id}
+            name={token.name}
+            ticker={token.ticker}
+            balance={token.balance}
             onClick={() => push(`/token/${token.id}`)}
             key={i}
           />

@@ -31,7 +31,7 @@ export default function Collectible({ id, onClick }: Props) {
   }, [state, activeAddress]);
 
   // load gateway
-  const [tokens] = useTokens();
+  const tokens = useTokens();
   const gateway = useMemo(() => {
     const token = tokens?.find((t) => t.id === id);
 

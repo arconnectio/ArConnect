@@ -3,6 +3,7 @@ import type { EvalStateResult } from "warp-contracts";
 import type { Gateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
+import { useEffect, useState } from "react";
 import { getActiveAddress } from "~wallets";
 import { clearCache } from "./cache";
 
@@ -65,14 +66,45 @@ export async function removeToken(id: string) {
 /**
  * Hook for stored tokens
  */
-export const useTokens = () =>
-  useStorage<Token[]>(
+export function useTokens() {
+  const [tokens, setTokens] = useStorage<Token[]>(
     {
       key: "tokens",
       instance: ExtensionStorage
     },
     []
   );
+
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
+
+  const [updatedTokens, setUpdatedTokens] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      if (tokens.length === 0 || !activeAddress || updatedTokens) return;
+
+      setTokens(
+        await Promise.all(
+          tokens.map(async (token) => {
+            const res = await (
+              await fetch(`https://dre-1.warp.cc/contract?id=${token.id}`)
+            ).json();
+
+            token.balance = res.state.balances[activeAddress] || 0;
+
+            return token;
+          })
+        )
+      );
+      setUpdatedTokens(true);
+    })();
+  }, [tokens, activeAddress]);
+
+  return tokens;
+}
 
 /**
  * Token contract state evaluation result

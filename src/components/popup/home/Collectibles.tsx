@@ -9,7 +9,7 @@ import styled from "styled-components";
 
 export default function Collectibles() {
   // all tokens
-  const [tokens] = useTokens();
+  const tokens = useTokens();
 
   // collectibles
   const collectibles = useMemo(

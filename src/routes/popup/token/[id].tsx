@@ -94,7 +94,7 @@ export default function Asset({ id }: Props) {
   const [push] = useHistory();
 
   // token gateway
-  const [tokens] = useTokens();
+  const tokens = useTokens();
   const gateway = useMemo(
     () => tokens.find((t) => t.id === id)?.gateway || defaultGateway,
     [id]

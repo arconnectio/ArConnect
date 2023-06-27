@@ -9,7 +9,7 @@ import styled from "styled-components";
 
 export default function Tokens() {
   // all tokens
-  const [tokens] = useTokens();
+  const tokens = useTokens();
 
   // assets
   const assets = useMemo(

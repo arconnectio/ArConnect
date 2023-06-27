@@ -161,7 +161,7 @@ export default function Send({ id }: Props) {
   const [showTokenSelector, setShownTokenSelector] = useState(false);
 
   // all tokens
-  const [tokens] = useTokens();
+  const tokens = useTokens();
 
   // selected token
   const [selectedToken, setSelectedToken] = useState<"AR" | string>(id || "AR");

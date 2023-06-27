@@ -44,7 +44,7 @@ export function usePrice(symbol?: string, opts?: GetPriceOptions) {
     })();
   }, [symbol, opts, currency]);
 
-  return { price, loading };
+  return { price, currency, loading };
 }
 
 // May 27, 2020
