@@ -20,18 +20,12 @@ export async function getTokens() {
  *
  * @param id ID of the token contract
  */
-export async function addToken(
-  id: string,
-  type: TokenType,
-  state: TokenState,
-  gateway?: Gateway
-) {
+export async function addToken(id: string, type: TokenType, gateway?: Gateway) {
   const tokens = await getTokens();
 
-  // check state
-  if (!state) {
-    throw new Error("No state returned");
-  }
+  const { state } = await (
+    await fetch(`https://dre-1.warp.cc/contract?id=${id}&validity=true`)
+  ).json();
 
   validateTokenState(state);
 
@@ -47,7 +41,8 @@ export async function addToken(
     name: state.name,
     ticker: state.ticker,
     type,
-    gateway
+    gateway,
+    balance: state.balances[activeAddress] || 0
   });
   await ExtensionStorage.set("tokens", tokens);
 }

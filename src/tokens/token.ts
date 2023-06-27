@@ -12,6 +12,7 @@ export interface Token {
   ticker: string;
   type: TokenType;
   gateway?: Gateway;
+  balance: number;
 }
 
 export interface TokenState {

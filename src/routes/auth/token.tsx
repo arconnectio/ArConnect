@@ -1,8 +1,8 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { AnimatePresence, motion, Variants } from "framer-motion";
-import { useEffect, useMemo, useRef, useState } from "react";
 import { usePrice, usePriceHistory } from "~lib/redstone";
-import type { TokenType } from "~tokens/token";
+import type { TokenState, TokenType } from "~tokens/token";
+import { useEffect, useMemo, useState } from "react";
 import { getTokenLogo } from "~lib/viewblock";
 import { addToken } from "~tokens";
 import {
@@ -21,7 +21,6 @@ import CustomGatewayWarning from "~components/auth/CustomGatewayWarning";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import PriceChart from "~components/popup/asset/PriceChart";
 import Thumbnail from "~components/popup/asset/Thumbnail";
-import useSandboxedTokenState from "~tokens/hook";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
@@ -44,8 +43,21 @@ export default function Token() {
   const [period, setPeriod] = useState("Day");
 
   // load state
-  const sandbox = useRef<HTMLIFrameElement>();
-  const { state } = useSandboxedTokenState(params?.tokenID, sandbox);
+  const [state, setState] = useState<TokenState>();
+
+  useEffect(() => {
+    (async () => {
+      if (!params?.tokenID) return;
+
+      const res = await (
+        await fetch(
+          `https://dre-1.warp.cc/contract?id=${params.tokenID}&validity=true`
+        )
+      ).json();
+
+      setState(res.state);
+    })();
+  }, [params?.tokenID]);
 
   // token settings
   const settings = useMemo(() => {
@@ -95,7 +107,7 @@ export default function Token() {
 
     try {
       // add the token
-      await addToken(params.tokenID, tokenType, state, params.gateway);
+      await addToken(params.tokenID, tokenType, params.gateway);
 
       // reply to request
       await replyToAuthRequest("token", params.authID);
@@ -198,11 +210,6 @@ export default function Token() {
           {browser.i18n.getMessage("cancel")}
         </Button>
       </Section>
-      <iframe
-        src={browser.runtime.getURL("tabs/sandbox.html")}
-        ref={sandbox}
-        style={{ display: "none" }}
-      ></iframe>
     </Wrapper>
   );
 }
