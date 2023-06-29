@@ -27,6 +27,9 @@ export default function Tokens() {
         {assets.map((token, i) => (
           <Token
             id={token.id}
+            name={token.name}
+            ticker={token.ticker}
+            balance={token.balance}
             onClick={() => push(`/token/${token.id}`)}
             key={i}
           />

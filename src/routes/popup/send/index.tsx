@@ -539,6 +539,9 @@ export default function Send({ id }: Props) {
                       setSelectedToken(token.id);
                       setShownTokenSelector(false);
                     }}
+                    name={token.name}
+                    ticker={token.ticker}
+                    balance={token.balance}
                     key={i}
                   />
                 ))}
@@ -549,6 +552,8 @@ export default function Send({ id }: Props) {
                 .map((token, i) => (
                   <Collectible
                     id={token.id}
+                    name={token.name || token.ticker}
+                    balance={token.balance}
                     onClick={() => {
                       setSelectedToken(token.id);
                       setShownTokenSelector(false);

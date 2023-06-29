@@ -1,14 +1,14 @@
 import { EyeIcon, MessageIcon, ShareIcon, GlobeIcon } from "@iconicicons/react";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { Section, Spacer, Text } from "@arconnect/components";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { TokenState } from "~tokens/token";
 import { AnimatePresence } from "framer-motion";
 import { getCommunityUrl } from "~utils/format";
 import { Link } from "../token/[id]";
 import { useTokens } from "~tokens";
 import TokenLoading from "~components/popup/asset/Loading";
 import Thumbnail from "~components/popup/asset/Thumbnail";
-import useSandboxedTokenState from "~tokens/hook";
 import Skeleton from "~components/Skeleton";
 import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
@@ -17,8 +17,21 @@ import styled from "styled-components";
 
 export default function Collectible({ id }: Props) {
   // load state
-  const sandbox = useRef<HTMLIFrameElement>();
-  const { state, loading } = useSandboxedTokenState(id, sandbox, 270);
+  const [state, setState] = useState<TokenState>();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+
+      const res = await (
+        await fetch(`https://dre-1.warp.cc/contract?id=${id}&validity=true`)
+      ).json();
+
+      setState(res.state);
+      setLoading(false);
+    })();
+  }, [id]);
 
   // community settings
   const settings = useMemo(() => {
@@ -122,11 +135,6 @@ export default function Collectible({ id }: Props) {
             ))}
       </Section>
       <AnimatePresence>{loading && <TokenLoading />}</AnimatePresence>
-      <iframe
-        src={browser.runtime.getURL("tabs/sandbox.html")}
-        ref={sandbox}
-        style={{ display: "none" }}
-      ></iframe>
     </>
   );
 }

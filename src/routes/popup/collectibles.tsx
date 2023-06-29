@@ -27,6 +27,8 @@ export default function Collectibles() {
         {collectibles.map((collectible, i) => (
           <Collectible
             id={collectible.id}
+            name={collectible.name || collectible.ticker}
+            balance={collectible.balance}
             onClick={() => push(`/collectible/${collectible.id}`)}
             key={i}
           />
