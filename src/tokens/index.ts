@@ -43,7 +43,8 @@ export async function addToken(id: string, type: TokenType, gateway?: Gateway) {
     ticker: state.ticker,
     type,
     gateway,
-    balance: state.balances[activeAddress] || 0
+    balance: state.balances[activeAddress] || 0,
+    divisibility: state.divisibility
   });
   await ExtensionStorage.set("tokens", tokens);
 }
@@ -94,6 +95,7 @@ export function useTokens() {
             ).json();
 
             token.balance = res.state.balances[activeAddress] || 0;
+            token.divisibility = res.state.divisibility;
 
             return token;
           })

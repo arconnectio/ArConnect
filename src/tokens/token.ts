@@ -13,6 +13,7 @@ export interface Token {
   type: TokenType;
   gateway?: Gateway;
   balance: number;
+  divisibility?: number;
 }
 
 export interface TokenState {

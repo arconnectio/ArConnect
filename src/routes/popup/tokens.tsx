@@ -30,6 +30,7 @@ export default function Tokens() {
             name={token.name}
             ticker={token.ticker}
             balance={token.balance}
+            divisibility={token.divisibility}
             onClick={() => push(`/token/${token.id}`)}
             key={i}
           />

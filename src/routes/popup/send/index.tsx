@@ -542,6 +542,7 @@ export default function Send({ id }: Props) {
                     name={token.name}
                     ticker={token.ticker}
                     balance={token.balance}
+                    divisibility={token.divisibility}
                     key={i}
                   />
                 ))}
@@ -554,6 +555,7 @@ export default function Send({ id }: Props) {
                     id={token.id}
                     name={token.name || token.ticker}
                     balance={token.balance}
+                    divisibility={token.divisibility}
                     onClick={() => {
                       setSelectedToken(token.id);
                       setShownTokenSelector(false);

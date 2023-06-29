@@ -167,6 +167,7 @@ interface Props {
   balance: number;
   ticker: string;
   onClick?: MouseEventHandler<HTMLDivElement>;
+  divisibility?: number;
 }
 
 export function ArToken({ onClick }: ArTokenProps) {

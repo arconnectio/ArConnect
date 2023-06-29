@@ -83,5 +83,6 @@ interface Props {
   id: string;
   name: string;
   balance: number;
+  divisibility?: number;
   onClick?: MouseEventHandler<HTMLDivElement>;
 }
