@@ -56,7 +56,7 @@ export default function Token({ onClick, ...props }: Props) {
     <Wrapper onClick={onClick}>
       <LogoAndDetails>
         <LogoWrapper>
-          <Logo src={logo || ""} />
+          <Logo src={logo || ""} alt="" />
         </LogoWrapper>
         <TokenName>
           {(props.name && props.name !== props.ticker && (
@@ -125,16 +125,14 @@ const LogoWrapper = styled(Squircle)`
   color: rgba(${(props) => props.theme.theme}, 0.2);
 `;
 
-const Logo = styled.div<{ src: string }>`
+const Logo = styled.img`
   position: absolute;
-  mask: url(${(props) => props.src}) center/contain;
-  -webkit-mask: url(${(props) => props.src}) center/contain;
   user-select: none;
-  background: rgb(${(props) => props.theme.theme});
-  width: 35%;
-  height: 35%;
+  width: 52%;
+  height: 52%;
   top: 50%;
   left: 50%;
+  object-fit: contain;
   transform: translate(-50%, -50%);
 `;
 
