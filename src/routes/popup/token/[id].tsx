@@ -228,7 +228,7 @@ export default function Asset({ id }: Props) {
               )) || <Skeleton width="5rem" addMargin />}
             </TokenBalance>
             <FiatBalance>
-              {(loading && loadingPrice && <Skeleton width="3.7rem" />) ||
+              {((loading || loadingPrice) && <Skeleton width="3.7rem" />) ||
                 fiatBalance}
             </FiatBalance>
           </div>
