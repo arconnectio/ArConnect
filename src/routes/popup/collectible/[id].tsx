@@ -1,8 +1,8 @@
 import { EyeIcon, MessageIcon, ShareIcon, GlobeIcon } from "@iconicicons/react";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { Section, Spacer, Text } from "@arconnect/components";
+import { getSettings, TokenState } from "~tokens/token";
 import { useEffect, useMemo, useState } from "react";
-import type { TokenState } from "~tokens/token";
 import { AnimatePresence } from "framer-motion";
 import { getCommunityUrl } from "~utils/format";
 import { Link } from "../token/[id]";
@@ -37,7 +37,7 @@ export default function Collectible({ id }: Props) {
   const settings = useMemo(() => {
     if (!state || !state.settings) return undefined;
 
-    return new Map(state.settings);
+    return getSettings(state);
   }, [state]);
 
   // links

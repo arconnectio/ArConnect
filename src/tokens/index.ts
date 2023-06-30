@@ -1,4 +1,10 @@
-import { Token, TokenState, TokenType, validateTokenState } from "./token";
+import {
+  getSettings,
+  Token,
+  TokenState,
+  TokenType,
+  validateTokenState
+} from "./token";
 import type { EvalStateResult } from "warp-contracts";
 import type { Gateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -37,6 +43,9 @@ export async function addToken(id: string, type: TokenType, gateway?: Gateway) {
     throw new Error("No active address set");
   }
 
+  // parse settings
+  const settings = getSettings(state);
+
   tokens.push({
     id,
     name: state.name,
@@ -44,7 +53,8 @@ export async function addToken(id: string, type: TokenType, gateway?: Gateway) {
     type,
     gateway,
     balance: state.balances[activeAddress] || 0,
-    divisibility: state.divisibility
+    divisibility: state.divisibility,
+    defaultLogo: settings.get("communityLogo") as string
   });
   await ExtensionStorage.set("tokens", tokens);
 }
@@ -94,8 +104,12 @@ export function useTokens() {
               await fetch(`https://dre-1.warp.cc/contract?id=${token.id}`)
             ).json();
 
+            // parse settings
+            const settings = getSettings(res.state);
+
             token.balance = res.state.balances[activeAddress] || 0;
             token.divisibility = res.state.divisibility;
+            token.defaultLogo = settings.get("communityLogo");
 
             return token;
           })

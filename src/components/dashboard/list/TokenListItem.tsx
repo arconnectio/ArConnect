@@ -1,10 +1,10 @@
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { Reorder, useDragControls } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import { getSettings, loadTokenLogo, Token } from "~tokens/token";
 import { formatAddress } from "~utils/format";
-import { getTokenLogo } from "~lib/viewblock";
-import type { Token } from "~tokens/token";
+import { useTheme } from "~utils/theme";
 import { useLocation } from "wouter";
-import { useMemo } from "react";
+import * as viewblock from "~lib/viewblock";
 import BaseElement from "./BaseElement";
 import styled from "styled-components";
 
@@ -18,14 +18,30 @@ export default function TokenListItem({ token, active }: Props) {
   // allow dragging with the drag icon
   const dragControls = useDragControls();
 
-  // image
-  const image = useMemo(() => {
-    if (token.type === "asset") {
-      return getTokenLogo(token.id);
-    }
+  // display theme
+  const theme = useTheme();
 
-    return `${concatGatewayURL(token.gateway || defaultGateway)}/${token.id}`;
-  }, [token]);
+  // token logo
+  const [image, setImage] = useState(viewblock.getTokenLogo(token.id));
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { state } = await (
+          await fetch(
+            `https://dre-1.warp.cc/contract?id=${token.id}&validity=true`
+          )
+        ).json();
+        const settings = getSettings(state);
+
+        setImage(
+          await loadTokenLogo(token.id, settings.get("communityLogo"), theme)
+        );
+      } catch {
+        setImage(viewblock.getTokenLogo(token.id));
+      }
+    })();
+  }, [token, theme]);
 
   // router
   const [, setLocation] = useLocation();

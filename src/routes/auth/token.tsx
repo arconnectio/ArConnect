@@ -1,9 +1,14 @@
+import {
+  getSettings,
+  loadTokenLogo,
+  TokenState,
+  TokenType
+} from "~tokens/token";
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { usePrice, usePriceHistory } from "~lib/redstone";
-import type { TokenState, TokenType } from "~tokens/token";
 import { useEffect, useMemo, useState } from "react";
-import { getTokenLogo } from "~lib/viewblock";
+import { useTheme } from "~utils/theme";
 import { addToken } from "~tokens";
 import {
   concatGatewayURL,
@@ -22,6 +27,7 @@ import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import PriceChart from "~components/popup/asset/PriceChart";
 import Thumbnail from "~components/popup/asset/Thumbnail";
 import Wrapper from "~components/auth/Wrapper";
+import * as viewblock from "~lib/viewblock";
 import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
@@ -60,11 +66,7 @@ export default function Token() {
   }, [params?.tokenID]);
 
   // token settings
-  const settings = useMemo(() => {
-    if (!state || !state.settings) return undefined;
-
-    return new Map(state.settings);
-  }, [state]);
+  const settings = useMemo(() => getSettings(state), [state]);
 
   // toasts
   const { setToast } = useToasts();
@@ -133,6 +135,30 @@ export default function Token() {
   const { prices: historicalPrices, loading: loadingHistoricalPrices } =
     usePriceHistory(period, state?.ticker);
 
+  // display theme
+  const theme = useTheme();
+
+  // token logo
+  const [logo, setLogo] = useState<string>();
+
+  useEffect(() => {
+    (async () => {
+      if (!params?.tokenID) return;
+      setLogo(viewblock.getTokenLogo(params.tokenID));
+
+      if (!state) return;
+      const settings = getSettings(state);
+
+      setLogo(
+        await loadTokenLogo(
+          params.tokenID,
+          settings.get("communityLogo"),
+          theme
+        )
+      );
+    })();
+  }, [params?.tokenID, state, theme]);
+
   return (
     <Wrapper>
       <div>
@@ -163,7 +189,7 @@ export default function Token() {
                   token={{
                     name: state.name || state.ticker || "",
                     ticker: state.ticker || "",
-                    logo: getTokenLogo(params.tokenID || "", "dark")
+                    logo
                   }}
                   priceData={historicalPrices}
                   latestPrice={price}

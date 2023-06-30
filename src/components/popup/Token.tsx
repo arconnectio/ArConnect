@@ -1,6 +1,7 @@
 import { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { defaultGateway } from "~applications/gateway";
 import { hoverEffect, useTheme } from "~utils/theme";
+import { loadTokenLogo, Token } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { Text } from "@arconnect/components";
@@ -8,6 +9,7 @@ import { getArPrice } from "~lib/coingecko";
 import { usePrice } from "~lib/redstone";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
+import * as viewblock from "~lib/viewblock";
 import Squircle from "~components/Squircle";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
@@ -36,13 +38,25 @@ export default function Token({ onClick, ...props }: Props) {
     return (props.balance / (props.divisibility || 1)) * price;
   }, [price, balance]);
 
+  // token logo
+  const [logo, setLogo] = useState<string>();
+
+  useEffect(() => {
+    (async () => {
+      if (!props?.id || logo) return;
+      setLogo(viewblock.getTokenLogo(props.id));
+
+      if (!props.defaultLogo) return;
+
+      setLogo(await loadTokenLogo(props.id, props.defaultLogo, theme));
+    })();
+  }, [props, theme]);
+
   return (
     <Wrapper onClick={onClick}>
       <LogoAndDetails>
         <LogoWrapper>
-          <Logo
-            src={`https://meta.viewblock.io/AR.${props.id}/logo?t=${theme}`}
-          />
+          <Logo src={logo || ""} />
         </LogoWrapper>
         <TokenName>
           {(props.name && props.name !== props.ticker && (
@@ -164,13 +178,8 @@ const BalanceSection = styled.div`
   }
 `;
 
-interface Props {
-  id: string;
-  name?: string;
-  balance: number;
-  ticker: string;
+interface Props extends Token {
   onClick?: MouseEventHandler<HTMLDivElement>;
-  divisibility?: number;
 }
 
 export function ArToken({ onClick }: ArTokenProps) {

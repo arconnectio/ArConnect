@@ -7,7 +7,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { getCommunityUrl } from "~utils/format";
 import { useHistory } from "~utils/hash_router";
-import { getTokenLogo } from "~lib/viewblock";
+import { useTheme } from "~utils/theme";
 import { useTokens } from "~tokens";
 import {
   ArrowDownLeftIcon,
@@ -21,6 +21,8 @@ import {
 } from "@iconicicons/react";
 import {
   getInteractionsTxsForAddress,
+  getSettings,
+  loadTokenLogo,
   parseInteractions,
   TokenInteraction,
   TokenState
@@ -30,6 +32,7 @@ import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import Interaction from "~components/popup/asset/Interaction";
 import PriceChart from "~components/popup/asset/PriceChart";
 import TokenLoading from "~components/popup/asset/Loading";
+import * as viewblock from "~lib/viewblock";
 import browser from "webextension-polyfill";
 import Skeleton from "~components/Skeleton";
 import Head from "~components/popup/Head";
@@ -63,7 +66,7 @@ export default function Asset({ id }: Props) {
   const settings = useMemo(() => {
     if (!state || !state.settings) return undefined;
 
-    return new Map(state.settings);
+    return getSettings(state);
   }, [state]);
 
   // chat link urls
@@ -177,6 +180,24 @@ export default function Asset({ id }: Props) {
     instance: ExtensionStorage
   });
 
+  // display theme
+  const theme = useTheme();
+
+  // token logo
+  const [logo, setLogo] = useState<string>();
+
+  useEffect(() => {
+    (async () => {
+      if (!id) return;
+      setLogo(viewblock.getTokenLogo(id));
+
+      if (!state) return;
+      const settings = getSettings(state);
+
+      setLogo(await loadTokenLogo(id, settings.get("communityLogo"), theme));
+    })();
+  }, [id, state, theme]);
+
   return (
     <>
       <Head title={browser.i18n.getMessage("asset")} />
@@ -193,7 +214,7 @@ export default function Asset({ id }: Props) {
               token={{
                 name: state.name || state.ticker || "",
                 ticker: state.ticker || "",
-                logo: getTokenLogo(id, "dark")
+                logo
               }}
               priceData={historicalPrices}
               latestPrice={price}

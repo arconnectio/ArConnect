@@ -534,15 +534,11 @@ export default function Send({ id }: Props) {
                 .filter((token) => token.type === "asset")
                 .map((token, i) => (
                   <Token
-                    id={token.id}
+                    {...token}
                     onClick={() => {
                       setSelectedToken(token.id);
                       setShownTokenSelector(false);
                     }}
-                    name={token.name}
-                    ticker={token.ticker}
-                    balance={token.balance}
-                    divisibility={token.divisibility}
                     key={i}
                   />
                 ))}

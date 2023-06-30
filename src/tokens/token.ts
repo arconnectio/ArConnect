@@ -18,6 +18,7 @@ export interface Token {
   gateway?: Gateway;
   balance: number;
   divisibility?: number;
+  defaultLogo?: string;
 }
 
 export interface TokenState {
@@ -281,11 +282,12 @@ export interface TokenInteraction {
  * the contract.
  *
  * @param id Contract ID of the token
+ * @param defaultLogo Default logo tx ID in the contract state
  * @param theme UI theme to match the logo with
  */
 export async function loadTokenLogo(
   id: string,
-  state: TokenState,
+  defaultLogo: string,
   theme?: DisplayTheme
 ) {
   const viewblockURL = viewblock.getTokenLogo(id, theme);
@@ -305,15 +307,19 @@ export async function loadTokenLogo(
     // let's turn the
     return URL.createObjectURL(blob);
   } catch {
-    if (state.settings) {
-      const settings = new Map(state.settings);
-      const logo = settings.get("communityLogo");
-
-      if (logo) {
-        return `${concatGatewayURL(defaultGateway)}/${logo}`;
-      }
+    // get token logo from settings
+    if (defaultLogo) {
+      return `${concatGatewayURL(defaultGateway)}/${defaultLogo}`;
     }
 
+    // if there are no logos in settings, return the AR logo
     return theme === "dark" ? arLogoDark : arLogoLight;
   }
+}
+
+/**
+ * Parse settings from token state
+ */
+export function getSettings(state: TokenState) {
+  return new Map<string, any>(state?.settings || []);
 }
