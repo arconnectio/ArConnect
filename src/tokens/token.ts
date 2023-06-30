@@ -1,10 +1,14 @@
 import type { GQLEdgeInterface } from "ar-gql/dist/faces";
+import type { DisplayTheme } from "@arconnect/components";
+import * as viewblock from "~lib/viewblock";
 import {
   concatGatewayURL,
   defaultGateway,
   Gateway,
   gql
 } from "~applications/gateway";
+import arLogoLight from "url:/assets/ar/logo_light.png";
+import arLogoDark from "url:/assets/ar/logo_dark.png";
 
 export interface Token {
   id: string;
@@ -269,4 +273,47 @@ export interface TokenInteraction {
   otherAddress?: string;
   // interaction function
   function: string;
+}
+
+/**
+ * Load token logo from Viewblock. If no logo
+ * is returned, return the original logo from
+ * the contract.
+ *
+ * @param id Contract ID of the token
+ * @param theme UI theme to match the logo with
+ */
+export async function loadTokenLogo(
+  id: string,
+  state: TokenState,
+  theme?: DisplayTheme
+) {
+  const viewblockURL = viewblock.getTokenLogo(id, theme);
+
+  try {
+    const res = await fetch(viewblockURL);
+
+    // not the token logo we expected
+    if (res.status === 202 || res.status >= 400) {
+      throw new Error();
+    }
+
+    // let's return an object URL so we
+    // don't need to load the logo again
+    const blob = await res.blob();
+
+    // let's turn the
+    return URL.createObjectURL(blob);
+  } catch {
+    if (state.settings) {
+      const settings = new Map(state.settings);
+      const logo = settings.get("communityLogo");
+
+      if (logo) {
+        return `${concatGatewayURL(defaultGateway)}/${logo}`;
+      }
+    }
+
+    return theme === "dark" ? arLogoDark : arLogoLight;
+  }
 }
