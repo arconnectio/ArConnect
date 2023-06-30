@@ -221,7 +221,8 @@ export async function getInteractionsTxsForAddress(
 export function parseInteractions(
   interactions: GQLEdgeInterface[],
   activeAddress: string,
-  ticker?: string
+  ticker?: string,
+  divisibility?: number
 ): TokenInteraction[] {
   return interactions.map((tx) => {
     // interaction input
@@ -237,7 +238,7 @@ export function parseInteractions(
 
     if (input.function === "transfer") {
       type = (recipient === activeAddress && "in") || "out";
-      qty = Number(input.qty);
+      qty = Number(input.qty) / (divisibility || 1);
       otherAddress =
         (recipient === activeAddress && tx.node.owner.address) || recipient;
     }

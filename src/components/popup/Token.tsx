@@ -19,7 +19,10 @@ export default function Token({ onClick, ...props }: Props) {
 
   // token balance
   const balance = useMemo(
-    () => props.balance.toLocaleString(undefined, { maximumFractionDigits: 2 }),
+    () =>
+      (props.balance / (props.divisibility || 1)).toLocaleString(undefined, {
+        maximumFractionDigits: 2
+      }),
     [props]
   );
 
@@ -30,7 +33,7 @@ export default function Token({ onClick, ...props }: Props) {
   const fiatBalance = useMemo(() => {
     if (!price) return undefined;
 
-    return props.balance * price;
+    return (props.balance / (props.divisibility || 1)) * price;
   }, [price, balance]);
 
   return (
@@ -42,7 +45,7 @@ export default function Token({ onClick, ...props }: Props) {
           />
         </LogoWrapper>
         <TokenName>
-          {(props.name && (
+          {(props.name && props.name !== props.ticker && (
             <>
               {props.name}
               <span>{props.ticker}</span>

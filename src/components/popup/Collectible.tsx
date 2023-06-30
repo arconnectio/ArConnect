@@ -7,9 +7,12 @@ export default function Collectible({ id, onClick, ...props }: Props) {
   // balance
   const balance = useMemo(
     () =>
-      (props.balance || 0).toLocaleString(undefined, {
-        maximumFractionDigits: 2
-      }),
+      ((props.balance || 0) / (props.divisibility || 1)).toLocaleString(
+        undefined,
+        {
+          maximumFractionDigits: 2
+        }
+      ),
     [props]
   );
 

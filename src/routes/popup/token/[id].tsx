@@ -85,7 +85,8 @@ export default function Asset({ id }: Props) {
   const tokenBalance = useMemo(() => {
     if (!state) return "0";
 
-    const val = state.balances?.[activeAddress] || 0;
+    const val =
+      (state.balances?.[activeAddress] || 0) / (state.divisibility || 1);
 
     return val.toLocaleString(undefined, { maximumFractionDigits: 2 });
   }, [state, activeAddress]);
@@ -127,7 +128,12 @@ export default function Asset({ id }: Props) {
         );
 
         setInteractions(
-          parseInteractions(validInteractions, activeAddress, state?.ticker)
+          parseInteractions(
+            validInteractions,
+            activeAddress,
+            state?.ticker,
+            state?.divisibility
+          )
         );
       } catch {}
 
@@ -136,7 +142,7 @@ export default function Asset({ id }: Props) {
   }, [id, activeAddress, validity, state, gateway]);
 
   // token price
-  const { price } = usePrice(state?.ticker);
+  const { price, loading: loadingPrice } = usePrice(state?.ticker);
 
   // token historical prices
   const { prices: historicalPrices, loading: loadingHistoricalPrices } =
@@ -155,7 +161,8 @@ export default function Asset({ id }: Props) {
       return `?? ${currency.toUpperCase()}`;
     }
 
-    const bal = state.balances?.[activeAddress] || 0;
+    const bal =
+      (state.balances?.[activeAddress] || 0) / (state.divisibility || 1);
 
     return (price * bal).toLocaleString(undefined, {
       style: "currency",
@@ -221,7 +228,8 @@ export default function Asset({ id }: Props) {
               )) || <Skeleton width="5rem" addMargin />}
             </TokenBalance>
             <FiatBalance>
-              {(state && price && fiatBalance) || <Skeleton width="3.7rem" />}
+              {(loading && loadingPrice && <Skeleton width="3.7rem" />) ||
+                fiatBalance}
             </FiatBalance>
           </div>
           <AnimatePresence>
