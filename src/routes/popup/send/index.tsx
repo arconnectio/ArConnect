@@ -1,4 +1,5 @@
 import {
+  ExtensionStorage,
   RawStoredTransfer,
   TempTransactionStorage,
   TRANSFER_TX_STORAGE
@@ -40,6 +41,7 @@ import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
+import { useStorage } from "@plasmohq/storage/hook";
 
 export default function Send({ id }: Props) {
   // amount
@@ -47,7 +49,8 @@ export default function Send({ id }: Props) {
   const [amount, setAmount] = useState(startAmount);
 
   // balance
-  const balance = useBalance();
+  const arBalance = useBalance();
+  const [balance, setBalance] = useState(0);
 
   useEffect(() => {
     if (balance === 0) return;
@@ -86,10 +89,11 @@ export default function Send({ id }: Props) {
 
   useEffect(() => {
     (async () => {
-      if (!target?.address) return;
-
       const arweave = new Arweave(defaultGateway);
-      const price = await arweave.transactions.getPrice(0, target.address);
+      const price = await arweave.transactions.getPrice(
+        0,
+        target?.address || ""
+      );
 
       setFee(arweave.ar.winstonToAr(price));
     })();
@@ -174,6 +178,33 @@ export default function Send({ id }: Props) {
     return tokens.find((t) => t.id === selectedToken);
   }, [selectedToken, tokens]);
 
+  // active address
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
+
+  // divisibility for PSTs
+  const [divisibility, setDivisibility] = useState(1);
+
+  useEffect(() => {
+    (async () => {
+      if (selectedToken === "AR") {
+        setBalance(arBalance);
+        return setDivisibility(1);
+      }
+
+      const { state } = await (
+        await fetch(
+          `https://dre-1.warp.cc/contract?id=${selectedToken}&validity=true`
+        )
+      ).json();
+
+      setDivisibility(state.divisibility || 1);
+      setBalance(state.balances[activeAddress] / (state.divisibility || 1));
+    })();
+  }, [selectedToken, arBalance, activeAddress]);
+
   // toasts
   const { setToast } = useToasts();
 
@@ -236,7 +267,7 @@ export default function Send({ id }: Props) {
           JSON.stringify({
             function: "transfer",
             target: target.address,
-            qty: amount
+            qty: Number(amount) * divisibility
           })
         );
       }
@@ -325,13 +356,16 @@ export default function Send({ id }: Props) {
           <AmountWrapper>
             <MaxAmount
               onClick={() => {
-                const maxAmount = (balance - Number(fee)).toLocaleString(
-                  undefined,
-                  {
-                    maximumFractionDigits: 2,
-                    useGrouping: false
-                  }
-                );
+                let max = balance;
+
+                if (selectedToken === "AR") {
+                  max -= Number(fee);
+                }
+
+                const maxAmount = max.toLocaleString(undefined, {
+                  maximumFractionDigits: 2,
+                  useGrouping: false
+                });
 
                 setAmount(maxAmount);
                 setDisplayedAmount(maxAmount);
