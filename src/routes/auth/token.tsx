@@ -8,6 +8,7 @@ import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { usePrice, usePriceHistory } from "~lib/redstone";
 import { useEffect, useMemo, useState } from "react";
+import { getContract } from "~lib/warp";
 import { useTheme } from "~utils/theme";
 import { addToken } from "~tokens";
 import {
@@ -55,13 +56,9 @@ export default function Token() {
     (async () => {
       if (!params?.tokenID) return;
 
-      const res = await (
-        await fetch(
-          `https://dre-1.warp.cc/contract?id=${params.tokenID}&validity=true`
-        )
-      ).json();
+      const { state } = await getContract<TokenState>(params.tokenID);
 
-      setState(res.state);
+      setState(state);
     })();
   }, [params?.tokenID]);
 

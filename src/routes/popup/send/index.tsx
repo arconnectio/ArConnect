@@ -1,19 +1,17 @@
-import {
-  ExtensionStorage,
-  RawStoredTransfer,
-  TempTransactionStorage,
-  TRANSFER_TX_STORAGE
-} from "~utils/storage";
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { getAnsProfile, AnsUser, getAnsProfileByLabel } from "~lib/ans";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { formatAddress, isAddress } from "~utils/format";
 import { useState, useEffect, useMemo } from "react";
+import { formatFiatBalance } from "~tokens/currency";
+import { useStorage } from "@plasmohq/storage/hook";
 import { IconButton } from "~components/IconButton";
+import type { TokenState } from "~tokens/token";
 import { useHistory } from "~utils/hash_router";
 import { useBalance } from "~wallets/hooks";
 import { getArPrice } from "~lib/coingecko";
+import { getContract } from "~lib/warp";
 import { useTokens } from "~tokens";
 import {
   Button,
@@ -33,6 +31,12 @@ import {
   CheckIcon,
   ChevronDownIcon
 } from "@iconicicons/react";
+import {
+  ExtensionStorage,
+  RawStoredTransfer,
+  TempTransactionStorage,
+  TRANSFER_TX_STORAGE
+} from "~utils/storage";
 import AddressScanner from "~components/popup/AddressScanner";
 import Token, { ArToken } from "~components/popup/Token";
 import Collectible from "~components/popup/Collectible";
@@ -41,8 +45,6 @@ import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
-import { useStorage } from "@plasmohq/storage/hook";
-import { formatFiatBalance } from "~tokens/currency";
 
 export default function Send({ id }: Props) {
   // amount
@@ -195,11 +197,7 @@ export default function Send({ id }: Props) {
         return setDivisibility(1);
       }
 
-      const { state } = await (
-        await fetch(
-          `https://dre-1.warp.cc/contract?id=${selectedToken}&validity=true`
-        )
-      ).json();
+      const { state } = await getContract<TokenState>(id);
 
       setDivisibility(state.divisibility || 1);
       setBalance(state.balances[activeAddress] / (state.divisibility || 1));

@@ -8,6 +8,7 @@ import { useLocation } from "wouter";
 import * as viewblock from "~lib/viewblock";
 import BaseElement from "./BaseElement";
 import styled from "styled-components";
+import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 
 export default function TokenListItem({ token, active }: Props) {
   // format address
@@ -28,6 +29,13 @@ export default function TokenListItem({ token, active }: Props) {
   useEffect(() => {
     (async () => {
       try {
+        // if it is a collectible, we don't need to determinate the logo
+        if (token.type === "collectible") {
+          return setImage(
+            `${concatGatewayURL(token.gateway || defaultGateway)}/${token.id}`
+          );
+        }
+
         // query community logo using Warp DRE
         const { result } = await getContract<string>(token.id, {
           query: "$.settings.[?(@[0] === 'communityLogo')][1]"

@@ -8,6 +8,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { getCommunityUrl } from "~utils/format";
 import { useHistory } from "~utils/hash_router";
+import { getContract } from "~lib/warp";
 import { useTheme } from "~utils/theme";
 import { useTokens } from "~tokens";
 import {
@@ -50,12 +51,10 @@ export default function Asset({ id }: Props) {
     (async () => {
       setLoading(true);
 
-      const res = await (
-        await fetch(`https://dre-1.warp.cc/contract?id=${id}&validity=true`)
-      ).json();
+      const { state, validity } = await getContract<TokenState>(id);
 
-      setState(res.state);
-      setValidity(res.validity);
+      setState(state);
+      setValidity(validity);
       setLoading(false);
     })();
   }, [id]);

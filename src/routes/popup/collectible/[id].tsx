@@ -5,6 +5,7 @@ import { getSettings, TokenState } from "~tokens/token";
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { getCommunityUrl } from "~utils/format";
+import { getContract } from "~lib/warp";
 import { Link } from "../token/[id]";
 import { useTokens } from "~tokens";
 import TokenLoading from "~components/popup/asset/Loading";
@@ -24,11 +25,9 @@ export default function Collectible({ id }: Props) {
     (async () => {
       setLoading(true);
 
-      const res = await (
-        await fetch(`https://dre-1.warp.cc/contract?id=${id}&validity=true`)
-      ).json();
+      const { state } = await getContract<TokenState>(id);
 
-      setState(res.state);
+      setState(state);
       setLoading(false);
     })();
   }, [id]);
