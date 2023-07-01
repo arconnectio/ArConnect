@@ -54,7 +54,7 @@ export default function Token({ onClick, ...props }: Props) {
     <Wrapper onClick={onClick}>
       <LogoAndDetails>
         <LogoWrapper>
-          <Logo src={logo || ""} alt="" />
+          <Logo src={logo || ""} alt="" key={props.id} />
         </LogoWrapper>
         <TokenName>
           {(props.name && props.name !== props.ticker && (
