@@ -13,13 +13,41 @@ import {
   validateTokenState
 } from "./token";
 
+/** Default tokens */
+const defaultTokens: Token[] = [
+  {
+    id: "KTzTXT_ANmF84fWEKHzWURD1LWd9QaFR9yfYUwH2Lxw",
+    name: "U",
+    ticker: "U",
+    type: "asset",
+    balance: 0,
+    divisibility: 1e6,
+    defaultLogo: "J3WXX4OGa6wP5E9oLhNyqlN4deYI7ARjrd5se740ftE"
+  },
+  {
+    id: "TlqASNDLA1Uh8yFiH-BzR_1FDag4s735F3PoUFEv2Mo",
+    name: "STAMP Protocol",
+    ticker: "$STAMP",
+    type: "asset",
+    balance: 0
+  },
+  {
+    id: "-8A6RexFkpfWwuyVO98wzSFZh0d6VJuI-buTJvlwOJQ",
+    name: "ArDrive",
+    ticker: "ARDRIVE",
+    type: "asset",
+    balance: 0,
+    defaultLogo: "tN4vheZxrAIjqCfbs3MDdWTXg8a_57JUNyoqA4uwr1k"
+  }
+];
+
 /**
  * Get stored tokens
  */
 export async function getTokens() {
   const tokens = await ExtensionStorage.get<Token[]>("tokens");
 
-  return tokens || [];
+  return tokens || defaultTokens;
 }
 
 /**
@@ -81,7 +109,7 @@ export function useTokens() {
       key: "tokens",
       instance: ExtensionStorage
     },
-    []
+    defaultTokens
   );
 
   const [activeAddress] = useStorage<string>({
