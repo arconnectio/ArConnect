@@ -339,6 +339,10 @@
     "message": "Currency",
     "description": "Reset settings title"
   },
+  "setting_dre_node": {
+    "message": "Warp DRE node",
+    "description": "Warp DRE node setting title"
+  },
   "setting_arverify": {
     "message": "ArVerify treshold",
     "description": "ArVerify settings title"
@@ -382,6 +386,10 @@
   "setting_setting_currency_description": {
     "message": "Fiat display currency",
     "description": "Currency settings description"
+  },
+  "setting_setting_dre_node_description": {
+    "message": "Set preferred DRE node for contract evaluation",
+    "desription": "Preferred DRE node setting description"
   },
   "setting_setting_arverify_description": {
     "message": "Set the verification threshold used",

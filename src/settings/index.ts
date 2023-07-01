@@ -1,7 +1,9 @@
 import { currencies } from "~lib/coingecko";
+import { dreNodes } from "~lib/warp";
 import {
   BellIcon,
   CheckIcon,
+  CloudIcon,
   DollarIcon,
   PercentageIcon,
   StarIcon,
@@ -29,6 +31,15 @@ const settings: Setting[] = [
     type: "pick",
     options: currencies,
     defaultValue: "USD"
+  }),
+  new Setting({
+    name: "dre_node",
+    displayName: "setting_dre_node",
+    icon: CloudIcon,
+    description: "setting_setting_dre_node_description",
+    type: "pick",
+    options: Object.keys(dreNodes),
+    defaultValue: Object.keys(dreNodes)[0]
   }),
   /*new Setting({
     name: "arverify",
