@@ -826,7 +826,7 @@
     "description": "Add token title"
   },
   "addTokenParagraph": {
-    "message": "$APP$ would like to add a token to your wallet. Please review it's details below.",
+    "message": "$APP$ would like to add a token to your wallet. Please review its details below.",
     "description": "Add token explanation",
     "placeholders": {
       "app": {
