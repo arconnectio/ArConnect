@@ -141,6 +141,9 @@ const RadioItem = styled.div`
   transition: all 0.23s ease-in-out;
 
   &:hover {
-    background-color: rgba(${(props) => props.theme.cardBorder}, 0.5);
+    background-color: rgba(
+      ${(props) => props.theme.theme},
+      ${(props) => (props.theme.displayTheme === "light" ? "0.14" : "0.04")}
+    );
   }
 `;
