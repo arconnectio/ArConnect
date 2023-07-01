@@ -1,3 +1,4 @@
+import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { Reorder, useDragControls } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { loadTokenLogo, Token } from "~tokens/token";
@@ -8,7 +9,6 @@ import { useLocation } from "wouter";
 import * as viewblock from "~lib/viewblock";
 import BaseElement from "./BaseElement";
 import styled from "styled-components";
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 
 export default function TokenListItem({ token, active }: Props) {
   // format address
