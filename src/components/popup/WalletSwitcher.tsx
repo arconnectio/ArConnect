@@ -305,7 +305,10 @@ const Wallet = styled(motion.div).attrs<{ open: boolean }>((props) => ({
   transition: background-color 0.23s ease-in-out;
 
   &:hover {
-    background-color: rgb(${(props) => props.theme.cardBorder}, 0.65);
+    background-color: rgb(
+      ${(props) => props.theme.theme},
+      ${(props) => (props.theme.displayTheme === "light" ? "0.1" : "0.05")}
+    );
   }
 
   &:active {

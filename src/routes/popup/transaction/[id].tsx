@@ -422,10 +422,8 @@ export default function Transaction({ id: rawId, gw }: Props) {
                     url: `https://viewblock.io/arweave/tx/${id}`
                   })
                 }
-                disabled={confirmations <= 0}
               >
-                {(confirmations > 0 && "Viewblock") ||
-                  browser.i18n.getMessage("transaction_not_on_viewblock")}
+                Viewblock
                 <ShareIcon />
               </Button>
             </Section>

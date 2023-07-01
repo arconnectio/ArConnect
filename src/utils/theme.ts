@@ -120,19 +120,20 @@ export const hoverEffect = css`
     overflow: hidden;
     z-index: -1;
     transform: translate(-50%, -50%);
+    transition: background-color 0.35s ease;
   }
 
   &:hover::after {
     background-color: rgb(
-      ${(props) => props.theme.primaryText},
-      ${(props) => (props.theme.displayTheme === "light" ? "0.02" : "0.08")}
+      ${(props) => props.theme.theme},
+      ${(props) => (props.theme.displayTheme === "light" ? "0.1" : "0.07")}
     );
   }
 
   &:active::after {
     background-color: rgb(
-      ${(props) => props.theme.primaryText},
-      ${(props) => (props.theme.displayTheme === "light" ? "0.08" : "0.12")}
+      ${(props) => props.theme.theme},
+      ${(props) => (props.theme.displayTheme === "light" ? "0.15" : "0.085")}
     );
   }
 `;

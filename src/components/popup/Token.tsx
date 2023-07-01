@@ -103,10 +103,6 @@ const Wrapper = styled.div`
     border-radius: 12px;
   }
 
-  &:hover {
-    opacity: 0.82;
-  }
-
   &:active {
     transform: scale(0.98);
   }
