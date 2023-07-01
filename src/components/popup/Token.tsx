@@ -1,3 +1,4 @@
+import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
 import { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { defaultGateway } from "~applications/gateway";
 import { hoverEffect, useTheme } from "~utils/theme";
@@ -21,10 +22,7 @@ export default function Token({ onClick, ...props }: Props) {
 
   // token balance
   const balance = useMemo(
-    () =>
-      (props.balance / (props.divisibility || 1)).toLocaleString(undefined, {
-        maximumFractionDigits: 2
-      }),
+    () => formatTokenBalance(props.balance / (props.divisibility || 1)),
     [props]
   );
 
@@ -71,12 +69,7 @@ export default function Token({ onClick, ...props }: Props) {
       <BalanceSection>
         <FiatBalance>
           {(typeof fiatBalance !== "undefined" &&
-            fiatBalance.toLocaleString(undefined, {
-              style: "currency",
-              currency: currency.toLowerCase(),
-              currencyDisplay: "narrowSymbol",
-              maximumFractionDigits: 2
-            })) ||
+            formatFiatBalance(fiatBalance, currency.toLowerCase())) ||
             "--"}
         </FiatBalance>
         <NativeBalance>
@@ -212,9 +205,7 @@ export function ArToken({ onClick }: ArTokenProps) {
       const winstonBalance = await arweave.wallets.getBalance(activeAddress);
       const arBalance = Number(arweave.ar.winstonToAr(winstonBalance));
 
-      setBalance(
-        arBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })
-      );
+      setBalance(formatTokenBalance(arBalance));
       setFiatBalance(arBalance * price);
     })();
   }, [activeAddress, price]);
@@ -232,12 +223,7 @@ export function ArToken({ onClick }: ArTokenProps) {
       </LogoAndDetails>
       <BalanceSection>
         <FiatBalance>
-          {fiatBalance.toLocaleString(undefined, {
-            style: "currency",
-            currency: currency.toLowerCase(),
-            currencyDisplay: "narrowSymbol",
-            maximumFractionDigits: 2
-          })}
+          {formatFiatBalance(fiatBalance, currency.toLowerCase())}
         </FiatBalance>
         <NativeBalance>
           {balance}

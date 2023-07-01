@@ -1,5 +1,6 @@
 import type { GQLEdgeInterface } from "ar-gql/dist/faces";
 import type { DisplayTheme } from "@arconnect/components";
+import { formatTokenBalance } from "./currency";
 import * as viewblock from "~lib/viewblock";
 import {
   concatGatewayURL,
@@ -253,7 +254,7 @@ export function parseInteractions(
       id: tx.node.id,
       type,
       qty:
-        qty.toLocaleString(undefined, { maximumFractionDigits: 2 }) +
+        formatTokenBalance(qty) +
         " " +
         (type === "interaction" ? "AR" : ticker || ""),
       function: input.function,

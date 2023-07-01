@@ -9,6 +9,7 @@ import {
 } from "@arconnect/components";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import { formatTokenBalance } from "~tokens/currency";
 import type { HardwareApi } from "~wallets/hardware";
 import { useStorage } from "@plasmohq/storage/hook";
 import { AnsUser, getAnsProfile } from "~lib/ans";
@@ -175,9 +176,7 @@ export default function WalletSwitcher({
                       {wallet.address === activeAddress && <ActiveIndicator />}
                     </WalletTitle>
                     <Balance>
-                      {wallet.balance.toLocaleString(undefined, {
-                        maximumFractionDigits: 2
-                      })}
+                      {formatTokenBalance(wallet.balance)}
                       <span>AR</span>
                     </Balance>
                   </WalletData>

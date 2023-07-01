@@ -1,11 +1,14 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
+import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
 import { constructTransaction } from "~api/modules/sign/transaction_builder";
+import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
 import { onMessage, sendMessage } from "@arconnect/webext-bridge";
 import type { DecodedTag } from "~api/modules/sign/tags";
 import { defaultGateway } from "~applications/gateway";
 import type { Tag } from "arweave/web/lib/transaction";
 import type { Chunk } from "~api/modules/sign/chunks";
 import { useEffect, useMemo, useState } from "react";
+import { useScanner } from "@arconnect/keystone-sdk";
 import { useActiveWallet } from "~wallets/hooks";
 import { formatAddress } from "~utils/format";
 import { getArPrice } from "~lib/coingecko";
@@ -26,18 +29,16 @@ import {
   Text,
   useToasts
 } from "@arconnect/components";
+import AnimatedQRScanner from "~components/hardware/AnimatedQRScanner";
+import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
 import type Transaction from "arweave/web/lib/transaction";
 import Wrapper from "~components/auth/Wrapper";
+import Progress from "~components/Progress";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import prettyBytes from "pretty-bytes";
 import Arweave from "arweave";
-import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
-import Progress from "~components/Progress";
-import { useScanner } from "@arconnect/keystone-sdk";
-import AnimatedQRScanner from "~components/hardware/AnimatedQRScanner";
-import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
 
 export default function Sign() {
   // sign params
@@ -243,18 +244,9 @@ export default function Sign() {
         <Spacer y={0.75} />
         {(!page && (
           <Section>
-            <FiatAmount>
-              {fiatPrice.toLocaleString(undefined, {
-                style: "currency",
-                currency: currency.toLowerCase(),
-                currencyDisplay: "narrowSymbol",
-                maximumFractionDigits: 2
-              })}
-            </FiatAmount>
+            <FiatAmount>{formatFiatBalance(fiatPrice, currency)}</FiatAmount>
             <AmountTitle>
-              {quantity.toLocaleString(undefined, {
-                maximumFractionDigits: 4
-              })}
+              {formatTokenBalance(quantity)}
               <span>AR</span>
             </AmountTitle>
             <Properties>

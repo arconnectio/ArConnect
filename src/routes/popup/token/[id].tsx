@@ -1,3 +1,4 @@
+import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { Loading, Section, Spacer, Text } from "@arconnect/components";
 import { AnimatePresence, motion, Variants } from "framer-motion";
@@ -91,7 +92,7 @@ export default function Asset({ id }: Props) {
     const val =
       (state.balances?.[activeAddress] || 0) / (state.divisibility || 1);
 
-    return val.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    return formatTokenBalance(val);
   }, [state, activeAddress]);
 
   // router push
@@ -167,12 +168,7 @@ export default function Asset({ id }: Props) {
     const bal =
       (state.balances?.[activeAddress] || 0) / (state.divisibility || 1);
 
-    return (price * bal).toLocaleString(undefined, {
-      style: "currency",
-      currency: currency.toLowerCase(),
-      currencyDisplay: "narrowSymbol",
-      maximumFractionDigits: 2
-    });
+    return formatFiatBalance(price * bal, currency);
   }, [state, activeAddress, price, currency]);
 
   const [priceWarningShown, setPriceWarningShown] = useStorage({

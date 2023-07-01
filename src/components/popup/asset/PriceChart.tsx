@@ -7,6 +7,7 @@ import useSetting from "~settings/hook";
 import styled from "styled-components";
 import TokenLoading from "./Loading";
 import Graph from "../Graph";
+import { formatFiatBalance } from "~tokens/currency";
 
 export default function PriceChart({
   children,
@@ -44,12 +45,7 @@ export default function PriceChart({
       <Spacer y={0.15} />
       {(latestPrice !== 0 && latestPrice && (
         <TokenPrice>
-          {latestPrice.toLocaleString(undefined, {
-            style: "currency",
-            currency: currency.toLowerCase(),
-            currencyDisplay: "narrowSymbol",
-            maximumFractionDigits: 2
-          })}
+          {formatFiatBalance(latestPrice, currency.toLowerCase())}
           {positiveTrend !== undefined &&
             (positiveTrend ? (
               <PriceTrendPositive />

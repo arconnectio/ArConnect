@@ -1,6 +1,7 @@
 import { DisplayTheme, Section, Spacer, Text } from "@arconnect/components";
 import { useTheme as useDisplayTheme } from "~utils/theme";
 import type { Allowance } from "~applications/allowance";
+import { formatTokenBalance } from "~tokens/currency";
 import { GridIcon } from "@iconicicons/react";
 import { useMemo } from "react";
 import {
@@ -64,9 +65,7 @@ export default function App({
                   <AppUrl>
                     {browser.i18n.getMessage("limit")}
                     {": "}
-                    {spent.toLocaleString(undefined, {
-                      maximumFractionDigits: 2
-                    })}
+                    {formatTokenBalance(spent)}
                     {" AR"}
                   </AppUrl>
                 ))}

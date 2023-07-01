@@ -42,6 +42,7 @@ import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
 import { useStorage } from "@plasmohq/storage/hook";
+import { formatFiatBalance } from "~tokens/currency";
 
 export default function Send({ id }: Props) {
   // amount
@@ -427,12 +428,7 @@ export default function Send({ id }: Props) {
           <Prices>
             <span>
               {(selectedToken === "AR" &&
-                fiatVal.toLocaleString(undefined, {
-                  style: "currency",
-                  currency: currency.toLowerCase(),
-                  currencyDisplay: "narrowSymbol",
-                  maximumFractionDigits: 2
-                })) ||
+                formatFiatBalance(fiatVal, currency)) ||
                 "??"}
             </span>
             {" - "}

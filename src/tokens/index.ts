@@ -11,7 +11,6 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useEffect, useState } from "react";
 import { getActiveAddress } from "~wallets";
-import { clearCache } from "./cache";
 
 /**
  * Get stored tokens
@@ -71,7 +70,6 @@ export async function removeToken(id: string) {
     "tokens",
     tokens.filter((token) => token.id !== id)
   );
-  clearCache(id);
 }
 
 /**

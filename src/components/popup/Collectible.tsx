@@ -1,4 +1,5 @@
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { formatTokenBalance } from "~tokens/currency";
 import { MouseEventHandler, useMemo } from "react";
 import { hoverEffect } from "~utils/theme";
 import styled from "styled-components";
@@ -6,13 +7,7 @@ import styled from "styled-components";
 export default function Collectible({ id, onClick, ...props }: Props) {
   // balance
   const balance = useMemo(
-    () =>
-      ((props.balance || 0) / (props.divisibility || 1)).toLocaleString(
-        undefined,
-        {
-          maximumFractionDigits: 2
-        }
-      ),
+    () => formatTokenBalance((props.balance || 0) / (props.divisibility || 1)),
     [props]
   );
 
