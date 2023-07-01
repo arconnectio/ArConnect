@@ -36,7 +36,7 @@ export default function Tokens() {
           href={`${browser.runtime.getURL("tabs/dashboard.html")}#/tokens`}
         >
           <EditIcon />
-          Manage tokens
+          {browser.i18n.getMessage("manage_assets_button")}
         </ManageButton>
       </TokensList>
     </>
