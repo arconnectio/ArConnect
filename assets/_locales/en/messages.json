@@ -754,7 +754,7 @@
     "description": "Reset spent button"
   },
   "allowance_limit_reached": {
-    "message": "This app has reached it's allowance limit",
+    "message": "This app has reached its allowance limit",
     "description": "App allowance limit reached label"
   },
   "unlock": {
