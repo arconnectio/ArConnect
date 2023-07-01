@@ -124,16 +124,10 @@ export const hoverEffect = css`
   }
 
   &:hover::after {
-    background-color: rgb(
-      ${(props) => props.theme.theme},
-      ${(props) => (props.theme.displayTheme === "light" ? "0.1" : "0.07")}
-    );
+    background-color: rgba(${(props) => props.theme.theme}, 0.1);
   }
 
   &:active::after {
-    background-color: rgb(
-      ${(props) => props.theme.theme},
-      ${(props) => (props.theme.displayTheme === "light" ? "0.15" : "0.085")}
-    );
+    background-color: rgba(${(props) => props.theme.theme}, 0.15);
   }
 `;
