@@ -14,7 +14,7 @@ export async function arconfettiIcon(): Promise<string | false> {
 
   try {
     const storeData = await getStoreData();
-    const iconName = storeData.settings?.arConfetti;
+    let iconName = storeData.settings?.arConfetti;
 
     if (!iconName) return false;
 
@@ -24,6 +24,8 @@ export async function arconfettiIcon(): Promise<string | false> {
     if (iconName === true) {
       return defaultIcon;
     }
+
+    if (iconName.includes("://")) iconName = "arweave";
 
     // return icon location
     return browser.runtime.getURL(`assets/${iconName}.png`);

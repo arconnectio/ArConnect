@@ -17,7 +17,7 @@ export interface ISettingsAction {
 
 const defaultConfig: ISettings = {
   currency: "USD",
-  arConfetti: browser.runtime.getURL("assets/arweave.png"),
+  arConfetti: "arweave",
   arVerifyTreshold: Threshold.MEDIUM,
   feeMultiplier: 1,
   signNotification: false

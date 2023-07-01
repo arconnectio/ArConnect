@@ -394,6 +394,7 @@ export default function Home() {
             ).length > 0 &&
             psts
               .filter(({ removed, type }) => !removed && type !== "collectible")
+              .filter((pst) => pst.balance > 0)
               .sort((a, b) => b.balance - a.balance)
               .slice(0, showAll ? psts.length : 6)
               .map((pst, i) => (
@@ -443,7 +444,7 @@ export default function Home() {
             )) || <p className={styles.EmptyIndicatorText}>No PSTs</p>}
           {(psts &&
             psts.filter(
-              ({ removed, type }) => !removed && type !== "collectible"
+              ({ removed, type, balance }) => !removed && type !== "collectible" && balance > 0
             ).length > 6 && (
               <p
                 onClick={() => setShowAll((val) => !val)}
