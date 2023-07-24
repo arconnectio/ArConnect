@@ -22,9 +22,7 @@ import addToken from "./modules/add_token/add_token.foreground";
 import isTokenAddedModule from "./modules/is_token_added";
 import isTokenAdded from "./modules/is_token_added/is_token_added.foreground";
 import connectModule from "./modules/connect";
-import connect, {
-  finalizer as connectFinalizer
-} from "./modules/connect/connect.foreground";
+import connect from "./modules/connect/connect.foreground";
 import signModule from "./modules/sign";
 import sign, {
   finalizer as signFinalizer
@@ -53,7 +51,7 @@ const modules: ForegroundModule[] = [
   { ...walletNamesModule, function: walletNames },
   { ...arweaveConfigModule, function: arweaveConfig },
   { ...disconnectModule, function: disconnect, finalizer: disconnectFinalizer },
-  { ...connectModule, function: connect, finalizer: connectFinalizer },
+  { ...connectModule, function: connect },
   { ...signModule, function: sign, finalizer: signFinalizer },
   { ...dispatchModule, function: dispatch, finalizer: dispatchFinalizer },
   { ...encryptModule, function: encrypt, finalizer: encryptFinalizer },
