@@ -66,5 +66,5 @@ async function pkcs8ToJwk(privateKey: Uint8Array): Promise<JWKInterface> {
 export function checkPasswordValid(password: string) {
   const strength = passwordStrength(password);
 
-  return strength.id >= 1;
+  return strength.id === 3;
 }

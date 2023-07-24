@@ -654,7 +654,7 @@
     "description": "Create password explainer paragraph"
   },
   "password_not_strong": {
-    "message": "Please use text and numbers and ensure your password is at least 5 characters",
+    "message": "Your password is not strong enough",
     "description": "Notification about bad password strength"
   },
   "password_strength_1": {
@@ -676,6 +676,22 @@
   "password_strength_5": {
     "message": "Very strong password",
     "description": "Level 5 strength password text"
+  },
+  "password_strength_checklist_case": {
+    "message": "Uses lowercase and uppercase letters",
+    "description": "Password strength checklist lowercase and uppercase element"
+  },
+  "password_strength_checklist_number": {
+    "message": "Uses numbers",
+    "description": "Password strength checklist number element"
+  },
+  "password_strength_checklist_symbol": {
+    "message": "Uses symbols",
+    "description": "Password strength checklist symbol element"
+  },
+  "password_strength_checklist_length": {
+    "message": "Is at least 10 characters long",
+    "description": "Password strength checklist length element"
   },
   "no_wallets_added": {
     "message": "No wallets added",
