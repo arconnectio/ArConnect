@@ -67,6 +67,7 @@ export default function Unlock() {
             label={browser.i18n.getMessage("password")}
             placeholder={browser.i18n.getMessage("enter_password")}
             fullWidth
+            autoFocus
             onKeyDown={(e) => {
               if (e.key !== "Enter") return;
               unlockWallet();
