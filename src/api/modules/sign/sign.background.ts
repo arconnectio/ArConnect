@@ -16,6 +16,7 @@ import type Transaction from "arweave/web/lib/transaction";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
+import { freeDecryptedWallet } from "~wallets/encryption";
 
 const background: ModuleFunction<BackgroundResult> = async (
   appData,
@@ -99,6 +100,11 @@ const background: ModuleFunction<BackgroundResult> = async (
         });
       }
     } catch {
+      // remove wallet from memory
+      if (keyfile) {
+        freeDecryptedWallet(keyfile);
+      }
+
       throw new Error("User failed to sign the transaction manually");
     }
   }
@@ -124,6 +130,11 @@ const background: ModuleFunction<BackgroundResult> = async (
   // instead we can re-construct the transaction again
   // in the foreground function, which improves speed
   const returnTransaction = deconstructSignedTransaction(transaction);
+
+  // remove wallet from memory
+  if (keyfile) {
+    freeDecryptedWallet(keyfile);
+  }
 
   // return de-constructed transaction
   return {

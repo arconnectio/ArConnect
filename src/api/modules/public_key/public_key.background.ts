@@ -1,3 +1,4 @@
+import { freeDecryptedWallet } from "~wallets/encryption";
 import type { ModuleFunction } from "~api/background";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
@@ -20,6 +21,9 @@ const background: ModuleFunction<string> = async () => {
 
   // get public key
   const { n: publicKey } = keyfile;
+
+  // remove wallet from memory
+  freeDecryptedWallet(keyfile);
 
   return publicKey;
 };

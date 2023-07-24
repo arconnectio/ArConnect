@@ -3,6 +3,7 @@ import type { ModuleFunction } from "~api/background";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
+import { freeDecryptedWallet } from "~wallets/encryption";
 
 const background: ModuleFunction<Uint8Array> = async (
   _,
@@ -68,6 +69,10 @@ const background: ModuleFunction<Uint8Array> = async (
       keyBuf
     );
 
+    // remove wallet from memory
+    freeDecryptedWallet(encryptJwk);
+    freeDecryptedWallet(keyfile);
+
     return arweave.utils.concatBuffers([encryptedKey, encryptedData]);
   } else if (options.name && typeof data !== "string") {
     // standard RSA decryption
@@ -89,8 +94,15 @@ const background: ModuleFunction<Uint8Array> = async (
     );
     const encrypted = await window.crypto.subtle.encrypt(options, key, data);
 
+    // remove wallet from memory
+    freeDecryptedWallet(encryptJwk);
+    freeDecryptedWallet(keyfile);
+
     return new Uint8Array(encrypted);
   } else {
+    // remove wallet from memory
+    freeDecryptedWallet(keyfile);
+
     throw new Error("Invalid options passed", options);
   }
 };

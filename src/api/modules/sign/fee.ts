@@ -1,13 +1,14 @@
+import { getActiveAddress, getActiveKeyfile } from "~wallets";
+import { freeDecryptedWallet } from "~wallets/encryption";
+import type { Alarms } from "webextension-polyfill";
+import { getArPrice } from "~lib/coingecko";
+import { getSetting } from "~settings";
 import {
   concatGatewayURL,
   defaultGateway,
   Gateway,
   gql
 } from "~applications/gateway";
-import { getActiveAddress, getActiveKeyfile } from "~wallets";
-import type { Alarms } from "webextension-polyfill";
-import { getArPrice } from "~lib/coingecko";
-import { getSetting } from "~settings";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave/web/common";
@@ -75,6 +76,9 @@ export default async function handleFeeAlarm(alarmInfo: Alarms.Alarm) {
       e
     );
   }
+
+  // remove wallet from memory
+  freeDecryptedWallet(keyfile);
 }
 
 /**

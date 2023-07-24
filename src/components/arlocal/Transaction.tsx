@@ -1,6 +1,7 @@
 import type { CreateTransactionInterface } from "arweave/web/common";
 import { getActiveKeyfile, useDecryptionKey } from "~wallets";
 import { InputWithBtn, InputWrapper } from "./InputWrapper";
+import { freeDecryptedWallet } from "~wallets/encryption";
 import { PlusIcon, TrashIcon } from "@iconicicons/react";
 import type { DecodedTag } from "~api/modules/sign/tags";
 import { IconButton } from "~components/IconButton";
@@ -163,6 +164,9 @@ export default function Transaction({ arweave }: Props) {
 
       // sign tx
       await arweave.transactions.sign(transaction, keyfile);
+
+      // remove wallet from memory
+      freeDecryptedWallet(keyfile);
 
       // post tx
       if (txData) {

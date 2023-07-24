@@ -20,7 +20,7 @@ import { removeWallet, StoredWallet } from "~wallets";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { IconButton } from "~components/IconButton";
-import { decryptWallet } from "~wallets/encryption";
+import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
 import { AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import { downloadFile } from "~utils/file";
@@ -145,6 +145,9 @@ export default function WalletSettings({ address }: Props) {
         "application/json",
         `arweave-keyfile-${address}.json`
       );
+
+      // remove wallet from memory
+      freeDecryptedWallet(decrypted);
 
       // close modal
       exportModal.setOpen(false);

@@ -1,3 +1,4 @@
+import { freeDecryptedWallet } from "~wallets/encryption";
 import type { ModuleFunction } from "~api/background";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
@@ -55,6 +56,9 @@ const background: ModuleFunction<number[]> = async (
 
   // grab signature
   const signature = await crypto.subtle.sign(algorithm, cryptoKey, dataToSign);
+
+  // remove wallet from memory
+  freeDecryptedWallet(keyfile);
 
   return Array.from(new Uint8Array(signature));
 };

@@ -12,12 +12,6 @@ import registerProtocolHandler from "~ar_protocol";
 import handleFeeAlarm from "~api/modules/sign/fee";
 import browser from "webextension-polyfill";
 
-// TODO: save decryption key here if the extension is
-// running in firefox. firefox still uses manifest v2,
-// so it should allow us, to store the decryption key
-// in the background scipt and have it destroyed once
-// the browser is closed
-
 // watch for API calls
 onMessage("api_call", handleApiCalls);
 

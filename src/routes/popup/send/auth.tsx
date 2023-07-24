@@ -9,10 +9,10 @@ import {
   Gateway
 } from "~applications/gateway";
 import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
+import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@iconicicons/react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { useScanner } from "@arconnect/keystone-sdk";
-import { decryptWallet } from "~wallets/encryption";
 import { useActiveWallet } from "~wallets/hooks";
 import { useHistory } from "~utils/hash_router";
 import { useEffect, useState } from "react";
@@ -180,6 +180,9 @@ export default function SendAuth() {
         duration: 2000
       });
     }
+
+    // remove wallet from memory
+    freeDecryptedWallet(keyfile);
 
     setLoading(false);
   }

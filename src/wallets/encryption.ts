@@ -87,6 +87,12 @@ export async function encryptWallet(wallet: JWKInterface, password: string) {
 /**
  * Decrypt an Arweave wallet from the browser's storage
  *
+ * !!IMPORTANT!!
+ *
+ * When using this function, always make sure to remove the keyfile
+ * from the memory, after it is no longer needed, using the
+ * "freeDecryptedWallet(decryptedJWK)" function.
+ *
  * @param wallet Base64 encoded string of the encrypted wallet
  * @param password Passoword to decrypt the wallet with
  * @return Wallet Json Web Key
@@ -117,4 +123,23 @@ export async function decryptWallet(wallet: string, password: string) {
   const jwk: JWKInterface = JSON.parse(new TextDecoder().decode(decrypted));
 
   return jwk;
+}
+
+/**
+ * Overwrite in-memory decrypted wallet data, once it is not
+ * needed. This makes sure that no 3rd-party malicious software
+ * can steal the wallet from memory.
+ *
+ * @param jwk Reference to the decrypted JWK
+ */
+export function freeDecryptedWallet(jwk: JWKInterface) {
+  jwk.kty = "000000000000000000000";
+  jwk.e = "000000000000000000000";
+  jwk.n = "000000000000000000000";
+  jwk.d = "000000000000000000000";
+  jwk.p = "000000000000000000000";
+  jwk.q = "000000000000000000000";
+  jwk.dp = "000000000000000000000";
+  jwk.dq = "000000000000000000000";
+  jwk.qi = "000000000000000000000";
 }

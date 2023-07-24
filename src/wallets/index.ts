@@ -150,6 +150,12 @@ type DecryptedWallet = StoredWallet<JWKInterface>;
 /**
  * Get the active wallet with decrypted JWK
  *
+ * !!IMPORTANT!!
+ *
+ * When using this function, always make sure to remove the keyfile
+ * from the memory, after it is no longer needed, using the
+ * "freeDecryptedWallet(activekeyfile.keyfile)" function.
+ *
  * @returns Active wallet with decrypted JWK
  */
 export async function getActiveKeyfile(): Promise<DecryptedWallet> {

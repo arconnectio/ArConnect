@@ -1,6 +1,7 @@
 import { constructTransaction } from "../sign/transaction_builder";
 import { arconfettiIcon, signNotification } from "../sign/utils";
 import { cleanUpChunks, getChunks } from "../sign/chunks";
+import { freeDecryptedWallet } from "~wallets/encryption";
 import type { ModuleFunction } from "~api/background";
 import { createData, ArweaveSigner } from "arbundles";
 import { uploadDataToBundlr } from "./uploader";
@@ -78,6 +79,9 @@ const background: ModuleFunction<ReturnType> = async (
     // show notification
     await signNotification(0, dataEntry.id, appData.appURL, "dispatch");
 
+    // remove wallet from memory
+    freeDecryptedWallet(keyfile);
+
     return {
       arConfetti: await arconfettiIcon(),
       res: {
@@ -104,6 +108,9 @@ const background: ModuleFunction<ReturnType> = async (
 
     // show notification
     await signNotification(price, transaction.id, appData.appURL);
+
+    // remove wallet from memory
+    freeDecryptedWallet(keyfile);
 
     return {
       arConfetti: await arconfettiIcon(),

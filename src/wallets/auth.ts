@@ -1,7 +1,7 @@
+import { decryptWallet, freeDecryptedWallet } from "./encryption";
 import browser, { Alarms } from "webextension-polyfill";
 import { getWallets, LocalWallet } from "./index";
 import { ExtensionStorage } from "~utils/storage";
-import { decryptWallet } from "./encryption";
 
 /**
  * Unlock wallets and save decryption key
@@ -50,7 +50,11 @@ export async function checkPassword(password: string) {
   }
 
   try {
-    await decryptWallet(localWallets[0].keyfile, password);
+    // try decrypting the wallet
+    const wallet = await decryptWallet(localWallets[0].keyfile, password);
+
+    // remove wallet from memory
+    freeDecryptedWallet(wallet);
 
     return true;
   } catch {
