@@ -1,13 +1,15 @@
+import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { Loading, Section, Spacer, Text } from "@arconnect/components";
 import { AnimatePresence, motion, Variants } from "framer-motion";
-import { useEffect, useMemo, useRef, useState } from "react";
 import { usePrice, usePriceHistory } from "~lib/redstone";
+import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { getCommunityUrl } from "~utils/format";
 import { useHistory } from "~utils/hash_router";
-import { getTokenLogo } from "~lib/viewblock";
+import { getContract } from "~lib/warp";
+import { useTheme } from "~utils/theme";
 import { useTokens } from "~tokens";
 import {
   ArrowDownLeftIcon,
@@ -21,15 +23,18 @@ import {
 } from "@iconicicons/react";
 import {
   getInteractionsTxsForAddress,
+  getSettings,
+  loadTokenLogo,
   parseInteractions,
-  TokenInteraction
+  TokenInteraction,
+  TokenState
 } from "~tokens/token";
 import Title, { Heading } from "~components/popup/Title";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import Interaction from "~components/popup/asset/Interaction";
 import PriceChart from "~components/popup/asset/PriceChart";
 import TokenLoading from "~components/popup/asset/Loading";
-import useSandboxedTokenState from "~tokens/hook";
+import * as viewblock from "~lib/viewblock";
 import browser from "webextension-polyfill";
 import Skeleton from "~components/Skeleton";
 import Head from "~components/popup/Head";
@@ -38,8 +43,21 @@ import styled from "styled-components";
 
 export default function Asset({ id }: Props) {
   // load state
-  const sandbox = useRef<HTMLIFrameElement>();
-  const { state, validity, loading } = useSandboxedTokenState(id, sandbox, 270);
+  const [state, setState] = useState<TokenState>();
+  const [validity, setValidity] = useState<{ [id: string]: boolean }>();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+
+      const { state, validity } = await getContract<TokenState>(id);
+
+      setState(state);
+      setValidity(validity);
+      setLoading(false);
+    })();
+  }, [id]);
 
   // price period
   const [period, setPeriod] = useState("Day");
@@ -48,7 +66,7 @@ export default function Asset({ id }: Props) {
   const settings = useMemo(() => {
     if (!state || !state.settings) return undefined;
 
-    return new Map(state.settings);
+    return getSettings(state);
   }, [state]);
 
   // chat link urls
@@ -70,16 +88,17 @@ export default function Asset({ id }: Props) {
   const tokenBalance = useMemo(() => {
     if (!state) return "0";
 
-    const val = state.balances?.[activeAddress] || 0;
+    const val =
+      (state.balances?.[activeAddress] || 0) / (state.divisibility || 1);
 
-    return val.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    return formatTokenBalance(val);
   }, [state, activeAddress]);
 
   // router push
   const [push] = useHistory();
 
   // token gateway
-  const [tokens] = useTokens();
+  const tokens = useTokens();
   const gateway = useMemo(
     () => tokens.find((t) => t.id === id)?.gateway || defaultGateway,
     [id]
@@ -112,7 +131,12 @@ export default function Asset({ id }: Props) {
         );
 
         setInteractions(
-          parseInteractions(validInteractions, activeAddress, state?.ticker)
+          parseInteractions(
+            validInteractions,
+            activeAddress,
+            state?.ticker,
+            state?.divisibility
+          )
         );
       } catch {}
 
@@ -121,7 +145,7 @@ export default function Asset({ id }: Props) {
   }, [id, activeAddress, validity, state, gateway]);
 
   // token price
-  const { price } = usePrice(state?.ticker);
+  const { price, loading: loadingPrice } = usePrice(state?.ticker);
 
   // token historical prices
   const { prices: historicalPrices, loading: loadingHistoricalPrices } =
@@ -140,20 +164,34 @@ export default function Asset({ id }: Props) {
       return `?? ${currency.toUpperCase()}`;
     }
 
-    const bal = state.balances?.[activeAddress] || 0;
+    const bal =
+      (state.balances?.[activeAddress] || 0) / (state.divisibility || 1);
 
-    return (price * bal).toLocaleString(undefined, {
-      style: "currency",
-      currency: currency.toLowerCase(),
-      currencyDisplay: "narrowSymbol",
-      maximumFractionDigits: 2
-    });
+    return formatFiatBalance(price * bal, currency);
   }, [state, activeAddress, price, currency]);
 
   const [priceWarningShown, setPriceWarningShown] = useStorage({
     key: "price_warning_shown",
     instance: ExtensionStorage
   });
+
+  // display theme
+  const theme = useTheme();
+
+  // token logo
+  const [logo, setLogo] = useState<string>();
+
+  useEffect(() => {
+    (async () => {
+      if (!id) return;
+      setLogo(viewblock.getTokenLogo(id));
+
+      if (!state) return;
+      const settings = getSettings(state);
+
+      setLogo(await loadTokenLogo(id, settings.get("communityLogo"), theme));
+    })();
+  }, [id, state, theme]);
 
   return (
     <>
@@ -171,7 +209,7 @@ export default function Asset({ id }: Props) {
               token={{
                 name: state.name || state.ticker || "",
                 ticker: state.ticker || "",
-                logo: getTokenLogo(id, "dark")
+                logo
               }}
               priceData={historicalPrices}
               latestPrice={price}
@@ -206,7 +244,8 @@ export default function Asset({ id }: Props) {
               )) || <Skeleton width="5rem" addMargin />}
             </TokenBalance>
             <FiatBalance>
-              {(state && price && fiatBalance) || <Skeleton width="3.7rem" />}
+              {((loading || loadingPrice) && <Skeleton width="3.7rem" />) ||
+                fiatBalance}
             </FiatBalance>
           </div>
           <AnimatePresence>
@@ -370,11 +409,6 @@ export default function Asset({ id }: Props) {
         </InteractionsList>
       </Section>
       <AnimatePresence>{loading && <TokenLoading />}</AnimatePresence>
-      <iframe
-        src={browser.runtime.getURL("tabs/sandbox.html")}
-        ref={sandbox}
-        style={{ display: "none" }}
-      ></iframe>
     </>
   );
 }

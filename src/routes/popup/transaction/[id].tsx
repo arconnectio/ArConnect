@@ -1,3 +1,4 @@
+import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
 import { Button, Section, Spacer, Text } from "@arconnect/components";
 import { AnimatePresence, Variants, motion } from "framer-motion";
 import type { GQLNodeInterface } from "ar-gql/dist/faces";
@@ -218,18 +219,9 @@ export default function Transaction({ id: rawId, gw }: Props) {
         {(transaction && (
           <>
             <Section style={{ paddingBottom: 0 }}>
-              <FiatAmount>
-                {fiatPrice.toLocaleString(undefined, {
-                  style: "currency",
-                  currency: currency.toLowerCase(),
-                  currencyDisplay: "narrowSymbol",
-                  maximumFractionDigits: 2
-                })}
-              </FiatAmount>
+              <FiatAmount>{formatFiatBalance(fiatPrice, currency)}</FiatAmount>
               <AmountTitle>
-                {Number(transaction.quantity.ar).toLocaleString(undefined, {
-                  maximumFractionDigits: 4
-                })}
+                {formatTokenBalance(Number(transaction.quantity.ar))}
                 <span>AR</span>
               </AmountTitle>
             </Section>
@@ -422,10 +414,8 @@ export default function Transaction({ id: rawId, gw }: Props) {
                     url: `https://viewblock.io/arweave/tx/${id}`
                   })
                 }
-                disabled={confirmations <= 0}
               >
-                {(confirmations > 0 && "Viewblock") ||
-                  browser.i18n.getMessage("transaction_not_on_viewblock")}
+                Viewblock
                 <ShareIcon />
               </Button>
             </Section>

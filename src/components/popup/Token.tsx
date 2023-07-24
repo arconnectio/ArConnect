@@ -1,7 +1,8 @@
-import { MouseEventHandler, useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion, Variants } from "framer-motion";
+import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
+import { MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { defaultGateway } from "~applications/gateway";
 import { hoverEffect, useTheme } from "~utils/theme";
+import { loadTokenLogo, Token } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { Text } from "@arconnect/components";
@@ -9,117 +10,77 @@ import { getArPrice } from "~lib/coingecko";
 import { usePrice } from "~lib/redstone";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
-import useSandboxedTokenState from "~tokens/hook";
+import * as viewblock from "~lib/viewblock";
 import Squircle from "~components/Squircle";
-import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
 
-export default function Token({ id, onClick }: Props) {
+export default function Token({ onClick, ...props }: Props) {
   // display theme
   const theme = useTheme();
 
-  // active address
-  const [activeAddress] = useStorage<string>({
-    key: "active_address",
-    instance: ExtensionStorage
-  });
-
-  // load state
-  const sandbox = useRef<HTMLIFrameElement>();
-  const { state } = useSandboxedTokenState(id, sandbox, 270);
-
   // token balance
-  const balance = useMemo(() => {
-    if (!state?.balances || !activeAddress) {
-      return 0;
-    }
-
-    const bal = state.balances[activeAddress] || 0;
-
-    return bal;
-  }, [state, activeAddress]);
-
-  // formatted token balance
-  const formattedBalance = useMemo(
-    () => balance.toLocaleString(undefined, { maximumFractionDigits: 2 }),
-    [balance]
+  const balance = useMemo(
+    () => formatTokenBalance(props.balance / (props.divisibility || 1)),
+    [props]
   );
 
   // token price
-  const { price } = usePrice(state?.ticker);
-
-  // currency setting
-  const [currency] = useSetting<string>("currency");
+  const { price, currency } = usePrice(props.ticker);
 
   // fiat balance
   const fiatBalance = useMemo(() => {
     if (!price) return undefined;
 
-    return balance * price;
+    return (props.balance / (props.divisibility || 1)) * price;
   }, [price, balance]);
 
+  // token logo
+  const [logo, setLogo] = useState<string>();
+
+  useEffect(() => {
+    (async () => {
+      if (!props?.id || logo) return;
+      setLogo(viewblock.getTokenLogo(props.id));
+
+      if (!props.defaultLogo) return;
+
+      setLogo(await loadTokenLogo(props.id, props.defaultLogo, theme));
+    })();
+  }, [props, theme]);
+
   return (
-    <>
-      <AnimatePresence>
-        {state && (
-          <Wrapper onClick={onClick}>
-            <LogoAndDetails>
-              <LogoWrapper>
-                <Logo
-                  src={`https://meta.viewblock.io/AR.${id}/logo?t=${theme}`}
-                />
-              </LogoWrapper>
-              <TokenName>
-                {(state.name && (
-                  <>
-                    {state.name}
-                    <span>{state.ticker}</span>
-                  </>
-                )) ||
-                  state.ticker}
-              </TokenName>
-            </LogoAndDetails>
-            <BalanceSection>
-              <FiatBalance>
-                {(fiatBalance &&
-                  fiatBalance.toLocaleString(undefined, {
-                    style: "currency",
-                    currency: currency.toLowerCase(),
-                    currencyDisplay: "narrowSymbol",
-                    maximumFractionDigits: 2
-                  })) ||
-                  "--"}
-              </FiatBalance>
-              <NativeBalance>
-                {formattedBalance} {state.ticker}
-              </NativeBalance>
-            </BalanceSection>
-          </Wrapper>
-        )}
-      </AnimatePresence>
-      <iframe
-        src={browser.runtime.getURL("tabs/sandbox.html")}
-        ref={sandbox}
-        style={{ display: "none" }}
-      ></iframe>
-    </>
+    <Wrapper onClick={onClick}>
+      <LogoAndDetails>
+        <LogoWrapper>
+          <Logo src={logo || ""} alt="" key={props.id} />
+        </LogoWrapper>
+        <TokenName>
+          {(props.name && props.name !== props.ticker && (
+            <>
+              {props.name}
+              <span>{props.ticker}</span>
+            </>
+          )) ||
+            props.ticker}
+        </TokenName>
+      </LogoAndDetails>
+      <BalanceSection>
+        <FiatBalance>
+          {(typeof fiatBalance !== "undefined" &&
+            formatFiatBalance(fiatBalance, currency.toLowerCase())) ||
+            "--"}
+        </FiatBalance>
+        <NativeBalance>
+          {balance} {props.ticker}
+        </NativeBalance>
+      </BalanceSection>
+    </Wrapper>
   );
 }
 
-const animation: Variants = {
-  hidden: { opacity: 0 },
-  shown: { opacity: 1 }
-};
-
-const Wrapper = styled(motion.div).attrs({
-  variants: animation,
-  initial: "hidden",
-  animate: "shown",
-  exit: "hidden",
-  transition: { duration: 0.2, ease: "easeInOut" }
-})`
+const Wrapper = styled.div`
   position: relative;
   display: flex;
   align-items: center;
@@ -133,10 +94,6 @@ const Wrapper = styled(motion.div).attrs({
     width: 105%;
     height: 130%;
     border-radius: 12px;
-  }
-
-  &:hover {
-    opacity: 0.82;
   }
 
   &:active {
@@ -157,16 +114,14 @@ const LogoWrapper = styled(Squircle)`
   color: rgba(${(props) => props.theme.theme}, 0.2);
 `;
 
-const Logo = styled.div<{ src: string }>`
+const Logo = styled.img`
   position: absolute;
-  mask: url(${(props) => props.src}) center/contain;
-  -webkit-mask: url(${(props) => props.src}) center/contain;
   user-select: none;
-  background: rgb(${(props) => props.theme.theme});
-  width: 35%;
-  height: 35%;
+  width: 52%;
+  height: 52%;
   top: 50%;
   left: 50%;
+  object-fit: contain;
   transform: translate(-50%, -50%);
 `;
 
@@ -210,8 +165,7 @@ const BalanceSection = styled.div`
   }
 `;
 
-interface Props {
-  id: string;
+interface Props extends Token {
   onClick?: MouseEventHandler<HTMLDivElement>;
 }
 
@@ -251,9 +205,7 @@ export function ArToken({ onClick }: ArTokenProps) {
       const winstonBalance = await arweave.wallets.getBalance(activeAddress);
       const arBalance = Number(arweave.ar.winstonToAr(winstonBalance));
 
-      setBalance(
-        arBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })
-      );
+      setBalance(formatTokenBalance(arBalance));
       setFiatBalance(arBalance * price);
     })();
   }, [activeAddress, price]);
@@ -271,12 +223,7 @@ export function ArToken({ onClick }: ArTokenProps) {
       </LogoAndDetails>
       <BalanceSection>
         <FiatBalance>
-          {fiatBalance.toLocaleString(undefined, {
-            style: "currency",
-            currency: currency.toLowerCase(),
-            currencyDisplay: "narrowSymbol",
-            maximumFractionDigits: 2
-          })}
+          {formatFiatBalance(fiatBalance, currency.toLowerCase())}
         </FiatBalance>
         <NativeBalance>
           {balance}

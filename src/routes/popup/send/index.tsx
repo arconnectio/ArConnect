@@ -1,18 +1,17 @@
-import {
-  RawStoredTransfer,
-  TempTransactionStorage,
-  TRANSFER_TX_STORAGE
-} from "~utils/storage";
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { getAnsProfile, AnsUser, getAnsProfileByLabel } from "~lib/ans";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { formatAddress, isAddress } from "~utils/format";
 import { useState, useEffect, useMemo } from "react";
+import { formatFiatBalance } from "~tokens/currency";
+import { useStorage } from "@plasmohq/storage/hook";
 import { IconButton } from "~components/IconButton";
+import type { TokenState } from "~tokens/token";
 import { useHistory } from "~utils/hash_router";
 import { useBalance } from "~wallets/hooks";
 import { getArPrice } from "~lib/coingecko";
+import { getContract } from "~lib/warp";
 import { useTokens } from "~tokens";
 import {
   Button,
@@ -32,6 +31,12 @@ import {
   CheckIcon,
   ChevronDownIcon
 } from "@iconicicons/react";
+import {
+  ExtensionStorage,
+  RawStoredTransfer,
+  TempTransactionStorage,
+  TRANSFER_TX_STORAGE
+} from "~utils/storage";
 import AddressScanner from "~components/popup/AddressScanner";
 import Token, { ArToken } from "~components/popup/Token";
 import Collectible from "~components/popup/Collectible";
@@ -47,7 +52,8 @@ export default function Send({ id }: Props) {
   const [amount, setAmount] = useState(startAmount);
 
   // balance
-  const balance = useBalance();
+  const arBalance = useBalance();
+  const [balance, setBalance] = useState(0);
 
   useEffect(() => {
     if (balance === 0) return;
@@ -86,10 +92,11 @@ export default function Send({ id }: Props) {
 
   useEffect(() => {
     (async () => {
-      if (!target?.address) return;
-
       const arweave = new Arweave(defaultGateway);
-      const price = await arweave.transactions.getPrice(0, target.address);
+      const price = await arweave.transactions.getPrice(
+        0,
+        target?.address || ""
+      );
 
       setFee(arweave.ar.winstonToAr(price));
     })();
@@ -161,7 +168,7 @@ export default function Send({ id }: Props) {
   const [showTokenSelector, setShownTokenSelector] = useState(false);
 
   // all tokens
-  const [tokens] = useTokens();
+  const tokens = useTokens();
 
   // selected token
   const [selectedToken, setSelectedToken] = useState<"AR" | string>(id || "AR");
@@ -173,6 +180,29 @@ export default function Send({ id }: Props) {
 
     return tokens.find((t) => t.id === selectedToken);
   }, [selectedToken, tokens]);
+
+  // active address
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
+
+  // divisibility for PSTs
+  const [divisibility, setDivisibility] = useState(1);
+
+  useEffect(() => {
+    (async () => {
+      if (selectedToken === "AR") {
+        setBalance(arBalance);
+        return setDivisibility(1);
+      }
+
+      const { state } = await getContract<TokenState>(id);
+
+      setDivisibility(state.divisibility || 1);
+      setBalance(state.balances[activeAddress] / (state.divisibility || 1));
+    })();
+  }, [selectedToken, arBalance, activeAddress]);
 
   // toasts
   const { setToast } = useToasts();
@@ -236,7 +266,7 @@ export default function Send({ id }: Props) {
           JSON.stringify({
             function: "transfer",
             target: target.address,
-            qty: amount
+            qty: Number(amount) * divisibility
           })
         );
       }
@@ -325,13 +355,16 @@ export default function Send({ id }: Props) {
           <AmountWrapper>
             <MaxAmount
               onClick={() => {
-                const maxAmount = (balance - Number(fee)).toLocaleString(
-                  undefined,
-                  {
-                    maximumFractionDigits: 2,
-                    useGrouping: false
-                  }
-                );
+                let max = balance;
+
+                if (selectedToken === "AR") {
+                  max -= Number(fee);
+                }
+
+                const maxAmount = max.toLocaleString(undefined, {
+                  maximumFractionDigits: 2,
+                  useGrouping: false
+                });
 
                 setAmount(maxAmount);
                 setDisplayedAmount(maxAmount);
@@ -393,12 +426,7 @@ export default function Send({ id }: Props) {
           <Prices>
             <span>
               {(selectedToken === "AR" &&
-                fiatVal.toLocaleString(undefined, {
-                  style: "currency",
-                  currency: currency.toLowerCase(),
-                  currencyDisplay: "narrowSymbol",
-                  maximumFractionDigits: 2
-                })) ||
+                formatFiatBalance(fiatVal, currency)) ||
                 "??"}
             </span>
             {" - "}
@@ -534,7 +562,7 @@ export default function Send({ id }: Props) {
                 .filter((token) => token.type === "asset")
                 .map((token, i) => (
                   <Token
-                    id={token.id}
+                    {...token}
                     onClick={() => {
                       setSelectedToken(token.id);
                       setShownTokenSelector(false);
@@ -549,6 +577,9 @@ export default function Send({ id }: Props) {
                 .map((token, i) => (
                   <Collectible
                     id={token.id}
+                    name={token.name || token.ticker}
+                    balance={token.balance}
+                    divisibility={token.divisibility}
                     onClick={() => {
                       setSelectedToken(token.id);
                       setShownTokenSelector(false);

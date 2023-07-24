@@ -39,13 +39,25 @@ const SettingWrapper = styled.div<{ active: boolean }>`
   border-radius: 20px;
   overflow: hidden;
   cursor: pointer;
-  background-color: ${(props) =>
-    props.active ? "rgb(" + props.theme.cardBorder + ")" : "transparent"};
+  background-color: rgba(
+    ${(props) => props.theme.theme},
+    ${(props) =>
+      props.active ? (props.theme.displayTheme === "light" ? ".2" : ".1") : "0"}
+  );
   transition: all 0.23s ease-in-out;
 
   &:hover {
     background-color: rgba(
-      ${(props) => props.theme.cardBorder + ", " + (props.active ? "1" : ".5")}
+      ${(props) =>
+        props.theme.theme +
+        ", " +
+        (props.active
+          ? props.theme.displayTheme === "light"
+            ? ".24"
+            : ".14"
+          : props.theme.displayTheme === "light"
+          ? ".14"
+          : ".04")}
     );
   }
 `;

@@ -1,60 +1,24 @@
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
-import { MouseEventHandler, useMemo, useRef } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
-import { ExtensionStorage } from "~utils/storage";
+import { formatTokenBalance } from "~tokens/currency";
+import { MouseEventHandler, useMemo } from "react";
 import { hoverEffect } from "~utils/theme";
-import { useTokens } from "~tokens";
-import useSandboxedTokenState from "~tokens/hook";
-import browser from "webextension-polyfill";
 import styled from "styled-components";
 
-export default function Collectible({ id, onClick }: Props) {
-  // load state
-  const sandbox = useRef<HTMLIFrameElement>();
-  const { state } = useSandboxedTokenState(id, sandbox, 270);
-
-  // active address
-  const [activeAddress] = useStorage<string>({
-    key: "active_address",
-    instance: ExtensionStorage
-  });
-
+export default function Collectible({ id, onClick, ...props }: Props) {
   // balance
-  const balance = useMemo(() => {
-    if (!state?.balances || !activeAddress) {
-      return "0";
-    }
-
-    const bal = state.balances[activeAddress] || 0;
-
-    return bal.toLocaleString(undefined, { maximumFractionDigits: 2 });
-  }, [state, activeAddress]);
-
-  // load gateway
-  const [tokens] = useTokens();
-  const gateway = useMemo(() => {
-    const token = tokens?.find((t) => t.id === id);
-
-    if (!token?.gateway) {
-      return defaultGateway;
-    }
-
-    return token.gateway;
-  }, [tokens]);
+  const balance = useMemo(
+    () => formatTokenBalance((props.balance || 0) / (props.divisibility || 1)),
+    [props]
+  );
 
   return (
     <Wrapper onClick={onClick}>
-      <Image src={concatGatewayURL(gateway) + `/${id}`}>
+      <Image src={concatGatewayURL(defaultGateway) + `/${id}`}>
         <NameAndQty>
-          <Name>{state?.name || ""}</Name>
+          <Name>{props.name || ""}</Name>
           <Qty>{balance}</Qty>
         </NameAndQty>
       </Image>
-      <iframe
-        src={browser.runtime.getURL("tabs/sandbox.html")}
-        ref={sandbox}
-        style={{ display: "none" }}
-      ></iframe>
     </Wrapper>
   );
 }
@@ -115,5 +79,8 @@ const Qty = styled(Name)`
 
 interface Props {
   id: string;
+  name: string;
+  balance: number;
+  divisibility?: number;
   onClick?: MouseEventHandler<HTMLDivElement>;
 }

@@ -86,23 +86,15 @@ export async function signNotification(
   const arPrice = parseFloat(arweave.ar.winstonToAr(price.toString()));
 
   // format price
-  let formattedPrice = arPrice.toLocaleString(undefined, {
-    maximumFractionDigits: 0
-  });
+  let maximumFractionDigits = 0;
 
-  if (arPrice < 0.1) {
-    formattedPrice = arPrice.toLocaleString(undefined, {
-      maximumFractionDigits: 6
-    });
-  } else if (arPrice < 10) {
-    formattedPrice = arPrice.toLocaleString(undefined, {
-      maximumFractionDigits: 4
-    });
-  } else if (arPrice < 1000) {
-    formattedPrice = arPrice.toLocaleString(undefined, {
-      maximumFractionDigits: 2
-    });
-  }
+  if (arPrice < 0.1) maximumFractionDigits = 6;
+  else if (arPrice < 10) maximumFractionDigits = 4;
+  else if (arPrice < 1000) maximumFractionDigits = 2;
+
+  const formattedPrice = arPrice.toLocaleString(undefined, {
+    maximumFractionDigits
+  });
 
   // give an ID to the notification
   const notificationID = nanoid();

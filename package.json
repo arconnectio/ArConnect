@@ -46,15 +46,10 @@
           "*://*/*"
         ]
       }
-    ],
-    "sandbox": {
-      "pages": [
-        "tabs/sandbox.html"
-      ]
-    }
+    ]
   },
   "dependencies": {
-    "@arconnect/components": "^0.2.1",
+    "@arconnect/components": "^0.2.3",
     "@arconnect/keystone-sdk": "^0.0.5",
     "@arconnect/webext-bridge": "^5.0.6",
     "@iconicicons/react": "^1.5.0",

@@ -339,6 +339,10 @@
     "message": "Currency",
     "description": "Reset settings title"
   },
+  "setting_dre_node": {
+    "message": "Warp DRE node",
+    "description": "Warp DRE node setting title"
+  },
   "setting_arverify": {
     "message": "ArVerify treshold",
     "description": "ArVerify settings title"
@@ -360,7 +364,7 @@
     "description": "App settings description"
   },
   "setting_wallets_description": {
-    "message": "Manager your wallets",
+    "message": "Manage your wallets",
     "description": "Wallet settings description"
   },
   "setting_config_description": {
@@ -382,6 +386,10 @@
   "setting_setting_currency_description": {
     "message": "Fiat display currency",
     "description": "Currency settings description"
+  },
+  "setting_setting_dre_node_description": {
+    "message": "Set preferred DRE node for contract evaluation",
+    "desription": "Preferred DRE node setting description"
   },
   "setting_setting_arverify_description": {
     "message": "Set the verification threshold used",
@@ -746,7 +754,7 @@
     "description": "Reset spent button"
   },
   "allowance_limit_reached": {
-    "message": "This app has reached it's allowance limit",
+    "message": "This app has reached its allowance limit",
     "description": "App allowance limit reached label"
   },
   "unlock": {
@@ -818,7 +826,7 @@
     "description": "Add token title"
   },
   "addTokenParagraph": {
-    "message": "$APP$ would like to add a token to your wallet. Please review it's details below.",
+    "message": "$APP$ would like to add a token to your wallet. Please review its details below.",
     "description": "Add token explanation",
     "placeholders": {
       "app": {
@@ -1206,5 +1214,9 @@
   "close_tab_load_wallet_message": {
     "message": "Are you sure you want to exit? Your wallet is still being loaded, closing the tab will stop the process.",
     "description": "Confirmation message for the user who tries to close a tab where a wallet is still being loaded"
+  },
+  "manage_assets_button": {
+    "message": "Manage assets",
+    "description": "Manage assets button"
   }
 }

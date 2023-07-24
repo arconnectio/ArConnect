@@ -1,10 +1,15 @@
 import type { GQLEdgeInterface } from "ar-gql/dist/faces";
+import type { DisplayTheme } from "@arconnect/components";
+import { formatTokenBalance } from "./currency";
+import * as viewblock from "~lib/viewblock";
 import {
   concatGatewayURL,
   defaultGateway,
   Gateway,
   gql
 } from "~applications/gateway";
+import arLogoLight from "url:/assets/ar/logo_light.png";
+import arLogoDark from "url:/assets/ar/logo_dark.png";
 
 export interface Token {
   id: string;
@@ -12,6 +17,9 @@ export interface Token {
   ticker: string;
   type: TokenType;
   gateway?: Gateway;
+  balance: number;
+  divisibility?: number;
+  defaultLogo?: string;
 }
 
 export interface TokenState {
@@ -219,7 +227,8 @@ export async function getInteractionsTxsForAddress(
 export function parseInteractions(
   interactions: GQLEdgeInterface[],
   activeAddress: string,
-  ticker?: string
+  ticker?: string,
+  divisibility?: number
 ): TokenInteraction[] {
   return interactions.map((tx) => {
     // interaction input
@@ -235,7 +244,7 @@ export function parseInteractions(
 
     if (input.function === "transfer") {
       type = (recipient === activeAddress && "in") || "out";
-      qty = Number(input.qty);
+      qty = Number(input.qty) / (divisibility || 1);
       otherAddress =
         (recipient === activeAddress && tx.node.owner.address) || recipient;
     }
@@ -245,7 +254,7 @@ export function parseInteractions(
       id: tx.node.id,
       type,
       qty:
-        qty.toLocaleString(undefined, { maximumFractionDigits: 2 }) +
+        formatTokenBalance(qty) +
         " " +
         (type === "interaction" ? "AR" : ticker || ""),
       function: input.function,
@@ -266,4 +275,52 @@ export interface TokenInteraction {
   otherAddress?: string;
   // interaction function
   function: string;
+}
+
+/**
+ * Load token logo from Viewblock. If no logo
+ * is returned, return the original logo from
+ * the contract.
+ *
+ * @param id Contract ID of the token
+ * @param defaultLogo Default logo tx ID in the contract state
+ * @param theme UI theme to match the logo with
+ */
+export async function loadTokenLogo(
+  id: string,
+  defaultLogo: string,
+  theme?: DisplayTheme
+) {
+  const viewblockURL = viewblock.getTokenLogo(id, theme);
+
+  try {
+    const res = await fetch(viewblockURL);
+
+    // not the token logo we expected
+    if (res.status === 202 || res.status >= 400) {
+      throw new Error();
+    }
+
+    // let's return an object URL so we
+    // don't need to load the logo again
+    const blob = await res.blob();
+
+    // let's turn the
+    return URL.createObjectURL(blob);
+  } catch {
+    // get token logo from settings
+    if (defaultLogo) {
+      return `${concatGatewayURL(defaultGateway)}/${defaultLogo}`;
+    }
+
+    // if there are no logos in settings, return the AR logo
+    return theme === "dark" ? arLogoDark : arLogoLight;
+  }
+}
+
+/**
+ * Parse settings from token state
+ */
+export function getSettings(state: TokenState) {
+  return new Map<string, any>(state?.settings || []);
 }

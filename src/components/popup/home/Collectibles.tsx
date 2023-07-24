@@ -9,7 +9,7 @@ import styled from "styled-components";
 
 export default function Collectibles() {
   // all tokens
-  const [tokens] = useTokens();
+  const tokens = useTokens();
 
   // collectibles
   const collectibles = useMemo(
@@ -42,6 +42,9 @@ export default function Collectibles() {
         {collectibles.slice(0, 4).map((collectible, i) => (
           <Collectible
             id={collectible.id}
+            name={collectible.name || collectible.ticker}
+            balance={collectible.balance}
+            divisibility={collectible.divisibility}
             onClick={() => push(`/collectible/${collectible.id}`)}
             key={i}
           />

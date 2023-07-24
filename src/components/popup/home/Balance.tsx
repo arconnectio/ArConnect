@@ -1,3 +1,4 @@
+import { formatTokenBalance, formatFiatBalance } from "~tokens/currency";
 import Application, { AppInfo } from "~applications/application";
 import { defaultGateway, gql } from "~applications/gateway";
 import Graph, { GraphText } from "~components/popup/Graph";
@@ -136,21 +137,13 @@ export default function Balance() {
       <BalanceHead>
         <div>
           <BalanceText title noMargin>
-            {(!hideBalance &&
-              balance.toLocaleString(undefined, {
-                maximumFractionDigits: 2
-              })) ||
+            {(!hideBalance && formatTokenBalance(balance)) ||
               "*".repeat(balance.toFixed(2).length)}
             <Ticker>AR</Ticker>
           </BalanceText>
           <FiatBalanceText noMargin>
             {(!hideBalance &&
-              fiat.toLocaleString(undefined, {
-                style: "currency",
-                currency: currency.toLowerCase(),
-                currencyDisplay: "narrowSymbol",
-                maximumFractionDigits: 2
-              })) ||
+              formatFiatBalance(fiat, currency.toLowerCase())) ||
               "*".repeat(fiat.toFixed(2).length) + " " + currency.toUpperCase()}
             <Tooltip
               content={browser.i18n.getMessage(

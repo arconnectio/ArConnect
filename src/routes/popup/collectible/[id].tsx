@@ -1,14 +1,15 @@
 import { EyeIcon, MessageIcon, ShareIcon, GlobeIcon } from "@iconicicons/react";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { Section, Spacer, Text } from "@arconnect/components";
-import { useMemo, useRef, useState } from "react";
+import { getSettings, TokenState } from "~tokens/token";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { getCommunityUrl } from "~utils/format";
+import { getContract } from "~lib/warp";
 import { Link } from "../token/[id]";
 import { useTokens } from "~tokens";
 import TokenLoading from "~components/popup/asset/Loading";
 import Thumbnail from "~components/popup/asset/Thumbnail";
-import useSandboxedTokenState from "~tokens/hook";
 import Skeleton from "~components/Skeleton";
 import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
@@ -17,14 +18,25 @@ import styled from "styled-components";
 
 export default function Collectible({ id }: Props) {
   // load state
-  const sandbox = useRef<HTMLIFrameElement>();
-  const { state, loading } = useSandboxedTokenState(id, sandbox, 270);
+  const [state, setState] = useState<TokenState>();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+
+      const { state } = await getContract<TokenState>(id);
+
+      setState(state);
+      setLoading(false);
+    })();
+  }, [id]);
 
   // community settings
   const settings = useMemo(() => {
     if (!state || !state.settings) return undefined;
 
-    return new Map(state.settings);
+    return getSettings(state);
   }, [state]);
 
   // links
@@ -40,7 +52,7 @@ export default function Collectible({ id }: Props) {
   const [price, setPrice] = useState<number>();
 
   // token gateway
-  const [tokens] = useTokens();
+  const tokens = useTokens();
   const gateway = useMemo(
     () => tokens.find((t) => t.id === id)?.gateway || defaultGateway,
     [id]
@@ -122,11 +134,6 @@ export default function Collectible({ id }: Props) {
             ))}
       </Section>
       <AnimatePresence>{loading && <TokenLoading />}</AnimatePresence>
-      <iframe
-        src={browser.runtime.getURL("tabs/sandbox.html")}
-        ref={sandbox}
-        style={{ display: "none" }}
-      ></iframe>
     </>
   );
 }
