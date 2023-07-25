@@ -1,9 +1,9 @@
 import { Chunk, handleChunk } from "./modules/sign/chunks";
 import type { OnMessageCallback } from "@arconnect/webext-bridge";
 import { checkTypes, getAppURL } from "~utils/format";
-import { isExactly, isString } from "typed-assert";
+import { isExactly, isNotUndefined, isString } from "typed-assert";
 import type { ApiCall, ApiResponse } from "shim";
-import { isChunk } from "~utils/assertions";
+import { isApiCall, isChunk } from "~utils/assertions";
 import { getTab } from "~applications/tab";
 import { pushEvent } from "~utils/events";
 import Application from "~applications/application";
@@ -12,7 +12,7 @@ import modules from "./background";
 
 export const handleApiCalls: OnMessageCallback<
   // @ts-expect-error
-  ApiCall<{ params: any[] }>,
+  ApiCall,
   ApiResponse
 > = async ({ data, sender }) => {
   // construct base message to extend and return
@@ -22,32 +22,26 @@ export const handleApiCalls: OnMessageCallback<
   };
 
   try {
-    // check if the call is from the content-script
-    if (sender.context !== "content-script") {
-      throw new Error(
-        "API calls are only accepted from the injected-script -> content-script"
-      );
-    }
+    // validate message
+    isExactly(
+      sender.context,
+      "content-script",
+      "Chunk calls are only accepted from the injected-script -> content-script"
+    );
+    isApiCall(data);
 
     // grab the tab where the API call came from
     const tab = await getTab(sender.tabId);
 
     // if the tab is not found, reject the call
-    if (!tab || !tab.url) {
-      throw new Error("Call coming from invalid tab");
-    }
-
-    // check data types
-    checkTypes([data.callID, "string"], [data.type, "string"]);
+    isString(tab?.url, "Call coming from invalid tab");
 
     // find module to execute
     const functionName = data.type.replace("api_", "");
     const mod = modules.find((mod) => mod.functionName === functionName);
 
     // if we cannot find the module, we return with an error
-    if (!mod) {
-      throw new Error(`API function "${functionName}" not found`);
-    }
+    isNotUndefined(mod, `API function "${functionName}" not found`);
 
     // grab app info
     let app = new Application(getAppURL(tab.url));

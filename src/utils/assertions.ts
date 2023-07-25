@@ -20,6 +20,7 @@ import {
   isInstanceOf,
   isOneOfType
 } from "typed-assert";
+import { ApiCall } from "shim";
 
 export function isGateway(input: unknown): asserts input is Gateway {
   isRecordWithKeys(
@@ -152,4 +153,12 @@ export function isChunk(input: unknown): asserts input is Chunk {
 
 export function isNumberArray(input: unknown): asserts input is number[] {
   isArrayOfType(input, isNumber, "Array can only contain numbers.");
+}
+
+export function isApiCall(
+  input: unknown
+): asserts input is ApiCall<{ params: any[] }> {
+  isRecord(input, "Api call has to be a record.");
+  isString(input.callID, "Call ID has to be a string.");
+  isString(input.type, "Message type has to be a string.");
 }
