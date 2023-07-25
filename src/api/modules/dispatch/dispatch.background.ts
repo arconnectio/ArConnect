@@ -2,13 +2,14 @@ import { constructTransaction } from "../sign/transaction_builder";
 import { arconfettiIcon, signNotification } from "../sign/utils";
 import { cleanUpChunks, getChunks } from "../sign/chunks";
 import { freeDecryptedWallet } from "~wallets/encryption";
+import { isSplitTransaction } from "~utils/assertions";
 import type { ModuleFunction } from "~api/background";
 import { createData, ArweaveSigner } from "arbundles";
 import { uploadDataToBundlr } from "./uploader";
 import type { DispatchResult } from "./index";
 import { signedTxTags } from "../sign/tags";
 import { getActiveKeyfile } from "~wallets";
-import type Transaction from "arweave/web/lib/transaction";
+import { isString } from "typed-assert";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
@@ -20,9 +21,13 @@ type ReturnType = {
 
 const background: ModuleFunction<ReturnType> = async (
   appData,
-  tx: Transaction,
-  chunkCollectionID: string
+  tx: unknown,
+  chunkCollectionID: unknown
 ) => {
+  // validate input
+  isSplitTransaction(tx);
+  isString(chunkCollectionID);
+
   // create client
   const app = new Application(appData.appURL);
   const arweave = new Arweave(await app.getGatewayConfig());

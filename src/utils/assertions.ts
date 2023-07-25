@@ -1,3 +1,12 @@
+import { SignatureOptions } from "arweave/node/lib/crypto/crypto-interface";
+import { PermissionType, permissionData } from "~applications/permissions";
+import { SplitTransaction } from "~api/modules/sign/transaction_builder";
+import Transaction from "arweave/web/lib/transaction";
+import { DecodedTag } from "~api/modules/sign/tags";
+import { AppInfo } from "~applications/application";
+import { Gateway } from "~applications/gateway";
+import { isAddressFormat } from "./format";
+import { TokenType } from "~tokens/token";
 import {
   assert,
   isNumber,
@@ -9,15 +18,6 @@ import {
   isRecord,
   isInstanceOf
 } from "typed-assert";
-import { SignatureOptions } from "arweave/node/lib/crypto/crypto-interface";
-import { PermissionType, permissionData } from "~applications/permissions";
-import { SplitTransaction } from "~api/modules/sign/transaction_builder";
-import Transaction from "arweave/web/lib/transaction";
-import { DecodedTag } from "~api/modules/sign/tags";
-import { AppInfo } from "~applications/application";
-import { Gateway } from "~applications/gateway";
-import { isAddressFormat } from "./format";
-import { TokenType } from "~tokens/token";
 
 export function isGateway(input: unknown): asserts input is Gateway {
   isRecordWithKeys(

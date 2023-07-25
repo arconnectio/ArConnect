@@ -1,4 +1,3 @@
-import type { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { arconfettiIcon, calculateReward, signNotification } from "./utils";
 import { allowanceAuth, getAllowance, updateAllowance } from "./allowance";
 import { freeDecryptedWallet } from "~wallets/encryption";
@@ -25,7 +24,7 @@ const background: ModuleFunction<BackgroundResult> = async (
   options: unknown | undefined | null,
   chunkCollectionID: unknown
 ) => {
-  // validate
+  // validate input
   isSplitTransaction(tx);
   isString(chunkCollectionID);
 
