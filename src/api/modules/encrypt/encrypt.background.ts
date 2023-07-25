@@ -1,14 +1,18 @@
+import {
+  isEncryptionAlgorithm,
+  isLegacyEncryptionOptions
+} from "~utils/assertions";
+import { freeDecryptedWallet } from "~wallets/encryption";
 import { defaultGateway } from "~applications/gateway";
 import type { ModuleFunction } from "~api/background";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
-import { freeDecryptedWallet } from "~wallets/encryption";
 
 const background: ModuleFunction<Uint8Array> = async (
   _,
   data: string | BufferSource,
-  options: any
+  options: Record<string, unknown>
 ) => {
   // grab the user's keyfile
   const decryptedWallet = await getActiveKeyfile().catch(() => {
@@ -28,6 +32,9 @@ const background: ModuleFunction<Uint8Array> = async (
   const keyfile = decryptedWallet.keyfile;
 
   if (options.algorithm) {
+    // validate
+    isLegacyEncryptionOptions(options);
+
     // old arconnect algorithm
     // get encryption key
     const encryptJwk = {
@@ -75,6 +82,9 @@ const background: ModuleFunction<Uint8Array> = async (
 
     return arweave.utils.concatBuffers([encryptedKey, encryptedData]);
   } else if (options.name && typeof data !== "string") {
+    // validate
+    isEncryptionAlgorithm(options);
+
     // standard RSA decryption
     const encryptJwk = {
       ...keyfile,

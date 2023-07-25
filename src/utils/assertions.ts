@@ -1,3 +1,7 @@
+import {
+  EncryptionAlgorithm,
+  LegacyEncryptionOptions
+} from "~api/modules/encrypt/types";
 import { SignatureOptions } from "arweave/node/lib/crypto/crypto-interface";
 import { PermissionType, permissionData } from "~applications/permissions";
 import { SplitTransaction } from "~api/modules/sign/transaction_builder";
@@ -8,6 +12,7 @@ import { Chunk } from "~api/modules/sign/chunks";
 import { Gateway } from "~applications/gateway";
 import { isAddressFormat } from "./format";
 import { TokenType } from "~tokens/token";
+import { ApiCall } from "shim";
 import {
   assert,
   isNumber,
@@ -18,9 +23,10 @@ import {
   isArray,
   isRecord,
   isInstanceOf,
-  isOneOfType
+  isOneOfType,
+  isNotUndefined,
+  isNotNull
 } from "typed-assert";
-import { ApiCall } from "shim";
 
 export function isGateway(input: unknown): asserts input is Gateway {
   isRecordWithKeys(
@@ -161,4 +167,27 @@ export function isApiCall(
   isRecord(input, "Api call has to be a record.");
   isString(input.callID, "Call ID has to be a string.");
   isString(input.type, "Message type has to be a string.");
+}
+
+export function isEncryptionAlgorithm(
+  input: unknown
+): asserts input is EncryptionAlgorithm {
+  isNotUndefined(input, "Algorithm cannot be undefined.");
+  isNotNull(input, "Algorithm cannot be null.");
+
+  if (typeof input === "string") return;
+
+  isRecord(input, "Algorithm needs to be a string on a record.");
+  isString(input.name, "Algorithm name needs to be a string.");
+}
+
+export function isLegacyEncryptionOptions(
+  input: unknown
+): asserts input is LegacyEncryptionOptions {
+  isNotUndefined(input, "Encryption options have to be defined.");
+  isRecord(input, "Encryption options have to be a record.");
+  isString(input.algorithm, "Encryption algorithm has to be a string.");
+  isString(input.hash, "Encryption hash has to be a string.");
+
+  if (input.salt) isString(input.salt, "Encryption salt has to be a string.");
 }
