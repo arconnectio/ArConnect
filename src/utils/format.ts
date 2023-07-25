@@ -69,7 +69,11 @@ export function formatAddress(address: string, count = 13) {
 /**
  * Returns if a string is a valid Arweave address or ID
  *
+ * This does not throw an error if the input is not a valid
+ * address, unlike the "isAddress" assertion, in the assertion
+ * utils.
+ *
  * @param addr String to validate
  * @returns Valid address or not
  */
-export const isAddress = (addr: string) => /[a-z0-9_-]{43}/i.test(addr);
+export const isAddressFormat = (addr: string) => /[a-z0-9_-]{43}/i.test(addr);

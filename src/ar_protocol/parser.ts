@@ -1,5 +1,5 @@
 import { concatGatewayURL, Gateway } from "~applications/gateway";
-import { isAddress } from "~utils/format";
+import { isAddressFormat } from "~utils/format";
 
 export function getRedirectURL(url: URL, gateway: Gateway) {
   let redirectURL: string;
@@ -21,7 +21,7 @@ export function getRedirectURL(url: URL, gateway: Gateway) {
   redirectURL = concatGatewayURL(gateway) + "/" + value;
 
   // if it is not an Arweave ID, redirect to permapages
-  if (!isAddress(value)) {
+  if (!isAddressFormat(value)) {
     redirectURL = `https://${value}.arweave.dev`;
   }
 

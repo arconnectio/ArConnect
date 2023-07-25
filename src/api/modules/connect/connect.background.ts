@@ -1,8 +1,6 @@
-import type { PermissionType } from "~applications/permissions";
+import { isAppInfo, isGateway, isPermissionsArray } from "~utils/assertions";
 import { createContextMenus } from "~utils/context_menus";
-import type { AppInfo } from "~applications/application";
 import type { ModuleFunction } from "~api/background";
-import type { Gateway } from "~applications/gateway";
 import { updateIcon } from "~utils/icon";
 import { getWallets } from "~wallets";
 import validatePermissions from "./permissions";
@@ -11,10 +9,16 @@ import authenticate from "./auth";
 
 const background: ModuleFunction<void> = async (
   appData,
-  permissions: PermissionType[],
-  appInfo: AppInfo = {},
-  gateway?: Gateway
+  permissions: unknown,
+  appInfo: unknown = {},
+  gateway?: unknown
 ) => {
+  // validate input
+  isPermissionsArray(permissions);
+  isAppInfo(appInfo);
+
+  if (typeof gateway !== "undefined") isGateway(gateway);
+
   // check if there are any wallets added
   const wallets = await getWallets();
 

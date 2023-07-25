@@ -2,7 +2,7 @@ import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { getAnsProfile, AnsUser, getAnsProfileByLabel } from "~lib/ans";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { formatAddress, isAddress } from "~utils/format";
+import { formatAddress, isAddressFormat } from "~utils/format";
 import { useState, useEffect, useMemo } from "react";
 import { formatFiatBalance } from "~tokens/currency";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -134,7 +134,7 @@ export default function Send({ id }: Props) {
         ansProfile = await getAnsProfileByLabel(
           targetAddress.replace(".ar", "")
         );
-      } else if (isAddress(targetAddress)) {
+      } else if (isAddressFormat(targetAddress)) {
         setTarget({ address: targetAddress });
 
         // fetch profile with address
@@ -146,7 +146,7 @@ export default function Send({ id }: Props) {
 
       if (!ansProfile) {
         setLoadingTarget(false);
-        if (isAddress(targetAddress)) return;
+        if (isAddressFormat(targetAddress)) return;
 
         return setTarget(undefined);
       }
@@ -229,7 +229,7 @@ export default function Send({ id }: Props) {
     }
 
     // check target
-    if (!isAddress(target.address)) {
+    if (!isAddressFormat(target.address)) {
       return setToast({
         type: "error",
         content: browser.i18n.getMessage("invalid_address"),
@@ -335,7 +335,10 @@ export default function Send({ id }: Props) {
 
       // check if clipboard contains an address
       // or an ANS name
-      if (!clipboard || (!isAddress(clipboard) && !clipboard.includes(".ar")))
+      if (
+        !clipboard ||
+        (!isAddressFormat(clipboard) && !clipboard.includes(".ar"))
+      )
         return;
 
       // set target input
@@ -594,7 +597,7 @@ export default function Send({ id }: Props) {
       <AddressScanner
         onScan={(data) => {
           if (!data) return;
-          if (!isAddress(data) && !data.includes(".ar")) {
+          if (!isAddressFormat(data) && !data.includes(".ar")) {
             return;
           }
 

@@ -1,29 +1,36 @@
 import type { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { arconfettiIcon, calculateReward, signNotification } from "./utils";
 import { allowanceAuth, getAllowance, updateAllowance } from "./allowance";
+import { freeDecryptedWallet } from "~wallets/encryption";
 import type { ModuleFunction } from "~api/background";
 import { JWKInterface } from "arweave/web/lib/wallet";
+import { isSignatureOptions, isSplitTransaction } from "~utils/assertions";
 import { cleanUpChunks, getChunks } from "./chunks";
 import type { BackgroundResult } from "./index";
 import { getActiveKeyfile } from "~wallets";
+import { isString } from "typed-assert";
 import { signAuth } from "./sign_auth";
 import { signedTxTags } from "./tags";
 import {
   constructTransaction,
   deconstructSignedTransaction
 } from "./transaction_builder";
-import type Transaction from "arweave/web/lib/transaction";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
-import { freeDecryptedWallet } from "~wallets/encryption";
 
 const background: ModuleFunction<BackgroundResult> = async (
   appData,
-  tx: Transaction,
-  options: SignatureOptions | undefined | null,
-  chunkCollectionID: string
+  tx: unknown,
+  options: unknown | undefined | null,
+  chunkCollectionID: unknown
 ) => {
+  // validate
+  isSplitTransaction(tx);
+  isString(chunkCollectionID);
+
+  if (options) isSignatureOptions(options);
+
   // grab the user's keyfile
   const activeWallet = await getActiveKeyfile().catch(() => {
     // if there are no wallets added, open the welcome page

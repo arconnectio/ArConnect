@@ -1,12 +1,11 @@
 import type { ModuleFunction } from "~api/background";
-import { isAddress } from "~utils/format";
+import { isAddressFormat } from "~utils/format";
 import { getTokens } from "~tokens";
+import { isAddress } from "~utils/assertions";
 
 const background: ModuleFunction<boolean> = async (_, id: string) => {
   // check id
-  if (!isAddress(id)) {
-    throw new Error("Invalid token contract ID");
-  }
+  isAddress(id);
 
   // check if the token is added
   const tokens = await getTokens();

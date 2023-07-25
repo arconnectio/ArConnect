@@ -1,25 +1,19 @@
+import { isAddress, isGateway, isTokenType } from "~utils/assertions";
 import type { ModuleFunction } from "~api/background";
-import type { Gateway } from "~applications/gateway";
-import type { TokenType } from "~tokens/token";
-import { isAddress } from "~utils/format";
-import { getTokens } from "~tokens";
 import authenticate from "../connect/auth";
+import { getTokens } from "~tokens";
 
 const background: ModuleFunction<void> = async (
   appData,
-  id: string,
-  type?: TokenType,
-  gateway?: Gateway
+  id: unknown,
+  type?: unknown,
+  gateway?: unknown
 ) => {
-  // check id
-  if (!isAddress(id)) {
-    throw new Error("Invalid token contract ID");
-  }
+  // validate input
+  isAddress(id);
 
-  // check type
-  if (type && !["asset", "collectible"].includes(type)) {
-    throw new Error("Invalid token type");
-  }
+  if (typeof type !== "undefined") isTokenType(type);
+  if (typeof gateway !== "undefined") isGateway(gateway);
 
   // check if the token is added already
   const tokens = await getTokens();

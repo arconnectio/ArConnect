@@ -1,7 +1,5 @@
 import type { Tag } from "arweave/web/lib/transaction";
-import type { Tabs } from "webextension-polyfill";
 import type { ApiCall, ApiResponse } from "shim";
-import { getAppURL } from "~utils/format";
 import { nanoid } from "nanoid";
 
 /**
