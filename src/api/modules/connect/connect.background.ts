@@ -17,7 +17,7 @@ const background: ModuleFunction<void> = async (
   isPermissionsArray(permissions);
   isAppInfo(appInfo);
 
-  if (typeof gateway !== "undefined") isGateway(gateway);
+  if (gateway) isGateway(gateway);
 
   // check if there are any wallets added
   const wallets = await getWallets();

@@ -12,8 +12,8 @@ const background: ModuleFunction<void> = async (
   // validate input
   isAddress(id);
 
-  if (typeof type !== "undefined") isTokenType(type);
-  if (typeof gateway !== "undefined") isGateway(gateway);
+  if (type) isTokenType(type);
+  if (gateway) isGateway(gateway);
 
   // check if the token is added already
   const tokens = await getTokens();
