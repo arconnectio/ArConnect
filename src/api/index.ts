@@ -1,13 +1,13 @@
-import { Chunk, handleChunk } from "./modules/sign/chunks";
 import type { OnMessageCallback } from "@arconnect/webext-bridge";
-import { checkTypes, getAppURL } from "~utils/format";
 import { isExactly, isNotUndefined, isString } from "typed-assert";
-import type { ApiCall, ApiResponse } from "shim";
+import { Chunk, handleChunk } from "./modules/sign/chunks";
 import { isApiCall, isChunk } from "~utils/assertions";
+import Application from "~applications/application";
+import type { ApiCall, ApiResponse } from "shim";
+import browser from "webextension-polyfill";
 import { getTab } from "~applications/tab";
 import { pushEvent } from "~utils/events";
-import Application from "~applications/application";
-import browser from "webextension-polyfill";
+import { getAppURL } from "~utils/format";
 import modules from "./background";
 
 export const handleApiCalls: OnMessageCallback<
