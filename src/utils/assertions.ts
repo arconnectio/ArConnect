@@ -4,6 +4,7 @@ import { SplitTransaction } from "~api/modules/sign/transaction_builder";
 import Transaction from "arweave/web/lib/transaction";
 import { DecodedTag } from "~api/modules/sign/tags";
 import { AppInfo } from "~applications/application";
+import { Chunk } from "~api/modules/sign/chunks";
 import { Gateway } from "~applications/gateway";
 import { isAddressFormat } from "./format";
 import { TokenType } from "~tokens/token";
@@ -16,7 +17,8 @@ import {
   isArrayOfType,
   isArray,
   isRecord,
-  isInstanceOf
+  isInstanceOf,
+  isOneOfType
 } from "typed-assert";
 
 export function isGateway(input: unknown): asserts input is Gateway {
@@ -131,4 +133,23 @@ export function isSignatureOptions(
   if (typeof input.saltLength !== "undefined") {
     isNumber(input.saltLength, "Salt length has to be a number.");
   }
+}
+
+export function isChunk(input: unknown): asserts input is Chunk {
+  isRecord(input, "Chunk has to be a record.");
+  isString(input.collectionID, "Chunk collection ID has to be a string.");
+  isOneOf(input.type, ["tag", "data", "start", "end"], "Invalid chunk type.");
+  isNumber(input.index, "Chunk index has to be a number.");
+
+  if (input.value) {
+    isOneOfType(
+      input.value,
+      [isNumberArray, isTag],
+      "Chunk value has to be a tag or a raw typed array."
+    );
+  }
+}
+
+export function isNumberArray(input: unknown): asserts input is number[] {
+  isArrayOfType(input, isNumber, "Array can only contain numbers.");
 }

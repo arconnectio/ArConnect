@@ -1,7 +1,9 @@
 import { Chunk, handleChunk } from "./modules/sign/chunks";
 import type { OnMessageCallback } from "@arconnect/webext-bridge";
 import { checkTypes, getAppURL } from "~utils/format";
+import { isExactly, isString } from "typed-assert";
 import type { ApiCall, ApiResponse } from "shim";
+import { isChunk } from "~utils/assertions";
 import { getTab } from "~applications/tab";
 import { pushEvent } from "~utils/events";
 import Application from "~applications/application";
@@ -129,20 +131,19 @@ export const handleChunkCalls: OnMessageCallback<
   };
 
   try {
-    // check if the call is from the content-script
-    if (sender.context !== "content-script") {
-      throw new Error(
-        "Chunk calls are only accepted from the injected-script -> content-script"
-      );
-    }
+    // validate message
+    isExactly(
+      sender.context,
+      "content-script",
+      "Chunk calls are only accepted from the injected-script -> content-script"
+    );
+    isChunk(data.data);
 
     // grab the tab where the chunk came
     const tab = await getTab(sender.tabId);
 
     // if the tab is not found, reject the call
-    if (!tab || !tab.url) {
-      throw new Error("Call coming from invalid tab");
-    }
+    isString(tab?.url, "Call coming from invalid tab");
 
     // raw url where the chunk originates from
     let url = tab.url;
