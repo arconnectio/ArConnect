@@ -1,13 +1,13 @@
-import {
-  isEncryptionAlgorithm,
-  isLegacyEncryptionOptions
-} from "~utils/assertions";
 import { freeDecryptedWallet } from "~wallets/encryption";
 import { defaultGateway } from "~applications/gateway";
 import type { ModuleFunction } from "~api/background";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
+import {
+  isEncryptionAlgorithm,
+  isLegacyEncryptionOptions
+} from "~utils/assertions";
 
 const background: ModuleFunction<string | Uint8Array> = async (
   _,

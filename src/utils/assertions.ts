@@ -1,10 +1,7 @@
-import {
-  EncryptionAlgorithm,
-  LegacyEncryptionOptions
-} from "~api/modules/encrypt/types";
 import { SignatureOptions } from "arweave/node/lib/crypto/crypto-interface";
 import { PermissionType, permissionData } from "~applications/permissions";
 import { SplitTransaction } from "~api/modules/sign/transaction_builder";
+import { SignatureAlgorithm } from "~api/modules/signature/types";
 import Transaction from "arweave/web/lib/transaction";
 import { DecodedTag } from "~api/modules/sign/tags";
 import { AppInfo } from "~applications/application";
@@ -12,6 +9,10 @@ import { Chunk } from "~api/modules/sign/chunks";
 import { Gateway } from "~applications/gateway";
 import { isAddressFormat } from "./format";
 import { TokenType } from "~tokens/token";
+import {
+  EncryptionAlgorithm,
+  LegacyEncryptionOptions
+} from "~api/modules/encrypt/types";
 import { ApiCall } from "shim";
 import {
   assert,
@@ -190,4 +191,10 @@ export function isLegacyEncryptionOptions(
   isString(input.hash, "Encryption hash has to be a string.");
 
   if (input.salt) isString(input.salt, "Encryption salt has to be a string.");
+}
+
+export function isSignatureAlgorithm(
+  input: unknown
+): asserts input is SignatureAlgorithm {
+  isEncryptionAlgorithm(input);
 }

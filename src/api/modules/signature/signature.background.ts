@@ -1,5 +1,6 @@
 import { isArray, isArrayOfType, isNumber } from "typed-assert";
 import { freeDecryptedWallet } from "~wallets/encryption";
+import { isSignatureAlgorithm } from "~utils/assertions";
 import type { ModuleFunction } from "~api/background";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
@@ -8,11 +9,12 @@ import authenticate from "../connect/auth";
 const background: ModuleFunction<number[]> = async (
   appData,
   data: unknown,
-  algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams
+  algorithm: unknown
 ) => {
   // validate
   isArray(data, "Data has to be an array.");
   isArrayOfType(data, isNumber, "Data has to be an array of numbers.");
+  isSignatureAlgorithm(algorithm);
 
   // request user to authorize
   try {
