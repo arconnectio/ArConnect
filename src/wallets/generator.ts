@@ -1,6 +1,6 @@
+import { getKeyPairFromMnemonic } from "human-crypto-keys";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { passwordStrength } from "check-password-strength";
-import { getKeyPairFromMnemonic } from "human-crypto-keys";
 
 /**
  * Credits to arweave.app for the mnemonic wallet generation
