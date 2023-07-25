@@ -4,6 +4,12 @@ import { getWallets, LocalWallet } from "./index";
 import { ExtensionStorage } from "~utils/storage";
 
 /**
+ * Name of the store that holds the expiration date
+ * for the current password.
+ */
+export const EXPIRATION_STORAGE = "password_expires";
+
+/**
  * Unlock wallets and save decryption key
  *
  * **Warning**: SHOULD ONLY BE CALLED FROM THE AUTH/POPUP VIEW / VIEWS
@@ -21,6 +27,9 @@ export async function unlock(password: string) {
 
   // schedule the key for removal
   await scheduleKeyRemoval();
+
+  // add expiration if needed
+  await addExpiration();
 
   return true;
 }
@@ -132,4 +141,29 @@ export async function onWindowClose() {
 
   // remove the decryption key
   await removeDecryptionKey();
+}
+
+/**
+ * Add password expiration date, if it is
+ * not in the extension storage yet.
+ */
+export async function addExpiration() {
+  // add expiration date for password if not present
+  let expires = await ExtensionStorage.get<number>(EXPIRATION_STORAGE);
+
+  if (!expires) {
+    const newExpiration = new Date();
+
+    // set expiration date in 6 months
+    newExpiration.setMonth(newExpiration.getMonth() + 6);
+    expires = newExpiration.getTime();
+
+    // set value
+    await ExtensionStorage.set(EXPIRATION_STORAGE, expires);
+
+    // schedule session reset once the password expired
+    browser.alarms.create("remove_decryption_key_scheduled", {
+      when: expires
+    });
+  }
 }

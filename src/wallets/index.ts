@@ -1,6 +1,6 @@
+import { addExpiration, checkPassword, getDecryptionKey } from "./auth";
 import { decryptWallet, encryptWallet } from "./encryption";
 import type { JWKInterface } from "arweave/node/lib/wallet";
-import { checkPassword, getDecryptionKey } from "./auth";
 import browser, { Alarms } from "webextension-polyfill";
 import { useStorage } from "@plasmohq/storage/hook";
 import { AnsUser, getAnsProfile } from "~lib/ans";
@@ -255,6 +255,9 @@ export async function addWallet(
   if (freshInstall) {
     await ExtensionStorage.set("active_address", wallets[0].address);
   }
+
+  // add expiration date if needed
+  await addExpiration();
 }
 
 /**
