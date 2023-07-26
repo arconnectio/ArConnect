@@ -187,6 +187,14 @@
     "message": "Password",
     "description": "Password label"
   },
+  "new_password": {
+    "message": "New Password",
+    "description": "Password label"
+  },
+  "confirm_new_password": {
+    "message": "Re-enter New Password",
+    "description": "Password label"
+  },
   "enterPasswordToDecrypt": {
     "message": "Enter password to decrypt wallet...",
     "description": "Password request to decrypt wallet"
@@ -455,6 +463,14 @@
     "message": "Drag and drop wallet...",
     "description": "Wallet input text"
   },
+  "enter_new_password": {
+    "message": "Enter your new password...",
+    "description": "Password input placeholder" 
+  },
+  "reenter_new_password": {
+    "message": "Re-enter your new password...",
+    "description": "Re-enter input placeholder" 
+  },
   "enter_password": {
     "message": "Enter your password...",
     "description": "Password input placeholder"
@@ -466,6 +482,10 @@
   "passwords_not_match": {
     "message": "Passwords don't match",
     "description": "Invalid re-entered password error"
+  },
+  "passwords_match_previous": {
+    "message": "New password cannot be the same as your old password",
+    "description": "Password must be different from old one"
   },
   "added_wallet": {
     "message": "Added wallet",
@@ -780,6 +800,10 @@
   "unlock_wallet_to_use": {
     "message": "You'll need to unlock your wallet to continue using it.",
     "description": "Unlock wallet explanation"
+  },
+  "reset_wallet_password_to_use": {
+    "message": "You'll need to reset your wallet password to continue using it.",
+    "description": "Reset wallet password explanation"
   },
   "receive": {
     "message": "Receive",

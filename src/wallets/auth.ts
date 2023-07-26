@@ -85,6 +85,15 @@ export async function getDecryptionKey() {
   return atob(val);
 }
 
+export async function isExpired() {
+  const val = await ExtensionStorage.get(EXPIRATION_STORAGE);
+
+  // expired
+  if (Date.now() > Number(val) || !val) {
+    return true;
+  }
+}
+
 /**
  * Set wallet decryption key
  *
