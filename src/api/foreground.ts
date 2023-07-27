@@ -41,6 +41,10 @@ import signatureModule from "./modules/signature";
 import signature, {
   finalizer as signatureFinalizer
 } from "./modules/signature/signature.foreground";
+import signMessageModule from "./modules/sign_message";
+import signMessage, {
+  finalizer as signMessageFinalizer
+} from "./modules/sign_message/sign_message.foreground";
 
 /** Foreground modules */
 const modules: ForegroundModule[] = [
@@ -58,7 +62,12 @@ const modules: ForegroundModule[] = [
   { ...decryptModule, function: decrypt },
   { ...signatureModule, function: signature, finalizer: signatureFinalizer },
   { ...addTokenModule, function: addToken },
-  { ...isTokenAddedModule, function: isTokenAdded }
+  { ...isTokenAddedModule, function: isTokenAdded },
+  {
+    ...signMessageModule,
+    function: signMessage,
+    finalizer: signMessageFinalizer
+  }
 ];
 
 export default modules;

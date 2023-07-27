@@ -1,7 +1,7 @@
 import { SignatureOptions } from "arweave/node/lib/crypto/crypto-interface";
 import { PermissionType, permissionData } from "~applications/permissions";
+import type { SignMessageOptions } from "~api/modules/sign_message/types";
 import { SplitTransaction } from "~api/modules/sign/transaction_builder";
-import { SignatureAlgorithm } from "~api/modules/signature/types";
 import Transaction from "arweave/web/lib/transaction";
 import { DecodedTag } from "~api/modules/sign/tags";
 import { AppInfo } from "~applications/application";
@@ -193,8 +193,22 @@ export function isLegacyEncryptionOptions(
   if (input.salt) isString(input.salt, "Encryption salt has to be a string.");
 }
 
-export function isSignatureAlgorithm(
+export function isSignMessageOptions(
   input: unknown
-): asserts input is SignatureAlgorithm {
-  isEncryptionAlgorithm(input);
+): asserts input is SignMessageOptions {
+  isRecordWithKeys(
+    input,
+    ["hashAlgorithm"],
+    "Sign message options has to be a record."
+  );
+  isOneOf(
+    input.hashAlgorithm,
+    ["SHA-256", "SHA-384", "SHA-512"],
+    "Invalid hash algorithm."
+  );
+}
+
+export function isArrayBuffer(input: unknown): asserts input is ArrayBuffer {
+  isNotUndefined("Data has to be defined.");
+  assert(ArrayBuffer.isView(input), "Input is not an ArrayBuffer.");
 }
