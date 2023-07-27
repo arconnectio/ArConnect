@@ -5,7 +5,9 @@ import type { ModuleFunction } from "~api/module";
 const foreground: ModuleFunction<any[]> = (
   data: Uint8Array,
   algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams
-) => [Object.values(data), algorithm];
+) => {
+  throw new Error("The signature() function is deprecated.");
+};
 
 export const finalizer: TransformFinalizer<number[], any, any> = (result) =>
   new Uint8Array(result);
