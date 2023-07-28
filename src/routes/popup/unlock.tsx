@@ -14,6 +14,7 @@ import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import { useEffect, useState } from "react";
 import PasswordStrength from "~components/welcome/PasswordStrength";
+import { updatePassword } from "~wallets";
 
 export default function Unlock() {
   const [expired, setExpired] = useState(false);
@@ -54,7 +55,7 @@ export default function Unlock() {
     push("/");
   }
 
-  // TODO: change password and unlock ArConnect
+  // changes password and unlock ArConnect
   async function changeAndUnlock() {
     if (newPasswordInput.state !== confirmNewPasswordInput.state) {
       return setToast({
@@ -81,6 +82,9 @@ export default function Unlock() {
         duration: 2300
       });
     }
+    await updatePassword(newPasswordInput.state, passwordInput.state);
+    await unlock(newPasswordInput.state);
+    push("/");
   }
 
   return (
