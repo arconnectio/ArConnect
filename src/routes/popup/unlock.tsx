@@ -131,6 +131,10 @@ export default function Unlock() {
                 label={browser.i18n.getMessage("confirm_new_password")}
                 placeholder={browser.i18n.getMessage("enter_new_password")}
                 fullWidth
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter") return;
+                  changeAndUnlock();
+                }}
               />
               <Spacer y={1.55} />
               <PasswordStrength password={newPasswordInput.state} />
