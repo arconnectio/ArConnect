@@ -6,7 +6,7 @@ import { getSetting } from "~settings";
 import {
   concatGatewayURL,
   defaultGateway,
-  Gateway,
+  type Gateway,
   gql
 } from "~applications/gateway";
 import Application from "~applications/application";

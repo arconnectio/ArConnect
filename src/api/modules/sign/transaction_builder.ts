@@ -1,6 +1,6 @@
 import type Transaction from "arweave/web/lib/transaction";
 import type { Tag } from "arweave/web/lib/transaction";
-import { Chunk, CHUNK_SIZE } from "./chunks";
+import { type Chunk, CHUNK_SIZE } from "./chunks";
 import { signedTxTags } from "./tags";
 import { nanoid } from "nanoid";
 
