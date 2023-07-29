@@ -1,5 +1,5 @@
-import { DefaultTheme, ThemeProvider } from "styled-components";
-import { PropsWithChildren, useMemo } from "react";
+import { type DefaultTheme, ThemeProvider } from "styled-components";
+import { type PropsWithChildren, useMemo } from "react";
 import { useHardwareApi } from "~wallets/hooks";
 
 export default function HardwareWalletTheme({

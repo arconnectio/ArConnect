@@ -1,4 +1,4 @@
-import { MouseEventHandler, useEffect, useMemo, useState } from "react";
+import { type MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -6,7 +6,7 @@ import HardwareWalletIcon, {
   hwIconAnimateProps
 } from "~components/hardware/HardwareWalletIcon";
 import { useHardwareApi } from "~wallets/hooks";
-import { Gateway } from "~applications/gateway";
+import { type Gateway } from "~applications/gateway";
 import type { StoredWallet } from "~wallets";
 import { getAppURL } from "~utils/format";
 import { removeApp } from "~applications";
@@ -15,7 +15,7 @@ import { useTheme } from "~utils/theme";
 import {
   Button,
   Card,
-  DisplayTheme,
+  type DisplayTheme,
   Section,
   Text,
   Tooltip,
@@ -32,7 +32,7 @@ import {
   UserIcon
 } from "@iconicicons/react";
 import WalletSwitcher, { popoverAnimation } from "./WalletSwitcher";
-import Application, { AppInfo } from "~applications/application";
+import Application, { type AppInfo } from "~applications/application";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
 import useActiveTab from "~applications/useActiveTab";
 import AppIcon, { NoAppIcon } from "./home/AppIcon";

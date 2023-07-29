@@ -1,6 +1,6 @@
 import { Card, Spacer, Text } from "@arconnect/components";
 import SettingListItem, {
-  Props as SettingItemData
+  type Props as SettingItemData
 } from "~components/dashboard/list/SettingListItem";
 import {
   setting_element_padding,

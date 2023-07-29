@@ -1,4 +1,4 @@
-import Application, { InitAppParams, PREFIX } from "./application";
+import Application, { type InitAppParams, PREFIX } from "./application";
 import { sendMessage } from "@arconnect/webext-bridge";
 import { getMissingPermissions } from "./permissions";
 import type { StorageChange } from "~utils/runtime";

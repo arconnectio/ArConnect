@@ -3,7 +3,7 @@ import { Spacer, useInput } from "@arconnect/components";
 import { useEffect, useMemo, useState } from "react";
 import { IconButton } from "~components/IconButton";
 import { useStorage } from "@plasmohq/storage/hook";
-import { AnsUser, getAnsProfile } from "~lib/ans";
+import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import { useLocation, useRoute } from "wouter";
 import { PlusIcon } from "@iconicicons/react";

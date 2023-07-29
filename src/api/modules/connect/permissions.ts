@@ -1,6 +1,6 @@
 import {
   getMissingPermissions,
-  PermissionType
+  type PermissionType
 } from "~applications/permissions";
 import Application from "~applications/application";
 

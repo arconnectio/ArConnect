@@ -1,7 +1,7 @@
 import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { Loading, Section, Spacer, Text } from "@arconnect/components";
-import { AnimatePresence, motion, Variants } from "framer-motion";
 import { usePrice, usePriceHistory } from "~lib/redstone";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -26,8 +26,8 @@ import {
   getSettings,
   loadTokenLogo,
   parseInteractions,
-  TokenInteraction,
-  TokenState
+  type TokenInteraction,
+  type TokenState
 } from "~tokens/token";
 import Title, { Heading } from "~components/popup/Title";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";

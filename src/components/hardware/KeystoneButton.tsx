@@ -1,4 +1,7 @@
-import { decodeAccount, KeystoneAccount } from "~wallets/hardware/keystone";
+import {
+  decodeAccount,
+  type KeystoneAccount
+} from "~wallets/hardware/keystone";
 import { addHardwareWallet } from "~wallets/hardware";
 import { useScanner } from "@arconnect/keystone-sdk";
 import {

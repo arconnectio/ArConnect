@@ -1,4 +1,4 @@
-import Application, { InitAppParams, PREFIX } from "./application";
+import Application, { type InitAppParams, PREFIX } from "./application";
 import { createContextMenus } from "~utils/context_menus";
 import { sendMessage } from "@arconnect/webext-bridge";
 import type { StorageChange } from "~utils/runtime";

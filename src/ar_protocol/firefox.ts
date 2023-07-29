@@ -1,4 +1,4 @@
-import browser, { WebRequest } from "webextension-polyfill";
+import browser, { type WebRequest } from "webextension-polyfill";
 import type { Gateway } from "~applications/gateway";
 import { getRedirectURL } from "./parser";
 

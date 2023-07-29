@@ -1,4 +1,10 @@
-import { MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type MutableRefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import { Button, Spacer, Text } from "@arconnect/components";
 import { ArrowRightIcon, KeyIcon } from "@iconicicons/react";
 import { AnimatePresence, motion } from "framer-motion";

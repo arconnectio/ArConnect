@@ -1,4 +1,4 @@
-import { DiversityType, passwordStrength } from "check-password-strength";
+import { type DiversityType, passwordStrength } from "check-password-strength";
 import { CheckIcon, CloseIcon } from "@iconicicons/react";
 import { Spacer, Text } from "@arconnect/components";
 import { useMemo } from "react";

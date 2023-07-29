@@ -1,6 +1,6 @@
 import { Loading, Spacer, Text, useToasts } from "@arconnect/components";
 import { AnimatedQRScanner as Scanner } from "@arconnect/keystone-sdk";
-import { ComponentProps, useEffect, useState } from "react";
+import { type ComponentProps, useEffect, useState } from "react";
 import { CameraOffIcon } from "@iconicicons/react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
