@@ -1,5 +1,5 @@
 import Article, {
-  ArticleInterface,
+  type ArticleInterface,
   LoadingArticle
 } from "~components/popup/Article";
 import { Section, Spacer, Text } from "@arconnect/components";

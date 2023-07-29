@@ -5,7 +5,7 @@ import * as viewblock from "~lib/viewblock";
 import {
   concatGatewayURL,
   defaultGateway,
-  Gateway,
+  type Gateway,
   gql
 } from "~applications/gateway";
 import arLogoLight from "url:/assets/ar/logo_light.png";

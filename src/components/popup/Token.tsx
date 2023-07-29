@@ -1,8 +1,8 @@
 import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
-import { MouseEventHandler, useEffect, useMemo, useState } from "react";
+import { type MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { defaultGateway } from "~applications/gateway";
 import { hoverEffect, useTheme } from "~utils/theme";
-import { loadTokenLogo, Token } from "~tokens/token";
+import { loadTokenLogo, type Token } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { Text } from "@arconnect/components";

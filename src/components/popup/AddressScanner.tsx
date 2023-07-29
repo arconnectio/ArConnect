@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, Variants } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import styled, { css } from "styled-components";
 import { CloseIcon } from "@iconicicons/react";
 import { Loading, Text } from "@arconnect/components";

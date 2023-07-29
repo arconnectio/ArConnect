@@ -1,17 +1,18 @@
 import {
-  RawStoredTransfer,
+  type RawStoredTransfer,
   TempTransactionStorage,
   TRANSFER_TX_STORAGE
 } from "~utils/storage";
 import {
   concatGatewayURL,
   defaultGateway,
-  Gateway
+  type Gateway
 } from "~applications/gateway";
 import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@iconicicons/react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
+import type { Tag } from "arweave/web/lib/transaction";
 import { useScanner } from "@arconnect/keystone-sdk";
 import { useActiveWallet } from "~wallets/hooks";
 import { useHistory } from "~utils/hash_router";
@@ -36,7 +37,6 @@ import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
 import Arweave from "arweave";
-import type { Tag } from "arweave/web/lib/transaction";
 
 export default function SendAuth() {
   // loading

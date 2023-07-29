@@ -1,19 +1,19 @@
-import { SignatureOptions } from "arweave/node/lib/crypto/crypto-interface";
-import { PermissionType, permissionData } from "~applications/permissions";
-import { SplitTransaction } from "~api/modules/sign/transaction_builder";
-import { SignatureAlgorithm } from "~api/modules/signature/types";
-import Transaction from "arweave/web/lib/transaction";
-import { DecodedTag } from "~api/modules/sign/tags";
-import { AppInfo } from "~applications/application";
-import { Chunk } from "~api/modules/sign/chunks";
-import { Gateway } from "~applications/gateway";
+import type { SignatureOptions } from "arweave/node/lib/crypto/crypto-interface";
+import { type PermissionType, permissionData } from "~applications/permissions";
+import type { SplitTransaction } from "~api/modules/sign/transaction_builder";
+import type { SignatureAlgorithm } from "~api/modules/signature/types";
+import type Transaction from "arweave/web/lib/transaction";
+import type { DecodedTag } from "~api/modules/sign/tags";
+import type { AppInfo } from "~applications/application";
+import type { Chunk } from "~api/modules/sign/chunks";
+import type { Gateway } from "~applications/gateway";
+import type { TokenType } from "~tokens/token";
 import { isAddressFormat } from "./format";
-import { TokenType } from "~tokens/token";
-import {
+import type {
   EncryptionAlgorithm,
   LegacyEncryptionOptions
 } from "~api/modules/encrypt/types";
-import { ApiCall } from "shim";
+import type { ApiCall } from "shim";
 import {
   assert,
   isNumber,

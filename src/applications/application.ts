@@ -1,7 +1,7 @@
-import { getMissingPermissions, PermissionType } from "./permissions";
-import { Allowance, defaultAllowance } from "./allowance";
+import { getMissingPermissions, type PermissionType } from "./permissions";
+import { type Allowance, defaultAllowance } from "./allowance";
 import { useStorage } from "@plasmohq/storage/hook";
-import { defaultGateway, Gateway } from "./gateway";
+import { defaultGateway, type Gateway } from "./gateway";
 import { ExtensionStorage } from "~utils/storage";
 import type { Storage } from "@plasmohq/storage";
 

@@ -1,6 +1,6 @@
-import { AnimatePresence, motion, Variants } from "framer-motion";
-import { HistoryAction, useHistory } from "~utils/hash_router";
-import { createElement, PropsWithChildren } from "react";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
+import { type HistoryAction, useHistory } from "~utils/hash_router";
+import { createElement, type PropsWithChildren } from "react";
 import { useRoute, Route as BaseRoute } from "wouter";
 import styled from "styled-components";
 

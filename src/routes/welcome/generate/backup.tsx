@@ -1,10 +1,3 @@
-import {
-  ArrowRightIcon,
-  CopyIcon,
-  CheckIcon,
-  EyeIcon,
-  EyeOffIcon
-} from "@iconicicons/react";
 import { Button, Spacer, Text } from "@arconnect/components";
 import { useLocation, useRoute } from "wouter";
 import { useContext, useState } from "react";
@@ -13,6 +6,13 @@ import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
+import {
+  ArrowRightIcon,
+  CopyIcon,
+  CheckIcon,
+  EyeIcon,
+  EyeOffIcon
+} from "@iconicicons/react";
 
 export default function Backup() {
   // seed blur status

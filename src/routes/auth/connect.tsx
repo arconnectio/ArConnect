@@ -8,9 +8,9 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
+import { permissionData, type PermissionType } from "~applications/permissions";
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
-import { permissionData, PermissionType } from "~applications/permissions";
-import { defaultGateway, Gateway } from "~applications/gateway";
+import { defaultGateway, type Gateway } from "~applications/gateway";
 import { CloseLayer } from "~components/popup/WalletHeader";
 import type { AppInfo } from "~applications/application";
 import { AnimatePresence, motion } from "framer-motion";

@@ -1,5 +1,5 @@
+import { AnimatePresence, type Variants, motion } from "framer-motion";
 import { createContext, useEffect, useMemo, useState } from "react";
-import { AnimatePresence, Variants, motion } from "framer-motion";
 import { Card, Spacer, useToasts } from "@arconnect/components";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { defaultGateway } from "~applications/gateway";

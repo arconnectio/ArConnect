@@ -1,4 +1,4 @@
-import { concatGatewayURL, Gateway } from "~applications/gateway";
+import { concatGatewayURL, type Gateway } from "~applications/gateway";
 import { isAddressFormat } from "~utils/format";
 
 export function getRedirectURL(url: URL, gateway: Gateway) {

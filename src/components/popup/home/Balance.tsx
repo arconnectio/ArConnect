@@ -1,5 +1,5 @@
 import { formatTokenBalance, formatFiatBalance } from "~tokens/currency";
-import Application, { AppInfo } from "~applications/application";
+import Application, { type AppInfo } from "~applications/application";
 import { defaultGateway, gql } from "~applications/gateway";
 import Graph, { GraphText } from "~components/popup/Graph";
 import { Spacer, Tooltip } from "@arconnect/components";

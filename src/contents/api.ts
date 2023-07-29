@@ -1,9 +1,9 @@
 import { sendMessage } from "@arconnect/webext-bridge";
-import type { PlasmoContentScript } from "plasmo";
+import type { PlasmoCSConfig } from "plasmo";
 import type { ApiCall } from "shim";
 import injectedScript from "url:../injected.ts";
 
-export const config: PlasmoContentScript = {
+export const config: PlasmoCSConfig = {
   matches: ["file://*/*", "http://*/*", "https://*/*"],
   run_at: "document_start",
   all_frames: true

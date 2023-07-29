@@ -1,6 +1,6 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
-import { Allowance, defaultAllowance } from "~applications/allowance";
-import Application, { AppInfo } from "~applications/application";
+import { type Allowance, defaultAllowance } from "~applications/allowance";
+import Application, { type AppInfo } from "~applications/application";
 import { defaultGateway } from "~applications/gateway";
 import { checkPassword } from "~wallets/auth";
 import { useEffect, useState } from "react";

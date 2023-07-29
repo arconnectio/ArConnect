@@ -1,4 +1,4 @@
-import browser, { Runtime, Storage } from "webextension-polyfill";
+import browser, { type Runtime, type Storage } from "webextension-polyfill";
 
 export const isManifestv3 = () =>
   browser.runtime.getManifest().manifest_version === 3;

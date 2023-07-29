@@ -1,4 +1,4 @@
-import { motion, Variants } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import styled from "styled-components";
 
 const HardwareWalletIcon = styled(motion.div)<Props>`

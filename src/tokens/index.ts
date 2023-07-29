@@ -7,9 +7,9 @@ import { getActiveAddress } from "~wallets";
 import { getContract } from "~lib/warp";
 import {
   getSettings,
-  Token,
-  TokenState,
-  TokenType,
+  type Token,
+  type TokenState,
+  type TokenType,
   validateTokenState
 } from "./token";
 
