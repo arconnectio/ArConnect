@@ -1,11 +1,11 @@
 import { Button, Spacer, Text } from "@arconnect/components";
 import { PasswordContext, WalletContext } from "../setup";
-import { AnsUser, getAnsProfile } from "~lib/ans";
+import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { formatAddress } from "~utils/format";
-import { addWallet } from "~wallets";
-import { useContext } from "react";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
+import { addWallet } from "~wallets";
+import { useContext } from "react";
 
 export default function Done() {
   // wallet context

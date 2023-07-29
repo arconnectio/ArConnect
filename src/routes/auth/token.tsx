@@ -1,11 +1,11 @@
 import {
   getSettings,
   loadTokenLogo,
-  TokenState,
-  TokenType
+  type TokenState,
+  type TokenType
 } from "~tokens/token";
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
-import { AnimatePresence, motion, Variants } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { usePrice, usePriceHistory } from "~lib/redstone";
 import { useEffect, useMemo, useState } from "react";
 import { getContract } from "~lib/warp";
@@ -14,7 +14,7 @@ import { addToken } from "~tokens";
 import {
   concatGatewayURL,
   defaultGateway,
-  Gateway
+  type Gateway
 } from "~applications/gateway";
 import {
   Button,

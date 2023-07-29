@@ -1,6 +1,6 @@
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { type MouseEventHandler, useMemo } from "react";
 import { formatTokenBalance } from "~tokens/currency";
-import { MouseEventHandler, useMemo } from "react";
 import { hoverEffect } from "~utils/theme";
 import styled from "styled-components";
 

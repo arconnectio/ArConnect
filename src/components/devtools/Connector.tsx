@@ -1,4 +1,4 @@
-import { permissionData, PermissionType } from "~applications/permissions";
+import { permissionData, type PermissionType } from "~applications/permissions";
 import { Button, Spacer, useToasts } from "@arconnect/components";
 import type { AppInfo } from "~applications/application";
 import PermissionCheckbox, {

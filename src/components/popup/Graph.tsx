@@ -1,6 +1,6 @@
-import { DisplayTheme, Section, Text } from "@arconnect/components";
+import { type DisplayTheme, Section, Text } from "@arconnect/components";
+import { type HTMLProps, type ReactNode, useMemo } from "react";
 import { useTheme as useDisplayTheme } from "~utils/theme";
-import { HTMLProps, ReactNode, useMemo } from "react";
 import styled, { useTheme } from "styled-components";
 
 export default function Graph({

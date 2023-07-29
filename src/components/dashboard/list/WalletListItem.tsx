@@ -1,6 +1,6 @@
 import { WalletIcon } from "@iconicicons/react";
 import { Reorder, useDragControls } from "framer-motion";
-import { HTMLProps, useMemo } from "react";
+import { type HTMLProps, useMemo } from "react";
 import styled from "styled-components";
 import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";

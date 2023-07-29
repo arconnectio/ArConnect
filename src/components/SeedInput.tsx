@@ -1,4 +1,5 @@
-import { AnimatePresence, motion, Variants } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
+import { type DragEvent, useEffect, useMemo, useState } from "react";
 import {
   CloseIcon,
   FolderIcon,
@@ -6,7 +7,6 @@ import {
   WalletIcon
 } from "@iconicicons/react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
-import { DragEvent, useEffect, useMemo, useState } from "react";
 import { Card, Text } from "@arconnect/components";
 import { formatAddress } from "~utils/format";
 import { readFileString } from "~utils/file";

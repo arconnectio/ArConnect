@@ -1,6 +1,6 @@
 import { ArrowDownRightIcon, ArrowUpRightIcon } from "@iconicicons/react";
 import { Spacer, Text } from "@arconnect/components";
-import { PropsWithChildren, useMemo } from "react";
+import { type PropsWithChildren, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";

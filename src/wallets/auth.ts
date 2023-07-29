@@ -1,6 +1,6 @@
 import { decryptWallet, freeDecryptedWallet } from "./encryption";
-import browser, { Alarms } from "webextension-polyfill";
-import { getWallets, LocalWallet } from "./index";
+import browser, { type Alarms } from "webextension-polyfill";
+import { getWallets, type LocalWallet } from "./index";
 import { ExtensionStorage } from "~utils/storage";
 
 /**

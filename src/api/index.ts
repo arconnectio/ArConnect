@@ -1,6 +1,6 @@
 import { isExactly, isNotUndefined, isString } from "typed-assert";
 import type { OnMessageCallback } from "@arconnect/webext-bridge";
-import { Chunk, handleChunk } from "./modules/sign/chunks";
+import { type Chunk, handleChunk } from "./modules/sign/chunks";
 import { isApiCall, isChunk } from "~utils/assertions";
 import Application from "~applications/application";
 import type { ApiCall, ApiResponse } from "shim";

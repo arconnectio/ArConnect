@@ -1,8 +1,8 @@
-import { MouseEventHandler, useEffect, useState } from "react";
-import { DisplayTheme, Text } from "@arconnect/components";
+import { type MouseEventHandler, useEffect, useState } from "react";
+import { type DisplayTheme, Text } from "@arconnect/components";
 import type { TokenInteraction } from "~tokens/token";
 import { hoverEffect, useTheme } from "~utils/theme";
-import { AnsUser, getAnsProfile } from "~lib/ans";
+import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { formatAddress } from "~utils/format";
 import {
   ArrowDownLeftIcon,

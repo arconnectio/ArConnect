@@ -1,6 +1,6 @@
+import { type Path, pathToRegexp } from "path-to-regexp";
 import { GlobalStyle, useTheme } from "~utils/theme";
 import { useHashLocation } from "~utils/hash_router";
-import { Path, pathToRegexp } from "path-to-regexp";
 import { Provider } from "@arconnect/components";
 import { Router, Route } from "wouter";
 

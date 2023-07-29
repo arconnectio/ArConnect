@@ -1,11 +1,10 @@
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
-import { DisplayTheme, Section, Text } from "@arconnect/components";
+import { type DisplayTheme, Section, Text } from "@arconnect/components";
 import { Avatar, CloseLayer, NoAvatarIcon } from "./WalletHeader";
 import { AnimatePresence, motion } from "framer-motion";
 import { hoverEffect, useTheme } from "~utils/theme";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ArrowLeftIcon } from "@iconicicons/react";
-import { AnsUser, getAnsProfile, useAnsProfile } from "~lib/ans";
+import { useAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import HardwareWalletIcon, {
   hwIconAnimateProps

@@ -1,11 +1,11 @@
-import { PropsWithChildren, useEffect, useState } from "react";
+import { type PropsWithChildren, useEffect, useState } from "react";
 import { getDecryptionKey } from "~wallets/auth";
 import { useLocation } from "wouter";
 import {
-  BackAction,
-  HistoryAction,
+  type BackAction,
+  type HistoryAction,
   HistoryContext,
-  PushAction
+  type PushAction
 } from "~utils/hash_router";
 
 export default function HistoryProvider({ children }: PropsWithChildren<{}>) {

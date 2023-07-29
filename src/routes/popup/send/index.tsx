@@ -1,7 +1,7 @@
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
+import { getAnsProfile, type AnsUser, getAnsProfileByLabel } from "~lib/ans";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
-import { getAnsProfile, AnsUser, getAnsProfileByLabel } from "~lib/ans";
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { formatAddress, isAddressFormat } from "~utils/format";
 import { useState, useEffect, useMemo } from "react";
 import { formatFiatBalance } from "~tokens/currency";
@@ -33,7 +33,7 @@ import {
 } from "@iconicicons/react";
 import {
   ExtensionStorage,
-  RawStoredTransfer,
+  type RawStoredTransfer,
   TempTransactionStorage,
   TRANSFER_TX_STORAGE
 } from "~utils/storage";

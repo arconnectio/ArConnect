@@ -1,4 +1,4 @@
-import { Allowance, defaultAllowance } from "~applications/allowance";
+import { type Allowance, defaultAllowance } from "~applications/allowance";
 import Application from "~applications/application";
 import authenticate from "../connect/auth";
 
