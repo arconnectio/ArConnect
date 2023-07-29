@@ -102,7 +102,7 @@ const background: ModuleFunction<Uint8Array> = async (
       false,
       ["encrypt"]
     );
-    const encrypted = await window.crypto.subtle.encrypt(options, key, data);
+    const encrypted = await crypto.subtle.encrypt(options, key, data);
 
     // remove wallet from memory
     freeDecryptedWallet(encryptJwk);

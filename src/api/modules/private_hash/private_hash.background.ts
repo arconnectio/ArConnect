@@ -2,6 +2,7 @@ import { freeDecryptedWallet } from "~wallets/encryption";
 import type { ModuleFunction } from "~api/background";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
+import Arweave from "arweave";
 import {
   isArrayBuffer,
   isNumberArray,
@@ -11,19 +12,16 @@ import {
 const background: ModuleFunction<number[]> = async (
   _,
   data: unknown,
-  options = { hashAlgorithm: "SHA-256" }
+  options: unknown
 ) => {
   // validate input
   isNumberArray(data);
   isSignMessageOptions(options);
 
-  // uint8array data to sign
-  const dataToSign = new Uint8Array(data);
+  // uint8array data to hash
+  const dataToHash = new Uint8Array(data);
 
-  isArrayBuffer(dataToSign);
-
-  // hash the message
-  const hash = await crypto.subtle.digest(options.hashAlgorithm, dataToSign);
+  isArrayBuffer(dataToHash);
 
   // get user wallet
   const activeWallet = await getActiveKeyfile().catch(() => {
@@ -40,30 +38,19 @@ const background: ModuleFunction<number[]> = async (
     );
   }
 
-  // get signing key using the jwk
-  const cryptoKey = await crypto.subtle.importKey(
-    "jwk",
-    activeWallet.keyfile,
-    {
-      name: "RSA-PSS",
-      hash: options.hashAlgorithm
-    },
-    false,
-    ["sign"]
+  // hash using the private exponent
+  const hash = await crypto.subtle.digest(
+    options.hashAlgorithm,
+    Arweave.utils.concatBuffers([
+      dataToHash.buffer,
+      new TextEncoder().encode(activeWallet.keyfile.d)
+    ])
   );
 
-  // hashing 2 times ensures that the app is not draining the user's wallet
-  // credits to Arweave.app
-  const signature = await crypto.subtle.sign(
-    { name: "RSA-PSS", saltLength: 32 },
-    cryptoKey,
-    hash
-  );
-
-  // remove wallet from memory
+  // clean up wallet from memory
   freeDecryptedWallet(activeWallet.keyfile);
 
-  return Array.from(new Uint8Array(signature));
+  return Array.from(new Uint8Array(hash));
 };
 
 export default background;

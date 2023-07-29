@@ -196,6 +196,7 @@ export function isLegacyEncryptionOptions(
 export function isSignMessageOptions(
   input: unknown
 ): asserts input is SignMessageOptions {
+  isNotUndefined(input, "Options cannot be undefined.");
   isRecordWithKeys(
     input,
     ["hashAlgorithm"],

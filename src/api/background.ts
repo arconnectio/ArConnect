@@ -33,6 +33,8 @@ import isTokenAddedModule from "./modules/is_token_added";
 import isTokenAdded from "./modules/is_token_added/is_token_added.background";
 import signMessageModule from "./modules/sign_message";
 import signMessage from "./modules/sign_message/sign_message.background";
+import privateHashModule from "./modules/private_hash";
+import privateHash from "./modules/private_hash/private_hash.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
@@ -51,7 +53,8 @@ const modules: BackgroundModule<any>[] = [
   { ...encryptModule, function: encrypt },
   { ...decryptModule, function: decrypt },
   { ...signatureModule, function: signature },
-  { ...signMessageModule, function: signMessage }
+  { ...signMessageModule, function: signMessage },
+  { ...privateHashModule, function: privateHash }
 ];
 
 export default modules;

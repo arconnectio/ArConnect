@@ -45,6 +45,10 @@ import signMessageModule from "./modules/sign_message";
 import signMessage, {
   finalizer as signMessageFinalizer
 } from "./modules/sign_message/sign_message.foreground";
+import privateHashModule from "./modules/private_hash";
+import privateHash, {
+  finalizer as privateHashFinalizer
+} from "./modules/private_hash/private_hash.foreground";
 
 /** Foreground modules */
 const modules: ForegroundModule[] = [
@@ -67,6 +71,11 @@ const modules: ForegroundModule[] = [
     ...signMessageModule,
     function: signMessage,
     finalizer: signMessageFinalizer
+  },
+  {
+    ...privateHashModule,
+    function: privateHash,
+    finalizer: privateHashFinalizer
   }
 ];
 
