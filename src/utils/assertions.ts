@@ -2,6 +2,8 @@ import type { SignatureOptions } from "arweave/node/lib/crypto/crypto-interface"
 import { type PermissionType, permissionData } from "~applications/permissions";
 import type { SplitTransaction } from "~api/modules/sign/transaction_builder";
 import type { SignMessageOptions } from "~api/modules/sign_message/types";
+import type { DecryptedWallet, LocalWallet } from "~wallets";
+import type { JWKInterface } from "arweave/web/lib/wallet";
 import type Transaction from "arweave/web/lib/transaction";
 import type { DecodedTag } from "~api/modules/sign/tags";
 import type { AppInfo } from "~applications/application";
@@ -26,7 +28,8 @@ import {
   isInstanceOf,
   isOneOfType,
   isNotUndefined,
-  isNotNull
+  isNotNull,
+  isExactly
 } from "typed-assert";
 
 export function isGateway(input: unknown): asserts input is Gateway {
@@ -212,4 +215,14 @@ export function isSignMessageOptions(
 export function isArrayBuffer(input: unknown): asserts input is ArrayBuffer {
   isNotUndefined("Data has to be defined.");
   assert(ArrayBuffer.isView(input), "Input is not an ArrayBuffer.");
+}
+
+export function isLocalWallet(
+  input: DecryptedWallet
+): asserts input is LocalWallet<JWKInterface> {
+  isExactly(
+    input.type,
+    "local",
+    "Hardware wallets don't support this API method currently."
+  );
 }

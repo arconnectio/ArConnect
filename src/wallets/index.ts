@@ -146,7 +146,7 @@ export async function setActiveWallet(address?: string) {
   await ExtensionStorage.set("active_address", address);
 }
 
-type DecryptedWallet = StoredWallet<JWKInterface>;
+export type DecryptedWallet = StoredWallet<JWKInterface>;
 
 /**
  * Get the active wallet with decrypted JWK

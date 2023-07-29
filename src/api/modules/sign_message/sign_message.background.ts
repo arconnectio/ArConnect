@@ -4,6 +4,7 @@ import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 import {
   isArrayBuffer,
+  isLocalWallet,
   isNumberArray,
   isSignMessageOptions
 } from "~utils/assertions";
@@ -33,12 +34,9 @@ const background: ModuleFunction<number[]> = async (
     throw new Error("No wallets added");
   });
 
-  // check if hardware wallet
-  if (activeWallet.type === "hardware") {
-    throw new Error(
-      "Active wallet type: hardware. This does not support signing messages currently."
-    );
-  }
+  // ensure that the currently selected
+  // wallet is not a local wallet
+  isLocalWallet(activeWallet);
 
   // get signing key using the jwk
   const cryptoKey = await crypto.subtle.importKey(
