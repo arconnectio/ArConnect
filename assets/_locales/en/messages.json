@@ -467,6 +467,10 @@
     "message": "Passwords don't match",
     "description": "Invalid re-entered password error"
   },
+  "invalid_mnemonic": {
+    "message": "Invalid mnemonic seedphrase",
+    "description": "Invalid mnemonic seedphrase error notification"
+  },
   "added_wallet": {
     "message": "Added wallet",
     "description": "Added wallets notification"
