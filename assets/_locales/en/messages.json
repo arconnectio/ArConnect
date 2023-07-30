@@ -1213,6 +1213,10 @@
     "message": "Show balance",
     "description": "Show balance tooltip"
   },
+  "lock_wallet": {
+    "message": "Lock wallet",
+    "description": "Lock wallet and terminate current session icon button"
+  },
   "home_no_balance": {
     "message": "Add $AR$ to get started",
     "description": "No balance message on homescreen",

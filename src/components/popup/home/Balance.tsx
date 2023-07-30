@@ -17,7 +17,8 @@ import {
   EyeIcon,
   EyeOffIcon,
   GlobeIcon,
-  SettingsIcon
+  SettingsIcon,
+  LockIcon
 } from "@iconicicons/react";
 import useActiveTab from "~applications/useActiveTab";
 import AppIcon, { NoAppIcon } from "./AppIcon";
@@ -25,6 +26,7 @@ import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
+import { removeDecryptionKey } from "~wallets/auth";
 
 export default function Balance() {
   // grab address
@@ -110,6 +112,12 @@ export default function Balance() {
   // display theme
   const theme = useTheme();
 
+  // lock wallet and terminate session
+  async function lockWallet() {
+    await removeDecryptionKey();
+    push("/unlock");
+  }
+
   return (
     <Graph
       actionBar={
@@ -145,16 +153,21 @@ export default function Balance() {
             {(!hideBalance &&
               formatFiatBalance(fiat, currency.toLowerCase())) ||
               "*".repeat(fiat.toFixed(2).length) + " " + currency.toUpperCase()}
-            <Tooltip
-              content={browser.i18n.getMessage(
-                hideBalance ? "balance_show" : "balance_hide"
-              )}
-            >
-              <HideBalanceButton
-                onClick={() => setHideBalance((val) => !val)}
-                as={hideBalance ? EyeOffIcon : EyeIcon}
-              />
-            </Tooltip>
+            <IconButtons>
+              <Tooltip
+                content={browser.i18n.getMessage(
+                  hideBalance ? "balance_show" : "balance_hide"
+                )}
+              >
+                <BalanceIconButton
+                  onClick={() => setHideBalance((val) => !val)}
+                  as={hideBalance ? EyeOffIcon : EyeIcon}
+                />
+              </Tooltip>
+              <Tooltip content={browser.i18n.getMessage("lock_wallet")}>
+                <BalanceIconButton onClick={lockWallet} as={LockIcon} />
+              </Tooltip>
+            </IconButtons>
           </FiatBalanceText>
         </div>
         {activeAppData && (
@@ -291,11 +304,17 @@ const Ticker = styled.span`
 const FiatBalanceText = styled(GraphText)`
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.41rem;
   font-weight: 400;
 `;
 
-const HideBalanceButton = styled(EyeIcon)`
+const IconButtons = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.21rem;
+`;
+
+const BalanceIconButton = styled(EyeIcon)`
   font-size: 1em;
   width: 1em;
   height: 1em;
