@@ -7,9 +7,14 @@ import WalletHeader from "~components/popup/WalletHeader";
 import NoBalance from "~components/popup/home/NoBalance";
 import Balance from "~components/popup/home/Balance";
 import Tokens from "~components/popup/home/Tokens";
+import { AnalyticsBrowser } from "@segment/analytics-next";
 import Arweave from "arweave";
 import { isExpired } from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
+
+const analytics = AnalyticsBrowser.load({
+  writeKey: "WRITEKEY"
+});
 
 export default function Home() {
   // get if the user has no balance
@@ -47,6 +52,13 @@ export default function Home() {
   return (
     <>
       <WalletHeader />
+      <button
+        onClick={() =>
+          analytics.track("funded", { address: activeAddress, funds: 0 })
+        }
+      >
+        yo
+      </button>
       <Balance />
       {(!noBalance && (
         <>

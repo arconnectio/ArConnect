@@ -57,6 +57,7 @@
     "@keystonehq/bc-ur-registry-arweave": "^0.1.1-alpha.0",
     "@ngraveio/bc-ur": "^1.1.6",
     "@plasmohq/storage": "^1.7.2",
+    "@segment/analytics-next": "^1.53.2",
     "ar-gql": "^0.0.6",
     "arbundles": "^0.9.5",
     "arweave": "^1.13.0",
