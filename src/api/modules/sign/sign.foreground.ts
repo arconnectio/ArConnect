@@ -5,7 +5,7 @@ import type { ModuleFunction } from "~api/module";
 import { sendChunk } from "./chunks";
 import {
   deconstructTransaction,
-  SplitTransaction
+  type SplitTransaction
 } from "./transaction_builder";
 import type Transaction from "arweave/web/lib/transaction";
 import Arweave from "arweave";

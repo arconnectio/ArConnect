@@ -1,14 +1,15 @@
-import { DisplayTheme, Section, Spacer, Text } from "@arconnect/components";
+import {
+  type DisplayTheme,
+  Section,
+  Spacer,
+  Text
+} from "@arconnect/components";
 import { useTheme as useDisplayTheme } from "~utils/theme";
 import type { Allowance } from "~applications/allowance";
 import { formatTokenBalance } from "~tokens/currency";
 import { GridIcon } from "@iconicicons/react";
 import { useMemo } from "react";
-import {
-  Gateway,
-  concatGatewayURL,
-  defaultGateway
-} from "~applications/gateway";
+import { type Gateway, defaultGateway } from "~applications/gateway";
 import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";

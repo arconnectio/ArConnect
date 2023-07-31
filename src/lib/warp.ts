@@ -23,7 +23,7 @@ export async function getContract<T = { [key: string]: unknown }>(
 ): Promise<DreContractReturn<T>> {
   // get DRE setting
   const activeDREKey: string = await getSetting("dre_node").getValue();
-  const dreURL = dreNodes[activeDREKey] || dreNodes[Object.keys(dreNodes)[0]];
+  const dreURL = dreNodes[activeDREKey] || dreNodes[Object.keys(dreNodes)[3]];
 
   // create call url
   const url = new URL("contract", dreURL);

@@ -1,6 +1,6 @@
 import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
+import { AnimatePresence, type Variants, motion } from "framer-motion";
 import { Button, Section, Spacer, Text } from "@arconnect/components";
-import { AnimatePresence, Variants, motion } from "framer-motion";
 import type { GQLNodeInterface } from "ar-gql/dist/faces";
 import { useEffect, useMemo, useState } from "react";
 import { useHistory } from "~utils/hash_router";

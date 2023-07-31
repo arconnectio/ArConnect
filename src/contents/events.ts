@@ -1,7 +1,7 @@
 import { onMessage } from "@arconnect/webext-bridge";
-import type { PlasmoContentScript } from "plasmo";
+import type { PlasmoCSConfig } from "plasmo";
 
-export const config: PlasmoContentScript = {
+export const config: PlasmoCSConfig = {
   matches: ["file://*/*", "http://*/*", "https://*/*"],
   run_at: "document_end",
   all_frames: true

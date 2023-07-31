@@ -16,12 +16,12 @@ import {
   TrashIcon
 } from "@iconicicons/react";
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
-import { removeWallet, StoredWallet } from "~wallets";
+import { removeWallet, type StoredWallet } from "~wallets";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { IconButton } from "~components/IconButton";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
-import { AnsUser, getAnsProfile } from "~lib/ans";
+import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import { downloadFile } from "~utils/file";
 import keystoneLogo from "url:/assets/hardware/keystone.png";

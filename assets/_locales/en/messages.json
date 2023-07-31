@@ -487,6 +487,10 @@
     "message": "New password cannot be the same as your old password",
     "description": "Password must be different from old one"
   },
+  "invalid_mnemonic": {
+    "message": "Invalid mnemonic seedphrase",
+    "description": "Invalid mnemonic seedphrase error notification"
+  },
   "added_wallet": {
     "message": "Added wallet",
     "description": "Added wallets notification"
@@ -802,7 +806,7 @@
     "description": "Unlock wallet explanation"
   },
   "reset_wallet_password_to_use": {
-    "message": "You'll need to reset your wallet password to continue using it.",
+    "message": "You'll need to reset your password to continue using ArConnect securely.",
     "description": "Reset wallet password explanation"
   },
   "receive": {
@@ -1232,6 +1236,10 @@
   "balance_show": {
     "message": "Show balance",
     "description": "Show balance tooltip"
+  },
+  "lock_wallet": {
+    "message": "Lock wallet",
+    "description": "Lock wallet and terminate current session icon button"
   },
   "home_no_balance": {
     "message": "Add $AR$ to get started",

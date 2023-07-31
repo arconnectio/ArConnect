@@ -10,13 +10,14 @@ import {
   freeDecryptedWallet
 } from "./encryption";
 import type { JWKInterface } from "arweave/node/lib/wallet";
-import browser, { Alarms } from "webextension-polyfill";
+import { getAnsProfile, type AnsUser } from "~lib/ans";
+import authenticate from "~api/modules/connect/auth";
+import type { Alarms } from "webextension-polyfill";
 import { useStorage } from "@plasmohq/storage/hook";
-import { AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import type { HardwareWallet } from "./hardware";
 import { useEffect, useState } from "react";
-import authenticate from "~api/modules/connect/auth";
+import browser from "webextension-polyfill";
 import Arweave from "arweave/web/common";
 
 /**

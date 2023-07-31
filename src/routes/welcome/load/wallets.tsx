@@ -1,8 +1,8 @@
+import { isValidMnemonic, jwkFromMnemonic } from "~wallets/generator";
 import type { KeystoneAccount } from "~wallets/hardware/keystone";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { useContext, useEffect, useState } from "react";
 import { addWallet, setActiveWallet } from "~wallets";
-import { jwkFromMnemonic } from "~wallets/generator";
 import { ArrowRightIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -99,6 +99,27 @@ export default function Wallets() {
     window.onbeforeunload = () =>
       browser.i18n.getMessage("close_tab_load_wallet_message");
 
+    const finishUp = () => {
+      // reset before unload
+      window.onbeforeunload = null;
+      setLoading(false);
+    };
+
+    // validate mnemonic
+    if (typeof loadedWallet === "string") {
+      try {
+        isValidMnemonic(loadedWallet);
+      } catch (e) {
+        console.log("Invalid mnemonic provided", e);
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("invalid_mnemonic"),
+          duration: 2000
+        });
+        finishUp();
+      }
+    }
+
     try {
       // load jwk from seedphrase input state
       const jwk =
@@ -120,9 +141,7 @@ export default function Wallets() {
       });
     }
 
-    // reset before unload
-    window.onbeforeunload = null;
-    setLoading(false);
+    finishUp();
   }
 
   // done for keystone wallet

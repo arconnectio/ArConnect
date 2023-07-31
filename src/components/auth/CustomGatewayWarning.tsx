@@ -1,5 +1,5 @@
 import { WarningTriangleIcon } from "@iconicicons/react";
-import { motion, Variants } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { Section } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import styled from "styled-components";

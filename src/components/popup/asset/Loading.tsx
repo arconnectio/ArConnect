@@ -1,4 +1,4 @@
-import { motion, Variants } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { Loading } from "@arconnect/components";
 import type { HTMLProps } from "react";
 import styled from "styled-components";

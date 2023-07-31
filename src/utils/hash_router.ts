@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { BaseLocationHook } from "wouter/types/use-location";
 
 const navigate = (path: string) => (window.location.hash = path);

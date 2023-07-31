@@ -1,4 +1,4 @@
-import { HTMLProps, useEffect, useMemo, useState } from "react";
+import { type HTMLProps, useEffect, useMemo, useState } from "react";
 import { v4 as uuid } from "uuid";
 import styled from "styled-components";
 import axios from "axios";

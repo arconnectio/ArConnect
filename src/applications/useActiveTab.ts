@@ -1,4 +1,4 @@
-import browser, { Tabs } from "webextension-polyfill";
+import browser, { type Tabs } from "webextension-polyfill";
 import { getActiveTab } from "~applications";
 import { useEffect, useState } from "react";
 

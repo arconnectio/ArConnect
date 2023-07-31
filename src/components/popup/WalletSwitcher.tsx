@@ -8,11 +8,11 @@ import {
   useToasts
 } from "@arconnect/components";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { formatTokenBalance } from "~tokens/currency";
 import type { HardwareApi } from "~wallets/hardware";
 import { useStorage } from "@plasmohq/storage/hook";
-import { AnsUser, getAnsProfile } from "~lib/ans";
+import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";

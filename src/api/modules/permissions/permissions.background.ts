@@ -1,6 +1,5 @@
 import type { PermissionType } from "~applications/permissions";
 import type { ModuleFunction } from "~api/background";
-import { getAppURL } from "~utils/format";
 import Application from "~applications/application";
 
 const background: ModuleFunction<PermissionType[]> = async (appData) => {

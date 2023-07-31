@@ -1,7 +1,7 @@
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { Reorder, useDragControls } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
-import { loadTokenLogo, Token } from "~tokens/token";
+import { loadTokenLogo, type Token } from "~tokens/token";
 import { formatAddress } from "~utils/format";
 import { getContract } from "~lib/warp";
 import { useTheme } from "~utils/theme";

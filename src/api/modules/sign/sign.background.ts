@@ -2,7 +2,7 @@ import { arconfettiIcon, calculateReward, signNotification } from "./utils";
 import { allowanceAuth, getAllowance, updateAllowance } from "./allowance";
 import { freeDecryptedWallet } from "~wallets/encryption";
 import type { ModuleFunction } from "~api/background";
-import { JWKInterface } from "arweave/web/lib/wallet";
+import { type JWKInterface } from "arweave/web/lib/wallet";
 import { isSignatureOptions, isSplitTransaction } from "~utils/assertions";
 import { cleanUpChunks, getChunks } from "./chunks";
 import type { BackgroundResult } from "./index";

@@ -1,7 +1,7 @@
 import { EyeIcon, MessageIcon, ShareIcon, GlobeIcon } from "@iconicicons/react";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { Section, Spacer, Text } from "@arconnect/components";
-import { getSettings, TokenState } from "~tokens/token";
+import { getSettings, type TokenState } from "~tokens/token";
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { getCommunityUrl } from "~utils/format";

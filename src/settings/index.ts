@@ -39,7 +39,7 @@ const settings: Setting[] = [
     description: "setting_setting_dre_node_description",
     type: "pick",
     options: Object.keys(dreNodes),
-    defaultValue: Object.keys(dreNodes)[0]
+    defaultValue: Object.keys(dreNodes)[3]
   }),
   /*new Setting({
     name: "arverify",
