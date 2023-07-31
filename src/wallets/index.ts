@@ -1,5 +1,14 @@
-import { addExpiration, checkPassword, getDecryptionKey } from "./auth";
-import { decryptWallet, encryptWallet } from "./encryption";
+import {
+  addExpiration,
+  checkPassword,
+  getDecryptionKey,
+  setDecryptionKey
+} from "./auth";
+import {
+  decryptWallet,
+  encryptWallet,
+  freeDecryptedWallet
+} from "./encryption";
 import type { JWKInterface } from "arweave/node/lib/wallet";
 import { getAnsProfile, type AnsUser } from "~lib/ans";
 import authenticate from "~api/modules/connect/auth";
@@ -259,6 +268,35 @@ export async function addWallet(
 
   // add expiration date if needed
   await addExpiration();
+}
+
+/**
+ * updates password across all accounts for the user
+ *
+ * @param newPassword new password
+ * @param prevPassword previous password to verify
+ */
+export async function updatePassword(
+  newPassword: string,
+  prevPassword: string
+) {
+  if (!(await checkPassword(prevPassword))) {
+    throw new Error("Invalid password");
+  }
+  const wallets = await getWallets();
+  for (const item of wallets) {
+    if (item.type !== "local") {
+      continue;
+    }
+
+    const decryptedKeyfile = await decryptWallet(item.keyfile, prevPassword);
+    const encrypted = await encryptWallet(decryptedKeyfile, newPassword);
+    freeDecryptedWallet(decryptedKeyfile);
+    item.keyfile = encrypted;
+  }
+  await addExpiration();
+  await setDecryptionKey(newPassword);
+  await ExtensionStorage.set("wallets", wallets);
 }
 
 /**

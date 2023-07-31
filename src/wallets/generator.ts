@@ -1,6 +1,8 @@
 import { getKeyPairFromMnemonic } from "human-crypto-keys";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { passwordStrength } from "check-password-strength";
+import { isOneOf, isString } from "typed-assert";
+import { wordlists } from "bip39-web-crypto";
 
 /**
  * Credits to arweave.app for the mnemonic wallet generation
@@ -67,4 +69,18 @@ export function checkPasswordValid(password: string) {
   const strength = passwordStrength(password);
 
   return strength.id === 3;
+}
+
+export function isValidMnemonic(mnemonic: string) {
+  isString(mnemonic, "Mnemonic has to be a string.");
+
+  const words = mnemonic.split(" ");
+
+  isOneOf(words.length, [12, 24], "Invalid mnemonic length.");
+
+  const wordlist = wordlists.english;
+
+  for (const word of words) {
+    isOneOf(word, wordlist, "Invalid word in mnemonic.");
+  }
 }

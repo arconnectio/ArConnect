@@ -7,12 +7,12 @@ import {
   WalletIcon
 } from "@iconicicons/react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
+import styled, { keyframes } from "styled-components";
 import { Card, Text } from "@arconnect/components";
 import { formatAddress } from "~utils/format";
 import { readFileString } from "~utils/file";
 import { wordlists } from "bip39-web-crypto";
 import browser from "webextension-polyfill";
-import styled from "styled-components";
 
 export default function SeedInput({
   verifyMode,
@@ -288,7 +288,7 @@ export default function SeedInput({
                 }}
                 onKeyDown={(e) => {
                   // autocomplete
-                  if (e.key === "Tab" && word !== "") {
+                  if ((e.key === "Tab" || e.key === "Enter") && word !== "") {
                     // get suggested word
                     const suggestedWord = wordlists.english.filter((val) =>
                       val.startsWith(word)
@@ -328,6 +328,9 @@ export default function SeedInput({
                   // progress to the next input
                   inputs[currentInputIndex + 1].focus();
                 }}
+                aria-invalid={
+                  !wordlists.english.find((v) => v === word) && word !== ""
+                }
               />
             </SuggestionWrapper>
           </WordInputWrapper>
@@ -430,6 +433,27 @@ const WordInputWrapper = styled.div`
   }
 `;
 
+const errorShake = keyframes`
+  0% {
+    transform: translateX(8px);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+`;
+
 const WordInput = styled.input.attrs({
   type: "text"
 })`
@@ -442,6 +466,12 @@ const WordInput = styled.input.attrs({
   width: 100%;
   color: rgb(${(props) => props.theme.theme});
   z-index: 2;
+  transition: all 0.23s ease-in-out;
+
+  &:not(:focus)[aria-invalid="true"] {
+    color: #ff0000;
+    animation: ${errorShake} 0.4s linear;
+  }
 `;
 
 const WordInputSuggestion = styled.span`

@@ -1,7 +1,7 @@
+import { isValidMnemonic, jwkFromMnemonic } from "~wallets/generator";
 import { PlusIcon, SettingsIcon } from "@iconicicons/react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { defaultGateway } from "~applications/gateway";
-import { jwkFromMnemonic } from "~wallets/generator";
 import { checkPassword } from "~wallets/auth";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
@@ -49,6 +49,27 @@ export default function AddWallet() {
     window.onbeforeunload = () =>
       browser.i18n.getMessage("close_tab_load_wallet_message");
 
+    const finishUp = () => {
+      // reset before unload
+      window.onbeforeunload = null;
+      setLoading(false);
+    };
+
+    // validate mnemonic
+    if (typeof providedWallet === "string") {
+      try {
+        isValidMnemonic(providedWallet);
+      } catch (e) {
+        console.log("Invalid mnemonic provided", e);
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("invalid_mnemonic"),
+          duration: 2000
+        });
+        finishUp();
+      }
+    }
+
     try {
       // load jwk from seedphrase input state
       const jwk =
@@ -78,9 +99,7 @@ export default function AddWallet() {
       });
     }
 
-    // reset before unload
-    window.onbeforeunload = null;
-    setLoading(false);
+    finishUp();
   }
 
   // generating status
