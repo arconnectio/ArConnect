@@ -4,7 +4,11 @@ import {
   getDecryptionKey,
   setDecryptionKey
 } from "./auth";
-import { decryptWallet, encryptWallet } from "./encryption";
+import {
+  decryptWallet,
+  encryptWallet,
+  freeDecryptedWallet
+} from "./encryption";
 import type { JWKInterface } from "arweave/node/lib/wallet";
 import browser, { Alarms } from "webextension-polyfill";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -280,13 +284,14 @@ export async function updatePassword(
   }
   const wallets = await getWallets();
   for (const item of wallets) {
-    const decrypedKeyfile = await decryptWallet(
-      (item as LocalWallet).keyfile,
-      prevPassword
-    );
-    const encrypted = await encryptWallet(decrypedKeyfile, newPassword);
+    if (item.type !== "local") {
+      continue;
+    }
 
-    (item as LocalWallet).keyfile = encrypted;
+    const decryptedKeyfile = await decryptWallet(item.keyfile, prevPassword);
+    const encrypted = await encryptWallet(decryptedKeyfile, newPassword);
+    freeDecryptedWallet(decryptedKeyfile);
+    item.keyfile = encrypted;
   }
   await addExpiration();
   await setDecryptionKey(newPassword);

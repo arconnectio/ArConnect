@@ -98,9 +98,9 @@ export default function Unlock() {
         <Spacer y={0.75} />
         <Section>
           <Text noMargin>
-            {!expired
-              ? browser.i18n.getMessage("unlock_wallet_to_use")
-              : browser.i18n.getMessage("reset_wallet_password_to_use")}
+            {browser.i18n.getMessage(
+              expired ? "reset_wallet_password_to_use" : "unlock_wallet_to_use"
+            )}
           </Text>
           <Spacer y={1.5} />
           <Input
@@ -143,15 +143,9 @@ export default function Unlock() {
         </Section>
       </div>
       <Section>
-        {!expired ? (
-          <Button fullWidth onClick={unlockWallet}>
-            {browser.i18n.getMessage("unlock")}
-          </Button>
-        ) : (
-          <Button fullWidth onClick={changeAndUnlock}>
-            {browser.i18n.getMessage("unlock")}
-          </Button>
-        )}
+        <Button fullWidth onClick={expired ? changeAndUnlock : unlockWallet}>
+          {browser.i18n.getMessage("unlock")}
+        </Button>
       </Section>
     </Wrapper>
   );

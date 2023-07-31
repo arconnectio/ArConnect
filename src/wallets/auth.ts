@@ -86,10 +86,10 @@ export async function getDecryptionKey() {
 }
 
 export async function isExpired() {
-  const val = await ExtensionStorage.get(EXPIRATION_STORAGE);
+  const val = await ExtensionStorage.get<number>(EXPIRATION_STORAGE);
 
   // expired
-  if (Date.now() > Number(val) || !val) {
+  if (Date.now() > val || !val) {
     return true;
   }
 }
