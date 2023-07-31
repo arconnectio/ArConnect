@@ -49,6 +49,8 @@ import privateHashModule from "./modules/private_hash";
 import privateHash, {
   finalizer as privateHashFinalizer
 } from "./modules/private_hash/private_hash.foreground";
+import verifyMessageModule from "./modules/verify_message";
+import verifyMessage from "./modules/verify_message/verify_message.foreground";
 
 /** Foreground modules */
 const modules: ForegroundModule[] = [
@@ -76,7 +78,8 @@ const modules: ForegroundModule[] = [
     ...privateHashModule,
     function: privateHash,
     finalizer: privateHashFinalizer
-  }
+  },
+  { ...verifyMessageModule, function: verifyMessage }
 ];
 
 export default modules;
