@@ -82,9 +82,19 @@ export default function Unlock() {
         duration: 2300
       });
     }
-    await updatePassword(newPasswordInput.state, passwordInput.state);
-    await unlock(newPasswordInput.state);
-    push("/");
+
+    try {
+      await updatePassword(newPasswordInput.state, passwordInput.state);
+      await unlock(newPasswordInput.state);
+
+      push("/");
+    } catch {
+      return setToast({
+        type: "error",
+        content: browser.i18n.getMessage("invalidPassword"),
+        duration: 2200
+      });
+    }
   }
 
   return (
@@ -110,9 +120,10 @@ export default function Unlock() {
             placeholder={browser.i18n.getMessage("enter_password")}
             fullWidth
             onKeyDown={(e) => {
-              if (e.key !== "Enter") return;
+              if (e.key !== "Enter" || expired) return;
               unlockWallet();
             }}
+            autoFocus
           />
           {expired && (
             <>
