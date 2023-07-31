@@ -208,7 +208,6 @@ export default function Asset({ id }: Props) {
             <PriceChart
               token={{
                 name: state.name || state.ticker || "",
-                ticker: state.ticker || "",
                 logo
               }}
               priceData={historicalPrices}

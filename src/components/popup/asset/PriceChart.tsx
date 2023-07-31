@@ -38,7 +38,7 @@ export default function PriceChart({
       <Head>
         <TokenName>
           {token.name}
-          <TokenTicker>{token.ticker}</TokenTicker>
+          {token.ticker && <TokenTicker>{token.ticker}</TokenTicker>}
         </TokenName>
         {token.logo && <Logo src={token.logo} />}
       </Head>
@@ -130,7 +130,7 @@ interface Props {
   latestPrice?: number;
   token: {
     name: string;
-    ticker: string;
+    ticker?: string;
     logo?: string;
   };
   loading?: boolean;

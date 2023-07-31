@@ -56,15 +56,7 @@ export default function Token({ onClick, ...props }: Props) {
         <LogoWrapper>
           <Logo src={logo || ""} alt="" key={props.id} />
         </LogoWrapper>
-        <TokenName>
-          {(props.name && props.name !== props.ticker && (
-            <>
-              {props.name}
-              <span>{props.ticker}</span>
-            </>
-          )) ||
-            props.ticker}
-        </TokenName>
+        <TokenName>{props.name || props.ticker || "???"}</TokenName>
       </LogoAndDetails>
       <BalanceSection>
         <FiatBalance>
@@ -133,11 +125,6 @@ const TokenName = styled(Text).attrs({
   gap: 0.34rem;
   font-size: 1.1rem;
   color: rgb(${(props) => props.theme.primaryText});
-
-  span {
-    color: rgba(${(props) => props.theme.secondaryText}, 0.8);
-    font-weight: 400;
-  }
 `;
 
 const FiatBalance = styled(Text).attrs({
@@ -216,10 +203,7 @@ export function ArToken({ onClick }: ArTokenProps) {
         <LogoWrapper>
           <Logo src={theme === "light" ? arLogoLight : arLogoDark} />
         </LogoWrapper>
-        <TokenName>
-          Arweave
-          <span>AR</span>
-        </TokenName>
+        <TokenName>Arweave</TokenName>
       </LogoAndDetails>
       <BalanceSection>
         <FiatBalance>
