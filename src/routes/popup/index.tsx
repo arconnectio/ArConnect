@@ -11,10 +11,7 @@ import { AnalyticsBrowser } from "@segment/analytics-next";
 import Arweave from "arweave";
 import { isExpired } from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
-
-const analytics = AnalyticsBrowser.load({
-  writeKey: "WRITEKEY"
-});
+import { trackEvent } from "~utils/analytics";
 
 export default function Home() {
   // get if the user has no balance
@@ -31,7 +28,8 @@ export default function Home() {
 
       const arweave = new Arweave(defaultGateway);
       const balance = await arweave.wallets.getBalance(activeAddress);
-
+      // TODO: should only be sent once and once the wallet is funded, but how would we track this?
+      Number(balance) !== 0 && (await trackEvent("funded", { funded: true }));
       setNoBalance(Number(balance) === 0);
     })();
   }, [activeAddress]);
@@ -52,13 +50,6 @@ export default function Home() {
   return (
     <>
       <WalletHeader />
-      <button
-        onClick={() =>
-          analytics.track("funded", { address: activeAddress, funds: 0 })
-        }
-      >
-        yo
-      </button>
       <Balance />
       {(!noBalance && (
         <>
