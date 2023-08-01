@@ -51,6 +51,10 @@ import privateHash, {
 } from "./modules/private_hash/private_hash.foreground";
 import verifyMessageModule from "./modules/verify_message";
 import verifyMessage from "./modules/verify_message/verify_message.foreground";
+import signDataItemModule from "./modules/sign_data_item";
+import signDataItem, {
+  finalizer as signDataItemFinalizer
+} from "./modules/sign_data_item/sign_data_item.foreground";
 
 /** Foreground modules */
 const modules: ForegroundModule[] = [
@@ -79,7 +83,12 @@ const modules: ForegroundModule[] = [
     function: privateHash,
     finalizer: privateHashFinalizer
   },
-  { ...verifyMessageModule, function: verifyMessage }
+  { ...verifyMessageModule, function: verifyMessage },
+  {
+    ...signDataItemModule,
+    function: signDataItem,
+    finalizer: signDataItemFinalizer
+  }
 ];
 
 export default modules;
