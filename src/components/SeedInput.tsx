@@ -39,7 +39,11 @@ export default function SeedInput({
   // current seedphrase state joined
   // from the words array
   const currentSeedphrase = useMemo(
-    () => words.slice(0, activeLength).join(" "),
+    () =>
+      words
+        .slice(0, activeLength)
+        .map((val) => val.replace(/\s/g, ""))
+        .join(" "),
     [words, activeLength]
   );
 
