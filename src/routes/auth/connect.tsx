@@ -31,7 +31,7 @@ import Label from "~components/auth/Label";
 import Head from "~components/popup/Head";
 import App from "~components/auth/App";
 import styled from "styled-components";
-import { trackEvent } from "~utils/analytics";
+import { EventType, trackEvent } from "~utils/analytics";
 
 export default function Connect() {
   // active address
@@ -132,7 +132,7 @@ export default function Connect() {
     await replyToAuthRequest("connect", params.authID);
 
     // track connected app.
-    await trackEvent("connected app", { appName: appData.name });
+    await trackEvent(EventType.CONNECTED_APP, { appName: appData.name });
 
     // close the window
     closeWindow();

@@ -127,6 +127,10 @@
     "message": "Add testnet tokens to your wallet",
     "description": "Subtitle indicating the ability to add testnet AR tokens to the active wallet"
   },
+  "analytics": {
+    "message": "Analytics",
+    "description": "Analytics text"
+  },
   "arQtyPlaceholder": {
     "message": "AR qty...",
     "description": "Placeholder for AR amount input"
@@ -339,6 +343,10 @@
     "message": "Reset",
     "description": "Reset settings title"
   },
+  "setting_analytic": {
+    "message": "Analytics",
+    "description": "Analytics to help make ArConnect better"
+  },
   "setting_fee_multiplier": {
     "message": "Fee multiplier",
     "description": "Fee multiplier settings title"
@@ -386,6 +394,10 @@
   "setting_reset_description": {
     "message": "Remove all wallets and data",
     "description": "Reset settings description"
+  },
+  "setting_analytic_description": {
+    "message": "ArConnect Analytics",
+    "description": "ArConnect Analytics description"
   },
   "setting_fee_multiplier_description": {
     "message": "Control the fees paid after transactions",

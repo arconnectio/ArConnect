@@ -6,6 +6,7 @@ import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import { addWallet } from "~wallets";
 import { useContext } from "react";
+import { EventType, trackEvent } from "~utils/analytics";
 
 export default function Done() {
   // wallet context
@@ -34,6 +35,9 @@ export default function Done() {
       nickname ? { nickname, wallet: wallet.jwk } : wallet.jwk,
       password
     );
+
+    // log user onboarded
+    await trackEvent(EventType.ONBOARDED, {});
 
     // close window
     window.top.close();
