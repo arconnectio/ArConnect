@@ -60,12 +60,11 @@ const background: ModuleFunction<boolean> = async (
 
   isString(publicKey, "Invalid public key supplied.");
 
-  const publicJWK = {
-    kty: "RSA",
+  const publicJWK: JsonWebKey = {
     e: "AQAB",
-    n: publicKey,
-    alg: "RSA-PSS-256",
-    ext: true
+    ext: true,
+    kty: "RSA",
+    n: publicKey
   };
 
   // get signing key using the jwk
@@ -82,7 +81,7 @@ const background: ModuleFunction<boolean> = async (
 
   // verify signature
   const result = await crypto.subtle.verify(
-    { name: "RSA-PSS" },
+    { name: "RSA-PSS", saltLength: 32 },
     cryptoKey,
     binarySignature,
     hash
