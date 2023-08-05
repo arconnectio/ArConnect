@@ -16,6 +16,7 @@ const background: ModuleFunction<number[]> = async (
 ) => {
   // validate input
   isNumberArray(data);
+  console.log(options);
   isSignMessageOptions(options);
 
   // uint8array data to sign
