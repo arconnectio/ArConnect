@@ -1,6 +1,9 @@
 import { isLocalWallet, isRawDataItem } from "~utils/assertions";
 import type { ModuleFunction } from "~api/background";
 import { ArweaveSigner, createData } from "arbundles";
+import Application from "~applications/application";
+import { allowanceAuth } from "../sign/allowance";
+import { getPrice } from "../dispatch/uploader";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 
@@ -23,6 +26,9 @@ const background: ModuleFunction<number[]> = async (
   // wallet is not a local wallet
   isLocalWallet(decryptedWallet);
 
+  // create app
+  const app = new Application(appData.appURL);
+
   // get options and data
   const { data, ...options } = dataItem;
   const binaryData = new Uint8Array(data);
@@ -30,6 +36,14 @@ const background: ModuleFunction<number[]> = async (
   // create bundlr tx as a data entry
   const dataSigner = new ArweaveSigner(decryptedWallet.keyfile);
   const dataEntry = createData(binaryData, dataSigner, options);
+
+  // check allowance
+  const price = await getPrice(dataEntry, await app.getBundler());
+  const allowance = await app.getAllowance();
+
+  if (allowance.enabled) {
+    await allowanceAuth(allowance, appData.appURL, price);
+  }
 
   // sign item
   await dataEntry.sign(dataSigner);
