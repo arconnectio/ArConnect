@@ -106,7 +106,9 @@ const LogoWrapper = styled(Squircle)`
   color: rgba(${(props) => props.theme.theme}, 0.2);
 `;
 
-const Logo = styled.img`
+const Logo = styled.img.attrs({
+  draggable: false
+})`
   position: absolute;
   user-select: none;
   width: 52%;

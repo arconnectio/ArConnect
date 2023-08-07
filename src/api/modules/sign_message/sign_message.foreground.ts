@@ -1,12 +1,16 @@
 import type { TransformFinalizer } from "~api/foreground";
+import type { SignMessageOptions } from "./types";
 import type { ModuleFunction } from "~api/module";
+import { isArrayBuffer } from "~utils/assertions";
 
-// no need to transform anything in the foreground
 const foreground: ModuleFunction<any[]> = (
-  data: Uint8Array,
-  algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams
+  data: ArrayBuffer,
+  options?: SignMessageOptions
 ) => {
-  throw new Error("The signature() function is deprecated.");
+  // validate
+  isArrayBuffer(data);
+
+  return [Object.values(data), options];
 };
 
 export const finalizer: TransformFinalizer<number[], any, any> = (result) =>

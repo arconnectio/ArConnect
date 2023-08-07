@@ -1,11 +1,10 @@
 import { deconstructTransaction } from "../sign/transaction_builder";
 import { createCoinWithAnimation } from "../sign/animation";
+import type Transaction from "arweave/web/lib/transaction";
 import type { TransformFinalizer } from "~api/foreground";
 import type { ModuleFunction } from "~api/module";
 import type { DispatchResult } from "./index";
 import { sendChunk } from "../sign/chunks";
-import { nanoid } from "nanoid";
-import type Transaction from "arweave/web/lib/transaction";
 
 const foreground: ModuleFunction<Record<any, any>> = async (
   transaction: Transaction

@@ -6,7 +6,8 @@ import browser from "webextension-polyfill";
 import Arweave from "arweave";
 import {
   isEncryptionAlgorithm,
-  isLegacyEncryptionOptions
+  isLegacyEncryptionOptions,
+  isLocalWallet
 } from "~utils/assertions";
 
 const background: ModuleFunction<Uint8Array> = async (
@@ -22,12 +23,9 @@ const background: ModuleFunction<Uint8Array> = async (
     throw new Error("No wallets added");
   });
 
-  // check if hardware wallet
-  if (decryptedWallet.type === "hardware") {
-    throw new Error(
-      "Active wallet type: hardware. This does not support encryption currently."
-    );
-  }
+  // ensure that the currently selected
+  // wallet is not a local wallet
+  isLocalWallet(decryptedWallet);
 
   const keyfile = decryptedWallet.keyfile;
 
@@ -102,7 +100,7 @@ const background: ModuleFunction<Uint8Array> = async (
       false,
       ["encrypt"]
     );
-    const encrypted = await window.crypto.subtle.encrypt(options, key, data);
+    const encrypted = await crypto.subtle.encrypt(options, key, data);
 
     // remove wallet from memory
     freeDecryptedWallet(encryptJwk);
