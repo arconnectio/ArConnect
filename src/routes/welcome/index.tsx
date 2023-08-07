@@ -1,3 +1,12 @@
+import { ExtensionStorage, OLD_STORAGE_NAME } from "~utils/storage";
+import { Button, Spacer, Text } from "@arconnect/components";
+import { ArrowRightIcon, KeyIcon } from "@iconicicons/react";
+import Screenshots from "~components/welcome/Screenshots";
+import { AnimatePresence, motion } from "framer-motion";
+import styled, { keyframes } from "styled-components";
+import { useStorage } from "@plasmohq/storage/hook";
+import browser from "webextension-polyfill";
+import { useLocation } from "wouter";
 import {
   type MutableRefObject,
   useEffect,
@@ -5,13 +14,7 @@ import {
   useRef,
   useState
 } from "react";
-import { Button, Spacer, Text } from "@arconnect/components";
-import { ArrowRightIcon, KeyIcon } from "@iconicicons/react";
-import { AnimatePresence, motion } from "framer-motion";
-import styled, { keyframes } from "styled-components";
-import { useLocation } from "wouter";
-import Screenshots from "~components/welcome/Screenshots";
-import browser from "webextension-polyfill";
+import { popoverAnimation } from "~components/popup/WalletSwitcher";
 
 export default function Home() {
   // button refs
@@ -51,6 +54,14 @@ export default function Home() {
   // router
   const [, setLocation] = useLocation();
 
+  // migration available
+  const [oldState] = useStorage({
+    key: OLD_STORAGE_NAME,
+    instance: ExtensionStorage
+  });
+
+  const migrationAvailable = useMemo(() => !!oldState, [oldState]);
+
   return (
     <Wrapper>
       <Panel>
@@ -82,6 +93,18 @@ export default function Home() {
               {browser.i18n.getMessage("have_wallet")}
               <KeyIcon />
             </WelcomeButton>
+            <AnimatePresence>
+              {migrationAvailable && (
+                <MigrationBanner
+                  initial="closed"
+                  animate="open"
+                  exit="closed"
+                  variants={popoverAnimation}
+                >
+                  {browser.i18n.getMessage("migration_available_welcome")}
+                </MigrationBanner>
+              )}
+            </AnimatePresence>
           </ButtonsWrapper>
         </WelcomeContent>
       </Panel>
@@ -177,6 +200,7 @@ const RotatingNameSpan = styled.span`
 `;
 
 const ButtonsWrapper = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -186,6 +210,22 @@ const WelcomeButton = styled(Button)`
   padding-left: 0;
   padding-right: 0;
   width: calc(100% - 0.75rem * 1);
+`;
+
+const MigrationBanner = styled(motion.div)`
+  position: absolute;
+  top: 130%;
+  left: 0;
+  right: 0;
+  background-color: rgba(${(props) => props.theme.theme}, 0.35);
+  backdrop-filter: blur(14px);
+  color: rgb(${(props) => props.theme.theme});
+  z-index: 100;
+  width: calc(100% - 2 * 1.25em);
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding: 1.1rem 1.25rem;
+  border-radius: 25px;
 `;
 
 // in ms

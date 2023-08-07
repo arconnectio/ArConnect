@@ -1,11 +1,11 @@
 import { isValidMnemonic, jwkFromMnemonic } from "~wallets/generator";
+import { ExtensionStorage, OLD_STORAGE_NAME } from "~utils/storage";
 import type { KeystoneAccount } from "~wallets/hardware/keystone";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { useContext, useEffect, useState } from "react";
 import { addWallet, setActiveWallet } from "~wallets";
 import { ArrowRightIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
-import { ExtensionStorage } from "~utils/storage";
 import { useLocation, useRoute } from "wouter";
 import { PasswordContext } from "../setup";
 import {
@@ -22,8 +22,6 @@ import SeedInput from "~components/SeedInput";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-
-const OLD_STORAGE_NAME = "persist:root";
 
 export default function Wallets() {
   // password context

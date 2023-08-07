@@ -21,6 +21,11 @@ export const TempTransactionStorage = new Storage({ area: "session" });
 export const TRANSFER_TX_STORAGE = "last_transfer_tx";
 
 /**
+ * Name of old ArConnect versions' storage.
+ */
+export const OLD_STORAGE_NAME = "persist:root";
+
+/**
  * Raw transfer tx stored in the session storage
  */
 export interface RawStoredTransfer {
