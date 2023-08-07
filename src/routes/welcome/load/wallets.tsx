@@ -196,8 +196,9 @@ export default function Wallets() {
               });
               migrationModal.setOpen(false);
 
+              // TODO:
               // remove old storage
-              await ExtensionStorage.remove(OLD_STORAGE_NAME);
+              // await ExtensionStorage.remove(OLD_STORAGE_NAME);
             } catch {}
           }}
         >
