@@ -1,3 +1,13 @@
+import PasswordStrength from "../../../components/welcome/PasswordStrength";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
+import { checkPasswordValid } from "~wallets/generator";
+import { ArrowRightIcon } from "@iconicicons/react";
+import { useLocation, useRoute } from "wouter";
+import Paragraph from "~components/Paragraph";
+import { useContext, useMemo } from "react";
+import browser from "webextension-polyfill";
+import { PasswordContext } from "../setup";
+import styled from "styled-components";
 import {
   Button,
   Input,
@@ -6,14 +16,6 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
-import { checkPasswordValid } from "~wallets/generator";
-import { ArrowRightIcon } from "@iconicicons/react";
-import { useLocation, useRoute } from "wouter";
-import { PasswordContext } from "../setup";
-import { useContext } from "react";
-import PasswordStrength from "../../../components/welcome/PasswordStrength";
-import Paragraph from "~components/Paragraph";
-import browser from "webextension-polyfill";
 
 export default function Password() {
   // input controls
@@ -57,6 +59,18 @@ export default function Password() {
     setLocation(`/${params.setup}/${Number(params.page) + 1}`);
   }
 
+  // passwords match
+  const matches = useMemo(
+    () => passwordInput.state === validPasswordInput.state,
+    [passwordInput, validPasswordInput]
+  );
+
+  // password valid
+  const validPassword = useMemo(
+    () => checkPasswordValid(passwordInput.state),
+    [passwordInput]
+  );
+
   return (
     <>
       <Text heading>{browser.i18n.getMessage("create_password")}</Text>
@@ -84,7 +98,22 @@ export default function Password() {
           done();
         }}
       />
-      <Spacer y={1.55} />
+      <AnimatePresence>
+        {validPassword && matches && (
+          <motion.div
+            initial="hidden"
+            animate="shown"
+            exit="hidden"
+            variants={opacityAnimation}
+          >
+            <Spacer y={0.65} />
+            <MatchIndicator>
+              {browser.i18n.getMessage("passwords_match")}
+            </MatchIndicator>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <Spacer y={(validPassword && matches && 1.15) || 1.55} />
       <PasswordStrength password={passwordInput.state} />
       <Spacer y={1} />
       <Button fullWidth onClick={done}>
@@ -94,3 +123,21 @@ export default function Password() {
     </>
   );
 }
+
+const MatchIndicator = styled(Text).attrs({
+  noMargin: true
+})`
+  color: rgb(0, 255, 0);
+  font-size: 0.84rem;
+`;
+
+const opacityAnimation: Variants = {
+  hidden: {
+    opacity: 0,
+    height: 0
+  },
+  shown: {
+    opacity: 1,
+    height: "auto"
+  }
+};
