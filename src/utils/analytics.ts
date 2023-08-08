@@ -13,23 +13,48 @@ export enum EventType {
 }
 
 export const trackEvent = async (eventName: EventType, properties: any) => {
-  // TODO: should we track every occurance or should we only check it once in a while based on timestamp? i.e. login is tracked everytime you open the wallet
-  // const storageTime = await TempTransactionStorage.get(eventName);
-  // if (storageTime > someTime) {
-  //   return;
-  // }
+  const ONE_HOUR_IN_MS = 3600000;
 
-  // check permissions
+  // TODO:login is tracked only once and compared to an hour period before logged as another Login event
+  if (eventName === EventType.LOGIN) {
+    const storageTime = await TempTransactionStorage.get(EventType.LOGIN);
+    if (storageTime && Date.now() < Number(storageTime) + ONE_HOUR_IN_MS) {
+      return;
+    }
+  }
+
+  const activeAddress = await ExtensionStorage.get<string>("active_address");
+  if (eventName === EventType.FUNDED) {
+    const hasBeenTracked = await ExtensionStorage.get<boolean>(
+      `wallet_funded_${activeAddress}`
+    );
+    if (hasBeenTracked) {
+      return;
+    }
+  }
+
+  // check permission
   const enabled = await ExtensionStorage.get<boolean>("setting_analytics");
   if (enabled !== undefined && enabled === false) {
     return;
   }
+
   try {
     const anonymousId = (await analytics.user()).anonymousId();
     const time = Date.now();
     await analytics.track(eventName, { ...properties, anonymousId, time });
-    // await TempTransactionStorage.set(eventName, time);
+
+    // POST TRACK EVENTS
+    // only log login once every hour
+    if (eventName === EventType.LOGIN) {
+      await TempTransactionStorage.set(eventName, time);
+    }
+
+    // only log funded once
+    if (eventName === EventType.FUNDED) {
+      await ExtensionStorage.set(`wallet_funded_${activeAddress}`, true);
+    }
   } catch (err) {
-    console.log("err", err);
+    console.error(`Failed to track event ${eventName}:`, err);
   }
 };
