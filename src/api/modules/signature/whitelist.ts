@@ -5,7 +5,10 @@ export const whitelistedSites: RegExp[] = [
   /og_dapp_ardrive\.ar-io\.dev/,
   /app\.permaswap\.network/,
   /app\.everpay\.io/,
-  /ans\.gg/
+  /ans\.gg/,
+  /permacast\.app/,
+  /arcode\.studio/,
+  /pianity\.com/
 ];
 
 export const getWhitelistRegExp = () =>
