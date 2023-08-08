@@ -16,6 +16,7 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
+import PasswordMatch from "~components/welcome/PasswordMatch";
 
 export default function Password() {
   // input controls
@@ -59,16 +60,16 @@ export default function Password() {
     setLocation(`/${params.setup}/${Number(params.page) + 1}`);
   }
 
-  // passwords match
-  const matches = useMemo(
-    () => passwordInput.state === validPasswordInput.state,
-    [passwordInput, validPasswordInput]
-  );
-
   // password valid
   const validPassword = useMemo(
     () => checkPasswordValid(passwordInput.state),
     [passwordInput]
+  );
+
+  // passwords match
+  const matches = useMemo(
+    () => passwordInput.state === validPasswordInput.state && validPassword,
+    [passwordInput, validPasswordInput, validPassword]
   );
 
   return (
@@ -98,22 +99,8 @@ export default function Password() {
           done();
         }}
       />
-      <AnimatePresence>
-        {validPassword && matches && (
-          <motion.div
-            initial="hidden"
-            animate="shown"
-            exit="hidden"
-            variants={opacityAnimation}
-          >
-            <Spacer y={0.65} />
-            <MatchIndicator>
-              {browser.i18n.getMessage("passwords_match")}
-            </MatchIndicator>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <Spacer y={(validPassword && matches && 1.15) || 1.55} />
+      <PasswordMatch matches={matches} />
+      <Spacer y={(matches && 1.15) || 1.55} />
       <PasswordStrength password={passwordInput.state} />
       <Spacer y={1} />
       <Button fullWidth onClick={done}>
@@ -123,21 +110,3 @@ export default function Password() {
     </>
   );
 }
-
-const MatchIndicator = styled(Text).attrs({
-  noMargin: true
-})`
-  color: rgb(0, 255, 0);
-  font-size: 0.84rem;
-`;
-
-const opacityAnimation: Variants = {
-  hidden: {
-    opacity: 0,
-    height: 0
-  },
-  shown: {
-    opacity: 1,
-    height: "auto"
-  }
-};

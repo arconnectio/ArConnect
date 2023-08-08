@@ -1,5 +1,13 @@
-import { useHistory } from "~utils/hash_router";
+import PasswordStrength from "~components/welcome/PasswordStrength";
+import PasswordMatch from "~components/welcome/PasswordMatch";
+import { checkPasswordValid } from "~wallets/generator";
+import { useEffect, useMemo, useState } from "react";
 import { isExpired, unlock } from "~wallets/auth";
+import { useHistory } from "~utils/hash_router";
+import Wrapper from "~components/auth/Wrapper";
+import browser from "webextension-polyfill";
+import { updatePassword } from "~wallets";
+import Head from "~components/popup/Head";
 import {
   Button,
   Input,
@@ -9,12 +17,6 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
-import Wrapper from "~components/auth/Wrapper";
-import browser from "webextension-polyfill";
-import Head from "~components/popup/Head";
-import { useEffect, useState } from "react";
-import PasswordStrength from "~components/welcome/PasswordStrength";
-import { updatePassword } from "~wallets";
 
 export default function Unlock() {
   const [expired, setExpired] = useState(false);
@@ -64,9 +66,11 @@ export default function Unlock() {
         duration: 2300
       });
     }
+
     if (newPasswordInput.state === passwordInput.state) {
       // also need to verify that passwordInput is valid
       const res = await unlock(passwordInput.state);
+
       if (!res) {
         passwordInput.setStatus("error");
         return setToast({
@@ -79,6 +83,15 @@ export default function Unlock() {
       return setToast({
         type: "error",
         content: browser.i18n.getMessage("passwords_match_previous"),
+        duration: 2300
+      });
+    }
+
+    // check password validity
+    if (!checkPasswordValid(newPasswordInput.state)) {
+      return setToast({
+        type: "error",
+        content: browser.i18n.getMessage("password_not_strong"),
         duration: 2300
       });
     }
@@ -96,6 +109,19 @@ export default function Unlock() {
       });
     }
   }
+
+  // password valid
+  const validPassword = useMemo(
+    () => checkPasswordValid(newPasswordInput.state),
+    [newPasswordInput]
+  );
+
+  // passwords match
+  const matches = useMemo(
+    () =>
+      newPasswordInput.state === confirmNewPasswordInput.state && validPassword,
+    [newPasswordInput, confirmNewPasswordInput, validPassword]
+  );
 
   return (
     <Wrapper>
@@ -147,7 +173,8 @@ export default function Unlock() {
                   changeAndUnlock();
                 }}
               />
-              <Spacer y={1.55} />
+              <PasswordMatch matches={matches} />
+              <Spacer y={(matches && 1.15) || 1.55} />
               <PasswordStrength password={newPasswordInput.state} />
             </>
           )}
