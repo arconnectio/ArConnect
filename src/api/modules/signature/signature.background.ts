@@ -24,11 +24,9 @@ const background: ModuleFunction<number[]> = async (
   isArray(data, "Data has to be an array.");
   isArrayOfType(data, isNumber, "Data has to be an array of numbers.");
   isSignatureAlgorithm(algorithm);
-  console.log(getWhitelistRegExp());
+
   // temporary whitelist
   const whitelisted = appData.appURL.match(getWhitelistRegExp());
-
-  console.log(whitelisted);
 
   isNotNull(whitelisted, "The signature() API is deprecated.");
   isNotUndefined(whitelisted, "The signature() API is deprecated.");
