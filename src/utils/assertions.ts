@@ -2,6 +2,7 @@ import type { SignatureOptions } from "arweave/node/lib/crypto/crypto-interface"
 import { type PermissionType, permissionData } from "~applications/permissions";
 import type { SplitTransaction } from "~api/modules/sign/transaction_builder";
 import type { SignMessageOptions } from "~api/modules/sign_message/types";
+import type { SignatureAlgorithm } from "~api/modules/signature/types";
 import type { RawDataItem } from "~api/modules/sign_data_item/types";
 import type { DecryptedWallet, LocalWallet } from "~wallets";
 import type { JWKInterface } from "arweave/web/lib/wallet";
@@ -235,4 +236,10 @@ export function isRawDataItem(input: unknown): asserts input is RawDataItem {
   if (input.target) isAddress(input.target);
   if (input.anchor) isString(input.anchor, "Anchor needs to be a string.");
   if (input.tags) isArrayOfType(input.tags, isTag, "Invalid tags array.");
+}
+
+export function isSignatureAlgorithm(
+  input: unknown
+): asserts input is SignatureAlgorithm {
+  isEncryptionAlgorithm(input);
 }
