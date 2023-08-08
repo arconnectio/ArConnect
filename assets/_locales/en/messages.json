@@ -967,8 +967,16 @@
     "message": "These wallets will be migrated:",
     "description": "Label for migrated wallets"
   },
+  "migrate_wallets_not_migrated": {
+    "message": "These wallets wil NOT be migrated:",
+    "description": "Label for wallets that won't be migrated"
+  },
+  "migrate_anyway": {
+    "message": "Migrate anyway!",
+    "description": "Migrate anyway button text"
+  },
   "migration_available_welcome": {
-    "message": "You can migrate your wallet from the old ArConnect by clicking \"I have a wallet\".",
+    "message": "You can migrate your wallets from the old ArConnect by clicking \"I have a wallet\".",
     "description": "Migration available banner text"
   },
   "click_and_drag": {

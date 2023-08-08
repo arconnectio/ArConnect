@@ -8,7 +8,7 @@ export default async function getPermawebNewsFeed(): Promise<
 > {
   try {
     const parser = new Parser<PermawebNewsFeed>();
-    const feed = await parser.parseURL("https://arweave.news/feed");
+    const feed = await parser.parseURL("https://permaweb.news/feed");
 
     return feed.items;
   } catch {
