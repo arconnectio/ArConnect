@@ -26,10 +26,10 @@ const background: ModuleFunction<number[]> = async (
   isSignatureAlgorithm(algorithm);
 
   // temporary whitelist
-  const whitelisted = appData.appURL.match(getWhitelistRegExp());
+  //const whitelisted = appData.appURL.match(getWhitelistRegExp());
 
-  isNotNull(whitelisted, "The signature() API is deprecated.");
-  isNotUndefined(whitelisted, "The signature() API is deprecated.");
+  //isNotNull(whitelisted, "The signature() API is deprecated.");
+  //isNotUndefined(whitelisted, "The signature() API is deprecated.");
 
   // request user to authorize
   try {
