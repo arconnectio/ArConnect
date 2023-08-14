@@ -1,14 +1,13 @@
-import { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
+import type { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
+import type { TransformFinalizer } from "~api/foreground";
+import { createCoinWithAnimation } from "./animation";
+import type { ModuleFunction } from "~api/module";
+import { sendChunk } from "./chunks";
 import {
   deconstructTransaction,
-  SplitTransaction
+  type SplitTransaction
 } from "./transaction_builder";
-import { ModuleFunction } from "../../module";
-import { sendChunk } from "./chunks";
-import { TransformFinalizer } from "../../foreground";
-import { createCoinWithAnimation } from "./animation";
-import { nanoid } from "nanoid";
-import Transaction from "arweave/web/lib/transaction";
+import type Transaction from "arweave/web/lib/transaction";
 import Arweave from "arweave";
 
 type ReturnParams = [SplitTransaction, SignatureOptions, string];
@@ -18,10 +17,6 @@ const foreground: ModuleFunction<ReturnParams> = async (
   transaction: Transaction,
   options: SignatureOptions
 ) => {
-  // generate a unique ID for this transaction's chunks
-  // since the transaction does not have an ID yet
-  const chunkCollectionID = nanoid();
-
   /**
    * Part one, create chunks from the tags
    * and the data of the transaction
@@ -29,8 +24,9 @@ const foreground: ModuleFunction<ReturnParams> = async (
   const {
     transaction: tx, // transaction without data and tags
     dataChunks,
-    tagChunks
-  } = deconstructTransaction(transaction, chunkCollectionID);
+    tagChunks,
+    chunkCollectionID
+  } = deconstructTransaction(transaction);
 
   /**
    * Part two, send the chunks to the background script

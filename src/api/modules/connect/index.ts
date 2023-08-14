@@ -1,5 +1,5 @@
-import { ModuleProperties } from "../../module";
-import { PermissionType } from "../../../utils/permissions";
+import type { PermissionType } from "~applications/permissions";
+import type { ModuleProperties } from "~api/module";
 
 const permissions: PermissionType[] = [];
 
@@ -9,8 +9,3 @@ const connect: ModuleProperties = {
 };
 
 export default connect;
-
-export interface AppInfo {
-  name?: string;
-  logo?: string;
-}

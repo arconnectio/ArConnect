@@ -1,13 +1,12 @@
-import { getStoreData } from "../../../utils/background";
-import { ModuleFunction } from "../../background";
+import type { ModuleFunction } from "~api/background";
+import { ExtensionStorage } from "~utils/storage";
 
 const background: ModuleFunction<string> = async () => {
-  const stored = await getStoreData();
+  const address = await ExtensionStorage.get("active_address");
 
-  if (!stored) throw new Error("Error accessing storage");
-  if (!stored.profile) throw new Error("No profile selected");
+  if (!address) throw new Error("No active address");
 
-  return stored.profile;
+  return address;
 };
 
 export default background;

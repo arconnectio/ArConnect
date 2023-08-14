@@ -1,23 +1,61 @@
-import { ACCEPTED_DISPATCH_SIZE, DispatchResult } from "./index";
+import { deconstructTransaction } from "../sign/transaction_builder";
 import { createCoinWithAnimation } from "../sign/animation";
-import { TransformFinalizer } from "../../foreground";
-import { ModuleFunction } from "../../module";
-import Transaction from "arweave/web/lib/transaction";
+import type Transaction from "arweave/web/lib/transaction";
+import type { TransformFinalizer } from "~api/foreground";
+import type { ModuleFunction } from "~api/module";
+import type { DispatchResult } from "./index";
+import { sendChunk } from "../sign/chunks";
 
-const foreground: ModuleFunction<Record<any, any>> = (
+const foreground: ModuleFunction<Record<any, any>> = async (
   transaction: Transaction
 ) => {
-  // check tx data size
-  // we don't allow size > ACCEPTED_DISPATCH_SIZE
-  const dataSize = transaction.data.length;
+  // create chunks
+  const {
+    transaction: tx, // transaction without data and tags
+    dataChunks,
+    tagChunks,
+    chunkCollectionID
+  } = deconstructTransaction(transaction);
 
-  if (dataSize > ACCEPTED_DISPATCH_SIZE) {
-    throw new Error(
-      `ArConnect does not currently support dispatching transactions with data greater than ${ACCEPTED_DISPATCH_SIZE} bytes.`
-    );
+  // we call the api and request it to start receiving
+  // the chunks
+  try {
+    await sendChunk({
+      collectionID: chunkCollectionID,
+      type: "start",
+      index: -1
+    });
+  } catch (e) {
+    // for some reason the chunk streaming was not accepted, most
+    // likely because the site does not have the permission
+    throw new Error(`Failed to initiate dispatch chunk stream: \n${e}`);
   }
 
-  return [transaction.toJSON()];
+  // send data chunks
+  for (const chunk of dataChunks) {
+    try {
+      await sendChunk(chunk);
+    } catch (e) {
+      // chunk fail
+      throw new Error(
+        `Error while sending a data (dispatch) chunk of collection "${chunkCollectionID}": \n${e}`
+      );
+    }
+  }
+
+  // send tag chunks
+  for (const chunk of tagChunks) {
+    try {
+      await sendChunk(chunk);
+    } catch (e) {
+      // chunk fail
+      throw new Error(
+        `Error while sending a tag chunk for tx from chunk collection "${chunkCollectionID}": \n${e}`
+      );
+    }
+  }
+
+  return [tx, chunkCollectionID];
 };
 
 export const finalizer: TransformFinalizer<{

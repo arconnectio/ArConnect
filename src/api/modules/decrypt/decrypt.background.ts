@@ -1,24 +1,38 @@
-import { getActiveKeyfile, getArweaveConfig } from "../../../utils/background";
-import { browser } from "webextension-polyfill-ts";
-import { ModuleFunction } from "../../background";
+import { freeDecryptedWallet } from "~wallets/encryption";
+import { defaultGateway } from "~applications/gateway";
+import type { ModuleFunction } from "~api/background";
+import { getActiveKeyfile } from "~wallets";
+import browser from "webextension-polyfill";
 import Arweave from "arweave";
+import {
+  isEncryptionAlgorithm,
+  isLegacyEncryptionOptions,
+  isLocalWallet
+} from "~utils/assertions";
 
 const background: ModuleFunction<string | Uint8Array> = async (
   _,
   data: BufferSource,
-  options: any
+  options: Record<string, unknown>
 ) => {
   // grab the user's keyfile
-  const { keyfile } = await getActiveKeyfile().catch(() => {
+  const decryptedWallet = await getActiveKeyfile().catch(() => {
     // if there are no wallets added, open the welcome page
-    browser.tabs.create({
-      url: browser.runtime.getURL("/welcome.html")
-    });
+    browser.tabs.create({ url: browser.runtime.getURL("tabs/welcome.html") });
 
     throw new Error("No wallets added");
   });
 
+  // ensure that the currently selected
+  // wallet is not a local wallet
+  isLocalWallet(decryptedWallet);
+
+  const keyfile = decryptedWallet.keyfile;
+
   if (options.algorithm) {
+    // validate
+    isLegacyEncryptionOptions(options);
+
     // old ArConnect algorithm
     // get decryption key
     const decryptJwk = {
@@ -48,7 +62,7 @@ const background: ModuleFunction<string | Uint8Array> = async (
     );
 
     // create arweave client
-    const arweave = new Arweave(await getArweaveConfig());
+    const arweave = new Arweave(defaultGateway);
 
     // decrypt data
     const symmetricKey = await crypto.subtle.decrypt(
@@ -69,8 +83,15 @@ const background: ModuleFunction<string | Uint8Array> = async (
       return arweave.utils.bufferToString(res).split(options.salt)[0];
     }
 
+    // remove wallet from memory
+    freeDecryptedWallet(decryptJwk);
+    freeDecryptedWallet(keyfile);
+
     return arweave.utils.bufferToString(res);
   } else if (options.name) {
+    // validate
+    isEncryptionAlgorithm(options);
+
     // standard RSA decryption, from arweave.app
     const decryptJwk = {
       ...keyfile,
@@ -88,10 +109,17 @@ const background: ModuleFunction<string | Uint8Array> = async (
       false,
       ["decrypt"]
     );
-    const decrypted = await window.crypto.subtle.decrypt(options, key, data);
+    const decrypted = await crypto.subtle.decrypt(options, key, data);
+
+    // remove wallet from memory
+    freeDecryptedWallet(decryptJwk);
+    freeDecryptedWallet(keyfile);
 
     return new Uint8Array(decrypted);
   } else {
+    // remove wallet from memory
+    freeDecryptedWallet(keyfile);
+
     throw new Error("Invalid options passed", options);
   }
 };

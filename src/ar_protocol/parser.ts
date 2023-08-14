@@ -1,8 +1,8 @@
-import { IGatewayConfig } from "../stores/reducers/arweave";
-import { concatGatewayURL } from "../utils/gateways";
+import { concatGatewayURL, type Gateway } from "~applications/gateway";
+import { isAddressFormat } from "~utils/format";
 
-export function getRedirectURL(url: URL, gateway: IGatewayConfig) {
-  let redirectURL: string | undefined = undefined;
+export function getRedirectURL(url: URL, gateway: Gateway) {
+  let redirectURL: string;
 
   // "ar://" url
   const arURL = url.searchParams.get("q");
@@ -21,7 +21,7 @@ export function getRedirectURL(url: URL, gateway: IGatewayConfig) {
   redirectURL = concatGatewayURL(gateway) + "/" + value;
 
   // if it is not an Arweave ID, redirect to permapages
-  if (!/[a-z0-9_-]{43}/i.test(value)) {
+  if (!isAddressFormat(value)) {
     redirectURL = `https://${value}.arweave.dev`;
   }
 

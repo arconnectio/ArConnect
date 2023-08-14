@@ -1,61 +1,38 @@
-import { WebRequest, browser } from "webextension-polyfill-ts";
-import { IGatewayConfig } from "../stores/reducers/arweave";
-import { getRedirectURL } from "./parser";
+import addChromiumHandler, {
+  disableHandler as disableChromiumHandler
+} from "./chromium";
+import addFirefoxHandler, {
+  disableHandler as disableFirefoxHandler
+} from "./firefox";
 
 /**
- * Add handler for the "ar://" protocol for
- * mv2 based browsers.
+ * Handle custom ar:// protocol, using the
+ * browser.webRequest.onBeforeRequest API
+ * or for MV3 the declarativeNetRequest and
+ * service worker fetch event APIs.
+ *
+ * Protocol handler created based on the
+ * issue in ipfs/ipfs-companion:
+ * https://github.com/ipfs/ipfs-companion/issues/164#issuecomment-328374052
  */
-export default async function addHandler() {
-  browser.webRequest.onBeforeRequest.addListener(
-    middleware,
-    { urls: ["<all_urls>"], types: ["main_frame", "sub_frame"] },
-    ["blocking"]
-  );
-}
-
-/**
- * Disable handler for "ar://" protocol
- */
-export async function disableHandler() {
-  if (!browser.webRequest.onBeforeRequest.hasListener(middleware)) {
-    return;
-  }
-
-  browser.webRequest.onBeforeRequest.removeListener(middleware);
-}
-
-/**
- * Add middleware that redirects to
- * the appropriate arweave tx, permapage
- * URL or ANS name
- */
-async function middleware(
-  details: WebRequest.OnBeforeRequestDetailsType
-): Promise<WebRequest.BlockingResponse> {
-  if (!mayContainArProtocol(details)) return {};
-
-  const url = new URL(details.url);
-  // TODO: get active gateway
-  const gateway: IGatewayConfig = {
-    host: "arweave.net",
-    port: 443,
-    protocol: "https"
-  };
-
-  // parse redirect url
-  const redirectUrl = getRedirectURL(url, gateway);
-
-  if (!redirectUrl) return {};
-
-  // @ts-expect-error
+export default async function registerProtocolHandler() {
+  // register for chromium-based browsers
   if (chrome) {
-    browser.tabs.update(details.tabId, { url: redirectUrl });
-    return {};
+    return await addChromiumHandler();
   }
 
-  return { redirectUrl };
+  // register for MV2-based browsers
+  await addFirefoxHandler();
 }
 
-const mayContainArProtocol = (request: WebRequest.OnBeforeRequestDetailsType) =>
-  request.url.includes(encodeURIComponent("ar://"));
+/**
+ * Disable ar:// protocol handling
+ */
+export async function unregisterProtocolHandler() {
+  // unregister for chromium-based browsers
+  if (chrome) {
+    return await disableChromiumHandler();
+  }
+
+  await disableFirefoxHandler();
+}

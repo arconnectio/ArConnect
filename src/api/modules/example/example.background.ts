@@ -1,4 +1,4 @@
-import { ModuleFunction } from "../../background";
+import type { ModuleFunction } from "~api/background";
 
 /**
  * Background functionality of the module

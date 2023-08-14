@@ -1,7 +1,8 @@
-import { Chunk, CHUNK_SIZE } from "./chunks";
-import { Tag } from "arweave/web/lib/transaction";
+import type Transaction from "arweave/web/lib/transaction";
+import type { Tag } from "arweave/web/lib/transaction";
+import { type Chunk, CHUNK_SIZE } from "./chunks";
 import { signedTxTags } from "./tags";
-import Transaction from "arweave/web/lib/transaction";
+import { nanoid } from "nanoid";
 
 /**
  * Transaction object **without** it's data or tags
@@ -13,15 +14,15 @@ export type SplitTransaction = Partial<Transaction>;
  * chunks and remove them from the transaction object
  *
  * @param transaction The transaction to split
- * @param collectionID ID of the chunk collection to split to
  *
  * @returns The transaction (without data and tags) + tag chunks
  * and data chunks
  */
-export function deconstructTransaction(
-  transaction: Transaction,
-  collectionID: string
-) {
+export function deconstructTransaction(transaction: Transaction) {
+  // generate a unique ID for this transaction's chunks
+  // since the transaction does not have an ID yet
+  const collectionID = nanoid();
+
   // create tag chunks
   const tagChunks: Chunk[] = transaction.tags.map((value, index) => ({
     collectionID,
@@ -64,7 +65,8 @@ export function deconstructTransaction(
   return {
     transaction: tx,
     tagChunks,
-    dataChunks
+    dataChunks,
+    chunkCollectionID: collectionID
   };
 }
 
@@ -133,7 +135,8 @@ export function constructTransaction(
  * @returns Transaction without data and non-arconnect tags
  */
 export function deconstructSignedTransaction(transaction: Transaction) {
-  // @ts-expect-error | filter tags
+  // filter tags (don't send back each tag, just the ones added by arconnect)
+  // @ts-expect-error
   const tags = transaction.get("tags").filter((tag: Tag) => {
     const tagName = tag.get("name", { string: true, decode: true });
 

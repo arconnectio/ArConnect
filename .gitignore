@@ -1,18 +1,42 @@
+# dependencies
 /node_modules
-/build
-/public/build
-/.vscode
-.eslintcache
-*.env
-*.local
-*.log
-*.DS_Store
+/.pnp
+.pnp.js
 
-# Build artifacts
-arconnect.zip
-public.zip
-*.crx
+# testing
+/coverage
+
+#cache
+.turbo
+.next
+.vercel
+
+# misc
+.DS_Store
 *.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+
+# local env files
+.env*
+
+out/
+build/
+dist/
+
+# plasmo - https://www.plasmo.com
 .plasmo
 
+# bpp - http://bpp.browser.market/
 keys.json
+
+# typescript
+.tsbuildinfo
+
+# temporary remove development icon
+assets/icon.development.png

@@ -1,6 +1,14 @@
-import { version } from "../../../../public/manifest.json";
+import { version } from "../../../../package.json";
+
+export interface DecodedTag {
+  name: string;
+  value: string;
+}
 
 export const signedTxTags = [
   { name: "Signing-Client", value: "ArConnect" },
-  { name: "Signing-Client-Version", value: version }
+  {
+    name: "Signing-Client-Version",
+    value: version
+  }
 ];

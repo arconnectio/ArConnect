@@ -1,4 +1,4 @@
-import { ModuleFunction } from "../../module";
+import type { ModuleFunction } from "~api/module";
 
 /**
  * Foreground functionality of the module

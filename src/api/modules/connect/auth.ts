@@ -1,10 +1,28 @@
-import { MessageFormat, validateMessage } from "../../../utils/messenger";
-import { browser } from "webextension-polyfill-ts";
+import { onMessage } from "@arconnect/webext-bridge";
+import { objectToUrlParams } from "./url";
+import type { AuthResult } from "shim";
 import { nanoid } from "nanoid";
+import browser from "webextension-polyfill";
 
-interface AuthData {
-  type: string;
+export type AuthType =
+  | "connect"
+  | "allowance"
+  | "unlock"
+  | "token"
+  | "sign"
+  | "signature";
+
+export interface AuthData {
+  // type of auth to request from the user
+  // connect - allow permissions for the app, select address, enter password
+  // allowance - update allowance for the app (update / reset), enter password
+  // unlock - enter password to decrypt wallets
+  type: AuthType;
   [key: string]: any;
+}
+
+export interface AuthDataWithID extends AuthData {
+  authID: string;
 }
 
 /**
@@ -16,10 +34,10 @@ interface AuthData {
  */
 export default async function authenticate(data: AuthData) {
   // create the popup
-  const authID = await createAuthPopup(data);
+  const { authID, tabId } = await createAuthPopup(data);
 
   // wait for the results from the popup
-  return await result(data.type, authID);
+  return await result(authID, tabId);
 }
 
 /**
@@ -33,43 +51,44 @@ async function createAuthPopup(data: AuthData) {
   // generate an unique id for the authentication
   // to be checked later
   const authID = nanoid();
+  const authData: AuthDataWithID = { ...data, authID };
 
   // create auth window
-  await browser.windows.create({
-    url: `${browser.runtime.getURL("auth.html")}?auth=${encodeURIComponent(
-      JSON.stringify({
-        ...data,
-        authID
-      })
-    )}`,
+  const window = await browser.windows.create({
+    url: `${browser.runtime.getURL("tabs/auth.html")}?${objectToUrlParams(
+      authData
+    )}#/${data.type}`,
     focused: true,
     type: "popup",
     width: 385,
-    height: 635
+    height: 720
   });
 
-  return authID;
+  return { authID, tabId: window.tabs?.[0]?.id };
 }
 
 /**
  * Await for a browser message from the popup
  */
-const result = (type: string, authID: string) =>
-  new Promise<MessageFormat>((resolve, reject) => {
-    const listener = (message: MessageFormat) => {
-      if (!validateMessage(message, "popup", `${type}_result`)) return;
-      if (message.callID !== authID) return;
-
-      // remove listener
-      browser.runtime.onMessage.removeListener(listener);
-
-      // if the result is an error, throw it
-      if (message.error) {
-        return reject(message.data);
+const result = (authID: string, tabId: number) =>
+  new Promise<AuthResult>((resolve, reject) =>
+    onMessage("auth_result", ({ sender, data }) => {
+      // validate sender by it's tabId
+      if (sender.tabId !== tabId) {
+        return;
       }
 
-      return resolve(message);
-    };
+      // ensure the auth ID and the auth type
+      // matches the requested ones
+      if (data.authID !== authID) {
+        return;
+      }
 
-    browser.runtime.onMessage.addListener(listener);
-  });
+      // check the result
+      if (data.error) {
+        reject(data.data);
+      } else {
+        resolve(data);
+      }
+    })
+  );

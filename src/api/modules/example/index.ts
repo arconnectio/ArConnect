@@ -1,5 +1,5 @@
-import { ModuleProperties } from "../../module";
-import { PermissionType } from "../../../utils/permissions";
+import type { PermissionType } from "~applications/permissions";
+import type { ModuleProperties } from "~api/module";
 
 // permissions required by this module
 const permissions: PermissionType[] = ["ACCESS_ADDRESS"];
