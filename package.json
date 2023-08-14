@@ -1,101 +1,120 @@
 {
+  "name": "arconnect",
+  "displayName": "ArConnect",
+  "version": "1.0.0",
+  "description": "__MSG_extensionDescription__",
+  "author": "th8ta",
+  "packageManager": "yarn@1.22.18",
+  "homepage": "https://arconnect.io",
   "scripts": {
-    "start": "cross-env NODE_ENV=development node esbuild.js",
-    "build": "cross-env NODE_ENV=production node esbuild.js",
-    "build:chrome": "cross-env NODE_ENV=production node esbuild.js",
-    "build:firefox": "cross-env NODE_ENV=production BUILD_TARGET=FIREFOX node esbuild.js",
-    "test": "jest",
-    "zip": "rm -f arconnect.zip && cd public && zip -r ../arconnect.zip *",
-    "type-check": "tsc --noEmit",
+    "dev:chrome": "plasmo dev",
+    "build:chrome": "plasmo build --no-hoist",
+    "dev:firefox": "plasmo dev --target=firefox-mv2",
+    "build:firefox": "plasmo build --target=firefox-mv2 --no-hoist",
     "fmt": "prettier --write .",
-    "fmt:check": "prettier --check ."
+    "fmt:check": "prettier --check .",
+    "prepare": "husky install"
   },
-  "jest": {
-    "preset": "ts-jest"
+  "manifest": {
+    "host_permissions": [
+      "*://*/*"
+    ],
+    "default_locale": "en",
+    "permissions": [
+      "alarms",
+      "contextMenus",
+      "tabs",
+      "declarativeNetRequest",
+      "webNavigation",
+      "notifications",
+      "<all_urls>"
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": [
+          "/redirect/**"
+        ],
+        "matches": [
+          "https://*/*"
+        ]
+      },
+      {
+        "resources": [
+          "assets/animation/*.png"
+        ],
+        "matches": [
+          "*://*/*"
+        ]
+      }
+    ]
   },
   "dependencies": {
-    "@geist-ui/react": "^2.2.0",
-    "@primer/octicons-react": "^16.0.0",
-    "@verto/js": "^0.0.0-alpha.19",
-    "@verto/lib": "^0.10.4",
+    "@arconnect/components": "^0.2.3",
+    "@arconnect/keystone-sdk": "^0.0.5",
+    "@arconnect/webext-bridge": "^5.0.6",
+    "@iconicicons/react": "^1.5.0",
+    "@keystonehq/arweave-keyring": "^0.1.1-alpha.0",
+    "@keystonehq/bc-ur-registry-arweave": "^0.1.1-alpha.0",
+    "@ngraveio/bc-ur": "^1.1.6",
+    "@plasmohq/storage": "^1.7.2",
     "ar-gql": "^0.0.6",
-    "arbundles": "^0.6.14",
-    "arverify": "^0.0.11",
-    "arweave": "^1.10.18",
-    "axios": "^0.23.0",
-    "bcryptjs": "^2.4.3",
+    "arbundles": "^0.9.5",
+    "arweave": "^1.13.0",
+    "axios": "^1.1.3",
     "bip39-web-crypto": "^4.0.1",
-    "buffer": "^6.0.3",
-    "chart.js": "^2.9.4",
-    "copy-to-clipboard": "^3.3.1",
-    "crypto-es": "^1.2.7",
-    "dayjs": "^1.10.4",
-    "exchange-rates-api": "^1.0.2",
-    "extensionizer": "^1.0.1",
-    "framer-motion": "^3.10.6",
+    "check-password-strength": "^2.0.7",
+    "copy-to-clipboard": "^3.3.2",
+    "dayjs": "^1.11.6",
+    "framer-motion": "^7.5.3",
     "human-crypto-keys": "^0.1.4",
-    "mime-types": "^2.1.30",
+    "mitt": "^3.0.0",
     "nanoid": "^4.0.0",
-    "pretty-bytes": "^5.6.0",
-    "react": "^17.0.1",
-    "react-chartjs-2": "^2.11.1",
-    "react-chrome-extension-router": "^1.2.0",
-    "react-dom": "^17.0.1",
-    "react-qr-svg": "^2.3.0",
-    "react-redux": "^7.2.2",
-    "react-scripts": "^4.0.2",
+    "path-to-regexp": "^6.2.1",
+    "pretty-bytes": "^6.0.0",
+    "qrcode.react": "^3.1.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-fast-marquee": "^1.3.5",
+    "react-qr-reader": "^2.2.1",
     "redstone-api": "^0.4.11",
-    "redux": "^4.0.5",
-    "redux-persist": "^6.0.0",
-    "redux-persist-webextension-storage": "^1.0.2",
-    "smartweave": "^0.4.45",
-    "use-color-scheme": "^1.1.1",
-    "uuid": "^8.3.2",
-    "verto-cache-interface": "^1.2.6",
-    "webextension-polyfill-ts": "^0.26.0"
+    "rss-parser": "^3.12.0",
+    "styled-components": "^5.3.6",
+    "typed-assert": "^1.0.9",
+    "uuid": "^9.0.0",
+    "warp-contracts": "^1.2.13",
+    "webextension-polyfill": "^0.10.0",
+    "wouter": "^2.8.0-alpha.2"
   },
   "devDependencies": {
-    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
-    "@esbuild-plugins/node-modules-polyfill": "^0.1.2",
-    "@types/bcryptjs": "^2.4.2",
-    "@types/exchange-rates-api": "^1.0.0",
+    "@types/chrome": "^0.0.196",
     "@types/human-crypto-keys": "^0.1.0",
-    "@types/jest": "^27.0.2",
-    "@types/jwk-to-pem": "^2.0.0",
-    "@types/mime-types": "^2.1.0",
-    "@types/node": "^12.0.0",
-    "@types/react": "^17.0.30",
-    "@types/react-dom": "^17.0.9",
-    "@types/react-redux": "^7.1.16",
-    "@types/redux": "^3.6.0",
-    "@types/redux-persist-webextension-storage": "^1.0.0",
-    "@types/use-color-scheme": "^1.1.0",
-    "@types/uuid": "^8.3.0",
-    "autoprefixer": "^10.2.4",
-    "cross-env": "^7.0.3",
-    "esbuild": "^0.13.8",
-    "esbuild-plugin-postcss2": "^0.1.0",
-    "jest": "^27.0.6",
-    "postcss": "^8.3.6",
+    "@types/react": "^18.0.18",
+    "@types/react-dom": "^18.0.6",
+    "@types/react-qr-reader": "^2.1.4",
+    "@types/serviceworker": "^0.0.55",
+    "@types/styled-components": "^5.1.26",
+    "@types/uuid": "^8.3.4",
+    "@types/webextension-polyfill": "^0.9.0",
+    "browserify-zlib": "^0.2.0",
+    "constants-browserify": "^1.0.0",
+    "crypto-browserify": "^3.12.0",
+    "https-browserify": "^1.0.0",
+    "husky": "^8.0.0",
+    "path-browserify": "^1.0.1",
+    "plasmo": "^0.82.0",
     "prettier": "^2.2.1",
-    "sass": "^1.32.5",
-    "ts-jest": "^27.0.3",
-    "typescript": "^4.3.5",
-    "yorkie": "^2.0.0"
+    "querystring-es3": "^0.2.1",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "timers-browserify": "^2.0.12",
+    "typescript": "^4.8.2",
+    "url": "^0.11.0",
+    "vm-browserify": "^1.1.2"
   },
-  "gitHooks": {
-    "pre-commit": "prettier --write . && git add -A"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "resolutions": {
+    "arbundles/arweave": "^1.13.0",
+    "human-crypto-keys/node-forge": "^1.3.1",
+    "human-crypto-keys/crypto-key-composer/node-forge": "^1.3.1",
+    "@parcel/runtime-js": "2.8.3"
   }
 }

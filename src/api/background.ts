@@ -1,5 +1,4 @@
-import { Runtime } from "webextension-polyfill-ts";
-import { Module } from "./module";
+import type { Module } from "./module";
 
 // import modules
 import permissionsModule from "./modules/permissions";
@@ -28,6 +27,18 @@ import decryptModule from "./modules/decrypt";
 import decrypt from "./modules/decrypt/decrypt.background";
 import signatureModule from "./modules/signature";
 import signature from "./modules/signature/signature.background";
+import addTokenModule from "./modules/add_token";
+import addToken from "./modules/add_token/add_token.background";
+import isTokenAddedModule from "./modules/is_token_added";
+import isTokenAdded from "./modules/is_token_added/is_token_added.background";
+import signMessageModule from "./modules/sign_message";
+import signMessage from "./modules/sign_message/sign_message.background";
+import privateHashModule from "./modules/private_hash";
+import privateHash from "./modules/private_hash/private_hash.background";
+import verifyMessageModule from "./modules/verify_message";
+import verifyMessage from "./modules/verify_message/verify_message.background";
+import signDataItemModule from "./modules/sign_data_item";
+import signDataItem from "./modules/sign_data_item/sign_data_item.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
@@ -39,11 +50,17 @@ const modules: BackgroundModule<any>[] = [
   { ...arweaveConfigModule, function: arweaveConfig },
   { ...disconnectModule, function: disconnect },
   { ...connectModule, function: connect },
+  { ...addTokenModule, function: addToken },
+  { ...isTokenAddedModule, function: isTokenAdded },
   { ...signModule, function: sign },
   { ...dispatchModule, function: dispatch },
   { ...encryptModule, function: encrypt },
   { ...decryptModule, function: decrypt },
-  { ...signatureModule, function: signature }
+  { ...signatureModule, function: signature },
+  { ...signMessageModule, function: signMessage },
+  { ...privateHashModule, function: privateHash },
+  { ...verifyMessageModule, function: verifyMessage },
+  { ...signDataItemModule, function: signDataItem }
 ];
 
 export default modules;
@@ -57,6 +74,11 @@ interface BackgroundModule<T> extends Module<T> {
  * Extended module function
  */
 export type ModuleFunction<ResultType> = (
-  port: Runtime.Port,
+  appData: ModuleAppData,
   ...params: any[]
 ) => Promise<ResultType> | ResultType;
+
+export interface ModuleAppData {
+  appURL: string;
+  favicon?: string;
+}

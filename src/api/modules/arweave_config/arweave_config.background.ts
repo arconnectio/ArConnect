@@ -1,11 +1,12 @@
-import { IGatewayConfig } from "../../../stores/reducers/arweave";
-import { getArweaveConfig } from "../../../utils/background";
-import { ModuleFunction } from "../../background";
+import type { ModuleFunction } from "~api/background";
+import type { Gateway } from "~applications/gateway";
+import Application from "~applications/application";
 
-const background: ModuleFunction<IGatewayConfig> = async () => {
-  const config = await getArweaveConfig();
+const background: ModuleFunction<Gateway> = async (appData) => {
+  const app = new Application(appData.appURL);
+  const gateway = await app.getGatewayConfig();
 
-  return config;
+  return gateway;
 };
 
 export default background;

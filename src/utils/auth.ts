@@ -1,36 +1,79 @@
-import { browser } from "webextension-polyfill-ts";
-import bcrypt from "bcryptjs";
+import type { AuthDataWithID, AuthType } from "~api/modules/connect/auth";
+import { objectFromUrlParams } from "~api/modules/connect/url";
+import { sendMessage } from "@arconnect/webext-bridge";
+import { useEffect, useState } from "react";
+import type { AuthResult } from "shim";
 
 /**
- * Check if the password is valid
- *
- * @param password Password to check for
- *
- * @returns if the password is valid
+ * Hook to parse auth params from the url
  */
-export async function checkPassword(password: string) {
-  const hash = (await browser.storage.local.get("hash"))?.hash;
-  if (!hash) throw new Error();
+export function useAuthParams<T = {}>() {
+  const [params, setParams] = useState<AuthDataWithID & T>();
 
-  return await bcrypt.compare(password, hash);
+  // fetch params
+  useEffect(() => {
+    const urlParams = window.location.href.split("?");
+    const params = objectFromUrlParams<AuthDataWithID & T>(
+      urlParams[urlParams.length - 1].replace(window.location.hash, "")
+    );
+
+    setParams(params);
+  }, []);
+
+  return params;
 }
 
 /**
- * Update / set password
+ * Send the result as a response to the auth
  *
- * @param password Password to set
+ * @param type Type of the auth
+ * @param authID ID of the auth
+ * @param errorMessage Optional error message. If defined, the auth will fail with this message
+ * @param data Auth data
  */
-export async function setPassword(password: string) {
-  await browser.storage.local.set({
-    hash: await bcrypt.hash(password, 10)
-  });
+export async function replyToAuthRequest(
+  type: AuthType,
+  authID: string,
+  errorMessage?: string,
+  data?: any
+) {
+  const response: AuthResult = {
+    type,
+    authID,
+    error: !!errorMessage,
+    data: data || errorMessage
+  };
+
+  // send the response message
+  await sendMessage("auth_result", response, "background");
 }
 
 /**
- * Sign out from ArConnect
- * Deletes everything from storage
+ * Get utility functions for auth routes
+ *
+ * @param type Type of the auth
  */
-export async function logOut() {
-  await browser.storage.local.clear();
-  browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
+export function useAuthUtils(type: AuthType, authID: string) {
+  // cancel auth function
+  async function cancel() {
+    // send response
+    await replyToAuthRequest(type, authID, "User cancelled the auth");
+
+    // close the window
+    closeWindow();
+  }
+
+  // send cancel event if the popup is closed by the user
+  window.onbeforeunload = cancel;
+
+  // remove cancel event and close the window
+  function closeWindow() {
+    window.onbeforeunload = null;
+    window.close();
+  }
+
+  return {
+    cancel,
+    closeWindow
+  };
 }

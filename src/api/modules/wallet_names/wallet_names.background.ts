@@ -1,22 +1,23 @@
-import { getStoreData } from "../../../utils/background";
-import { ModuleFunction } from "../../background";
+import type { ModuleFunction } from "~api/background";
+import { getWallets } from "~wallets";
 
 type WalletNamesResult = {
   [address: string]: string;
 };
 
 const background: ModuleFunction<WalletNamesResult> = async () => {
-  const stored = await getStoreData();
+  const wallets = await getWallets();
 
-  if (!stored) throw new Error("Error accessing storage");
-  if (!stored.wallets) throw new Error("No wallets added");
+  if (wallets.length === 0) {
+    throw new Error("No wallets added");
+  }
 
   // construct wallet names object
-  const wallets: WalletNamesResult = {};
+  const walletNames: WalletNamesResult = {};
 
-  stored.wallets.forEach(({ address, name }) => (wallets[address] = name));
+  wallets.forEach(({ address, nickname }) => (walletNames[address] = nickname));
 
-  return wallets;
+  return walletNames;
 };
 
 export default background;

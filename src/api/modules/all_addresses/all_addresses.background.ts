@@ -1,13 +1,15 @@
-import { getStoreData } from "../../../utils/background";
-import { ModuleFunction } from "../../background";
+import type { ModuleFunction } from "~api/background";
+import { getWallets } from "~wallets";
 
 const background: ModuleFunction<string[]> = async () => {
-  const stored = await getStoreData();
+  // retrive wallets
+  const wallets = await getWallets();
 
-  if (!stored) throw new Error("Error accessing storage");
-  if (!stored.wallets) throw new Error("No wallets added");
+  if (wallets.length === 0) {
+    throw new Error("No wallets stored");
+  }
 
-  return stored.wallets.map((wallet) => wallet.address);
+  return wallets.map((wallet) => wallet.address);
 };
 
 export default background;

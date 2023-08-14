@@ -1,4 +1,4 @@
-import { ModuleFunction } from "../../module";
+import type { ModuleFunction } from "~api/module";
 
 const foreground: ModuleFunction<void> = (_, options) => {
   if (options.algorithm) {

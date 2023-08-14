@@ -1,4 +1,4 @@
-import { Module, ModuleFunction } from "./module";
+import type { Module, ModuleFunction } from "./module";
 
 // import modules
 import permissionsModule from "./modules/permissions";
@@ -14,11 +14,15 @@ import walletNames from "./modules/wallet_names/wallet_names.foreground";
 import arweaveConfigModule from "./modules/arweave_config";
 import arweaveConfig from "./modules/arweave_config/arweave_config.foreground";
 import disconnectModule from "./modules/disconnect";
-import disconnect from "./modules/disconnect/disconnect.foreground";
+import disconnect, {
+  finalizer as disconnectFinalizer
+} from "./modules/disconnect/disconnect.foreground";
+import addTokenModule from "./modules/add_token";
+import addToken from "./modules/add_token/add_token.foreground";
+import isTokenAddedModule from "./modules/is_token_added";
+import isTokenAdded from "./modules/is_token_added/is_token_added.foreground";
 import connectModule from "./modules/connect";
-import connect, {
-  finalizer as connectFinalizer
-} from "./modules/connect/connect.foreground";
+import connect from "./modules/connect/connect.foreground";
 import signModule from "./modules/sign";
 import sign, {
   finalizer as signFinalizer
@@ -37,6 +41,20 @@ import signatureModule from "./modules/signature";
 import signature, {
   finalizer as signatureFinalizer
 } from "./modules/signature/signature.foreground";
+import signMessageModule from "./modules/sign_message";
+import signMessage, {
+  finalizer as signMessageFinalizer
+} from "./modules/sign_message/sign_message.foreground";
+import privateHashModule from "./modules/private_hash";
+import privateHash, {
+  finalizer as privateHashFinalizer
+} from "./modules/private_hash/private_hash.foreground";
+import verifyMessageModule from "./modules/verify_message";
+import verifyMessage from "./modules/verify_message/verify_message.foreground";
+import signDataItemModule from "./modules/sign_data_item";
+import signDataItem, {
+  finalizer as signDataItemFinalizer
+} from "./modules/sign_data_item/sign_data_item.foreground";
 
 /** Foreground modules */
 const modules: ForegroundModule[] = [
@@ -46,13 +64,31 @@ const modules: ForegroundModule[] = [
   { ...publicKeyModule, function: publicKey },
   { ...walletNamesModule, function: walletNames },
   { ...arweaveConfigModule, function: arweaveConfig },
-  { ...disconnectModule, function: disconnect },
-  { ...connectModule, function: connect, finalizer: connectFinalizer },
+  { ...disconnectModule, function: disconnect, finalizer: disconnectFinalizer },
+  { ...connectModule, function: connect },
   { ...signModule, function: sign, finalizer: signFinalizer },
   { ...dispatchModule, function: dispatch, finalizer: dispatchFinalizer },
   { ...encryptModule, function: encrypt, finalizer: encryptFinalizer },
   { ...decryptModule, function: decrypt },
-  { ...signatureModule, function: signature, finalizer: signatureFinalizer }
+  { ...signatureModule, function: signature, finalizer: signatureFinalizer },
+  { ...addTokenModule, function: addToken },
+  { ...isTokenAddedModule, function: isTokenAdded },
+  {
+    ...signMessageModule,
+    function: signMessage,
+    finalizer: signMessageFinalizer
+  },
+  {
+    ...privateHashModule,
+    function: privateHash,
+    finalizer: privateHashFinalizer
+  },
+  { ...verifyMessageModule, function: verifyMessage },
+  {
+    ...signDataItemModule,
+    function: signDataItem,
+    finalizer: signDataItemFinalizer
+  }
 ];
 
 export default modules;

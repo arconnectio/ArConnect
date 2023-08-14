@@ -1,50 +1,59 @@
-import { createContextMenus } from "../../../scripts/background/context_menus";
-import { IGatewayConfig } from "../../../stores/reducers/arweave";
-import { updateIcon } from "../../../scripts/background/icon";
-import { PermissionType } from "../../../utils/permissions";
-import { getActiveTab } from "../../../utils/background";
-import { ModuleFunction } from "../../background";
-import { getRealURL } from "../../../utils/url";
-import { AppInfo } from "./index";
+import { isAppInfo, isGateway, isPermissionsArray } from "~utils/assertions";
+import { createContextMenus } from "~utils/context_menus";
+import type { ModuleFunction } from "~api/background";
+import { updateIcon } from "~utils/icon";
+import { getWallets } from "~wallets";
 import validatePermissions from "./permissions";
+import browser from "webextension-polyfill";
 import authenticate from "./auth";
 
 const background: ModuleFunction<void> = async (
-  _,
-  permissions: PermissionType[],
-  appInfo: AppInfo = {},
-  gateway?: IGatewayConfig
+  appData,
+  permissions: unknown,
+  appInfo: unknown = {},
+  gateway?: unknown
 ) => {
-  // grab tab url
-  const activeTab = await getActiveTab();
-  const tabURL = getRealURL(activeTab.url as string);
+  // validate input
+  isPermissionsArray(permissions);
+  isAppInfo(appInfo);
+
+  if (gateway) isGateway(gateway);
+
+  // check if there are any wallets added
+  const wallets = await getWallets();
+
+  if (wallets.length === 0) {
+    // open setup
+    await browser.tabs.create({
+      url: browser.runtime.getURL("tabs/welcome.html")
+    });
+    throw new Error("No wallets added");
+  }
 
   // validate requested permissions
-  const hasAllPermissions = await validatePermissions(permissions, tabURL);
-
-  if (hasAllPermissions) return;
+  await validatePermissions(permissions, appData.appURL);
 
   // add app logo if there isn't one
   if (!appInfo.logo) {
-    appInfo.logo = activeTab.favIconUrl;
+    appInfo.logo = appData.favicon;
   }
 
   try {
     // authenticate the user with the requested permissions
     await authenticate({
       type: "connect",
-      url: tabURL,
+      url: appData.appURL,
       permissions,
       appInfo,
       gateway
     });
 
     // add features available after connection
-    updateIcon(true);
+    await updateIcon(true);
     createContextMenus(true);
   } catch (e: any) {
-    updateIcon(false);
-    updateIcon(false);
+    await updateIcon(false);
+    createContextMenus(false);
 
     throw new Error(e);
   }

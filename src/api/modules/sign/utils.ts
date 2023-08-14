@@ -1,7 +1,9 @@
-import { getArweaveConfig, getStoreData } from "../../../utils/background";
-import Transaction from "arweave/web/lib/transaction";
-import { browser } from "webextension-polyfill-ts";
+import { getSetting } from "~settings";
 import { nanoid } from "nanoid";
+import type Transaction from "arweave/web/lib/transaction";
+import Application from "~applications/application";
+import iconUrl from "url:/assets/icon512.png";
+import browser from "webextension-polyfill";
 import Arweave from "arweave";
 
 /**
@@ -10,11 +12,11 @@ import Arweave from "arweave";
  * @returns Location to icon or false if it is disabled
  */
 export async function arconfettiIcon(): Promise<string | false> {
-  const defaultIcon = browser.runtime.getURL("assets/arweave.png");
+  const defaultIcon = browser.runtime.getURL("assets/animation/arweave.png");
 
   try {
-    const storeData = await getStoreData();
-    let iconName = storeData.settings?.arConfetti;
+    const arConfettiSetting = getSetting("arconfetti");
+    const iconName = await arConfettiSetting.getValue();
 
     if (!iconName) return false;
 
@@ -25,10 +27,8 @@ export async function arconfettiIcon(): Promise<string | false> {
       return defaultIcon;
     }
 
-    if (iconName.includes("://")) iconName = "arweave";
-
     // return icon location
-    return browser.runtime.getURL(`assets/${iconName}.png`);
+    return browser.runtime.getURL(`assets/animation/${iconName}.png`);
   } catch {
     // return the default icon
     return defaultIcon;
@@ -45,13 +45,7 @@ export async function arconfettiIcon(): Promise<string | false> {
  */
 export async function calculateReward({ reward }: Transaction) {
   // fetch fee multiplier
-  const stored = await getStoreData();
-  const settings = stored.settings;
-
-  if (!stored) throw new Error("Error accessing storage");
-  if (!settings) throw new Error("No settings saved");
-
-  const multiplier = settings.feeMultiplier || 1;
+  const multiplier = await getSetting("fee_multiplier").getValue<number>();
 
   // if the multiplier is 1, we don't do anything
   if (multiplier === 1) return reward;
@@ -67,41 +61,59 @@ export async function calculateReward({ reward }: Transaction) {
  *
  * @param price Price of the transaction in winston
  * @param id ID of the transaction
+ * @param appURL URL of the current app
+ * @param type Signed transaction type
  */
 export async function signNotification(
   price: number,
   id: string,
+  appURL: string,
   type: "sign" | "dispatch" = "sign"
 ) {
   // fetch if notification is enabled
-  const storeData = await getStoreData();
-  const enabled = storeData.settings?.signNotification || false;
+  const notificationSetting = getSetting("sign_notification");
 
-  if (!enabled) return;
+  if (!(await notificationSetting.getValue())) return;
+
+  // get gateway config
+  const app = new Application(appURL);
+  const gateway = await app.getGatewayConfig();
 
   // create a client
-  const gateway = await getArweaveConfig();
   const arweave = new Arweave(gateway);
 
   // calculate price in AR
   const arPrice = parseFloat(arweave.ar.winstonToAr(price.toString()));
 
+  // format price
+  let maximumFractionDigits = 0;
+
+  if (arPrice < 0.1) maximumFractionDigits = 6;
+  else if (arPrice < 10) maximumFractionDigits = 4;
+  else if (arPrice < 1000) maximumFractionDigits = 2;
+
+  const formattedPrice = arPrice.toLocaleString(undefined, {
+    maximumFractionDigits
+  });
+
   // give an ID to the notification
   const notificationID = nanoid();
 
   // transaction message
-  const message =
+  const message = browser.i18n.getMessage(
     type === "sign"
-      ? `It cost a total of ~${arPrice.toLocaleString(undefined, {
-          maximumFractionDigits: 4
-        })} AR`
-      : "It was submitted to The Bundlr Network";
+      ? "notification_description_native_tx"
+      : "notification_description_dispatch_tx",
+    formattedPrice
+  );
 
   // create the notification
   await browser.notifications.create(notificationID, {
-    iconUrl: browser.runtime.getURL("icons/logo256.png"),
+    iconUrl,
     type: "basic",
-    title: `Transaction ${type === "sign" ? "signed" : "dispatched"}`,
+    title: browser.i18n.getMessage(
+      `notification_title_${type === "sign" ? "native" : "dispatched"}_tx`
+    ),
     message
   });
 

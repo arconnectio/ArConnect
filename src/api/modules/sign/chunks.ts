@@ -1,13 +1,13 @@
-import { MessageFormat, validateMessage } from "../../../utils/messenger";
-import { Runtime } from "webextension-polyfill-ts";
-import { Tag } from "arweave/web/lib/transaction";
+import type { Tag } from "arweave/web/lib/transaction";
+import type { ApiCall, ApiResponse } from "shim";
+import { nanoid } from "nanoid";
 
 /**
  * The chunk of the transaction signing
  */
 export interface Chunk {
   collectionID: string; // unique ID for the collection, that is the parent of this chunk
-  type: "tag" | "data" | "start";
+  type: "tag" | "data" | "start" | "end";
   index: number; // index of the chunk, to make sure it is not in the wrong order
   value?: number[] | Tag; // Uint8Array converted to number array or a tag
 }
@@ -33,12 +33,13 @@ const chunks: {
  */
 export const sendChunk = (chunk: Chunk) =>
   new Promise<void>((resolve, reject) => {
+    const callID = nanoid();
     // construct message
-    const message: MessageFormat = {
+    const message: ApiCall & { ext: "arconnect" } = {
       type: "chunk",
-      origin: "injected",
       ext: "arconnect",
-      data: chunk
+      data: chunk,
+      callID
     };
 
     // send message
@@ -48,24 +49,17 @@ export const sendChunk = (chunk: Chunk) =>
     window.addEventListener("message", callback);
 
     // callback for the message
-    function callback(e: MessageEvent<MessageFormat<number | string>>) {
+    function callback(e: MessageEvent<ApiResponse<number | string>>) {
       const { data: res } = e;
       // returned chunk index
       const index = res.data;
 
       // ensure we are getting the result of the chunk sent
       // in this instance / call of the function
-      if (
-        !validateMessage(res, "background", "chunk_result") ||
-        (typeof res.data !== "string" && index !== chunk.index)
-      )
-        return;
+      if (res.callID !== callID) return;
 
       // check for errors in the background
-      if (
-        (res.error && typeof index === "string") ||
-        typeof index === "string"
-      ) {
+      if (res.error || typeof index === "string") {
         reject(res.data);
       } else {
         resolve();
@@ -80,8 +74,9 @@ export const sendChunk = (chunk: Chunk) =>
  * Handle incoming chunks and add them to the chunk storage
  *
  * @param chunk Chunk object to handle
+ * @param appURL URL the chunk originates from
  */
-export function handleChunk(chunk: Chunk, port: Runtime.Port): number {
+export function handleChunk(chunk: Chunk, appURL: string): number {
   // handle start chunk
   if (chunk.type === "start") {
     // begin listening for chunks
@@ -91,8 +86,7 @@ export function handleChunk(chunk: Chunk, port: Runtime.Port): number {
     // here
     chunks.push({
       chunkCollectionID: chunk.collectionID,
-      // @ts-ignore
-      origin: port.sender.origin,
+      origin: appURL,
       rawChunks: []
     });
     // handle other chunks
@@ -103,9 +97,7 @@ export function handleChunk(chunk: Chunk, port: Runtime.Port): number {
     // the origin of the tx creation
     const collectionID = chunks.findIndex(
       ({ chunkCollectionID, origin }) =>
-        chunkCollectionID === chunk.collectionID &&
-        // @ts-expect-error
-        origin === port.sender.origin
+        chunkCollectionID === chunk.collectionID && origin === appURL
     );
 
     // check if the chunk has a valid origin
@@ -125,15 +117,15 @@ export function handleChunk(chunk: Chunk, port: Runtime.Port): number {
  * Get chunks for a collectionID
  *
  * @param collectionID ID of the chunk collection to retrieve
- * @param tabID ID of the tab the chunks originate from
+ * @param appURL URL of the app the chunks originate from
  *
  * @returns Chunk collection
  */
-export function getChunks(collectionID: string, tabID: string) {
+export function getChunks(collectionID: string, appURL: string) {
   // find collection
   const collection = chunks.find(
     ({ chunkCollectionID, origin }) =>
-      chunkCollectionID === collectionID && origin === tabID
+      chunkCollectionID === collectionID && origin === appURL
   );
 
   return collection?.rawChunks;

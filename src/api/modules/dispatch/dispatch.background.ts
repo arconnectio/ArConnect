@@ -1,11 +1,17 @@
-import { getActiveKeyfile, getArweaveConfig } from "../../../utils/background";
-import { createData, signers } from "../../../../bin/arbundles/bundle";
-import { browser } from "webextension-polyfill-ts";
-import { ModuleFunction } from "../../background";
+import { isLocalWallet, isSplitTransaction } from "~utils/assertions";
+import { constructTransaction } from "../sign/transaction_builder";
 import { arconfettiIcon, signNotification } from "../sign/utils";
+import { cleanUpChunks, getChunks } from "../sign/chunks";
+import { freeDecryptedWallet } from "~wallets/encryption";
+import type { ModuleFunction } from "~api/background";
+import { createData, ArweaveSigner } from "arbundles";
 import { uploadDataToBundlr } from "./uploader";
+import type { DispatchResult } from "./index";
 import { signedTxTags } from "../sign/tags";
-import { DispatchResult } from "./index";
+import { getActiveKeyfile } from "~wallets";
+import { isString } from "typed-assert";
+import Application from "~applications/application";
+import browser from "webextension-polyfill";
 import Arweave from "arweave";
 
 type ReturnType = {
@@ -14,20 +20,43 @@ type ReturnType = {
 };
 
 const background: ModuleFunction<ReturnType> = async (
-  _,
-  tx: Record<any, any>
+  appData,
+  tx: unknown,
+  chunkCollectionID: unknown
 ) => {
-  // build tx
-  const arweave = new Arweave(await getArweaveConfig());
-  const transaction = arweave.transactions.fromRaw(tx);
+  // validate input
+  isSplitTransaction(tx);
+  isString(chunkCollectionID);
+
+  // create client
+  const app = new Application(appData.appURL);
+  const arweave = new Arweave(await app.getGatewayConfig());
 
   // grab the user's keyfile
-  const { keyfile, address } = await getActiveKeyfile().catch(() => {
+  const decryptedWallet = await getActiveKeyfile().catch(() => {
     // if there are no wallets added, open the welcome page
-    browser.tabs.create({ url: browser.runtime.getURL("/welcome.html") });
+    browser.tabs.create({ url: browser.runtime.getURL("tabs/welcome.html") });
 
     throw new Error("No wallets added");
   });
+
+  // ensure that the currently selected
+  // wallet is not a local wallet
+  isLocalWallet(decryptedWallet);
+
+  const keyfile = decryptedWallet.keyfile;
+
+  // get chunks for transaction
+  const chunks = getChunks(chunkCollectionID, appData.appURL);
+
+  // reconstruct the transaction from the chunks
+  let transaction = arweave.transactions.fromRaw({
+    ...constructTransaction(tx, chunks || []),
+    owner: keyfile.n
+  });
+
+  // clean up chunks
+  cleanUpChunks(chunkCollectionID);
 
   // grab tx data and tags
   const data = transaction.get("data", { decode: true, string: false });
@@ -43,15 +72,18 @@ const background: ModuleFunction<ReturnType> = async (
   // attempt to create a bundle
   try {
     // create bundlr tx as a data entry
-    const dataSigner = new signers.ArweaveSigner(keyfile);
+    const dataSigner = new ArweaveSigner(keyfile);
     const dataEntry = createData(data, dataSigner, { tags });
 
     // sign and upload bundler tx
     await dataEntry.sign(dataSigner);
-    await uploadDataToBundlr(dataEntry);
+    await uploadDataToBundlr(dataEntry, await app.getBundler());
 
     // show notification
-    await signNotification(0, dataEntry.id, "dispatch");
+    await signNotification(0, dataEntry.id, appData.appURL, "dispatch");
+
+    // remove wallet from memory
+    freeDecryptedWallet(keyfile);
 
     return {
       arConfetti: await arconfettiIcon(),
@@ -62,16 +94,6 @@ const background: ModuleFunction<ReturnType> = async (
     };
   } catch {
     // sign & post if there is something wrong with the bundlr
-    // check wallet balance
-    const balance = parseFloat(await arweave.wallets.getBalance(address));
-    const cost = parseFloat(
-      await arweave.transactions.getPrice(parseFloat(transaction.data_size))
-    );
-
-    if (balance < cost) {
-      throw new Error(`Insufficient funds in wallet ${address}`);
-    }
-
     // add ArConnect tags to the tx object
     for (const arcTag of signedTxTags) {
       transaction.addTag(arcTag.name, arcTag.value);
@@ -88,7 +110,10 @@ const background: ModuleFunction<ReturnType> = async (
     const price = +transaction.reward + parseInt(transaction.quantity);
 
     // show notification
-    await signNotification(price, transaction.id);
+    await signNotification(price, transaction.id, appData.appURL);
+
+    // remove wallet from memory
+    freeDecryptedWallet(keyfile);
 
     return {
       arConfetti: await arconfettiIcon(),

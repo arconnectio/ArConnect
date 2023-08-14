@@ -1,13 +1,14 @@
-import { getPermissions } from "../../../utils/background";
-import { PermissionType } from "../../../utils/permissions";
+import {
+  getMissingPermissions,
+  type PermissionType
+} from "~applications/permissions";
+import Application from "~applications/application";
 
 /**
  * Validate requested permissions
  *
  * @param permissions The permissions requested to allow
  * @param tabURL URL of the application
- *
- * @returns true if all permissions are already granted
  */
 export default async function validatePermissions(
   permissions: PermissionType[],
@@ -18,18 +19,21 @@ export default async function validatePermissions(
     throw new Error("No permissions requested");
   }
 
-  // compare existing permissions
-  const existingPermissions = await getPermissions(tabURL);
+  // get permissions
+  const app = new Application(tabURL);
+  const existingPermissions = await app.getPermissions();
 
+  // compare existing permissions
   if (existingPermissions) {
     // the permissions the dApp does not have yet
-    const requiredPermissions = permissions.filter(
-      (permission) => !existingPermissions.includes(permission)
+    const requiredPermissions = getMissingPermissions(
+      existingPermissions,
+      permissions
     );
 
     // check if all requested permissions are available for the app
-    return requiredPermissions.length === 0;
-  } else {
-    return false;
+    if (requiredPermissions.length === 0) {
+      throw new Error("App already has all permissions requested");
+    }
   }
 }

@@ -1,14 +1,13 @@
-import { getActiveTab, getPermissions } from "../../../utils/background";
-import { PermissionType } from "../../../utils/permissions";
-import { ModuleFunction } from "../../background";
+import type { PermissionType } from "~applications/permissions";
+import type { ModuleFunction } from "~api/background";
+import Application from "~applications/application";
 
-const background: ModuleFunction<PermissionType[]> = async () => {
-  // grab tab url
-  const activeTab = await getActiveTab();
-  const tabURL = activeTab.url as string;
+const background: ModuleFunction<PermissionType[]> = async (appData) => {
+  // construct app
+  const app = new Application(appData.appURL);
 
   // grab permissions for this app
-  const permissions = await getPermissions(tabURL);
+  const permissions = await app.getPermissions();
 
   return permissions;
 };
