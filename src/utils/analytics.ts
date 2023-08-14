@@ -13,6 +13,22 @@ export enum EventType {
   ONBOARDED = "ONBOARDED"
 }
 
+export enum PageType {
+  HOME = "HOMEPAGE",
+  EXPLORE = "EXPLORE",
+  SETTINGS = "SETTINGS"
+}
+
+export const trackPage = async (title: PageType) => {
+  try {
+    await analytics.page("ArConnect Extension", {
+      title
+    });
+  } catch (err) {
+    console.log("err", err);
+  }
+};
+
 export const trackEvent = async (eventName: EventType, properties: any) => {
   // first we check if we are allowed to collect data
   const enabled = await getSetting("analytics").getValue();
