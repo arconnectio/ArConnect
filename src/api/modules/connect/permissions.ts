@@ -9,6 +9,8 @@ import Application from "~applications/application";
  *
  * @param permissions The permissions requested to allow
  * @param tabURL URL of the application
+ *
+ * @returns true if all permissions are already granted
  */
 export default async function validatePermissions(
   permissions: PermissionType[],
@@ -32,8 +34,8 @@ export default async function validatePermissions(
     );
 
     // check if all requested permissions are available for the app
-    if (requiredPermissions.length === 0) {
-      throw new Error("App already has all permissions requested");
-    }
+    return requiredPermissions.length === 0;
+  } else {
+    return false;
   }
 }
