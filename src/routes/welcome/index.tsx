@@ -15,6 +15,7 @@ import {
   useState
 } from "react";
 import { popoverAnimation } from "~components/popup/WalletSwitcher";
+import { PageType, trackPage } from "~utils/analytics";
 
 export default function Home() {
   // button refs
@@ -61,6 +62,11 @@ export default function Home() {
   });
 
   const migrationAvailable = useMemo(() => !!oldState, [oldState]);
+
+  // Segment
+  useEffect(() => {
+    trackPage(PageType.ONBOARD_START);
+  }, []);
 
   return (
     <Wrapper>

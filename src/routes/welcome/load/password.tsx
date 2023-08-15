@@ -4,7 +4,7 @@ import { checkPasswordValid } from "~wallets/generator";
 import { ArrowRightIcon } from "@iconicicons/react";
 import { useLocation, useRoute } from "wouter";
 import Paragraph from "~components/Paragraph";
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useEffect } from "react";
 import browser from "webextension-polyfill";
 import { PasswordContext } from "../setup";
 import {
@@ -15,6 +15,7 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
+import { PageType, trackPage } from "~utils/analytics";
 
 export default function Password() {
   // input controls
@@ -69,6 +70,12 @@ export default function Password() {
     () => passwordInput.state === validPasswordInput.state && validPassword,
     [passwordInput, validPasswordInput, validPassword]
   );
+
+  // Segment
+  // TODO: specify if this is an imported or new wallet
+  useEffect(() => {
+    trackPage(PageType.ONBOARD_PASSWORD);
+  }, []);
 
   return (
     <>
