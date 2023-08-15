@@ -110,11 +110,15 @@ export default function Wallets() {
   return (
     <>
       <Wrapper>
-        <SearchInput
-          placeholder={browser.i18n.getMessage("search_wallets")}
-          {...searchInput.bindings}
-          sticky
-        />
+        <SearchWrapper>
+          <SearchInput
+            placeholder={browser.i18n.getMessage("search_wallets")}
+            {...searchInput.bindings}
+          />
+          <AddWalletButton onClick={() => setLocation("/wallets/new")}>
+            {browser.i18n.getMessage("add_wallet")}
+          </AddWalletButton>
+        </SearchWrapper>
         <Spacer y={1} />
         {wallets && (
           <Reorder.Group
@@ -138,9 +142,6 @@ export default function Wallets() {
           </Reorder.Group>
         )}
       </Wrapper>
-      <AddWalletButton onClick={() => setLocation("/wallets/new")}>
-        <PlusIcon />
-      </AddWalletButton>
     </>
   );
 }
@@ -149,17 +150,25 @@ const Wrapper = styled.div`
   position: relative;
 `;
 
+const SearchWrapper = styled.div`
+  position: sticky;
+  display: grid;
+  gap: 1rem;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  grid-template-columns: auto auto;
+`;
+
 const AddWalletButton = styled(IconButton).attrs({
   secondary: true
 })`
-  position: absolute;
-  bottom: 0.5rem;
-  right: 0.5rem;
-  z-index: 20;
   background: linear-gradient(
       0deg,
       rgba(${(props) => props.theme.theme}, 0.2),
       rgba(${(props) => props.theme.theme}, 0.2)
     ),
     rgb(${(props) => props.theme.background});
+  padding: 0 0.25rem !important;
 `;
