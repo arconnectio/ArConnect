@@ -1,5 +1,5 @@
 export const whitelistedSites: RegExp[] = [
-  /app\.ardive\.io/,
+  /app\.ardrive\.io/,
   /staging\.ardrive\.io/,
   /dapp_ardrive\.ar-io\.dev/,
   /og_dapp_ardrive\.ar-io\.dev/,
