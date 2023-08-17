@@ -61,13 +61,13 @@ export const trackEvent = async (eventName: EventType, properties: any) => {
 };
 
 export function useAnalytics(): [boolean, (v: boolean) => void] {
-  const [optedIn, setOptedIn] = useState(true);
+  const [answeredAnalytics, setAnsweredAnalytics] = useState<boolean>(true);
+
   useEffect(() => {
     const getAnalytic = async () => {
-      const enabled = await ExtensionStorage.get<boolean>("setting_analytics");
-      // enabled returning false - instead, if setting_analytics is undefined, optedIn needs to be false
-      if (enabled !== undefined && enabled === false) {
-        setOptedIn(false);
+      const answered = await ExtensionStorage.get<string>("setting_analytics");
+      if (answered === undefined) {
+        setAnsweredAnalytics(false);
       }
     };
     getAnalytic();
@@ -76,11 +76,11 @@ export function useAnalytics(): [boolean, (v: boolean) => void] {
   const toggle = async (v: boolean) => {
     try {
       await ExtensionStorage.set("setting_analytics", v);
-      setOptedIn(v);
+      setAnsweredAnalytics(true);
     } catch (err) {
       console.log("err", err);
     }
   };
 
-  return [optedIn, toggle];
+  return [answeredAnalytics, toggle];
 }

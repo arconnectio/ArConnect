@@ -3,23 +3,22 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { useAnalytics } from "~utils/analytics";
 
-export default function Cookies() {
-  // optedIn not working as expected
-  const [optedIn, toggle] = useAnalytics();
+export default function AnalyticsConsent() {
+  const [answeredAnalytics, toggle] = useAnalytics();
 
   return (
     <>
       <AnimatePresence>
-        {!optedIn && (
+        {!answeredAnalytics && (
           <ConsentDialog>
-            We use cookies to better understand customer needs
+            We use analytics to better understand customer needs
             <Buttons>
               <Button onClick={() => toggle(true)}>Accept</Button>
-              <Button>Decline</Button>
+              <Button onClick={() => toggle(false)}>Decline</Button>
             </Buttons>
           </ConsentDialog>
         )}
-        {!optedIn && <BackgroundLayer key="bg" />}
+        {!answeredAnalytics && <BackgroundLayer key="bg" />}
       </AnimatePresence>
     </>
   );

@@ -3,7 +3,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useEffect, useState } from "react";
 import Collectibles from "~components/popup/home/Collectibles";
-import Cookies from "~components/popup/home/Cookies";
+import AnalyticsConsent from "~components/popup/home/AnalyticsConsent";
 import WalletHeader from "~components/popup/WalletHeader";
 import NoBalance from "~components/popup/home/NoBalance";
 import Balance from "~components/popup/home/Balance";
@@ -60,7 +60,7 @@ export default function Home() {
           <Collectibles />
         </>
       )) || <NoBalance />}
-      <Cookies />
+      <AnalyticsConsent />
     </>
   );
 }
