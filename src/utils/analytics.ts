@@ -1,5 +1,6 @@
 import { AnalyticsBrowser } from "@segment/analytics-next";
 import { ExtensionStorage, TempTransactionStorage } from "./storage";
+import { useState, useEffect } from "react";
 
 const analytics = AnalyticsBrowser.load({
   writeKey: process.env.PLASMO_PUBLIC_SEGMENT_WRITEKEY
@@ -58,3 +59,28 @@ export const trackEvent = async (eventName: EventType, properties: any) => {
     console.error(`Failed to track event ${eventName}:`, err);
   }
 };
+
+export function useAnalytics(): [boolean, (v: boolean) => void] {
+  const [optedIn, setOptedIn] = useState(true);
+  useEffect(() => {
+    const getAnalytic = async () => {
+      const enabled = await ExtensionStorage.get<boolean>("setting_analytics");
+      // enabled returning false - instead, if setting_analytics is undefined, optedIn needs to be false
+      if (enabled !== undefined && enabled === false) {
+        setOptedIn(false);
+      }
+    };
+    getAnalytic();
+  }, []);
+
+  const toggle = async (v: boolean) => {
+    try {
+      await ExtensionStorage.set("setting_analytics", v);
+      setOptedIn(v);
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
+  return [optedIn, toggle];
+}
