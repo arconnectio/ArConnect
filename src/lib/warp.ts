@@ -4,6 +4,7 @@ import { getSetting } from "~settings";
  * List of DRE nodes supported
  */
 export const dreNodes: Record<string, string> = {
+  "WARP DRE-U": "https://dre-u.warp.cc",
   "WARP DRE-1": "https://dre-1.warp.cc",
   "WARP DRE-2": "https://dre-2.warp.cc",
   "WARP DRE-3": "https://dre-3.warp.cc",
