@@ -1,9 +1,9 @@
+import { allowanceAuth, updateAllowance } from "../sign/allowance";
 import { isLocalWallet, isRawDataItem } from "~utils/assertions";
 import { freeDecryptedWallet } from "~wallets/encryption";
 import type { ModuleFunction } from "~api/background";
 import { ArweaveSigner, createData } from "arbundles";
 import Application from "~applications/application";
-import { allowanceAuth, updateAllowance } from "../sign/allowance";
 import { getPrice } from "../dispatch/uploader";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
@@ -47,6 +47,7 @@ const background: ModuleFunction<number[]> = async (
   const price = await getPrice(dataEntry, await app.getBundler());
   const allowance = await app.getAllowance();
 
+  // allowance or sign auth
   try {
     if (allowance.enabled) {
       await allowanceAuth(allowance, appData.appURL, price);
