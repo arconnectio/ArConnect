@@ -18,6 +18,7 @@ import Password from "./load/password";
 import Wallets from "./load/wallets";
 import LoadDone from "./load/done";
 import Theme from "./load/theme";
+import Analytics from "./load/analytics";
 
 /** Wallet generate pages */
 const generatePages = [
@@ -25,11 +26,18 @@ const generatePages = [
   <Backup />,
   <Confirm />,
   <Theme />,
+  <Analytics />,
   <GenerateDone />
 ];
 
 /** Wallet load pages */
-const loadPages = [<Password />, <Wallets />, <Theme />, <LoadDone />];
+const loadPages = [
+  <Password />,
+  <Wallets />,
+  <Theme />,
+  <Analytics />,
+  <LoadDone />
+];
 
 export default function Setup({ setupMode, page }: Props) {
   // location

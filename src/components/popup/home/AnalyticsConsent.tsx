@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { useAnalytics } from "~utils/analytics";
+import browser from "webextension-polyfill";
 
 export default function AnalyticsConsent() {
   const [answeredAnalytics, toggle] = useAnalytics();
@@ -11,14 +12,18 @@ export default function AnalyticsConsent() {
       <AnimatePresence>
         {!answeredAnalytics && (
           <ConsentDialog>
-            We use analytics to better understand customer needs
+            {browser.i18n.getMessage("analytic_description")}
             <Buttons>
-              <Button onClick={() => toggle(true)}>Accept</Button>
-              <Button onClick={() => toggle(false)}>Decline</Button>
+              <Button onClick={() => toggle(true)}>
+                {browser.i18n.getMessage("accept")}
+              </Button>
+              <Button onClick={() => toggle(false)}>
+                {browser.i18n.getMessage("decline")}
+              </Button>
             </Buttons>
           </ConsentDialog>
         )}
-        {!answeredAnalytics && <BackgroundLayer key="bg" />}
+        {!answeredAnalytics && <BackgroundLayer />}
       </AnimatePresence>
     </>
   );

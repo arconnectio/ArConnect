@@ -21,9 +21,21 @@
     "message": "Yes",
     "description": "The word \"yes\""
   },
+  "accept": {
+    "message": "Accept",
+    "description": "Accept terms"
+  },
   "add_wallet": {
     "message": "Add wallet",
     "description": "Add a wallet text"
+  },
+  "analytic_description" : {
+    "message" : "We use analytics to better understand customer needs",
+    "description" : "Opting into Analytics text"
+  },
+  "analytic_title" : {
+    "message" : "Opt-In Analytics",
+    "description" : "Analytics title"
   },
   "edit": {
     "message": "Edit",
@@ -40,6 +52,10 @@
   "forceConnect": {
     "message": "Force Connect",
     "description": "Force connect button text"
+  },
+  "decline": {
+    "message": "Decline",
+    "description": "Decline terms"
   },
   "devtools": {
     "message": "Devtools",
