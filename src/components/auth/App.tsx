@@ -27,12 +27,22 @@ export default function App({
   const spent = useMemo(() => {
     if (!allowance) return 0;
 
-    // calculate
+    return winstonToArFormatted(allowance.spent);
+  }, [allowance]);
+
+  // allowance limit in AR
+  const limit = useMemo(() => {
+    if (!allowance) return 0;
+
+    return winstonToArFormatted(allowance.limit);
+  }, [allowance]);
+
+  function winstonToArFormatted(val: number) {
     const arweave = new Arweave(defaultGateway);
-    const arVal = arweave.ar.winstonToAr(allowance.limit.toString());
+    const arVal = arweave.ar.winstonToAr(val.toString());
 
     return parseFloat(arVal);
-  }, [allowance]);
+  }
 
   // display theme
   const theme = useDisplayTheme();
@@ -64,9 +74,11 @@ export default function App({
               )) ||
                 (allowance && (
                   <AppUrl>
-                    {browser.i18n.getMessage("limit")}
+                    {browser.i18n.getMessage("spent")}
                     {": "}
-                    {formatTokenBalance(spent)}
+                    {spent.toLocaleString(undefined, {
+                      maximumFractionDigits: 8
+                    })}
                     {" AR"}
                   </AppUrl>
                 ))}
@@ -74,7 +86,7 @@ export default function App({
           </AppData>
           {allowance && (
             <AllowanceSpent>
-              {allowance.spent}
+              {formatTokenBalance(limit)}
               {" AR"}
             </AllowanceSpent>
           )}
