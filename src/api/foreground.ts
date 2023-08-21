@@ -41,6 +41,20 @@ import signatureModule from "./modules/signature";
 import signature, {
   finalizer as signatureFinalizer
 } from "./modules/signature/signature.foreground";
+import signMessageModule from "./modules/sign_message";
+import signMessage, {
+  finalizer as signMessageFinalizer
+} from "./modules/sign_message/sign_message.foreground";
+import privateHashModule from "./modules/private_hash";
+import privateHash, {
+  finalizer as privateHashFinalizer
+} from "./modules/private_hash/private_hash.foreground";
+import verifyMessageModule from "./modules/verify_message";
+import verifyMessage from "./modules/verify_message/verify_message.foreground";
+import signDataItemModule from "./modules/sign_data_item";
+import signDataItem, {
+  finalizer as signDataItemFinalizer
+} from "./modules/sign_data_item/sign_data_item.foreground";
 
 /** Foreground modules */
 const modules: ForegroundModule[] = [
@@ -58,7 +72,23 @@ const modules: ForegroundModule[] = [
   { ...decryptModule, function: decrypt },
   { ...signatureModule, function: signature, finalizer: signatureFinalizer },
   { ...addTokenModule, function: addToken },
-  { ...isTokenAddedModule, function: isTokenAdded }
+  { ...isTokenAddedModule, function: isTokenAdded },
+  {
+    ...signMessageModule,
+    function: signMessage,
+    finalizer: signMessageFinalizer
+  },
+  {
+    ...privateHashModule,
+    function: privateHash,
+    finalizer: privateHashFinalizer
+  },
+  { ...verifyMessageModule, function: verifyMessage },
+  {
+    ...signDataItemModule,
+    function: signDataItem,
+    finalizer: signDataItemFinalizer
+  }
 ];
 
 export default modules;

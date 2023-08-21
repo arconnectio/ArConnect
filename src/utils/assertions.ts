@@ -1,7 +1,11 @@
 import type { SignatureOptions } from "arweave/node/lib/crypto/crypto-interface";
 import { type PermissionType, permissionData } from "~applications/permissions";
 import type { SplitTransaction } from "~api/modules/sign/transaction_builder";
+import type { SignMessageOptions } from "~api/modules/sign_message/types";
 import type { SignatureAlgorithm } from "~api/modules/signature/types";
+import type { RawDataItem } from "~api/modules/sign_data_item/types";
+import type { DecryptedWallet, LocalWallet } from "~wallets";
+import type { JWKInterface } from "arweave/web/lib/wallet";
 import type Transaction from "arweave/web/lib/transaction";
 import type { DecodedTag } from "~api/modules/sign/tags";
 import type { AppInfo } from "~applications/application";
@@ -26,7 +30,8 @@ import {
   isInstanceOf,
   isOneOfType,
   isNotUndefined,
-  isNotNull
+  isNotNull,
+  isExactly
 } from "typed-assert";
 
 export function isGateway(input: unknown): asserts input is Gateway {
@@ -191,6 +196,46 @@ export function isLegacyEncryptionOptions(
   isString(input.hash, "Encryption hash has to be a string.");
 
   if (input.salt) isString(input.salt, "Encryption salt has to be a string.");
+}
+
+export function isSignMessageOptions(
+  input: unknown
+): asserts input is SignMessageOptions {
+  isNotUndefined(input, "Options cannot be undefined.");
+  isRecordWithKeys(
+    input,
+    ["hashAlgorithm"],
+    "Sign message options has to be a record."
+  );
+  isOneOf(
+    input.hashAlgorithm,
+    ["SHA-256", "SHA-384", "SHA-512"],
+    "Invalid hash algorithm."
+  );
+}
+
+export function isArrayBuffer(input: unknown): asserts input is ArrayBuffer {
+  isNotUndefined("Data has to be defined.");
+  assert(ArrayBuffer.isView(input), "Input is not an ArrayBuffer.");
+}
+
+export function isLocalWallet(
+  input: DecryptedWallet
+): asserts input is LocalWallet<JWKInterface> {
+  isExactly(
+    input.type,
+    "local",
+    "Hardware wallets don't support this API method currently."
+  );
+}
+
+export function isRawDataItem(input: unknown): asserts input is RawDataItem {
+  isRecord(input, "Raw data item has to be a record.");
+  isNumberArray(input.data);
+
+  if (input.target) isAddress(input.target);
+  if (input.anchor) isString(input.anchor, "Anchor needs to be a string.");
+  if (input.tags) isArrayOfType(input.tags, isTag, "Invalid tags array.");
 }
 
 export function isSignatureAlgorithm(

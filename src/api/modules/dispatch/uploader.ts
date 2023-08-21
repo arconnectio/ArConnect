@@ -21,3 +21,20 @@ export async function uploadDataToBundlr(dataItem: DataItem, node: string) {
       `Error uploading DataItem: ${res.status} ${res.statusText}`
     );
 }
+
+/**
+ * Get the price of a data item from a
+ * Bundlr node in winstons
+ */
+export async function getPrice(dataItem: DataItem, node: string) {
+  // get data item size
+  const size = dataItem.getRaw().length;
+
+  // fetch price
+  const res = await fetch(`${node}/price/arweave/${size}`);
+
+  if (res.status >= 400)
+    throw new Error(`Error fetching price: ${res.status} ${res.statusText}`);
+
+  return parseInt(await res.text());
+}

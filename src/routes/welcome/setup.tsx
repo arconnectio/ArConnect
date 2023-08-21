@@ -60,6 +60,13 @@ export default function Setup({ setupMode, page }: Props) {
   // temporarily stored password
   const [password, setPassword] = useState("");
 
+  // check if the user is on the wrong page without a password
+  useEffect(() => {
+    if (page !== 1 && password === "") {
+      setLocation(`/${setupMode}/1`);
+    }
+  }, [page, password]);
+
   // is the setup mode "wallet generation"
   const [isGenerateWallet] = useRoute("/generate/:page");
 

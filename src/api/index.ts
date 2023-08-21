@@ -30,6 +30,13 @@ export const handleApiCalls: OnMessageCallback<
     );
     isApiCall(data);
 
+    // fix params
+    if (data.data?.params) {
+      data.data.params = data.data.params.map((val) =>
+        val === null ? undefined : val
+      );
+    }
+
     // grab the tab where the API call came from
     const tab = await getTab(sender.tabId);
 

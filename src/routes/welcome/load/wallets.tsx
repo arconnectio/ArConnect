@@ -1,11 +1,11 @@
 import { isValidMnemonic, jwkFromMnemonic } from "~wallets/generator";
+import { ExtensionStorage, OLD_STORAGE_NAME } from "~utils/storage";
+import { addWallet, getWallets, setActiveWallet } from "~wallets";
 import type { KeystoneAccount } from "~wallets/hardware/keystone";
 import type { JWKInterface } from "arweave/web/lib/wallet";
-import { useContext, useEffect, useState } from "react";
-import { addWallet, setActiveWallet } from "~wallets";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { ArrowRightIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
-import { ExtensionStorage } from "~utils/storage";
 import { useLocation, useRoute } from "wouter";
 import { PasswordContext } from "../setup";
 import {
@@ -22,8 +22,6 @@ import SeedInput from "~components/SeedInput";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-
-const OLD_STORAGE_NAME = "persist:root";
 
 export default function Wallets() {
   // password context
@@ -121,14 +119,23 @@ export default function Wallets() {
     }
 
     try {
-      // load jwk from seedphrase input state
-      const jwk =
-        typeof loadedWallet === "string"
-          ? await jwkFromMnemonic(loadedWallet)
-          : loadedWallet;
+      // if the user migrated from a previous version,
+      // they already have wallets added
+      const existingWallets = await getWallets();
 
-      // add wallet
-      await addWallet(jwk, password);
+      if (loadedWallet) {
+        // load jwk from seedphrase input state
+        const jwk =
+          typeof loadedWallet === "string"
+            ? await jwkFromMnemonic(loadedWallet)
+            : loadedWallet;
+
+        // add wallet
+        await addWallet(jwk, password);
+      } else if (existingWallets.length < 1) {
+        // the user has not migrated, so they need to add a wallet
+        return finishUp();
+      }
 
       // continue to the next page
       setLocation(`/${params.setup}/${Number(params.page) + 1}`);
@@ -155,6 +162,15 @@ export default function Wallets() {
     setLocation(`/${params.setup}/${Number(params.page) + 1}`);
   }
 
+  // migration available
+  const migrationAvailable = useMemo(
+    () => walletsToMigrate.length > 0,
+    [walletsToMigrate]
+  );
+
+  // migration cancelled
+  const [migrationCancelled, setMigrationCancelled] = useState(false);
+
   return (
     <>
       <Text heading>{browser.i18n.getMessage("provide_seedphrase")}</Text>
@@ -162,7 +178,16 @@ export default function Wallets() {
         {browser.i18n.getMessage("provide_seedphrase_paragraph")}
       </Paragraph>
       <SeedInput onChange={(val) => setLoadedWallet(val)} onReady={done} />
-      {walletsToMigrate.length > 0 && <Migrate wallets={walletsToMigrate} />}
+      {migrationAvailable && (
+        <Migrate
+          wallets={walletsToMigrate}
+          noMigration={migrationCancelled}
+          onMigrateClick={() => {
+            migrationModal.setOpen(true);
+            setMigrationCancelled(false);
+          }}
+        />
+      )}
       <Spacer y={1.25} />
       <KeystoneButton onSuccess={keystoneDone} />
       <Spacer y={1} />
@@ -196,8 +221,9 @@ export default function Wallets() {
               });
               migrationModal.setOpen(false);
 
+              // TODO:
               // remove old storage
-              await ExtensionStorage.remove(OLD_STORAGE_NAME);
+              // await ExtensionStorage.remove(OLD_STORAGE_NAME);
             } catch {}
           }}
         >
@@ -207,7 +233,10 @@ export default function Wallets() {
         <Button
           fullWidth
           secondary
-          onClick={() => migrationModal.setOpen(false)}
+          onClick={() => {
+            migrationModal.setOpen(false);
+            setMigrationCancelled(true);
+          }}
         >
           {browser.i18n.getMessage("cancel")}
         </Button>

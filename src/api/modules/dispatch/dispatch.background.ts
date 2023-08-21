@@ -1,8 +1,8 @@
+import { isLocalWallet, isSplitTransaction } from "~utils/assertions";
 import { constructTransaction } from "../sign/transaction_builder";
 import { arconfettiIcon, signNotification } from "../sign/utils";
 import { cleanUpChunks, getChunks } from "../sign/chunks";
 import { freeDecryptedWallet } from "~wallets/encryption";
-import { isSplitTransaction } from "~utils/assertions";
 import type { ModuleFunction } from "~api/background";
 import { createData, ArweaveSigner } from "arbundles";
 import { uploadDataToBundlr } from "./uploader";
@@ -40,11 +40,9 @@ const background: ModuleFunction<ReturnType> = async (
     throw new Error("No wallets added");
   });
 
-  if (decryptedWallet.type === "hardware") {
-    throw new Error(
-      "Active wallet type: hardware. This does not support dispatch currently."
-    );
-  }
+  // ensure that the currently selected
+  // wallet is not a local wallet
+  isLocalWallet(decryptedWallet);
 
   const keyfile = decryptedWallet.keyfile;
 

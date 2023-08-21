@@ -507,6 +507,10 @@
     "message": "Re-enter your passwor...",
     "description": "Re-enter password input placeholder"
   },
+  "passwords_match": {
+    "message": "It's a match!",
+    "description": "Passwords are matching indicator text"
+  },
   "passwords_not_match": {
     "message": "Passwords don't match",
     "description": "Invalid re-entered password error"
@@ -994,6 +998,18 @@
   "migrate_wallets_list": {
     "message": "These wallets will be migrated:",
     "description": "Label for migrated wallets"
+  },
+  "migrate_wallets_not_migrated": {
+    "message": "These wallets wil NOT be migrated:",
+    "description": "Label for wallets that won't be migrated"
+  },
+  "migrate_anyway": {
+    "message": "Migrate anyway!",
+    "description": "Migrate anyway button text"
+  },
+  "migration_available_welcome": {
+    "message": "You can migrate your wallets from the old ArConnect by clicking \"I have a wallet\".",
+    "description": "Migration available banner text"
   },
   "click_and_drag": {
     "message": "Click & drag",

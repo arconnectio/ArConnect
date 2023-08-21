@@ -1,14 +1,3 @@
-import {
-  addExpiration,
-  checkPassword,
-  getDecryptionKey,
-  setDecryptionKey
-} from "./auth";
-import {
-  decryptWallet,
-  encryptWallet,
-  freeDecryptedWallet
-} from "./encryption";
 import type { JWKInterface } from "arweave/node/lib/wallet";
 import { getAnsProfile, type AnsUser } from "~lib/ans";
 import authenticate from "~api/modules/connect/auth";
@@ -19,6 +8,18 @@ import type { HardwareWallet } from "./hardware";
 import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import Arweave from "arweave/web/common";
+import {
+  decryptWallet,
+  encryptWallet,
+  freeDecryptedWallet
+} from "./encryption";
+import {
+  addExpiration,
+  checkPassword,
+  EXPIRATION_STORAGE,
+  getDecryptionKey,
+  setDecryptionKey
+} from "./auth";
 
 /**
  * Locally stored wallet
@@ -155,7 +156,7 @@ export async function setActiveWallet(address?: string) {
   await ExtensionStorage.set("active_address", address);
 }
 
-type DecryptedWallet = StoredWallet<JWKInterface>;
+export type DecryptedWallet = StoredWallet<JWKInterface>;
 
 /**
  * Get the active wallet with decrypted JWK
@@ -283,7 +284,9 @@ export async function updatePassword(
   if (!(await checkPassword(prevPassword))) {
     throw new Error("Invalid password");
   }
+
   const wallets = await getWallets();
+
   for (const item of wallets) {
     if (item.type !== "local") {
       continue;
@@ -294,6 +297,11 @@ export async function updatePassword(
     freeDecryptedWallet(decryptedKeyfile);
     item.keyfile = encrypted;
   }
+
+  // remove previous expiration data
+  await ExtensionStorage.remove(EXPIRATION_STORAGE);
+
+  // update state
   await addExpiration();
   await setDecryptionKey(newPassword);
   await ExtensionStorage.set("wallets", wallets);

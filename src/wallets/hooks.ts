@@ -33,16 +33,18 @@ export function useWalletsDetails(wallets: JWKInterface[]) {
       }
 
       // load ans labels
-      const profiles = (await getAnsProfile(
-        details.map((w) => w.address)
-      )) as AnsUser[];
+      try {
+        const profiles = (await getAnsProfile(
+          details.map((w) => w.address)
+        )) as AnsUser[];
 
-      for (const wallet of details) {
-        const profile = profiles.find((p) => p.user === wallet.address);
+        for (const wallet of details) {
+          const profile = profiles.find((p) => p.user === wallet.address);
 
-        if (!profile?.currentLabel) continue;
-        wallet.label = profile.currentLabel + ".ar";
-      }
+          if (!profile?.currentLabel) continue;
+          wallet.label = profile.currentLabel + ".ar";
+        }
+      } catch {}
 
       // set details
       setWalletDetails(details);

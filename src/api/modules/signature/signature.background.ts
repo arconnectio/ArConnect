@@ -1,7 +1,15 @@
-import { isArray, isArrayOfType, isNumber } from "typed-assert";
+import {
+  isArray,
+  isArrayOfType,
+  isNotNull,
+  isNotUndefined,
+  isNumber,
+  isString
+} from "typed-assert";
 import { freeDecryptedWallet } from "~wallets/encryption";
 import { isSignatureAlgorithm } from "~utils/assertions";
 import type { ModuleFunction } from "~api/background";
+import { getWhitelistRegExp } from "./whitelist";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 import authenticate from "../connect/auth";
@@ -12,19 +20,28 @@ const background: ModuleFunction<number[]> = async (
   algorithm: unknown
 ) => {
   // validate
+  isString(appData?.appURL, "Application URL is undefined.");
   isArray(data, "Data has to be an array.");
   isArrayOfType(data, isNumber, "Data has to be an array of numbers.");
   isSignatureAlgorithm(algorithm);
 
+  // temporary whitelist
+  const whitelisted = appData.appURL.match(getWhitelistRegExp());
+
+  //isNotNull(whitelisted, "The signature() API is deprecated.");
+  //isNotUndefined(whitelisted, "The signature() API is deprecated.");
+
   // request user to authorize
-  try {
-    await authenticate({
-      type: "signature",
-      url: appData.appURL,
-      message: data
-    });
-  } catch {
-    throw new Error("User rejected the signature request");
+  if (!whitelisted) {
+    try {
+      await authenticate({
+        type: "signature",
+        url: appData.appURL,
+        message: data
+      });
+    } catch {
+      throw new Error("User rejected the signature request");
+    }
   }
 
   // grab the user's keyfile

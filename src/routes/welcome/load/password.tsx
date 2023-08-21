@@ -1,3 +1,12 @@
+import PasswordStrength from "../../../components/welcome/PasswordStrength";
+import PasswordMatch from "~components/welcome/PasswordMatch";
+import { checkPasswordValid } from "~wallets/generator";
+import { ArrowRightIcon } from "@iconicicons/react";
+import { useLocation, useRoute } from "wouter";
+import Paragraph from "~components/Paragraph";
+import { useContext, useMemo } from "react";
+import browser from "webextension-polyfill";
+import { PasswordContext } from "../setup";
 import {
   Button,
   Input,
@@ -6,14 +15,6 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
-import { checkPasswordValid } from "~wallets/generator";
-import { ArrowRightIcon } from "@iconicicons/react";
-import { useLocation, useRoute } from "wouter";
-import { PasswordContext } from "../setup";
-import { useContext } from "react";
-import PasswordStrength from "../../../components/welcome/PasswordStrength";
-import Paragraph from "~components/Paragraph";
-import browser from "webextension-polyfill";
 
 export default function Password() {
   // input controls
@@ -57,6 +58,18 @@ export default function Password() {
     setLocation(`/${params.setup}/${Number(params.page) + 1}`);
   }
 
+  // password valid
+  const validPassword = useMemo(
+    () => checkPasswordValid(passwordInput.state),
+    [passwordInput]
+  );
+
+  // passwords match
+  const matches = useMemo(
+    () => passwordInput.state === validPasswordInput.state && validPassword,
+    [passwordInput, validPasswordInput, validPassword]
+  );
+
   return (
     <>
       <Text heading>{browser.i18n.getMessage("create_password")}</Text>
@@ -72,6 +85,7 @@ export default function Password() {
           if (e.key !== "Enter") return;
           done();
         }}
+        autoFocus
       />
       <Spacer y={1} />
       <Input
@@ -84,7 +98,8 @@ export default function Password() {
           done();
         }}
       />
-      <Spacer y={1.55} />
+      <PasswordMatch matches={matches} />
+      <Spacer y={(matches && 1.15) || 1.55} />
       <PasswordStrength password={passwordInput.state} />
       <Spacer y={1} />
       <Button fullWidth onClick={done}>
