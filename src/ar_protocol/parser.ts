@@ -28,7 +28,13 @@ export function getRedirectURL(url: URL, gateway: Gateway) {
 
   // if it is not an Arweave ID, redirect to permapages
   if (!isAddressFormat(value)) {
-    redirectURL = `${gateway.protocol}://${value}.${gateway.host}:${gateway.port}`;
+    // split path
+    const paths = value.split("/");
+
+    redirectURL =
+      `${gateway.protocol}://` +
+      `${paths[0]}.${gateway.host}:${gateway.port}` +
+      `/${paths.slice(1, paths.length).join("/")}`;
   }
 
   return redirectURL;
