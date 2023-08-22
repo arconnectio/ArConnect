@@ -1,6 +1,8 @@
 import { concatGatewayURL, type Gateway } from "~applications/gateway";
 import { isAddressFormat } from "~utils/format";
 
+const PROTOCOL_PREFIX = "ar";
+
 /**
  * Get gateway redirect URL for ar:// protocol
  * or return false if it is not a protocol request.
@@ -11,12 +13,12 @@ export function getRedirectURL(url: URL, gateway: Gateway) {
   // "ar://" url
   const arURL = url.searchParams.get("q");
 
-  if (!arURL || arURL === "") {
+  if (!arURL || arURL === "" || !arURL.includes(`${PROTOCOL_PREFIX}://`)) {
     return false;
   }
 
   // value (address / permapage / id)
-  const value = arURL.replace("ar://", "");
+  const value = arURL.replace(`${PROTOCOL_PREFIX}://`, "");
 
   if (!value || value === "") {
     return false;
