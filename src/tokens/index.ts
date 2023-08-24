@@ -127,15 +127,17 @@ export function useTokens() {
       setTokens(
         await Promise.all(
           tokens.map(async (token) => {
-            // get state
-            const { state } = await getContract<TokenState>(token.id);
+            try {
+              // get state
+              const { state } = await getContract<TokenState>(token.id);
 
-            // parse settings
-            const settings = getSettings(state);
+              // parse settings
+              const settings = getSettings(state);
 
-            token.balance = state.balances[activeAddress] || 0;
-            token.divisibility = state.divisibility;
-            token.defaultLogo = settings.get("communityLogo");
+              token.balance = state.balances[activeAddress] || 0;
+              token.divisibility = state.divisibility;
+              token.defaultLogo = settings.get("communityLogo");
+            } catch {}
 
             return token;
           })
