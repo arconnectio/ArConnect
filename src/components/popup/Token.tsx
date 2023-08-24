@@ -145,7 +145,7 @@ const TokenName = styled(Text).attrs({
 const NativeBalance = styled(Text).attrs({
   noMargin: true
 })`
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 400;
   color: rgba(${(props) => props.theme.primaryText}, 0.83);
 `;
