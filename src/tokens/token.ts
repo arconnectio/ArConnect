@@ -261,7 +261,7 @@ export interface TokenInteraction {
  */
 export async function loadTokenLogo(
   id: string,
-  defaultLogo: string,
+  defaultLogo?: string,
   theme?: DisplayTheme
 ) {
   const viewblockURL = viewblock.getTokenLogo(id, theme);
@@ -286,8 +286,21 @@ export async function loadTokenLogo(
       return `${concatGatewayURL(defaultGateway)}/${defaultLogo}`;
     }
 
-    // if there are no logos in settings, return the AR logo
-    return theme === "dark" ? arLogoDark : arLogoLight;
+    try {
+      // try to see if the token logo is the data
+      // of the token contract creation transaction
+      const res = await fetch(`${concatGatewayURL(defaultGateway)}/${id}`);
+      const contentType = res.headers.get("content-type");
+
+      if (!contentType.includes("image")) {
+        throw new Error();
+      }
+
+      return URL.createObjectURL(await res.blob());
+    } catch {
+      // if there are no logos in settings, return the AR logo
+      return theme === "dark" ? arLogoLight : arLogoDark;
+    }
   }
 }
 

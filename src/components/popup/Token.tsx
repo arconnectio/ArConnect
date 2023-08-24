@@ -59,12 +59,9 @@ export default function Token({ onClick, ...props }: Props) {
     (async () => {
       if (!props?.id || logo) return;
       setLogo(viewblock.getTokenLogo(props.id));
-
-      if (!props.defaultLogo) return;
-
       setLogo(await loadTokenLogo(props.id, props.defaultLogo, theme));
     })();
-  }, [props, theme]);
+  }, [props, theme, logo]);
 
   return (
     <Wrapper onClick={onClick}>
