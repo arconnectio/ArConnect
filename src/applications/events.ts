@@ -28,15 +28,26 @@ export async function appConfigChangeListener(
   for (const key in changes) {
     // continue if not an app config change and
     // if the app is added to the stored apps
-    if (!key.startsWith(PREFIX) || !storedApps.includes(key)) continue;
+
+    if (
+      !key.startsWith(PREFIX) ||
+      !storedApps.includes(key.replace(PREFIX, ""))
+    )
+      continue;
 
     // get values and app
-    const { oldValue, newValue } = changes[key];
+    const { oldValue: storedOldValue, newValue: storedNewValue } = changes[key];
     const appURL = key.replace(PREFIX, "");
     const app = new Application(appURL);
+    // this was changed by atticus because values in storage are stored stringified
+    const oldValue = JSON.parse(
+      storedOldValue as unknown as string
+    ) as InitAppParams;
+    const newValue = JSON.parse(
+      storedNewValue as unknown as string
+    ) as InitAppParams;
 
     // check if permission event emiting is needed
-
     // get missing permissions
     const missingPermissions = getMissingPermissions(
       oldValue?.permissions || [],
@@ -62,6 +73,7 @@ export async function appConfigChangeListener(
     ]);
 
     // compare gateway objects
+
     if (
       !compareGateways(oldValue?.gateway || {}, newValue?.gateway || {}) &&
       hasGwPermission
@@ -76,7 +88,7 @@ export async function appConfigChangeListener(
     }
   }
 
-  // send permissins to the appropriate tab
+  // send permissions to the appropriate tab
   await forEachTab(async (tab) => {
     // return if no tab url is present
     if (!tab?.url || !tab?.id) return;
@@ -85,7 +97,6 @@ export async function appConfigChangeListener(
     const eventsForTab = events
       .filter(({ appURL }) => getAppURL(tab.url) === appURL)
       .map((e) => e.event);
-
     // send the events
     for (const event of eventsForTab) {
       // trigger emiter
