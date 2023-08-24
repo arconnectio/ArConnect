@@ -4,6 +4,7 @@ import { getSetting } from "~settings";
  * List of DRE nodes supported
  */
 export const dreNodes: Record<string, string> = {
+  "WARP DRE-U": "https://dre-u.warp.cc",
   "WARP DRE-1": "https://dre-1.warp.cc",
   "WARP DRE-2": "https://dre-2.warp.cc",
   "WARP DRE-3": "https://dre-3.warp.cc",
@@ -23,7 +24,7 @@ export async function getContract<T = { [key: string]: unknown }>(
 ): Promise<DreContractReturn<T>> {
   // get DRE setting
   const activeDREKey: string = await getSetting("dre_node").getValue();
-  const dreURL = dreNodes[activeDREKey] || dreNodes[Object.keys(dreNodes)[3]];
+  const dreURL = dreNodes[activeDREKey] || dreNodes[Object.keys(dreNodes)[0]];
 
   // create call url
   const url = new URL("contract", dreURL);

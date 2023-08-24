@@ -39,7 +39,7 @@ export default function Tokens() {
         <NoTokens>{browser.i18n.getMessage("no_assets")}</NoTokens>
       )}
       <TokensList>
-        {assets.slice(0, 3).map((token, i) => (
+        {assets.slice(0, 8).map((token, i) => (
           <Token
             {...token}
             onClick={() => push(`/token/${token.id}`)}

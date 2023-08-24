@@ -1,5 +1,5 @@
 import PasswordStrength from "../../../components/welcome/PasswordStrength";
-import { AnimatePresence, motion, type Variants } from "framer-motion";
+import PasswordMatch from "~components/welcome/PasswordMatch";
 import { checkPasswordValid } from "~wallets/generator";
 import { ArrowRightIcon } from "@iconicicons/react";
 import { useLocation, useRoute } from "wouter";
@@ -7,7 +7,6 @@ import Paragraph from "~components/Paragraph";
 import { useContext, useMemo } from "react";
 import browser from "webextension-polyfill";
 import { PasswordContext } from "../setup";
-import styled from "styled-components";
 import {
   Button,
   Input,
@@ -16,7 +15,6 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
-import PasswordMatch from "~components/welcome/PasswordMatch";
 
 export default function Password() {
   // input controls
@@ -87,6 +85,7 @@ export default function Password() {
           if (e.key !== "Enter") return;
           done();
         }}
+        autoFocus
       />
       <Spacer y={1} />
       <Input

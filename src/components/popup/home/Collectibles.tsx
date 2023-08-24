@@ -39,12 +39,13 @@ export default function Collectibles() {
         <NoAssets>{browser.i18n.getMessage("no_collectibles")}</NoAssets>
       )}
       <CollectiblesList>
-        {collectibles.slice(0, 4).map((collectible, i) => (
+        {collectibles.slice(0, 6).map((collectible, i) => (
           <Collectible
             id={collectible.id}
             name={collectible.name || collectible.ticker}
             balance={collectible.balance}
             divisibility={collectible.divisibility}
+            decimals={collectible.decimals}
             onClick={() => push(`/collectible/${collectible.id}`)}
             key={i}
           />

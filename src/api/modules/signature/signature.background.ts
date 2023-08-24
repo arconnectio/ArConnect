@@ -26,20 +26,22 @@ const background: ModuleFunction<number[]> = async (
   isSignatureAlgorithm(algorithm);
 
   // temporary whitelist
-  //const whitelisted = appData.appURL.match(getWhitelistRegExp());
+  const whitelisted = appData.appURL.match(getWhitelistRegExp());
 
   //isNotNull(whitelisted, "The signature() API is deprecated.");
   //isNotUndefined(whitelisted, "The signature() API is deprecated.");
 
   // request user to authorize
-  try {
-    await authenticate({
-      type: "signature",
-      url: appData.appURL,
-      message: data
-    });
-  } catch {
-    throw new Error("User rejected the signature request");
+  if (!whitelisted) {
+    try {
+      await authenticate({
+        type: "signature",
+        url: appData.appURL,
+        message: data
+      });
+    } catch {
+      throw new Error("User rejected the signature request");
+    }
   }
 
   // grab the user's keyfile

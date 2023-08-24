@@ -146,76 +146,81 @@ export default function WalletSwitcher({
                 e.preventDefault();
               }}
             >
-              {wallets.map((wallet, i) => (
-                <Wallet
-                  open={open}
-                  key={i}
-                  onClick={() => {
-                    setActiveAddress(wallet.address);
-                    setToast({
-                      type: "success",
-                      content: browser.i18n.getMessage("switchedToWallet", [
-                        wallet.name
-                      ]),
-                      duration: 1100
-                    });
-                    close();
-                  }}
-                >
-                  <WalletData>
-                    <WalletTitle>
-                      <WalletName>{wallet.name}</WalletName>
-                      <Text noMargin>
-                        (
-                        {formatAddress(
-                          wallet.address,
-                          wallet.name.length > 14 ? 3 : 6
+              <Wallets>
+                {wallets.map((wallet, i) => (
+                  <Wallet
+                    open={open}
+                    key={i}
+                    onClick={() => {
+                      setActiveAddress(wallet.address);
+                      setToast({
+                        type: "success",
+                        content: browser.i18n.getMessage("switchedToWallet", [
+                          wallet.name
+                        ]),
+                        duration: 1100
+                      });
+                      close();
+                    }}
+                  >
+                    <WalletData>
+                      <WalletTitle>
+                        <WalletName>{wallet.name}</WalletName>
+                        <Text noMargin>
+                          (
+                          {formatAddress(
+                            wallet.address,
+                            wallet.name.length > 14 ? 3 : 4
+                          )}
+                          )
+                        </Text>
+                        {wallet.address === activeAddress && (
+                          <ActiveIndicator />
                         )}
-                        )
-                      </Text>
-                      {wallet.address === activeAddress && <ActiveIndicator />}
-                    </WalletTitle>
-                    <Balance>
-                      {formatTokenBalance(wallet.balance)}
-                      <span>AR</span>
-                    </Balance>
-                  </WalletData>
-                  <Avatar img={wallet.avatar}>
-                    {!wallet.avatar && <NoAvatarIcon />}
-                    {wallet.api === "keystone" && (
-                      <HardwareWalletIcon icon={keystoneLogo} color="#2161FF" />
-                    )}
-                  </Avatar>
-                </Wallet>
-              ))}
+                      </WalletTitle>
+                      <Balance>
+                        {formatTokenBalance(wallet.balance)}
+                        <span>AR</span>
+                      </Balance>
+                    </WalletData>
+                    <Avatar img={wallet.avatar}>
+                      {!wallet.avatar && <NoAvatarIcon />}
+                      {wallet.api === "keystone" && (
+                        <HardwareWalletIcon
+                          icon={keystoneLogo}
+                          color="#2161FF"
+                        />
+                      )}
+                    </Avatar>
+                  </Wallet>
+                ))}
+              </Wallets>
               {showOptions && (
-                <>
-                  <ActionBar>
-                    <AddWalletButton
+                <ActionBar>
+                  <AddWalletButton
+                    onClick={() =>
+                      browser.tabs.create({
+                        url: browser.runtime.getURL(
+                          "tabs/dashboard.html#/wallets/new"
+                        )
+                      })
+                    }
+                  >
+                    <PlusIcon />
+                    {browser.i18n.getMessage("add_wallet")}
+                  </AddWalletButton>
+                  <Tooltip content={browser.i18n.getMessage("edit")}>
+                    <EditButton
                       onClick={() =>
                         browser.tabs.create({
                           url: browser.runtime.getURL(
-                            "tabs/dashboard.html#/wallets/new"
+                            `tabs/dashboard.html#/wallets/${activeAddress}`
                           )
                         })
                       }
-                    >
-                      <PlusIcon />
-                      {browser.i18n.getMessage("add_wallet")}
-                    </AddWalletButton>
-                    <Tooltip content={browser.i18n.getMessage("edit")}>
-                      <EditButton
-                        onClick={() =>
-                          browser.tabs.create({
-                            url: browser.runtime.getURL(
-                              `tabs/dashboard.html#/wallets/${activeAddress}`
-                            )
-                          })
-                        }
-                      />
-                    </Tooltip>
-                  </ActionBar>
-                </>
+                    />
+                  </Tooltip>
+                </ActionBar>
               )}
             </WalletsCard>
           </Wrapper>
@@ -266,6 +271,12 @@ const Wrapper = styled(Section)<{ noPadding: boolean }>`
 `;
 
 const WalletsCard = styled(Card)`
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 0;
+`;
+
+const Wallets = styled.div`
   padding: 0.3rem;
 `;
 
@@ -373,10 +384,15 @@ const NoAvatarIcon = styled(WalletIcon)`
 `;
 
 const ActionBar = styled.div`
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.45rem ${wallet_side_padding};
+  padding: 0.75rem calc(${wallet_side_padding} + 0.3rem);
+  background-color: rgb(${(props) => props.theme.cardBackground});
 `;
 
 const AddWalletButton = styled(Button).attrs({

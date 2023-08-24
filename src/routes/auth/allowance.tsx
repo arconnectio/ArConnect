@@ -17,6 +17,7 @@ import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import App from "~components/auth/App";
 import Arweave from "arweave";
+import styled from "styled-components";
 
 export default function Allowance() {
   const arweave = new Arweave(defaultGateway);
@@ -141,7 +142,7 @@ export default function Allowance() {
         />
         <Spacer y={1.5} />
         <Section>
-          <Input
+          <NumberInput
             type="number"
             {...limitInput.bindings}
             label={browser.i18n.getMessage("limit")}
@@ -176,3 +177,13 @@ export default function Allowance() {
     </Wrapper>
   );
 }
+
+const NumberInput = styled(Input)`
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  appearance: textfield;
+`;
