@@ -5,7 +5,7 @@ import { cleanUpChunks, getChunks } from "../sign/chunks";
 import { freeDecryptedWallet } from "~wallets/encryption";
 import type { ModuleFunction } from "~api/background";
 import { createData, ArweaveSigner } from "arbundles";
-import { uploadDataToBundlr } from "./uploader";
+import { getPrice, uploadDataToBundlr } from "./uploader";
 import type { DispatchResult } from "./index";
 import { signedTxTags } from "../sign/tags";
 import { getActiveKeyfile } from "~wallets";
@@ -13,6 +13,8 @@ import { isString } from "typed-assert";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
+import { ensureAllowanceDispatch } from "./allowance";
+import { updateAllowance } from "../sign/allowance";
 
 type ReturnType = {
   arConfetti: string | false;
@@ -69,15 +71,31 @@ const background: ModuleFunction<ReturnType> = async (
   // add ArConnect tags to the tag list
   tags.push(...signedTxTags);
 
+  // get allowance
+  const allowance = await app.getAllowance();
+
   // attempt to create a bundle
   try {
     // create bundlr tx as a data entry
     const dataSigner = new ArweaveSigner(keyfile);
     const dataEntry = createData(data, dataSigner, { tags });
 
+    // check allowance
+    const price = await getPrice(dataEntry, await app.getBundler());
+
+    await ensureAllowanceDispatch(
+      appData,
+      allowance,
+      decryptedWallet.keyfile,
+      price
+    );
+
     // sign and upload bundler tx
     await dataEntry.sign(dataSigner);
     await uploadDataToBundlr(dataEntry, await app.getBundler());
+
+    // update allowance spent amount (in winstons)
+    await updateAllowance(appData.appURL, price);
 
     // show notification
     await signNotification(0, dataEntry.id, appData.appURL, "dispatch");
@@ -98,7 +116,18 @@ const background: ModuleFunction<ReturnType> = async (
     for (const arcTag of signedTxTags) {
       transaction.addTag(arcTag.name, arcTag.value);
     }
+    // calculate price
+    const price = +transaction.reward + parseInt(transaction.quantity);
 
+    // ensure allowance
+    await ensureAllowanceDispatch(
+      appData,
+      allowance,
+      decryptedWallet.keyfile,
+      price
+    );
+
+    // sign and upload
     await arweave.transactions.sign(transaction, keyfile);
     const uploader = await arweave.transactions.getUploader(transaction);
 
@@ -106,8 +135,8 @@ const background: ModuleFunction<ReturnType> = async (
       await uploader.uploadChunk();
     }
 
-    // calculate price
-    const price = +transaction.reward + parseInt(transaction.quantity);
+    // update allowance spent amount (in winstons)
+    await updateAllowance(appData.appURL, price);
 
     // show notification
     await signNotification(price, transaction.id, appData.appURL);

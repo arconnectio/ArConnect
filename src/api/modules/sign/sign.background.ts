@@ -87,7 +87,12 @@ const background: ModuleFunction<BackgroundResult> = async (
   if (allowance.enabled && activeWallet.type === "local") {
     // authenticate user if the allowance
     // limit is reached
-    await allowanceAuth(allowance, appData.appURL, price);
+    try {
+      await allowanceAuth(allowance, appData.appURL, price);
+    } catch (e) {
+      freeDecryptedWallet(keyfile);
+      throw new Error(e?.message || e);
+    }
   } else {
     // get address of keyfile
     const addr =

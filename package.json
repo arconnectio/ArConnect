@@ -24,7 +24,6 @@
       "alarms",
       "contextMenus",
       "tabs",
-      "declarativeNetRequest",
       "webNavigation",
       "notifications",
       "<all_urls>"
