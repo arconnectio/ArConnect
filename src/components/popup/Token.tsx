@@ -138,7 +138,7 @@ const TokenName = styled(Text).attrs({
   display: flex;
   align-items: center;
   gap: 0.34rem;
-  font-size: 1em;
+  font-size: 1rem;
   color: rgb(${(props) => props.theme.primaryText});
 `;
 
