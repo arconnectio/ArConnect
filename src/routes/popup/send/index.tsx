@@ -203,9 +203,9 @@ export default function Send({ id }: Props) {
       }
 
       // fetch token state
-      const { state } = await getContract<TokenState>(id);
+      const { state } = await getContract<TokenState>(selectedToken);
       const parsedDecimals = getDecimals({
-        id,
+        id: selectedToken,
         decimals: state.decimals,
         divisibility: state.divisibility
       });
@@ -226,9 +226,7 @@ export default function Send({ id }: Props) {
   // send tx
   async function send() {
     // return if target is undefined
-    if (!target) {
-      return;
-    }
+    if (!target) return;
 
     // check amount
     const amountInt = Number(amount);
@@ -255,7 +253,7 @@ export default function Send({ id }: Props) {
       let arweave = new Arweave(defaultGateway);
       let tx = await arweave.createTransaction({
         target: target.address,
-        quantity: arweave.ar.arToWinston(amount.toString())
+        quantity: arweave.ar.arToWinston(amount)
       });
 
       if (selectedToken !== "AR") {
@@ -279,7 +277,7 @@ export default function Send({ id }: Props) {
           JSON.stringify({
             function: "transfer",
             target: target.address,
-            qty: fractionedToBalance(Number(amount), { decimals })
+            qty: fractionedToBalance(amountInt, { decimals })
           })
         );
       }
