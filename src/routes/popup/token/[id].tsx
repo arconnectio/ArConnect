@@ -1,4 +1,8 @@
-import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
+import {
+  balanceToFractioned,
+  formatFiatBalance,
+  formatTokenBalance
+} from "~tokens/currency";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { Loading, Section, Spacer, Text } from "@arconnect/components";
@@ -88,11 +92,14 @@ export default function Asset({ id }: Props) {
   const tokenBalance = useMemo(() => {
     if (!state) return "0";
 
-    const val =
-      (state.balances?.[activeAddress] || 0) / (state.divisibility || 1);
+    const val = balanceToFractioned(state.balances?.[activeAddress] || 0, {
+      id,
+      decimals: state.decimals,
+      divisibility: state.divisibility
+    });
 
     return formatTokenBalance(val);
-  }, [state, activeAddress]);
+  }, [id, state, activeAddress]);
 
   // router push
   const [push] = useHistory();

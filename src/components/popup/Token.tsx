@@ -1,4 +1,8 @@
-import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
+import {
+  formatFiatBalance,
+  formatTokenBalance,
+  balanceToFractioned
+} from "~tokens/currency";
 import { type MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { defaultGateway } from "~applications/gateway";
 import { hoverEffect, useTheme } from "~utils/theme";
@@ -21,9 +25,19 @@ export default function Token({ onClick, ...props }: Props) {
   const theme = useTheme();
 
   // token balance
-  const balance = useMemo(
-    () => formatTokenBalance(props.balance / (props.divisibility || 1)),
+  const fractBalance = useMemo(
+    () =>
+      balanceToFractioned(props.balance, {
+        id: props.id,
+        decimals: props.decimals,
+        divisibility: props.divisibility
+      }),
     [props]
+  );
+
+  const balance = useMemo(
+    () => formatTokenBalance(fractBalance),
+    [fractBalance]
   );
 
   // token price
@@ -33,7 +47,7 @@ export default function Token({ onClick, ...props }: Props) {
   const fiatBalance = useMemo(() => {
     if (!price) return undefined;
 
-    return (props.balance / (props.divisibility || 1)) * price;
+    return fractBalance * price;
   }, [price, balance]);
 
   // token logo

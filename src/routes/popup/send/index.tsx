@@ -1,10 +1,15 @@
+import {
+  balanceToFractioned,
+  formatFiatBalance,
+  fractionedToBalance,
+  getDecimals
+} from "~tokens/currency";
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { getAnsProfile, type AnsUser, getAnsProfileByLabel } from "~lib/ans";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { formatAddress, isAddressFormat } from "~utils/format";
 import { useState, useEffect, useMemo } from "react";
-import { formatFiatBalance } from "~tokens/currency";
 import { useStorage } from "@plasmohq/storage/hook";
 import { IconButton } from "~components/IconButton";
 import type { TokenState } from "~tokens/token";
@@ -187,20 +192,28 @@ export default function Send({ id }: Props) {
     instance: ExtensionStorage
   });
 
-  // divisibility for PSTs
-  const [divisibility, setDivisibility] = useState(1);
+  // decimals for PSTs
+  const [decimals, setDecimals] = useState(0);
 
   useEffect(() => {
     (async () => {
       if (selectedToken === "AR") {
         setBalance(arBalance);
-        return setDivisibility(1);
+        return setDecimals(0);
       }
 
+      // fetch token state
       const { state } = await getContract<TokenState>(id);
+      const parsedDecimals = getDecimals({
+        id,
+        decimals: state.decimals,
+        divisibility: state.divisibility
+      });
 
-      setDivisibility(state.divisibility || 1);
-      setBalance(state.balances[activeAddress] / (state.divisibility || 1));
+      setDecimals(parsedDecimals);
+      setBalance(
+        balanceToFractioned(state.balances[activeAddress], { decimals })
+      );
     })();
   }, [selectedToken, arBalance, activeAddress]);
 
@@ -266,7 +279,7 @@ export default function Send({ id }: Props) {
           JSON.stringify({
             function: "transfer",
             target: target.address,
-            qty: Number(amount) * divisibility
+            qty: fractionedToBalance(Number(amount), { decimals })
           })
         );
       }
@@ -583,6 +596,7 @@ export default function Send({ id }: Props) {
                     name={token.name || token.ticker}
                     balance={token.balance}
                     divisibility={token.divisibility}
+                    decimals={token.decimals}
                     onClick={() => {
                       setSelectedToken(token.id);
                       setShownTokenSelector(false);

@@ -45,6 +45,7 @@ export default function Collectibles() {
             name={collectible.name || collectible.ticker}
             balance={collectible.balance}
             divisibility={collectible.divisibility}
+            decimals={collectible.decimals}
             onClick={() => push(`/collectible/${collectible.id}`)}
             key={i}
           />

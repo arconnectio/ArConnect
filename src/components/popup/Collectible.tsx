@@ -1,14 +1,21 @@
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { type MouseEventHandler, useMemo } from "react";
-import { formatTokenBalance } from "~tokens/currency";
+import { formatTokenBalance, balanceToFractioned } from "~tokens/currency";
 import { hoverEffect } from "~utils/theme";
 import styled from "styled-components";
 
 export default function Collectible({ id, onClick, ...props }: Props) {
   // balance
   const balance = useMemo(
-    () => formatTokenBalance((props.balance || 0) / (props.divisibility || 1)),
-    [props]
+    () =>
+      formatTokenBalance(
+        balanceToFractioned(props.balance, {
+          id,
+          decimals: props.decimals,
+          divisibility: props.divisibility
+        })
+      ),
+    [props, id]
   );
 
   return (
@@ -82,5 +89,6 @@ interface Props {
   name: string;
   balance: number;
   divisibility?: number;
+  decimals?: number;
   onClick?: MouseEventHandler<HTMLDivElement>;
 }

@@ -19,6 +19,7 @@ export interface Token {
   gateway?: Gateway;
   balance: number;
   divisibility?: number;
+  decimals?: number;
   defaultLogo?: string;
 }
 
