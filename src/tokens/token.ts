@@ -310,3 +310,10 @@ export async function loadTokenLogo(
 export function getSettings(state: TokenState) {
   return new Map<string, any>(state?.settings || []);
 }
+
+/**
+ * Overrides for well-known tokens' types
+ */
+export const tokenTypeRegistry: Record<string, TokenType> = {
+  "tfalT8Z-88riNtoXdF5ldaBtmsfcSmbMqWLh2DHJIbg": "asset"
+};
