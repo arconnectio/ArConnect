@@ -33,9 +33,7 @@ export async function appConfigChangeListener(
     // this is a brittle check, app_ can be included in a websites URL - recommend changing this to something else.
     if (
       !key.startsWith(PREFIX) ||
-      !storedApps.includes(
-        key.startsWith(PREFIX) ? key.replace(PREFIX, "") : key
-      )
+      !storedApps.includes(key.replace(PREFIX, ""))
     )
       continue;
 
