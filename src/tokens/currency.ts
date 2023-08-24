@@ -43,6 +43,9 @@ const MANUAL_DECIMALS = {
  * to adjust a wallet balance from the token state.
  */
 export function getDecimals(cfg: DivisibilityOrDecimals) {
+  // if there is no config, there are no decimals
+  if (!cfg) return 0;
+
   // manually adjust if ID is provided
   if (Object.keys(MANUAL_DECIMALS).includes(cfg.id)) {
     return MANUAL_DECIMALS[cfg.id];
@@ -107,7 +110,7 @@ export function fractionedToBalance(
   return balance * Math.pow(10, decimals);
 }
 
-interface DivisibilityOrDecimals {
+export interface DivisibilityOrDecimals {
   id?: string;
   decimals?: number;
   divisibility?: number;

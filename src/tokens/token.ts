@@ -1,6 +1,10 @@
+import {
+  formatTokenBalance,
+  type DivisibilityOrDecimals,
+  balanceToFractioned
+} from "./currency";
 import type { GQLEdgeInterface } from "ar-gql/dist/faces";
 import type { DisplayTheme } from "@arconnect/components";
-import { formatTokenBalance } from "./currency";
 import * as viewblock from "~lib/viewblock";
 import {
   concatGatewayURL,
@@ -197,7 +201,7 @@ export function parseInteractions(
   interactions: GQLEdgeInterface[],
   activeAddress: string,
   ticker?: string,
-  divisibility?: number
+  fractionsCfg?: DivisibilityOrDecimals
 ): TokenInteraction[] {
   return interactions.map((tx) => {
     // interaction input
@@ -213,7 +217,7 @@ export function parseInteractions(
 
     if (input.function === "transfer") {
       type = (recipient === activeAddress && "in") || "out";
-      qty = Number(input.qty) / (divisibility || 1);
+      qty = balanceToFractioned(Number(input.qty), fractionsCfg);
       otherAddress =
         (recipient === activeAddress && tx.node.owner.address) || recipient;
     }

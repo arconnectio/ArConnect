@@ -92,7 +92,7 @@ export default function Asset({ id }: Props) {
   const tokenBalance = useMemo(() => {
     if (!state) return "0";
 
-    const val = balanceToFractioned(state.balances?.[activeAddress] || 0, {
+    const val = balanceToFractioned(state.balances?.[activeAddress], {
       id,
       decimals: state.decimals,
       divisibility: state.divisibility
@@ -171,11 +171,14 @@ export default function Asset({ id }: Props) {
       return `?? ${currency.toUpperCase()}`;
     }
 
-    const bal =
-      (state.balances?.[activeAddress] || 0) / (state.divisibility || 1);
+    const bal = balanceToFractioned(state.balances?.[activeAddress], {
+      id,
+      decimals: state.decimals,
+      divisibility: state.divisibility
+    });
 
     return formatFiatBalance(price * bal, currency);
-  }, [state, activeAddress, price, currency]);
+  }, [id, state, activeAddress, price, currency]);
 
   const [priceWarningShown, setPriceWarningShown] = useStorage({
     key: "price_warning_shown",

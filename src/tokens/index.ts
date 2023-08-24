@@ -82,6 +82,7 @@ export async function addToken(id: string, type: TokenType, gateway?: Gateway) {
     gateway,
     balance: state.balances[activeAddress] || 0,
     divisibility: state.divisibility,
+    decimals: state.decimals,
     defaultLogo: settings.get("communityLogo") as string
   });
   await ExtensionStorage.set("tokens", tokens);
@@ -136,6 +137,7 @@ export function useTokens() {
 
               token.balance = state.balances[activeAddress] || 0;
               token.divisibility = state.divisibility;
+              token.decimals = state.decimals;
               token.defaultLogo = settings.get("communityLogo");
             } catch {}
 
