@@ -29,8 +29,6 @@ export async function appConfigChangeListener(
     // continue if not an app config change and
     // if the app is added to the stored apps
 
-    // this was changed by atticus because apps are stored without a prefix
-    // this is a brittle check, app_ can be included in a websites URL - recommend changing this to something else.
     if (
       !key.startsWith(PREFIX) ||
       !storedApps.includes(key.replace(PREFIX, ""))
