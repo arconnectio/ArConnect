@@ -52,6 +52,7 @@ const Image = styled.div<{ src: string }>`
   position: relative;
   background-image: url(${(props) => props.src});
   background-size: cover;
+  background-position: center;
   padding-top: 100%;
   border-radius: 12px;
 `;

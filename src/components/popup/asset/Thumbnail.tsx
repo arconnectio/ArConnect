@@ -2,21 +2,39 @@ import type { DisplayTheme } from "@arconnect/components";
 import { MaximizeIcon } from "@iconicicons/react";
 import { useTheme } from "~utils/theme";
 import styled from "styled-components";
+import { useState } from "react";
 
 export default function Thumbnail({ src }: Props) {
   // display theme
   const theme = useTheme();
 
+  // full view
+  const [fullView, setFullView] = useState(false);
+
   return (
-    <ThumbnailImage src={src} displayTheme={theme}>
-      <FullScreenButton href={src} target="_blank" rel="noopener noreferer">
+    <ThumbnailImage
+      src={src}
+      displayTheme={theme}
+      onClick={() => setFullView((v) => !v)}
+      fullView={fullView}
+    >
+      <FullScreenButton
+        href={src}
+        target="_blank"
+        rel="noopener noreferer"
+        onClick={(e) => e.stopPropagation()}
+      >
         <MaximizeIcon />
       </FullScreenButton>
     </ThumbnailImage>
   );
 }
 
-const ThumbnailImage = styled.div<{ displayTheme: DisplayTheme; src: string }>`
+const ThumbnailImage = styled.div<{
+  displayTheme: DisplayTheme;
+  src: string;
+  fullView: boolean;
+}>`
   position: relative;
   width: 100%;
   padding-top: 100%;
@@ -24,8 +42,10 @@ const ThumbnailImage = styled.div<{ displayTheme: DisplayTheme; src: string }>`
     ${(props) =>
       props.displayTheme === "light" ? "0, 0, 0" : props.theme.cardBackground}
   );
-  background-size: cover;
+  background-size: ${(props) => (props.fullView ? "contain" : "cover")};
   background-image: url(${(props) => props.src});
+  background-position: center;
+  background-repeat: no-repeat;
   overflow: hidden;
 `;
 
