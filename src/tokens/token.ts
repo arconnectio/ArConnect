@@ -32,38 +32,6 @@ export interface TokenState {
 export type TokenType = "asset" | "collectible";
 
 /**
- * Check if a contract state is a
- * valid token state
- */
-export function validateTokenState(state: TokenState) {
-  if (!state) {
-    throw new Error("No state for token");
-  }
-
-  if (!state.ticker || typeof state.ticker !== "string") {
-    throw new Error("Invalid ticker");
-  }
-
-  if (!state.balances) {
-    throw new Error("No balances object");
-  }
-
-  for (const address in state.balances) {
-    if (typeof address !== "string") {
-      throw new Error(
-        "Balances object contains an invalid address that is not a string"
-      );
-    }
-
-    if (typeof state.balances[address] !== "number") {
-      throw new Error(
-        "Balances object contains an invalid balance that is not a number"
-      );
-    }
-  }
-}
-
-/**
  * Get the initial state of a contract
  *
  * @param id Contract ID

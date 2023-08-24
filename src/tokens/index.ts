@@ -2,6 +2,7 @@ import type { EvalStateResult } from "warp-contracts";
 import type { Gateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
+import { isTokenState } from "~utils/assertions";
 import { useEffect, useState } from "react";
 import { getActiveAddress } from "~wallets";
 import { getContract } from "~lib/warp";
@@ -9,8 +10,7 @@ import {
   getSettings,
   type Token,
   type TokenState,
-  type TokenType,
-  validateTokenState
+  type TokenType
 } from "./token";
 
 /** Default tokens */
@@ -56,9 +56,10 @@ export async function getTokens() {
  * @param id ID of the token contract
  */
 export async function addToken(id: string, type: TokenType, gateway?: Gateway) {
-  const { state } = await getContract<TokenState>(id);
+  const { state } = await getContract(id);
 
-  validateTokenState(state);
+  // validate state
+  isTokenState(state);
 
   // add token
   const activeAddress = await getActiveAddress();
