@@ -82,7 +82,7 @@ const settings: Setting[] = [
     icon: ChartIcon,
     description: "setting_analytic_description",
     type: "boolean",
-    defaultValue: true
+    defaultValue: false
   })
 ];
 

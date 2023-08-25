@@ -1,6 +1,6 @@
-import { AnalyticsBrowser } from "@segment/analytics-next";
+import { getSetting } from "~settings";
 import { ExtensionStorage, TempTransactionStorage } from "./storage";
-import { useState, useEffect } from "react";
+import { AnalyticsBrowser } from "@segment/analytics-next";
 
 const analytics = AnalyticsBrowser.load({
   writeKey: process.env.PLASMO_PUBLIC_SEGMENT_WRITEKEY
@@ -15,7 +15,7 @@ export enum EventType {
 
 export const trackEvent = async (eventName: EventType, properties: any) => {
   // first we check if we are allowed to collect data
-  const enabled = await ExtensionStorage.get<boolean>("setting_analytics");
+  const enabled = await getSetting("analytics").getValue();
 
   if (!enabled) return;
 
@@ -24,6 +24,7 @@ export const trackEvent = async (eventName: EventType, properties: any) => {
   // TODO:login is tracked only once and compared to an hour period before logged as another Login event
   if (eventName === EventType.LOGIN) {
     const storageTime = await TempTransactionStorage.get(EventType.LOGIN);
+
     if (storageTime && Date.now() < Number(storageTime) + ONE_HOUR_IN_MS) {
       return;
     }

@@ -1,24 +1,28 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Button, Text } from "@arconnect/components";
 import { useStorage } from "@plasmohq/storage/hook";
-import { ExtensionStorage } from "~utils/storage";
 import { CloseIcon } from "@iconicicons/react";
 import type { Variants } from "framer-motion";
 import browser from "webextension-polyfill";
+import useSetting from "~settings/hook";
 import styled from "styled-components";
 
 export default function AnalyticsConsent() {
   // store user answer
-  const [analytics, setAnalytics] = useStorage<boolean | undefined>({
-    key: "setting_analytics",
-    instance: ExtensionStorage
-  });
+  const [_, setAnalytics] = useSetting<boolean | undefined>("analytics");
+  const [answered, setAnswered] = useStorage("analytics_consent_answered");
 
   return (
     <>
       <AnimatePresence>
-        {typeof analytics === "undefined" && (
-          <ConsentDialog onClick={() => setAnalytics(true)} key="dialog">
+        {!answered && (
+          <ConsentDialog
+            onClick={() => {
+              setAnalytics(true);
+              setAnswered(true);
+            }}
+            key="dialog"
+          >
             <ConsentText>
               {browser.i18n.getMessage("analytic_description")}{" "}
               <a
@@ -33,8 +37,9 @@ export default function AnalyticsConsent() {
             <Buttons>
               <ConsentButton
                 onClick={(e) => {
-                  e.preventDefault();
+                  e.stopPropagation();
                   setAnalytics(false);
+                  setAnswered(true);
                 }}
               >
                 {browser.i18n.getMessage("decline")}
@@ -45,7 +50,7 @@ export default function AnalyticsConsent() {
             </Buttons>
           </ConsentDialog>
         )}
-        {typeof analytics === "undefined" && (
+        {!answered && (
           <BackgroundLayer onClick={() => setAnalytics(true)} key="bg" />
         )}
       </AnimatePresence>

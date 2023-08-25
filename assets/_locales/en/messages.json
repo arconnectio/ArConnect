@@ -412,7 +412,7 @@
     "description": "Reset settings description"
   },
   "setting_analytic_description": {
-    "message": "ArConnect Analytics",
+    "message": "Provide the ArConnect team useful anonymous to improve the project",
     "description": "ArConnect Analytics description"
   },
   "setting_fee_multiplier_description": {
