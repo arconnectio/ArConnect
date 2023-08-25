@@ -19,6 +19,9 @@ export const trackEvent = async (eventName: EventType, properties: any) => {
 
   if (!enabled) return;
 
+  // only track in prod
+  if (process.env.NODE_ENV === "development") return;
+
   const ONE_HOUR_IN_MS = 3600000;
 
   // TODO:login is tracked only once and compared to an hour period before logged as another Login event
