@@ -14,6 +14,11 @@ export enum EventType {
 }
 
 export const trackEvent = async (eventName: EventType, properties: any) => {
+  // first we check if we are allowed to collect data
+  const enabled = await ExtensionStorage.get<boolean>("setting_analytics");
+
+  if (!enabled) return;
+
   const ONE_HOUR_IN_MS = 3600000;
 
   // TODO:login is tracked only once and compared to an hour period before logged as another Login event
@@ -25,6 +30,7 @@ export const trackEvent = async (eventName: EventType, properties: any) => {
   }
 
   const activeAddress = await ExtensionStorage.get<string>("active_address");
+
   if (eventName === EventType.FUNDED) {
     const hasBeenTracked = await ExtensionStorage.get<boolean>(
       `wallet_funded_${activeAddress}`
@@ -32,12 +38,6 @@ export const trackEvent = async (eventName: EventType, properties: any) => {
     if (hasBeenTracked) {
       return;
     }
-  }
-
-  // check permission
-  const enabled = await ExtensionStorage.get<boolean>("setting_analytics");
-  if (enabled !== undefined && enabled === false) {
-    return;
   }
 
   try {
@@ -59,28 +59,3 @@ export const trackEvent = async (eventName: EventType, properties: any) => {
     console.error(`Failed to track event ${eventName}:`, err);
   }
 };
-
-export function useAnalytics(): [boolean, (v: boolean) => void] {
-  const [answeredAnalytics, setAnsweredAnalytics] = useState<boolean>(true);
-
-  useEffect(() => {
-    const getAnalytic = async () => {
-      const answered = await ExtensionStorage.get<string>("setting_analytics");
-      if (answered === undefined) {
-        setAnsweredAnalytics(false);
-      }
-    };
-    getAnalytic();
-  }, []);
-
-  const toggle = async (v: boolean) => {
-    try {
-      await ExtensionStorage.set("setting_analytics", v);
-      setAnsweredAnalytics(true);
-    } catch (err) {
-      console.log("err", err);
-    }
-  };
-
-  return [answeredAnalytics, toggle];
-}
