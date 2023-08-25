@@ -1,4 +1,8 @@
-import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
+import {
+  formatFiatBalance,
+  formatTokenBalance,
+  balanceToFractioned
+} from "~tokens/currency";
 import { type MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { defaultGateway } from "~applications/gateway";
 import { hoverEffect, useTheme } from "~utils/theme";
@@ -21,9 +25,19 @@ export default function Token({ onClick, ...props }: Props) {
   const theme = useTheme();
 
   // token balance
-  const balance = useMemo(
-    () => formatTokenBalance(props.balance / (props.divisibility || 1)),
+  const fractBalance = useMemo(
+    () =>
+      balanceToFractioned(props.balance, {
+        id: props.id,
+        decimals: props.decimals,
+        divisibility: props.divisibility
+      }),
     [props]
+  );
+
+  const balance = useMemo(
+    () => formatTokenBalance(fractBalance),
+    [fractBalance]
   );
 
   // token price
@@ -31,10 +45,12 @@ export default function Token({ onClick, ...props }: Props) {
 
   // fiat balance
   const fiatBalance = useMemo(() => {
-    if (!price) return undefined;
+    if (!price) return "--";
 
-    return (props.balance / (props.divisibility || 1)) * price;
-  }, [price, balance]);
+    const estimate = fractBalance * price;
+
+    return formatFiatBalance(estimate, currency.toLowerCase());
+  }, [price, balance, currency]);
 
   // token logo
   const [logo, setLogo] = useState<string>();
@@ -43,12 +59,9 @@ export default function Token({ onClick, ...props }: Props) {
     (async () => {
       if (!props?.id || logo) return;
       setLogo(viewblock.getTokenLogo(props.id));
-
-      if (!props.defaultLogo) return;
-
       setLogo(await loadTokenLogo(props.id, props.defaultLogo, theme));
     })();
-  }, [props, theme]);
+  }, [props, theme, logo]);
 
   return (
     <Wrapper onClick={onClick}>
@@ -59,14 +72,10 @@ export default function Token({ onClick, ...props }: Props) {
         <TokenName>{props.name || props.ticker || "???"}</TokenName>
       </LogoAndDetails>
       <BalanceSection>
-        <FiatBalance>
-          {(typeof fiatBalance !== "undefined" &&
-            formatFiatBalance(fiatBalance, currency.toLowerCase())) ||
-            "--"}
-        </FiatBalance>
         <NativeBalance>
           {balance} {props.ticker}
         </NativeBalance>
+        <FiatBalance>{fiatBalance}</FiatBalance>
       </BalanceSection>
     </Wrapper>
   );
@@ -96,13 +105,14 @@ const Wrapper = styled.div`
 const LogoAndDetails = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.8rem;
 `;
 
 const LogoWrapper = styled(Squircle)`
   position: relative;
-  width: 3rem;
-  height: 3rem;
+  width: 2.8rem;
+  height: 2.8rem;
+  flex-shrink: 0;
   color: rgba(${(props) => props.theme.theme}, 0.2);
 `;
 
@@ -111,8 +121,8 @@ const Logo = styled.img.attrs({
 })`
   position: absolute;
   user-select: none;
-  width: 52%;
-  height: 52%;
+  width: 55%;
+  height: 55%;
   top: 50%;
   left: 50%;
   object-fit: contain;
@@ -125,19 +135,19 @@ const TokenName = styled(Text).attrs({
   display: flex;
   align-items: center;
   gap: 0.34rem;
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: rgb(${(props) => props.theme.primaryText});
 `;
 
-const FiatBalance = styled(Text).attrs({
+const NativeBalance = styled(Text).attrs({
   noMargin: true
 })`
-  font-size: 0.98rem;
+  font-size: 0.9rem;
   font-weight: 400;
-  color: rgb(${(props) => props.theme.primaryText});
+  color: rgba(${(props) => props.theme.primaryText}, 0.83);
 `;
 
-const NativeBalance = styled.span`
+const FiatBalance = styled.span`
   font-size: 0.75rem;
   color: rgb(${(props) => props.theme.secondaryText});
   font-weight: 400;
@@ -147,6 +157,7 @@ const BalanceSection = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: right;
+  flex-shrink: 0;
 
   p,
   span {
@@ -208,13 +219,13 @@ export function ArToken({ onClick }: ArTokenProps) {
         <TokenName>Arweave</TokenName>
       </LogoAndDetails>
       <BalanceSection>
-        <FiatBalance>
-          {formatFiatBalance(fiatBalance, currency.toLowerCase())}
-        </FiatBalance>
         <NativeBalance>
           {balance}
           {" AR"}
         </NativeBalance>
+        <FiatBalance>
+          {formatFiatBalance(fiatBalance, currency.toLowerCase())}
+        </FiatBalance>
       </BalanceSection>
     </Wrapper>
   );

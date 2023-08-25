@@ -1,6 +1,10 @@
+import {
+  formatTokenBalance,
+  type DivisibilityOrDecimals,
+  balanceToFractioned
+} from "./currency";
 import type { GQLEdgeInterface } from "ar-gql/dist/faces";
 import type { DisplayTheme } from "@arconnect/components";
-import { formatTokenBalance } from "./currency";
 import * as viewblock from "~lib/viewblock";
 import {
   concatGatewayURL,
@@ -19,6 +23,7 @@ export interface Token {
   gateway?: Gateway;
   balance: number;
   divisibility?: number;
+  decimals?: number;
   defaultLogo?: string;
 }
 
@@ -30,38 +35,6 @@ export interface TokenState {
 }
 
 export type TokenType = "asset" | "collectible";
-
-/**
- * Check if a contract state is a
- * valid token state
- */
-export function validateTokenState(state: TokenState) {
-  if (!state) {
-    throw new Error("No state for token");
-  }
-
-  if (!state.ticker || typeof state.ticker !== "string") {
-    throw new Error("Invalid ticker");
-  }
-
-  if (!state.balances) {
-    throw new Error("No balances object");
-  }
-
-  for (const address in state.balances) {
-    if (typeof address !== "string") {
-      throw new Error(
-        "Balances object contains an invalid address that is not a string"
-      );
-    }
-
-    if (typeof state.balances[address] !== "number") {
-      throw new Error(
-        "Balances object contains an invalid balance that is not a number"
-      );
-    }
-  }
-}
 
 /**
  * Get the initial state of a contract
@@ -228,7 +201,7 @@ export function parseInteractions(
   interactions: GQLEdgeInterface[],
   activeAddress: string,
   ticker?: string,
-  divisibility?: number
+  fractionsCfg?: DivisibilityOrDecimals
 ): TokenInteraction[] {
   return interactions.map((tx) => {
     // interaction input
@@ -244,7 +217,7 @@ export function parseInteractions(
 
     if (input.function === "transfer") {
       type = (recipient === activeAddress && "in") || "out";
-      qty = Number(input.qty) / (divisibility || 1);
+      qty = balanceToFractioned(Number(input.qty), fractionsCfg);
       otherAddress =
         (recipient === activeAddress && tx.node.owner.address) || recipient;
     }
@@ -288,7 +261,7 @@ export interface TokenInteraction {
  */
 export async function loadTokenLogo(
   id: string,
-  defaultLogo: string,
+  defaultLogo?: string,
   theme?: DisplayTheme
 ) {
   const viewblockURL = viewblock.getTokenLogo(id, theme);
@@ -313,8 +286,21 @@ export async function loadTokenLogo(
       return `${concatGatewayURL(defaultGateway)}/${defaultLogo}`;
     }
 
-    // if there are no logos in settings, return the AR logo
-    return theme === "dark" ? arLogoDark : arLogoLight;
+    try {
+      // try to see if the token logo is the data
+      // of the token contract creation transaction
+      const res = await fetch(`${concatGatewayURL(defaultGateway)}/${id}`);
+      const contentType = res.headers.get("content-type");
+
+      if (!contentType.includes("image")) {
+        throw new Error();
+      }
+
+      return URL.createObjectURL(await res.blob());
+    } catch {
+      // if there are no logos in settings, return the AR logo
+      return theme === "dark" ? arLogoLight : arLogoDark;
+    }
   }
 }
 
@@ -324,3 +310,10 @@ export async function loadTokenLogo(
 export function getSettings(state: TokenState) {
   return new Map<string, any>(state?.settings || []);
 }
+
+/**
+ * Overrides for well-known tokens' types
+ */
+export const tokenTypeRegistry: Record<string, TokenType> = {
+  "tfalT8Z-88riNtoXdF5ldaBtmsfcSmbMqWLh2DHJIbg": "asset"
+};

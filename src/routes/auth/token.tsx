@@ -1,6 +1,7 @@
 import {
   getSettings,
   loadTokenLogo,
+  tokenTypeRegistry,
   type TokenState,
   type TokenType
 } from "~tokens/token";
@@ -82,14 +83,19 @@ export default function Token() {
       let type = params.tokenType;
 
       if (!type) {
-        // fetch data
-        const data = await fetch(
-          `${concatGatewayURL(defaultGateway)}/${params.tokenID}`
-        );
+        if (tokenTypeRegistry[params.tokenID]) {
+          // manual override
+          type = tokenTypeRegistry[params.tokenID];
+        } else {
+          // fetch data
+          const data = await fetch(
+            `${concatGatewayURL(defaultGateway)}/${params.tokenID}`
+          );
 
-        type = data.headers.get("content-type").includes("application/json")
-          ? "asset"
-          : "collectible";
+          type = data.headers.get("content-type").includes("application/json")
+            ? "asset"
+            : "collectible";
+        }
       }
 
       setTokenType(type);

@@ -1,38 +1,38 @@
-import addChromiumHandler, {
-  disableHandler as disableChromiumHandler
-} from "./chromium";
-import addFirefoxHandler, {
-  disableHandler as disableFirefoxHandler
-} from "./firefox";
+import browser, { type WebNavigation } from "webextension-polyfill";
+import type { Gateway } from "~applications/gateway";
+import { getRedirectURL } from "./parser";
 
 /**
  * Handle custom ar:// protocol, using the
- * browser.webRequest.onBeforeRequest API
- * or for MV3 the declarativeNetRequest and
- * service worker fetch event APIs.
+ * browser.webNavigation.onBeforeNavigate API.
  *
- * Protocol handler created based on the
- * issue in ipfs/ipfs-companion:
+ * This is based on the issue in ipfs/ipfs-companion:
  * https://github.com/ipfs/ipfs-companion/issues/164#issuecomment-328374052
+ *
+ * Thank you ar.io for the updated method:
+ * https://github.com/ar-io/wayfinder/blob/main/background.js#L13
  */
-export default async function registerProtocolHandler() {
-  // register for chromium-based browsers
-  if (chrome) {
-    return await addChromiumHandler();
-  }
+export default async function protocolHandler(
+  details: WebNavigation.OnBeforeNavigateDetailsType
+) {
+  const devGateway: Gateway = {
+    host: "arweave.dev",
+    port: 443,
+    protocol: "https"
+  };
 
-  // register for MV2-based browsers
-  await addFirefoxHandler();
-}
+  // parse redirect url
+  const redirectUrl = getRedirectURL(
+    new URL(details.url),
+    // TODO: use central gateway config for this
+    devGateway
+  );
 
-/**
- * Disable ar:// protocol handling
- */
-export async function unregisterProtocolHandler() {
-  // unregister for chromium-based browsers
-  if (chrome) {
-    return await disableChromiumHandler();
-  }
+  // don't do anything if it is not a protocol call
+  if (!redirectUrl) return;
 
-  await disableFirefoxHandler();
+  // update tab
+  browser.tabs.update(details.tabId, {
+    url: redirectUrl
+  });
 }

@@ -8,9 +8,9 @@ import { appsChangeListener } from "~applications";
 import { ExtensionStorage } from "~utils/storage";
 import { onInstalled } from "~utils/runtime";
 import { syncLabels } from "~wallets";
-import registerProtocolHandler from "~ar_protocol";
 import handleFeeAlarm from "~api/modules/sign/fee";
 import browser from "webextension-polyfill";
+import protocolHandler from "~ar_protocol";
 
 // watch for API calls
 onMessage("api_call", handleApiCalls);
@@ -51,6 +51,6 @@ browser.storage.onChanged.addListener(appConfigChangeListener);
 browser.runtime.onInstalled.addListener(onInstalled);
 
 // handle ar:// protocol
-registerProtocolHandler();
+browser.webNavigation.onBeforeNavigate.addListener(protocolHandler);
 
 export {};

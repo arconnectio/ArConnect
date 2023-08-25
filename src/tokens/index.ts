@@ -2,6 +2,7 @@ import type { EvalStateResult } from "warp-contracts";
 import type { Gateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
+import { isTokenState } from "~utils/assertions";
 import { useEffect, useState } from "react";
 import { getActiveAddress } from "~wallets";
 import { getContract } from "~lib/warp";
@@ -9,8 +10,7 @@ import {
   getSettings,
   type Token,
   type TokenState,
-  type TokenType,
-  validateTokenState
+  type TokenType
 } from "./token";
 
 /** Default tokens */
@@ -56,9 +56,10 @@ export async function getTokens() {
  * @param id ID of the token contract
  */
 export async function addToken(id: string, type: TokenType, gateway?: Gateway) {
-  const { state } = await getContract<TokenState>(id);
+  const { state } = await getContract(id);
 
-  validateTokenState(state);
+  // validate state
+  isTokenState(state);
 
   // add token
   const activeAddress = await getActiveAddress();
@@ -81,6 +82,7 @@ export async function addToken(id: string, type: TokenType, gateway?: Gateway) {
     gateway,
     balance: state.balances[activeAddress] || 0,
     divisibility: state.divisibility,
+    decimals: state.decimals,
     defaultLogo: settings.get("communityLogo") as string
   });
   await ExtensionStorage.set("tokens", tokens);
@@ -126,15 +128,18 @@ export function useTokens() {
       setTokens(
         await Promise.all(
           tokens.map(async (token) => {
-            // get state
-            const { state } = await getContract<TokenState>(token.id);
+            try {
+              // get state
+              const { state } = await getContract<TokenState>(token.id);
 
-            // parse settings
-            const settings = getSettings(state);
+              // parse settings
+              const settings = getSettings(state);
 
-            token.balance = state.balances[activeAddress] || 0;
-            token.divisibility = state.divisibility;
-            token.defaultLogo = settings.get("communityLogo");
+              token.balance = state.balances[activeAddress] || 0;
+              token.divisibility = state.divisibility;
+              token.decimals = state.decimals;
+              token.defaultLogo = settings.get("communityLogo");
+            } catch {}
 
             return token;
           })

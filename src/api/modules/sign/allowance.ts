@@ -69,6 +69,10 @@ export async function allowanceAuth(
     spendingLimitReached: !hasEnoughAllowance
   });
 
+  // get updated allowance
+  const app = new Application(tabURL);
+  allowance = await app.getAllowance();
+
   // call this function again, to check if the allowance
   // was reset or updated
   await allowanceAuth(allowance, tabURL, price);
