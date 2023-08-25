@@ -1,29 +1,53 @@
-import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button, Text } from "@arconnect/components";
+import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
+import { CloseIcon } from "@iconicicons/react";
 import type { Variants } from "framer-motion";
-import { useAnalytics } from "~utils/analytics";
 import browser from "webextension-polyfill";
+import styled from "styled-components";
 
 export default function AnalyticsConsent() {
-  const [answeredAnalytics, toggle] = useAnalytics();
+  // store user answer
+  const [analytics, setAnalytics] = useStorage<boolean | undefined>({
+    key: "setting_analytics",
+    instance: ExtensionStorage
+  });
 
   return (
     <>
       <AnimatePresence>
-        {!answeredAnalytics && (
-          <ConsentDialog>
-            {browser.i18n.getMessage("analytic_description")}
+        {typeof analytics === "undefined" && (
+          <ConsentDialog onClick={() => setAnalytics(true)} key="dialog">
+            <ConsentText>
+              {browser.i18n.getMessage("analytic_description")}{" "}
+              <a
+                href="https://arconnect.io/pp"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {browser.i18n.getMessage("explore_article_read_more")}
+              </a>
+            </ConsentText>
             <Buttons>
-              <Button onClick={() => toggle(true)}>
-                {browser.i18n.getMessage("accept")}
-              </Button>
-              <Button onClick={() => toggle(false)}>
+              <ConsentButton
+                onClick={(e) => {
+                  e.preventDefault();
+                  setAnalytics(false);
+                }}
+              >
                 {browser.i18n.getMessage("decline")}
-              </Button>
+              </ConsentButton>
+              <CloseButton>
+                <CloseIcon />
+              </CloseButton>
             </Buttons>
           </ConsentDialog>
         )}
-        {!answeredAnalytics && <BackgroundLayer />}
+        {typeof analytics === "undefined" && (
+          <BackgroundLayer onClick={() => setAnalytics(true)} key="bg" />
+        )}
       </AnimatePresence>
     </>
   );
@@ -44,25 +68,19 @@ const ConsentDialog = styled(motion.div).attrs({
   initial: "hidden",
   animate: "shown",
   exit: "hidden",
-  transition: { duration: 0.25 }
+  transition: { duration: 0.17 }
 })`
   position: fixed;
   display: flex;
   align-items: center;
   gap: 1.24rem;
   padding: 0.75rem 1rem;
-  background-color: rgb(${(props) => props.theme.background});
+  background-color: rgb(${(props) => props.theme.cardBackground});
   border-radius: 15px;
-  bottom: 1.5rem;
-  right: 1.5rem;
+  bottom: 0.7rem;
+  right: 0.7rem;
+  left: 0.7rem;
   z-index: 201;
-
-  @media screen and (max-width: 720px) {
-    left: 1rem;
-    right: 1rem;
-    bottom: 1rem;
-    padding: 0.7rem 0.8rem;
-  }
 `;
 
 const BackgroundLayer = styled(motion.div).attrs({
@@ -70,7 +88,7 @@ const BackgroundLayer = styled(motion.div).attrs({
   initial: "hidden",
   animate: "shown",
   exit: "hidden",
-  transition: { duration: 0.18 }
+  transition: { duration: 0.15 }
 })`
   position: fixed;
   top: 0;
@@ -82,49 +100,53 @@ const BackgroundLayer = styled(motion.div).attrs({
   z-index: 200;
 `;
 
-const Buttons = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+const ConsentText = styled(Text).attrs({
+  noMargin: true
+})`
+  font-size: 0.88rem;
 
-  @media screen and (max-width: 720px) {
-    flex-direction: column;
-    gap: 0.6rem;
+  a {
+    color: rgb(${(props) => props.theme.theme});
+    text-decoration: none;
   }
 `;
 
-const Button = styled.button<{ secondary?: boolean }>`
-  background-color: ${(props) =>
-    !props.secondary ? "#AB9AFF" : "transparent"};
+const Buttons = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
 
-  // color: ${(props) => (!props.secondary ? "#fff" : "#14d110")};
-  color: rgb(${(props) => props.theme.displayTheme});
+const ConsentButton = styled(Button).attrs({
+  small: true,
+  secondary: true
+})`
+  padding: 0.66rem 1.35rem;
+  border-radius: 13px;
+`;
 
-  font-size: 0.9rem;
-  font-weight: 550;
-  border-radius: 9px;
-  padding: 0.5rem 1.2rem;
-  cursor: pointer;
+const CloseButton = styled.button`
+  position: relative;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 100%;
   outline: none;
   border: none;
-  text-align: center;
+  background-color: transparent;
+  cursor: pointer;
   transition: all 0.23s ease-in-out;
 
   &:hover {
-    background-color: rgba(
-      255,
-      255,
-      255,
-      ${(props) => (!props.secondary ? ".8" : ".05")}
-    );
+    background-color: rgba(${(props) => props.theme.theme}, 0.15);
   }
 
-  &:active {
-    background-color: rgba(
-      0,
-      0,
-      0,
-      ${(props) => (!props.secondary ? ".75" : ".032")}
-    );
+  svg {
+    position: absolute;
+    width: 1.1rem;
+    height: 1.1rem;
+    top: 50%;
+    left: 50%;
+    color: rgb(${(props) => props.theme.theme});
+    transform: translate(-50%, -50%);
   }
 `;

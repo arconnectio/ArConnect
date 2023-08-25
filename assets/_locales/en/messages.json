@@ -30,7 +30,7 @@
     "description": "Add a wallet text"
   },
   "analytic_description" : {
-    "message" : "We use analytics to better understand customer needs",
+    "message" : "We now use analytics.",
     "description" : "Opting into Analytics text"
   },
   "analytic_title" : {
