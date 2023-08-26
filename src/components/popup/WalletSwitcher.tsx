@@ -107,26 +107,30 @@ export default function WalletSwitcher({
 
       const arweave = new Arweave(defaultGateway);
 
-      for (const { address } of wallets) {
-        // fetch balance
-        const balance = arweave.ar.winstonToAr(
-          await arweave.wallets.getBalance(address)
-        );
+      await Promise.all(
+        wallets.map(async ({ address }) => {
+          try {
+            // fetch balance
+            const balance = arweave.ar.winstonToAr(
+              await arweave.wallets.getBalance(address)
+            );
 
-        // update wallets
-        setWallets((val) =>
-          val.map((wallet) => {
-            if (wallet.address !== address) {
-              return wallet;
-            }
+            // update wallets
+            setWallets((val) =>
+              val.map((wallet) => {
+                if (wallet.address !== address) {
+                  return wallet;
+                }
 
-            return {
-              ...wallet,
-              balance: Number(balance)
-            };
-          })
-        );
-      }
+                return {
+                  ...wallet,
+                  balance: Number(balance)
+                };
+              })
+            );
+          } catch (e) {}
+        })
+      );
 
       setLoadedBalances(true);
     })();
