@@ -80,7 +80,7 @@ const settings: Setting[] = [
     name: "analytics",
     displayName: "setting_analytic",
     icon: ChartIcon,
-    description: "setting_analytic_description",
+    description: "setting_analytics_description",
     type: "boolean",
     defaultValue: false
   })

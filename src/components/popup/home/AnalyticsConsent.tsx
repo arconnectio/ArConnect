@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Button, Text } from "@arconnect/components";
 import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 import { CloseIcon } from "@iconicicons/react";
 import type { Variants } from "framer-motion";
 import browser from "webextension-polyfill";
@@ -9,8 +10,11 @@ import styled from "styled-components";
 
 export default function AnalyticsConsent() {
   // store user answer
-  const [_, setAnalytics] = useSetting<boolean | undefined>("analytics");
-  const [answered, setAnswered] = useStorage("analytics_consent_answered");
+  const [_, setAnalytics] = useSetting<boolean>("analytics");
+  const [answered, setAnswered] = useStorage<boolean>({
+    key: "analytics_consent_answered",
+    instance: ExtensionStorage
+  });
 
   return (
     <>
@@ -24,7 +28,7 @@ export default function AnalyticsConsent() {
             key="dialog"
           >
             <ConsentText>
-              {browser.i18n.getMessage("analytic_description")}{" "}
+              {browser.i18n.getMessage("analytics_description")}{" "}
               <a
                 href="https://arconnect.io/pp"
                 target="_blank"

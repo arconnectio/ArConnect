@@ -29,11 +29,11 @@
     "message": "Add wallet",
     "description": "Add a wallet text"
   },
-  "analytic_description" : {
+  "analytics_description" : {
     "message" : "We now use analytics.",
     "description" : "Opting into Analytics text"
   },
-  "analytic_title" : {
+  "analytics_title" : {
     "message" : "Opt-In Analytics",
     "description" : "Analytics title"
   },
@@ -411,7 +411,7 @@
     "message": "Remove all wallets and data",
     "description": "Reset settings description"
   },
-  "setting_analytic_description": {
+  "setting_analytics_description": {
     "message": "Provide the ArConnect team useful anonymous to improve the project",
     "description": "ArConnect Analytics description"
   },
