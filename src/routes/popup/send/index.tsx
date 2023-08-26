@@ -212,7 +212,9 @@ export default function Send({ id }: Props) {
 
       setDecimals(parsedDecimals);
       setBalance(
-        balanceToFractioned(state.balances[activeAddress], { decimals })
+        balanceToFractioned(state.balances[activeAddress], {
+          decimals: parsedDecimals
+        })
       );
     })();
   }, [selectedToken, arBalance, activeAddress]);
