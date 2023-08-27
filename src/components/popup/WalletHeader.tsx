@@ -313,8 +313,7 @@ const Wrapper = styled(Section)<{
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 2.2rem;
-  padding-bottom: 1.5rem;
+  padding: 1.475rem 20px 0.775rem calc(20px - 0.9rem);
   cursor: pointer;
   z-index: 100;
   top: 0;
@@ -332,10 +331,16 @@ const Wrapper = styled(Section)<{
   transition: all 0.23s ease-in-out;
 `;
 
+const avatarSize = "1.425rem";
+
 const Wallet = styled.div`
   display: flex;
   align-items: center;
   gap: 0.64rem;
+  padding: 0.65rem 0.9rem;
+  padding-right: 0.75rem;
+  border-radius: 0.55rem;
+  transition: transform 0.06s ease-in-out, background-color 0.17s ease-in-out;
 
   p {
     color: rgb(${(props) => props.theme.primaryText});
@@ -345,12 +350,21 @@ const Wallet = styled.div`
     width: 16px;
     height: 16px;
   }
+
+  &:hover {
+    background-color: rgba(${(props) => props.theme.theme}, 0.1);
+  }
+
+  &:active {
+    background-color: rgba(${(props) => props.theme.theme}, 0.15);
+    transform: scale(0.96);
+  }
 `;
 
 export const Avatar = styled(Squircle)`
   position: relative;
-  width: 1.425rem;
-  height: 1.425rem;
+  width: ${avatarSize};
+  height: ${avatarSize};
   transition: all 0.07s ease-in-out;
 
   ${HardwareWalletIcon} {
