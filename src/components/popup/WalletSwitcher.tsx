@@ -96,7 +96,7 @@ export default function WalletSwitcher({
 
       setLoadedAns(true);
     })();
-  }, [wallets]);
+  }, [wallets.length]);
 
   // load wallet balances
   const [loadedBalances, setLoadedBalances] = useState(false);
@@ -130,7 +130,7 @@ export default function WalletSwitcher({
 
       setLoadedBalances(true);
     })();
-  }, [wallets]);
+  }, [wallets.length]);
 
   // toasts
   const { setToast } = useToasts();
