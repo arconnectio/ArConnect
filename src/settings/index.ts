@@ -3,6 +3,7 @@ import { dreNodes } from "~lib/warp";
 import {
   BellIcon,
   CheckIcon,
+  ChartIcon,
   CloudIcon,
   DollarIcon,
   PercentageIcon,
@@ -74,6 +75,14 @@ const settings: Setting[] = [
     type: "pick",
     options: ["light", "dark", "system"],
     defaultValue: "system"
+  }),
+  new Setting({
+    name: "analytics",
+    displayName: "setting_analytic",
+    icon: ChartIcon,
+    description: "setting_analytics_description",
+    type: "boolean",
+    defaultValue: false
   })
 ];
 

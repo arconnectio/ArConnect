@@ -21,9 +21,21 @@
     "message": "Yes",
     "description": "The word \"yes\""
   },
+  "accept": {
+    "message": "Accept",
+    "description": "Accept terms"
+  },
   "add_wallet": {
     "message": "Add wallet",
     "description": "Add a wallet text"
+  },
+  "analytics_description" : {
+    "message" : "We now use analytics.",
+    "description" : "Opting into Analytics text"
+  },
+  "analytics_title" : {
+    "message" : "Opt-In Analytics",
+    "description" : "Analytics title"
   },
   "edit": {
     "message": "Edit",
@@ -40,6 +52,10 @@
   "forceConnect": {
     "message": "Force Connect",
     "description": "Force connect button text"
+  },
+  "decline": {
+    "message": "Decline",
+    "description": "Decline terms"
   },
   "devtools": {
     "message": "Devtools",
@@ -126,6 +142,10 @@
   "addTestnetTokensSubtitle": {
     "message": "Add testnet tokens to your wallet",
     "description": "Subtitle indicating the ability to add testnet AR tokens to the active wallet"
+  },
+  "analytics": {
+    "message": "Analytics",
+    "description": "Analytics text"
   },
   "arQtyPlaceholder": {
     "message": "AR qty...",
@@ -339,6 +359,10 @@
     "message": "Reset",
     "description": "Reset settings title"
   },
+  "setting_analytic": {
+    "message": "Analytics",
+    "description": "Analytics to help make ArConnect better"
+  },
   "setting_fee_multiplier": {
     "message": "Fee multiplier",
     "description": "Fee multiplier settings title"
@@ -386,6 +410,10 @@
   "setting_reset_description": {
     "message": "Remove all wallets and data",
     "description": "Reset settings description"
+  },
+  "setting_analytics_description": {
+    "message": "Provide the ArConnect team useful anonymous to improve the project",
+    "description": "ArConnect Analytics description"
   },
   "setting_fee_multiplier_description": {
     "message": "Control the fees paid after transactions",
