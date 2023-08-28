@@ -50,6 +50,7 @@ import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
+import { PageType, trackPage } from "~utils/analytics";
 
 export default function Send({ id }: Props) {
   // amount
@@ -361,6 +362,11 @@ export default function Send({ id }: Props) {
 
   // address scanner
   const [showAddressScanner, setShowAddressScanner] = useState(false);
+
+  // Segment
+  useEffect(() => {
+    trackPage(PageType.SEND);
+  }, []);
 
   return (
     <Wrapper>

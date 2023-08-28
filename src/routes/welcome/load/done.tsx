@@ -4,6 +4,8 @@ import { ExtensionStorage } from "~utils/storage";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
+import { useEffect } from "react";
+import { PageType, trackPage } from "~utils/analytics";
 
 export default function Done() {
   // analytics opt-in
@@ -22,6 +24,11 @@ export default function Done() {
 
     window.top.close();
   }
+
+  // Segment
+  useEffect(() => {
+    trackPage(PageType.ONBOARD_COMPLETE);
+  }, []);
 
   return (
     <>

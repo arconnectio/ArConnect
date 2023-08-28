@@ -21,6 +21,7 @@ import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
+import { PageType, trackPage } from "~utils/analytics";
 
 export default function Explore() {
   // ar price period
@@ -100,6 +101,11 @@ export default function Explore() {
         )
       );
     })();
+  }, []);
+
+  //segment
+  useEffect(() => {
+    trackPage(PageType.EXPLORE);
   }, []);
 
   return (
