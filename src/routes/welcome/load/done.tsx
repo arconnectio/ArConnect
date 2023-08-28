@@ -8,10 +8,20 @@ import useSetting from "~settings/hook";
 export default function Done() {
   // analytics opt-in
   const [analytics, setAnalytics] = useSetting<boolean>("analytics");
-  const [_, setAnswered] = useStorage<boolean>({
+  const [answered, setAnswered] = useStorage<boolean>({
     key: "analytics_consent_answered",
     instance: ExtensionStorage
   });
+
+  // finalize
+  async function done() {
+    if (!analytics && !answered) {
+      await setAnswered(true);
+      await setAnalytics(false);
+    }
+
+    window.top.close();
+  }
 
   return (
     <>
@@ -28,7 +38,7 @@ export default function Done() {
         {browser.i18n.getMessage("analytics_title")}
       </Checkbox>
       <Spacer y={1.5} />
-      <Button fullWidth onClick={() => window.top.close()}>
+      <Button fullWidth onClick={done}>
         {browser.i18n.getMessage("done")}
       </Button>
     </>
