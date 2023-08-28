@@ -25,8 +25,7 @@
       "contextMenus",
       "tabs",
       "webNavigation",
-      "notifications",
-      "<all_urls>"
+      "notifications"
     ],
     "web_accessible_resources": [
       {

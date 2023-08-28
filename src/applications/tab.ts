@@ -12,6 +12,14 @@ import Application from "./application";
 export async function handleTabUpdate(tabId: number) {
   // construct app
   const tab = await getTab(tabId);
+
+  // if we cannot parse the tab URL, the extension is not connected
+  if (!tab?.url) {
+    updateIcon(false);
+    createContextMenus(false);
+    return;
+  }
+
   const app = new Application(getAppURL(tab.url));
 
   // change icon to "connected" status if
