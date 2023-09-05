@@ -5,8 +5,8 @@ import { formatAddress } from "~utils/format";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import { addWallet } from "~wallets";
-import { useContext } from "react";
-import { EventType, trackEvent } from "~utils/analytics";
+import { useContext, useEffect } from "react";
+import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
 
 export default function Done() {
   // wallet context
@@ -42,6 +42,11 @@ export default function Done() {
     // close window
     window.top.close();
   }
+
+  // Segment
+  useEffect(() => {
+    trackPage(PageType.ONBOARD_COMPLETE);
+  }, []);
 
   return (
     <>

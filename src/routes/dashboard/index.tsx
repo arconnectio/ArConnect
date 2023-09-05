@@ -29,6 +29,7 @@ import Reset from "~components/dashboard/Reset";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import settings from "~settings";
+import { PageType, trackPage } from "~utils/analytics";
 
 export default function Settings({ params }: Props) {
   // router location
@@ -65,6 +66,11 @@ export default function Settings({ params }: Props) {
     if (!!activeSetting) return;
     setLocation("/" + allSettings[0].name);
   }, [activeSetting]);
+
+  // Segment
+  useEffect(() => {
+    trackPage(PageType.SETTINGS);
+  }, []);
 
   return (
     <SettingsWrapper>

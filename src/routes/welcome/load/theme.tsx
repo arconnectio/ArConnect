@@ -9,6 +9,8 @@ import {
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
+import { useEffect } from "react";
+import { PageType, trackPage } from "~utils/analytics";
 
 export default function Theme() {
   // theme
@@ -17,6 +19,12 @@ export default function Theme() {
   // route
   const [, params] = useRoute<{ setup: string; page: string }>("/:setup/:page");
   const [, setLocation] = useLocation();
+
+  // Segment
+  // TODO: specify if this is an imported or new wallet
+  useEffect(() => {
+    trackPage(PageType.ONBOARD_THEME);
+  }, []);
 
   return (
     <>

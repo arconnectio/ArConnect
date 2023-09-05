@@ -1,6 +1,6 @@
 import { Button, Spacer, Text } from "@arconnect/components";
 import { useLocation, useRoute } from "wouter";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { WalletContext } from "../setup";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
@@ -13,6 +13,7 @@ import {
   EyeIcon,
   EyeOffIcon
 } from "@iconicicons/react";
+import { PageType, trackPage } from "~utils/analytics";
 
 export default function Backup() {
   // seed blur status
@@ -34,6 +35,11 @@ export default function Backup() {
     setCopyDisplay(false);
     setTimeout(() => setCopyDisplay(true), 1050);
   }
+
+  // Segment
+  useEffect(() => {
+    trackPage(PageType.ONBOARD_BACKUP);
+  }, []);
 
   return (
     <>

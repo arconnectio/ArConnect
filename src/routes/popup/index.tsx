@@ -11,7 +11,7 @@ import Tokens from "~components/popup/home/Tokens";
 import Arweave from "arweave";
 import { isExpired } from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
-import { trackEvent, EventType } from "~utils/analytics";
+import { trackEvent, EventType, trackPage, PageType } from "~utils/analytics";
 
 export default function Home() {
   // get if the user has no balance
@@ -45,6 +45,7 @@ export default function Home() {
         push("/unlock");
       } else {
         await trackEvent(EventType.LOGIN, {});
+        await trackPage(PageType.HOME);
       }
     };
     checkExpiration();

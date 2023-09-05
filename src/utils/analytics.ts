@@ -13,6 +13,37 @@ export enum EventType {
   ONBOARDED = "ONBOARDED"
 }
 
+export enum PageType {
+  HOME = "HOMEPAGE",
+  EXPLORE = "EXPLORE",
+  RECEIVE = "RECEIVE",
+  SETTINGS = "SETTINGS",
+  SEND = "SEND",
+  ONBOARD_START = "ONBOARD_START",
+  ONBOARD_PASSWORD = "ONBOARD_PASSWORD",
+  ONBOARD_BACKUP = "ONBOARD_BACKUP",
+  ONBOARD_SEEDPHRASE = "ONBOARD_SEEDPHRASE",
+  ONBOARD_THEME = "ONBOARD_THEME",
+  ONBOARD_COMPLETE = "ONBOARD_COMPLETE"
+}
+
+export const trackPage = async (title: PageType) => {
+  const enabled = await getSetting("analytics").getValue();
+
+  if (!enabled) return;
+
+  // only track in prod
+  if (process.env.NODE_ENV === "development") return;
+
+  try {
+    await analytics.page("ArConnect Extension", {
+      title
+    });
+  } catch (err) {
+    console.log("err", err);
+  }
+};
+
 export const trackEvent = async (eventName: EventType, properties: any) => {
   // first we check if we are allowed to collect data
   const enabled = await getSetting("analytics").getValue();

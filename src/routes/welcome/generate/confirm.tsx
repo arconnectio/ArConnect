@@ -1,11 +1,12 @@
 import { Button, Spacer, Text, useToasts } from "@arconnect/components";
 import { ArrowRightIcon } from "@iconicicons/react";
 import { useLocation, useRoute } from "wouter";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { WalletContext } from "../setup";
 import SeedInput from "~components/SeedInput";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
+import { PageType, trackPage } from "~utils/analytics";
 
 export default function Confirm() {
   // wallet context
@@ -36,6 +37,11 @@ export default function Confirm() {
     // continue
     setLocation(`/${params.setup}/${Number(params.page) + 1}`);
   }
+
+  // Segment
+  useEffect(() => {
+    trackPage(PageType.ONBOARD_SEEDPHRASE);
+  }, []);
 
   return (
     <>

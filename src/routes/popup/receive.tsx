@@ -8,6 +8,8 @@ import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
+import { useEffect } from "react";
+import { PageType, trackPage } from "~utils/analytics";
 
 export default function Receive() {
   // active address
@@ -15,6 +17,11 @@ export default function Receive() {
     key: "active_address",
     instance: ExtensionStorage
   });
+
+  //segment
+  useEffect(() => {
+    trackPage(PageType.RECEIVE);
+  }, []);
 
   return (
     <Wrapper>
