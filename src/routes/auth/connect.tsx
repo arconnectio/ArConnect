@@ -8,7 +8,11 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
-import { permissionData, type PermissionType } from "~applications/permissions";
+import {
+  getMissingPermissions,
+  permissionData,
+  type PermissionType
+} from "~applications/permissions";
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { defaultGateway, type Gateway } from "~applications/gateway";
 import { CloseLayer } from "~components/popup/WalletHeader";
@@ -32,6 +36,7 @@ import Head from "~components/popup/Head";
 import App from "~components/auth/App";
 import styled from "styled-components";
 import { EventType, trackEvent } from "~utils/analytics";
+import Application from "~applications/application";
 
 export default function Connect() {
   // active address
@@ -119,14 +124,24 @@ export default function Connect() {
   async function connect() {
     if (appUrl === "") return;
 
-    // add the app
-    await addApp({
-      url: appUrl,
-      permissions,
-      name: appData.name,
-      logo: appData.logo,
-      gateway: params.gateway || defaultGateway
-    });
+    // get existing permissions
+    const app = new Application(appUrl);
+    const existingPermissions = await app.getPermissions();
+
+    if (existingPermissions.length === 0) {
+      // add the app
+      await addApp({
+        url: appUrl,
+        permissions,
+        name: appData.name,
+        logo: appData.logo,
+        gateway: params.gateway || defaultGateway
+      });
+    } else {
+      // update existing permissions, if the app
+      // has already been added
+      await app.updateSettings({ permissions });
+    }
 
     // send response
     await replyToAuthRequest("connect", params.authID);
