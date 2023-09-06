@@ -7,6 +7,8 @@ import Squircle from "~components/Squircle";
 import SearchInput from "./SearchInput";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
+import { createCoinWithAnimation } from "~api/modules/sign/animation";
+import { arconfettiIcon } from "~api/modules/sign/utils";
 
 export default function Setting({ setting }: Props) {
   // setting state
@@ -23,6 +25,16 @@ export default function Setting({ setting }: Props) {
 
   // search
   const searchInput = useInput();
+
+  // confetti example
+  const confetti = async () => {
+    const confettiIcon = await arconfettiIcon();
+    if (confettiIcon) {
+      for (let i = 0; i < 8; i++) {
+        setTimeout(() => createCoinWithAnimation(confettiIcon), i * 150);
+      }
+    }
+  };
 
   // search filter function
   function filterSearchResults(option: string) {
@@ -86,7 +98,15 @@ export default function Setting({ setting }: Props) {
           <RadioWrapper>
             {setting?.options &&
               setting.options.filter(filterSearchResults).map((option, i) => (
-                <RadioItem onClick={() => updateSetting(option)} key={i}>
+                <RadioItem
+                  onClick={() => {
+                    updateSetting(option);
+                    if (setting.name === "arconfetti") {
+                      confetti();
+                    }
+                  }}
+                  key={i}
+                >
                   <Radio>{settingState === option && <RadioInner />}</Radio>
                   <Text noMargin>{fixupBooleanDisplay(option.toString())}</Text>
                 </RadioItem>
