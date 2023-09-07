@@ -74,14 +74,31 @@ export default function Connect() {
   }, [params]);
 
   // requested permissions
-  const requestedPermissions = useMemo<PermissionType[]>(() => {
-    if (!params) return [];
+  const [requestedPermissions, setRequestedPermissions] = useState<
+    PermissionType[]
+  >([]);
 
-    const requested: string[] = params.permissions;
+  useEffect(() => {
+    (async () => {
+      if (!params) return;
 
-    return requested.filter((p) =>
-      Object.keys(permissionData).includes(p)
-    ) as PermissionType[];
+      const requested: PermissionType[] = params.permissions;
+
+      // add existing permissions
+      if (params.url && params.url !== "") {
+        const app = new Application(params.url);
+        const existing = await app.getPermissions();
+
+        for (const existingP of existing) {
+          if (requested.includes(existingP)) continue;
+          requested.push(existingP);
+        }
+      }
+
+      setRequestedPermissions(
+        requested.filter((p) => Object.keys(permissionData).includes(p))
+      );
+    })();
   }, [params]);
 
   // permissions to add
