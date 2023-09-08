@@ -1,4 +1,9 @@
-import { type DisplayTheme, Section, Text } from "@arconnect/components";
+import {
+  type DisplayTheme,
+  Section,
+  Text,
+  Spacer
+} from "@arconnect/components";
 import { Avatar, CloseLayer, NoAvatarIcon } from "./WalletHeader";
 import { AnimatePresence, motion } from "framer-motion";
 import { hoverEffect, useTheme } from "~utils/theme";
@@ -85,14 +90,19 @@ export default function Head({
       collapse={scrollDirection === "down"}
       scrolled={scrolled}
     >
-      <BackWrapper>
-        <BackButton
-          onClick={async () => {
-            if (back) await back();
-            else goBack();
-          }}
-        />
-      </BackWrapper>
+      {back ? (
+        <BackWrapper>
+          <BackButton
+            onClick={async () => {
+              if (back) await back();
+              else goBack();
+            }}
+          />
+        </BackWrapper>
+      ) : (
+        <Spacer y={1.6} />
+      )}
+
       <PageInfo
         key={scrollDirection}
         scrollDirection={scrollDirection}
