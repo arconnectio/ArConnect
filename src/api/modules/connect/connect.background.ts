@@ -1,9 +1,15 @@
-import { isAppInfo, isGateway, isPermissionsArray } from "~utils/assertions";
+import {
+  isAppInfo,
+  isGateway,
+  isNotEmptyArray,
+  isPermissionsArray
+} from "~utils/assertions";
+import { getMissingPermissions } from "~applications/permissions";
 import { createContextMenus } from "~utils/context_menus";
 import type { ModuleFunction } from "~api/background";
 import { updateIcon } from "~utils/icon";
 import { getWallets } from "~wallets";
-import validatePermissions from "./permissions";
+import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import authenticate from "./auth";
 
@@ -14,6 +20,7 @@ const background: ModuleFunction<void> = async (
   gateway?: unknown
 ) => {
   // validate input
+  isNotEmptyArray(permissions);
   isPermissionsArray(permissions);
   isAppInfo(appInfo);
 
@@ -30,8 +37,22 @@ const background: ModuleFunction<void> = async (
     throw new Error("No wallets added");
   }
 
-  // validate requested permissions
-  await validatePermissions(permissions, appData.appURL);
+  // get permissions
+  const app = new Application(appData.appURL);
+  const existingPermissions = await app.getPermissions();
+
+  // compare existing permissions
+  if (existingPermissions) {
+    // the permissions the dApp does not have yet
+    const requiredPermissions = getMissingPermissions(
+      existingPermissions,
+      permissions
+    );
+
+    // check if all requested permissions are available for the app
+    // if yes, we don't do anything
+    if (requiredPermissions.length === 0) return;
+  }
 
   // add app logo if there isn't one
   if (!appInfo.logo) {

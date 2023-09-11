@@ -272,3 +272,8 @@ export function isTokenState(input: unknown): asserts input is TokenState {
     isValidBalance(input.balances[address]);
   }
 }
+
+export function isNotEmptyArray(input: unknown): asserts input is unknown[] {
+  isArray(input, "Input is not an array.");
+  assert(input.length > 0, "Array is empty.");
+}
