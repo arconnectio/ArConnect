@@ -8,7 +8,7 @@ import HardwareWalletIcon, {
 import { useHardwareApi } from "~wallets/hooks";
 import { type Gateway } from "~applications/gateway";
 import type { StoredWallet } from "~wallets";
-import { getAppURL } from "~utils/format";
+import { formatAddress, getAppURL } from "~utils/format";
 import { removeApp } from "~applications";
 import { useAnsProfile } from "~lib/ans";
 import { useTheme } from "~utils/theme";
@@ -83,8 +83,14 @@ export default function WalletHeader() {
   const walletName = useMemo(() => {
     if (!ansProfile?.label) {
       const wallet = wallets.find(({ address }) => address === activeAddress);
+      let name = wallet?.nickname || "Wallet";
 
-      return wallet?.nickname || "Wallet";
+      const address = wallet?.address && formatAddress(wallet?.address, 4);
+      if (/^Account \d+$/.test(name)) {
+        name = address;
+      }
+
+      return name;
     }
 
     return ansProfile.label;
