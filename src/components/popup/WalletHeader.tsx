@@ -72,12 +72,18 @@ export default function WalletHeader() {
     setToast({
       type: "success",
       duration: 2000,
-      content: browser.i18n.getMessage("copied_address")
+      content: browser.i18n.getMessage("copied_address", [
+        walletName,
+        formatAddress(activeAddress, 3)
+      ])
     });
   };
 
   // profile picture
   const ansProfile = useAnsProfile(activeAddress);
+
+  // wallet nickname for copy
+  const [displayName, setDisplayName] = useState("");
 
   // wallet name
   const walletName = useMemo(() => {
@@ -89,8 +95,9 @@ export default function WalletHeader() {
       if (/^Account \d+$/.test(name)) {
         name = address;
       }
+      setDisplayName(name);
 
-      return name;
+      return wallet?.nickname || "Wallet";
     }
 
     return ansProfile.label;
@@ -180,7 +187,7 @@ export default function WalletHeader() {
           </AnimatePresence>
         </Avatar>
         <WithArrow>
-          <Text noMargin>{walletName}</Text>
+          <Text noMargin>{displayName}</Text>
           <ExpandArrow open={isOpen} />
         </WithArrow>
       </Wallet>
