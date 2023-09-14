@@ -1,365 +1,24 @@
-import {
-  balanceToFractioned,
-  formatFiatBalance,
-  fractionedToBalance,
-  getDecimals
-} from "~tokens/currency";
-import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
-import { getAnsProfile, type AnsUser, getAnsProfileByLabel } from "~lib/ans";
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { formatAddress, isAddressFormat } from "~utils/format";
-import { useState, useEffect, useMemo } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
-import { IconButton } from "~components/IconButton";
-import type { TokenState } from "~tokens/token";
-import { useHistory } from "~utils/hash_router";
-import { useBalance } from "~wallets/hooks";
-import { getArPrice } from "~lib/coingecko";
-import { getContract } from "~lib/warp";
-import { useTokens } from "~tokens";
-import {
-  Button,
-  Input,
-  Loading,
-  Section,
-  Spacer,
-  Text,
-  Tooltip,
-  useInput,
-  useToasts
-} from "@arconnect/components";
-import {
-  ArrowLeftIcon,
-  ArrowUpRightIcon,
-  CameraIcon,
-  CheckIcon,
-  ChevronDownIcon
-} from "@iconicicons/react";
-import {
-  ExtensionStorage,
-  type RawStoredTransfer,
-  TempTransactionStorage,
-  TRANSFER_TX_STORAGE
-} from "~utils/storage";
 import AddressScanner from "~components/popup/AddressScanner";
-import Token, { ArToken } from "~components/popup/Token";
-import Collectible from "~components/popup/Collectible";
+import { PageType, trackPage } from "~utils/analytics";
+import { useState, useEffect, useRef } from "react";
+import { isAddressFormat } from "~utils/format";
+import styled, { css } from "styled-components";
+import { Button, Section, Spacer, Text } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
-import useSetting from "~settings/hook";
-import styled from "styled-components";
-import Arweave from "arweave";
-import { PageType, trackPage } from "~utils/analytics";
+import {
+  ArrowUpRightIcon,
+  ChevronRightIcon,
+  RefreshIcon
+} from "@iconicicons/react";
+import {
+  Logo,
+  LogoAndDetails,
+  LogoWrapper,
+  TokenName
+} from "~components/popup/Token";
 
 export default function Send({ id }: Props) {
-  // amount
-  const startAmount = "1";
-  const [amount, setAmount] = useState(startAmount);
-
-  // balance
-  const arBalance = useBalance();
-  const [balance, setBalance] = useState(0);
-
-  useEffect(() => {
-    if (balance === 0) return;
-
-    const amountInt = Number(amount);
-
-    if (balance < amountInt) {
-      const max = balance.toLocaleString(undefined, {
-        maximumFractionDigits: 2,
-        useGrouping: false
-      });
-
-      setAmount(max);
-      setDisplayedAmount(max);
-    }
-  }, [balance, amount]);
-
-  // currency setting
-  const [currency] = useSetting<string>("currency");
-
-  // target input
-  const targetInput = useInput();
-
-  // password inputs
-  const passwordInput = useInput();
-
-  // calculate fee
-  const [fee, setFee] = useState("0");
-
-  // target data
-  const [target, setTarget] = useState<{
-    address: string;
-    label?: string;
-    avatar?: string;
-  }>();
-
-  useEffect(() => {
-    (async () => {
-      const arweave = new Arweave(defaultGateway);
-      const price = await arweave.transactions.getPrice(
-        0,
-        target?.address || ""
-      );
-
-      setFee(arweave.ar.winstonToAr(price));
-    })();
-  }, [target]);
-
-  // get fiat value
-  const [fiatVal, setFiatVal] = useState(0);
-
-  useEffect(() => {
-    (async () => {
-      if (!currency) return;
-
-      const price = await getArPrice(currency);
-      setFiatVal(price * parseFloat(amount));
-    })();
-  }, [amount, currency]);
-
-  // loading target
-  const [loadingTarget, setLoadingTarget] = useState(false);
-
-  // fetch target data
-  useEffect(() => {
-    (async () => {
-      setLoadingTarget(false);
-
-      let targetAddress = targetInput.state;
-      let ansProfile: AnsUser;
-
-      if (targetAddress === "" || !targetAddress) return;
-
-      setLoadingTarget(true);
-
-      if (targetAddress.includes(".ar")) {
-        // fetch profile with label
-        ansProfile = await getAnsProfileByLabel(
-          targetAddress.replace(".ar", "")
-        );
-      } else if (isAddressFormat(targetAddress)) {
-        setTarget({ address: targetAddress });
-
-        // fetch profile with address
-        ansProfile = (await getAnsProfile(targetAddress)) as AnsUser;
-      } else {
-        setLoadingTarget(false);
-        return;
-      }
-
-      if (!ansProfile) {
-        setLoadingTarget(false);
-        if (isAddressFormat(targetAddress)) return;
-
-        return setTarget(undefined);
-      }
-
-      const label = ansProfile.currentLabel + ".ar";
-      const avatar =
-        concatGatewayURL(defaultGateway) + "/" + (ansProfile?.avatar || "");
-
-      setTarget({
-        address: ansProfile.user,
-        label,
-        avatar: ansProfile.avatar ? avatar : undefined
-      });
-      setLoadingTarget(false);
-    })();
-  }, [targetInput.state]);
-
-  // show token selector
-  const [showTokenSelector, setShownTokenSelector] = useState(false);
-
-  // all tokens
-  const tokens = useTokens();
-
-  // selected token
-  const [selectedToken, setSelectedToken] = useState<"AR" | string>(id || "AR");
-
-  const selectedTokenData = useMemo(() => {
-    if (selectedToken === "AR" || !selectedToken || !tokens) {
-      return undefined;
-    }
-
-    return tokens.find((t) => t.id === selectedToken);
-  }, [selectedToken, tokens]);
-
-  // active address
-  const [activeAddress] = useStorage<string>({
-    key: "active_address",
-    instance: ExtensionStorage
-  });
-
-  // decimals for PSTs
-  const [decimals, setDecimals] = useState(0);
-
-  useEffect(() => {
-    (async () => {
-      if (selectedToken === "AR") {
-        setBalance(arBalance);
-        return setDecimals(0);
-      }
-
-      // fetch token state
-      const { state } = await getContract<TokenState>(selectedToken);
-      const parsedDecimals = getDecimals({
-        id: selectedToken,
-        decimals: state.decimals,
-        divisibility: state.divisibility
-      });
-
-      setDecimals(parsedDecimals);
-      setBalance(
-        balanceToFractioned(state.balances[activeAddress], {
-          decimals: parsedDecimals
-        })
-      );
-    })();
-  }, [selectedToken, arBalance, activeAddress]);
-
-  // toasts
-  const { setToast } = useToasts();
-
-  // router push
-  const [push] = useHistory();
-
-  // send tx
-  async function send() {
-    // return if target is undefined
-    if (!target) return;
-
-    // check amount
-    const amountInt = Number(amount);
-
-    if (Number.isNaN(amountInt) || amountInt <= 0) {
-      return setToast({
-        type: "error",
-        content: browser.i18n.getMessage("invalid_amount"),
-        duration: 2000
-      });
-    }
-
-    // check target
-    if (!isAddressFormat(target.address)) {
-      return setToast({
-        type: "error",
-        content: browser.i18n.getMessage("invalid_address"),
-        duration: 2000
-      });
-    }
-
-    try {
-      // create tx
-      let arweave = new Arweave(defaultGateway);
-      let tx = await arweave.createTransaction({
-        target: target.address,
-        quantity: arweave.ar.arToWinston(amount)
-      });
-
-      if (selectedToken !== "AR") {
-        // get token gateway
-        if (selectedTokenData.gateway) {
-          arweave = new Arweave(selectedTokenData.gateway);
-        }
-
-        // create interaction
-        tx = await arweave.createTransaction({
-          target: target.address,
-          quantity: "0",
-          data: (Math.random() * Math.pow(10, 5)).toFixed(0)
-        });
-
-        tx.addTag("App-Name", "SmartWeaveAction");
-        tx.addTag("App-Version", "0.3.0");
-        tx.addTag("Contract", selectedToken);
-        tx.addTag(
-          "Input",
-          JSON.stringify({
-            function: "transfer",
-            target: target.address,
-            qty: fractionedToBalance(amountInt, { decimals })
-          })
-        );
-      }
-
-      tx.addTag("Type", "Transfer");
-      tx.addTag("Client", "ArConnect");
-      tx.addTag("Client-Version", browser.runtime.getManifest().version);
-
-      // save tx json into the session
-      // to be signed and submitted
-      const storedTx: RawStoredTransfer = {
-        type: selectedToken === "AR" ? "native" : "token",
-        gateway: selectedTokenData?.gateway || defaultGateway,
-        transaction: tx.toJSON()
-      };
-
-      await TempTransactionStorage.set(TRANSFER_TX_STORAGE, storedTx);
-
-      // push to auth & signature
-      push(`/send/auth`);
-    } catch {
-      return setToast({
-        type: "error",
-        content: browser.i18n.getMessage("transaction_send_error"),
-        duration: 2000
-      });
-    }
-
-    passwordInput.setState("");
-    targetInput.setState("");
-  }
-
-  // editing target status
-  const [editingTarget, setEditingTarget] = useState(false);
-
-  // displayed amount
-  const [displayedAmount, setDisplayedAmount] = useState(startAmount);
-
-  // update amount using the keypad
-  function keypadUpdate(val: string) {
-    setAmount((v) => {
-      if ((!v || v === "0") && val !== ".") {
-        setDisplayedAmount(val);
-        return val;
-      }
-
-      setDisplayedAmount(v + val);
-
-      return v + val;
-    });
-  }
-
-  // try to paste target from clipboard on focus
-  async function pasteTarget() {
-    try {
-      // get clipboard permission
-      const permission = await navigator.permissions.query({
-        // @ts-expect-error
-        name: "clipboard-read"
-      });
-
-      if (permission.state === "denied") return;
-
-      // get clipboard items
-      const clipboard = await navigator.clipboard.readText();
-
-      // check if clipboard contains an address
-      // or an ANS name
-      if (
-        !clipboard ||
-        (!isAddressFormat(clipboard) && !clipboard.includes(".ar"))
-      )
-        return;
-
-      // set target input
-      targetInput.setState(clipboard);
-    } catch {}
-  }
-
   // address scanner
   const [showAddressScanner, setShowAddressScanner] = useState(false);
 
@@ -368,48 +27,23 @@ export default function Send({ id }: Props) {
     trackPage(PageType.SEND);
   }, []);
 
+  // quantity
+  const [qty, setQty] = useState<string>("");
+
   return (
     <Wrapper>
       <div>
         <Head title={browser.i18n.getMessage("send")} />
-        <Spacer y={0.25} />
-        <UpperSection>
-          <AmountWrapper>
-            <MaxAmount
-              onClick={() => {
-                let max = balance;
-
-                if (selectedToken === "AR") {
-                  max -= Number(fee);
-                }
-
-                const maxAmount = max.toLocaleString(undefined, {
-                  maximumFractionDigits: 2,
-                  useGrouping: false
-                });
-
-                setAmount(maxAmount);
-                setDisplayedAmount(maxAmount);
-              }}
-            >
-              MAX
-            </MaxAmount>
-            <Amount
-              onInput={(e) => {
-                const val = Number(
-                  e.currentTarget.innerText.replace(/[\n\r]/g, "")
-                );
-
-                if (Number.isNaN(val)) {
-                  return setAmount("0");
-                }
-
-                return setAmount(val.toString());
-              }}
-              onKeyDown={async (e) => {
-                // don't let the user type anything other than numbers
+        <Spacer y={1} />
+        <QuantitySection>
+          <Switch />
+          <Quantity>
+            <QuantityInput
+              value={qty}
+              onKeyDown={(e) => {
                 if (
-                  ![
+                  [
+                    "Backspace",
                     "0",
                     "1",
                     "2",
@@ -420,200 +54,44 @@ export default function Send({ id }: Props) {
                     "7",
                     "8",
                     "9",
-                    ".",
-                    "Backspace",
-                    "ArrowLeft",
-                    "ArrowRight"
+                    "."
                   ].includes(e.key)
-                ) {
-                  e.preventDefault();
-                }
-
-                // handle enter submit
-                if (e.key !== "Enter") return;
-                if (!target?.address || balance < Number(amount)) return;
-                await send();
+                )
+                  return;
+                e.preventDefault();
               }}
-            >
-              {displayedAmount}
-            </Amount>
-            <Ticker onClick={() => setShownTokenSelector(true)}>
-              {(selectedToken === "AR" && "AR") ||
-                selectedTokenData?.ticker ||
-                "???"}
-              <ChevronDownIcon />
-            </Ticker>
-          </AmountWrapper>
-          <Spacer y={0.4} />
-          <Prices>
-            <span>
-              {(selectedToken === "AR" &&
-                formatFiatBalance(fiatVal, currency)) ||
-                "??"}
-            </span>
-            {" - "}
-            {fee}
-            {" AR "}
-            {browser.i18n.getMessage("network_fee")}
-          </Prices>
-          <Spacer y={0.9} />
-          <TargetWrapper>
-            <Target onClick={() => setEditingTarget((val) => !val)}>
-              {loadingTarget && <TargetLoading />}
-              {(target && (
-                <>
-                  {target.avatar && <TargetAvatar src={target.avatar} />}
-                  <TargetName>
-                    {target.label || formatAddress(target.address, 6)}
-                  </TargetName>
-                </>
-              )) || (
-                <TargetName>
-                  {browser.i18n.getMessage("transaction_send_add_target")}
-                </TargetName>
-              )}
-            </Target>
-            <Tooltip
-              content={browser.i18n.getMessage("transaction_send_scan_address")}
-            >
-              <ScanIcon onClick={() => setShowAddressScanner(true)} />
-            </Tooltip>
-          </TargetWrapper>
-          <AnimatePresence>
-            {editingTarget && (
-              <motion.div
-                variants={expandAnimation}
-                initial="hidden"
-                animate="shown"
-                exit="hidden"
-              >
-                <Spacer y={1} />
-                <InputWithBtn>
-                  <InputWrapper>
-                    <Input
-                      type="text"
-                      {...targetInput.bindings}
-                      label={browser.i18n.getMessage("target")}
-                      placeholder="ljvCPN31XCLPkBo9FUeB7vAK0VC6-eY52-CS-6Iho8U"
-                      fullWidth
-                      onFocus={pasteTarget}
-                      onKeyDown={(e) => {
-                        if (e.key !== "Enter") return;
-                        setEditingTarget(false);
-                      }}
-                    />
-                  </InputWrapper>
-                  <IconButton secondary onClick={() => setEditingTarget(false)}>
-                    <CheckIcon />
-                  </IconButton>
-                </InputWithBtn>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </UpperSection>
+              onChange={(e) => setQty(e.target.value)}
+              placeholder="0.00"
+            />
+            <Imitate>{qty !== "" ? qty : "0.00"}</Imitate>
+          </Quantity>
+          <Ticker>AR</Ticker>
+          <Max>Max</Max>
+        </QuantitySection>
+        <Spacer y={1} />
+        <Datas>
+          <Text noMargin>≈US$2,345.43</Text>
+          <Text noMargin>~0.0000043 AR network fee</Text>
+        </Datas>
       </div>
-      <AnimatePresence>
-        {!editingTarget && (
-          <motion.div
-            variants={animation}
-            initial="hidden"
-            animate="shown"
-            exit="hidden"
-          >
-            <KeypadSection>
-              <Keypad>
-                {new Array(9).fill("").map((_, i) => (
-                  <KeypadButton
-                    key={i}
-                    onClick={() => keypadUpdate((i + 1).toString())}
-                  >
-                    <span>{i + 1}</span>
-                  </KeypadButton>
-                ))}
-                <KeypadButton onClick={() => keypadUpdate(".")}>
-                  <span>.</span>
-                </KeypadButton>
-                <KeypadButton onClick={() => keypadUpdate("0")}>
-                  <span>0</span>
-                </KeypadButton>
-                <KeypadButton
-                  onClick={() =>
-                    setAmount((val) => {
-                      if (val.length <= 1) {
-                        setDisplayedAmount("0");
-                        return "0";
-                      }
-
-                      const newVal = val.substring(0, val.length - 1);
-                      setDisplayedAmount(newVal);
-
-                      return newVal;
-                    })
-                  }
-                >
-                  <ArrowLeftIcon />
-                </KeypadButton>
-              </Keypad>
-              <SendButton
-                disabled={!target?.address || balance < Number(amount)}
-                onClick={send}
-              >
-                {browser.i18n.getMessage("send")}
-                <ArrowUpRightIcon />
-              </SendButton>
-            </KeypadSection>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {showTokenSelector && (
-          <TokenSelector
-            variants={animation}
-            initial="hidden"
-            animate="shown"
-            exit="hidden"
-          >
-            <TokensSection>
-              <ArToken
-                onClick={() => {
-                  setSelectedToken("AR");
-                  setShownTokenSelector(false);
-                }}
-              />
-              {tokens
-                .filter((token) => token.type === "asset")
-                .map((token, i) => (
-                  <Token
-                    {...token}
-                    onClick={() => {
-                      setSelectedToken(token.id);
-                      setShownTokenSelector(false);
-                    }}
-                    key={i}
-                  />
-                ))}
-            </TokensSection>
-            <CollectiblesList>
-              {tokens
-                .filter((token) => token.type === "collectible")
-                .map((token, i) => (
-                  <Collectible
-                    id={token.id}
-                    name={token.name || token.ticker}
-                    balance={token.balance}
-                    divisibility={token.divisibility}
-                    decimals={token.decimals}
-                    onClick={() => {
-                      setSelectedToken(token.id);
-                      setShownTokenSelector(false);
-                    }}
-                    key={i}
-                  />
-                ))}
-            </CollectiblesList>
-          </TokenSelector>
-        )}
-      </AnimatePresence>
+      <BottomActions>
+        <TokenSelector>
+          <LogoAndDetails>
+            <LogoWrapper>
+              <Logo src="" />
+            </LogoWrapper>
+            <TokenName>Arweave</TokenName>
+          </LogoAndDetails>
+          <TokenSelectorRightSide>
+            <Text noMargin>{browser.i18n.getMessage("currency")}</Text>
+            <ChevronRightIcon />
+          </TokenSelectorRightSide>
+        </TokenSelector>
+        <Button>
+          Send
+          <ArrowUpRightIcon />
+        </Button>
+      </BottomActions>
       <AddressScanner
         onScan={(data) => {
           if (!data) return;
@@ -621,7 +99,7 @@ export default function Send({ id }: Props) {
             return;
           }
 
-          targetInput.setState(data);
+          // targetInput.setState(data);
           setShowAddressScanner(false);
         }}
         active={showAddressScanner}
@@ -639,264 +117,145 @@ const Wrapper = styled.div`
   gap: 2.5rem;
 `;
 
-const UpperSection = styled(Section)`
-  padding-top: 0;
-  padding-bottom: 0;
-`;
+interface Props {
+  id?: string;
+}
 
-const AmountWrapper = styled.div`
+const QuantitySection = styled.div`
   position: relative;
   display: flex;
-  align-items: flex-end;
   justify-content: center;
-  gap: 0.45rem;
+  gap: 0.75rem;
 `;
 
-const MaxAmount = styled(Text).attrs({
-  noMargin: true
+const Quantity = styled.div`
+  position: relative;
+  width: max-content;
+  z-index: 1;
+`;
+
+const qtyTextStyle = css`
+  font-size: 3.7rem;
+  font-weight: 500;
+  line-height: 1.1em;
+`;
+
+const QuantityInput = styled.input.attrs({
+  type: "text"
 })`
   position: absolute;
-  top: 50%;
-  right: 10px;
-  font-size: 0.83rem;
-  font-weight: 600;
-  color: rgb(${(props) => props.theme.primaryText});
+  width: 100%;
+  outline: none;
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  z-index: 10;
+  color: rgb(${(props) => props.theme.theme});
+  text-align: right;
+  ${qtyTextStyle}
+`;
+
+const Imitate = styled.p`
+  color: transparent;
+  z-index: 1;
+  margin: 0;
+  text-align: right;
+  ${qtyTextStyle}
+`;
+
+const Ticker = styled.p`
+  color: rgb(${(props) => props.theme.theme});
+  margin: 0;
   text-transform: uppercase;
+  ${qtyTextStyle}
+`;
+
+const BottomActions = styled(Section)`
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+`;
+
+const Datas = styled.div`
+  display: flex;
+  gap: 0.3rem;
+  flex-direction: column;
+  justify-content: center;
+
+  p {
+    text-align: center;
+    font-size: 0.83rem;
+  }
+`;
+
+const floatingAction = css`
+  position: absolute;
+  top: 50%;
   cursor: pointer;
-  text-align: center;
   transform: translateY(-50%);
-  transition: all 0.23s ease-in-out;
+  transition: all 0.17s ease;
 
   &:hover {
-    opacity: 0.85;
+    opacity: 0.83;
   }
 
   &:active {
-    transform: scale(0.95) translateY(-50%);
+    transform: translateY(-50%) scale(0.94);
   }
 `;
 
-const Amount = styled(Text).attrs({
-  title: true,
-  noMargin: true,
-  contentEditable: true,
-  suppressContentEditableWarning: true
-})`
-  font-size: 3.35rem;
-  line-height: 1em;
-  outline: none;
-`;
-
-const Ticker = styled(Text).attrs({
+const Max = styled(Text).attrs({
   noMargin: true
 })`
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  font-size: 1.15rem;
   color: rgb(${(props) => props.theme.primaryText});
-  font-weight: 600;
+  font-size: 0.95rem;
+  right: 20px;
   text-transform: uppercase;
-  transition: all 0.23s ease-in-out;
-
-  &:hover {
-    opacity: 0.7;
-  }
-
-  svg {
-    font-size: 1rem;
-    width: 1em;
-    height: 1em;
-    color: rgb(${(props) => props.theme.primaryText});
-  }
-`;
-
-const Prices = styled(Text).attrs({
-  noMargin: true
-})`
-  font-size: 0.82rem;
   text-align: center;
-
-  span {
-    color: rgb(${(props) => props.theme.primaryText});
-  }
+  ${floatingAction}
 `;
 
-const TargetWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-`;
-
-const ScanIcon = styled(CameraIcon)`
-  font-size: 1.2rem;
+const Switch = styled(RefreshIcon)`
+  font-size: 1.45rem;
   width: 1em;
   height: 1em;
-  color: rgb(${(props) => props.theme.secondaryText});
-  cursor: pointer;
-  transition: all 0.23s ease-in-out;
-
-  &:hover {
-    opacity: 0.9;
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
+  left: 20px;
+  ${floatingAction}
 `;
 
-const Target = styled.div`
+const TokenSelector = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  padding: 0.05rem 0.5rem;
-  border-radius: 18px;
-  background-color: rgb(${(props) => props.theme.theme});
-  color: #fff;
-  width: max-content;
+  justify-content: space-between;
+  padding: 0.55rem 1.1rem;
+  border-radius: 25px;
   cursor: pointer;
-  transition: all 0.125s ease-in-out;
+  background-color: rgba(${(props) => props.theme.theme}, 0.15);
+  transition: all 0.12s ease-;
 
   &:active {
     transform: scale(0.97);
   }
-`;
 
-const TargetLoading = styled(Loading)`
-  color: #fff;
-  width: 0.9rem;
-  height: 0.9rem;
-`;
-
-const TargetName = styled.span`
-  padding: 0.4rem 0;
-`;
-
-const TargetAvatar = styled.img.attrs({
-  draggable: false,
-  alt: "avatar"
-})`
-  height: 1.5rem;
-  width: 1.5rem;
-  border-radius: 100%;
-  object-fit: cover;
-  user-select: none;
-`;
-
-const KeypadSection = styled(Section)`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  background-color: rgb(${(props) => props.theme.theme});
-  border-radius: 45px 45px 0 0;
-  padding: 20px;
-  padding-top: 10px;
-`;
-
-const Keypad = styled.div`
-  display: grid;
-  grid-template-columns: auto auto auto;
-  justify-content: space-between;
-`;
-
-const KeypadButton = styled.div`
-  position: relative;
-  width: 84px;
-  height: 84px;
-  border-radius: 100%;
-  cursor: pointer;
-  justify-self: center;
-  transition: all 0.125s ease-in-out;
-
-  span,
-  svg {
-    position: absolute;
-    font-size: 1.6rem;
-    font-weight: 500;
-    text-align: center;
-    color: #fff;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+  p {
+    color: rgb(${(props) => props.theme.theme});
   }
+`;
+
+const TokenSelectorRightSide = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.36rem;
 
   svg {
+    font-size: 1.5rem;
     width: 1em;
     height: 1em;
+    color: rgb(${(props) => props.theme.theme});
   }
 
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-  }
-
-  &:active {
-    transform: scale(0.9);
+  p {
+    text-transform: uppercase;
+    font-size: 0.7rem;
   }
 `;
-
-const SendButton = styled(Button).attrs({
-  fullWidth: true
-})`
-  background-color: #fff;
-  color: #000;
-  box-shadow: 0 0 0 0 rgb(255, 255, 255);
-
-  &:hover:not(:active):not(:disabled) {
-    box-shadow: 0 0 0 ${(props) => (props.small ? ".19rem" : ".25rem")}
-      rgb(255, 255, 255);
-  }
-
-  &:disabled {
-    opacity: 0.87;
-    cursor: not-allowed;
-  }
-`;
-
-const TokenSelector = styled(motion.div)`
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  overflow-y: auto;
-  background-color: rgb(${(props) => props.theme.background});
-  z-index: 1000;
-`;
-
-const animation: Variants = {
-  hidden: { opacity: 0 },
-  shown: { opacity: 1 }
-};
-
-const expandAnimation: Variants = {
-  hidden: {
-    opacity: 0,
-    height: 0
-  },
-  shown: {
-    opacity: 1,
-    height: "auto"
-  }
-};
-
-const TokensSection = styled(Section)`
-  display: flex;
-  flex-direction: column;
-  gap: 0.82rem;
-  padding-top: 2rem;
-  padding-bottom: 1.4rem;
-`;
-
-const CollectiblesList = styled(Section)`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.2rem;
-  padding-top: 0;
-`;
-
-interface Props {
-  id?: string;
-}
