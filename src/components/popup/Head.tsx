@@ -90,6 +90,14 @@ export default function Head({
       collapse={scrollDirection === "down"}
       scrolled={scrolled}
     >
+      <BackWrapper>
+        <BackButton
+          onClick={async () => {
+            if (back) await back();
+            else goBack();
+          }}
+        />
+      </BackWrapper>
       {back ? (
         <BackWrapper>
           <BackButton

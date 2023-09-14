@@ -62,6 +62,9 @@ export default function Explore() {
   // active featured news page
   const [featuredPage, setFeaturedPage] = useState<number>(0);
 
+  // const for navigation button
+  const numberOfFeatured = 3;
+
   useEffect(() => {
     const id = setTimeout(
       () =>
@@ -187,6 +190,18 @@ export default function Explore() {
           )}
         </AnimatePresence>
       </FeaturedArticles>
+      {feed && (
+        <NavigationWrapper>
+          {Array.from({ length: numberOfFeatured }).map((_, index) => (
+            <NavigationButton
+              key={index}
+              featured={index === featuredPage}
+              onClick={() => setFeaturedPage(index)}
+            />
+          ))}
+        </NavigationWrapper>
+      )}
+
       <Spacer y={0.6} />
       {feed &&
         feed.slice(4).map((article, i) => <Article {...article} key={i} />)}
@@ -251,6 +266,23 @@ const ArticleTitle = styled(Text).attrs({
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+`;
+
+const NavigationWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+  gap: 0.25rem;
+`;
+
+const NavigationButton = styled.button<{ featured: boolean }>`
+  width: 8px;
+  height: 8px;
+  background-color: ${(props) => (props.featured ? "#fff" : "#808080")};
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
 `;
 
 const FeaturedSkeleton = styled(Skeleton)`
