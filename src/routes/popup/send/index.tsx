@@ -17,7 +17,14 @@ import {
   LogoWrapper,
   TokenName
 } from "~components/popup/Token";
+import useSetting from "~settings/hook";
+import {
+  formatFiatBalance,
+  formatTokenBalance,
+  getCurrencySymbol
+} from "~tokens/currency";
 
+// default size for the qty text
 const defaulQtytSize = 3.7;
 
 export default function Send({ id }: Props) {
@@ -37,13 +44,28 @@ export default function Send({ id }: Props) {
     return defaulQtytSize / (qty.length / maxLengthDef);
   }, [qty]);
 
+  // currency setting
+  const [currency] = useSetting<string>("currency");
+
+  // qty mode (fiat/token)
+  const [qtyMode, setQtyMode] = useState<QtyMode>("token");
+
   return (
     <Wrapper>
       <div>
         <Head title={browser.i18n.getMessage("send")} />
         <Spacer y={1} />
-        <QuantitySection>
-          <Switch />
+        <QuantitySection qtyMode={qtyMode}>
+          <Switch
+            onClick={() =>
+              setQtyMode((val) => (val === "fiat" ? "token" : "fiat"))
+            }
+          />
+          {qtyMode === "fiat" && (
+            <Ticker style={{ fontSize: `${qtySize}rem` }}>
+              {getCurrencySymbol(currency)}
+            </Ticker>
+          )}
           <Quantity>
             <QuantityInput
               value={qty}
@@ -70,17 +92,26 @@ export default function Send({ id }: Props) {
               onChange={(e) => setQty(e.target.value)}
               placeholder="0.00"
               style={{ fontSize: `${qtySize}rem` }}
+              qtyMode={qtyMode}
             />
             <Imitate style={{ fontSize: `${qtySize}rem` }}>
               {qty !== "" ? qty : "0.00"}
             </Imitate>
           </Quantity>
-          <Ticker style={{ fontSize: `${qtySize}rem` }}>AR</Ticker>
+          {qtyMode === "token" && (
+            <Ticker style={{ fontSize: `${qtySize}rem` }}>AR</Ticker>
+          )}
           <Max>Max</Max>
         </QuantitySection>
         <Spacer y={1} />
         <Datas>
-          <Text noMargin>≈US$2,345.43</Text>
+          <Text noMargin>
+            ≈
+            {qtyMode === "token"
+              ? formatTokenBalance(2345.43)
+              : formatFiatBalance(2345.43, currency)}
+            {qtyMode === "token" && " AR"}
+          </Text>
           <Text noMargin>~0.0000043 AR network fee</Text>
         </Datas>
       </div>
@@ -118,12 +149,14 @@ interface Props {
   id?: string;
 }
 
-const QuantitySection = styled.div`
+type QtyMode = "fiat" | "token";
+
+const QuantitySection = styled.div<{ qtyMode: QtyMode }>`
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.75rem;
+  gap: ${(props) => (props.qtyMode === "token" ? "0.65rem" : "0")};
   height: ${defaulQtytSize + "rem"};
 `;
 
@@ -142,7 +175,7 @@ const qtyTextStyle = css`
 
 const QuantityInput = styled.input.attrs({
   type: "text"
-})`
+})<{ qtyMode: QtyMode }>`
   position: absolute;
   width: 100%;
   outline: none;
@@ -151,7 +184,7 @@ const QuantityInput = styled.input.attrs({
   padding: 0;
   z-index: 10;
   color: rgb(${(props) => props.theme.theme});
-  text-align: right;
+  text-align: ${(props) => (props.qtyMode === "token" ? "right" : "left")};
   ${qtyTextStyle}
 `;
 

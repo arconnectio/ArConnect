@@ -32,6 +32,19 @@ export function formatFiatBalance(balance: string | number, currency?: string) {
 }
 
 /**
+ * Get prefix for a currency
+ */
+export function getCurrencySymbol(currency: string) {
+  const zeroBal = (0).toLocaleString(undefined, {
+    currency,
+    ...fiatConfig,
+    maximumFractionDigits: 0
+  });
+
+  return zeroBal.replace("0", "");
+}
+
+/**
  * Manual config for legacy token decimals
  */
 const MANUAL_DECIMALS = {
