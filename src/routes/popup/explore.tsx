@@ -278,7 +278,12 @@ const NavigationWrapper = styled.div`
 const NavigationButton = styled.button<{ featured: boolean }>`
   width: 8px;
   height: 8px;
-  background-color: ${(props) => (props.featured ? "#fff" : "#808080")};
+  background-color: ${(props) =>
+    props.featured
+      ? props.theme.displayTheme === "light"
+        ? "#000"
+        : "#fff"
+      : "#999999"};
   border-radius: 50%;
   border: none;
   padding: 0;
