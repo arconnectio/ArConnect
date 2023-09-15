@@ -50,6 +50,12 @@ export default function Send({ id }: Props) {
   // qty mode (fiat/token)
   const [qtyMode, setQtyMode] = useState<QtyMode>("token");
 
+  // token that the user is going to send
+  const [token, setToken] = useState<"AR" | string>(id);
+  const [balance, setBalance] = useState(0);
+  const [price, setPrice] = useState(0);
+  const [decimals, setDecimals] = useState(0);
+
   return (
     <Wrapper>
       <div>
