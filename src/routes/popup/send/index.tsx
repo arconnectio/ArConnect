@@ -23,6 +23,8 @@ import {
   formatTokenBalance,
   getCurrencySymbol
 } from "~tokens/currency";
+import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 
 // default size for the qty text
 const defaulQtytSize = 3.7;
@@ -34,7 +36,13 @@ export default function Send({ id }: Props) {
   }, []);
 
   // quantity
-  const [qty, setQty] = useState<string>("");
+  const [qty, setQty] = useStorage<string>(
+    {
+      key: "last_send_qty",
+      instance: ExtensionStorage
+    },
+    ""
+  );
 
   // qty text size
   const qtySize = useMemo(() => {
@@ -48,7 +56,13 @@ export default function Send({ id }: Props) {
   const [currency] = useSetting<string>("currency");
 
   // qty mode (fiat/token)
-  const [qtyMode, setQtyMode] = useState<QtyMode>("token");
+  const [qtyMode, setQtyMode] = useStorage<QtyMode>(
+    {
+      key: "last_send_qty_mode",
+      instance: ExtensionStorage
+    },
+    "token"
+  );
 
   // token that the user is going to send
   const [token, setToken] = useState<"AR" | string>(id);
@@ -99,6 +113,7 @@ export default function Send({ id }: Props) {
               placeholder="0.00"
               style={{ fontSize: `${qtySize}rem` }}
               qtyMode={qtyMode}
+              autoFocus
             />
             <Imitate style={{ fontSize: `${qtySize}rem` }}>
               {qty !== "" ? qty : "0.00"}
