@@ -25,6 +25,7 @@ export default function Head({
   title,
   showOptions = true,
   back,
+  showBack = true,
   allowOpen = true
 }: Props) {
   // scroll position
@@ -90,15 +91,7 @@ export default function Head({
       collapse={scrollDirection === "down"}
       scrolled={scrolled}
     >
-      <BackWrapper>
-        <BackButton
-          onClick={async () => {
-            if (back) await back();
-            else goBack();
-          }}
-        />
-      </BackWrapper>
-      {back ? (
+      {showBack ? (
         <BackWrapper>
           <BackButton
             onClick={async () => {
@@ -254,6 +247,7 @@ interface Props {
   title: string;
   showOptions?: boolean;
   // allow opening the wallet switcher
+  showBack?: boolean;
   allowOpen?: boolean;
   back?: (...args) => any;
 }

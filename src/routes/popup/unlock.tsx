@@ -126,7 +126,12 @@ export default function Unlock() {
   return (
     <Wrapper>
       <div>
-        <Head title={browser.i18n.getMessage("unlock")} showOptions={false} />
+        <Head
+          title={browser.i18n.getMessage("unlock")}
+          showOptions={false}
+          back={() => {}}
+          showBack={false}
+        />
         <Spacer y={0.75} />
         <Section>
           <Text noMargin>
