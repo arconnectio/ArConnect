@@ -1,6 +1,6 @@
 import AddressScanner from "~components/popup/AddressScanner";
 import { PageType, trackPage } from "~utils/analytics";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { isAddressFormat } from "~utils/format";
 import styled, { css } from "styled-components";
 import { Button, Section, Spacer, Text } from "@arconnect/components";
@@ -18,10 +18,9 @@ import {
   TokenName
 } from "~components/popup/Token";
 
-export default function Send({ id }: Props) {
-  // address scanner
-  const [showAddressScanner, setShowAddressScanner] = useState(false);
+const defaulQtytSize = 3.7;
 
+export default function Send({ id }: Props) {
   // Segment
   useEffect(() => {
     trackPage(PageType.SEND);
@@ -29,6 +28,14 @@ export default function Send({ id }: Props) {
 
   // quantity
   const [qty, setQty] = useState<string>("");
+
+  // qty text size
+  const qtySize = useMemo(() => {
+    const maxLengthDef = 5;
+
+    if (qty.length <= maxLengthDef) return defaulQtytSize;
+    return defaulQtytSize / (qty.length / maxLengthDef);
+  }, [qty]);
 
   return (
     <Wrapper>
@@ -62,10 +69,13 @@ export default function Send({ id }: Props) {
               }}
               onChange={(e) => setQty(e.target.value)}
               placeholder="0.00"
+              style={{ fontSize: `${qtySize}rem` }}
             />
-            <Imitate>{qty !== "" ? qty : "0.00"}</Imitate>
+            <Imitate style={{ fontSize: `${qtySize}rem` }}>
+              {qty !== "" ? qty : "0.00"}
+            </Imitate>
           </Quantity>
-          <Ticker>AR</Ticker>
+          <Ticker style={{ fontSize: `${qtySize}rem` }}>AR</Ticker>
           <Max>Max</Max>
         </QuantitySection>
         <Spacer y={1} />
@@ -83,7 +93,7 @@ export default function Send({ id }: Props) {
             <TokenName>Arweave</TokenName>
           </LogoAndDetails>
           <TokenSelectorRightSide>
-            <Text noMargin>{browser.i18n.getMessage("currency")}</Text>
+            <Text noMargin>{browser.i18n.getMessage("setting_currency")}</Text>
             <ChevronRightIcon />
           </TokenSelectorRightSide>
         </TokenSelector>
@@ -92,19 +102,6 @@ export default function Send({ id }: Props) {
           <ArrowUpRightIcon />
         </Button>
       </BottomActions>
-      <AddressScanner
-        onScan={(data) => {
-          if (!data) return;
-          if (!isAddressFormat(data) && !data.includes(".ar")) {
-            return;
-          }
-
-          // targetInput.setState(data);
-          setShowAddressScanner(false);
-        }}
-        active={showAddressScanner}
-        close={() => setShowAddressScanner(false)}
-      />
     </Wrapper>
   );
 }
@@ -125,17 +122,20 @@ const QuantitySection = styled.div`
   position: relative;
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 0.75rem;
+  height: ${defaulQtytSize + "rem"};
 `;
 
 const Quantity = styled.div`
   position: relative;
   width: max-content;
   z-index: 1;
+  height: max-content;
 `;
 
 const qtyTextStyle = css`
-  font-size: 3.7rem;
+  font-size: ${defaulQtytSize}rem;
   font-weight: 500;
   line-height: 1.1em;
 `;
