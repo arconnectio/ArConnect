@@ -108,15 +108,7 @@ export default function SendAuth() {
       })
     );
 
-    if (type === "native") {
-      await arweave.transactions.post(transaction);
-    } else {
-      const uploader = await arweave.transactions.getUploader(transaction);
-
-      while (!uploader.isComplete) {
-        await uploader.uploadChunk();
-      }
-    }
+    await arweave.transactions.post(transaction);
   }
 
   // toasts
@@ -173,10 +165,11 @@ export default function SendAuth() {
         duration: 2000
       });
       push(`/transaction/${transaction.id}?back=${encodeURIComponent("/")}`);
-    } catch {
+    } catch (e) {
+      console.log(e);
       setToast({
         type: "error",
-        content: browser.i18n.getMessage("txFailed"),
+        content: browser.i18n.getMessage("failed_tx"),
         duration: 2000
       });
     }
@@ -270,10 +263,11 @@ export default function SendAuth() {
           duration: 2000
         });
         push(`/transaction/${transaction.id}?back=${encodeURIComponent("/")}`);
-      } catch {
+      } catch (e) {
+        console.log(e);
         setToast({
           type: "error",
-          content: browser.i18n.getMessage("txFailed"),
+          content: browser.i18n.getMessage("failed_tx"),
           duration: 2000
         });
       }
@@ -307,6 +301,7 @@ export default function SendAuth() {
                   if (e.key !== "Enter") return;
                   sendLocal();
                 }}
+                autoFocus
               />
             )) ||
               (hardwareStatus === "scan" && (

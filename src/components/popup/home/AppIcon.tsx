@@ -1,8 +1,8 @@
-import { GridIcon } from "@iconicicons/react";
+import { GlobeIcon } from "@iconicicons/react";
 import Squircle from "~components/Squircle";
 import styled from "styled-components";
 
-export const NoAppIcon = styled(GridIcon)`
+export const NoAppIcon = styled(GlobeIcon)`
   font-size: 2rem;
   width: 1em;
   height: 1em;

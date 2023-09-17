@@ -102,13 +102,13 @@ const Wrapper = styled.div`
   }
 `;
 
-const LogoAndDetails = styled.div`
+export const LogoAndDetails = styled.div`
   display: flex;
   align-items: center;
   gap: 0.8rem;
 `;
 
-const LogoWrapper = styled(Squircle)`
+export const LogoWrapper = styled(Squircle)`
   position: relative;
   width: 2.8rem;
   height: 2.8rem;
@@ -116,7 +116,7 @@ const LogoWrapper = styled(Squircle)`
   color: rgba(${(props) => props.theme.theme}, 0.2);
 `;
 
-const Logo = styled.img.attrs({
+export const Logo = styled.img.attrs({
   draggable: false
 })`
   position: absolute;
@@ -129,7 +129,7 @@ const Logo = styled.img.attrs({
   transform: translate(-50%, -50%);
 `;
 
-const TokenName = styled(Text).attrs({
+export const TokenName = styled(Text).attrs({
   noMargin: true
 })`
   display: flex;

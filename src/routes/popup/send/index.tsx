@@ -1,191 +1,67 @@
+import { PageType, trackPage } from "~utils/analytics";
+import { useState, useEffect, useMemo } from "react";
+import styled, { css } from "styled-components";
+import { Button, Section, Spacer, Text } from "@arconnect/components";
+import browser from "webextension-polyfill";
+import Head from "~components/popup/Head";
+import * as viewblock from "~lib/viewblock";
+import {
+  ArrowUpRightIcon,
+  ChevronRightIcon,
+  RefreshIcon
+} from "@iconicicons/react";
+import Token, {
+  ArToken,
+  Logo,
+  LogoAndDetails,
+  LogoWrapper,
+  TokenName
+} from "~components/popup/Token";
+import useSetting from "~settings/hook";
 import {
   balanceToFractioned,
   formatFiatBalance,
+  formatTokenBalance,
   fractionedToBalance,
-  getDecimals
+  getCurrencySymbol
 } from "~tokens/currency";
-import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
-import { getAnsProfile, type AnsUser, getAnsProfileByLabel } from "~lib/ans";
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { formatAddress, isAddressFormat } from "~utils/format";
-import { useState, useEffect, useMemo } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
-import { IconButton } from "~components/IconButton";
-import type { TokenState } from "~tokens/token";
-import { useHistory } from "~utils/hash_router";
-import { useBalance } from "~wallets/hooks";
-import { getArPrice } from "~lib/coingecko";
-import { getContract } from "~lib/warp";
-import { useTokens } from "~tokens";
-import {
-  Button,
-  Input,
-  Loading,
-  Section,
-  Spacer,
-  Text,
-  Tooltip,
-  useInput,
-  useToasts
-} from "@arconnect/components";
-import {
-  ArrowLeftIcon,
-  ArrowUpRightIcon,
-  CameraIcon,
-  CheckIcon,
-  ChevronDownIcon
-} from "@iconicicons/react";
 import {
   ExtensionStorage,
-  type RawStoredTransfer,
-  TempTransactionStorage,
-  TRANSFER_TX_STORAGE
+  TRANSFER_TX_STORAGE,
+  TempTransactionStorage
 } from "~utils/storage";
-import AddressScanner from "~components/popup/AddressScanner";
-import Token, { ArToken } from "~components/popup/Token";
-import Collectible from "~components/popup/Collectible";
-import browser from "webextension-polyfill";
-import Head from "~components/popup/Head";
-import useSetting from "~settings/hook";
-import styled from "styled-components";
+import { useTokens } from "~tokens";
+import { loadTokenLogo, type Token as TokenInterface } from "~tokens/token";
+import { useTheme } from "~utils/theme";
+import arLogoLight from "url:/assets/ar/logo_light.png";
+import arLogoDark from "url:/assets/ar/logo_dark.png";
 import Arweave from "arweave";
-import { PageType, trackPage } from "~utils/analytics";
+import { defaultGateway } from "~applications/gateway";
+import { useBalance } from "~wallets/hooks";
+import { getPrice } from "~lib/coingecko";
+import { getContract } from "~lib/warp";
+import redstone from "redstone-api";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
+import Collectible from "~components/popup/Collectible";
+import { useHistory } from "~utils/hash_router";
+
+// default size for the qty text
+const defaulQtytSize = 3.7;
+const arPlaceholder: TokenInterface = {
+  id: "AR",
+  name: "Arweave",
+  ticker: "AR",
+  type: "asset",
+  balance: 0,
+  decimals: 12
+};
 
 export default function Send({ id }: Props) {
-  // amount
-  const startAmount = "1";
-  const [amount, setAmount] = useState(startAmount);
-
-  // balance
-  const arBalance = useBalance();
-  const [balance, setBalance] = useState(0);
-
+  // Segment
   useEffect(() => {
-    if (balance === 0) return;
-
-    const amountInt = Number(amount);
-
-    if (balance < amountInt) {
-      const max = balance.toLocaleString(undefined, {
-        maximumFractionDigits: 2,
-        useGrouping: false
-      });
-
-      setAmount(max);
-      setDisplayedAmount(max);
-    }
-  }, [balance, amount]);
-
-  // currency setting
-  const [currency] = useSetting<string>("currency");
-
-  // target input
-  const targetInput = useInput();
-
-  // password inputs
-  const passwordInput = useInput();
-
-  // calculate fee
-  const [fee, setFee] = useState("0");
-
-  // target data
-  const [target, setTarget] = useState<{
-    address: string;
-    label?: string;
-    avatar?: string;
-  }>();
-
-  useEffect(() => {
-    (async () => {
-      const arweave = new Arweave(defaultGateway);
-      const price = await arweave.transactions.getPrice(
-        0,
-        target?.address || ""
-      );
-
-      setFee(arweave.ar.winstonToAr(price));
-    })();
-  }, [target]);
-
-  // get fiat value
-  const [fiatVal, setFiatVal] = useState(0);
-
-  useEffect(() => {
-    (async () => {
-      if (!currency) return;
-
-      const price = await getArPrice(currency);
-      setFiatVal(price * parseFloat(amount));
-    })();
-  }, [amount, currency]);
-
-  // loading target
-  const [loadingTarget, setLoadingTarget] = useState(false);
-
-  // fetch target data
-  useEffect(() => {
-    (async () => {
-      setLoadingTarget(false);
-
-      let targetAddress = targetInput.state;
-      let ansProfile: AnsUser;
-
-      if (targetAddress === "" || !targetAddress) return;
-
-      setLoadingTarget(true);
-
-      if (targetAddress.includes(".ar")) {
-        // fetch profile with label
-        ansProfile = await getAnsProfileByLabel(
-          targetAddress.replace(".ar", "")
-        );
-      } else if (isAddressFormat(targetAddress)) {
-        setTarget({ address: targetAddress });
-
-        // fetch profile with address
-        ansProfile = (await getAnsProfile(targetAddress)) as AnsUser;
-      } else {
-        setLoadingTarget(false);
-        return;
-      }
-
-      if (!ansProfile) {
-        setLoadingTarget(false);
-        if (isAddressFormat(targetAddress)) return;
-
-        return setTarget(undefined);
-      }
-
-      const label = ansProfile.currentLabel + ".ar";
-      const avatar =
-        concatGatewayURL(defaultGateway) + "/" + (ansProfile?.avatar || "");
-
-      setTarget({
-        address: ansProfile.user,
-        label,
-        avatar: ansProfile.avatar ? avatar : undefined
-      });
-      setLoadingTarget(false);
-    })();
-  }, [targetInput.state]);
-
-  // show token selector
-  const [showTokenSelector, setShownTokenSelector] = useState(false);
-
-  // all tokens
-  const tokens = useTokens();
-
-  // selected token
-  const [selectedToken, setSelectedToken] = useState<"AR" | string>(id || "AR");
-
-  const selectedTokenData = useMemo(() => {
-    if (selectedToken === "AR" || !selectedToken || !tokens) {
-      return undefined;
-    }
-
-    return tokens.find((t) => t.id === selectedToken);
-  }, [selectedToken, tokens]);
+    trackPage(PageType.SEND);
+  }, []);
 
   // active address
   const [activeAddress] = useStorage<string>({
@@ -193,223 +69,236 @@ export default function Send({ id }: Props) {
     instance: ExtensionStorage
   });
 
-  // decimals for PSTs
-  const [decimals, setDecimals] = useState(0);
+  // quantity
+  const [qty, setQty] = useStorage<string>(
+    {
+      key: "last_send_qty",
+      instance: ExtensionStorage
+    },
+    ""
+  );
+
+  // currency setting
+  const [currency] = useSetting<string>("currency");
+
+  // qty mode (fiat/token)
+  const [qtyMode, setQtyMode] = useStorage<QtyMode>(
+    {
+      key: "last_send_qty_mode",
+      instance: ExtensionStorage
+    },
+    "token"
+  );
+
+  // tokens
+  const tokens = useTokens();
+
+  // token that the user is going to send
+  const [tokenID, setTokenID] = useStorage<"AR" | string>(
+    {
+      key: "last_send_token",
+      instance: ExtensionStorage
+    },
+    "AR"
+  );
+
+  const token = useMemo<TokenInterface>(
+    () => tokens.find((t) => t.id === tokenID) || arPlaceholder,
+    [tokenID]
+  );
+
+  // if the ID is defined on mount, that means that
+  // we need to reset the qty field
+  useEffect(() => {
+    if (!id) return;
+    setTokenID(id);
+    setQty("");
+  }, []);
+
+  // token logo
+  const [logo, setLogo] = useState<string>();
+  const theme = useTheme();
 
   useEffect(() => {
     (async () => {
-      if (selectedToken === "AR") {
-        setBalance(arBalance);
-        return setDecimals(0);
+      setLogo(viewblock.getTokenLogo(token.id));
+      setLogo(await loadTokenLogo(token.id, token.defaultLogo, theme));
+    })();
+  }, [theme, token]);
+
+  //arweave logo
+  const arweaveLogo = useMemo(
+    () => (theme === "light" ? arLogoLight : arLogoDark),
+    [theme]
+  );
+
+  // balance
+  const [balance, setBalance] = useState(0);
+  const arBalance = useBalance();
+
+  useEffect(() => {
+    (async () => {
+      if (token.id === "AR") {
+        return setBalance(arBalance);
       }
 
-      // fetch token state
-      const { state } = await getContract<TokenState>(selectedToken);
-      const parsedDecimals = getDecimals({
-        id: selectedToken,
-        decimals: state.decimals,
-        divisibility: state.divisibility
+      // placeholder balance
+      setBalance(token.balance);
+
+      const res = await getContract<number>(token.id, {
+        query: `$.balances.${activeAddress}`
       });
 
-      setDecimals(parsedDecimals);
       setBalance(
-        balanceToFractioned(state.balances[activeAddress], {
-          decimals: parsedDecimals
+        balanceToFractioned(res.result[0], {
+          id: token.id,
+          decimals: token.decimals,
+          divisibility: token.divisibility
         })
       );
     })();
-  }, [selectedToken, arBalance, activeAddress]);
+  }, [token, activeAddress, arBalance]);
 
-  // toasts
-  const { setToast } = useToasts();
+  // token price
+  const [price, setPrice] = useState(0);
+
+  useEffect(() => {
+    (async () => {
+      if (token.id === "AR") {
+        const arPrice = await getPrice("arweave", currency);
+
+        return setPrice(arPrice);
+      }
+
+      // get price from redstone
+      const res = await redstone.getPrice(token.ticker);
+
+      if (!res.value) {
+        return setPrice(0);
+      }
+
+      // get price in currency
+      const multiplier =
+        currency !== "usd" ? await getPrice("usd", currency) : 1;
+
+      setPrice(res.value * multiplier);
+    })();
+  }, [token, currency]);
+
+  // quantity in the other currency
+  const secondaryQty = useMemo(() => {
+    const qtyParsed = parseFloat(qty) || 0;
+
+    if (qtyMode === "token") return qtyParsed * price;
+    else return qtyParsed * (1 / price);
+  }, [qty, qtyMode, price]);
+
+  // network fee
+  const [networkFee, setNetworkFee] = useState<string>("0");
+
+  useEffect(() => {
+    (async () => {
+      if (token.id !== "AR") {
+        return setNetworkFee("0");
+      }
+
+      const arweave = new Arweave(defaultGateway);
+      const txPrice = await arweave.transactions.getPrice(0, "dummyTarget");
+
+      setNetworkFee(arweave.ar.winstonToAr(txPrice));
+    })();
+  }, [token]);
+
+  // maximum possible send amount
+  const max = useMemo(() => {
+    let maxAmountToken = balance - parseFloat(networkFee);
+
+    if (token.id !== "AR") maxAmountToken = balance;
+
+    return maxAmountToken * (qtyMode === "fiat" ? price : 1);
+  }, [balance, token, networkFee, qtyMode]);
+
+  // switch back to token qty mode if the
+  // token does not have a fiat price
+  useEffect(() => {
+    if (!!price) return;
+    setQtyMode("token");
+  }, [price]);
+
+  // switch between fiat qty mode / token qty mode
+  function switchQtyMode() {
+    if (!price) return;
+    setQty(secondaryQty.toFixed(4));
+    setQtyMode((val) => (val === "fiat" ? "token" : "fiat"));
+  }
+
+  // invalid qty
+  const invalidQty = useMemo(() => {
+    const parsedQty = Number(qty);
+
+    if (Number.isNaN(parsedQty)) return true;
+
+    return parsedQty < 0 || parsedQty > max;
+  }, [qty, max]);
+
+  // show token selector
+  const [showTokenSelector, setShownTokenSelector] = useState(false);
+
+  function updateSelectedToken(id: string) {
+    setTokenID(id);
+    setQty("");
+    setShownTokenSelector(false);
+  }
+
+  // qty text size
+  const qtySize = useMemo(() => {
+    const maxLengthDef = 7;
+    const symbol =
+      qtyMode === "token" ? token.ticker : getCurrencySymbol(currency);
+    const qtyLength = qty === "" ? 4 : qty.length;
+    const qtyLengthWithSymbol = qtyLength + symbol.length;
+
+    if (qtyLengthWithSymbol <= maxLengthDef) return defaulQtytSize;
+    return defaulQtytSize / (qtyLengthWithSymbol / maxLengthDef);
+  }, [qty, qtyMode, currency, token]);
 
   // router push
   const [push] = useHistory();
 
-  // send tx
+  // prepare tx to send
   async function send() {
-    // return if target is undefined
-    if (!target) return;
+    // check qty
+    if (invalidQty || qty === "" || Number(qty) === 0) return;
 
-    // check amount
-    const amountInt = Number(amount);
-
-    if (Number.isNaN(amountInt) || amountInt <= 0) {
-      return setToast({
-        type: "error",
-        content: browser.i18n.getMessage("invalid_amount"),
-        duration: 2000
-      });
-    }
-
-    // check target
-    if (!isAddressFormat(target.address)) {
-      return setToast({
-        type: "error",
-        content: browser.i18n.getMessage("invalid_address"),
-        duration: 2000
-      });
-    }
-
-    try {
-      // create tx
-      let arweave = new Arweave(defaultGateway);
-      let tx = await arweave.createTransaction({
-        target: target.address,
-        quantity: arweave.ar.arToWinston(amount)
-      });
-
-      if (selectedToken !== "AR") {
-        // get token gateway
-        if (selectedTokenData.gateway) {
-          arweave = new Arweave(selectedTokenData.gateway);
-        }
-
-        // create interaction
-        tx = await arweave.createTransaction({
-          target: target.address,
-          quantity: "0",
-          data: (Math.random() * Math.pow(10, 5)).toFixed(0)
-        });
-
-        tx.addTag("App-Name", "SmartWeaveAction");
-        tx.addTag("App-Version", "0.3.0");
-        tx.addTag("Contract", selectedToken);
-        tx.addTag(
-          "Input",
-          JSON.stringify({
-            function: "transfer",
-            target: target.address,
-            qty: fractionedToBalance(amountInt, { decimals })
-          })
-        );
-      }
-
-      tx.addTag("Type", "Transfer");
-      tx.addTag("Client", "ArConnect");
-      tx.addTag("Client-Version", browser.runtime.getManifest().version);
-
-      // save tx json into the session
-      // to be signed and submitted
-      const storedTx: RawStoredTransfer = {
-        type: selectedToken === "AR" ? "native" : "token",
-        gateway: selectedTokenData?.gateway || defaultGateway,
-        transaction: tx.toJSON()
-      };
-
-      await TempTransactionStorage.set(TRANSFER_TX_STORAGE, storedTx);
-
-      // push to auth & signature
-      push(`/send/auth`);
-    } catch {
-      return setToast({
-        type: "error",
-        content: browser.i18n.getMessage("transaction_send_error"),
-        duration: 2000
-      });
-    }
-
-    passwordInput.setState("");
-    targetInput.setState("");
-  }
-
-  // editing target status
-  const [editingTarget, setEditingTarget] = useState(false);
-
-  // displayed amount
-  const [displayedAmount, setDisplayedAmount] = useState(startAmount);
-
-  // update amount using the keypad
-  function keypadUpdate(val: string) {
-    setAmount((v) => {
-      if ((!v || v === "0") && val !== ".") {
-        setDisplayedAmount(val);
-        return val;
-      }
-
-      setDisplayedAmount(v + val);
-
-      return v + val;
+    const finalQty = fractionedToBalance(Number(qty), {
+      id: token.id,
+      decimals: token.decimals,
+      divisibility: token.divisibility
     });
+
+    // continue to recipient selection
+    push(`/send/recipient/${tokenID}/${finalQty}`);
   }
-
-  // try to paste target from clipboard on focus
-  async function pasteTarget() {
-    try {
-      // get clipboard permission
-      const permission = await navigator.permissions.query({
-        // @ts-expect-error
-        name: "clipboard-read"
-      });
-
-      if (permission.state === "denied") return;
-
-      // get clipboard items
-      const clipboard = await navigator.clipboard.readText();
-
-      // check if clipboard contains an address
-      // or an ANS name
-      if (
-        !clipboard ||
-        (!isAddressFormat(clipboard) && !clipboard.includes(".ar"))
-      )
-        return;
-
-      // set target input
-      targetInput.setState(clipboard);
-    } catch {}
-  }
-
-  // address scanner
-  const [showAddressScanner, setShowAddressScanner] = useState(false);
-
-  // Segment
-  useEffect(() => {
-    trackPage(PageType.SEND);
-  }, []);
 
   return (
     <Wrapper>
       <div>
         <Head title={browser.i18n.getMessage("send")} />
-        <Spacer y={0.25} />
-        <UpperSection>
-          <AmountWrapper>
-            <MaxAmount
-              onClick={() => {
-                let max = balance;
-
-                if (selectedToken === "AR") {
-                  max -= Number(fee);
-                }
-
-                const maxAmount = max.toLocaleString(undefined, {
-                  maximumFractionDigits: 2,
-                  useGrouping: false
-                });
-
-                setAmount(maxAmount);
-                setDisplayedAmount(maxAmount);
-              }}
-            >
-              MAX
-            </MaxAmount>
-            <Amount
-              onInput={(e) => {
-                const val = Number(
-                  e.currentTarget.innerText.replace(/[\n\r]/g, "")
-                );
-
-                if (Number.isNaN(val)) {
-                  return setAmount("0");
-                }
-
-                return setAmount(val.toString());
-              }}
-              onKeyDown={async (e) => {
-                // don't let the user type anything other than numbers
+        <Spacer y={1} />
+        <QuantitySection qtyMode={qtyMode} invalidValue={invalidQty}>
+          <Switch disabled={!price} onClick={switchQtyMode} />
+          {qtyMode === "fiat" && (
+            <Ticker style={{ fontSize: `${qtySize}rem` }}>
+              {getCurrencySymbol(currency)}
+            </Ticker>
+          )}
+          <Quantity>
+            <QuantityInput
+              value={qty}
+              onKeyDown={(e) => {
                 if (
-                  ![
+                  [
+                    "Backspace",
                     "0",
                     "1",
                     "2",
@@ -420,175 +309,84 @@ export default function Send({ id }: Props) {
                     "7",
                     "8",
                     "9",
-                    ".",
-                    "Backspace",
-                    "ArrowLeft",
-                    "ArrowRight"
+                    "."
                   ].includes(e.key)
-                ) {
-                  e.preventDefault();
-                }
-
-                // handle enter submit
-                if (e.key !== "Enter") return;
-                if (!target?.address || balance < Number(amount)) return;
-                await send();
+                )
+                  return;
+                e.preventDefault();
               }}
-            >
-              {displayedAmount}
-            </Amount>
-            <Ticker onClick={() => setShownTokenSelector(true)}>
-              {(selectedToken === "AR" && "AR") ||
-                selectedTokenData?.ticker ||
-                "???"}
-              <ChevronDownIcon />
+              onChange={(e) => setQty(e.target.value)}
+              placeholder="0.00"
+              style={{ fontSize: `${qtySize}rem` }}
+              qtyMode={qtyMode}
+              autoFocus
+            />
+            <Imitate style={{ fontSize: `${qtySize}rem` }}>
+              {qty !== "" ? qty : "0.00"}
+            </Imitate>
+          </Quantity>
+          {qtyMode === "token" && (
+            <Ticker style={{ fontSize: `${qtySize}rem` }}>
+              {token.ticker.toUpperCase()}
             </Ticker>
-          </AmountWrapper>
-          <Spacer y={0.4} />
-          <Prices>
-            <span>
-              {(selectedToken === "AR" &&
-                formatFiatBalance(fiatVal, currency)) ||
-                "??"}
-            </span>
-            {" - "}
-            {fee}
+          )}
+          <Max onClick={() => setQty(max.toString())}>Max</Max>
+        </QuantitySection>
+        <Spacer y={1} />
+        <Datas>
+          {!!price && (
+            <Text noMargin>
+              ≈
+              {qtyMode === "fiat"
+                ? formatTokenBalance(secondaryQty)
+                : formatFiatBalance(secondaryQty, currency)}
+              {qtyMode === "fiat" && " " + token.ticker}
+            </Text>
+          )}
+          <Text noMargin>
+            ~{networkFee}
             {" AR "}
             {browser.i18n.getMessage("network_fee")}
-          </Prices>
-          <Spacer y={0.9} />
-          <TargetWrapper>
-            <Target onClick={() => setEditingTarget((val) => !val)}>
-              {loadingTarget && <TargetLoading />}
-              {(target && (
-                <>
-                  {target.avatar && <TargetAvatar src={target.avatar} />}
-                  <TargetName>
-                    {target.label || formatAddress(target.address, 6)}
-                  </TargetName>
-                </>
-              )) || (
-                <TargetName>
-                  {browser.i18n.getMessage("transaction_send_add_target")}
-                </TargetName>
-              )}
-            </Target>
-            <Tooltip
-              content={browser.i18n.getMessage("transaction_send_scan_address")}
-            >
-              <ScanIcon onClick={() => setShowAddressScanner(true)} />
-            </Tooltip>
-          </TargetWrapper>
-          <AnimatePresence>
-            {editingTarget && (
-              <motion.div
-                variants={expandAnimation}
-                initial="hidden"
-                animate="shown"
-                exit="hidden"
-              >
-                <Spacer y={1} />
-                <InputWithBtn>
-                  <InputWrapper>
-                    <Input
-                      type="text"
-                      {...targetInput.bindings}
-                      label={browser.i18n.getMessage("target")}
-                      placeholder="ljvCPN31XCLPkBo9FUeB7vAK0VC6-eY52-CS-6Iho8U"
-                      fullWidth
-                      onFocus={pasteTarget}
-                      onKeyDown={(e) => {
-                        if (e.key !== "Enter") return;
-                        setEditingTarget(false);
-                      }}
-                    />
-                  </InputWrapper>
-                  <IconButton secondary onClick={() => setEditingTarget(false)}>
-                    <CheckIcon />
-                  </IconButton>
-                </InputWithBtn>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </UpperSection>
+          </Text>
+        </Datas>
       </div>
-      <AnimatePresence>
-        {!editingTarget && (
-          <motion.div
-            variants={animation}
-            initial="hidden"
-            animate="shown"
-            exit="hidden"
-          >
-            <KeypadSection>
-              <Keypad>
-                {new Array(9).fill("").map((_, i) => (
-                  <KeypadButton
-                    key={i}
-                    onClick={() => keypadUpdate((i + 1).toString())}
-                  >
-                    <span>{i + 1}</span>
-                  </KeypadButton>
-                ))}
-                <KeypadButton onClick={() => keypadUpdate(".")}>
-                  <span>.</span>
-                </KeypadButton>
-                <KeypadButton onClick={() => keypadUpdate("0")}>
-                  <span>0</span>
-                </KeypadButton>
-                <KeypadButton
-                  onClick={() =>
-                    setAmount((val) => {
-                      if (val.length <= 1) {
-                        setDisplayedAmount("0");
-                        return "0";
-                      }
-
-                      const newVal = val.substring(0, val.length - 1);
-                      setDisplayedAmount(newVal);
-
-                      return newVal;
-                    })
-                  }
-                >
-                  <ArrowLeftIcon />
-                </KeypadButton>
-              </Keypad>
-              <SendButton
-                disabled={!target?.address || balance < Number(amount)}
-                onClick={send}
-              >
-                {browser.i18n.getMessage("send")}
-                <ArrowUpRightIcon />
-              </SendButton>
-            </KeypadSection>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <BottomActions>
+        <TokenSelector onClick={() => setShownTokenSelector(true)}>
+          <LogoAndDetails>
+            <LogoWrapper>
+              <Logo src={logo || arweaveLogo} />
+            </LogoWrapper>
+            <TokenName>{token.name || token.ticker}</TokenName>
+          </LogoAndDetails>
+          <TokenSelectorRightSide>
+            <Text noMargin>{browser.i18n.getMessage("setting_currency")}</Text>
+            <ChevronRightIcon />
+          </TokenSelectorRightSide>
+        </TokenSelector>
+        <Button
+          disabled={invalidQty || parseFloat(qty) === 0 || qty === ""}
+          onClick={send}
+        >
+          {browser.i18n.getMessage("send")}
+          <ArrowUpRightIcon />
+        </Button>
+      </BottomActions>
       <AnimatePresence>
         {showTokenSelector && (
-          <TokenSelector
+          <TokenSelectorWrapper
             variants={animation}
             initial="hidden"
             animate="shown"
             exit="hidden"
           >
             <TokensSection>
-              <ArToken
-                onClick={() => {
-                  setSelectedToken("AR");
-                  setShownTokenSelector(false);
-                }}
-              />
+              <ArToken onClick={() => updateSelectedToken("AR")} />
               {tokens
                 .filter((token) => token.type === "asset")
                 .map((token, i) => (
                   <Token
                     {...token}
-                    onClick={() => {
-                      setSelectedToken(token.id);
-                      setShownTokenSelector(false);
-                    }}
+                    onClick={() => updateSelectedToken(token.id)}
                     key={i}
                   />
                 ))}
@@ -603,30 +401,14 @@ export default function Send({ id }: Props) {
                     balance={token.balance}
                     divisibility={token.divisibility}
                     decimals={token.decimals}
-                    onClick={() => {
-                      setSelectedToken(token.id);
-                      setShownTokenSelector(false);
-                    }}
+                    onClick={() => updateSelectedToken(token.id)}
                     key={i}
                   />
                 ))}
             </CollectiblesList>
-          </TokenSelector>
+          </TokenSelectorWrapper>
         )}
       </AnimatePresence>
-      <AddressScanner
-        onScan={(data) => {
-          if (!data) return;
-          if (!isAddressFormat(data) && !data.includes(".ar")) {
-            return;
-          }
-
-          targetInput.setState(data);
-          setShowAddressScanner(false);
-        }}
-        active={showAddressScanner}
-        close={() => setShowAddressScanner(false)}
-      />
     </Wrapper>
   );
 }
@@ -639,223 +421,163 @@ const Wrapper = styled.div`
   gap: 2.5rem;
 `;
 
-const UpperSection = styled(Section)`
-  padding-top: 0;
-  padding-bottom: 0;
-`;
+interface Props {
+  id?: string;
+}
 
-const AmountWrapper = styled.div`
+type QtyMode = "fiat" | "token";
+
+const QuantitySection = styled.div<{ qtyMode: QtyMode; invalidValue: boolean }>`
   position: relative;
   display: flex;
-  align-items: flex-end;
   justify-content: center;
-  gap: 0.45rem;
+  align-items: center;
+  gap: ${(props) => (props.qtyMode === "token" ? "0.65rem" : "0")};
+  height: ${defaulQtytSize + "rem"};
+
+  input,
+  p {
+    color: rgb(
+      ${(props) => (props.invalidValue ? "255, 0, 0" : props.theme.theme)}
+    );
+    transition: color 0.23s ease-in-out;
+  }
 `;
 
-const MaxAmount = styled(Text).attrs({
-  noMargin: true
-})`
+const Quantity = styled.div`
+  position: relative;
+  width: max-content;
+  z-index: 1;
+  height: max-content;
+`;
+
+const qtyTextStyle = css`
+  font-size: ${defaulQtytSize}rem;
+  font-weight: 500;
+  line-height: 1.1em;
+`;
+
+const QuantityInput = styled.input.attrs({
+  type: "text"
+})<{ qtyMode: QtyMode }>`
+  position: absolute;
+  width: 100%;
+  outline: none;
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  z-index: 10;
+  text-align: ${(props) => (props.qtyMode === "token" ? "right" : "left")};
+  ${qtyTextStyle}
+`;
+
+const Imitate = styled.p`
+  color: transparent;
+  z-index: 1;
+  margin: 0;
+  text-align: right;
+  ${qtyTextStyle}
+`;
+
+const Ticker = styled.p`
+  margin: 0;
+  text-transform: uppercase;
+  ${qtyTextStyle}
+`;
+
+const BottomActions = styled(Section)`
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+`;
+
+const Datas = styled.div`
+  display: flex;
+  gap: 0.3rem;
+  flex-direction: column;
+  justify-content: center;
+
+  p {
+    text-align: center;
+    font-size: 0.83rem;
+  }
+`;
+
+const floatingAction = css`
   position: absolute;
   top: 50%;
-  right: 10px;
-  font-size: 0.83rem;
-  font-weight: 600;
-  color: rgb(${(props) => props.theme.primaryText});
-  text-transform: uppercase;
   cursor: pointer;
-  text-align: center;
   transform: translateY(-50%);
-  transition: all 0.23s ease-in-out;
+  transition: all 0.17s ease;
 
   &:hover {
-    opacity: 0.85;
+    opacity: 0.83;
   }
 
   &:active {
-    transform: scale(0.95) translateY(-50%);
+    transform: translateY(-50%) scale(0.94);
   }
 `;
 
-const Amount = styled(Text).attrs({
-  title: true,
-  noMargin: true,
-  contentEditable: true,
-  suppressContentEditableWarning: true
-})`
-  font-size: 3.35rem;
-  line-height: 1em;
-  outline: none;
-`;
-
-const Ticker = styled(Text).attrs({
+const Max = styled(Text).attrs({
   noMargin: true
 })`
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  font-size: 1.15rem;
   color: rgb(${(props) => props.theme.primaryText});
-  font-weight: 600;
+  font-size: 0.95rem;
+  right: 20px;
   text-transform: uppercase;
-  transition: all 0.23s ease-in-out;
-
-  &:hover {
-    opacity: 0.7;
-  }
-
-  svg {
-    font-size: 1rem;
-    width: 1em;
-    height: 1em;
-    color: rgb(${(props) => props.theme.primaryText});
-  }
-`;
-
-const Prices = styled(Text).attrs({
-  noMargin: true
-})`
-  font-size: 0.82rem;
   text-align: center;
-
-  span {
-    color: rgb(${(props) => props.theme.primaryText});
-  }
+  ${floatingAction}
 `;
 
-const TargetWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-`;
-
-const ScanIcon = styled(CameraIcon)`
-  font-size: 1.2rem;
+const Switch = styled(RefreshIcon)<{ disabled: boolean }>`
+  font-size: 1.45rem;
   width: 1em;
   height: 1em;
-  color: rgb(${(props) => props.theme.secondaryText});
-  cursor: pointer;
-  transition: all 0.23s ease-in-out;
-
-  &:hover {
-    opacity: 0.9;
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
+  left: 20px;
+  opacity: ${(props) => (props.disabled ? ".7" : "1")};
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")} !important;
+  ${floatingAction}
 `;
 
-const Target = styled.div`
+const TokenSelector = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  padding: 0.05rem 0.5rem;
-  border-radius: 18px;
-  background-color: rgb(${(props) => props.theme.theme});
-  color: #fff;
-  width: max-content;
+  justify-content: space-between;
+  padding: 0.55rem 1.1rem;
+  border-radius: 25px;
   cursor: pointer;
-  transition: all 0.125s ease-in-out;
+  background-color: rgba(${(props) => props.theme.theme}, 0.15);
+  transition: all 0.12s ease-;
 
   &:active {
     transform: scale(0.97);
   }
-`;
 
-const TargetLoading = styled(Loading)`
-  color: #fff;
-  width: 0.9rem;
-  height: 0.9rem;
-`;
-
-const TargetName = styled.span`
-  padding: 0.4rem 0;
-`;
-
-const TargetAvatar = styled.img.attrs({
-  draggable: false,
-  alt: "avatar"
-})`
-  height: 1.5rem;
-  width: 1.5rem;
-  border-radius: 100%;
-  object-fit: cover;
-  user-select: none;
-`;
-
-const KeypadSection = styled(Section)`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  background-color: rgb(${(props) => props.theme.theme});
-  border-radius: 45px 45px 0 0;
-  padding: 20px;
-  padding-top: 10px;
-`;
-
-const Keypad = styled.div`
-  display: grid;
-  grid-template-columns: auto auto auto;
-  justify-content: space-between;
-`;
-
-const KeypadButton = styled.div`
-  position: relative;
-  width: 84px;
-  height: 84px;
-  border-radius: 100%;
-  cursor: pointer;
-  justify-self: center;
-  transition: all 0.125s ease-in-out;
-
-  span,
-  svg {
-    position: absolute;
-    font-size: 1.6rem;
-    font-weight: 500;
-    text-align: center;
-    color: #fff;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+  p {
+    color: rgb(${(props) => props.theme.theme});
   }
+`;
+
+const TokenSelectorRightSide = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.36rem;
 
   svg {
+    font-size: 1.5rem;
     width: 1em;
     height: 1em;
+    color: rgb(${(props) => props.theme.theme});
   }
 
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-  }
-
-  &:active {
-    transform: scale(0.9);
+  p {
+    text-transform: uppercase;
+    font-size: 0.7rem;
   }
 `;
 
-const SendButton = styled(Button).attrs({
-  fullWidth: true
-})`
-  background-color: #fff;
-  color: #000;
-  box-shadow: 0 0 0 0 rgb(255, 255, 255);
-
-  &:hover:not(:active):not(:disabled) {
-    box-shadow: 0 0 0 ${(props) => (props.small ? ".19rem" : ".25rem")}
-      rgb(255, 255, 255);
-  }
-
-  &:disabled {
-    opacity: 0.87;
-    cursor: not-allowed;
-  }
-`;
-
-const TokenSelector = styled(motion.div)`
+const TokenSelectorWrapper = styled(motion.div)`
   position: fixed;
   top: 0;
   left: 0;
@@ -896,7 +618,3 @@ const CollectiblesList = styled(Section)`
   gap: 1.2rem;
   padding-top: 0;
 `;
-
-interface Props {
-  id?: string;
-}

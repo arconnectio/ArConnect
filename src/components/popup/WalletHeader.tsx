@@ -26,7 +26,7 @@ import {
   CheckIcon,
   ChevronDownIcon,
   CopyIcon,
-  GridIcon,
+  GlobeIcon,
   LogOutIcon,
   SettingsIcon,
   UserIcon
@@ -214,8 +214,8 @@ export default function WalletHeader() {
             setAppDataOpen(true);
           }}
         >
-          <Action as={GridIcon} />
-          {activeAppData && <AppOnline />}
+          <Action as={GlobeIcon} />
+          <AppOnline online={!!activeAppData} />
         </AppAction>
         <AnimatePresence>
           {appDataOpen && (
@@ -242,7 +242,7 @@ export default function WalletHeader() {
                             draggable={false}
                           />
                         )) || <NoAppIcon />}
-                        {activeAppData && <AppOnline />}
+                        <AppOnline online={!!activeAppData} />
                       </ActiveAppIcon>
                     </Tooltip>
                   )) || (
@@ -423,14 +423,16 @@ const AppAction = styled.div`
   display: flex;
 `;
 
-const AppOnline = styled.div`
+const AppOnline = styled.div<{ online: boolean }>`
   position: absolute;
   right: 0;
   bottom: 0;
   width: 8px;
   height: 8px;
   border-radius: 100%;
-  background-color: #00e600;
+  background-color: rgb(
+    ${(props) => (props.online ? "0, 230, 0" : "154, 154, 167")}
+  );
   border: 1px solid rgb(${(props) => props.theme.background});
 `;
 
