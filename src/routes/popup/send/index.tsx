@@ -228,7 +228,7 @@ export default function Send({ id }: Props) {
   // switch between fiat qty mode / token qty mode
   function switchQtyMode() {
     if (!price) return;
-    setQty(secondaryQty.toString());
+    setQty(secondaryQty.toFixed(4));
     setQtyMode((val) => (val === "fiat" ? "token" : "fiat"));
   }
 
