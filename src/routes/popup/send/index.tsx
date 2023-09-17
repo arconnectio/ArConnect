@@ -22,10 +22,15 @@ import {
   balanceToFractioned,
   formatFiatBalance,
   formatTokenBalance,
+  fractionedToBalance,
   getCurrencySymbol
 } from "~tokens/currency";
 import { useStorage } from "@plasmohq/storage/hook";
-import { ExtensionStorage } from "~utils/storage";
+import {
+  ExtensionStorage,
+  TRANSFER_TX_STORAGE,
+  TempTransactionStorage
+} from "~utils/storage";
 import { useTokens } from "~tokens";
 import { loadTokenLogo, type Token as TokenInterface } from "~tokens/token";
 import { useTheme } from "~utils/theme";
@@ -39,6 +44,7 @@ import { getContract } from "~lib/warp";
 import redstone from "redstone-api";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import Collectible from "~components/popup/Collectible";
+import { useHistory } from "~utils/hash_router";
 
 // default size for the qty text
 const defaulQtytSize = 3.7;
@@ -115,12 +121,10 @@ export default function Send({ id }: Props) {
 
   useEffect(() => {
     (async () => {
-      if (!token.id || logo) return;
-
       setLogo(viewblock.getTokenLogo(token.id));
       setLogo(await loadTokenLogo(token.id, token.defaultLogo, theme));
     })();
-  }, [theme, logo, token]);
+  }, [theme, token]);
 
   //arweave logo
   const arweaveLogo = useMemo(
@@ -227,7 +231,9 @@ export default function Send({ id }: Props) {
 
   // invalid qty
   const invalidQty = useMemo(() => {
-    const parsedQty = parseFloat(qty) || 0;
+    const parsedQty = Number(qty);
+
+    if (Number.isNaN(parsedQty)) return true;
 
     return parsedQty < 0 || parsedQty > max;
   }, [qty, max]);
@@ -237,7 +243,7 @@ export default function Send({ id }: Props) {
 
   function updateSelectedToken(id: string) {
     setTokenID(id);
-    setLogo(undefined);
+    setQty("");
     setShownTokenSelector(false);
   }
 
@@ -252,6 +258,24 @@ export default function Send({ id }: Props) {
     if (qtyLengthWithSymbol <= maxLengthDef) return defaulQtytSize;
     return defaulQtytSize / (qtyLengthWithSymbol / maxLengthDef);
   }, [qty, qtyMode, currency, token]);
+
+  // router push
+  const [push] = useHistory();
+
+  // prepare tx to send
+  async function send() {
+    // check qty
+    if (invalidQty || qty === "" || Number(qty) === 0) return;
+
+    const finalQty = fractionedToBalance(Number(qty), {
+      id: token.id,
+      decimals: token.decimals,
+      divisibility: token.divisibility
+    });
+
+    // continue to recipient selection
+    push(`/send/recipient/${tokenID}/${finalQty}`);
+  }
 
   return (
     <Wrapper>
@@ -336,7 +360,10 @@ export default function Send({ id }: Props) {
             <ChevronRightIcon />
           </TokenSelectorRightSide>
         </TokenSelector>
-        <Button disabled={invalidQty || parseFloat(qty) === 0 || qty === ""}>
+        <Button
+          disabled={invalidQty || parseFloat(qty) === 0 || qty === ""}
+          onClick={send}
+        >
           {browser.i18n.getMessage("send")}
           <ArrowUpRightIcon />
         </Button>

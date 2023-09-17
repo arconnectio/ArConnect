@@ -1231,7 +1231,15 @@
   },
   "transaction_send_add_target": {
     "message": "Add recipient",
-    "description": "Add recipient button"
+    "description": "Add recipient title"
+  },
+  "transaction_send_address_input_label": {
+    "message": "Recipient",
+    "description": "Label for the address input"
+  },
+  "transaction_send_address_input_placeholder": {
+    "message": "Address or ANS name...",
+    "description": "Placeholder for the address input"
   },
   "transaction_send_scan_address": {
     "message": "Scan address",
