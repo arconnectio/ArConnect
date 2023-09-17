@@ -142,6 +142,9 @@ export default function Send({ id }: Props) {
         return setBalance(arBalance);
       }
 
+      // placeholder balance
+      setBalance(token.balance);
+
       const res = await getContract<number>(token.id, {
         query: `$.balances.${activeAddress}`
       });

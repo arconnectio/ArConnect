@@ -14,6 +14,7 @@ import {
 } from "@arconnect/components";
 import { formatAddress, isAddressFormat } from "~utils/format";
 import { defaultGateway, gql } from "~applications/gateway";
+import type Transaction from "arweave/web/lib/transaction";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { useHistory } from "~utils/hash_router";
@@ -94,15 +95,18 @@ export default function Recipient({ tokenID, qty }: Props) {
   async function send(target: string) {
     try {
       // create tx
-      let arweave = new Arweave(defaultGateway);
-      let tx = await arweave.createTransaction({
-        target,
-        quantity: qty.toString()
-      });
+      const arweave = new Arweave(defaultGateway);
+
+      // save tx json into the session
+      // to be signed and submitted
+      const storedTx: Partial<RawStoredTransfer> = {
+        type: tokenID === "AR" ? "native" : "token",
+        gateway: defaultGateway
+      };
 
       if (tokenID !== "AR") {
         // create interaction
-        tx = await arweave.createTransaction({
+        const tx = await arweave.createTransaction({
           target,
           quantity: "0"
         });
@@ -118,19 +122,19 @@ export default function Recipient({ tokenID, qty }: Props) {
             qty
           })
         );
+        addTransferTags(tx);
+
+        storedTx.transaction = tx.toJSON();
+      } else {
+        const tx = await arweave.createTransaction({
+          target,
+          quantity: qty.toString()
+        });
+
+        addTransferTags(tx);
+
+        storedTx.transaction = tx.toJSON();
       }
-
-      tx.addTag("Type", "Transfer");
-      tx.addTag("Client", "ArConnect");
-      tx.addTag("Client-Version", browser.runtime.getManifest().version);
-
-      // save tx json into the session
-      // to be signed and submitted
-      const storedTx: RawStoredTransfer = {
-        type: tokenID === "AR" ? "native" : "token",
-        gateway: defaultGateway,
-        transaction: tx.toJSON()
-      };
 
       await TempTransactionStorage.set(TRANSFER_TX_STORAGE, storedTx);
 
@@ -143,6 +147,12 @@ export default function Recipient({ tokenID, qty }: Props) {
         duration: 2000
       });
     }
+  }
+
+  async function addTransferTags(transaction: Transaction) {
+    transaction.addTag("Type", "Transfer");
+    transaction.addTag("Client", "ArConnect");
+    transaction.addTag("Client-Version", browser.runtime.getManifest().version);
   }
 
   return (
