@@ -28,6 +28,7 @@ import keystoneLogo from "url:/assets/hardware/keystone.png";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
+import { formatAddress } from "~utils/format";
 
 export default function WalletSettings({ address }: Props) {
   // wallets
@@ -189,7 +190,10 @@ export default function WalletSettings({ address }: Props) {
                 copy(wallet.address);
                 setToast({
                   type: "info",
-                  content: browser.i18n.getMessage("copied_address"),
+                  content: browser.i18n.getMessage("copied_address", [
+                    wallet.nickname,
+                    formatAddress(wallet.address, 3)
+                  ]),
                   duration: 2200
                 });
               }}

@@ -6,6 +6,7 @@ import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import TokenLoading from "./Loading";
+import cmcLogo from "url:/assets/ecosystem/coinmarketcap.svg";
 import Graph from "../Graph";
 import { formatFiatBalance } from "~tokens/currency";
 
@@ -40,6 +41,15 @@ export default function PriceChart({
           {token.name}
           {token.ticker && <TokenTicker>{token.ticker}</TokenTicker>}
         </TokenName>
+        <CoinMarketCap
+          onClick={() =>
+            browser.tabs.create({
+              url: "https://coinmarketcap.com/currencies/arweave/"
+            })
+          }
+        >
+          <img src={cmcLogo} alt={"coinmarketcap"} />
+        </CoinMarketCap>
         {token.logo && <Logo src={token.logo} />}
       </Head>
       <Spacer y={0.15} />
@@ -66,6 +76,16 @@ const Head = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+`;
+
+const CoinMarketCap = styled.a`
+  cursor: pointer;
+
+  img {
+    width: 30px;
+    height: 30px;
+    draggable: false;
+  }
 `;
 
 const TokenName = styled(Text).attrs({

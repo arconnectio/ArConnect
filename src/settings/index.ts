@@ -51,15 +51,6 @@ const settings: Setting[] = [
     defaultValue: 60
   }),*/
   new Setting({
-    name: "arconfetti",
-    displayName: "setting_arconfetti",
-    icon: StarIcon,
-    description: "setting_setting_arconfetti_description",
-    type: "pick",
-    options: [false, "arweave", "hedgehog", "usd"],
-    defaultValue: "arweave"
-  }),
-  new Setting({
     name: "sign_notification",
     displayName: "setting_sign_notification",
     icon: BellIcon,
@@ -75,6 +66,15 @@ const settings: Setting[] = [
     type: "pick",
     options: ["light", "dark", "system"],
     defaultValue: "system"
+  }),
+  new Setting({
+    name: "arconfetti",
+    displayName: "setting_arconfetti",
+    icon: StarIcon,
+    description: "setting_setting_arconfetti_description",
+    type: "pick",
+    options: [false, "arweave", "hedgehog", "usd"],
+    defaultValue: "arweave"
   }),
   new Setting({
     name: "analytics",

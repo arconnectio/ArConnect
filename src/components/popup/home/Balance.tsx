@@ -128,20 +128,28 @@ export default function Balance() {
       actionBar={
         <>
           <Spacer x={0.18} />
-          <ActionButton onClick={() => push("/send/transfer")} />
-          <ActionButton
-            as={ArrowDownLeftIcon}
-            onClick={() => push("/receive")}
-          />
-          <ActionButton as={CompassIcon} onClick={() => push("/explore")} />
-          <ActionButton
-            as={SettingsIcon}
-            onClick={() =>
-              browser.tabs.create({
-                url: browser.runtime.getURL("tabs/dashboard.html")
-              })
-            }
-          />
+          <Tooltip content={browser.i18n.getMessage("send")}>
+            <ActionButton onClick={() => push("/send/transfer")} />
+          </Tooltip>
+          <Tooltip content={browser.i18n.getMessage("receive")}>
+            <ActionButton
+              as={ArrowDownLeftIcon}
+              onClick={() => push("/receive")}
+            />
+          </Tooltip>
+          <Tooltip content={browser.i18n.getMessage("explore")}>
+            <ActionButton as={CompassIcon} onClick={() => push("/explore")} />
+          </Tooltip>
+          <Tooltip content={browser.i18n.getMessage("settings")}>
+            <ActionButton
+              as={SettingsIcon}
+              onClick={() =>
+                browser.tabs.create({
+                  url: browser.runtime.getURL("tabs/dashboard.html")
+                })
+              }
+            />
+          </Tooltip>
           <Spacer x={0.18} />
         </>
       }

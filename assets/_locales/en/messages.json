@@ -476,8 +476,18 @@
     "description": "Wallet name update error notification content"
   },
   "copied_address": {
-    "message": "Copied wallet address",
-    "description": "Address copy notification"
+    "message": "$NAME$ ($ADDRESS$) address copied",
+    "description": "Address copy notification",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Account 1"
+      },
+      "address": {
+        "content": "$2",
+        "example": "ljvCPN31...-CS-6Iho8U"
+      }
+    }
   },
   "cannot_edit_with_ans": {
     "message": "Cannot edit nickname. Wallet already has an ANS label.",

@@ -8,7 +8,7 @@ import HardwareWalletIcon, {
 import { useHardwareApi } from "~wallets/hooks";
 import { type Gateway } from "~applications/gateway";
 import type { StoredWallet } from "~wallets";
-import { getAppURL } from "~utils/format";
+import { formatAddress, getAppURL } from "~utils/format";
 import { removeApp } from "~applications";
 import { useAnsProfile } from "~lib/ans";
 import { useTheme } from "~utils/theme";
@@ -72,17 +72,30 @@ export default function WalletHeader() {
     setToast({
       type: "success",
       duration: 2000,
-      content: browser.i18n.getMessage("copied_address")
+      content: browser.i18n.getMessage("copied_address", [
+        walletName,
+        formatAddress(activeAddress, 3)
+      ])
     });
   };
 
   // profile picture
   const ansProfile = useAnsProfile(activeAddress);
 
+  // wallet nickname for copy
+  const [displayName, setDisplayName] = useState("");
+
   // wallet name
   const walletName = useMemo(() => {
     if (!ansProfile?.label) {
       const wallet = wallets.find(({ address }) => address === activeAddress);
+      let name = wallet?.nickname || "Wallet";
+
+      const address = wallet?.address && formatAddress(wallet?.address, 4);
+      if (/^Account \d+$/.test(name)) {
+        name = address;
+      }
+      setDisplayName(name);
 
       return wallet?.nickname || "Wallet";
     }
@@ -174,7 +187,7 @@ export default function WalletHeader() {
           </AnimatePresence>
         </Avatar>
         <WithArrow>
-          <Text noMargin>{walletName}</Text>
+          <Text noMargin>{displayName}</Text>
           <ExpandArrow open={isOpen} />
         </WithArrow>
       </Wallet>

@@ -130,6 +130,7 @@ export default function Unlock() {
           title={browser.i18n.getMessage("unlock")}
           showOptions={false}
           back={() => {}}
+          showBack={false}
         />
         <Spacer y={0.75} />
         <Section>
