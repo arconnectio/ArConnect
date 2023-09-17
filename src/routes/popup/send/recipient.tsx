@@ -1,12 +1,26 @@
-import Head from "~components/popup/Head";
-import browser from "webextension-polyfill";
-import { Input, Section, Spacer, Text, useInput } from "@arconnect/components";
-import styled from "styled-components";
-import { useEffect, useMemo, useState } from "react";
-import { defaultGateway, gql } from "~applications/gateway";
-import { ExtensionStorage } from "~utils/storage";
-import { useStorage } from "@plasmohq/storage/hook";
+import {
+  ExtensionStorage,
+  TRANSFER_TX_STORAGE,
+  type RawStoredTransfer,
+  TempTransactionStorage
+} from "~utils/storage";
+import {
+  Input,
+  Section,
+  Spacer,
+  Text,
+  useInput,
+  useToasts
+} from "@arconnect/components";
 import { formatAddress, isAddressFormat } from "~utils/format";
+import { defaultGateway, gql } from "~applications/gateway";
+import { useEffect, useMemo, useState } from "react";
+import { useStorage } from "@plasmohq/storage/hook";
+import { useHistory } from "~utils/hash_router";
+import browser from "webextension-polyfill";
+import Head from "~components/popup/Head";
+import styled from "styled-components";
+import Arweave from "arweave";
 
 export default function Recipient({ tokenID, qty }: Props) {
   // transaction target input
@@ -23,6 +37,8 @@ export default function Recipient({ tokenID, qty }: Props) {
 
   useEffect(() => {
     (async () => {
+      if (!activeAddress) return;
+
       // fetch last outgoing txs
       const { data } = await gql(
         `
@@ -68,9 +84,65 @@ export default function Recipient({ tokenID, qty }: Props) {
     );
   }, [lastRecipients, targetInput]);
 
+  // router push
+  const [push] = useHistory();
+
+  // toasts
+  const { setToast } = useToasts();
+
   // prepare tx
   async function send(target: string) {
-    // TODO
+    try {
+      // create tx
+      let arweave = new Arweave(defaultGateway);
+      let tx = await arweave.createTransaction({
+        target,
+        quantity: qty.toString()
+      });
+
+      if (tokenID !== "AR") {
+        // create interaction
+        tx = await arweave.createTransaction({
+          target,
+          quantity: "0"
+        });
+
+        tx.addTag("App-Name", "SmartWeaveAction");
+        tx.addTag("App-Version", "0.3.0");
+        tx.addTag("Contract", tokenID);
+        tx.addTag(
+          "Input",
+          JSON.stringify({
+            function: "transfer",
+            target: target,
+            qty
+          })
+        );
+      }
+
+      tx.addTag("Type", "Transfer");
+      tx.addTag("Client", "ArConnect");
+      tx.addTag("Client-Version", browser.runtime.getManifest().version);
+
+      // save tx json into the session
+      // to be signed and submitted
+      const storedTx: RawStoredTransfer = {
+        type: tokenID === "AR" ? "native" : "token",
+        gateway: defaultGateway,
+        transaction: tx.toJSON()
+      };
+
+      await TempTransactionStorage.set(TRANSFER_TX_STORAGE, storedTx);
+
+      // push to auth & signature
+      push(`/send/auth`);
+    } catch {
+      return setToast({
+        type: "error",
+        content: browser.i18n.getMessage("transaction_send_error"),
+        duration: 2000
+      });
+    }
   }
 
   return (
