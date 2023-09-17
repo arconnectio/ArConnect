@@ -1,7 +1,5 @@
-import AddressScanner from "~components/popup/AddressScanner";
 import { PageType, trackPage } from "~utils/analytics";
-import { useState, useEffect, useRef, useMemo } from "react";
-import { isAddressFormat } from "~utils/format";
+import { useState, useEffect, useMemo } from "react";
 import styled, { css } from "styled-components";
 import { Button, Section, Spacer, Text } from "@arconnect/components";
 import browser from "webextension-polyfill";
@@ -25,11 +23,13 @@ import {
 } from "~tokens/currency";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
+import { useTokens } from "~tokens";
+import { Token } from "~tokens/token";
 
 // default size for the qty text
 const defaulQtytSize = 3.7;
 
-export default function Send({ id }: Props) {
+export default function Send({ id = "AR" }: Props) {
   // Segment
   useEffect(() => {
     trackPage(PageType.SEND);
@@ -64,11 +64,31 @@ export default function Send({ id }: Props) {
     "token"
   );
 
+  // tokens
+  const tokens = useTokens();
+
   // token that the user is going to send
-  const [token, setToken] = useState<"AR" | string>(id);
+  const [tokenID, setTokenID] = useState<"AR" | string>(id);
+  const token = useMemo<Token>(
+    () =>
+      tokens.find((t) => {
+        if (tokenID === "AR")
+          return {
+            id: "AR",
+            name: "Arweave",
+            ticker: "AR",
+            type: "asset",
+            balance: 0,
+            decimals: 12
+          };
+
+        return t.id === tokenID;
+      }),
+    [tokenID]
+  );
+
   const [balance, setBalance] = useState(0);
   const [price, setPrice] = useState(0);
-  const [decimals, setDecimals] = useState(0);
 
   return (
     <Wrapper>
