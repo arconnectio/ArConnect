@@ -76,18 +76,17 @@ const background: ModuleFunction<string | Uint8Array> = async (
     // create arweave client
     const arweave = new Arweave(defaultGateway);
 
-    // decrypt data
-    const symmetricKey = await crypto.subtle.decrypt(
-      {
-        name: options.algorithm
-      },
+    // decrypt key
+    const decryptedKey = await crypto.subtle.decrypt(
+      { name: options.algorithm },
       key,
       encryptedKey
     );
 
+    // decrypt data
     const res = await arweave.crypto.decrypt(
       encryptedData,
-      new Uint8Array(symmetricKey)
+      new Uint8Array(decryptedKey)
     );
 
     // if a salt is present, split it from the decrypted string
@@ -98,7 +97,7 @@ const background: ModuleFunction<string | Uint8Array> = async (
     // remove wallet from memory
     freeDecryptedWallet(privateKey);
 
-    return arweave.utils.bufferToString(res);
+    return res;
   } else if (options.name) {
     // validate
     isEncryptionAlgorithm(options);

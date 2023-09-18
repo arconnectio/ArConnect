@@ -61,17 +61,17 @@ const background: ModuleFunction<Uint8Array> = async (
 
     // prepare data
     const dataBuf = new TextEncoder().encode(data + (options.salt || ""));
-    const array = new Uint8Array(256);
+    const keyBuf = new Uint8Array(256);
 
-    crypto.getRandomValues(array);
-
-    const keyBuf = array;
+    crypto.getRandomValues(keyBuf);
 
     // create arweave client
     const arweave = new Arweave(defaultGateway);
 
     // encrypt data
     const encryptedData = await arweave.crypto.encrypt(dataBuf, keyBuf);
+
+    // encrypt key
     const encryptedKey = await crypto.subtle.encrypt(
       { name: options.algorithm },
       key,
