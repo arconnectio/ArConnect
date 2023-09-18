@@ -36,7 +36,9 @@ import encrypt, {
   finalizer as encryptFinalizer
 } from "./modules/encrypt/encrypt.foreground";
 import decryptModule from "./modules/decrypt";
-import decrypt from "./modules/decrypt/decrypt.foreground";
+import decrypt, {
+  finalizer as decryptFinalizer
+} from "./modules/decrypt/decrypt.foreground";
 import signatureModule from "./modules/signature";
 import signature, {
   finalizer as signatureFinalizer
@@ -69,7 +71,7 @@ const modules: ForegroundModule[] = [
   { ...signModule, function: sign, finalizer: signFinalizer },
   { ...dispatchModule, function: dispatch, finalizer: dispatchFinalizer },
   { ...encryptModule, function: encrypt, finalizer: encryptFinalizer },
-  { ...decryptModule, function: decrypt },
+  { ...decryptModule, function: decrypt, finalizer: decryptFinalizer },
   { ...signatureModule, function: signature, finalizer: signatureFinalizer },
   { ...addTokenModule, function: addToken },
   { ...isTokenAddedModule, function: isTokenAdded },

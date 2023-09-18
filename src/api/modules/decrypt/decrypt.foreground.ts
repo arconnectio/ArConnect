@@ -1,3 +1,4 @@
+import { TransformFinalizer } from "~api/foreground";
 import type { ModuleFunction } from "~api/module";
 
 const foreground: ModuleFunction<void> = (_, options) => {
@@ -7,5 +8,9 @@ const foreground: ModuleFunction<void> = (_, options) => {
     );
   }
 };
+
+export const finalizer: TransformFinalizer<Record<any, any>, any, any> = (
+  result
+) => new Uint8Array(Object.values(result));
 
 export default foreground;

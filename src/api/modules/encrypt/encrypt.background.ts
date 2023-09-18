@@ -5,14 +5,16 @@ import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
 import {
+  isArrayBuffer,
   isEncryptionAlgorithm,
   isLegacyEncryptionOptions,
-  isLocalWallet
+  isLocalWallet,
+  isRawArrayBuffer
 } from "~utils/assertions";
 
 const background: ModuleFunction<Uint8Array> = async (
   _,
-  data: string | BufferSource,
+  data: unknown,
   options: Record<string, unknown>
 ) => {
   // grab the user's keyfile
@@ -28,23 +30,25 @@ const background: ModuleFunction<Uint8Array> = async (
   isLocalWallet(decryptedWallet);
 
   const keyfile = decryptedWallet.keyfile;
+  const publicKey = {
+    kty: "RSA",
+    e: "AQAB",
+    n: keyfile.n,
+    alg: "RSA-OAEP-256",
+    ext: true
+  };
+
+  // remove wallet from memory
+  freeDecryptedWallet(keyfile);
 
   if (options.algorithm) {
     // validate
     isLegacyEncryptionOptions(options);
 
     // old arconnect algorithm
-    // get encryption key
-    const encryptJwk = {
-      kty: "RSA",
-      e: "AQAB",
-      n: keyfile.n,
-      alg: "RSA-OAEP-256",
-      ext: true
-    };
     const key = await crypto.subtle.importKey(
       "jwk",
-      encryptJwk,
+      publicKey,
       {
         name: options.algorithm,
         hash: {
@@ -74,25 +78,20 @@ const background: ModuleFunction<Uint8Array> = async (
       keyBuf
     );
 
-    // remove wallet from memory
-    freeDecryptedWallet(encryptJwk);
-    freeDecryptedWallet(keyfile);
-
     return arweave.utils.concatBuffers([encryptedKey, encryptedData]);
   } else if (options.name && typeof data !== "string") {
     // validate
     isEncryptionAlgorithm(options);
+    isRawArrayBuffer(data);
+
+    data = new Uint8Array(Object.values(data));
+
+    isArrayBuffer(data);
 
     // standard RSA decryption
-    const encryptJwk = {
-      ...keyfile,
-      alg: undefined,
-      key_ops: undefined,
-      ext: true
-    };
     const key = await crypto.subtle.importKey(
       "jwk",
-      encryptJwk,
+      publicKey,
       {
         name: "RSA-OAEP",
         hash: "SHA-256"
@@ -101,10 +100,6 @@ const background: ModuleFunction<Uint8Array> = async (
       ["encrypt"]
     );
     const encrypted = await crypto.subtle.encrypt(options, key, data);
-
-    // remove wallet from memory
-    freeDecryptedWallet(encryptJwk);
-    freeDecryptedWallet(keyfile);
 
     return new Uint8Array(encrypted);
   } else {

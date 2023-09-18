@@ -219,6 +219,19 @@ export function isArrayBuffer(input: unknown): asserts input is ArrayBuffer {
   assert(ArrayBuffer.isView(input), "Input is not an ArrayBuffer.");
 }
 
+export function isRawArrayBuffer(
+  input: unknown
+): asserts input is { [i: number]: number } {
+  assert(typeof input === "object", "Input has to be an object.");
+  isNotNull(input, "Input cannot be null.");
+
+  for (const key of Object.keys(input as Record<number, number>)) {
+    isNumber(Number(key), "Invalid array buffer index.");
+    assert(!Number.isNaN(Number[key]), "Invalid array buffer index: NaN.");
+    isNumber(input[key], "Invalid array buffer byte.");
+  }
+}
+
 export function isLocalWallet(
   input: DecryptedWallet
 ): asserts input is LocalWallet<JWKInterface> {

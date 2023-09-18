@@ -110,7 +110,7 @@ export const finalizer: TransformFinalizer<
       ...(originalTransaction.tags || []),
       ...(result.transaction.tags || [])
     ],
-    data: params.data
+    data: originalTransaction.data
   });
 
   // show a nice confetti eeffect, if enabled
