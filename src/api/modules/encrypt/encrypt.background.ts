@@ -11,7 +11,6 @@ import {
   isLocalWallet,
   isRawArrayBuffer
 } from "~utils/assertions";
-import { isString } from "typed-assert";
 
 const background: ModuleFunction<Uint8Array> = async (
   _,
