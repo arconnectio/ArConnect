@@ -11,6 +11,7 @@ import {
   isLocalWallet,
   isRawArrayBuffer
 } from "~utils/assertions";
+import { isString } from "typed-assert";
 
 const background: ModuleFunction<Uint8Array> = async (
   _,
@@ -59,23 +60,37 @@ const background: ModuleFunction<Uint8Array> = async (
       ["encrypt"]
     );
 
-    // prepare data
-    const dataBuf = new TextEncoder().encode(data + (options.salt || ""));
-    const keyBuf = new Uint8Array(256);
-
-    crypto.getRandomValues(keyBuf);
-
     // create arweave client
     const arweave = new Arweave(defaultGateway);
 
+    let dataBuff: Uint8Array;
+
+    if (typeof data === "string") {
+      // string data is decrypted
+      dataBuff = new TextEncoder().encode(data + (options.salt || ""));
+    } else {
+      // raw data is decrypted
+      isRawArrayBuffer(data);
+
+      dataBuff = arweave.utils.concatBuffers([
+        new Uint8Array(Object.values(data)),
+        new TextEncoder().encode(options.salt || "")
+      ]);
+    }
+
+    // prepare data
+    const keyBuff = new Uint8Array(256);
+
+    crypto.getRandomValues(keyBuff);
+
     // encrypt data
-    const encryptedData = await arweave.crypto.encrypt(dataBuf, keyBuf);
+    const encryptedData = await arweave.crypto.encrypt(dataBuff, keyBuff);
 
     // encrypt key
     const encryptedKey = await crypto.subtle.encrypt(
       { name: options.algorithm },
       key,
-      keyBuf
+      keyBuff
     );
 
     return arweave.utils.concatBuffers([encryptedKey, encryptedData]);
