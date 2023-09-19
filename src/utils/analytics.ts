@@ -2,8 +2,10 @@ import { getSetting } from "~settings";
 import { ExtensionStorage, TempTransactionStorage } from "./storage";
 import { AnalyticsBrowser } from "@segment/analytics-next";
 
+const PUBLIC_SEGMENT_WRITEKEY = "J97E4cvSZqmpeEdiUQNC2IxS1Kw4Cwxm";
+
 const analytics = AnalyticsBrowser.load({
-  writeKey: process.env.PLASMO_PUBLIC_SEGMENT_WRITEKEY
+  writeKey: PUBLIC_SEGMENT_WRITEKEY
 });
 
 export enum EventType {
