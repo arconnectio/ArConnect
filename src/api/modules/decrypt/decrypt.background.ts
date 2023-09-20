@@ -86,7 +86,8 @@ const background: ModuleFunction<string | Uint8Array> = async (
     // decrypt data
     const res = await arweave.crypto.decrypt(
       encryptedData,
-      new Uint8Array(decryptedKey)
+      new Uint8Array(decryptedKey),
+      options.salt
     );
 
     // if a salt is present, split it from the decrypted string

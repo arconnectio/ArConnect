@@ -83,7 +83,11 @@ const background: ModuleFunction<Uint8Array> = async (
     crypto.getRandomValues(keyBuff);
 
     // encrypt data
-    const encryptedData = await arweave.crypto.encrypt(dataBuff, keyBuff);
+    const encryptedData = await arweave.crypto.encrypt(
+      dataBuff,
+      keyBuff,
+      options.salt
+    );
 
     // encrypt key
     const encryptedKey = await crypto.subtle.encrypt(
