@@ -97,7 +97,6 @@ const background: ModuleFunction<string | Uint8Array> = async (
     if (options.salt) {
       const rawSalt = new TextEncoder().encode(options.salt);
 
-      // TODO: see why this doesn't work
       return res.slice(0, res.length - rawSalt.length);
     }
 
