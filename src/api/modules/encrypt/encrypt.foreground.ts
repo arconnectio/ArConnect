@@ -8,7 +8,7 @@ const foreground: ModuleFunction<unknown> = (data, options) => {
     );
   }
 
-  return [new Uint8Array(data), options];
+  return [typeof data === "string" ? data : new Uint8Array(data), options];
 };
 
 export const finalizer: TransformFinalizer<Record<any, any>, any, any> = (
