@@ -41,16 +41,19 @@ export default function PriceChart({
           {token.name}
           {token.ticker && <TokenTicker>{token.ticker}</TokenTicker>}
         </TokenName>
-        <CoinMarketCap
-          onClick={() =>
-            browser.tabs.create({
-              url: "https://coinmarketcap.com/currencies/arweave/"
-            })
-          }
-        >
-          <img src={cmcLogo} alt={"coinmarketcap"} />
-        </CoinMarketCap>
-        {token.logo && <Logo src={token.logo} />}
+        {token.logo ? (
+          <Logo src={token.logo} />
+        ) : (
+          <CoinMarketCap
+            onClick={() =>
+              browser.tabs.create({
+                url: "https://coinmarketcap.com/currencies/arweave/"
+              })
+            }
+          >
+            <img src={cmcLogo} alt={"coinmarketcap"} />
+          </CoinMarketCap>
+        )}
       </Head>
       <Spacer y={0.15} />
       {(latestPrice !== 0 && latestPrice && (
