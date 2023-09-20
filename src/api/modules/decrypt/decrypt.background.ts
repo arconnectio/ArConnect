@@ -90,13 +90,16 @@ const background: ModuleFunction<string | Uint8Array> = async (
       options.salt
     );
 
-    // if a salt is present, split it from the decrypted string
-    if (options.salt) {
-      return arweave.utils.bufferToString(res).split(options.salt)[0];
-    }
-
     // remove wallet from memory
     freeDecryptedWallet(privateKey);
+
+    // if a salt is present, split it from the decrypted string
+    if (options.salt) {
+      const rawSalt = new TextEncoder().encode(options.salt);
+
+      // TODO: see why this doesn't work
+      return res.slice(0, res.length - rawSalt.length);
+    }
 
     return res;
   } else if (options.name) {
