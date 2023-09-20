@@ -37,7 +37,6 @@ export default function Done() {
       <Checkbox
         checked={!!analytics}
         onChange={(checked) => {
-          console.log(checked);
           setAnalytics(checked);
           setAnswered(true);
         }}
