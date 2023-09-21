@@ -670,7 +670,7 @@
     "description": "Setup complete title"
   },
   "generated_wallet": {
-    "message": "Generated wallet with address $ADDRESS$. You should never share nor the keyfile, nor the seedphrase with anyone. Avoid dApps asking for your keyfile as well.",
+    "message": "Generated wallet with address $ADDRESS$. You should never share the keyfile, nor the seedphrase with anyone. Avoid dApps asking for your keyfile as well.",
     "description": "Generated wallet notification",
     "placeholders": {
       "address": {
