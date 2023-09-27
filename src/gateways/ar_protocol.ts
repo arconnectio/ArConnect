@@ -1,6 +1,7 @@
-import { concatGatewayURL, type Gateway } from "~applications/gateway";
 import browser, { type WebNavigation } from "webextension-polyfill";
+import { concatGatewayURL } from "~gateways/utils";
 import { isAddressFormat } from "~utils/format";
+import { Gateway } from "./gateway";
 
 const PROTOCOL_PREFIX = "ar";
 

@@ -2,7 +2,6 @@ import { AnimatePresence, type Variants, motion } from "framer-motion";
 import { createContext, useEffect, useMemo, useState } from "react";
 import { Card, Spacer, useToasts } from "@arconnect/components";
 import type { JWKInterface } from "arweave/web/lib/wallet";
-import { defaultGateway } from "~applications/gateway";
 import { jwkFromMnemonic } from "~wallets/generator";
 import { useLocation, useRoute } from "wouter";
 import browser from "webextension-polyfill";
@@ -18,6 +17,7 @@ import Password from "./load/password";
 import Wallets from "./load/wallets";
 import LoadDone from "./load/done";
 import Theme from "./load/theme";
+import { defaultGateway } from "~gateways/gateway";
 
 /** Wallet generate pages */
 const generatePages = [

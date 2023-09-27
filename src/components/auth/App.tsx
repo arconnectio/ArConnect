@@ -9,12 +9,12 @@ import type { Allowance } from "~applications/allowance";
 import { formatTokenBalance } from "~tokens/currency";
 import { GridIcon } from "@iconicicons/react";
 import { useMemo } from "react";
-import { type Gateway, defaultGateway } from "~applications/gateway";
 import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
 import styled from "styled-components";
 import Label from "./Label";
+import { defaultGateway, Gateway } from "~gateways/gateway";
 
 export default function App({
   appIcon,

@@ -3,7 +3,7 @@ import {
   formatFiatBalance,
   formatTokenBalance
 } from "~tokens/currency";
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { concatGatewayURL } from "~gateways/utils";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { Loading, Section, Spacer, Text } from "@arconnect/components";
 import { usePrice, usePriceHistory } from "~lib/redstone";
@@ -44,6 +44,7 @@ import Skeleton from "~components/Skeleton";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
+import { defaultGateway } from "~gateways/gateway";
 
 export default function Asset({ id }: Props) {
   // load state

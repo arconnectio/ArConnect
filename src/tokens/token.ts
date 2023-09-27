@@ -6,14 +6,11 @@ import {
 import type { GQLEdgeInterface } from "ar-gql/dist/faces";
 import type { DisplayTheme } from "@arconnect/components";
 import * as viewblock from "~lib/viewblock";
-import {
-  concatGatewayURL,
-  defaultGateway,
-  type Gateway,
-  gql
-} from "~applications/gateway";
+import { concatGatewayURL } from "~gateways/utils";
+import { gql } from "~gateways/api";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
+import { defaultGateway, Gateway } from "~gateways/gateway";
 
 export interface Token {
   id: string;

@@ -20,17 +20,12 @@ import {
   useModal,
   useToasts
 } from "@arconnect/components";
-import {
-  concatGatewayURL,
-  defaultGateway,
-  suggestedGateways,
-  testnets,
-  urlToGateway
-} from "~applications/gateway";
+import { concatGatewayURL, urlToGateway } from "~gateways/utils";
 import type Application from "~applications/application";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Arweave from "arweave";
+import { defaultGateway, suggestedGateways, testnets } from "~gateways/gateway";
 
 export default function AppSettings({ app, showTitle = false }: Props) {
   // app settings

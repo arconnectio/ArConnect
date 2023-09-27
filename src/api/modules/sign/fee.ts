@@ -1,14 +1,11 @@
 import { getActiveAddress, getActiveKeyfile } from "~wallets";
+import { defaultGateway, Gateway } from "~gateways/gateway";
 import { freeDecryptedWallet } from "~wallets/encryption";
 import type { Alarms } from "webextension-polyfill";
 import { getArPrice } from "~lib/coingecko";
 import { getSetting } from "~settings";
-import {
-  concatGatewayURL,
-  defaultGateway,
-  type Gateway,
-  gql
-} from "~applications/gateway";
+import { concatGatewayURL } from "~gateways/utils";
+import { gql } from "~gateways/api";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave/web/common";

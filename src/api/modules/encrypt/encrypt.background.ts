@@ -1,6 +1,6 @@
 import { freeDecryptedWallet } from "~wallets/encryption";
-import { defaultGateway } from "~applications/gateway";
 import type { ModuleFunction } from "~api/background";
+import { defaultGateway } from "~gateways/gateway";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";

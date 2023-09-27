@@ -1,5 +1,4 @@
 import type { EvalStateResult } from "warp-contracts";
-import type { Gateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { isTokenState } from "~utils/assertions";
@@ -12,6 +11,7 @@ import {
   type TokenState,
   type TokenType
 } from "./token";
+import { Gateway } from "~gateways/gateway";
 
 /** Default tokens */
 const defaultTokens: Token[] = [

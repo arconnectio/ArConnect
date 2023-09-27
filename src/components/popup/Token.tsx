@@ -4,7 +4,6 @@ import {
   balanceToFractioned
 } from "~tokens/currency";
 import { type MouseEventHandler, useEffect, useMemo, useState } from "react";
-import { defaultGateway } from "~applications/gateway";
 import { hoverEffect, useTheme } from "~utils/theme";
 import { loadTokenLogo, type Token } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -19,6 +18,7 @@ import Squircle from "~components/Squircle";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
+import { defaultGateway } from "~gateways/gateway";
 
 export default function Token({ onClick, ...props }: Props) {
   // display theme

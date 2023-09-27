@@ -1,5 +1,6 @@
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { concatGatewayURL } from "~gateways/utils";
 import { useEffect, useState } from "react";
+import { defaultGateway } from "~gateways/gateway";
 
 /**
  * Get the ANS profile for an address

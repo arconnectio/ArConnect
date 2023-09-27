@@ -14,7 +14,6 @@ import {
   type PermissionType
 } from "~applications/permissions";
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
-import { defaultGateway, type Gateway } from "~applications/gateway";
 import { CloseLayer } from "~components/popup/WalletHeader";
 import type { AppInfo } from "~applications/application";
 import { AnimatePresence, motion } from "framer-motion";
@@ -37,6 +36,7 @@ import App from "~components/auth/App";
 import styled from "styled-components";
 import { EventType, trackEvent } from "~utils/analytics";
 import Application from "~applications/application";
+import { defaultGateway, Gateway } from "~gateways/gateway";
 
 export default function Connect() {
   // active address

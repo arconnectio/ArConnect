@@ -1,6 +1,6 @@
 import { formatTokenBalance, formatFiatBalance } from "~tokens/currency";
 import Application, { type AppInfo } from "~applications/application";
-import { defaultGateway, gql } from "~applications/gateway";
+import { gql } from "~gateways/api";
 import Graph, { GraphText } from "~components/popup/Graph";
 import { Spacer, Tooltip } from "@arconnect/components";
 import {
@@ -32,6 +32,7 @@ import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
 import { removeDecryptionKey } from "~wallets/auth";
+import { defaultGateway } from "~gateways/gateway";
 
 export default function Balance() {
   // grab address

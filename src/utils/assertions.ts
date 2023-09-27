@@ -11,7 +11,6 @@ import type Transaction from "arweave/web/lib/transaction";
 import type { DecodedTag } from "~api/modules/sign/tags";
 import type { AppInfo } from "~applications/application";
 import type { Chunk } from "~api/modules/sign/chunks";
-import type { Gateway } from "~applications/gateway";
 import { isAddressFormat } from "./format";
 import type {
   EncryptionAlgorithm,
@@ -33,6 +32,7 @@ import {
   isNotNull,
   isExactly
 } from "typed-assert";
+import { Gateway } from "~gateways/gateway";
 
 export function isGateway(input: unknown): asserts input is Gateway {
   isRecordWithKeys(

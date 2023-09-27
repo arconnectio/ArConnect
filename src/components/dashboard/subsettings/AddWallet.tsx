@@ -1,7 +1,6 @@
 import { isValidMnemonic, jwkFromMnemonic } from "~wallets/generator";
 import { PlusIcon, SettingsIcon } from "@iconicicons/react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
-import { defaultGateway } from "~applications/gateway";
 import { checkPassword } from "~wallets/auth";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
@@ -21,6 +20,7 @@ import browser from "webextension-polyfill";
 import * as bip39 from "bip39-web-crypto";
 import Arweave from "arweave/web/common";
 import styled from "styled-components";
+import { defaultGateway } from "~gateways/gateway";
 
 export default function AddWallet() {
   // password input

@@ -1,4 +1,3 @@
-import { defaultGateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useEffect, useState } from "react";
@@ -12,6 +11,7 @@ import Arweave from "arweave";
 import { isExpired } from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
 import { trackEvent, EventType, trackPage, PageType } from "~utils/analytics";
+import { defaultGateway } from "~gateways/gateway";
 
 export default function Home() {
   // get if the user has no balance

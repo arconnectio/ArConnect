@@ -7,7 +7,7 @@ import {
   Tooltip,
   useToasts
 } from "@arconnect/components";
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { concatGatewayURL } from "~gateways/utils";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { formatTokenBalance } from "~tokens/currency";
 import type { HardwareApi } from "~wallets/hardware";
@@ -23,6 +23,7 @@ import browser from "webextension-polyfill";
 import Squircle from "~components/Squircle";
 import styled from "styled-components";
 import Arweave from "arweave";
+import { defaultGateway } from "~gateways/gateway";
 
 export default function WalletSwitcher({
   open,

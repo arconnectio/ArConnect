@@ -1,8 +1,9 @@
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { concatGatewayURL } from "~gateways/utils";
 import { type MouseEventHandler, useMemo } from "react";
 import { formatTokenBalance, balanceToFractioned } from "~tokens/currency";
 import { hoverEffect } from "~utils/theme";
 import styled from "styled-components";
+import { defaultGateway } from "~gateways/gateway";
 
 export default function Collectible({ id, onClick, ...props }: Props) {
   // balance

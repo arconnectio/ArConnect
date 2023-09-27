@@ -3,7 +3,7 @@ import { sendMessage } from "@arconnect/webext-bridge";
 import { getMissingPermissions } from "./permissions";
 import type { StorageChange } from "~utils/runtime";
 import { getStoredApps } from "~applications";
-import { compareGateways } from "./gateway";
+import { compareGateways } from "../gateways/utils";
 import { getAppURL } from "~utils/format";
 import { forEachTab } from "./tab";
 import type { Event } from "shim";

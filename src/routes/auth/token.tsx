@@ -13,11 +13,6 @@ import { getContract } from "~lib/warp";
 import { useTheme } from "~utils/theme";
 import { addToken } from "~tokens";
 import {
-  concatGatewayURL,
-  defaultGateway,
-  type Gateway
-} from "~applications/gateway";
-import {
   Button,
   Section,
   Spacer,
@@ -34,6 +29,8 @@ import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
+import { defaultGateway, Gateway } from "~gateways/gateway";
+import { concatGatewayURL } from "~gateways/utils";
 
 export default function Token() {
   // connect params

@@ -37,7 +37,6 @@ import { useTheme } from "~utils/theme";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import Arweave from "arweave";
-import { defaultGateway } from "~applications/gateway";
 import { useBalance } from "~wallets/hooks";
 import { getPrice } from "~lib/coingecko";
 import { getContract } from "~lib/warp";
@@ -45,6 +44,7 @@ import redstone from "redstone-api";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import Collectible from "~components/popup/Collectible";
 import { useHistory } from "~utils/hash_router";
+import { defaultGateway } from "~gateways/gateway";
 
 // default size for the qty text
 const defaulQtytSize = 3.7;

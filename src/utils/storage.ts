@@ -1,6 +1,6 @@
 import type Transaction from "arweave/web/lib/transaction";
-import type { Gateway } from "~applications/gateway";
 import { Storage } from "@plasmohq/storage";
+import { Gateway } from "~gateways/gateway";
 
 /**
  * Default local extension storage, with values

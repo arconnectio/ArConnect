@@ -13,7 +13,7 @@ import {
   useToasts
 } from "@arconnect/components";
 import { formatAddress, isAddressFormat } from "~utils/format";
-import { defaultGateway, gql } from "~applications/gateway";
+import { gql } from "~gateways/api";
 import type Transaction from "arweave/web/lib/transaction";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -22,6 +22,7 @@ import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
 import Arweave from "arweave";
+import { defaultGateway } from "~gateways/gateway";
 
 export default function Recipient({ tokenID, qty }: Props) {
   // transaction target input

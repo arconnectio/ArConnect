@@ -7,12 +7,8 @@ import { useHistory } from "~utils/hash_router";
 import { ShareIcon } from "@iconicicons/react";
 import { formatAddress } from "~utils/format";
 import { getArPrice } from "~lib/coingecko";
-import {
-  concatGatewayURL,
-  defaultGateway,
-  gql,
-  urlToGateway
-} from "~applications/gateway";
+import { concatGatewayURL, urlToGateway } from "~gateways/utils";
+import { gql } from "~gateways/api";
 import CustomGatewayWarning from "~components/auth/CustomGatewayWarning";
 import Skeleton from "~components/Skeleton";
 import CodeArea from "~components/CodeArea";
@@ -23,6 +19,7 @@ import prettyBytes from "pretty-bytes";
 import styled from "styled-components";
 import Arweave from "arweave";
 import dayjs from "dayjs";
+import { defaultGateway } from "~gateways/gateway";
 
 export default function Transaction({ id: rawId, gw }: Props) {
   // fixup id

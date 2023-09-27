@@ -1,4 +1,4 @@
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { concatGatewayURL } from "~gateways/utils";
 import { Spacer, useInput } from "@arconnect/components";
 import { useEffect, useMemo, useState } from "react";
 import { IconButton } from "~components/IconButton";
@@ -13,6 +13,7 @@ import WalletListItem from "./list/WalletListItem";
 import browser from "webextension-polyfill";
 import SearchInput from "./SearchInput";
 import styled from "styled-components";
+import { defaultGateway } from "~gateways/gateway";
 
 export default function Wallets() {
   // wallets

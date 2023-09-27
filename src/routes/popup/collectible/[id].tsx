@@ -1,5 +1,5 @@
 import { EyeIcon, MessageIcon, ShareIcon, GlobeIcon } from "@iconicicons/react";
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { concatGatewayURL } from "~gateways/utils";
 import { Section, Spacer, Text } from "@arconnect/components";
 import { getSettings, type TokenState } from "~tokens/token";
 import { useEffect, useMemo, useState } from "react";
@@ -15,6 +15,7 @@ import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
+import { defaultGateway } from "~gateways/gateway";
 
 export default function Collectible({ id }: Props) {
   // load state
