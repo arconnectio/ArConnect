@@ -40,6 +40,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (el.tagName === "SOURCE") {
         // @ts-expect-error
         el.parentNode.load();
+      } else if (el.tagName === "LINK") {
+        el.parentNode.replaceChild(el.cloneNode(), el);
       }
     } catch {
       console.error(`Failed to load ar:// resource: ${el[fields[el.tagName]]}`);
