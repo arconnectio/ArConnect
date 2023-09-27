@@ -26,6 +26,8 @@ export function useGateway(requirements: Requirements) {
     })();
   }, [requirements]);
 
+  // TODO: health check
+
   return activeGateway;
 }
 
