@@ -1,9 +1,11 @@
 import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
+import type { Requirements } from "~gateways/wayfinder";
 
 const pingStaggerDelayMs = 10; // 0.01s
 const pingTimeout = 5000; // 5s
 
+// TODO: MAKE THIS WEIGH HTTP/HTTPS
 const pingUpdater = async (data: any, onUpdate: any) => {
   const newData = structuredClone(data);
   const pingPromises = data.map((item: any, index: any) => async () => {
@@ -35,10 +37,19 @@ const pingUpdater = async (data: any, onUpdate: any) => {
         onUpdate(newData);
 
         const healthJson = await fetchResult.json();
+        const propertyTxn = newData[index].settings.properties;
 
         newData[index].health = {
           status: "success"
         };
+
+        // Save txn properties
+        if (!newData[propertyTxn]) {
+          const properties = await fetchGatewayProperties(propertyTxn);
+          newData[propertyTxn] = JSON.parse(properties as string);
+        }
+        newData[index].properties = newData[propertyTxn];
+
         onUpdate(newData);
       } catch (e) {
         console.error(e);
@@ -71,12 +82,12 @@ const sortGatewaysByOperatorStake = (filteredGateways) => {
   return sortedGateways;
 };
 
-const fetchGatewayProperties = async (gateway) => {
+const fetchGatewayProperties = async (txn) => {
   const arweave = new Arweave(defaultGateway);
-  const transaction = await arweave.transactions.getData(
-    gateway.settings.properties,
-    { decode: true, string: true }
-  );
+  const transaction = await arweave.transactions.getData(txn, {
+    decode: true,
+    string: true
+  });
   const properties = JSON.parse(transaction as string);
 
   if (properties.GRAPHQL && properties.ARNS) {
@@ -84,6 +95,22 @@ const fetchGatewayProperties = async (gateway) => {
   } else {
     return null;
   }
+};
+
+const isValidGateway = (gateway: any, requirements: Requirements): boolean => {
+  if (requirements.graphql && !gateway.properties.GRAPHQL) {
+    return false;
+  }
+  if (requirements.arns && !gateway.properties.ARNS) {
+    return false;
+  }
+  if (
+    requirements.startBlock !== undefined &&
+    gateway.start > requirements.startBlock
+  ) {
+    return false;
+  }
+  return true;
 };
 
 // FOR CACHING AND GETTING STATUS
@@ -117,25 +144,10 @@ const linkDisplay = (protocol: string, fqdn: string, port: number) => {
   return linkFull(protocol, fqdn, port);
 };
 
-// let procData = [];
-// get gateways for now, cache this later
-// const gateways = await axios
-//   .get(defaultGARCacheURL)
-//   .then((data) => data.data);
-// const garItems = extractGarItems(gateways);
-
-// const pinged = await pingUpdater(garItems, (newData) => {
-//   procData = [...newData];
-// });
-// //
-// console.log("pinged", procData);
-/**
- * Selects the appropriate gateway for the provided usecase.
- */
-
 export {
   pingUpdater,
   extractGarItems,
+  isValidGateway,
   linkFull,
   linkDisplay,
   sortGatewaysByOperatorStake,

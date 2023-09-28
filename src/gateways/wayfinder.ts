@@ -1,14 +1,22 @@
-import { defaultGateway, type Gateway, defaultGARCacheURL } from "./gateway";
+import { defaultGateway, type Gateway } from "./gateway";
 import { useEffect, useState } from "react";
-import {
-  fetchGatewayProperties,
-  sortGatewaysByOperatorStake
-} from "~lib/wayfinder";
-import Arweave from "arweave";
+import { isValidGateway, sortGatewaysByOperatorStake } from "~lib/wayfinder";
 
 export async function findGateway(
   requirements: Requirements
 ): Promise<Gateway> {
+  // let procData = [];
+  // // get gateways for now, cache this later
+  // const gateways = await axios
+  //   .get(defaultGARCacheURL)
+  //   .then((data) => data.data);
+  // const garItems = extractGarItems(gateways);
+  // const pinged = await pingUpdater(garItems, (newData) => {
+  //   procData = [...newData];
+  // });
+
+  // console.log("gateways", gateways);
+
   try {
     if (requirements.startBlock === 0) {
       return defaultGateway;
@@ -34,17 +42,17 @@ export async function findGateway(
         protocol: selectedGateway.settings.protocol
       };
     }
-    // else {
-    //   for (const gateway of sortedGateways) {
-    //     const txn = await fetchGatewayProperties(gateway);
-    //     if (txn !== null) {
-    //       console.log("txn", txn);
-    //       return gateway;
-    //     } else {
-    //       return defaultGateway;
-    //     }
-    //   }
-    // }
+    for (let i = 0; i < top10.length; i++) {
+      const selectedGateway = top10[i];
+      if (isValidGateway(selectedGateway, requirements)) {
+        return {
+          host: selectedGateway.settings.fqdn,
+          port: selectedGateway.settings.port,
+          protocol: selectedGateway.settings.protocol
+        };
+      }
+    }
+
     return defaultGateway;
   } catch (err) {
     console.log("err", err);
@@ -74,7 +82,7 @@ export function useGateway(requirements: Requirements) {
   return activeGateway;
 }
 
-interface Requirements {
+export interface Requirements {
   /* Whether the gateway should support GraphQL requests */
   graphql?: boolean;
   /* Should the gateway support ArNS */
