@@ -370,7 +370,7 @@ const ActiveAppIcon = styled(AppIcon)`
   }
 `;
 
-const CompassIcon = (props: HTMLProps<SVGElement>) => (
+export const CompassIcon = (props: HTMLProps<SVGElement>) => (
   <svg
     width="24"
     height="24"

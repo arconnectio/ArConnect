@@ -391,6 +391,10 @@
     "message": "Theme",
     "description": "Theme settings title"
   },
+  "setting_wayfinder": {
+    "message": "Wayfinder",
+    "description": "Wayfinder settings title"
+  },
   "setting_apps_description": {
     "message": "View all connected apps & settings",
     "description": "App settings description"
@@ -442,6 +446,10 @@
   "setting_display_theme_description": {
     "message": "The theme of the extension UI",
     "description": "Display theme settings description"
+  },
+  "setting_wayfinder_description": {
+    "message": "Expermiental system-wide wayfinder for ar.io gateways",
+    "description": "Wayfinder settings description"
   },
   "search_pick_option": {
     "message": "Search for an option...",

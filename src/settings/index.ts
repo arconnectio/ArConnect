@@ -1,3 +1,4 @@
+import { CompassIcon } from "~components/popup/home/Balance";
 import { currencies } from "~lib/coingecko";
 import { dreNodes } from "~lib/warp";
 import {
@@ -75,6 +76,14 @@ const settings: Setting[] = [
     type: "pick",
     options: [false, "arweave", "hedgehog", "usd"],
     defaultValue: "arweave"
+  }),
+  new Setting({
+    name: "wayfinder",
+    displayName: "setting_wayfinder",
+    icon: CompassIcon,
+    description: "setting_wayfinder_description",
+    type: "boolean",
+    defaultValue: false
   }),
   new Setting({
     name: "analytics",

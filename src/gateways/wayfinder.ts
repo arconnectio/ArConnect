@@ -1,5 +1,6 @@
 import { defaultGateway, type Gateway, defaultGARCacheURL } from "./gateway";
 import { useEffect, useState } from "react";
+import { getSetting } from "~settings";
 import {
   fetchGatewayProperties,
   sortGatewaysByOperatorStake
@@ -10,7 +11,10 @@ export async function findGateway(
   requirements: Requirements
 ): Promise<Gateway> {
   try {
-    if (requirements.startBlock === 0) {
+    // get if the feature is enabled
+    const wayfinderEnabled = await getSetting("wayfinder").getValue();
+
+    if (!wayfinderEnabled || requirements.startBlock === 0) {
       return defaultGateway;
     }
     // this could probably be filtered out during the caching process
