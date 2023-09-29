@@ -29,8 +29,9 @@ import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
-import { defaultGateway, Gateway } from "~gateways/gateway";
+import { Gateway } from "~gateways/gateway";
 import { concatGatewayURL } from "~gateways/utils";
+import { findGateway, useGateway } from "~gateways/wayfinder";
 
 export default function Token() {
   // connect params
@@ -76,6 +77,7 @@ export default function Token() {
     (async () => {
       if (!params?.tokenID) return;
 
+      const gw = await findGateway({ startBlock: 0 });
       // get token type
       let type = params.tokenType;
 
@@ -85,9 +87,7 @@ export default function Token() {
           type = tokenTypeRegistry[params.tokenID];
         } else {
           // fetch data
-          const data = await fetch(
-            `${concatGatewayURL(defaultGateway)}/${params.tokenID}`
-          );
+          const data = await fetch(`${concatGatewayURL(gw)}/${params.tokenID}`);
 
           type = data.headers.get("content-type").includes("application/json")
             ? "asset"
@@ -159,6 +159,8 @@ export default function Token() {
     })();
   }, [params?.tokenID, state, theme]);
 
+  const gateway = useGateway({ startBlock: 0 });
+
   return (
     <Wrapper>
       <div>
@@ -203,9 +205,7 @@ export default function Token() {
               )) || (
                 <>
                   <Thumbnail
-                    src={`${concatGatewayURL(defaultGateway)}/${
-                      params?.tokenID
-                    }`}
+                    src={`${concatGatewayURL(gateway)}/${params?.tokenID}`}
                   />
                   <Section>
                     <TokenName noMargin>

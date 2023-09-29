@@ -10,6 +10,7 @@ import * as viewblock from "~lib/viewblock";
 import BaseElement from "./BaseElement";
 import styled from "styled-components";
 import { defaultGateway } from "~gateways/gateway";
+import { useGateway } from "~gateways/wayfinder";
 
 export default function TokenListItem({ token, active }: Props) {
   // format address
@@ -27,13 +28,16 @@ export default function TokenListItem({ token, active }: Props) {
   // token logo
   const [image, setImage] = useState(viewblock.getTokenLogo(token.id));
 
+  // gateway
+  const gateway = useGateway({ startBlock: 0 });
+
   useEffect(() => {
     (async () => {
       try {
         // if it is a collectible, we don't need to determinate the logo
         if (token.type === "collectible") {
           return setImage(
-            `${concatGatewayURL(token.gateway || defaultGateway)}/${token.id}`
+            `${concatGatewayURL(token.gateway || gateway)}/${token.id}`
           );
         }
 
@@ -47,7 +51,7 @@ export default function TokenListItem({ token, active }: Props) {
         setImage(viewblock.getTokenLogo(token.id));
       }
     })();
-  }, [token, theme]);
+  }, [token, theme, gateway]);
 
   // router
   const [, setLocation] = useLocation();

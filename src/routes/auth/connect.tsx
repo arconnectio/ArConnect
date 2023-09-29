@@ -152,6 +152,7 @@ export default function Connect() {
         permissions,
         name: appData.name,
         logo: appData.logo,
+        // TODO: wayfinder
         gateway: params.gateway || defaultGateway
       });
     } else {
@@ -182,6 +183,7 @@ export default function Connect() {
         <App
           appName={appData.name || appUrl}
           appUrl={appUrl}
+          // TODO: wayfinder
           gateway={params?.gateway || defaultGateway}
           appIcon={appData.logo}
         />

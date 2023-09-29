@@ -4,6 +4,7 @@ import {
   Spacer,
   Text
 } from "@arconnect/components";
+import { defaultGateway, Gateway } from "~gateways/gateway";
 import { useTheme as useDisplayTheme } from "~utils/theme";
 import type { Allowance } from "~applications/allowance";
 import { formatTokenBalance } from "~tokens/currency";
@@ -14,7 +15,6 @@ import browser from "webextension-polyfill";
 import Arweave from "arweave";
 import styled from "styled-components";
 import Label from "./Label";
-import { defaultGateway, Gateway } from "~gateways/gateway";
 
 export default function App({
   appIcon,

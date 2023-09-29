@@ -2,6 +2,7 @@ import { getActiveAddress, getActiveKeyfile } from "~wallets";
 import { defaultGateway, Gateway } from "~gateways/gateway";
 import { freeDecryptedWallet } from "~wallets/encryption";
 import type { Alarms } from "webextension-polyfill";
+import { findGateway } from "~gateways/wayfinder";
 import { getArPrice } from "~lib/coingecko";
 import { getSetting } from "~settings";
 import { concatGatewayURL } from "~gateways/utils";
@@ -19,7 +20,7 @@ export default async function handleFeeAlarm(alarmInfo: Alarms.Alarm) {
 
   // client and tx info
   const [, linkedTransaction, appURL] = alarmInfo.name.split(".");
-  const arweave = new Arweave(defaultGateway);
+  const arweave = new Arweave(await findGateway({}));
 
   // fee multiplier
   const feeMultiplier =
@@ -169,7 +170,7 @@ export async function getFeeAmount(address: string, app: Application) {
     await app.getGatewayConfig()
   );
 
-  const arweave = new Arweave(defaultGateway);
+  const arweave = new Arweave(await findGateway({ graphql: true }));
   // TODO: figure out a way to use redstone here
   // problem: the redstone-api package uses the
   // window object, which is undefined in the

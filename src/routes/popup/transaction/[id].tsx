@@ -3,6 +3,7 @@ import { AnimatePresence, type Variants, motion } from "framer-motion";
 import { Button, Section, Spacer, Text } from "@arconnect/components";
 import type { GQLNodeInterface } from "ar-gql/dist/faces";
 import { useEffect, useMemo, useState } from "react";
+import { useGateway } from "~gateways/wayfinder";
 import { useHistory } from "~utils/hash_router";
 import { ShareIcon } from "@iconicicons/react";
 import { formatAddress } from "~utils/format";
@@ -19,7 +20,6 @@ import prettyBytes from "pretty-bytes";
 import styled from "styled-components";
 import Arweave from "arweave";
 import dayjs from "dayjs";
-import { defaultGateway } from "~gateways/gateway";
 
 export default function Transaction({ id: rawId, gw }: Props) {
   // fixup id
@@ -31,13 +31,18 @@ export default function Transaction({ id: rawId, gw }: Props) {
   const [transaction, setTransaction] = useState<GQLNodeInterface>();
 
   // arweave gateway
+  const defaultGateway = useGateway({
+    ensureStake: true,
+    startBlock: 0,
+    graphql: true
+  });
   const gateway = useMemo(() => {
     if (!gw) {
       return defaultGateway;
     }
 
     return urlToGateway(decodeURIComponent(gw));
-  }, [gw]);
+  }, [gw, defaultGateway]);
 
   // arweave client
   const arweave = useMemo(() => new Arweave(gateway), [gateway]);

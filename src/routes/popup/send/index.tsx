@@ -43,8 +43,8 @@ import { getContract } from "~lib/warp";
 import redstone from "redstone-api";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import Collectible from "~components/popup/Collectible";
+import { findGateway } from "~gateways/wayfinder";
 import { useHistory } from "~utils/hash_router";
-import { defaultGateway } from "~gateways/gateway";
 
 // default size for the qty text
 const defaulQtytSize = 3.7;
@@ -202,7 +202,8 @@ export default function Send({ id }: Props) {
         return setNetworkFee("0");
       }
 
-      const arweave = new Arweave(defaultGateway);
+      const gateway = await findGateway({});
+      const arweave = new Arweave(gateway);
       const txPrice = await arweave.transactions.getPrice(0, "dummyTarget");
 
       setNetworkFee(arweave.ar.winstonToAr(txPrice));

@@ -17,12 +17,12 @@ import { gql } from "~gateways/api";
 import type Transaction from "arweave/web/lib/transaction";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
+import { findGateway } from "~gateways/wayfinder";
 import { useHistory } from "~utils/hash_router";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
 import Arweave from "arweave";
-import { defaultGateway } from "~gateways/gateway";
 
 export default function Recipient({ tokenID, qty }: Props) {
   // transaction target input
@@ -41,6 +41,8 @@ export default function Recipient({ tokenID, qty }: Props) {
     (async () => {
       if (!activeAddress) return;
 
+      const gateway = await findGateway({ graphql: true });
+
       // fetch last outgoing txs
       const { data } = await gql(
         `
@@ -55,7 +57,7 @@ export default function Recipient({ tokenID, qty }: Props) {
           }
         `,
         { address: activeAddress },
-        defaultGateway
+        gateway
       );
 
       // filter addresses
@@ -96,13 +98,14 @@ export default function Recipient({ tokenID, qty }: Props) {
   async function send(target: string) {
     try {
       // create tx
-      const arweave = new Arweave(defaultGateway);
+      const gateway = await findGateway({});
+      const arweave = new Arweave(gateway);
 
       // save tx json into the session
       // to be signed and submitted
       const storedTx: Partial<RawStoredTransfer> = {
         type: tokenID === "AR" ? "native" : "token",
-        gateway: defaultGateway
+        gateway: gateway
       };
 
       if (tokenID !== "AR") {

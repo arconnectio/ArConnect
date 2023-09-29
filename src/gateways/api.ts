@@ -1,6 +1,7 @@
-import { concatGatewayURL } from "./utils";
 import GQLResultInterface from "ar-gql/dist/faces";
-import { defaultGateway, Gateway } from "./gateway";
+import { concatGatewayURL } from "./utils";
+import { findGateway } from "./wayfinder";
+import { Gateway } from "./gateway";
 
 /**
  * Run a query on the Arweave Graphql API,
@@ -17,7 +18,11 @@ export async function gql(
   variables?: Record<string, unknown>,
   gateway?: Gateway
 ) {
-  const gatewayUrl = concatGatewayURL(gateway || defaultGateway);
+  if (!gateway) {
+    gateway = await findGateway({ graphql: true });
+  }
+
+  const gatewayUrl = concatGatewayURL(gateway);
   const graphql = JSON.stringify({
     query,
     variables

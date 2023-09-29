@@ -32,7 +32,7 @@ import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
 import { removeDecryptionKey } from "~wallets/auth";
-import { defaultGateway } from "~gateways/gateway";
+import { findGateway } from "~gateways/wayfinder";
 
 export default function Balance() {
   // grab address
@@ -105,11 +105,14 @@ export default function Balance() {
   );
 
   useEffect(() => {
-    if (!activeAddress) return;
+    (async () => {
+      if (!activeAddress) return;
 
-    balanceHistory(activeAddress, defaultGateway)
-      .then((res) => setHistoricalBalance(res))
-      .catch();
+      const gateway = await findGateway({ graphql: true });
+      const history = await balanceHistory(activeAddress, gateway);
+
+      setHistoricalBalance(history);
+    })();
   }, [activeAddress]);
 
   // router push
@@ -210,7 +213,7 @@ export default function Balance() {
   );
 }
 
-async function balanceHistory(address: string, gateway = defaultGateway) {
+async function balanceHistory(address: string) {
   const arweave = new Arweave(gateway);
 
   // find txs coming in and going out

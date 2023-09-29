@@ -15,7 +15,7 @@ import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
-import { defaultGateway } from "~gateways/gateway";
+import { useGateway } from "~gateways/wayfinder";
 
 export default function Collectible({ id }: Props) {
   // load state
@@ -54,9 +54,10 @@ export default function Collectible({ id }: Props) {
 
   // token gateway
   const tokens = useTokens();
+  const defaultGateway = useGateway({ startBlock: 0 });
   const gateway = useMemo(
     () => tokens.find((t) => t.id === id)?.gateway || defaultGateway,
-    [id]
+    [id, defaultGateway]
   );
 
   return (

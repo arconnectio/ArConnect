@@ -118,6 +118,7 @@ export default class Application {
   async getGatewayConfig(): Promise<Gateway> {
     const settings = await this.#getSettings();
 
+    // TODO: wayfinder
     return settings.gateway || defaultGateway;
   }
 
@@ -161,6 +162,7 @@ export default class Application {
         // assign with default values
         const values = {
           allowance: defaultAllowance,
+          // TODO: wayfinder
           gateway: defaultGateway,
           bundler: defaultBundler,
           ...val

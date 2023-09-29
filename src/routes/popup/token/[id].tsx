@@ -44,7 +44,7 @@ import Skeleton from "~components/Skeleton";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
-import { defaultGateway } from "~gateways/gateway";
+import { useGateway } from "~gateways/wayfinder";
 
 export default function Asset({ id }: Props) {
   // load state
@@ -107,9 +107,14 @@ export default function Asset({ id }: Props) {
 
   // token gateway
   const tokens = useTokens();
+  const defaultGateway = useGateway({
+    startBlock: 0,
+    graphql: true,
+    ensureStake: true
+  });
   const gateway = useMemo(
     () => tokens.find((t) => t.id === id)?.gateway || defaultGateway,
-    [id]
+    [id, defaultGateway]
   );
 
   // fetch interactions
