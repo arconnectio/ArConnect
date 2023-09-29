@@ -8,6 +8,8 @@ import {
   pingUpdater,
   sortGatewaysByOperatorStake
 } from "~lib/wayfinder";
+import browser, { type Alarms } from "webextension-polyfill";
+import type { processedData } from "~gateways/types";
 
 export async function findGateway(
   requirements: Requirements
@@ -20,7 +22,7 @@ export async function findGateway(
   }
 
   let procDataStr = localStorage.getItem("gateways");
-  let procData = [];
+  let procData: processedData[] = [];
   // get gateways for now, cache this later
   if (!procDataStr) {
     const gateways = await axios
@@ -58,6 +60,8 @@ export async function findGateway(
       };
     }
     for (let i = 0; i < top10.length; i++) {
+      // TODO: if we want it to be random
+      // const index = (randomIndex + i) % top10.length;
       const selectedGateway = top10[i];
       if (isValidGateway(selectedGateway, requirements)) {
         return {
@@ -73,6 +77,34 @@ export async function findGateway(
     console.log("err", err);
   }
 }
+
+/**
+ * Schedule update to gateway list.
+ * Refreshes after one day.
+ */
+async function scheduleGatewayUpdate() {
+  browser.alarms.create("update_gateway", {
+    periodInMinutes: 24 * 60
+  });
+}
+
+export default async function handleGatewayUpdate(alarm: Alarms.Alarm) {
+  if (alarm.name !== "update_gateway") return;
+  let procData: processedData[] = [];
+  try {
+    const response = await fetch(defaultGARCacheURL);
+    const gateways = await response.json();
+
+    const garItems = extractGarItems(gateways);
+    const pinged = await pingUpdater(garItems, (newData) => {
+      procData = [...newData];
+    });
+    // chrome.storage.local.set({ gateways: JSON.stringify(procData) });
+  } catch (err) {
+    console.log("err in handle", err);
+  }
+}
+/**
 
 /**
  * Gateway hook that uses wayfinder to select the active gateway.

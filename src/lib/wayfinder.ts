@@ -1,5 +1,10 @@
 import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
+import type {
+  gatewayAddressRegistryCache,
+  gatewayAddressRegistryItem,
+  processedData
+} from "~gateways/types";
 import type { Requirements } from "~gateways/wayfinder";
 
 const pingStaggerDelayMs = 10; // 0.01s
@@ -18,9 +23,12 @@ const properties = {
   }
 };
 
-const pingUpdater = async (data: any, onUpdate: any) => {
+const pingUpdater = async (
+  data: gatewayAddressRegistryItem[],
+  onUpdate: any
+) => {
   const newData = structuredClone(data);
-  const pingPromises = data.map((item: any, index: any) => async () => {
+  const pingPromises = data.map((item, index) => async () => {
     const delayMs = pingStaggerDelayMs * index;
     await new Promise((resolve) => setTimeout(resolve, delayMs));
     try {
@@ -78,11 +86,11 @@ const pingUpdater = async (data: any, onUpdate: any) => {
       onUpdate(newData);
     }
   });
-  await Promise.all(pingPromises.map((p: any) => p()));
+  await Promise.all(pingPromises.map((p) => p()));
 };
 
 // TODO: MAKE THIS WEIGH HTTP/HTTPS
-const sortGatewaysByOperatorStake = (filteredGateways) => {
+const sortGatewaysByOperatorStake = (filteredGateways: processedData[]) => {
   const sortedGateways = filteredGateways.slice();
 
   sortedGateways.sort((gatewayA, gatewayB) => {
@@ -138,8 +146,8 @@ const isValidGateway = (gateway: any, requirements: Requirements): boolean => {
 };
 
 // FOR CACHING AND GETTING STATUS
-const extractGarItems = (garCache: any) => {
-  return Object.entries(garCache.gateways).map(([txId, item]: any) => {
+const extractGarItems = (garCache: gatewayAddressRegistryCache) => {
+  return Object.entries(garCache.gateways).map(([txId, item]) => {
     return {
       id: txId,
       ping: { status: "unknown" },
