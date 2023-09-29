@@ -12,6 +12,13 @@ import {
 export async function findGateway(
   requirements: Requirements
 ): Promise<Gateway> {
+  // get if the feature is enabled
+  const wayfinderEnabled = await getSetting("wayfinder").getValue();
+
+  if (!wayfinderEnabled || requirements.startBlock === 0) {
+    return defaultGateway;
+  }
+
   let procDataStr = localStorage.getItem("gateways");
   let procData = [];
   // get gateways for now, cache this later
@@ -29,12 +36,6 @@ export async function findGateway(
   }
 
   try {
-    // get if the feature is enabled
-    const wayfinderEnabled = await getSetting("wayfinder").getValue();
-
-    if (!wayfinderEnabled || requirements.startBlock === 0) {
-      return defaultGateway;
-    }
     // this could probably be filtered out during the caching process
     const filteredGateways = procData.filter((gateway) => {
       return (
