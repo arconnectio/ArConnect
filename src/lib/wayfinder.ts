@@ -5,7 +5,19 @@ import type { Requirements } from "~gateways/wayfinder";
 const pingStaggerDelayMs = 10; // 0.01s
 const pingTimeout = 5000; // 5s
 
-// TODO: MAKE THIS WEIGH HTTP/HTTPS
+const properties = {
+  FH1aVetOoulPGqgYukj0VE0wIhDy90WiQoV3U2PeY44: {
+    GRAPHQL: true,
+    ARNS: true,
+    MAX_PAGE_SIZE: 5000
+  },
+  "raJgvbFU-YAnku-WsupIdbTsqqGLQiYpGzoqk9SCVgY": {
+    GRAPHQL: true,
+    ARNS: true,
+    MAX_PAGE_SIZE: 1000
+  }
+};
+
 const pingUpdater = async (data: any, onUpdate: any) => {
   const newData = structuredClone(data);
   const pingPromises = data.map((item: any, index: any) => async () => {
@@ -42,13 +54,8 @@ const pingUpdater = async (data: any, onUpdate: any) => {
         newData[index].health = {
           status: "success"
         };
-
-        // Save txn properties
-        if (!newData[propertyTxn]) {
-          const properties = await fetchGatewayProperties(propertyTxn);
-          newData[propertyTxn] = JSON.parse(properties as string);
-        }
-        newData[index].properties = newData[propertyTxn];
+        // Save txn properties, hardcoded
+        newData[index].properties = properties[propertyTxn];
 
         onUpdate(newData);
       } catch (e) {
@@ -74,11 +81,28 @@ const pingUpdater = async (data: any, onUpdate: any) => {
   await Promise.all(pingPromises.map((p: any) => p()));
 };
 
+// TODO: MAKE THIS WEIGH HTTP/HTTPS
 const sortGatewaysByOperatorStake = (filteredGateways) => {
   const sortedGateways = filteredGateways.slice();
-  sortedGateways.sort(
-    (gatewayA, gatewayB) => gatewayB.operatorStake - gatewayA.operatorStake
-  );
+
+  sortedGateways.sort((gatewayA, gatewayB) => {
+    const protocolA = gatewayA.settings.protocol;
+    const protocolB = gatewayB.settings.protocol;
+
+    // If gatewayA is HTTPS and gatewayB is HTTP, put gatewayA first
+    if (protocolA === "https" && protocolB === "http") {
+      return -1;
+    }
+
+    // If gatewayA is HTTP and gatewayB is HTTPS, put gatewayB first
+    if (protocolA === "http" && protocolB === "https") {
+      return 1;
+    }
+
+    // If both have the same protocol, compare by operatorStake
+    return gatewayB.operatorStake - gatewayA.operatorStake;
+  });
+
   return sortedGateways;
 };
 
