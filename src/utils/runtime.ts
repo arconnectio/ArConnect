@@ -1,3 +1,4 @@
+import { handleGatewayUpdate, scheduleGatewayUpdate } from "~gateways/cache";
 import browser, { type Runtime, type Storage } from "webextension-polyfill";
 
 export const isManifestv3 = () =>
@@ -14,6 +15,10 @@ export async function onInstalled(details: Runtime.OnInstalledDetailsType) {
   browser.tabs.create({
     url: browser.runtime.getURL("tabs/welcome.html")
   });
+
+  // wayfinder
+  scheduleGatewayUpdate();
+  await handleGatewayUpdate();
 }
 
 export interface StorageChange<T = unknown> extends Storage.StorageChange {

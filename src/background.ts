@@ -2,6 +2,7 @@ import { addressChangeListener, walletsChangeListener } from "~wallets/event";
 import { keyRemoveAlarmListener, onWindowClose } from "~wallets/auth";
 import { appConfigChangeListener } from "~applications/events";
 import { handleApiCalls, handleChunkCalls } from "~api";
+import { handleGatewayUpdate } from "~gateways/cache";
 import { onMessage } from "@arconnect/webext-bridge";
 import { handleTabUpdate } from "~applications/tab";
 import protocolHandler from "~gateways/ar_protocol";
@@ -11,7 +12,6 @@ import { ExtensionStorage } from "~utils/storage";
 import { onInstalled } from "~utils/runtime";
 import browser from "webextension-polyfill";
 import { syncLabels } from "~wallets";
-import handleGatewayUpdate from "~gateways/wayfinder";
 
 // watch for API calls
 onMessage("api_call", handleApiCalls);

@@ -1,11 +1,11 @@
-import Arweave from "arweave";
-import { defaultGateway } from "~gateways/gateway";
-import type {
-  gatewayAddressRegistryCache,
-  gatewayAddressRegistryItem,
-  processedData
-} from "~gateways/types";
 import type { Requirements } from "~gateways/wayfinder";
+import { defaultGateway } from "~gateways/gateway";
+import Arweave from "arweave";
+import type {
+  GatewayAddressRegistryCache,
+  GatewayAddressRegistryItem,
+  ProcessedData
+} from "~gateways/types";
 
 const pingStaggerDelayMs = 10; // 0.01s
 const pingTimeout = 5000; // 5s
@@ -24,13 +24,14 @@ const properties = {
 };
 
 const pingUpdater = async (
-  data: gatewayAddressRegistryItem[],
+  data: GatewayAddressRegistryItem[],
   onUpdate: any
 ) => {
   const newData = structuredClone(data);
   const pingPromises = data.map((item, index) => async () => {
     const delayMs = pingStaggerDelayMs * index;
     await new Promise((resolve) => setTimeout(resolve, delayMs));
+
     try {
       newData[index].ping = { status: "pending" };
       onUpdate(newData);
@@ -50,6 +51,7 @@ const pingUpdater = async (
 
       clearTimeout(timeoutTrigger);
       newData[index].ping = { status: "success", value: duration };
+
       onUpdate(newData);
 
       try {
@@ -68,14 +70,17 @@ const pingUpdater = async (
         onUpdate(newData);
       } catch (e) {
         console.error(e);
+
         newData[index].health = {
           status: "error",
           error: e?.toString() ?? JSON.stringify(e)
         };
+
         onUpdate(newData);
       }
     } catch (e) {
       console.error(e);
+
       newData[index].ping = {
         status: "error",
         error: e?.toString() ?? JSON.stringify(e)
@@ -83,14 +88,16 @@ const pingUpdater = async (
       newData[index].health = {
         status: "error"
       };
+
       onUpdate(newData);
     }
   });
+
   await Promise.all(pingPromises.map((p) => p()));
 };
 
 // TODO: MAKE THIS WEIGH HTTP/HTTPS
-const sortGatewaysByOperatorStake = (filteredGateways: processedData[]) => {
+const sortGatewaysByOperatorStake = (filteredGateways: ProcessedData[]) => {
   const sortedGateways = filteredGateways.slice();
 
   sortedGateways.sort((gatewayA, gatewayB) => {
@@ -146,7 +153,7 @@ const isValidGateway = (gateway: any, requirements: Requirements): boolean => {
 };
 
 // FOR CACHING AND GETTING STATUS
-const extractGarItems = (garCache: gatewayAddressRegistryCache) => {
+const extractGarItems = (garCache: GatewayAddressRegistryCache) => {
   return Object.entries(garCache.gateways).map(([txId, item]) => {
     return {
       id: txId,

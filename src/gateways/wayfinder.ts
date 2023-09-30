@@ -1,15 +1,8 @@
-import axios from "axios";
-import { defaultGateway, type Gateway, defaultGARCacheURL } from "./gateway";
+import { isValidGateway, sortGatewaysByOperatorStake } from "~lib/wayfinder";
+import { defaultGateway, type Gateway } from "./gateway";
 import { useEffect, useState } from "react";
+import { getGatewayCache } from "./cache";
 import { getSetting } from "~settings";
-import {
-  extractGarItems,
-  isValidGateway,
-  pingUpdater,
-  sortGatewaysByOperatorStake
-} from "~lib/wayfinder";
-import browser, { type Alarms } from "webextension-polyfill";
-import type { processedData } from "~gateways/types";
 
 export async function findGateway(
   requirements: Requirements
@@ -21,21 +14,7 @@ export async function findGateway(
     return defaultGateway;
   }
 
-  let procDataStr = localStorage.getItem("gateways");
-  let procData: processedData[] = [];
-  // get gateways for now, cache this later
-  if (!procDataStr) {
-    const gateways = await axios
-      .get(defaultGARCacheURL)
-      .then((data) => data.data);
-    const garItems = extractGarItems(gateways);
-    const pinged = await pingUpdater(garItems, (newData) => {
-      procData = [...newData];
-    });
-    localStorage.setItem("gateways", JSON.stringify(procData));
-  } else {
-    procData = JSON.parse(procDataStr);
-  }
+  const procData = getGatewayCache();
 
   try {
     // this could probably be filtered out during the caching process
@@ -77,34 +56,6 @@ export async function findGateway(
     console.log("err", err);
   }
 }
-
-/**
- * Schedule update to gateway list.
- * Refreshes after one day.
- */
-async function scheduleGatewayUpdate() {
-  browser.alarms.create("update_gateway", {
-    periodInMinutes: 24 * 60
-  });
-}
-
-export default async function handleGatewayUpdate(alarm: Alarms.Alarm) {
-  if (alarm.name !== "update_gateway") return;
-  let procData: processedData[] = [];
-  try {
-    const response = await fetch(defaultGARCacheURL);
-    const gateways = await response.json();
-
-    const garItems = extractGarItems(gateways);
-    const pinged = await pingUpdater(garItems, (newData) => {
-      procData = [...newData];
-    });
-    // chrome.storage.local.set({ gateways: JSON.stringify(procData) });
-  } catch (err) {
-    console.log("err in handle", err);
-  }
-}
-/**
 
 /**
  * Gateway hook that uses wayfinder to select the active gateway.

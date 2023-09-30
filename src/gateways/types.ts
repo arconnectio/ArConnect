@@ -1,6 +1,6 @@
-interface gatewayAddressRegistryItemData {
+interface GatewayAddressRegistryItemData {
   operatorStake: number;
-  vaults: gatewayVault[];
+  vaults: GatewayVault[];
   settings: {
     label: string;
     fqdn: string;
@@ -14,8 +14,8 @@ interface gatewayAddressRegistryItemData {
   end: number;
 }
 
-export interface gatewayAddressRegistryItem
-  extends gatewayAddressRegistryItemData {
+export interface GatewayAddressRegistryItem
+  extends GatewayAddressRegistryItemData {
   id: string;
   linkFull: string;
   linkDisplay: string;
@@ -23,19 +23,19 @@ export interface gatewayAddressRegistryItem
   health: any;
 }
 
-export interface gatewayAddressRegistryCache {
+export interface GatewayAddressRegistryCache {
   contractTxId: string;
-  gateways: Record<string, gatewayAddressRegistryItemData>;
+  gateways: Record<string, GatewayAddressRegistryItemData>;
   evaluationOptions: {};
 }
 
-interface gatewayVault {
+interface GatewayVault {
   balance: number;
   start: number;
   end: number;
 }
 
-export interface processedData {
+export interface ProcessedData {
   id: string;
   ping: {
     status: string;
