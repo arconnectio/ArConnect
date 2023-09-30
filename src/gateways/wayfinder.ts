@@ -83,9 +83,7 @@ export function useGateway(requirements: Requirements) {
         setActiveGateway(recommended);
       } catch {}
     })();
-  }, []);
-
-  // TODO: health check
+  }, [requirements]);
 
   return activeGateway;
 }
