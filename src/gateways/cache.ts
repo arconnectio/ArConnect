@@ -5,6 +5,8 @@ import type { ProcessedData } from "./types";
 
 /** Cache storage name */
 export const CACHE_STORAGE_NAME = "gateways";
+const UPDATE_ALARM = "update_gateway";
+const RETRY_ALARM = "update_gateway_retry";
 
 /**
  * Get cache of ar.io gateway list
@@ -27,10 +29,10 @@ export function updateGatewayCache(gateways: ProcessedData[]) {
  */
 export async function scheduleGatewayUpdate(retry = false) {
   // return if update alarm has already been scheduled
-  const gatewayUpdateAlarm = await browser.alarms.get("update_gateway");
+  const gatewayUpdateAlarm = await browser.alarms.get(UPDATE_ALARM);
   if (!retry && !!gatewayUpdateAlarm) return;
 
-  browser.alarms.create(retry ? "update_gateway_retry" : "update_gateway", {
+  browser.alarms.create(retry ? RETRY_ALARM : UPDATE_ALARM, {
     [retry ? "when" : "periodInMinutes"]: retry
       ? Date.now() + 60 * 60 * 1000
       : 12 * 60
@@ -42,10 +44,7 @@ export async function scheduleGatewayUpdate(retry = false) {
  * but will also be executed on install.
  */
 export async function handleGatewayUpdate(alarm?: Alarms.Alarm) {
-  if (
-    alarm &&
-    !["update_gateway", "update_gateway_retry"].includes(alarm.name)
-  ) {
+  if (alarm && ![UPDATE_ALARM, RETRY_ALARM].includes(alarm.name)) {
     return;
   }
 
