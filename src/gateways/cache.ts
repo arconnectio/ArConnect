@@ -54,7 +54,7 @@ export async function handleGatewayUpdate(alarm?: Alarms.Alarm) {
   try {
     // fetch cache
     const data = await (await fetch(defaultGARCacheURL)).json();
-    const garItems = extractGarItems(data.gateways);
+    const garItems = extractGarItems(data);
 
     // healtcheck
     await pingUpdater(garItems, (newData) => procData.push(newData));
