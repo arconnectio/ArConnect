@@ -9,7 +9,7 @@ export const isManifestv3 = () =>
  */
 export async function onInstalled(details: Runtime.OnInstalledDetailsType) {
   // only run on install
-  if (details.reason !== "install") {
+  if (details.reason === "install") {
     // open welcome page
     browser.tabs.create({
       url: browser.runtime.getURL("tabs/welcome.html")
