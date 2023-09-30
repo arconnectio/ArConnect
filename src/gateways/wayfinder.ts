@@ -1,12 +1,71 @@
-import { defaultGateway, Gateway } from "./gateway";
+import { isValidGateway, sortGatewaysByOperatorStake } from "~lib/wayfinder";
+import { defaultGateway, type Gateway } from "./gateway";
 import { useEffect, useState } from "react";
+import { getGatewayCache } from "./cache";
+import { getSetting } from "~settings";
 
-/**
- * Selects the appropriate gateway for the provided usecase.
- */
 export async function findGateway(
   requirements: Requirements
-): Promise<Gateway> {}
+): Promise<Gateway> {
+  // get if the feature is enabled
+  const wayfinderEnabled = await getSetting("wayfinder").getValue();
+
+  // wayfinder disabled, but arns is needed
+  if (!wayfinderEnabled && requirements.arns) {
+    return {
+      host: "arweave.dev",
+      port: 443,
+      protocol: "https"
+    };
+  }
+
+  // wayfinder disabled or all the chain is needed
+  if (!wayfinderEnabled || requirements.startBlock === 0) {
+    return defaultGateway;
+  }
+
+  const procData = getGatewayCache();
+
+  try {
+    // this could probably be filtered out during the caching process
+    const filteredGateways = procData.filter((gateway) => {
+      return (
+        gateway.ping.status === "success" && gateway.health.status === "success"
+      );
+    });
+
+    const sortedGateways = sortGatewaysByOperatorStake(filteredGateways);
+
+    const top10 = sortedGateways.slice(0, Math.min(10, sortedGateways.length));
+    const randomIndex = Math.floor(Math.random() * top10.length);
+    const selectedGateway = top10[randomIndex];
+
+    // if requirements is empty
+    if (Object.keys(requirements).length === 0) {
+      return {
+        host: selectedGateway.settings.fqdn,
+        port: selectedGateway.settings.port,
+        protocol: selectedGateway.settings.protocol
+      };
+    }
+    for (let i = 0; i < top10.length; i++) {
+      // TODO: if we want it to be random
+      // const index = (randomIndex + i) % top10.length;
+      const selectedGateway = top10[i];
+      if (isValidGateway(selectedGateway, requirements)) {
+        return {
+          host: selectedGateway.settings.fqdn,
+          port: selectedGateway.settings.port,
+          protocol: selectedGateway.settings.protocol
+        };
+      }
+    }
+
+    return defaultGateway;
+  } catch (err) {
+    console.log("err", err);
+  }
+}
 
 /**
  * Gateway hook that uses wayfinder to select the active gateway.
@@ -26,12 +85,10 @@ export function useGateway(requirements: Requirements) {
     })();
   }, [requirements]);
 
-  // TODO: health check
-
   return activeGateway;
 }
 
-interface Requirements {
+export interface Requirements {
   /* Whether the gateway should support GraphQL requests */
   graphql?: boolean;
   /* Should the gateway support ArNS */
