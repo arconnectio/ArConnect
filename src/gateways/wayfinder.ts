@@ -24,7 +24,7 @@ export async function findGateway(
     return defaultGateway;
   }
 
-  const procData = getGatewayCache();
+  const procData = await getGatewayCache();
 
   try {
     // this could probably be filtered out during the caching process

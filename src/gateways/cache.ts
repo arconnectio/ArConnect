@@ -2,24 +2,25 @@ import { extractGarItems, pingUpdater } from "~lib/wayfinder";
 import browser, { type Alarms } from "webextension-polyfill";
 import { defaultGARCacheURL } from "./gateway";
 import type { ProcessedData } from "./types";
+import { ExtensionStorage } from "~utils/storage";
 
 /** Cache storage name */
-export const CACHE_STORAGE_NAME = "gateways";
+const CACHE_STORAGE_NAME = "gateways";
 const UPDATE_ALARM = "update_gateway";
 const RETRY_ALARM = "update_gateway_retry";
 
 /**
  * Get cache of ar.io gateway list
  */
-export function getGatewayCache(): ProcessedData[] {
-  return JSON.parse(localStorage.getItem(CACHE_STORAGE_NAME));
+export async function getGatewayCache() {
+  return await ExtensionStorage.get<ProcessedData[]>(CACHE_STORAGE_NAME);
 }
 
 /**
  * Update ar.io gateway list cache
  */
-export function updateGatewayCache(gateways: ProcessedData[]) {
-  localStorage.setItem(CACHE_STORAGE_NAME, JSON.stringify(gateways));
+export async function updateGatewayCache(gateways: ProcessedData[]) {
+  return await ExtensionStorage.set(CACHE_STORAGE_NAME, gateways);
 }
 
 /**
@@ -58,7 +59,7 @@ export async function handleGatewayUpdate(alarm?: Alarms.Alarm) {
     // healtcheck
     await pingUpdater(garItems, (newData) => procData.push(newData));
 
-    updateGatewayCache(procData);
+    await updateGatewayCache(procData);
   } catch (err) {
     console.log("err in handle", err);
 
