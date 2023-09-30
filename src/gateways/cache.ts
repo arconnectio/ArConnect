@@ -25,8 +25,12 @@ export function updateGatewayCache(gateways: ProcessedData[]) {
  * Refreshes after one day or if in retry mode,
  * it'll attempt to call the alarm again in an hour.
  */
-export function scheduleGatewayUpdate(retry = false) {
-  browser.alarms.create("update_gateway", {
+export async function scheduleGatewayUpdate(retry = false) {
+  // return if update alarm has already been scheduled
+  const gatewayUpdateAlarm = await browser.alarms.get("update_gateway");
+  if (!retry && !!gatewayUpdateAlarm) return;
+
+  browser.alarms.create(retry ? "update_gateway_retry" : "update_gateway", {
     [retry ? "when" : "periodInMinutes"]: retry
       ? Date.now() + 60 * 60 * 1000
       : 12 * 60
@@ -38,7 +42,12 @@ export function scheduleGatewayUpdate(retry = false) {
  * but will also be executed on install.
  */
 export async function handleGatewayUpdate(alarm?: Alarms.Alarm) {
-  if (alarm && alarm.name !== "update_gateway") return;
+  if (
+    alarm &&
+    !["update_gateway", "update_gateway_retry"].includes(alarm.name)
+  ) {
+    return;
+  }
 
   const procData: ProcessedData[] = [];
 
@@ -55,6 +64,6 @@ export async function handleGatewayUpdate(alarm?: Alarms.Alarm) {
     console.log("err in handle", err);
 
     // schedule to try again
-    scheduleGatewayUpdate(true);
+    await scheduleGatewayUpdate(true);
   }
 }
