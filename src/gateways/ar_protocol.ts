@@ -1,7 +1,8 @@
 import browser, { type WebNavigation } from "webextension-polyfill";
 import { concatGatewayURL } from "~gateways/utils";
 import { isAddressFormat } from "~utils/format";
-import { Gateway } from "./gateway";
+import { findGateway } from "./wayfinder";
+import { type Gateway } from "./gateway";
 
 const PROTOCOL_PREFIX = "ar";
 
@@ -18,18 +19,13 @@ const PROTOCOL_PREFIX = "ar";
 export default async function protocolHandler(
   details: WebNavigation.OnBeforeNavigateDetailsType
 ) {
-  const devGateway: Gateway = {
-    host: "arweave.dev",
-    port: 443,
-    protocol: "https"
-  };
+  const gateway = await findGateway({
+    arns: true,
+    ensureStake: true
+  });
 
   // parse redirect url
-  const redirectUrl = getRedirectURL(
-    new URL(details.url),
-    // TODO: use central gateway config for this
-    devGateway
-  );
+  const redirectUrl = getRedirectURL(new URL(details.url), gateway);
 
   // don't do anything if it is not a protocol call
   if (!redirectUrl) return;
