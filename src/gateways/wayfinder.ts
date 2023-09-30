@@ -10,6 +10,16 @@ export async function findGateway(
   // get if the feature is enabled
   const wayfinderEnabled = await getSetting("wayfinder").getValue();
 
+  // wayfinder disabled, but arns is needed
+  if (!wayfinderEnabled && requirements.arns) {
+    return {
+      host: "arweave.dev",
+      port: 443,
+      protocol: "https"
+    };
+  }
+
+  // wayfinder disabled or all the chain is needed
   if (!wayfinderEnabled || requirements.startBlock === 0) {
     return defaultGateway;
   }
