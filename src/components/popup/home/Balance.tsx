@@ -33,6 +33,7 @@ import styled from "styled-components";
 import Arweave from "arweave";
 import { removeDecryptionKey } from "~wallets/auth";
 import { findGateway } from "~gateways/wayfinder";
+import type { Gateway } from "~gateways/gateway";
 
 export default function Balance() {
   // grab address
@@ -213,7 +214,7 @@ export default function Balance() {
   );
 }
 
-async function balanceHistory(address: string) {
+async function balanceHistory(address: string, gateway: Gateway) {
   const arweave = new Arweave(gateway);
 
   // find txs coming in and going out

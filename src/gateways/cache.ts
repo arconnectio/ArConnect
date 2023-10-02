@@ -49,7 +49,7 @@ export async function handleGatewayUpdate(alarm?: Alarms.Alarm) {
     return;
   }
 
-  const procData: ProcessedData[] = [];
+  let procData: ProcessedData[] = [];
 
   try {
     // fetch cache
@@ -57,7 +57,9 @@ export async function handleGatewayUpdate(alarm?: Alarms.Alarm) {
     const garItems = extractGarItems(data);
 
     // healtcheck
-    await pingUpdater(garItems, (newData) => procData.push(newData));
+    await pingUpdater(garItems, (newData) => {
+      procData = [...newData];
+    });
 
     await updateGatewayCache(procData);
   } catch (err) {
