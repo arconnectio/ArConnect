@@ -33,6 +33,11 @@
     qrcode.react "3.1.0"
     react-qr-reader "2.2.1"
 
+"@arconnect/warp-dre@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@arconnect/warp-dre/-/warp-dre-0.0.1.tgz#461ba9c8f8fd74e6c9361dac725f57a86a9894a9"
+  integrity sha512-I02V6N7xYJi2NMluj17ytYTmBY0hY/GEXa30CwPbRkbJk87aH4FcejfFaN2euyWjiuQmkTS7SiK1P4nxwaFE0w==
+
 "@arconnect/webext-bridge@^5.0.6":
   version "5.0.6"
   resolved "https://registry.yarnpkg.com/@arconnect/webext-bridge/-/webext-bridge-5.0.6.tgz#edcc28d0d7e215fba2e5a3c832cf7842f7046b9d"
