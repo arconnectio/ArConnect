@@ -1,5 +1,9 @@
 import { allowanceAuth, updateAllowance } from "../sign/allowance";
-import { isLocalWallet, isRawDataItem } from "~utils/assertions";
+import {
+  isLocalWallet,
+  isNotCancelError,
+  isRawDataItem
+} from "~utils/assertions";
 import { freeDecryptedWallet } from "~wallets/encryption";
 import type { ModuleFunction } from "~api/background";
 import { ArweaveSigner, createData } from "arbundles";
@@ -18,7 +22,9 @@ const background: ModuleFunction<number[]> = async (
   isRawDataItem(dataItem);
 
   // grab the user's keyfile
-  const decryptedWallet = await getActiveKeyfile().catch(() => {
+  const decryptedWallet = await getActiveKeyfile().catch((e) => {
+    isNotCancelError(e);
+
     // if there are no wallets added, open the welcome page
     browser.tabs.create({ url: browser.runtime.getURL("tabs/welcome.html") });
 

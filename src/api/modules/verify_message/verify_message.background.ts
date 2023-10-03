@@ -6,6 +6,7 @@ import { isString } from "typed-assert";
 import {
   isArrayBuffer,
   isLocalWallet,
+  isNotCancelError,
   isNumberArray,
   isSignMessageOptions
 } from "~utils/assertions";
@@ -41,7 +42,9 @@ const background: ModuleFunction<boolean> = async (
   // set public key if it is needed
   if (typeof publicKey === "undefined") {
     // get user wallet
-    const activeWallet = await getActiveKeyfile().catch(() => {
+    const activeWallet = await getActiveKeyfile().catch((e) => {
+      isNotCancelError(e);
+
       // if there are no wallets added, open the welcome page
       browser.tabs.create({ url: browser.runtime.getURL("tabs/welcome.html") });
 
