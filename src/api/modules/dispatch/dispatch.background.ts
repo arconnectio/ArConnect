@@ -1,4 +1,8 @@
-import { isLocalWallet, isSplitTransaction } from "~utils/assertions";
+import {
+  isLocalWallet,
+  isNotCancelError,
+  isSplitTransaction
+} from "~utils/assertions";
 import { constructTransaction } from "../sign/transaction_builder";
 import { arconfettiIcon, signNotification } from "../sign/utils";
 import { cleanUpChunks, getChunks } from "../sign/chunks";
@@ -35,7 +39,9 @@ const background: ModuleFunction<ReturnType> = async (
   const arweave = new Arweave(await app.getGatewayConfig());
 
   // grab the user's keyfile
-  const decryptedWallet = await getActiveKeyfile().catch(() => {
+  const decryptedWallet = await getActiveKeyfile().catch((e) => {
+    isNotCancelError(e);
+
     // if there are no wallets added, open the welcome page
     browser.tabs.create({ url: browser.runtime.getURL("tabs/welcome.html") });
 
