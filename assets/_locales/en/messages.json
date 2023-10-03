@@ -416,7 +416,7 @@
     "description": "Reset settings description"
   },
   "setting_analytics_description": {
-    "message": "Provide the ArConnect team useful anonymous to improve the project",
+    "message": "Provide the ArConnect team useful anonymous data to improve the project",
     "description": "ArConnect Analytics description"
   },
   "setting_fee_multiplier_description": {
@@ -448,7 +448,7 @@
     "description": "Display theme settings description"
   },
   "setting_wayfinder_description": {
-    "message": "Expermiental system-wide wayfinder for ar.io gateways",
+    "message": "Experimental system-wide wayfinder for ar.io gateways",
     "description": "Wayfinder settings description"
   },
   "search_pick_option": {

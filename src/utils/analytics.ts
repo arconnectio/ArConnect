@@ -12,7 +12,8 @@ export enum EventType {
   FUNDED = "FUNDED",
   CONNECTED_APP = "CONNECTED_APP",
   LOGIN = "LOGIN",
-  ONBOARDED = "ONBOARDED"
+  ONBOARDED = "ONBOARDED",
+  WAYFINDER = "WAYFINDER"
 }
 
 export enum PageType {
