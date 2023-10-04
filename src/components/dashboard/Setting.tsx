@@ -49,7 +49,7 @@ export default function Setting({ setting }: Props) {
   }
 
   // track experimental Wayfinder opt-in
-  const trackWayfinder = async (properties: any) => {
+  const trackWayfinder = async (properties: { tracking: boolean }) => {
     try {
       await trackEvent(EventType.WAYFINDER, properties);
     } catch (err) {
