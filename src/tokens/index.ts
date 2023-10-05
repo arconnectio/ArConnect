@@ -110,6 +110,22 @@ export async function removeToken(id: string) {
 }
 
 /**
+ * Get DRE node for a token
+ */
+export async function getDreForToken(id: string) {
+  const tokens = await ExtensionStorage.get<Token[]>("tokens");
+  let node = (tokens || defaultTokens).find((t) => t.id === id)?.dre;
+
+  if (!node) {
+    const contract = new DREContract(id);
+
+    node = await contract.findNode();
+  }
+
+  return node;
+}
+
+/**
  * Hook for stored tokens
  */
 export function useTokens() {

@@ -2,12 +2,12 @@ import { EyeIcon, MessageIcon, ShareIcon, GlobeIcon } from "@iconicicons/react";
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import { Section, Spacer, Text } from "@arconnect/components";
 import { getSettings, type TokenState } from "~tokens/token";
+import { DREContract, DRENode } from "@arconnect/warp-dre";
 import { useEffect, useMemo, useState } from "react";
+import { getDreForToken, useTokens } from "~tokens";
 import { AnimatePresence } from "framer-motion";
 import { getCommunityUrl } from "~utils/format";
-import { getContract } from "~lib/warp";
 import { Link } from "../token/[id]";
-import { useTokens } from "~tokens";
 import TokenLoading from "~components/popup/asset/Loading";
 import Thumbnail from "~components/popup/asset/Thumbnail";
 import Skeleton from "~components/Skeleton";
@@ -25,7 +25,9 @@ export default function Collectible({ id }: Props) {
     (async () => {
       setLoading(true);
 
-      const { state } = await getContract<TokenState>(id);
+      const dre = await getDreForToken(id);
+      const contract = new DREContract(id, new DRENode(dre));
+      const { state } = await contract.getState<TokenState>();
 
       setState(state);
       setLoading(false);
