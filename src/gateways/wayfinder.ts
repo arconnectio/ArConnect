@@ -3,6 +3,7 @@ import { defaultGateway, type Gateway } from "./gateway";
 import { useEffect, useState } from "react";
 import { getGatewayCache } from "./cache";
 import { getSetting } from "~settings";
+import { EventType, trackEvent } from "~utils/analytics";
 
 export async function findGateway(
   requirements: Requirements
@@ -42,6 +43,11 @@ export async function findGateway(
 
     // if requirements is empty
     if (Object.keys(requirements).length === 0) {
+      await trackEvent(EventType.WAYFINDER_GATEWAY_SELECTED, {
+        host: selectedGateway.settings.fqdn,
+        port: selectedGateway.settings.port,
+        protocol: selectedGateway.settings.protocol
+      });
       return {
         host: selectedGateway.settings.fqdn,
         port: selectedGateway.settings.port,
@@ -53,6 +59,11 @@ export async function findGateway(
       // const index = (randomIndex + i) % top10.length;
       const selectedGateway = top10[i];
       if (isValidGateway(selectedGateway, requirements)) {
+        await trackEvent(EventType.WAYFINDER_GATEWAY_SELECTED, {
+          host: selectedGateway.settings.fqdn,
+          port: selectedGateway.settings.port,
+          protocol: selectedGateway.settings.protocol
+        });
         return {
           host: selectedGateway.settings.fqdn,
           port: selectedGateway.settings.port,
