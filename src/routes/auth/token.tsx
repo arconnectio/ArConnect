@@ -11,7 +11,7 @@ import { usePrice, usePriceHistory } from "~lib/redstone";
 import { useEffect, useMemo, useState } from "react";
 import { getContract } from "~lib/warp";
 import { useTheme } from "~utils/theme";
-import { addToken } from "~tokens";
+import { addToken, getDreForToken } from "~tokens";
 import {
   concatGatewayURL,
   defaultGateway,
@@ -34,6 +34,7 @@ import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
+import { DREContract, DRENode } from "@arconnect/warp-dre";
 
 export default function Token() {
   // connect params
@@ -57,7 +58,9 @@ export default function Token() {
     (async () => {
       if (!params?.tokenID) return;
 
-      const { state } = await getContract<TokenState>(params.tokenID);
+      const dre = await getDreForToken(params.tokenID);
+      const contract = new DREContract(params.tokenID, new DRENode(dre));
+      const { state } = await contract.getState<TokenState>();
 
       setState(state);
     })();
