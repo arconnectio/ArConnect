@@ -11,11 +11,7 @@ import { usePrice, usePriceHistory } from "~lib/redstone";
 import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "~utils/theme";
 import { addToken, getDreForToken } from "~tokens";
-import {
-  concatGatewayURL,
-  defaultGateway,
-  type Gateway
-} from "~applications/gateway";
+import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import {
   Button,
   Section,
@@ -23,9 +19,9 @@ import {
   Text,
   useToasts
 } from "@arconnect/components";
-import CustomGatewayWarning from "~components/auth/CustomGatewayWarning";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
 import PriceChart from "~components/popup/asset/PriceChart";
+import { DREContract, DRENode } from "@arconnect/warp-dre";
 import Thumbnail from "~components/popup/asset/Thumbnail";
 import Wrapper from "~components/auth/Wrapper";
 import * as viewblock from "~lib/viewblock";
@@ -33,7 +29,6 @@ import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
-import { DREContract, DRENode } from "@arconnect/warp-dre";
 
 export default function Token() {
   // connect params
@@ -41,7 +36,7 @@ export default function Token() {
     url: string;
     tokenID: string;
     tokenType?: TokenType;
-    gateway?: Gateway;
+    dre?: string;
   }>();
 
   // get auth utils
@@ -57,13 +52,15 @@ export default function Token() {
     (async () => {
       if (!params?.tokenID) return;
 
-      const dre = await getDreForToken(params.tokenID);
+      let dre = params.dre;
+
+      if (!dre) dre = await getDreForToken(params.tokenID);
       const contract = new DREContract(params.tokenID, new DRENode(dre));
       const { state } = await contract.getState<TokenState>();
 
       setState(state);
     })();
-  }, [params?.tokenID]);
+  }, [params]);
 
   // token settings
   const settings = useMemo(() => getSettings(state), [state]);
@@ -114,7 +111,7 @@ export default function Token() {
 
     try {
       // add the token
-      await addToken(params.tokenID, tokenType, params.gateway);
+      await addToken(params.tokenID, tokenType, params.dre);
 
       // reply to request
       await replyToAuthRequest("token", params.authID);
@@ -178,9 +175,6 @@ export default function Token() {
             {browser.i18n.getMessage("addTokenParagraph", params?.url)}
           </Text>
         </Section>
-        <AnimatePresence>
-          {!!params?.gateway && <CustomGatewayWarning />}
-        </AnimatePresence>
         <AnimatePresence>
           {state && tokenType && (
             <motion.div

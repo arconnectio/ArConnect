@@ -1,4 +1,4 @@
-import { isAddress, isGateway, isTokenType } from "~utils/assertions";
+import { isAddress, isTokenType, isValidURL } from "~utils/assertions";
 import type { ModuleFunction } from "~api/background";
 import authenticate from "../connect/auth";
 import { getTokens } from "~tokens";
@@ -7,13 +7,13 @@ const background: ModuleFunction<void> = async (
   appData,
   id: unknown,
   type?: unknown,
-  gateway?: unknown
+  dre_node?: unknown
 ) => {
   // validate input
   isAddress(id);
 
   if (type) isTokenType(type);
-  if (gateway) isGateway(gateway);
+  if (dre_node) isValidURL(dre_node);
 
   // check if the token is added already
   const tokens = await getTokens();
@@ -28,7 +28,7 @@ const background: ModuleFunction<void> = async (
     url: appData.appURL,
     tokenID: id,
     tokenType: type,
-    gateway
+    dre: dre_node
   });
 };
 

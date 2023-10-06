@@ -1,6 +1,5 @@
 import { DREContract, DRENode, NODES } from "@arconnect/warp-dre";
 import type { EvalStateResult } from "warp-contracts";
-import type { Gateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { isTokenState } from "~utils/assertions";
@@ -58,10 +57,10 @@ export async function getTokens() {
  *
  * @param id ID of the token contract
  */
-export async function addToken(id: string, type: TokenType, gateway?: Gateway) {
+export async function addToken(id: string, type: TokenType, dre?: string) {
   // dre
-  const contract = new DREContract(id);
-  const dre = await contract.findNode();
+  if (!dre) dre = await getDreForToken(id);
+  const contract = new DREContract(id, new DRENode(dre));
   const { state } = await contract.getState();
 
   // validate state
@@ -85,7 +84,6 @@ export async function addToken(id: string, type: TokenType, gateway?: Gateway) {
     name: state.name,
     ticker: state.ticker,
     type,
-    gateway,
     balance: state.balances[activeAddress] || 0,
     divisibility: state.divisibility,
     decimals: state.decimals,

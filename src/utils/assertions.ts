@@ -290,3 +290,19 @@ export function isNotEmptyArray(input: unknown): asserts input is unknown[] {
   isArray(input, "Input is not an array.");
   assert(input.length > 0, "Array is empty.");
 }
+
+export function isValidURL(
+  input: unknown,
+  message?: string
+): asserts input is string {
+  isString(input, message);
+  let url: URL;
+
+  try {
+    url = new URL(input);
+  } catch {
+    throw new TypeError(message);
+  }
+
+  isOneOf(url.protocol, ["http:", "https:"], message);
+}
