@@ -9,7 +9,6 @@ import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { usePrice, usePriceHistory } from "~lib/redstone";
 import { useEffect, useMemo, useState } from "react";
-import { getContract } from "~lib/warp";
 import { useTheme } from "~utils/theme";
 import { addToken, getDreForToken } from "~tokens";
 import {

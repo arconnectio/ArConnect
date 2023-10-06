@@ -1,5 +1,5 @@
 import { currencies } from "~lib/coingecko";
-import { dreNodes } from "~lib/warp";
+import { NODES } from "@arconnect/warp-dre";
 import {
   BellIcon,
   CheckIcon,
@@ -39,8 +39,8 @@ const settings: Setting[] = [
     icon: CloudIcon,
     description: "setting_setting_dre_node_description",
     type: "pick",
-    options: Object.keys(dreNodes),
-    defaultValue: Object.keys(dreNodes)[0]
+    options: Object.keys(NODES),
+    defaultValue: Object.keys(NODES)[0]
   }),
   /*new Setting({
     name: "arverify",
