@@ -306,3 +306,15 @@ export function isValidURL(
 
   isOneOf(url.protocol, ["http:", "https:"], message);
 }
+
+export function isNotCancelError(input: unknown): asserts input is Error {
+  let message = "";
+
+  if (typeof input === "string") message = input;
+  else if (input instanceof Error) message = input.message;
+
+  assert(
+    !message.includes("User cancelled the auth"),
+    "User cancelled the operation"
+  );
+}
