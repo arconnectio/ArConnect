@@ -1,9 +1,10 @@
 import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { DREContract, DRENode, NODES } from "@arconnect/warp-dre";
+import { loadTokenLogo, type Token } from "~tokens/token";
 import { Reorder, useDragControls } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
-import { loadTokenLogo, type Token } from "~tokens/token";
 import { formatAddress } from "~utils/format";
-import { getContract } from "~lib/warp";
+import { getDreForToken } from "~tokens";
 import { useTheme } from "~utils/theme";
 import { useLocation } from "wouter";
 import * as viewblock from "~lib/viewblock";
@@ -37,9 +38,11 @@ export default function TokenListItem({ token, active }: Props) {
         }
 
         // query community logo using Warp DRE
-        const { result } = await getContract<string>(token.id, {
-          query: "$.settings.[?(@[0] === 'communityLogo')][1]"
-        });
+        const node = new DRENode(await getDreForToken(token.id));
+        const contract = new DREContract(token.id, node);
+        const result = await contract.query<[string]>(
+          "$.settings.[?(@[0] === 'communityLogo')][1]"
+        );
 
         setImage(await loadTokenLogo(token.id, result[0], theme));
       } catch {
