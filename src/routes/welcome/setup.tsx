@@ -18,6 +18,7 @@ import Password from "./load/password";
 import Wallets from "./load/wallets";
 import LoadDone from "./load/done";
 import Theme from "./load/theme";
+import Pagination from "~components/Pagination";
 
 /** Wallet generate pages */
 const generatePages = [
@@ -27,9 +28,11 @@ const generatePages = [
   <Theme />,
   <GenerateDone />
 ];
+const generateTitles = ["Password", "Backup", "Confirm", "Theme", "Done"];
 
 /** Wallet load pages */
 const loadPages = [<Password />, <Wallets />, <Theme />, <LoadDone />];
+const loadTitles = ["Password", "Wallets", "Theme", "Done"];
 
 export default function Setup({ setupMode, page }: Props) {
   // location
@@ -37,7 +40,11 @@ export default function Setup({ setupMode, page }: Props) {
 
   // total page count
   const pageCount = useMemo(
-    () => (setupMode === "load" ? loadPages : generatePages).length,
+    () => (setupMode === "load" ? loadTitles : generateTitles).length,
+    [setupMode]
+  );
+  const pageTitles = useMemo(
+    () => (setupMode === "load" ? loadTitles : generateTitles),
     [setupMode]
   );
 
@@ -116,12 +123,22 @@ export default function Setup({ setupMode, page }: Props) {
     <Wrapper>
       <SetupCard>
         <Paginator>
-          {Array(pageCount)
-            .fill("")
-            .map((_, i) => (
-              <Page key={i} active={page === i + 1} />
-            ))}
+          {pageTitles.map((title, i) => (
+            <Pagination
+              key={i}
+              status={page === i + 1 ? "active" : "future"}
+              title={title}
+              bar={
+                i === 0
+                  ? "leftHidden"
+                  : i === pageCount - 1
+                  ? "rightHidden"
+                  : "none"
+              }
+            />
+          ))}
         </Paginator>
+
         <Spacer y={1} />
         <PasswordContext.Provider value={{ password, setPassword }}>
           <WalletContext.Provider value={generatedWallet}>
@@ -161,7 +178,6 @@ const Paginator = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
 `;
 
 const Page = styled.div<{ active?: boolean }>`
