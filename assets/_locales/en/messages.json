@@ -649,6 +649,10 @@
     "message": "Read more at",
     "description": "\"Read more at (ArWiki)\" text"
   },
+  "backup": {
+    "message": "Backup",
+    "description": "Backup title"
+  },
   "backup_wallet_title": {
     "message": "Backup your wallet",
     "description": "Backup walet title"

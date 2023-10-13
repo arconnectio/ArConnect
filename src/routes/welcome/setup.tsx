@@ -18,7 +18,7 @@ import Password from "./load/password";
 import Wallets from "./load/wallets";
 import LoadDone from "./load/done";
 import Theme from "./load/theme";
-import Pagination from "~components/Pagination";
+import Pagination, { Status } from "~components/Pagination";
 
 /** Wallet generate pages */
 const generatePages = [
@@ -28,11 +28,22 @@ const generatePages = [
   <Theme />,
   <GenerateDone />
 ];
-const generateTitles = ["Password", "Backup", "Confirm", "Theme", "Done"];
+const generateTitles = [
+  "password",
+  "backup",
+  "confirm",
+  "setting_display_theme",
+  "done"
+];
 
 /** Wallet load pages */
 const loadPages = [<Password />, <Wallets />, <Theme />, <LoadDone />];
-const loadTitles = ["Password", "Wallets", "Theme", "Done"];
+const loadTitles = [
+  "password",
+  "setting_wallets",
+  "setting_display_theme",
+  "done"
+];
 
 export default function Setup({ setupMode, page }: Props) {
   // location
@@ -126,7 +137,14 @@ export default function Setup({ setupMode, page }: Props) {
           {pageTitles.map((title, i) => (
             <Pagination
               key={i}
-              status={page === i + 1 ? "active" : "future"}
+              index={i + 1}
+              status={
+                page === i + 1
+                  ? Status.ACTIVE
+                  : page > i + 1
+                  ? Status.COMPLETED
+                  : Status.FUTURE
+              }
               title={title}
               bar={
                 i === 0
@@ -139,7 +157,7 @@ export default function Setup({ setupMode, page }: Props) {
           ))}
         </Paginator>
 
-        <Spacer y={1} />
+        <Spacer y={1.5} />
         <PasswordContext.Provider value={{ password, setPassword }}>
           <WalletContext.Provider value={generatedWallet}>
             <AnimatePresence initial={false}>
@@ -167,10 +185,11 @@ const Wrapper = styled.div`
 `;
 
 const SetupCard = styled(Card)`
+  padding: 20px 24px;
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 350px;
+  width: 400px;
   transform: translate(-50%, -50%);
 `;
 
@@ -178,15 +197,6 @@ const Paginator = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const Page = styled.div<{ active?: boolean }>`
-  width: 2.5rem;
-  height: 2px;
-  background-color: rgba(
-    ${(props) => props.theme.theme + ", " + (props.active ? "1" : ".45")}
-  );
-  transition: all 0.23s ease-in-out;
 `;
 
 const pageAnimation: Variants = {

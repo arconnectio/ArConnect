@@ -1,29 +1,50 @@
+import type { DisplayTheme } from "@arconnect/components";
 import styled from "styled-components";
+import browser from "webextension-polyfill";
+import { useTheme } from "~utils/theme";
+
+export enum Status {
+  COMPLETED = "completed",
+  ACTIVE = "active",
+  FUTURE = "future"
+}
+
 type PaginationProps = {
-  status: "completed" | "active" | "future";
+  status: Status;
   bar: "leftHidden" | "rightHidden" | "none";
   title: string;
+  index: number;
 };
 
-const Pagination: React.FC<PaginationProps> = ({ status, bar, title }) => (
-  <Wrapper>
-    {/* Completed */}
+const Pagination: React.FC<PaginationProps> = ({
+  status,
+  bar,
+  title,
+  index
+}) => {
+  const theme = useTheme();
+
+  return (
     <StepWrapper>
       <FlexContainer>
         <LineWrapper>
           <Line hidden={bar === "leftHidden"} />
         </LineWrapper>
-        <Circle status={status}>
-          <CheckIcon />
+        <Circle status={status} displayTheme={theme}>
+          {status === Status.ACTIVE || status === Status.FUTURE ? (
+            index
+          ) : (
+            <CheckIcon />
+          )}
         </Circle>
         <LineWrapper>
           <Line roundedEnd="left" hidden={bar === "rightHidden"} />
         </LineWrapper>
       </FlexContainer>
-      {title}
+      {browser.i18n.getMessage(title)}
     </StepWrapper>
-  </Wrapper>
-);
+  );
+};
 
 const CheckIcon = () => (
   <svg
@@ -73,12 +94,9 @@ const StepWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   color: #aeadcd;
-  font-size: 10px;
+  font-size: 12px;
 `;
 
-const Step = styled.p`
-  font-size: 8px;
-`;
 const FlexContainer = styled.div`
   display: flex;
   gap: 8px;
@@ -87,18 +105,30 @@ const FlexContainer = styled.div`
   width: 100%; // Ensures the flex container takes up the full width of StepWrapper
 `;
 
-const Wrapper = styled.div`
-  display: flex;
-`;
-
 const Circle = styled.div<{
-  secondary?: boolean;
-  status?: string;
+  status?: Status;
+  displayTheme: DisplayTheme;
 }>`
   width: 20px;
   height: 20px;
-  background-color: ${(props) =>
-    props.status === "active" ? "#AB9AFF" : "#EBEBF1"};
+  background-color: ${(props) => {
+    switch (props.status) {
+      case Status.ACTIVE:
+        return props.displayTheme === "light"
+          ? "#EBEBF1"
+          : "rgba(171, 154, 255, 0.15)";
+      case Status.COMPLETED:
+        return "#AB9AFF";
+      case Status.FUTURE:
+        return props.displayTheme === "light" ? "#FFFFFF" : "none";
+      default:
+        return "#FFFFFF";
+    }
+  }};
+  font-size: 10px;
+  // color: #000;
+  color: ${(props) => (props.displayTheme === "light" ? "#000" : "#EBEBF1")};
+  transition: all 0.23s ease-in-out;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -106,7 +136,7 @@ const Circle = styled.div<{
   position: relative;
 
   ${(props) =>
-    props.secondary &&
+    props.status !== Status.COMPLETED &&
     `
     ::before {
       content: "";
