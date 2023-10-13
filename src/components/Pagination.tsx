@@ -28,7 +28,7 @@ const Pagination: React.FC<PaginationProps> = ({
     <StepWrapper>
       <FlexContainer>
         <LineWrapper>
-          <Line hidden={bar === "leftHidden"} />
+          <Line hidden={bar === "leftHidden"} roundedEnd="right" />
         </LineWrapper>
         <Circle status={status} displayTheme={theme}>
           {status === Status.ACTIVE || status === Status.FUTURE ? (
@@ -100,9 +100,9 @@ const StepWrapper = styled.div`
 const FlexContainer = styled.div`
   display: flex;
   gap: 8px;
-  justify-content: center; // This will center the items
+  justify-content: center;
   align-items: center;
-  width: 100%; // Ensures the flex container takes up the full width of StepWrapper
+  width: 100%;
 `;
 
 const Circle = styled.div<{
