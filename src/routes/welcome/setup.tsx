@@ -5,6 +5,7 @@ import type { JWKInterface } from "arweave/web/lib/wallet";
 import { defaultGateway } from "~applications/gateway";
 import { jwkFromMnemonic } from "~wallets/generator";
 import { useLocation, useRoute } from "wouter";
+import { ArrowLeftIcon } from "@iconicicons/react";
 import browser from "webextension-polyfill";
 import * as bip39 from "bip39-web-crypto";
 import styled from "styled-components";
@@ -48,6 +49,7 @@ const loadTitles = [
 export default function Setup({ setupMode, page }: Props) {
   // location
   const [, setLocation] = useLocation();
+  const [, params] = useRoute<{ setup: string; page: string }>("/:setup/:page");
 
   // total page count
   const pageCount = useMemo(
@@ -87,6 +89,10 @@ export default function Setup({ setupMode, page }: Props) {
   const [generatedWallet, setGeneratedWallet] = useState<WalletContextValue>(
     {}
   );
+
+  const navigate = () => {
+    setLocation(`/${params.setup}/${page - 1}`);
+  };
 
   useEffect(() => {
     (async () => {
@@ -133,29 +139,33 @@ export default function Setup({ setupMode, page }: Props) {
   return (
     <Wrapper>
       <SetupCard>
-        <Paginator>
-          {pageTitles.map((title, i) => (
-            <Pagination
-              key={i}
-              index={i + 1}
-              status={
-                page === i + 1
-                  ? Status.ACTIVE
-                  : page > i + 1
-                  ? Status.COMPLETED
-                  : Status.FUTURE
-              }
-              title={title}
-              bar={
-                i === 0
-                  ? "leftHidden"
-                  : i === pageCount - 1
-                  ? "rightHidden"
-                  : "none"
-              }
-            />
-          ))}
-        </Paginator>
+        <HeaderContainer>
+          {page === 1 ? <Spacer /> : <BackButton onClick={navigate} />}
+          <PaginationContainer>
+            {pageTitles.map((title, i) => (
+              <Pagination
+                key={i}
+                index={i + 1}
+                status={
+                  page === i + 1
+                    ? Status.ACTIVE
+                    : page > i + 1
+                    ? Status.COMPLETED
+                    : Status.FUTURE
+                }
+                title={title}
+                bar={
+                  i === 0
+                    ? "leftHidden"
+                    : i === pageCount - 1
+                    ? "rightHidden"
+                    : "none"
+                }
+              />
+            ))}
+          </PaginationContainer>
+          <Spacer />
+        </HeaderContainer>
 
         <Spacer y={1.5} />
         <PasswordContext.Provider value={{ password, setPassword }}>
@@ -176,6 +186,33 @@ export default function Setup({ setupMode, page }: Props) {
     </Wrapper>
   );
 }
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const HeaderContainer = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+`;
+
+const BackButton = styled(ArrowLeftIcon)<{ hidden?: boolean }>`
+  font-size: 1.6rem;
+  display: ${(props) => props.hidden && "none"}
+  width: 1em;
+  height: 1em;
+  color: #aeadcd;
+  z-index: 2;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  path {
+    stroke-width: 1.75 !important;
+  }
+`;
 
 const Wrapper = styled.div`
   position: relative;
