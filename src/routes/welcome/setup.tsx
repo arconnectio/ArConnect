@@ -1,5 +1,11 @@
 import { AnimatePresence, type Variants, motion } from "framer-motion";
-import { createContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from "react";
 import { Card, Spacer, useToasts } from "@arconnect/components";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { defaultGateway } from "~applications/gateway";
@@ -136,6 +142,20 @@ export default function Setup({ setupMode, page }: Props) {
     })();
   }, [isGenerateWallet]);
 
+  // animate content sice
+  const [contentSize, setContentSize] = useState<number>(0);
+
+  const contentRef = useCallback<(el: HTMLDivElement) => void>((el) => {
+    if (!el) return;
+
+    const obs = new ResizeObserver(() => {
+      if (!el || el.clientHeight <= 0) return;
+      setContentSize(el.clientHeight);
+    });
+
+    obs.observe(el);
+  }, []);
+
   return (
     <Wrapper>
       <SetupCard>
@@ -170,31 +190,67 @@ export default function Setup({ setupMode, page }: Props) {
         <Spacer y={1.5} />
         <PasswordContext.Provider value={{ password, setPassword }}>
           <WalletContext.Provider value={generatedWallet}>
-            <AnimatePresence initial={false}>
-              <motion.div
-                variants={pageAnimation}
-                initial="exit"
-                animate="init"
-                key={page}
-              >
-                {(setupMode === "load" ? loadPages : generatePages)[page - 1]}
-              </motion.div>
-            </AnimatePresence>
+            <Content>
+              <PageWrapper style={{ height: contentSize }}>
+                <AnimatePresence initial={false}>
+                  <Page key={page} ref={contentRef}>
+                    {
+                      (setupMode === "load" ? loadPages : generatePages)[
+                        page - 1
+                      ]
+                    }
+                  </Page>
+                </AnimatePresence>
+              </PageWrapper>
+            </Content>
           </WalletContext.Provider>
         </PasswordContext.Provider>
       </SetupCard>
     </Wrapper>
   );
 }
+
 const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 
+const Content = styled.div`
+  padding: 0 24px 20px;
+  overflow: hidden;
+`;
+
+const PageWrapper = styled.div`
+  position: relative;
+  transition: height 0.17s ease;
+`;
+
+const pageAnimation: Variants = {
+  init: {
+    opacity: 1
+  },
+  exit: {
+    opacity: 0
+  }
+};
+
+const Page = styled(motion.div).attrs({
+  variants: pageAnimation,
+  initial: "exit",
+  animate: "init"
+})`
+  position: absolute;
+  width: 100%;
+  height: max-content;
+  left: 0;
+  top: 0;
+`;
+
 const HeaderContainer = styled.div`
   display: grid;
   grid-template-columns: auto 1fr auto;
+  padding: 20px 24px 0;
 `;
 
 const BackButton = styled(ArrowLeftIcon)<{ hidden?: boolean }>`
@@ -222,7 +278,7 @@ const Wrapper = styled.div`
 `;
 
 const SetupCard = styled(Card)`
-  padding: 20px 24px;
+  padding: 0;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -235,15 +291,6 @@ const Paginator = styled.div`
   align-items: center;
   justify-content: center;
 `;
-
-const pageAnimation: Variants = {
-  init: {
-    opacity: 1
-  },
-  exit: {
-    opacity: 0
-  }
-};
 
 export const PasswordContext = createContext({
   setPassword: (password: string) => {},
