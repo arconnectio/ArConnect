@@ -158,6 +158,7 @@ export default function Setup({ setupMode, page }: Props) {
 
   return (
     <Wrapper>
+      <Spacer y={2} />
       <SetupCard>
         <HeaderContainer>
           {page === 1 ? <Spacer /> : <BackButton onClick={navigate} />}
@@ -186,7 +187,6 @@ export default function Setup({ setupMode, page }: Props) {
           </PaginationContainer>
           <Spacer />
         </HeaderContainer>
-
         <Spacer y={1.5} />
         <PasswordContext.Provider value={{ password, setPassword }}>
           <WalletContext.Provider value={generatedWallet}>
@@ -206,6 +206,7 @@ export default function Setup({ setupMode, page }: Props) {
           </WalletContext.Provider>
         </PasswordContext.Provider>
       </SetupCard>
+      <Spacer y={2} />
     </Wrapper>
   );
 }
@@ -271,19 +272,17 @@ const BackButton = styled(ArrowLeftIcon)<{ hidden?: boolean }>`
 `;
 
 const Wrapper = styled.div`
-  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  flex-direction: column;
 `;
 
 const SetupCard = styled(Card)`
   padding: 0;
-  position: absolute;
-  top: 50%;
-  left: 50%;
   width: 400px;
-  transform: translate(-50%, -50%);
 `;
 
 const Paginator = styled.div`
