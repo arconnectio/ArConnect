@@ -1336,5 +1336,21 @@
   "manage_assets_button": {
     "message": "Manage assets",
     "description": "Manage assets button"
+  },
+  "installation_complete": {
+    "message": "Installation completed",
+    "description": "Installation complete title"
+  },
+  "installation_complete_paragraph": {
+    "message": "Pin ArConnect to your browser so it's accessible and easy to connect to your favorite dApps.",
+    "description": "Installation complete paragraph"
+  },
+  "connect_with_us_title": {
+    "message": "Connect with us",
+    "description": "Connect with us title"
+  },
+  "connect_paragraph": {
+    "message": "Follow our Twitter to stay up to date on all the latest that the team is working on. Questions? Join the Discord server to chat with the developers.",
+    "description": "Connect with us title"
   }
 }
