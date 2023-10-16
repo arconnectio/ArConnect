@@ -68,6 +68,7 @@
     "dayjs": "^1.11.6",
     "framer-motion": "^7.5.3",
     "human-crypto-keys": "^0.1.4",
+    "js-confetti": "^0.11.0",
     "mitt": "^3.0.0",
     "nanoid": "^4.0.0",
     "path-to-regexp": "^6.2.1",
