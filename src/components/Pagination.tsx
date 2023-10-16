@@ -11,14 +11,14 @@ export enum Status {
 
 type PaginationProps = {
   status: Status;
-  bar: "leftHidden" | "rightHidden" | "none";
+  hidden: "leftHidden" | "rightHidden" | "none";
   title: string;
   index: number;
 };
 
 const Pagination: React.FC<PaginationProps> = ({
   status,
-  bar,
+  hidden,
   title,
   index
 }) => {
@@ -28,7 +28,7 @@ const Pagination: React.FC<PaginationProps> = ({
     <StepWrapper>
       <FlexContainer>
         <LineWrapper>
-          <Line hidden={bar === "leftHidden"} roundedEnd="right" />
+          <Line hidden={hidden === "leftHidden"} roundedEnd="right" />
         </LineWrapper>
         <Circle status={status} displayTheme={theme}>
           {status === Status.ACTIVE || status === Status.FUTURE ? (
@@ -38,7 +38,7 @@ const Pagination: React.FC<PaginationProps> = ({
           )}
         </Circle>
         <LineWrapper>
-          <Line roundedEnd="left" hidden={bar === "rightHidden"} />
+          <Line roundedEnd="left" hidden={hidden === "rightHidden"} />
         </LineWrapper>
       </FlexContainer>
       {browser.i18n.getMessage(title)}
@@ -126,7 +126,6 @@ const Circle = styled.div<{
     }
   }};
   font-size: 10px;
-  // color: #000;
   color: ${(props) => (props.displayTheme === "light" ? "#000" : "#EBEBF1")};
   transition: all 0.23s ease-in-out;
   border-radius: 50%;

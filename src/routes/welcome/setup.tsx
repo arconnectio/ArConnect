@@ -175,7 +175,7 @@ export default function Setup({ setupMode, page }: Props) {
                     : Status.FUTURE
                 }
                 title={title}
-                bar={
+                hidden={
                   i === 0
                     ? "leftHidden"
                     : i === pageCount - 1
@@ -282,13 +282,7 @@ const Wrapper = styled.div`
 
 const SetupCard = styled(Card)`
   padding: 0;
-  width: 400px;
-`;
-
-const Paginator = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 440px;
 `;
 
 export const PasswordContext = createContext({
