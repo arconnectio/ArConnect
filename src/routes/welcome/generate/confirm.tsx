@@ -53,6 +53,7 @@ export default function Confirm() {
           if (typeof val !== "string") return;
           setSeedInputState(val);
         }}
+        showHead={false}
         onReady={validateSeedphrase}
       />
       <Spacer y={1.5} />
