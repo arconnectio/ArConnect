@@ -67,19 +67,18 @@ const LineWrapper = styled.div`
 
 const Line = styled.div<{ roundedEnd?: "left" | "right"; hidden?: boolean }>`
   display: ${(props) => props.hidden && "none"};
-  width: 100;
-  height: 2px;
+  height: 0.125rem;
   ${(props) => {
     switch (props.roundedEnd) {
       case "left":
         return `
-          border-top-left-radius: 10px;
-          border-bottom-left-radius: 10px;
+          border-top-left-radius: 0.625rem;
+          border-bottom-left-radius: 0.625rem;
         `;
       case "right":
         return `
-          border-top-right-radius: 10px;
-          border-bottom-right-radius: 10px;
+          border-top-right-radius: 0.625rem;
+          border-bottom-right-radius: 0.625rem;
         `;
       default:
         return "";
@@ -90,16 +89,16 @@ const Line = styled.div<{ roundedEnd?: "left" | "right"; hidden?: boolean }>`
 
 const StepWrapper = styled.div`
   display: flex;
-  width: 72px;
+  width: 4.5rem;
   flex-direction: column;
   align-items: center;
   color: #aeadcd;
-  font-size: 12px;
+  font-size: 0.75rem;
 `;
 
 const FlexContainer = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
   justify-content: center;
   align-items: center;
   width: 100%;
@@ -109,8 +108,8 @@ const Circle = styled.div<{
   status?: Status;
   displayTheme: DisplayTheme;
 }>`
-  width: 20px;
-  height: 20px;
+  width: 1.25rem;
+  height: 1.25rem;
   background-color: ${(props) => {
     switch (props.status) {
       case Status.ACTIVE:
@@ -125,7 +124,7 @@ const Circle = styled.div<{
         return "#FFFFFF";
     }
   }};
-  font-size: 10px;
+  font-size: 0.625rem;
   color: ${(props) => (props.displayTheme === "light" ? "#000" : "#EBEBF1")};
   transition: all 0.23s ease-in-out;
   border-radius: 50%;
@@ -140,8 +139,8 @@ const Circle = styled.div<{
     ::before {
       content: "";
       position: absolute;
-      width: 18px;
-      height: 18px;
+      width: 1.125rem;
+      height: 1.125rem;
       border: 1px solid #ab9aff; 
       border-radius: 50%;
     }
