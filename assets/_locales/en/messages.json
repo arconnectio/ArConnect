@@ -1345,6 +1345,18 @@
     "message": "Pin ArConnect to your browser so it's accessible and easy to connect to your favorite dApps.",
     "description": "Installation complete paragraph"
   },
+  "get_started":{    
+    "message": "Get Started",
+    "description": "Get started title"
+  },
+  "get_started_description":{    
+    "message": "Explore the endless possibilities on Arweave through ArConnectd",
+    "description": "Get started description"
+  },
+  "example_placeholder" : {
+    "message": "ArDrive offers never-ending storage of your most valuable files. Pay once and save your memories forever.",
+    "description": "placeholder for example get started"
+  },
   "connect_with_us_title": {
     "message": "Connect with us",
     "description": "Connect with us title"

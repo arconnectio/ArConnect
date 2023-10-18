@@ -23,7 +23,7 @@ export default function Done() {
       await setAnalytics(false);
     }
 
-    window.top.close();
+    // window.top.close();
   }
 
   // Segment
