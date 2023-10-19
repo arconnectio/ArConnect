@@ -33,12 +33,21 @@ export default function SeedInput({
 
   // words
   const [words, setWords] = useState<string[]>(Array(24).fill(""));
+  const [preFilled, setPreFilled] = useState<
+    { [key: number]: string } | undefined
+  >();
   const resetWords = () => setWords(Array(24).fill(""));
 
   // pre-filled words
   useEffect(() => {
     if (!preFill) return;
-
+    const preFilledObj: { [key: number]: string } = {};
+    preFill.forEach((word, index) => {
+      if (word !== "") {
+        preFilledObj[index] = word;
+      }
+    });
+    setPreFilled(preFilledObj);
     setWords(preFill);
   }, [preFill]);
 
@@ -268,6 +277,7 @@ export default function SeedInput({
                   ""}
               </WordInputSuggestion>
               <WordInput
+                disabled={preFilled && preFilled[i] !== undefined}
                 onPaste={(e) => {
                   // return if verify mode is enabled
                   // we don't want the user to paste in
