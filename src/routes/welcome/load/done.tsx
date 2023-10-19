@@ -7,6 +7,7 @@ import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import JSConfetti from "js-confetti";
 import { useEffect } from "react";
+import { useLocation } from "wouter";
 
 export default function Done() {
   // analytics opt-in
@@ -15,6 +16,7 @@ export default function Done() {
     key: "analytics_consent_answered",
     instance: ExtensionStorage
   });
+  const [, setLocation] = useLocation();
 
   // finalize
   async function done() {
@@ -23,7 +25,8 @@ export default function Done() {
       await setAnalytics(false);
     }
 
-    // window.top.close();
+    // redirect to getting started pages
+    setLocation("/getting-started/1");
   }
 
   // Segment

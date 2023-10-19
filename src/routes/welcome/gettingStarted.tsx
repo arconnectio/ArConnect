@@ -31,6 +31,8 @@ export default function GettingStarted({ page }) {
   const navigate = (pageNum: number) => {
     if (pageNum < 4) {
       setLocation(`/getting-started/${pageNum}`);
+    } else {
+      window.top.close();
     }
   };
 
@@ -64,7 +66,7 @@ export default function GettingStarted({ page }) {
             ))}
           </PageIndicatorContainer>
           <Button fullWidth onClick={() => navigate(page + 1)}>
-            {browser.i18n.getMessage("next")}
+            {browser.i18n.getMessage(page + 1 < 4 ? "next" : "done")}
           </Button>
         </Footer>
       </SetupCard>

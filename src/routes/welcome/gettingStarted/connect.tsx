@@ -21,7 +21,11 @@ export default function Connect() {
         <Paragraph>{browser.i18n.getMessage("connect_paragraph_2")}</Paragraph>
       </div>
       <Content>
-        <Item>
+        <Item
+          href="https://www.arconnect.io/twitter"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <ImageWrapper>
             <Image
               src={twitterLogo}
@@ -33,7 +37,11 @@ export default function Connect() {
           </ImageWrapper>
           <ItemTitle>Twitter</ItemTitle>
         </Item>
-        <Item>
+        <Item
+          href="https://discord.com/invite/YGXJbuz44K"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <ImageWrapper>
             <Image
               src={discordLogo}
@@ -45,7 +53,11 @@ export default function Connect() {
           </ImageWrapper>
           <ItemTitle>Discord</ItemTitle>
         </Item>
-        <Item>
+        <Item
+          href="https://github.com/arconnectio"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <ImageWrapper>
             <Image
               src={githubLogo}
@@ -57,7 +69,12 @@ export default function Connect() {
           </ImageWrapper>
           <ItemTitle>Github</ItemTitle>
         </Item>
-        <Item>
+        {/* TODO: point this to knowledge base */}
+        <Item
+          href="https://www.arconnect.io/blog"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <ImageWrapper>
             <Image
               src={infoLogo}
@@ -86,13 +103,15 @@ const ItemTitle = styled.div`
   font-size: 1rem;
 `;
 
-const Item = styled.div`
+const Item = styled.a`
   display: flex;
   flex-direction: column;
   align-items: center;
   color: #ab9aff;
   font-weight: 500;
   gap: 1.25rem;
+  cursor: pointer;
+  text-decoration: none;
 `;
 
 const ImageWrapper = styled.div`
@@ -104,6 +123,7 @@ const ImageWrapper = styled.div`
   height: 34px;
   border-radius: 12px;
 `;
+
 const Content = styled.div`
   justify-content: center;
   display: flex;
