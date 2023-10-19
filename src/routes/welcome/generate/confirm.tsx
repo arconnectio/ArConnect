@@ -43,6 +43,37 @@ export default function Confirm() {
     trackPage(PageType.ONBOARD_SEEDPHRASE);
   }, []);
 
+  // pre filled words
+  const [preFill, setPreFill] = useState<string[]>();
+
+  useEffect(() => {
+    if (!generatedWallet.mnemonic) return;
+    const toPreFill: {
+      i: number;
+      val: string;
+    }[] = [];
+    const words = generatedWallet.mnemonic.split(" ");
+    const qtyToGenerate = words.length / 2;
+
+    while (toPreFill.length < qtyToGenerate) {
+      const index = Math.floor(Math.random() * words.length);
+
+      if (toPreFill.find((v) => v.i === index)) continue;
+      toPreFill.push({
+        i: index,
+        val: words[index]
+      });
+    }
+
+    setPreFill(() => {
+      const baseArray: string[] = new Array(words.length).fill(undefined);
+
+      for (const el of toPreFill) baseArray[el.i] = el.val;
+
+      return baseArray;
+    });
+  }, [generatedWallet]);
+
   return (
     <>
       <Text heading>{browser.i18n.getMessage("confirm_seed")}</Text>
@@ -55,6 +86,7 @@ export default function Confirm() {
         }}
         showHead={false}
         onReady={validateSeedphrase}
+        preFill={preFill}
       />
       <Spacer y={1.5} />
       <Button fullWidth onClick={validateSeedphrase}>

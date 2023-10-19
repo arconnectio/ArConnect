@@ -35,6 +35,17 @@ export default function SeedInput({
   const [words, setWords] = useState<string[]>(Array(24).fill(""));
   const resetWords = () => setWords(Array(24).fill(""));
 
+  // pre-filled words
+  useEffect(() => {
+    if (!preFill) return;
+    setWords((v) => {
+      for (let i = 0; i < preFill.length; i++)
+        if (preFill[i] && preFill[i] !== "") v[i] = preFill[i];
+
+      return v;
+    });
+  }, [preFill]);
+
   // are all the word inputs empty
   const isEmpty = useMemo(() => words.every((word) => word === ""), [words]);
 
