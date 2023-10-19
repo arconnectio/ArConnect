@@ -38,12 +38,8 @@ export default function SeedInput({
   // pre-filled words
   useEffect(() => {
     if (!preFill) return;
-    setWords((v) => {
-      for (let i = 0; i < preFill.length; i++)
-        if (preFill[i] && preFill[i] !== "") v[i] = preFill[i];
 
-      return v;
-    });
+    setWords(preFill);
   }, [preFill]);
 
   // are all the word inputs empty

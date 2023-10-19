@@ -47,7 +47,7 @@ export default function Confirm() {
   const [preFill, setPreFill] = useState<string[]>();
 
   useEffect(() => {
-    if (!generatedWallet.mnemonic) return;
+    if (!generatedWallet.mnemonic || preFill) return;
     const toPreFill: {
       i: number;
       val: string;
@@ -66,7 +66,7 @@ export default function Confirm() {
     }
 
     setPreFill(() => {
-      const baseArray: string[] = new Array(words.length).fill(undefined);
+      const baseArray: string[] = new Array(words.length).fill("");
 
       for (const el of toPreFill) baseArray[el.i] = el.val;
 
