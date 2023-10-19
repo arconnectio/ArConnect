@@ -1,11 +1,12 @@
 import { Button, Checkbox, Spacer, Text } from "@arconnect/components";
+import { PageType, trackPage } from "~utils/analytics";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
+import JSConfetti from "js-confetti";
 import { useEffect } from "react";
-import { PageType, trackPage } from "~utils/analytics";
 
 export default function Done() {
   // analytics opt-in
@@ -28,6 +29,13 @@ export default function Done() {
   // Segment
   useEffect(() => {
     trackPage(PageType.ONBOARD_COMPLETE);
+  }, []);
+
+  // confetti
+  useEffect(() => {
+    const jsConfetti = new JSConfetti();
+
+    jsConfetti.addConfetti();
   }, []);
 
   return (

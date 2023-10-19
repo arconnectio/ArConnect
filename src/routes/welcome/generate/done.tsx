@@ -10,6 +10,7 @@ import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
 import useSetting from "~settings/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "@plasmohq/storage/hook";
+import JSConfetti from "js-confetti";
 
 export default function Done() {
   // wallet context
@@ -55,6 +56,12 @@ export default function Done() {
     // close window
     window.top.close();
   }
+
+  useEffect(() => {
+    const jsConfetti = new JSConfetti();
+
+    jsConfetti.addConfetti();
+  }, []);
 
   // Segment
   useEffect(() => {
