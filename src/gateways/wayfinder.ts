@@ -46,7 +46,8 @@ export async function findGateway(
       await trackEvent(EventType.WAYFINDER_GATEWAY_SELECTED, {
         host: selectedGateway.settings.fqdn,
         port: selectedGateway.settings.port,
-        protocol: selectedGateway.settings.protocol
+        protocol: selectedGateway.settings.protocol,
+        requirements
       });
       return {
         host: selectedGateway.settings.fqdn,
@@ -62,7 +63,8 @@ export async function findGateway(
         await trackEvent(EventType.WAYFINDER_GATEWAY_SELECTED, {
           host: selectedGateway.settings.fqdn,
           port: selectedGateway.settings.port,
-          protocol: selectedGateway.settings.protocol
+          protocol: selectedGateway.settings.protocol,
+          requirements
         });
         return {
           host: selectedGateway.settings.fqdn,
