@@ -6,12 +6,14 @@ import githubLogo from "url:/assets/setup/github-logo.svg";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
+import { useEffect } from "react";
+import { PageType, trackPage } from "~utils/analytics";
 
 export default function Connect() {
   // Segment
-  // useEffect(() => {
-  //   trackPage(PageType.ONBOARD_COMPLETE);
-  // }, []);
+  useEffect(() => {
+    trackPage(PageType.SETUP_CONNECT);
+  }, []);
 
   return (
     <Wrapper>
@@ -31,8 +33,8 @@ export default function Connect() {
               src={twitterLogo}
               alt={"twitter logo"}
               draggable={false}
-              width={"12px"}
-              height={"15px"}
+              width={"0.75rem"}
+              height={"0.9375rem"}
             />
           </ImageWrapper>
           <ItemTitle>Twitter</ItemTitle>
@@ -47,8 +49,8 @@ export default function Connect() {
               src={discordLogo}
               alt={"discord logo"}
               draggable={false}
-              width={"12px"}
-              height={"15px"}
+              width={"0.75rem"}
+              height={"0.9375rem"}
             />
           </ImageWrapper>
           <ItemTitle>Discord</ItemTitle>
@@ -63,8 +65,8 @@ export default function Connect() {
               src={githubLogo}
               alt={"github logo"}
               draggable={false}
-              width={"15px"}
-              height={"16px"}
+              width={"0.9375rem"}
+              height={"1rem"}
             />
           </ImageWrapper>
           <ItemTitle>Github</ItemTitle>
@@ -80,8 +82,8 @@ export default function Connect() {
               src={infoLogo}
               alt={"info logo"}
               draggable={false}
-              width={"7px"}
-              height={"15px"}
+              width={"0.4375rem"}
+              height={"0.9375rem"}
             />
           </ImageWrapper>
           <ItemTitle>Learn</ItemTitle>
@@ -119,8 +121,8 @@ const ImageWrapper = styled.div`
   justify-content: center;
   background: rgba(171, 154, 255);
   border: 1px solid #ab9aff;
-  width: 34px;
-  height: 34px;
+  width: 2.125rem;
+  height: 2.125rem;
   border-radius: 12px;
 `;
 
@@ -131,7 +133,7 @@ const Content = styled.div`
 `;
 
 const Image = styled.img<{ width: string; height: string }>`
-  padding: 10px;
+  padding: 0.625rem;
   width: ${(props) => props.width};
   height: ${(props) => props.height};
 `;

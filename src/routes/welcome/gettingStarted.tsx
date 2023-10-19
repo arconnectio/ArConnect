@@ -93,14 +93,14 @@ const PageIndicatorContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 1.25rem;
 `;
 
 const PageIndicator = styled.button<{ active?: boolean }>`
-  width: 12px;
-  height: 12px;
+  width: 0.75rem;
+  height: 0.75rem;
   border-radius: 50%;
-  margin: 0 10px;
+  margin: 0 0.625rem;
   background-color: ${(props) => (props.active ? "#AB9AFF" : "#EBEBF1")};
   border: none;
   cursor: pointer;
@@ -129,8 +129,8 @@ const Content = styled.div`
   height: 100%;
 `;
 const CheckWrapper = styled.div`
-  width: 15px;
-  height: 15px;
+  width: 0.9375rem;
+  height: 0.9375rem;
   border-radius: 50%;
   color: #ffffff;
 
@@ -151,11 +151,11 @@ const Header = styled.div`
   background-color: rgba(20, 209, 16, 0.05);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0.25rem;
   border: 1px solid #14d110;
   border-radius: 25px;
-  font-size: 10px;
-  padding: 10px;
+  font-size: 0.625rem;
+  padding: 0.625rem;
 `;
 
 const Wrapper = styled.div`
@@ -173,6 +173,6 @@ const SetupCard = styled(Card)`
   flex-direction: column;
   justify-content: space-between;
   gap: 2rem;
-  height: 582px;
-  width: 416px;
+  height: 36.375rem;
+  width: 26rem;
 `;

@@ -3,12 +3,14 @@ import pinImage from "url:/assets/setup/pin-example.png";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
+import { useEffect } from "react";
+import { PageType, trackPage } from "~utils/analytics";
 
 export default function Completed() {
   // Segment
-  // useEffect(() => {
-  //   trackPage(PageType.ONBOARD_COMPLETE);
-  // }, []);
+  useEffect(() => {
+    trackPage(PageType.SETUP_PIN);
+  }, []);
 
   return (
     <Wrapper>
@@ -39,9 +41,4 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   text-align: center;
-`;
-const ImagePlaceholder = styled.div`
-  width: 90%%;
-  height: 173px;
-  border: 1px solid #ccc;
 `;

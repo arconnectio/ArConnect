@@ -5,12 +5,14 @@ import publishLogo from "url:/assets/ecosystem/publish-logo.svg";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
+import { useEffect } from "react";
+import { PageType, trackPage } from "~utils/analytics";
 
 export default function Explore() {
   // Segment
-  // useEffect(() => {
-  //   trackPage(PageType.ONBOARD_COMPLETE);
-  // }, []);
+  useEffect(() => {
+    trackPage(PageType.SETUP_EXPLORE);
+  }, []);
 
   return (
     <Wrapper>
@@ -69,7 +71,7 @@ const Content = styled.div`
 `;
 
 const Image = styled.img`
-  width: 34px;
-  height: 34px;
-  padding: 10px;
+  width: 2.125rem;
+  height: 2.125rem;
+  padding: 0.625rem;
 `;
