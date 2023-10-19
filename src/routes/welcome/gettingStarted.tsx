@@ -11,7 +11,7 @@ import Connect from "./gettingStarted/connect";
 import { useLocation } from "wouter";
 import Explore from "./gettingStarted/explore";
 
-const gettingStartedPages = [<Completed />, <Connect />, <Explore />];
+const gettingStartedPages = [<Completed />, <Explore />, <Connect />];
 
 export default function GettingStarted({ page }) {
   // animate content sice
@@ -28,13 +28,9 @@ export default function GettingStarted({ page }) {
     obs.observe(el);
   }, []);
 
-  const navigate = (pageNum?) => {
-    if (pageNum) {
+  const navigate = (pageNum: number) => {
+    if (pageNum < 4) {
       setLocation(`/getting-started/${pageNum}`);
-    } else {
-      if (page < gettingStartedPages.length) {
-        setLocation(`/getting-started/${page + 1}`);
-      }
     }
   };
 
@@ -58,17 +54,19 @@ export default function GettingStarted({ page }) {
             </AnimatePresence>
           </PageWrapper>
         </Content>
-        <PageIndicatorContainer>
-          {gettingStartedPages.map((_, i) => (
-            <PageIndicator
-              onClick={() => navigate(i + 1)}
-              active={page === i + 1}
-            />
-          ))}
-        </PageIndicatorContainer>
-        <Button fullWidth onClick={navigate}>
-          {browser.i18n.getMessage("next")}
-        </Button>
+        <Footer>
+          <PageIndicatorContainer>
+            {gettingStartedPages.map((_, i) => (
+              <PageIndicator
+                onClick={() => navigate(i + 1)}
+                active={page === i + 1}
+              />
+            ))}
+          </PageIndicatorContainer>
+          <Button fullWidth onClick={() => navigate(page + 1)}>
+            {browser.i18n.getMessage("next")}
+          </Button>
+        </Footer>
       </SetupCard>
     </Wrapper>
   );
@@ -82,6 +80,12 @@ const pageAnimation: Variants = {
     opacity: 0
   }
 };
+
+const Footer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+`;
 
 const PageIndicatorContainer = styled.div`
   display: flex;
@@ -120,6 +124,7 @@ const PageWrapper = styled.div`
 
 const Content = styled.div`
   overflow: hidden;
+  height: 100%;
 `;
 const CheckWrapper = styled.div`
   width: 15px;
@@ -164,6 +169,8 @@ const SetupCard = styled(Card)`
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 2rem;
-  width: 440px;
+  height: 582px;
+  width: 416px;
 `;

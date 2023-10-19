@@ -1,10 +1,7 @@
 import { Spacer, Text } from "@arconnect/components";
-
-import { useStorage } from "@plasmohq/storage/hook";
-import { ExtensionStorage } from "~utils/storage";
+import pinImage from "url:/assets/setup/pin-example.png";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
-import useSetting from "~settings/hook";
 import styled from "styled-components";
 
 export default function Completed() {
@@ -14,21 +11,33 @@ export default function Completed() {
   // }, []);
 
   return (
-    <>
-      <Text heading>{browser.i18n.getMessage("installation_complete")}</Text>
-      <Paragraph>
-        {browser.i18n.getMessage("installation_complete_paragraph")}
-      </Paragraph>
-      <ImagePlaceholder />
+    <Wrapper>
+      <div>
+        <Text heading>{browser.i18n.getMessage("installation_complete")}</Text>
+        <Paragraph>
+          {browser.i18n.getMessage("installation_complete_paragraph")}
+        </Paragraph>
+      </div>
+      <Container>
+        <Image src={pinImage} alt="pin" />
+      </Container>
       <Spacer y={1.5} />
-    </>
+    </Wrapper>
   );
 }
+const Wrapper = styled.div`
+  display: flex;
+  gap: 1.5rem;
+  flex-direction: column;
+  justify-content: space-between;
+`;
 
+const Image = styled.img`
+  width: 100%;
+`;
 const Container = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: center;
   text-align: center;
 `;
 const ImagePlaceholder = styled.div`

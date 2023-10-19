@@ -1350,11 +1350,19 @@
     "description": "Get started title"
   },
   "get_started_description":{    
-    "message": "Explore the endless possibilities on Arweave through ArConnectd",
+    "message": "Explore the endless possibilities on Arweave through ArConnect",
     "description": "Get started description"
   },
-  "example_placeholder" : {
+  "example_ardrive_description" : {
     "message": "ArDrive offers never-ending storage of your most valuable files. Pay once and save your memories forever.",
+    "description": "placeholder for example get started"
+  },
+  "example_ans_description" : {
+    "message": "ans.gg is a popular name service built on top of the Arweave blockchain. Buy your domain once, own forever.",
+    "description": "placeholder for example get started"
+  },
+  "example_publish_description" : {
+    "message": "A provably neutral publishing platform aimed at dis-intermediating the truth. Publish assertions, and take your position in the Fact Marketplace!",
     "description": "placeholder for example get started"
   },
   "connect_with_us_title": {
@@ -1362,7 +1370,11 @@
     "description": "Connect with us title"
   },
   "connect_paragraph": {
-    "message": "Follow our Twitter to stay up to date on all the latest that the team is working on. Questions? Join the Discord server to chat with the developers.",
-    "description": "Connect with us title"
+    "message": "Follow our Twitter to stay up to date on all the latest that the team is working on.",
+    "description": "Connect with us description"
+  },
+  "connect_paragraph_2": {
+    "message": "Questions? Join the Discord server to chat with the developers.",
+    "description": "Connect with us description"
   }
 }
