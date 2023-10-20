@@ -8,6 +8,7 @@ import {
 import SettingListItem, {
   SettingListItemProps
 } from "~components/popup/settings/SettingListItem";
+import { Spacer } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import settings from "~settings";
@@ -19,6 +20,7 @@ export default function Settings() {
       {allSettings.map((setting, i) => (
         <SettingListItem {...setting} key={i} />
       ))}
+      <Spacer y={0.45} />
     </>
   );
 }

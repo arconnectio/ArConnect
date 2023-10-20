@@ -24,6 +24,7 @@ import Transaction from "~routes/popup/transaction/[id]";
 import Recipient from "~routes/popup/send/recipient";
 import Settings from "~routes/popup/settings";
 import Pick from "~routes/popup/settings/pick/[name]";
+import Number from "~routes/popup/settings/number/[name]";
 
 export default function Popup() {
   const theme = useTheme();
@@ -77,6 +78,11 @@ export default function Popup() {
               <Route path="/settings/pick/:setting">
                 {(params: { setting: string }) => (
                   <Pick name={params?.setting} />
+                )}
+              </Route>
+              <Route path="/settings/number/:setting">
+                {(params: { setting: string }) => (
+                  <Number name={params?.setting} />
                 )}
               </Route>
             </HistoryProvider>

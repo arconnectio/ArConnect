@@ -9,6 +9,8 @@ import { Spacer, useInput } from "@arconnect/components";
 import SearchInput from "~components/dashboard/SearchInput";
 
 export default function Pick({ name }: Props) {
+  if (!name) return <></>;
+
   // setting state
   const [settingState, updateSetting] = useSetting(name);
 
