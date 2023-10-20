@@ -28,6 +28,7 @@ import Number from "~routes/popup/settings/number/[name]";
 import String from "~routes/popup/settings/string/[name]";
 import About from "~routes/popup/settings/about";
 import Reset from "~routes/popup/settings/reset";
+import TokenSettings from "~routes/popup/settings/tokens";
 
 export default function Popup() {
   const theme = useTheme();
@@ -95,6 +96,7 @@ export default function Popup() {
               </Route>
               <Route path="/settings/about" component={About} />
               <Route path="/settings/reset" component={Reset} />
+              <Route path="/settings/tokens" component={TokenSettings} />
             </HistoryProvider>
           </Router>
         </Wrapper>

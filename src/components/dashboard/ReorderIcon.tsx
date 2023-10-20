@@ -1,7 +1,6 @@
 import type { DragControls } from "framer-motion";
-import { DotsIcon } from "@iconicicons/react";
-import type { PointerEvent } from "react";
 import browser from "webextension-polyfill";
+import type { PointerEvent } from "react";
 import styled from "styled-components";
 
 export default function ReorderIcon({ dragControls }: Props) {
@@ -13,6 +12,8 @@ export default function ReorderIcon({ dragControls }: Props) {
   return (
     <Wrapper
       onPointerDown={handler}
+      onClick={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
       title={browser.i18n.getMessage("click_and_drag")}
     >
       <Icon
