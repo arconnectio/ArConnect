@@ -23,7 +23,7 @@ export default function SettingListItem({
   async function handleClick() {
     switch (type) {
       case "subsetting":
-        push(`/setting/${name}`);
+        push(`/settings/${name}`);
         break;
 
       case "boolean":
@@ -31,7 +31,7 @@ export default function SettingListItem({
         break;
 
       default:
-        push(`/setting/${type}/${name}`);
+        push(`/settings/${type}/${name}`);
         break;
     }
   }

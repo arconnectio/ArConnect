@@ -46,12 +46,11 @@ const Input = styled.input.attrs({
   outline: none;
   border: none;
   background-color: transparent;
-  //padding: calc(${setting_element_padding} * 3 / 2) ${setting_element_padding};
-  //padding-left: calc(${setting_element_padding} * 3 / 2);
-  //width: calc(100% - ${setting_element_padding} * 2);
+  padding: 1rem 1.2rem;
+  width: calc(100% - 1.2rem * 2);
   color: rgb(${(props) => props.theme.theme});
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 400;
   transition: all 0.23s ease-in-out;
 
   &::placeholder {
@@ -62,7 +61,7 @@ const Input = styled.input.attrs({
 const InputSearchIcon = styled(SearchIcon)`
   position: absolute;
   top: 50%;
-  //right: ${setting_element_padding};
+  right: 1rem;
   font-size: 1.25rem;
   width: 1em;
   height: 1em;
