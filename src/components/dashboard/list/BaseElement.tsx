@@ -5,18 +5,19 @@ import type { HTMLProps, ReactNode } from "react";
 import Squircle from "~components/Squircle";
 import ReorderIcon from "../ReorderIcon";
 import styled from "styled-components";
+import { hoverEffect } from "~utils/theme";
 
-export default function BaseElement({
+export default function BaseListElement({
   children,
   title,
   description,
-  active,
   img,
   dragControls,
+  right,
   ...props
 }: Props & HTMLProps<HTMLDivElement>) {
   return (
-    <SettingWrapper active={active} {...(props as any)}>
+    <SettingWrapper {...(props as any)}>
       <ContentWrapper>
         <SettingIconWrapper img={img}>{children}</SettingIconWrapper>
         <div>
@@ -25,47 +26,36 @@ export default function BaseElement({
         </div>
       </ContentWrapper>
       {dragControls && <ReorderIcon dragControls={dragControls} />}
+      {right}
     </SettingWrapper>
   );
 }
 
-export const setting_element_padding = ".8rem";
-
-const SettingWrapper = styled.div<{ active: boolean }>`
+const SettingWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: ${setting_element_padding};
-  border-radius: 20px;
-  overflow: hidden;
+  padding: 0.8rem 1.2rem;
   cursor: pointer;
-  background-color: rgba(
-    ${(props) => props.theme.theme},
-    ${(props) =>
-      props.active ? (props.theme.displayTheme === "light" ? ".2" : ".1") : "0"}
-  );
-  transition: all 0.23s ease-in-out;
+  position: relative;
+  transition: transform 0.07s ease-in-out, opacity 0.23s ease-in-out;
 
-  &:hover {
-    background-color: rgba(
-      ${(props) =>
-        props.theme.theme +
-        ", " +
-        (props.active
-          ? props.theme.displayTheme === "light"
-            ? ".24"
-            : ".14"
-          : props.theme.displayTheme === "light"
-          ? ".14"
-          : ".04")}
-    );
+  ${hoverEffect}
+
+  &::after {
+    width: calc(100% + 15px);
+    height: calc(100% + 4px);
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 `;
 
 const ContentWrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: ${setting_element_padding};
+  gap: 0.9rem;
 `;
 
 const SettingIconWrapper = styled(Squircle)`
@@ -92,7 +82,7 @@ const SettingName = styled(Text).attrs({
   heading: true
 })`
   font-weight: 500;
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -102,7 +92,7 @@ const SettingName = styled(Text).attrs({
 const SettingDescription = styled(Text).attrs({
   noMargin: true
 })`
-  font-size: 0.82rem;
+  font-size: 0.7rem;
 `;
 
 export const SettingImage = styled.img.attrs({
@@ -120,9 +110,9 @@ export const SettingImage = styled.img.attrs({
 interface Props {
   title: string | ReactNode;
   description: string | ReactNode;
-  active: boolean;
   img?: string;
   dragControls?: DragControls;
+  right?: ReactNode;
 }
 
 export const SettingsList = styled.div`

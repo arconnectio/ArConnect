@@ -8,7 +8,7 @@ import { getDreForToken } from "~tokens";
 import { useTheme } from "~utils/theme";
 import { useLocation } from "wouter";
 import * as viewblock from "~lib/viewblock";
-import BaseElement from "./BaseElement";
+import BaseListElement from "./BaseElement";
 import styled from "styled-components";
 
 export default function TokenListItem({ token, active }: Props) {
@@ -63,7 +63,7 @@ export default function TokenListItem({ token, active }: Props) {
       dragControls={dragControls}
       onClick={() => setLocation(`/tokens/${token.id}`)}
     >
-      <BaseElement
+      <BaseListElement
         title={`${token.name} (${token.ticker})`}
         description={
           <>
@@ -75,7 +75,7 @@ export default function TokenListItem({ token, active }: Props) {
         dragControls={dragControls}
       >
         <TokenLogo src={image} />
-      </BaseElement>
+      </BaseListElement>
     </Reorder.Item>
   );
 }

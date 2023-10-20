@@ -4,6 +4,9 @@ import { getSetting, PREFIX } from "~settings";
 
 const useSetting = <T = any>(name: string) => {
   const setting = getSetting(name);
+
+  if (!setting) return [undefined, undefined];
+
   const hook = useStorage<T>(
     {
       key: `${PREFIX}${name}`,

@@ -99,7 +99,7 @@ export default class Setting {
  * string / number / boolean
  * pick - Pick from a list
  */
-type SettingType = "string" | "number" | "boolean" | "pick";
+export type SettingType = "string" | "number" | "boolean" | "pick";
 export type ValueType = string | number | boolean;
 
 export type Icon = (props: React.ComponentProps<"svg">) => JSX.Element;

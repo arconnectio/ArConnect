@@ -1,4 +1,3 @@
-import { setting_element_padding } from "./list/BaseElement";
 import { SearchIcon } from "@iconicicons/react";
 import type { HTMLProps } from "react";
 import styled from "styled-components";
@@ -47,9 +46,9 @@ const Input = styled.input.attrs({
   outline: none;
   border: none;
   background-color: transparent;
-  padding: calc(${setting_element_padding} * 3 / 2) ${setting_element_padding};
-  padding-left: calc(${setting_element_padding} * 3 / 2);
-  width: calc(100% - ${setting_element_padding} * 2);
+  //padding: calc(${setting_element_padding} * 3 / 2) ${setting_element_padding};
+  //padding-left: calc(${setting_element_padding} * 3 / 2);
+  //width: calc(100% - ${setting_element_padding} * 2);
   color: rgb(${(props) => props.theme.theme});
   font-size: 1rem;
   font-weight: 500;
@@ -63,7 +62,7 @@ const Input = styled.input.attrs({
 const InputSearchIcon = styled(SearchIcon)`
   position: absolute;
   top: 50%;
-  right: ${setting_element_padding};
+  //right: ${setting_element_padding};
   font-size: 1.25rem;
   width: 1em;
   height: 1em;

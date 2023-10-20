@@ -22,6 +22,7 @@ import Collectibles from "~routes/popup/collectibles";
 import Collectible from "~routes/popup/collectible/[id]";
 import Transaction from "~routes/popup/transaction/[id]";
 import Recipient from "~routes/popup/send/recipient";
+import Settings from "~routes/popup/settings";
 
 export default function Popup() {
   const theme = useTheme();
@@ -71,6 +72,7 @@ export default function Popup() {
                   />
                 )}
               </Route>
+              <Route path="/settings" component={Settings} />
             </HistoryProvider>
           </Router>
         </Wrapper>

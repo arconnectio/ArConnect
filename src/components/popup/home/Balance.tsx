@@ -141,14 +141,7 @@ export default function Balance() {
             <ActionButton as={CompassIcon} onClick={() => push("/explore")} />
           </Tooltip>
           <Tooltip content={browser.i18n.getMessage("settings")}>
-            <ActionButton
-              as={SettingsIcon}
-              onClick={() =>
-                browser.tabs.create({
-                  url: browser.runtime.getURL("tabs/dashboard.html")
-                })
-              }
-            />
+            <ActionButton as={SettingsIcon} onClick={() => push("/settings")} />
           </Tooltip>
           <Spacer x={0.18} />
         </>

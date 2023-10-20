@@ -6,7 +6,7 @@ import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
 import HardwareWalletIcon from "~components/hardware/HardwareWalletIcon";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
-import BaseElement, { SettingIcon } from "./BaseElement";
+import BaseListElement, { SettingIcon } from "./BaseElement";
 
 export default function WalletListItem({
   wallet,
@@ -30,7 +30,7 @@ export default function WalletListItem({
       dragListener={false}
       dragControls={dragControls}
     >
-      <BaseElement
+      <BaseListElement
         title={name}
         description={formattedAddress}
         active={active}
@@ -42,7 +42,7 @@ export default function WalletListItem({
         {wallet.type === "hardware" && wallet.api === "keystone" && (
           <HardwareIcon icon={keystoneLogo} color="#2161FF" />
         )}
-      </BaseElement>
+      </BaseListElement>
     </Reorder.Item>
   );
 }

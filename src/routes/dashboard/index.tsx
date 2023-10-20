@@ -2,10 +2,7 @@ import { Card, Spacer, Text } from "@arconnect/components";
 import SettingListItem, {
   type Props as SettingItemData
 } from "~components/dashboard/list/SettingListItem";
-import {
-  setting_element_padding,
-  SettingsList
-} from "~components/dashboard/list/BaseElement";
+import { SettingsList } from "~components/dashboard/list/BaseElement";
 import { useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import {
@@ -20,6 +17,7 @@ import TokenSettings from "~components/dashboard/subsettings/TokenSettings";
 import AppSettings from "~components/dashboard/subsettings/AppSettings";
 import AddWallet from "~components/dashboard/subsettings/AddWallet";
 import Applications from "~components/dashboard/Applications";
+import { PageType, trackPage } from "~utils/analytics";
 import SettingEl from "~components/dashboard/Setting";
 import Wallets from "~components/dashboard/Wallets";
 import Application from "~applications/application";
@@ -29,7 +27,6 @@ import Reset from "~components/dashboard/Reset";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import settings from "~settings";
-import { PageType, trackPage } from "~utils/analytics";
 
 export default function Settings({ params }: Props) {
   // router location
@@ -206,7 +203,7 @@ const SettingsTitle = styled(Text).attrs({
   title: true,
   noMargin: true
 })`
-  padding: 0 ${setting_element_padding};
+  //padding: 0 ${setting_element_padding};
 `;
 
 interface Setting extends SettingItemData {

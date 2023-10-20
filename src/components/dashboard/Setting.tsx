@@ -1,5 +1,4 @@
 import { Input, Spacer, Text, useInput } from "@arconnect/components";
-import { setting_element_padding } from "./list/BaseElement";
 import PermissionCheckbox from "~components/auth/PermissionCheckbox";
 import type SettingType from "~settings/setting";
 import browser from "webextension-polyfill";
@@ -154,7 +153,7 @@ const RadioItem = styled.div`
   display: flex;
   align-items: center;
   gap: 0.7rem;
-  padding: ${setting_element_padding};
+  //padding: ${setting_element_padding};
   border-radius: 20px;
   background-color: transparent;
   cursor: pointer;
