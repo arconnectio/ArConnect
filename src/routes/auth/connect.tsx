@@ -1,6 +1,7 @@
 import {
   Button,
   Card,
+  Checkbox,
   Input,
   Section,
   Spacer,
@@ -23,9 +24,6 @@ import { ChevronDownIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";
-import PermissionCheckbox, {
-  PermissionDescription
-} from "~components/auth/PermissionCheckbox";
 import { addApp } from "~applications";
 import WalletSwitcher from "~components/popup/WalletSwitcher";
 import Wrapper from "~components/auth/Wrapper";
@@ -240,7 +238,7 @@ export default function Connect() {
                   </Text>
                   {requestedPermissions.map((permission, i) => (
                     <div key={i}>
-                      <PermissionCheckbox
+                      <Checkbox
                         checked={permissions.includes(permission)}
                         onChange={(checked) =>
                           setPermissions((val) => {
@@ -256,14 +254,10 @@ export default function Connect() {
                           })
                         }
                       >
-                        {permission.toUpperCase()}
-                        <br />
-                        <PermissionDescription>
-                          {browser.i18n.getMessage(
-                            permissionData[permission.toUpperCase()]
-                          )}
-                        </PermissionDescription>
-                      </PermissionCheckbox>
+                        {browser.i18n.getMessage(
+                          permissionData[permission.toUpperCase()]
+                        )}
+                      </Checkbox>
                       {i !== requestedPermissions.length - 1 && (
                         <Spacer y={0.8} />
                       )}
