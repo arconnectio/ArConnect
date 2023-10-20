@@ -15,6 +15,15 @@ export default function Pick({ name }: Props) {
   // setting data
   const settingData = useMemo(() => getSetting(name), [name]);
 
+  // active
+  const active = useMemo(
+    () =>
+      typeof settingState === "undefined"
+        ? settingData.defaultValue
+        : settingState,
+    [settingState, settingData]
+  );
+
   // fixup displayed option
   const fixupBooleanDisplay = (val: string) => {
     if (val === "false" || val === "true") {
@@ -31,7 +40,7 @@ export default function Pick({ name }: Props) {
   function searchFilter(option: string) {
     const query = searchInput.state;
 
-    if (query === "" || !query || option === settingState) {
+    if (query === "" || !query || option === active) {
       return true;
     }
 
@@ -55,11 +64,11 @@ export default function Pick({ name }: Props) {
         {(settingData?.options || []).filter(searchFilter).map((option, i) => (
           <RadioElement
             onClick={() => updateSetting(option)}
-            active={settingState === option}
+            active={active === option}
             key={i}
           >
             {fixupBooleanDisplay(option.toString())}
-            {settingState === option && <CheckIcon />}
+            {active === option && <CheckIcon />}
           </RadioElement>
         ))}
       </Wrapper>

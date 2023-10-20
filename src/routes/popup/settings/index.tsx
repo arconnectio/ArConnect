@@ -50,7 +50,8 @@ const allSettings: SettingListItemProps[] = [
     displayName: setting.displayName,
     description: setting.description,
     icon: setting.icon,
-    type: setting.type
+    type: setting.type,
+    defaultValue: setting.defaultValue
   })),
   {
     name: "about",

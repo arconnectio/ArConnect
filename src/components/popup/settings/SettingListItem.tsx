@@ -12,7 +12,8 @@ export default function SettingListItem({
   displayName,
   description,
   type,
-  icon
+  icon,
+  defaultValue
 }: SettingListItemProps) {
   // setting state
   const [settingState, updateSetting] = useSetting(name);
@@ -40,7 +41,15 @@ export default function SettingListItem({
     <BaseListElement
       title={browser.i18n.getMessage(displayName)}
       description={browser.i18n.getMessage(description)}
-      right={type === "boolean" ? <Toggle on={settingState} /> : undefined}
+      right={
+        type === "boolean" ? (
+          <Toggle
+            on={
+              typeof settingState === "undefined" ? defaultValue : settingState
+            }
+          />
+        ) : undefined
+      }
       onClick={handleClick}
     >
       <SettingIcon as={icon} />
@@ -53,6 +62,7 @@ export interface SettingListItemProps {
   icon: Icon;
   displayName: string;
   description: string;
+  defaultValue?: unknown;
   type?: SettingType | "subsetting";
 }
 
@@ -81,6 +91,8 @@ const Toggle = styled.div<{ on: boolean }>`
     left: calc((1.15rem - 0.84rem) / 2);
     transition: all 0.2s ease;
     transform: translateY(-50%)
-      translateX(${(props) => (props.on ? "100%" : "0")});
+      translateX(
+        ${(props) => (props.on ? "calc(100% - (1.15rem - 0.84rem) / 4)" : "0")}
+      );
   }
 `;
