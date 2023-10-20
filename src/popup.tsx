@@ -26,6 +26,7 @@ import Settings from "~routes/popup/settings";
 import Pick from "~routes/popup/settings/pick/[name]";
 import Number from "~routes/popup/settings/number/[name]";
 import String from "~routes/popup/settings/string/[name]";
+import About from "~routes/popup/settings/about";
 
 export default function Popup() {
   const theme = useTheme();
@@ -91,6 +92,7 @@ export default function Popup() {
                   <String name={params?.setting} />
                 )}
               </Route>
+              <Route path="/settings/about" component={About} />
             </HistoryProvider>
           </Router>
         </Wrapper>
