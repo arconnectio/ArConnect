@@ -18,7 +18,9 @@ export default function SeedInput({
   verifyMode,
   onChange,
   onReady,
-  defaultLength = 12
+  defaultLength = 12,
+  showHead = true,
+  preFill
 }: Props) {
   // length of the seedphrase
   const [activeLength, setActiveLength] = useState<SeedLength>(defaultLength);
@@ -31,7 +33,23 @@ export default function SeedInput({
 
   // words
   const [words, setWords] = useState<string[]>(Array(24).fill(""));
+  const [preFilled, setPreFilled] = useState<
+    { [key: number]: string } | undefined
+  >();
   const resetWords = () => setWords(Array(24).fill(""));
+
+  // pre-filled words
+  useEffect(() => {
+    if (!preFill) return;
+    const preFilledObj: { [key: number]: string } = {};
+    preFill.forEach((word, index) => {
+      if (word !== "") {
+        preFilledObj[index] = word;
+      }
+    });
+    setPreFilled(preFilledObj);
+    setWords(preFill);
+  }, [preFill]);
 
   // are all the word inputs empty
   const isEmpty = useMemo(() => words.every((word) => word === ""), [words]);
@@ -177,75 +195,77 @@ export default function SeedInput({
           </DragLayer>
         )}
       </AnimatePresence>
-      <Head>
-        <LengthSelector>
-          <LengthButton
-            active={activeLength === 12}
-            onClick={() => updateActiveLength(12)}
-            disabled={verifyMode}
-          >
-            12
-          </LengthButton>
-          <LengthButton
-            active={activeLength === 24}
-            onClick={() => updateActiveLength(24)}
-            disabled={verifyMode}
-          >
-            24
-          </LengthButton>
-        </LengthSelector>
-        <AnimatePresence>
-          {(!isEmpty && (
-            <motion.div
-              initial="hidden"
-              animate="shown"
-              variants={scaleAppearAnimation}
-              key="resetbutton"
+      {showHead && (
+        <Head>
+          <LengthSelector>
+            <LengthButton
+              active={activeLength === 12}
+              onClick={() => updateActiveLength(12)}
+              disabled={verifyMode}
             >
-              <HeadButton onClick={resetWords}>
-                <TrashIcon />
-                {browser.i18n.getMessage("reset")}
-              </HeadButton>
-            </motion.div>
-          )) || (
-            <motion.div
-              initial="hidden"
-              animate="shown"
-              variants={scaleAppearAnimation}
-              key="keyfilebutton"
+              12
+            </LengthButton>
+            <LengthButton
+              active={activeLength === 24}
+              onClick={() => updateActiveLength(24)}
+              disabled={verifyMode}
             >
-              <HeadButton
-                disabled={verifyMode}
-                onClick={() => {
-                  if (verifyMode || !isEmpty) return;
-
-                  // create fake input
-                  const input = document.createElement("input");
-
-                  input.type = "file";
-                  input.accept = ".json,application/json";
-                  input.click();
-
-                  // on file selected
-                  input.addEventListener("change", (e: Event) => {
-                    // get file
-                    const file = (e.target as HTMLInputElement).files[0];
-
-                    // trigger event
-                    triggerWalletRead(file);
-
-                    // remove input
-                    input.remove();
-                  });
-                }}
+              24
+            </LengthButton>
+          </LengthSelector>
+          <AnimatePresence>
+            {(!isEmpty && (
+              <motion.div
+                initial="hidden"
+                animate="shown"
+                variants={scaleAppearAnimation}
+                key="resetbutton"
               >
-                <FolderIcon />
-                {browser.i18n.getMessage("keyfile")}
-              </HeadButton>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </Head>
+                <HeadButton onClick={resetWords}>
+                  <TrashIcon />
+                  {browser.i18n.getMessage("reset")}
+                </HeadButton>
+              </motion.div>
+            )) || (
+              <motion.div
+                initial="hidden"
+                animate="shown"
+                variants={scaleAppearAnimation}
+                key="keyfilebutton"
+              >
+                <HeadButton
+                  disabled={verifyMode}
+                  onClick={() => {
+                    if (verifyMode || !isEmpty) return;
+
+                    // create fake input
+                    const input = document.createElement("input");
+
+                    input.type = "file";
+                    input.accept = ".json,application/json";
+                    input.click();
+
+                    // on file selected
+                    input.addEventListener("change", (e: Event) => {
+                      // get file
+                      const file = (e.target as HTMLInputElement).files[0];
+
+                      // trigger event
+                      triggerWalletRead(file);
+
+                      // remove input
+                      input.remove();
+                    });
+                  }}
+                >
+                  <FolderIcon />
+                  {browser.i18n.getMessage("keyfile")}
+                </HeadButton>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Head>
+      )}
       <WordsWrapper>
         {words.slice(0, activeLength).map((word, i) => (
           <WordInputWrapper key={i}>
@@ -257,6 +277,7 @@ export default function SeedInput({
                   ""}
               </WordInputSuggestion>
               <WordInput
+                disabled={preFilled && preFilled[i] !== undefined}
                 onPaste={(e) => {
                   // return if verify mode is enabled
                   // we don't want the user to paste in
@@ -595,6 +616,8 @@ interface Props {
    */
   onReady?: () => void;
   defaultLength?: SeedLength;
+  showHead?: boolean;
+  preFill?: Array<string | undefined>;
 }
 
 type SeedLength = 12 | 24;
