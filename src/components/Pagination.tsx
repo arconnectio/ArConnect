@@ -46,7 +46,7 @@ const Pagination: React.FC<PaginationProps> = ({
   );
 };
 
-const CheckIcon = () => (
+export const CheckIcon = () => (
   <svg
     width="11"
     height="8"
