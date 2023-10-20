@@ -101,7 +101,9 @@ const PageIndicator = styled.button<{ active?: boolean }>`
   height: 0.75rem;
   border-radius: 50%;
   margin: 0 0.625rem;
-  background-color: ${(props) => (props.active ? "#AB9AFF" : "#EBEBF1")};
+  background-color: ${(props) =>
+    props.active ? "#AB9AFF" : `rgba(${props.theme.theme}, 0.3)`};
+
   border: none;
   cursor: pointer;
   outline: none;

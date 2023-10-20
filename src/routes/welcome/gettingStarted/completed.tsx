@@ -1,5 +1,5 @@
 import { Spacer, Text } from "@arconnect/components";
-import pinImage from "url:/assets/setup/pin-example.png";
+import pinImage from "url:/assets/setup/pin-example.svg";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";

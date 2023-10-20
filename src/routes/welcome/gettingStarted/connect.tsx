@@ -114,6 +114,12 @@ const Item = styled.a`
   gap: 1.25rem;
   cursor: pointer;
   text-decoration: none;
+  transition: all 0.07s ease-in-out;
+
+  &:hover {
+    transform: scale(0.925);
+    opacity: 0.8;
+  }
 `;
 
 const ImageWrapper = styled.div`
