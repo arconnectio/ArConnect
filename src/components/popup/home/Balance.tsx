@@ -179,13 +179,7 @@ export default function Balance() {
         {activeAppData && (
           <ActiveAppIcon
             outline={theme === "light" ? "#000" : "#232323"}
-            onClick={() =>
-              browser.tabs.create({
-                url: browser.runtime.getURL(
-                  `tabs/dashboard.html#/apps/${activeApp.url}`
-                )
-              })
-            }
+            onClick={() => push(`/settings/apps/${activeApp.url}`)}
             title={activeAppData.name || ""}
           >
             {(activeAppData.logo && (

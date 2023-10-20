@@ -23,6 +23,7 @@ import browser from "webextension-polyfill";
 import Squircle from "~components/Squircle";
 import styled from "styled-components";
 import Arweave from "arweave";
+import { useHistory } from "~utils/hash_router";
 
 export default function WalletSwitcher({
   open,
@@ -139,6 +140,9 @@ export default function WalletSwitcher({
   // toasts
   const { setToast } = useToasts();
 
+  // router push
+  const [push] = useHistory();
+
   return (
     <AnimatePresence>
       {open && (
@@ -202,26 +206,14 @@ export default function WalletSwitcher({
               {showOptions && (
                 <ActionBar>
                   <AddWalletButton
-                    onClick={() =>
-                      browser.tabs.create({
-                        url: browser.runtime.getURL(
-                          "tabs/dashboard.html#/wallets/new"
-                        )
-                      })
-                    }
+                    onClick={() => push("/settings/wallets/new")}
                   >
                     <PlusIcon />
                     {browser.i18n.getMessage("add_wallet")}
                   </AddWalletButton>
                   <Tooltip content={browser.i18n.getMessage("edit")}>
                     <EditButton
-                      onClick={() =>
-                        browser.tabs.create({
-                          url: browser.runtime.getURL(
-                            `tabs/dashboard.html#/wallets/${activeAddress}`
-                          )
-                        })
-                      }
+                      onClick={() => push(`/settings/wallets/${activeAddress}`)}
                     />
                   </Tooltip>
                 </ActionBar>

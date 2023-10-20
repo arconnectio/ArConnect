@@ -36,6 +36,7 @@ import Application, { type AppInfo } from "~applications/application";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
 import useActiveTab from "~applications/useActiveTab";
 import AppIcon, { NoAppIcon } from "./home/AppIcon";
+import { useHistory } from "~utils/hash_router";
 import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -165,6 +166,9 @@ export default function WalletHeader() {
   // copied address
   const [copied, setCopied] = useState(false);
 
+  // router push
+  const [push] = useHistory();
+
   return (
     <Wrapper
       onClick={() => {
@@ -273,11 +277,7 @@ export default function WalletHeader() {
                           fullWidth
                           secondary
                           onClick={() =>
-                            browser.tabs.create({
-                              url: browser.runtime.getURL(
-                                `tabs/dashboard.html#/apps/${activeApp.url}`
-                              )
-                            })
+                            push(`/settings/apps/${activeApp.url}`)
                           }
                         >
                           <SettingsIcon />

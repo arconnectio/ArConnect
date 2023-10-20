@@ -32,9 +32,7 @@ export default function Tokens() {
             key={i}
           />
         ))}
-        <ManageButton
-          href={`${browser.runtime.getURL("tabs/dashboard.html")}#/tokens`}
-        >
+        <ManageButton onClick={() => push(`/settings/tokens`)}>
           <EditIcon />
           {browser.i18n.getMessage("manage_assets_button")}
         </ManageButton>
@@ -49,7 +47,7 @@ const TokensList = styled(Section)`
   gap: 0.82rem;
 `;
 
-const ManageButton = styled.a.attrs({
+const ManageButton = styled.div.attrs({
   rel: "noopener noreferer",
   target: "_blank"
 })`
