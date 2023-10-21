@@ -9,6 +9,7 @@ import {
   isEncryptionAlgorithm,
   isLegacyEncryptionOptions,
   isLocalWallet,
+  isNotCancelError,
   isRawArrayBuffer
 } from "~utils/assertions";
 
@@ -26,7 +27,9 @@ const background: ModuleFunction<string | Uint8Array> = async (
   isArrayBuffer(data);
 
   // grab the user's keyfile
-  const decryptedWallet = await getActiveKeyfile().catch(() => {
+  const decryptedWallet = await getActiveKeyfile().catch((e) => {
+    isNotCancelError(e);
+
     // if there are no wallets added, open the welcome page
     browser.tabs.create({ url: browser.runtime.getURL("tabs/welcome.html") });
 

@@ -6,15 +6,15 @@ import {
 import { concatGatewayURL } from "~gateways/utils";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { Loading, Section, Spacer, Text } from "@arconnect/components";
+import { DREContract, DRENode } from "@arconnect/warp-dre";
 import { usePrice, usePriceHistory } from "~lib/redstone";
 import { useEffect, useMemo, useState } from "react";
+import { getDreForToken, useTokens } from "~tokens";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { getCommunityUrl } from "~utils/format";
 import { useHistory } from "~utils/hash_router";
-import { getContract } from "~lib/warp";
 import { useTheme } from "~utils/theme";
-import { useTokens } from "~tokens";
 import {
   ArrowDownLeftIcon,
   ArrowUpRightIcon,
@@ -56,7 +56,10 @@ export default function Asset({ id }: Props) {
     (async () => {
       setLoading(true);
 
-      const { state, validity } = await getContract<TokenState>(id);
+      const dre = await getDreForToken(id);
+      const contract = new DREContract(id, new DRENode(dre));
+      // @ts-expect-error
+      const { state, validity } = await contract.getState<TokenState>();
 
       setState(state);
       setValidity(validity);

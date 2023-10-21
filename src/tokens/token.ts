@@ -19,6 +19,7 @@ export interface Token {
   ticker: string;
   type: TokenType;
   gateway?: Gateway;
+  dre?: string;
   balance: number;
   divisibility?: number;
   decimals?: number;

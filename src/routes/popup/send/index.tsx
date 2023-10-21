@@ -31,7 +31,7 @@ import {
   TRANSFER_TX_STORAGE,
   TempTransactionStorage
 } from "~utils/storage";
-import { useTokens } from "~tokens";
+import { getDreForToken, useTokens } from "~tokens";
 import { loadTokenLogo, type Token as TokenInterface } from "~tokens/token";
 import { useTheme } from "~utils/theme";
 import arLogoLight from "url:/assets/ar/logo_light.png";
@@ -39,12 +39,12 @@ import arLogoDark from "url:/assets/ar/logo_dark.png";
 import Arweave from "arweave";
 import { useBalance } from "~wallets/hooks";
 import { getPrice } from "~lib/coingecko";
-import { getContract } from "~lib/warp";
 import redstone from "redstone-api";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import Collectible from "~components/popup/Collectible";
 import { findGateway } from "~gateways/wayfinder";
 import { useHistory } from "~utils/hash_router";
+import { DREContract, DRENode } from "@arconnect/warp-dre";
 
 // default size for the qty text
 const defaulQtytSize = 3.7;
@@ -145,12 +145,14 @@ export default function Send({ id }: Props) {
       // placeholder balance
       setBalance(token.balance);
 
-      const res = await getContract<number>(token.id, {
-        query: `$.balances.${activeAddress}`
-      });
+      const dre = await getDreForToken(token.id);
+      const contract = new DREContract(id, new DRENode(dre));
+      const result = await contract.query<[number]>(
+        `$.balances.${activeAddress}`
+      );
 
       setBalance(
-        balanceToFractioned(res.result[0], {
+        balanceToFractioned(result[0], {
           id: token.id,
           decimals: token.decimals,
           divisibility: token.divisibility

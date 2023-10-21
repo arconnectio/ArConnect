@@ -163,7 +163,10 @@ export default function Connect() {
     await replyToAuthRequest("connect", params.authID);
 
     // track connected app.
-    await trackEvent(EventType.CONNECTED_APP, { appName: appData.name });
+    await trackEvent(EventType.CONNECTED_APP, {
+      appName: appData.name,
+      appUrl
+    });
 
     // close the window
     closeWindow();

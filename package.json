@@ -1,7 +1,7 @@
 {
   "name": "arconnect",
   "displayName": "ArConnect",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "__MSG_extensionDescription__",
   "author": "th8ta",
   "packageManager": "yarn@1.22.18",
@@ -49,6 +49,7 @@
   "dependencies": {
     "@arconnect/components": "^0.2.4",
     "@arconnect/keystone-sdk": "^0.0.5",
+    "@arconnect/warp-dre": "^0.0.1",
     "@arconnect/webext-bridge": "^5.0.6",
     "@iconicicons/react": "^1.5.0",
     "@keystonehq/arweave-keyring": "^0.1.1-alpha.0",
