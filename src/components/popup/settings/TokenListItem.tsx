@@ -11,7 +11,7 @@ import { useTheme } from "~utils/theme";
 import styled from "styled-components";
 import { useLocation } from "wouter";
 
-export default function TokenListItem({ onClick, ...token }: Token & Props) {
+export default function TokenListItem({ ...token }: Token) {
   // format address
   const formattedAddress = useMemo(
     () => formatAddress(token.id, 8),
@@ -61,7 +61,7 @@ export default function TokenListItem({ onClick, ...token }: Token & Props) {
       id={token.id}
       dragListener={false}
       dragControls={dragControls}
-      onClick={() => setLocation(`/tokens/${token.id}`)}
+      onClick={() => setLocation(`/settings/tokens/${token.id}`)}
     >
       <BaseListElement
         title={`${token.name} (${token.ticker})`}
@@ -72,7 +72,6 @@ export default function TokenListItem({ onClick, ...token }: Token & Props) {
           </>
         }
         dragControls={dragControls}
-        onClick={onClick}
       >
         <TokenLogo src={image} />
       </BaseListElement>
@@ -104,7 +103,3 @@ const TokenType = styled.span`
   width: max-content;
   border-radius: 5px;
 `;
-
-interface Props {
-  onClick: React.MouseEventHandler<HTMLDivElement>;
-}

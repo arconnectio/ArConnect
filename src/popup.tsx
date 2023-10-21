@@ -24,7 +24,7 @@ import Transaction from "~routes/popup/transaction/[id]";
 import Recipient from "~routes/popup/send/recipient";
 import Settings from "~routes/popup/settings";
 import Pick from "~routes/popup/settings/pick/[name]";
-import Number from "~routes/popup/settings/number/[name]";
+import NumberSetting from "~routes/popup/settings/number/[name]";
 import String from "~routes/popup/settings/string/[name]";
 import About from "~routes/popup/settings/about";
 import Reset from "~routes/popup/settings/reset";
@@ -86,7 +86,7 @@ export default function Popup() {
               </Route>
               <Route path="/settings/number/:setting">
                 {(params: { setting: string }) => (
-                  <Number name={params?.setting} />
+                  <NumberSetting name={params?.setting} />
                 )}
               </Route>
               <Route path="/settings/string/:setting">
