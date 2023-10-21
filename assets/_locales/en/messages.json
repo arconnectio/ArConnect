@@ -391,6 +391,10 @@
     "message": "Theme",
     "description": "Theme settings title"
   },
+  "setting_wayfinder": {
+    "message": "Wayfinder",
+    "description": "Wayfinder settings title"
+  },
   "setting_apps_description": {
     "message": "View all connected apps & settings",
     "description": "App settings description"
@@ -412,7 +416,7 @@
     "description": "Reset settings description"
   },
   "setting_analytics_description": {
-    "message": "Provide the ArConnect team useful anonymous to improve the project",
+    "message": "Provide the ArConnect team useful anonymous data to improve the project",
     "description": "ArConnect Analytics description"
   },
   "setting_fee_multiplier_description": {
@@ -442,6 +446,10 @@
   "setting_display_theme_description": {
     "message": "The theme of the extension UI",
     "description": "Display theme settings description"
+  },
+  "setting_wayfinder_description": {
+    "message": "Experimental system-wide wayfinder for ar.io gateways",
+    "description": "Wayfinder settings description"
   },
   "search_pick_option": {
     "message": "Search for an option...",

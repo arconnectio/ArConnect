@@ -3,11 +3,7 @@ import {
   TempTransactionStorage,
   TRANSFER_TX_STORAGE
 } from "~utils/storage";
-import {
-  concatGatewayURL,
-  defaultGateway,
-  type Gateway
-} from "~applications/gateway";
+import { concatGatewayURL } from "~gateways/utils";
 import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@iconicicons/react";
@@ -37,6 +33,7 @@ import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
 import Arweave from "arweave";
+import { defaultGateway, Gateway } from "~gateways/gateway";
 
 export default function SendAuth() {
   // loading

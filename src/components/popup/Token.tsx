@@ -4,7 +4,6 @@ import {
   balanceToFractioned
 } from "~tokens/currency";
 import { type MouseEventHandler, useEffect, useMemo, useState } from "react";
-import { defaultGateway } from "~applications/gateway";
 import { hoverEffect, useTheme } from "~utils/theme";
 import { loadTokenLogo, type Token } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -19,6 +18,8 @@ import Squircle from "~components/Squircle";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
+import { defaultGateway } from "~gateways/gateway";
+import { useGateway } from "~gateways/wayfinder";
 
 export default function Token({ onClick, ...props }: Props) {
   // display theme
@@ -194,12 +195,13 @@ export function ArToken({ onClick }: ArTokenProps) {
   // load ar balance
   const [balance, setBalance] = useState("0");
   const [fiatBalance, setFiatBalance] = useState(0);
+  const gateway = useGateway({ ensureStake: true });
 
   useEffect(() => {
     (async () => {
       if (!activeAddress) return;
 
-      const arweave = new Arweave(defaultGateway);
+      const arweave = new Arweave(gateway);
 
       // fetch balance
       const winstonBalance = await arweave.wallets.getBalance(activeAddress);
@@ -208,7 +210,7 @@ export function ArToken({ onClick }: ArTokenProps) {
       setBalance(formatTokenBalance(arBalance));
       setFiatBalance(arBalance * price);
     })();
-  }, [activeAddress, price]);
+  }, [activeAddress, price, gateway]);
 
   return (
     <Wrapper onClick={onClick}>

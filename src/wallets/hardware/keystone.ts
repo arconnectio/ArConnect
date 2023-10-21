@@ -6,10 +6,10 @@ import {
 } from "@keystonehq/bc-ur-registry-arweave";
 import type { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import type Transaction from "arweave/web/lib/transaction";
-import { defaultGateway } from "~applications/gateway";
 import type { UR } from "@ngraveio/bc-ur";
 import { v4 as uuid } from "uuid";
 import Arweave from "arweave";
+import { defaultGateway } from "~gateways/gateway";
 
 /**
  * Decode cbor result from a keystone QR code

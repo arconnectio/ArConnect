@@ -1,4 +1,3 @@
-import { defaultGateway } from "~applications/gateway";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useEffect, useState } from "react";
@@ -12,6 +11,7 @@ import Arweave from "arweave";
 import { isExpired } from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
 import { trackEvent, EventType, trackPage, PageType } from "~utils/analytics";
+import { findGateway } from "~gateways/wayfinder";
 
 export default function Home() {
   // get if the user has no balance
@@ -26,7 +26,8 @@ export default function Home() {
     (async () => {
       if (!activeAddress) return;
 
-      const arweave = new Arweave(defaultGateway);
+      const gateway = await findGateway({});
+      const arweave = new Arweave(gateway);
       const balance = await arweave.wallets.getBalance(activeAddress);
       // TODO: should only be sent once and once the wallet is funded, but how would we track this?
       Number(balance) !== 0 &&

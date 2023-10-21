@@ -1,5 +1,5 @@
 import type Transaction from "arweave/web/lib/transaction";
-import type { Gateway } from "~applications/gateway";
+import { type Gateway } from "~gateways/gateway";
 import { Storage } from "@plasmohq/storage";
 
 /**

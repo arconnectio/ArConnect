@@ -1,4 +1,4 @@
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { concatGatewayURL } from "~gateways/utils";
 import { Spacer, useInput } from "@arconnect/components";
 import { useEffect, useMemo, useState } from "react";
 import { IconButton } from "~components/IconButton";
@@ -13,6 +13,7 @@ import WalletListItem from "./list/WalletListItem";
 import browser from "webextension-polyfill";
 import SearchInput from "./SearchInput";
 import styled from "styled-components";
+import { useGateway } from "~gateways/wayfinder";
 
 export default function Wallets() {
   // wallets
@@ -74,9 +75,11 @@ export default function Wallets() {
   const findProfile = (address: string) =>
     ansProfiles.find((profile) => profile.user === address);
 
+  const gateway = useGateway({ startBlock: 0 });
+
   function findAvatar(address: string) {
     const avatar = findProfile(address)?.avatar;
-    const gatewayUrl = concatGatewayURL(defaultGateway);
+    const gatewayUrl = concatGatewayURL(gateway);
 
     if (!avatar) return undefined;
     return gatewayUrl + "/" + avatar;

@@ -9,6 +9,7 @@ import useSetting from "~settings/hook";
 import styled from "styled-components";
 import { createCoinWithAnimation } from "~api/modules/sign/animation";
 import { arconfettiIcon } from "~api/modules/sign/utils";
+import { EventType, trackEvent } from "~utils/analytics";
 
 export default function Setting({ setting }: Props) {
   // setting state
@@ -47,12 +48,26 @@ export default function Setting({ setting }: Props) {
     return option.toLowerCase().includes(query.toLowerCase());
   }
 
+  // track experimental Wayfinder opt-in
+  const trackWayfinder = async (properties: { tracking: boolean }) => {
+    try {
+      await trackEvent(EventType.WAYFINDER_ACTIVATED, properties);
+    } catch (err) {
+      console.log("err tracking", err);
+    }
+  };
+
   switch (setting.type) {
     case "boolean":
       return (
         <PermissionCheckbox
           checked={!!settingState}
-          onChange={() => updateSetting((val) => !val)}
+          onChange={() => {
+            updateSetting((val) => !val);
+            if (setting.name === "wayfinder") {
+              trackWayfinder({ tracking: !settingState });
+            }
+          }}
         >
           {browser.i18n.getMessage(!!settingState ? "enabled" : "disabled")}
           <br />

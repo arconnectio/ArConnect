@@ -1,5 +1,5 @@
 import { EyeIcon, MessageIcon, ShareIcon, GlobeIcon } from "@iconicicons/react";
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { concatGatewayURL } from "~gateways/utils";
 import { Section, Spacer, Text } from "@arconnect/components";
 import { getSettings, type TokenState } from "~tokens/token";
 import { DREContract, DRENode } from "@arconnect/warp-dre";
@@ -15,6 +15,7 @@ import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
+import { useGateway } from "~gateways/wayfinder";
 
 export default function Collectible({ id }: Props) {
   // load state
@@ -55,9 +56,10 @@ export default function Collectible({ id }: Props) {
 
   // token gateway
   const tokens = useTokens();
+  const defaultGateway = useGateway({ startBlock: 0 });
   const gateway = useMemo(
     () => tokens.find((t) => t.id === id)?.gateway || defaultGateway,
-    [id]
+    [id, defaultGateway]
   );
 
   return (

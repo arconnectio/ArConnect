@@ -1,7 +1,7 @@
 import { freeDecryptedWallet } from "~wallets/encryption";
 import type { Allowance } from "~applications/allowance";
-import { defaultGateway } from "~applications/gateway";
 import type { ModuleAppData } from "~api/background";
+import { defaultGateway } from "~gateways/gateway";
 import type { JWKInterface } from "warp-contracts";
 import { allowanceAuth } from "../sign/allowance";
 import { signAuth } from "../sign/sign_auth";

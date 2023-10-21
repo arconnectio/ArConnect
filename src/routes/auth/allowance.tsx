@@ -1,7 +1,6 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { type Allowance, defaultAllowance } from "~applications/allowance";
 import Application, { type AppInfo } from "~applications/application";
-import { defaultGateway } from "~applications/gateway";
 import { checkPassword } from "~wallets/auth";
 import { useEffect, useState } from "react";
 import {
@@ -18,6 +17,7 @@ import Head from "~components/popup/Head";
 import App from "~components/auth/App";
 import Arweave from "arweave";
 import styled from "styled-components";
+import { defaultGateway } from "~gateways/gateway";
 
 export default function Allowance() {
   const arweave = new Arweave(defaultGateway);

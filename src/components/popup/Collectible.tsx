@@ -1,6 +1,7 @@
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
-import { type MouseEventHandler, useMemo } from "react";
 import { formatTokenBalance, balanceToFractioned } from "~tokens/currency";
+import { type MouseEventHandler, useMemo } from "react";
+import { concatGatewayURL } from "~gateways/utils";
+import { useGateway } from "~gateways/wayfinder";
 import { hoverEffect } from "~utils/theme";
 import styled from "styled-components";
 
@@ -18,9 +19,12 @@ export default function Collectible({ id, onClick, ...props }: Props) {
     [props, id]
   );
 
+  // gateway
+  const gateway = useGateway({ startBlock: 0 });
+
   return (
     <Wrapper onClick={onClick}>
-      <Image src={concatGatewayURL(defaultGateway) + `/${id}`}>
+      <Image src={concatGatewayURL(gateway) + `/${id}`}>
         <NameAndQty>
           <Name>{props.name || ""}</Name>
           <Qty>{balance}</Qty>

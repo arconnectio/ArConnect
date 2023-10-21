@@ -11,7 +11,6 @@ import { usePrice, usePriceHistory } from "~lib/redstone";
 import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "~utils/theme";
 import { addToken, getDreForToken } from "~tokens";
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
 import {
   Button,
   Section,
@@ -29,6 +28,9 @@ import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
+import { Gateway } from "~gateways/gateway";
+import { concatGatewayURL } from "~gateways/utils";
+import { findGateway, useGateway } from "~gateways/wayfinder";
 
 export default function Token() {
   // connect params
@@ -78,6 +80,7 @@ export default function Token() {
     (async () => {
       if (!params?.tokenID) return;
 
+      const gw = await findGateway({ startBlock: 0 });
       // get token type
       let type = params.tokenType;
 
@@ -87,9 +90,7 @@ export default function Token() {
           type = tokenTypeRegistry[params.tokenID];
         } else {
           // fetch data
-          const data = await fetch(
-            `${concatGatewayURL(defaultGateway)}/${params.tokenID}`
-          );
+          const data = await fetch(`${concatGatewayURL(gw)}/${params.tokenID}`);
 
           type = data.headers.get("content-type").includes("application/json")
             ? "asset"
@@ -161,6 +162,8 @@ export default function Token() {
     })();
   }, [params?.tokenID, state, theme]);
 
+  const gateway = useGateway({ startBlock: 0 });
+
   return (
     <Wrapper>
       <div>
@@ -202,9 +205,7 @@ export default function Token() {
               )) || (
                 <>
                   <Thumbnail
-                    src={`${concatGatewayURL(defaultGateway)}/${
-                      params?.tokenID
-                    }`}
+                    src={`${concatGatewayURL(gateway)}/${params?.tokenID}`}
                   />
                   <Section>
                     <TokenName noMargin>
