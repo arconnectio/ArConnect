@@ -10,10 +10,14 @@ import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
 import useSetting from "~settings/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "@plasmohq/storage/hook";
+import JSConfetti from "js-confetti";
+import { useLocation } from "wouter";
 
 export default function Done() {
   // wallet context
   const wallet = useContext(WalletContext);
+
+  const [, setLocation] = useLocation();
 
   // password
   const { password } = useContext(PasswordContext);
@@ -52,9 +56,15 @@ export default function Done() {
       await setAnalytics(false);
     }
 
-    // close window
-    window.top.close();
+    // redirect to getting started pages
+    setLocation("/getting-started/1");
   }
+
+  useEffect(() => {
+    const jsConfetti = new JSConfetti();
+
+    jsConfetti.addConfetti();
+  }, []);
 
   // Segment
   useEffect(() => {

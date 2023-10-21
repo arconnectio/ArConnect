@@ -1,11 +1,13 @@
 import { Button, Checkbox, Spacer, Text } from "@arconnect/components";
+import { PageType, trackPage } from "~utils/analytics";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
+import JSConfetti from "js-confetti";
 import { useEffect } from "react";
-import { PageType, trackPage } from "~utils/analytics";
+import { useLocation } from "wouter";
 
 export default function Done() {
   // analytics opt-in
@@ -14,6 +16,7 @@ export default function Done() {
     key: "analytics_consent_answered",
     instance: ExtensionStorage
   });
+  const [, setLocation] = useLocation();
 
   // finalize
   async function done() {
@@ -22,12 +25,20 @@ export default function Done() {
       await setAnalytics(false);
     }
 
-    window.top.close();
+    // redirect to getting started pages
+    setLocation("/getting-started/1");
   }
 
   // Segment
   useEffect(() => {
     trackPage(PageType.ONBOARD_COMPLETE);
+  }, []);
+
+  // confetti
+  useEffect(() => {
+    const jsConfetti = new JSConfetti();
+
+    jsConfetti.addConfetti();
   }, []);
 
   return (
