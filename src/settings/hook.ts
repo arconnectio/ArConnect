@@ -9,11 +9,13 @@ const useSetting = <T = any>(name: string) => {
       key: `${PREFIX}${name}`,
       instance: ExtensionStorage
     },
-    // @ts-expect-error
-    (val) => val || setting.defaultValue
+    (val) => (!isSettingUnset(val) ? val : (setting.defaultValue as T))
   );
 
   return hook;
 };
+
+const isSettingUnset = (val: unknown) =>
+  typeof val === "undefined" || val === null;
 
 export default useSetting;
