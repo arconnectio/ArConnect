@@ -33,13 +33,9 @@ export default function Done() {
   useEffect(() => {
     (async () => {
       try {
-        const currentDate = new Date();
-        currentDate.setDate(1);
-        const beginningOfMonthTimestamp = currentDate.getTime();
-        const balance = beginningOfMonthTimestamp;
-
-        await ExtensionStorage.set("monthly", balance);
-        trackPage(PageType.ONBOARD_COMPLETE);
+        const currentDateTimestamp = new Date().getTime();
+        await ExtensionStorage.set("monthly", currentDateTimestamp);
+        await trackPage(PageType.ONBOARD_COMPLETE);
       } catch (error) {
         console.error("err", error);
       }

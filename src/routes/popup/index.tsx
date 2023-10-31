@@ -57,17 +57,20 @@ export default function Home() {
     };
 
     const monthlyBalance = async () => {
-      const storageTime = await ExtensionStorage.get("monthly");
+      const storageTime =
+        (await ExtensionStorage.get("monthly")) || new Date().getTime();
+      // if storagetime is before now, we track the balance.
+      // then we update storage time to be the first day of the following month
       const time = new Date(storageTime);
       const currentDate = new Date();
 
       if (currentDate >= time) {
         await trackBalance();
-        const nextMonth = new Date(currentDate);
-        nextMonth.setMonth(currentDate.getMonth() + 1);
-        const nextMonthTimestamp = nextMonth.getTime();
+        const nextMonth = new Date(currentDate).setMonth(
+          currentDate.getMonth() + 1
+        );
 
-        ExtensionStorage.set("monthly", nextMonthTimestamp);
+        ExtensionStorage.set("monthly", nextMonth);
       }
     };
     monthlyBalance();
