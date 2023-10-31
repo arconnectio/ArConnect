@@ -47,7 +47,7 @@
     ]
   },
   "dependencies": {
-    "@arconnect/components": "^0.2.3",
+    "@arconnect/components": "^0.2.4",
     "@arconnect/keystone-sdk": "^0.0.5",
     "@arconnect/warp-dre": "^0.0.1",
     "@arconnect/webext-bridge": "^5.0.6",
@@ -68,6 +68,7 @@
     "dayjs": "^1.11.6",
     "framer-motion": "^7.5.3",
     "human-crypto-keys": "^0.1.4",
+    "js-confetti": "^0.11.0",
     "mitt": "^3.0.0",
     "nanoid": "^4.0.0",
     "path-to-regexp": "^6.2.1",

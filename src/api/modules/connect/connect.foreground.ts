@@ -1,7 +1,7 @@
 import type { PermissionType } from "~applications/permissions";
 import type { AppInfo } from "~applications/application";
-import type { Gateway } from "~applications/gateway";
 import type { ModuleFunction } from "~api/module";
+import { Gateway } from "~gateways/gateway";
 import { getAppURL } from "~utils/format";
 
 const foreground: ModuleFunction<any[]> = async (

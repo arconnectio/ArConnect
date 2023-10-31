@@ -391,6 +391,10 @@
     "message": "Theme",
     "description": "Theme settings title"
   },
+  "setting_wayfinder": {
+    "message": "Wayfinder",
+    "description": "Wayfinder settings title"
+  },
   "setting_apps_description": {
     "message": "View all connected apps & settings",
     "description": "App settings description"
@@ -412,7 +416,7 @@
     "description": "Reset settings description"
   },
   "setting_analytics_description": {
-    "message": "Provide the ArConnect team useful anonymous to improve the project",
+    "message": "Provide the ArConnect team useful anonymous data to improve the project",
     "description": "ArConnect Analytics description"
   },
   "setting_fee_multiplier_description": {
@@ -442,6 +446,10 @@
   "setting_display_theme_description": {
     "message": "The theme of the extension UI",
     "description": "Display theme settings description"
+  },
+  "setting_wayfinder_description": {
+    "message": "Experimental system-wide wayfinder for ar.io gateways",
+    "description": "Wayfinder settings description"
   },
   "search_pick_option": {
     "message": "Search for an option...",
@@ -649,6 +657,10 @@
     "message": "Read more at",
     "description": "\"Read more at (ArWiki)\" text"
   },
+  "backup": {
+    "message": "Backup",
+    "description": "Backup title"
+  },
   "backup_wallet_title": {
     "message": "Backup your wallet",
     "description": "Backup walet title"
@@ -700,7 +712,7 @@
     "description": "Confirm seedphrase title"
   },
   "confirm_seed_paragraph": {
-    "message": "Verify your seedphrase by re-entering it in the following section",
+    "message": "Verify your seedphrase by completing the missing mnemonic words in the following section.",
     "description": "Confirm seedphrase explainer paragraph"
   },
   "correct": {
@@ -1332,5 +1344,45 @@
   "manage_assets_button": {
     "message": "Manage assets",
     "description": "Manage assets button"
+  },
+  "installation_complete": {
+    "message": "Installation completed",
+    "description": "Installation complete title"
+  },
+  "installation_complete_paragraph": {
+    "message": "Pin ArConnect to your browser so it's accessible and easy to connect to your favorite dApps.",
+    "description": "Installation complete paragraph"
+  },
+  "get_started":{    
+    "message": "Get Started",
+    "description": "Get started title"
+  },
+  "get_started_description":{    
+    "message": "Explore the endless possibilities on Arweave through ArConnect",
+    "description": "Get started description"
+  },
+  "example_ardrive_description" : {
+    "message": "ArDrive offers never-ending storage of your most valuable files. Pay once and save your memories forever.",
+    "description": "placeholder for example get started"
+  },
+  "example_ans_description" : {
+    "message": "ans.gg is a popular name service built on top of the Arweave blockchain. Buy your domain once, own forever.",
+    "description": "placeholder for example get started"
+  },
+  "example_publish_description" : {
+    "message": "A provably neutral publishing platform aimed at dis-intermediating the truth. Publish assertions, and take your position in the Fact Marketplace!",
+    "description": "placeholder for example get started"
+  },
+  "connect_with_us_title": {
+    "message": "Connect with us",
+    "description": "Connect with us title"
+  },
+  "connect_paragraph": {
+    "message": "Follow our Twitter to stay up to date on all the latest that the team is working on.",
+    "description": "Connect with us description"
+  },
+  "connect_paragraph_2": {
+    "message": "Questions? Join the Discord server to chat with the developers.",
+    "description": "Connect with us description"
   }
 }

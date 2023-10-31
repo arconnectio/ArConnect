@@ -2,6 +2,7 @@ import { DREContract, DRENode, NODES } from "@arconnect/warp-dre";
 import type { EvalStateResult } from "warp-contracts";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
+import { type Gateway } from "~gateways/gateway";
 import { isTokenState } from "~utils/assertions";
 import { useEffect, useState } from "react";
 import { getActiveAddress } from "~wallets";

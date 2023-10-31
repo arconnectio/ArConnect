@@ -9,6 +9,7 @@ import Start from "~routes/welcome/start";
 import Setup from "~routes/welcome/setup";
 
 import makeCachedMatcher from "wouter/matcher";
+import GettingStarted from "~routes/welcome/gettingStarted";
 
 export default function Welcome() {
   const theme = useTheme();
@@ -19,6 +20,12 @@ export default function Welcome() {
       <Router hook={useHashLocation} matcher={customMatcher}>
         <Route path="/" component={Home} />
         <Route path="/start/:page" component={Start} />
+        <Route path="/getting-started/:page">
+          {(params: { page: string }) => (
+            <GettingStarted page={Number(params.page)} />
+          )}
+        </Route>
+
         <Route path="/:setupMode(generate|load)/:page">
           {(params: { setupMode: "generate" | "load"; page: string }) => (
             <Setup setupMode={params.setupMode} page={Number(params.page)} />

@@ -1,6 +1,6 @@
 import type { PermissionType } from "~applications/permissions";
-import type { Gateway } from "~applications/gateway";
 import { ExtensionStorage } from "./storage";
+import { Gateway } from "~gateways/gateway";
 import type { EventType } from "mitt";
 
 interface SecurityEvent {

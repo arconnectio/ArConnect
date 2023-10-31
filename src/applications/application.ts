@@ -1,9 +1,9 @@
 import { getMissingPermissions, type PermissionType } from "./permissions";
 import { type Allowance, defaultAllowance } from "./allowance";
 import { useStorage } from "@plasmohq/storage/hook";
-import { defaultGateway, type Gateway } from "./gateway";
 import { ExtensionStorage } from "~utils/storage";
 import type { Storage } from "@plasmohq/storage";
+import { defaultGateway, Gateway } from "~gateways/gateway";
 
 export const PREFIX = "app_";
 export const defaultBundler = "https://node2.bundlr.network";
@@ -118,6 +118,7 @@ export default class Application {
   async getGatewayConfig(): Promise<Gateway> {
     const settings = await this.#getSettings();
 
+    // TODO: wayfinder
     return settings.gateway || defaultGateway;
   }
 
@@ -161,6 +162,7 @@ export default class Application {
         // assign with default values
         const values = {
           allowance: defaultAllowance,
+          // TODO: wayfinder
           gateway: defaultGateway,
           bundler: defaultBundler,
           ...val

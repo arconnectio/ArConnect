@@ -4,12 +4,12 @@ import {
   Spacer,
   Text
 } from "@arconnect/components";
+import { defaultGateway, Gateway } from "~gateways/gateway";
 import { useTheme as useDisplayTheme } from "~utils/theme";
 import type { Allowance } from "~applications/allowance";
 import { formatTokenBalance } from "~tokens/currency";
 import { GridIcon } from "@iconicicons/react";
 import { useMemo } from "react";
-import { type Gateway, defaultGateway } from "~applications/gateway";
 import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";

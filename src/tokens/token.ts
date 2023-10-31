@@ -6,14 +6,12 @@ import {
 import type { GQLEdgeInterface } from "ar-gql/dist/faces";
 import type { DisplayTheme } from "@arconnect/components";
 import * as viewblock from "~lib/viewblock";
-import {
-  concatGatewayURL,
-  defaultGateway,
-  type Gateway,
-  gql
-} from "~applications/gateway";
+import { concatGatewayURL } from "~gateways/utils";
+import { gql } from "~gateways/api";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
+import { findGateway } from "~gateways/wayfinder";
+import { type Gateway } from "~gateways/gateway";
 
 export interface Token {
   id: string;
@@ -105,6 +103,10 @@ export async function getInteractionsTxsForAddress(
   gateway?: Gateway,
   limit = 6
 ) {
+  if (!gateway) {
+    gateway = await findGateway({ graphql: true });
+  }
+
   // fetch outgoing interactions
   const { data: out } = await gql(
     `
@@ -140,7 +142,7 @@ export async function getInteractionsTxsForAddress(
       }
     `,
     { contractId, address },
-    gateway || defaultGateway
+    gateway
   );
 
   // fetch outgoing interactions
@@ -178,7 +180,7 @@ export async function getInteractionsTxsForAddress(
       }    
     `,
     { contractId, address },
-    gateway || defaultGateway
+    gateway
   );
 
   // sort interactions
@@ -282,15 +284,18 @@ export async function loadTokenLogo(
     // let's turn the
     return URL.createObjectURL(blob);
   } catch {
+    // find gateway with wayfinder
+    const gateway = await findGateway({ startBlock: 0 });
+
     // get token logo from settings
     if (defaultLogo) {
-      return `${concatGatewayURL(defaultGateway)}/${defaultLogo}`;
+      return `${concatGatewayURL(gateway)}/${defaultLogo}`;
     }
 
     try {
       // try to see if the token logo is the data
       // of the token contract creation transaction
-      const res = await fetch(`${concatGatewayURL(defaultGateway)}/${id}`);
+      const res = await fetch(`${concatGatewayURL(gateway)}/${id}`);
       const contentType = res.headers.get("content-type");
 
       if (!contentType.includes("image")) {

@@ -37,12 +37,12 @@ import { useTheme } from "~utils/theme";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import Arweave from "arweave";
-import { defaultGateway } from "~applications/gateway";
 import { useBalance } from "~wallets/hooks";
 import { getPrice } from "~lib/coingecko";
 import redstone from "redstone-api";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import Collectible from "~components/popup/Collectible";
+import { findGateway } from "~gateways/wayfinder";
 import { useHistory } from "~utils/hash_router";
 import { DREContract, DRENode } from "@arconnect/warp-dre";
 
@@ -204,7 +204,8 @@ export default function Send({ id }: Props) {
         return setNetworkFee("0");
       }
 
-      const arweave = new Arweave(defaultGateway);
+      const gateway = await findGateway({});
+      const arweave = new Arweave(gateway);
       const txPrice = await arweave.transactions.getPrice(0, "dummyTarget");
 
       setNetworkFee(arweave.ar.winstonToAr(txPrice));

@@ -1,6 +1,7 @@
 import {
   Button,
   Card,
+  Checkbox,
   Input,
   Section,
   Spacer,
@@ -14,7 +15,6 @@ import {
   type PermissionType
 } from "~applications/permissions";
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
-import { defaultGateway, type Gateway } from "~applications/gateway";
 import { CloseLayer } from "~components/popup/WalletHeader";
 import type { AppInfo } from "~applications/application";
 import { AnimatePresence, motion } from "framer-motion";
@@ -24,9 +24,6 @@ import { ChevronDownIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";
-import PermissionCheckbox, {
-  PermissionDescription
-} from "~components/auth/PermissionCheckbox";
 import { addApp } from "~applications";
 import WalletSwitcher from "~components/popup/WalletSwitcher";
 import Wrapper from "~components/auth/Wrapper";
@@ -37,6 +34,7 @@ import App from "~components/auth/App";
 import styled from "styled-components";
 import { EventType, trackEvent } from "~utils/analytics";
 import Application from "~applications/application";
+import { defaultGateway, Gateway } from "~gateways/gateway";
 
 export default function Connect() {
   // active address
@@ -152,6 +150,7 @@ export default function Connect() {
         permissions,
         name: appData.name,
         logo: appData.logo,
+        // TODO: wayfinder
         gateway: params.gateway || defaultGateway
       });
     } else {
@@ -185,6 +184,7 @@ export default function Connect() {
         <App
           appName={appData.name || appUrl}
           appUrl={appUrl}
+          // TODO: wayfinder
           gateway={params?.gateway || defaultGateway}
           appIcon={appData.logo}
         />
@@ -241,7 +241,7 @@ export default function Connect() {
                   </Text>
                   {requestedPermissions.map((permission, i) => (
                     <div key={i}>
-                      <PermissionCheckbox
+                      <Checkbox
                         checked={permissions.includes(permission)}
                         onChange={(checked) =>
                           setPermissions((val) => {
@@ -257,14 +257,10 @@ export default function Connect() {
                           })
                         }
                       >
-                        {permission.toUpperCase()}
-                        <br />
-                        <PermissionDescription>
-                          {browser.i18n.getMessage(
-                            permissionData[permission.toUpperCase()]
-                          )}
-                        </PermissionDescription>
-                      </PermissionCheckbox>
+                        {browser.i18n.getMessage(
+                          permissionData[permission.toUpperCase()]
+                        )}
+                      </Checkbox>
                       {i !== requestedPermissions.length - 1 && (
                         <Spacer y={0.8} />
                       )}

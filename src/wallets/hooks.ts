@@ -1,10 +1,11 @@
 import type { WalletInterface } from "~components/welcome/load/Migrate";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
-import { defaultGateway } from "~applications/gateway";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
+import { defaultGateway } from "~gateways/gateway";
 import { ExtensionStorage } from "~utils/storage";
+import { findGateway } from "~gateways/wayfinder";
 import type { HardwareApi } from "./hardware";
 import type { StoredWallet } from "~wallets";
 import Arweave from "arweave";
@@ -115,7 +116,8 @@ export function useBalance() {
     (async () => {
       if (!activeAddress) return;
 
-      const arweave = new Arweave(defaultGateway);
+      const gateway = await findGateway({});
+      const arweave = new Arweave(gateway);
 
       // fetch balance
       const winstonBalance = await arweave.wallets.getBalance(activeAddress);

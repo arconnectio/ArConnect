@@ -14,6 +14,7 @@ declare module "@arconnect/webext-bridge" {
     event: Event;
     auth_listening: number;
     auth_chunk: Chunk;
+    ar_protocol: ProtocolWithReturn<{ url: string }, { url: sting }>;
   }
 }
 
