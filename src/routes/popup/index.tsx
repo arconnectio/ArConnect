@@ -10,7 +10,13 @@ import Tokens from "~components/popup/home/Tokens";
 import Arweave from "arweave";
 import { isExpired } from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
-import { trackEvent, EventType, trackPage, PageType } from "~utils/analytics";
+import {
+  trackEvent,
+  EventType,
+  trackPage,
+  PageType,
+  trackBalance
+} from "~utils/analytics";
 import { findGateway } from "~gateways/wayfinder";
 
 export default function Home() {
@@ -49,6 +55,22 @@ export default function Home() {
         await trackPage(PageType.HOME);
       }
     };
+
+    const monthlyBalance = async () => {
+      const storageTime = await ExtensionStorage.get("monthly");
+      const time = new Date(storageTime);
+      const currentDate = new Date();
+
+      if (currentDate >= time) {
+        await trackBalance();
+        const nextMonth = new Date(currentDate);
+        nextMonth.setMonth(currentDate.getMonth() + 1);
+        const nextMonthTimestamp = nextMonth.getTime();
+
+        ExtensionStorage.set("monthly", nextMonthTimestamp);
+      }
+    };
+    monthlyBalance();
     checkExpiration();
   }, []);
 

@@ -1,6 +1,9 @@
 import { getSetting } from "~settings";
 import { ExtensionStorage, TempTransactionStorage } from "./storage";
 import { AnalyticsBrowser } from "@segment/analytics-next";
+import { getWallets } from "~wallets";
+import Arweave from "arweave";
+import { defaultGateway } from "~gateways/gateway";
 
 const PUBLIC_SEGMENT_WRITEKEY = "J97E4cvSZqmpeEdiUQNC2IxS1Kw4Cwxm";
 
@@ -14,7 +17,8 @@ export enum EventType {
   LOGIN = "LOGIN",
   ONBOARDED = "ONBOARDED",
   WAYFINDER_ACTIVATED = "WAYFINDER_ACTIVATED",
-  WAYFINDER_GATEWAY_SELECTED = "WAYFINDER_GATEWAY_SELECTED"
+  WAYFINDER_GATEWAY_SELECTED = "WAYFINDER_GATEWAY_SELECTED",
+  BALANCE = "BALANCE"
 }
 
 export enum PageType {
@@ -83,9 +87,9 @@ export const trackEvent = async (eventName: EventType, properties: any) => {
   }
 
   try {
-    const anonymousId = (await analytics.user()).anonymousId();
     const time = Date.now();
-    await analytics.track(eventName, { ...properties, anonymousId, time });
+
+    await analytics.track(eventName, { ...properties });
 
     // POST TRACK EVENTS
     // only log login once every hour
@@ -98,6 +102,30 @@ export const trackEvent = async (eventName: EventType, properties: any) => {
       await ExtensionStorage.set(`wallet_funded_${activeAddress}`, true);
     }
   } catch (err) {
-    console.error(`Failed to track event ${eventName}:`, err);
+    console.log(`Failed to track event ${eventName}:`, err);
+  }
+};
+
+export const trackBalance = async () => {
+  const wallets = await getWallets();
+  const arweave = new Arweave(defaultGateway);
+  let totalBalance = 0;
+
+  await Promise.all(
+    wallets.map(async ({ address }) => {
+      try {
+        const balance = arweave.ar.winstonToAr(
+          await arweave.wallets.getBalance(address)
+        );
+        totalBalance += Number(balance);
+      } catch (e) {
+        console.log("invalid", e);
+      }
+    })
+  );
+  try {
+    await trackEvent(EventType.BALANCE, { totalBalance });
+  } catch (err) {
+    console.log("err tracking", err);
   }
 };
