@@ -6,7 +6,6 @@ import HardwareWalletIcon, {
   hwIconAnimateProps
 } from "~components/hardware/HardwareWalletIcon";
 import { useHardwareApi } from "~wallets/hooks";
-import { type Gateway } from "~applications/gateway";
 import type { StoredWallet } from "~wallets";
 import { formatAddress, getAppURL } from "~utils/format";
 import { removeApp } from "~applications";
@@ -40,6 +39,7 @@ import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
+import { Gateway } from "~gateways/gateway";
 
 export default function WalletHeader() {
   // current address

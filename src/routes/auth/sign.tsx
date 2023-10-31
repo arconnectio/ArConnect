@@ -4,7 +4,6 @@ import { constructTransaction } from "~api/modules/sign/transaction_builder";
 import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
 import { onMessage, sendMessage } from "@arconnect/webext-bridge";
 import type { DecodedTag } from "~api/modules/sign/tags";
-import { defaultGateway } from "~applications/gateway";
 import type { Tag } from "arweave/web/lib/transaction";
 import type { Chunk } from "~api/modules/sign/chunks";
 import { useEffect, useMemo, useState } from "react";
@@ -39,6 +38,7 @@ import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import prettyBytes from "pretty-bytes";
 import Arweave from "arweave";
+import { defaultGateway } from "~gateways/gateway";
 
 export default function Sign() {
   // sign params

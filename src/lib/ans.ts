@@ -1,4 +1,5 @@
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { concatGatewayURL } from "~gateways/utils";
+import { findGateway } from "~gateways/wayfinder";
 import { useEffect, useState } from "react";
 
 /**
@@ -64,6 +65,7 @@ export function useAnsProfile(query: string) {
       }
 
       const profile = (await getAnsProfile(query)) as AnsUser;
+      const gateway = await findGateway({ startBlock: 0 });
 
       if (!profile) {
         return setProfile(undefined);
@@ -73,7 +75,7 @@ export function useAnsProfile(query: string) {
         address: profile.user,
         label: profile.currentLabel + ".ar",
         avatar: profile.avatar
-          ? concatGatewayURL(defaultGateway) + "/" + profile.avatar
+          ? concatGatewayURL(gateway) + "/" + profile.avatar
           : undefined
       });
     })();

@@ -8,7 +8,6 @@ import {
 } from "react";
 import { Card, Spacer, useToasts } from "@arconnect/components";
 import type { JWKInterface } from "arweave/web/lib/wallet";
-import { defaultGateway } from "~applications/gateway";
 import { jwkFromMnemonic } from "~wallets/generator";
 import { useLocation, useRoute } from "wouter";
 import { ArrowLeftIcon } from "@iconicicons/react";
@@ -25,6 +24,7 @@ import Password from "./load/password";
 import Wallets from "./load/wallets";
 import LoadDone from "./load/done";
 import Theme from "./load/theme";
+import { defaultGateway } from "~gateways/gateway";
 import Pagination, { Status } from "~components/Pagination";
 
 /** Wallet generate pages */

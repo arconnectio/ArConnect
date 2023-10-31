@@ -3,7 +3,7 @@ import {
   formatFiatBalance,
   formatTokenBalance
 } from "~tokens/currency";
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { concatGatewayURL } from "~gateways/utils";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { Loading, Section, Spacer, Text } from "@arconnect/components";
 import { DREContract, DRENode } from "@arconnect/warp-dre";
@@ -44,6 +44,7 @@ import Skeleton from "~components/Skeleton";
 import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
+import { useGateway } from "~gateways/wayfinder";
 
 export default function Asset({ id }: Props) {
   // load state
@@ -109,9 +110,14 @@ export default function Asset({ id }: Props) {
 
   // token gateway
   const tokens = useTokens();
+  const defaultGateway = useGateway({
+    startBlock: 0,
+    graphql: true,
+    ensureStake: true
+  });
   const gateway = useMemo(
     () => tokens.find((t) => t.id === id)?.gateway || defaultGateway,
-    [id]
+    [id, defaultGateway]
   );
 
   // fetch interactions

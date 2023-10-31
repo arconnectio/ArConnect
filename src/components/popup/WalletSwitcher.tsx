@@ -7,7 +7,7 @@ import {
   Tooltip,
   useToasts
 } from "@arconnect/components";
-import { concatGatewayURL, defaultGateway } from "~applications/gateway";
+import { concatGatewayURL } from "~gateways/utils";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { formatTokenBalance } from "~tokens/currency";
 import type { HardwareApi } from "~wallets/hardware";
@@ -19,6 +19,7 @@ import type { StoredWallet } from "~wallets";
 import { useEffect, useState } from "react";
 import HardwareWalletIcon from "~components/hardware/HardwareWalletIcon";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
+import { findGateway } from "~gateways/wayfinder";
 import browser from "webextension-polyfill";
 import Squircle from "~components/Squircle";
 import styled from "styled-components";
@@ -75,6 +76,7 @@ export default function WalletSwitcher({
       const profiles = (await getAnsProfile(
         wallets.map((val) => val.address)
       )) as AnsUser[];
+      const gateway = await findGateway({ startBlock: 0 });
 
       // update wallets state
       setWallets((val) =>
@@ -87,7 +89,7 @@ export default function WalletSwitcher({
               ? profile.currentLabel + ".ar"
               : wallet.name,
             avatar: profile?.avatar
-              ? concatGatewayURL(defaultGateway) + "/" + profile.avatar
+              ? concatGatewayURL(gateway) + "/" + profile.avatar
               : undefined,
             hasAns: !!profile
           };
@@ -105,7 +107,8 @@ export default function WalletSwitcher({
     (async () => {
       if (wallets.length === 0 || loadedBalances) return;
 
-      const arweave = new Arweave(defaultGateway);
+      const gateway = await findGateway();
+      const arweave = new Arweave(gateway);
 
       await Promise.all(
         wallets.map(async ({ address }) => {

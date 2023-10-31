@@ -2,15 +2,16 @@ import { addressChangeListener, walletsChangeListener } from "~wallets/event";
 import { keyRemoveAlarmListener, onWindowClose } from "~wallets/auth";
 import { appConfigChangeListener } from "~applications/events";
 import { handleApiCalls, handleChunkCalls } from "~api";
+import { handleGatewayUpdate } from "~gateways/cache";
 import { onMessage } from "@arconnect/webext-bridge";
 import { handleTabUpdate } from "~applications/tab";
+import protocolHandler from "~gateways/ar_protocol";
 import { appsChangeListener } from "~applications";
+import handleFeeAlarm from "~api/modules/sign/fee";
 import { ExtensionStorage } from "~utils/storage";
 import { onInstalled } from "~utils/runtime";
-import { syncLabels } from "~wallets";
-import handleFeeAlarm from "~api/modules/sign/fee";
 import browser from "webextension-polyfill";
-import protocolHandler from "~ar_protocol";
+import { syncLabels } from "~wallets";
 
 // watch for API calls
 onMessage("api_call", handleApiCalls);
@@ -24,6 +25,9 @@ browser.tabs.onActivated.addListener(({ tabId }) => handleTabUpdate(tabId));
 
 // handle fee alarm (send fees asyncronously)
 browser.alarms.onAlarm.addListener(handleFeeAlarm);
+
+// handle alarm for updating gateways
+browser.alarms.onAlarm.addListener(handleGatewayUpdate);
 
 // handle sync label alarm
 browser.alarms.onAlarm.addListener(syncLabels);
