@@ -24,7 +24,7 @@ import Head from "~components/popup/Head";
 import styled from "styled-components";
 import Arweave from "arweave";
 
-export default function Recipient({ tokenID, qty }: Props) {
+export default function Recipient({ tokenID, qty, message }: Props) {
   // transaction target input
   const targetInput = useInput();
 
@@ -221,4 +221,5 @@ const Address = styled(Text).attrs({
 interface Props {
   tokenID: string;
   qty: number;
+  message?: string;
 }

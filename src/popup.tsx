@@ -64,10 +64,11 @@ export default function Popup() {
                 )}
               </Route>
               <Route path="/send/recipient/:token/:qty">
-                {(params: { token: string; qty: string }) => (
+                {(params: { token: string; qty: string; message?: string }) => (
                   <Recipient
                     tokenID={params?.token}
                     qty={Number(params?.qty || "0")}
+                    message={params?.message || ""}
                   />
                 )}
               </Route>

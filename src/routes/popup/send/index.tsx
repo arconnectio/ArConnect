@@ -1,7 +1,14 @@
 import { PageType, trackPage } from "~utils/analytics";
 import { useState, useEffect, useMemo } from "react";
 import styled, { css } from "styled-components";
-import { Button, Section, Spacer, Text } from "@arconnect/components";
+import {
+  Button,
+  Input,
+  Section,
+  Spacer,
+  Text,
+  useInput
+} from "@arconnect/components";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import * as viewblock from "~lib/viewblock";
@@ -163,6 +170,7 @@ export default function Send({ id }: Props) {
 
   // token price
   const [price, setPrice] = useState(0);
+  const message = useInput();
 
   useEffect(() => {
     (async () => {
@@ -336,6 +344,15 @@ export default function Send({ id }: Props) {
           <Max onClick={() => setQty(max.toString())}>Max</Max>
         </QuantitySection>
         <Spacer y={1} />
+        <Message>
+          <Input
+            {...message.bindings}
+            type="text"
+            placeholder={browser.i18n.getMessage("send_message_optional")}
+            fullWidth
+          />
+        </Message>
+        <Spacer y={1} />
         <Datas>
           {!!price && (
             <Text noMargin>
@@ -415,6 +432,10 @@ export default function Send({ id }: Props) {
     </Wrapper>
   );
 }
+
+const Message = styled.div`
+  padding: 0 1.25rem;
+`;
 
 const Wrapper = styled.div`
   display: flex;
@@ -499,9 +520,9 @@ const Datas = styled.div`
   gap: 0.3rem;
   flex-direction: column;
   justify-content: center;
+  padding: 0 1.25rem;
 
   p {
-    text-align: center;
     font-size: 0.83rem;
   }
 `;
