@@ -132,7 +132,8 @@ export default function Recipient({ tokenID, qty, message }: Props) {
       } else {
         const tx = await arweave.createTransaction({
           target,
-          quantity: qty.toString()
+          quantity: qty.toString(),
+          data: message ? decodeURIComponent(message) : undefined
         });
 
         addTransferTags(tx);
@@ -154,6 +155,9 @@ export default function Recipient({ tokenID, qty, message }: Props) {
   }
 
   async function addTransferTags(transaction: Transaction) {
+    if (message) {
+      transaction.addTag("Content-Type", "text/plain");
+    }
     transaction.addTag("Type", "Transfer");
     transaction.addTag("Client", "ArConnect");
     transaction.addTag("Client-Version", browser.runtime.getManifest().version);

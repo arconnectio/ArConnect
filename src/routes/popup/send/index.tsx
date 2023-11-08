@@ -212,13 +212,17 @@ export default function Send({ id }: Props) {
         return setNetworkFee("0");
       }
 
+      let byte = 0;
+      if (message.state) {
+        byte = new TextEncoder().encode(message.state).length;
+      }
       const gateway = await findGateway({});
       const arweave = new Arweave(gateway);
-      const txPrice = await arweave.transactions.getPrice(0, "dummyTarget");
+      const txPrice = await arweave.transactions.getPrice(byte, "dummyTarget");
 
       setNetworkFee(arweave.ar.winstonToAr(txPrice));
     })();
-  }, [token]);
+  }, [token, message.state]);
 
   // maximum possible send amount
   const max = useMemo(() => {
@@ -288,7 +292,11 @@ export default function Send({ id }: Props) {
     });
 
     // continue to recipient selection
-    push(`/send/recipient/${tokenID}/${finalQty}`);
+    push(
+      `/send/recipient/${tokenID}/${finalQty}${
+        message.state ? `/${message.state}` : ""
+      }`
+    );
   }
 
   return (

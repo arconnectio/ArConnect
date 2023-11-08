@@ -63,7 +63,7 @@ export default function Popup() {
                   <Transaction id={params?.id} gw={params?.gateway} />
                 )}
               </Route>
-              <Route path="/send/recipient/:token/:qty">
+              <Route path="/send/recipient/:token/:qty/:message?">
                 {(params: { token: string; qty: string; message?: string }) => (
                   <Recipient
                     tokenID={params?.token}
