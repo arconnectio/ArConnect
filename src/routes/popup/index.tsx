@@ -1,5 +1,6 @@
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
+import browser from "webextension-polyfill";
 import { useEffect, useState } from "react";
 import Collectibles from "~components/popup/home/Collectibles";
 import AnalyticsConsent from "~components/popup/home/AnalyticsConsent";
@@ -10,13 +11,7 @@ import Tokens from "~components/popup/home/Tokens";
 import Arweave from "arweave";
 import { isExpired } from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
-import {
-  trackEvent,
-  EventType,
-  trackPage,
-  PageType,
-  trackBalance
-} from "~utils/analytics";
+import { trackEvent, EventType, trackPage, PageType } from "~utils/analytics";
 import { findGateway } from "~gateways/wayfinder";
 
 export default function Home() {
@@ -56,24 +51,6 @@ export default function Home() {
       }
     };
 
-    const monthlyBalance = async () => {
-      const storageTime =
-        (await ExtensionStorage.get("monthly")) || new Date().getTime();
-      // if storagetime is before now, we track the balance.
-      // then we update storage time to be the first day of the following month
-      const time = new Date(storageTime);
-      const currentDate = new Date();
-
-      if (currentDate >= time) {
-        await trackBalance();
-        const nextMonth = new Date(currentDate).setMonth(
-          currentDate.getMonth() + 1
-        );
-
-        ExtensionStorage.set("monthly", nextMonth);
-      }
-    };
-    monthlyBalance();
     checkExpiration();
   }, []);
 

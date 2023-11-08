@@ -4,6 +4,8 @@ import { AnalyticsBrowser } from "@segment/analytics-next";
 import { getWallets } from "~wallets";
 import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
+import { v4 as uuid } from "uuid";
+import browser, { type Alarms } from "webextension-polyfill";
 
 const PUBLIC_SEGMENT_WRITEKEY = "J97E4cvSZqmpeEdiUQNC2IxS1Kw4Cwxm";
 
@@ -53,6 +55,38 @@ export const trackPage = async (title: PageType) => {
   } catch (err) {
     console.log("err", err);
   }
+};
+
+export const trackDirect = async (
+  event: EventType,
+  properties: Record<string, unknown>
+) => {
+  const enabled = await getSetting("analytics").getValue();
+
+  if (!enabled) return;
+
+  // only track in prod
+  if (process.env.NODE_ENV === "development") return;
+
+  let userId = await ExtensionStorage.get("user_id");
+  if (!userId) {
+    userId = uuid();
+    await ExtensionStorage.set("user_id", userId);
+  }
+
+  return fetch("https://api.segment.io/v1/t", {
+    method: "POST",
+    body: JSON.stringify({
+      event,
+      properties,
+      messageId: uuid(),
+      sentAt: new Date().toISOString(),
+      timestamp: new Date().toISOString(),
+      type: "track",
+      userId: userId,
+      writeKey: PUBLIC_SEGMENT_WRITEKEY
+    })
+  });
 };
 
 export const trackEvent = async (eventName: EventType, properties: any) => {
@@ -106,7 +140,8 @@ export const trackEvent = async (eventName: EventType, properties: any) => {
   }
 };
 
-export const trackBalance = async () => {
+export const trackBalance = async (alarmInfo: Alarms.Alarm) => {
+  if (!alarmInfo.name.startsWith("track-balance")) return;
   const wallets = await getWallets();
   const arweave = new Arweave(defaultGateway);
   let totalBalance = 0;
@@ -124,8 +159,20 @@ export const trackBalance = async () => {
     })
   );
   try {
-    await trackEvent(EventType.BALANCE, { totalBalance });
+    await trackDirect(EventType.BALANCE, { totalBalance });
   } catch (err) {
     console.log("err tracking", err);
   }
+};
+
+export const initializeARBalanceMonitor = async () => {
+  // schedule monthly alarm
+  const oneMonthInMinutes = 30 * 24 * 60;
+  browser.alarms.create("track-balance", {
+    periodInMinutes: oneMonthInMinutes
+  });
+
+  // add uuid into storage explorer as ID - can't access analytics.identify() in background so
+  const userId = uuid();
+  await ExtensionStorage.set("user_id", userId);
 };
