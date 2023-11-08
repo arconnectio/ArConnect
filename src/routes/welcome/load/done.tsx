@@ -31,15 +31,7 @@ export default function Done() {
 
   // Segment
   useEffect(() => {
-    (async () => {
-      try {
-        const currentDateTimestamp = new Date().getTime();
-        await ExtensionStorage.set("monthly", currentDateTimestamp);
-        await trackPage(PageType.ONBOARD_COMPLETE);
-      } catch (error) {
-        console.error("err", error);
-      }
-    })();
+    trackPage(PageType.ONBOARD_COMPLETE);
   }, []);
 
   // confetti

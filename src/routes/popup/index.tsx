@@ -1,6 +1,5 @@
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import browser from "webextension-polyfill";
 import { useEffect, useState } from "react";
 import Collectibles from "~components/popup/home/Collectibles";
 import AnalyticsConsent from "~components/popup/home/AnalyticsConsent";
@@ -50,7 +49,6 @@ export default function Home() {
         await trackPage(PageType.HOME);
       }
     };
-
     checkExpiration();
   }, []);
 
