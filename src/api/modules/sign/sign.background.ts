@@ -21,6 +21,7 @@ import {
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
+import { EventType, trackDirect } from "~utils/analytics";
 
 const background: ModuleFunction<BackgroundResult> = async (
   appData,
@@ -152,6 +153,11 @@ const background: ModuleFunction<BackgroundResult> = async (
   if (keyfile) {
     freeDecryptedWallet(keyfile);
   }
+  // analytics
+  await trackDirect(EventType.SIGNED, {
+    appUrl: appData.appURL,
+    totalInAR: arweave.ar.winstonToAr(price.toString())
+  });
 
   // return de-constructed transaction
   return {
