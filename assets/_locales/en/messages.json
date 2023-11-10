@@ -875,6 +875,10 @@
     "message": "Send",
     "description": "Send title"
   },
+  "send_message_optional": {
+    "message": "Message (optional)",
+    "description": "Optional message field"
+  },
   "network_fee": {
     "message": "network fee",
     "description": "Transaction network fee text"
