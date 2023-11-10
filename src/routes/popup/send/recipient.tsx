@@ -24,7 +24,7 @@ import Head from "~components/popup/Head";
 import styled from "styled-components";
 import Arweave from "arweave";
 
-export default function Recipient({ tokenID, qty }: Props) {
+export default function Recipient({ tokenID, qty, message }: Props) {
   // transaction target input
   const targetInput = useInput();
 
@@ -132,7 +132,8 @@ export default function Recipient({ tokenID, qty }: Props) {
       } else {
         const tx = await arweave.createTransaction({
           target,
-          quantity: qty.toString()
+          quantity: qty.toString(),
+          data: message ? decodeURIComponent(message) : undefined
         });
 
         addTransferTags(tx);
@@ -154,6 +155,9 @@ export default function Recipient({ tokenID, qty }: Props) {
   }
 
   async function addTransferTags(transaction: Transaction) {
+    if (message) {
+      transaction.addTag("Content-Type", "text/plain");
+    }
     transaction.addTag("Type", "Transfer");
     transaction.addTag("Client", "ArConnect");
     transaction.addTag("Client-Version", browser.runtime.getManifest().version);
@@ -221,4 +225,5 @@ const Address = styled(Text).attrs({
 interface Props {
   tokenID: string;
   qty: number;
+  message?: string;
 }

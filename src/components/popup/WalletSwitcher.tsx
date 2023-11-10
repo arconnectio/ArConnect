@@ -107,7 +107,7 @@ export default function WalletSwitcher({
     (async () => {
       if (wallets.length === 0 || loadedBalances) return;
 
-      const gateway = await findGateway();
+      const gateway = await findGateway({});
       const arweave = new Arweave(gateway);
 
       await Promise.all(

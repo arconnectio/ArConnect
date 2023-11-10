@@ -73,11 +73,11 @@ export async function findGateway(
         };
       }
     }
-
-    return defaultGateway;
   } catch (err) {
     console.log("err", err);
   }
+
+  return defaultGateway;
 }
 
 /**
