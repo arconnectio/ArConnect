@@ -281,7 +281,7 @@ export function isTokenState(input: unknown): asserts input is TokenState {
   isRecord(input.balances, "Invalid balances object: not a record.");
 
   for (const address in input.balances) {
-    isAddress(address);
+    isString(address);
     isValidBalance(input.balances[address]);
   }
 }

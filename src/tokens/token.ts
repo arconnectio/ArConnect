@@ -314,7 +314,14 @@ export async function loadTokenLogo(
  * Parse settings from token state
  */
 export function getSettings(state: TokenState) {
-  return new Map<string, any>(state?.settings || []);
+  let rawSettings = state?.settings || [];
+
+  // transform object setting structure
+  if (!Array.isArray(rawSettings)) {
+    rawSettings = Object.entries(rawSettings);
+  }
+
+  return new Map<string, any>(rawSettings);
 }
 
 /**
