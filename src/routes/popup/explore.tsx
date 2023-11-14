@@ -2,12 +2,13 @@ import Article, {
   type ArticleInterface,
   LoadingArticle
 } from "~components/popup/Article";
-import { Section, Spacer, Text } from "@arconnect/components";
+import { Section, Spacer, Text, Button } from "@arconnect/components";
 import { getMarketChart, getArPrice } from "~lib/coingecko";
 import { AnimatePresence, motion } from "framer-motion";
 import { parseCoverImageFromContent } from "~lib/ans";
 import { useEffect, useState } from "react";
 import PeriodPicker from "~components/popup/asset/PeriodPicker";
+import arLogoDark from "url:/assets/ar/logo_dark.png";
 import viewblockLogo from "url:/assets/ecosystem/viewblock.png";
 import metaweaveLogo from "url:/assets/ecosystem/metaweave.png";
 import permaswapLogo from "url:/assets/ecosystem/permaswap.svg";
@@ -124,6 +125,10 @@ export default function Explore() {
       >
         <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />
       </PriceChart>
+      <Button small fullWidth>
+        {browser.i18n.getMessage("discover_buy_ar")}
+        <ARLogo src={arLogoDark} alt={"AR"} draggable={false} />
+      </Button>
       <Section>
         <Shortcuts>
           <AppShortcut
@@ -320,4 +325,9 @@ const AppShortcut = styled(AppIcon)`
   &:active {
     transform: scale(0.92);
   }
+`;
+
+const ARLogo = styled.img`
+  width: 16px;
+  height: 16px;
 `;
