@@ -1389,7 +1389,7 @@
     "message": "Questions? Join the Discord server to chat with the developers.",
     "description": "Connect with us description"
   },
-  "discover_buy_ar": {
+  "buy_ar_button": {
     "message": "Buy AR",
     "description": "Buy AR with Onramper button text"
   }

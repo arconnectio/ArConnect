@@ -2,7 +2,7 @@ import Article, {
   type ArticleInterface,
   LoadingArticle
 } from "~components/popup/Article";
-import { Section, Spacer, Text, Button } from "@arconnect/components";
+import { Section, Spacer, Text } from "@arconnect/components";
 import { getMarketChart, getArPrice } from "~lib/coingecko";
 import { AnimatePresence, motion } from "framer-motion";
 import { parseCoverImageFromContent } from "~lib/ans";

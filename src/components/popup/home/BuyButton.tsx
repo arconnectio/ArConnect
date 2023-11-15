@@ -7,7 +7,7 @@ export default function BuyButton() {
   return (
     <ButtonWrapper>
       <CustomButton className="normal-font-weight" small fullWidth>
-        {browser.i18n.getMessage("discover_buy_ar")}
+        {browser.i18n.getMessage("buy_ar_button")}
         <ARLogo src={arLogoDark} alt={"AR"} draggable={false} />
       </CustomButton>
     </ButtonWrapper>
