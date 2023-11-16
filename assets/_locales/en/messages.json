@@ -682,7 +682,7 @@
     "description": "Setup complete title"
   },
   "generated_wallet": {
-    "message": "Your Arweave wallet with address $ADDRESS$ has been generated.  You are now ready to browser the Permaweb!",
+    "message": "Your Arweave wallet with address $ADDRESS$ has been generated.  You are now ready to browse the Permaweb!",
     "description": "Generated wallet notification",
     "placeholders": {
       "address": {
@@ -1378,7 +1378,7 @@
     "description": "placeholder for example get started"
   },
   "example_permaswap_description" : {
-    "message": "Permaswap revolutionizes AMM with SCP theory, challenging conventional Dapp models to enhance user experience in decentralized applications.",
+    "message": "Permaswap is a cryptocurrency exchange that enables swapping of Arweave assets.",
     "description": "placeholder for example get started"
   },
   "connect_with_us_title": {
