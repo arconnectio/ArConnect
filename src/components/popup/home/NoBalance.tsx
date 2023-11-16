@@ -25,7 +25,7 @@ export default function NoBalance() {
             className="normal-font-weight"
           >
             {browser.i18n.getMessage("home_transfer_balance")}
-            <ArrowRightIcon />
+            <ArrowRight />
           </CustomButton>
         </Container>
       </ButtonWrapper>
@@ -69,4 +69,9 @@ const CustomButton = styled(Button)`
   }
   background-color: black;
   border: 3px solid #ab9aff;
+`;
+
+const ArrowRight = styled(ArrowRightIcon)`
+  width: 16px;
+  height: 16px;
 `;
