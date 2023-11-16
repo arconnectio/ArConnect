@@ -23,7 +23,6 @@ const CustomButton = styled(Button)`
   &.normal-font-weight {
     font-weight: normal;
   }
-  border-radius: 40px;
   margin-top: 10px;
 `;
 
