@@ -4,6 +4,7 @@ import { useHistory } from "~utils/hash_router";
 import noBalanceArt from "url:/assets/ar/no_funds.png";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
+import BuyButton from "./BuyButton";
 
 export default function NoBalance() {
   const [push] = useHistory();
@@ -14,10 +15,19 @@ export default function NoBalance() {
       <NoBalanceText>
         {browser.i18n.getMessage("home_no_balance", "$AR")}
       </NoBalanceText>
-      <Button onClick={() => push("/receive")} small>
-        {browser.i18n.getMessage("home_add_balance")}
-        <ArrowRightIcon />
-      </Button>
+      <ButtonWrapper>
+        <BuyButton padding={false} />
+        <Container>
+          <CustomButton
+            onClick={() => push("/receive")}
+            small
+            fullWidth
+            className="normal-font-weight"
+          >
+            {browser.i18n.getMessage("home_add_balance")}
+          </CustomButton>
+        </Container>
+      </ButtonWrapper>
     </Wrapper>
   );
 }
@@ -42,4 +52,20 @@ const Art = styled.img.attrs({
 })`
   user-select: none;
   width: 184px;
+`;
+
+const ButtonWrapper = styled.div`
+  width: 100%;
+`;
+
+const Container = styled.div`
+  height: 55px;
+`;
+
+const CustomButton = styled(Button)`
+  &.normal-font-weight {
+    font-weight: normal;
+  }
+  background-color: black;
+  border: 3px solid #ab9aff;
 `;

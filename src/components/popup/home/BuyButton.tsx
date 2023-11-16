@@ -3,9 +3,13 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 
-export default function BuyButton() {
+interface ButtonWrapperProps {
+  padding?: boolean;
+}
+
+export default function BuyButton({ padding }: ButtonWrapperProps) {
   return (
-    <ButtonWrapper>
+    <ButtonWrapper padding={padding}>
       <CustomButton className="normal-font-weight" small fullWidth>
         {browser.i18n.getMessage("buy_ar_button")}
         <ARLogo src={arLogoDark} alt={"AR"} draggable={false} />
@@ -14,9 +18,9 @@ export default function BuyButton() {
   );
 }
 
-const ButtonWrapper = styled.div`
-  padding: 0px 12px;
+const ButtonWrapper = styled.div<ButtonWrapperProps>`
   height: 55px;
+  padding: ${(props) => (props.padding ? "0px 12px" : "0")};
 `;
 
 const CustomButton = styled(Button)`
