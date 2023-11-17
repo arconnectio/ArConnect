@@ -1,3 +1,4 @@
+import { useHistory } from "~utils/hash_router";
 import { Button } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -8,9 +9,16 @@ interface ButtonWrapperProps {
 }
 
 export default function BuyButton({ padding }: ButtonWrapperProps) {
+  const [push] = useHistory();
+
   return (
     <ButtonWrapper padding={padding}>
-      <CustomButton className="normal-font-weight" small fullWidth>
+      <CustomButton
+        className="normal-font-weight"
+        small
+        fullWidth
+        onClick={() => push("/purchase")}
+      >
         {browser.i18n.getMessage("buy_ar_button")}
         <ARLogo src={arLogoDark} alt={"AR"} draggable={false} />
       </CustomButton>

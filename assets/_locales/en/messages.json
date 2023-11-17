@@ -1392,5 +1392,9 @@
   "buy_ar_button": {
     "message": "Buy AR",
     "description": "Buy AR with Onramper button text"
+  },
+  "buy_screen_title": {
+    "message": "Buy",
+    "description": "Buy AR with Onramper button text"
   }
 }
