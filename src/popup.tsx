@@ -11,6 +11,7 @@ import HardwareWalletTheme from "~components/hardware/HardwareWalletTheme";
 import HistoryProvider from "~components/popup/HistoryProvider";
 
 import Home from "~routes/popup";
+import Purchase from "~routes/popup/purchase";
 import Receive from "~routes/popup/receive";
 import Send from "~routes/popup/send";
 import SendAuth from "~routes/popup/send/auth";
@@ -43,6 +44,7 @@ export default function Popup() {
           <Router hook={useHashLocation}>
             <HistoryProvider>
               <Route path="/" component={Home} />
+              <Route path="/purchase" component={Purchase} />
               <Route path="/receive" component={Receive} />
               <Route path="/send/transfer/:id?">
                 {(params: { id?: string }) => <Send id={params?.id} />}
