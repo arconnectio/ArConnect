@@ -1333,9 +1333,9 @@
       }
     }
   },
-  "home_add_balance": {
-    "message": "Add",
-    "description": "Add balance button text"
+  "home_transfer_balance": {
+    "message": "Transfer AR",
+    "description": "Transfer balance button text"
   },
   "close_tab_generate_wallet_message": {
     "message": "Are you sure you want to exit? Your new wallet is still being generated and will be lost.",
@@ -1388,5 +1388,9 @@
   "connect_paragraph_2": {
     "message": "Questions? Join the Discord server to chat with the developers.",
     "description": "Connect with us description"
+  },
+  "buy_ar_button": {
+    "message": "Buy AR",
+    "description": "Buy AR with Onramper button text"
   }
 }
