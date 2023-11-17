@@ -1,7 +1,7 @@
 import { Spacer, Text } from "@arconnect/components";
 import arDriveLogo from "url:/assets/ecosystem/ardrive.svg";
 import ansLogo from "url:/assets/ecosystem/ans-logo.svg";
-import publishLogo from "url:/assets/ecosystem/publish-logo.svg";
+import permaswapLogo from "url:/assets/ecosystem/permaswap.svg";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -37,9 +37,9 @@ export default function Explore() {
         </Item>
         <Item>
           <ImageWrapper>
-            <Image src={publishLogo} alt={"publish"} draggable={false} />
+            <Image src={permaswapLogo} alt={"permaswap"} draggable={false} />
           </ImageWrapper>
-          {browser.i18n.getMessage("example_publish_description")}
+          {browser.i18n.getMessage("example_permaswap_description")}
         </Item>
       </Content>
       <Spacer y={1.5} />

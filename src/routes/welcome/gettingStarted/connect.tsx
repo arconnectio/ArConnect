@@ -1,5 +1,5 @@
 import { Spacer, Text } from "@arconnect/components";
-import twitterLogo from "url:/assets/setup/twitter-logo.svg";
+import xLogo from "url:/assets/setup/x-logo.svg";
 import discordLogo from "url:/assets/setup/discord-logo.svg";
 import infoLogo from "url:/assets/setup/info-logo.svg";
 import githubLogo from "url:/assets/setup/github-logo.svg";
@@ -30,14 +30,14 @@ export default function Connect() {
         >
           <ImageWrapper>
             <Image
-              src={twitterLogo}
-              alt={"twitter logo"}
+              src={xLogo}
+              alt={"X Logo"}
               draggable={false}
               width={"0.75rem"}
               height={"0.9375rem"}
             />
           </ImageWrapper>
-          <ItemTitle>Twitter</ItemTitle>
+          <ItemTitle>X</ItemTitle>
         </Item>
         <Item
           href="https://discord.com/invite/YGXJbuz44K"

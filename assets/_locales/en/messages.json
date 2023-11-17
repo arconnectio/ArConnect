@@ -682,7 +682,7 @@
     "description": "Setup complete title"
   },
   "generated_wallet": {
-    "message": "Generated wallet with address $ADDRESS$. You should never share the keyfile, nor the seedphrase with anyone. Avoid dApps asking for your keyfile as well.",
+    "message": "Your Arweave wallet with address $ADDRESS$ has been generated.  You are now ready to browse the Permaweb!",
     "description": "Generated wallet notification",
     "placeholders": {
       "address": {
@@ -1377,12 +1377,16 @@
     "message": "A provably neutral publishing platform aimed at dis-intermediating the truth. Publish assertions, and take your position in the Fact Marketplace!",
     "description": "placeholder for example get started"
   },
+  "example_permaswap_description" : {
+    "message": "Permaswap is a cryptocurrency exchange that enables swapping of Arweave assets.",
+    "description": "placeholder for example get started"
+  },
   "connect_with_us_title": {
     "message": "Connect with us",
     "description": "Connect with us title"
   },
   "connect_paragraph": {
-    "message": "Follow our Twitter to stay up to date on all the latest that the team is working on.",
+    "message": "Follow us on X to stay up to date on all the latest that the team is working on.",
     "description": "Connect with us description"
   },
   "connect_paragraph_2": {
