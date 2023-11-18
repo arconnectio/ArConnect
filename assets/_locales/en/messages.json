@@ -1396,5 +1396,17 @@
   "buy_screen_title": {
     "message": "Buy",
     "description": "Buy AR with Onramper button text"
+  },
+  "buy_screen_pay": {
+    "message": "You pay",
+    "description": "Payment input label title"
+  },
+  "buy_screen_receive": {
+    "message": "You receive",
+    "description": "Receive input label title"
+  },
+  "buy_screen_payment_method": {
+    "message": "Payment Method",
+    "description": "Select payment method title"
   }
 }

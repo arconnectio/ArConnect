@@ -6,21 +6,29 @@ import arLogoDark from "url:/assets/ar/logo_dark.png";
 
 interface ButtonWrapperProps {
   padding?: boolean;
+  route: string;
+  logo?: boolean;
 }
 
-export default function BuyButton({ padding }: ButtonWrapperProps) {
+export default function BuyButton({
+  padding,
+  route,
+  logo
+}: ButtonWrapperProps) {
   const [push] = useHistory();
 
+  const targetRoute = route === "/purchase" ? "/purchase" : "/confirm-purchase";
+
   return (
-    <ButtonWrapper padding={padding}>
+    <ButtonWrapper padding={padding} route={route} logo={logo}>
       <CustomButton
         className="normal-font-weight"
         small
         fullWidth
-        onClick={() => push("/purchase")}
+        onClick={() => push(targetRoute)}
       >
         {browser.i18n.getMessage("buy_ar_button")}
-        <ARLogo src={arLogoDark} alt={"AR"} draggable={false} />
+        {logo && <ARLogo src={arLogoDark} alt={"AR"} draggable={false} />}
       </CustomButton>
     </ButtonWrapper>
   );
