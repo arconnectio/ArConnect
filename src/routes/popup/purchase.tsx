@@ -43,6 +43,11 @@ export default function Purchase() {
   );
 }
 
+const placeholder = styled.text`
+  color: #ffffffb2;
+  font-size: 16px;
+`;
+
 const FiatWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -59,6 +64,12 @@ const FiatInput = styled(Input)`
   border: none;
   color: #ffffffb2;
   font-size: 16px;
+
+  &::placeholder {
+    color: #ffffffb2;
+    font-size: 16px;
+    /* Add any other placeholder styles you need */
+  }
 
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
