@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useHistory } from "~utils/hash_router";
 import browser from "webextension-polyfill";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { hoverEffect } from "~utils/theme";
 import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
 import { Section, Input, Card } from "@arconnect/components";
@@ -25,6 +25,7 @@ export default function Purchase() {
         </Header>
         <MainSwap>
           <FiatWrapper>
+            <FiatInput type="number" placeholder="Enter amount" />
             <FiatSelect
               onClick={() => setFiatSwitchOpen(true)}
               open={fiatSwitchOpen}
@@ -47,6 +48,25 @@ const FiatWrapper = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  background-color: #ab9aff26;
+  padding: 10px;
+  border: 1px solid #ab9aff26;
+  border-radius: 12px;
+`;
+
+const FiatInput = styled(Input)`
+  background-color: transparent;
+  border: none;
+  color: #ffffffb2;
+  font-size: 16px;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  appearance: textfield;
 `;
 
 const SelectIcon = styled(ChevronDownIcon)`
