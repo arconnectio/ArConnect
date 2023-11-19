@@ -1408,5 +1408,9 @@
   "buy_screen_payment_method": {
     "message": "Payment Method",
     "description": "Select payment method title"
+  },
+  "buy_screen_fiat_label": {
+    "message": "You pay",
+    "description": "Fiat Input label"
   }
 }

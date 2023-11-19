@@ -24,6 +24,7 @@ export default function Purchase() {
           </BackWrapper>
         </Header>
         <MainSwap>
+          <FiatLabel>You pay</FiatLabel>
           <FiatWrapper>
             <FiatInput type="number" placeholder="Enter amount" />
             <FiatSelect
@@ -43,9 +44,14 @@ export default function Purchase() {
   );
 }
 
-const placeholder = styled.text`
-  color: #ffffffb2;
+const FiatLabel = styled.div`
+  width: 100%
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
   font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 10px;
 `;
 
 const FiatWrapper = styled.div`
@@ -61,9 +67,10 @@ const FiatWrapper = styled.div`
 
 const FiatInput = styled(Input)`
   background-color: transparent;
-  border: none;
   color: #ffffffb2;
-  font-size: 16px;
+  padding: 10px 10px 10px 3px;
+  outline: none !important;
+  border: none !important;
 
   &::placeholder {
     color: #ffffffb2;
