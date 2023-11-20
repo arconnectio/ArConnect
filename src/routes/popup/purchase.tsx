@@ -14,6 +14,10 @@ import BuyButton from "~components/popup/home/BuyButton";
 // import gPay from "url:/assets/ecosystem/g-pay.svg";
 // import creditDebit from "url:/assets/ecosystem/credit-debit.svg";
 
+interface SelectIconProps {
+  open: boolean;
+}
+
 export default function Purchase() {
   const [push] = useHistory();
 
@@ -38,11 +42,11 @@ export default function Purchase() {
               placeholder={browser.i18n.getMessage("buy_screen_enter")}
             />
             <FiatSelect
-              onClick={() => setFiatSwitchOpen(true)}
+              onClick={() => setFiatSwitchOpen(!fiatSwitchOpen)}
               open={fiatSwitchOpen}
             >
               $USD
-              <SelectIcon />
+              <SelectIcon open={fiatSwitchOpen} />
             </FiatSelect>
           </InputWrapper>
           <Spacer y={0.7} />
@@ -163,10 +167,11 @@ const QuantityInput = styled.input`
   appearance: textfield;
 `;
 
-const SelectIcon = styled(ChevronDownIcon)`
+const SelectIcon = styled(ChevronDownIcon)<SelectIconProps>`
   width: 37px;
   height: 37px;
   color: white;
+  transform: ${(props) => (props.open ? "rotate(180deg)" : "rotate(0)")};
 `;
 
 const FiatSelect = styled(Card)<{ open: boolean }>`
