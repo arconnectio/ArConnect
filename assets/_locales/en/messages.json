@@ -1416,5 +1416,9 @@
   "buy_screen_receive_x": {
     "message": "xxxx.xxxx",
     "description": "Receive quantity placeholder"
+  },
+  "AR_button": {
+    "message": "AR",
+    "description": "Receive quantity button text"
   }
 }

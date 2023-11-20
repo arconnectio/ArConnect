@@ -47,6 +47,7 @@ export default function Purchase() {
               type="number"
               placeholder={browser.i18n.getMessage("buy_screen_receive_x")}
             />
+            <ReceiveToken>{browser.i18n.getMessage("AR_button")}</ReceiveToken>
           </InputWrapper>
         </MainSwap>
       </div>
@@ -56,6 +57,20 @@ export default function Purchase() {
     </Wrapper>
   );
 }
+
+const ReceiveToken = styled(Card)`
+  display: flex;
+  width: 84px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  background-color: #ab9aff;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 12px;
+  padding: 2px 0px 2px 0px;
+  font-weight: 500;
+`;
 
 const InputLabel = styled.div`
   width: 100%
@@ -121,8 +136,7 @@ const FiatSelect = styled(Card)<{ open: boolean }>`
   transition: all 0.23s ease-in-out;
   font-size: 16px;
   border-radius: 12px;
-  padding: 2px 3px 2px 10px;
-  cursor: pointer;
+  padding: 2px 2px 2px 10px;
   font-weight: 500;
 
   ${(props) =>
@@ -134,8 +148,6 @@ const FiatSelect = styled(Card)<{ open: boolean }>`
     transform: ${(props) => (props.open ? "rotate(180deg)" : "rotate(0)")};
   }
 `;
-
-const ReceiveInput = styled.div``;
 
 const Wrapper = styled.div`
   display: flex;
