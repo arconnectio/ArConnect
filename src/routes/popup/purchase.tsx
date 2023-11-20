@@ -3,11 +3,7 @@ import { useHistory } from "~utils/hash_router";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { hoverEffect } from "~utils/theme";
-import {
-  CloseIcon,
-  ChevronDownIcon,
-  CheckCircleIcon
-} from "@iconicicons/react";
+import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
 import { Section, Card, Spacer, Button } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
 // import applePay from "url:/assets/ecosystem/apple-pay.svg";
@@ -22,6 +18,10 @@ export default function Purchase() {
   const [push] = useHistory();
 
   const [fiatSwitchOpen, setFiatSwitchOpen] = useState(false);
+
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
+    string | null
+  >(null);
 
   return (
     <Wrapper>
@@ -65,14 +65,31 @@ export default function Purchase() {
             {browser.i18n.getMessage("buy_screen_payment_method")}
           </PaymentLabel>
           <PaymentMethods>
-            <PaymentButton small secondary reversed>
+            <PaymentButton
+              onClick={() => setSelectedPaymentMethod("applePay")}
+              small
+              secondary
+              reversed
+            >
+              <DotIcon selected={selectedPaymentMethod === "applePay"} />
               {/* <img src={applePay} alt={"Apple Pay"} draggable={false} /> */}
             </PaymentButton>
-            <PaymentButton small secondary reversed>
+            <PaymentButton
+              onClick={() => setSelectedPaymentMethod("gPay")}
+              small
+              secondary
+              reversed
+            >
+              <DotIcon selected={selectedPaymentMethod === "gPay"} />
               {/* <img src={gPay} alt={"Google Pay"} draggable={false} /> */}
             </PaymentButton>
-            <PaymentButton small secondary reversed>
-              <DotIcon />
+            <PaymentButton
+              onClick={() => setSelectedPaymentMethod("creditDebit")}
+              small
+              secondary
+              reversed
+            >
+              <DotIcon selected={selectedPaymentMethod === "creditDebit"} />
               {/* <img src={creditDebit} alt={"Credit or Debit"} draggable={false} /> */}
             </PaymentButton>
           </PaymentMethods>
@@ -85,8 +102,12 @@ export default function Purchase() {
   );
 }
 
-const DotIcon = styled(CheckCircleIcon)`
-  color: #ab9aff;
+const DotIcon = styled.div<{ selected: boolean }>`
+  width: 8px;
+  height: 8px;
+  border-radius: 100%;
+  background-color: ${(props) => (props.selected ? "#ab9aff" : "transparent")};
+  border: 1px solid #ab9aff26;
 `;
 
 const PaymentButton = styled(Button)`
