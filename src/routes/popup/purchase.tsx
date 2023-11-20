@@ -38,7 +38,7 @@ export default function Purchase() {
               <SelectIcon />
             </FiatSelect>
           </InputWrapper>
-          <Spacer y={1} />
+          <Spacer y={0.7} />
           <InputLabel>
             {browser.i18n.getMessage("buy_screen_receive")}
           </InputLabel>
@@ -49,6 +49,10 @@ export default function Purchase() {
             />
             <ReceiveToken>{browser.i18n.getMessage("AR_button")}</ReceiveToken>
           </InputWrapper>
+          <Spacer y={0.7} />
+          <PaymentLabel>
+            {browser.i18n.getMessage("buy_screen_payment_method")}
+          </PaymentLabel>
         </MainSwap>
       </div>
       <Section>
@@ -80,6 +84,11 @@ const InputLabel = styled.div`
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 10px;
+`;
+
+const PaymentLabel = styled(InputLabel)`
+  font-size: 14px;
+  line-height: 19.12px;
 `;
 
 const InputWrapper = styled.div`
