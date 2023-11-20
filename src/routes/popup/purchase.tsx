@@ -6,6 +6,9 @@ import { hoverEffect } from "~utils/theme";
 import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
 import { Section, Card, Spacer, Button } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
+// import applePay from "url:/assets/ecosystem/apple-pay.svg";
+// import gPay from "url:/assets/ecosystem/g-pay.svg";
+// import creditDebit from "url:/assets/ecosystem/credit-debit.svg";
 
 export default function Purchase() {
   const [push] = useHistory();
@@ -55,13 +58,13 @@ export default function Purchase() {
           </PaymentLabel>
           <PaymentMethods>
             <PaymentButton small secondary reversed>
-              Test
+              {/* <img src={applePay} alt={"Apple Pay"} draggable={false} /> */}
             </PaymentButton>
             <PaymentButton small secondary reversed>
-              Tes
+              {/* <img src={gPay} alt={"Google Pay"} draggable={false} /> */}
             </PaymentButton>
             <PaymentButton small secondary reversed>
-              Tes
+              {/* <img src={creditDebit} alt={"Credit or Debit"} draggable={false} /> */}
             </PaymentButton>
           </PaymentMethods>
         </MainSwap>
