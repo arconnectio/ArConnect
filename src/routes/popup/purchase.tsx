@@ -65,12 +65,15 @@ const FiatWrapper = styled.div`
   border-radius: 12px;
 `;
 
-const FiatInput = styled(Input)`
+const FiatInput = styled.input`
+  width: 100%;
   background-color: transparent;
   color: #ffffffb2;
   padding: 10px 10px 10px 3px;
-  outline: none !important;
-  border: none !important;
+  outline: none;
+  border: none;
+  font-size: 1.2rem;
+  font-weight: 500;
 
   &::placeholder {
     color: #ffffffb2;
