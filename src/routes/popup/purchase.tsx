@@ -67,6 +67,7 @@ export default function Purchase() {
           <PaymentMethods>
             <PaymentButton
               onClick={() => setSelectedPaymentMethod("applePay")}
+              selected={selectedPaymentMethod === "applePay"}
               small
               secondary
               reversed
@@ -76,6 +77,7 @@ export default function Purchase() {
             </PaymentButton>
             <PaymentButton
               onClick={() => setSelectedPaymentMethod("gPay")}
+              selected={selectedPaymentMethod === "gPay"}
               small
               secondary
               reversed
@@ -85,6 +87,7 @@ export default function Purchase() {
             </PaymentButton>
             <PaymentButton
               onClick={() => setSelectedPaymentMethod("creditDebit")}
+              selected={selectedPaymentMethod === "creditDebit"}
               small
               secondary
               reversed
@@ -110,8 +113,9 @@ const DotIcon = styled.div<{ selected: boolean }>`
   border: 1px solid #ab9aff26;
 `;
 
-const PaymentButton = styled(Button)`
+const PaymentButton = styled(Button)<{ selected: boolean }>`
   border-radius: 5px;
+  border: 1px solid ${(props) => (props.selected ? "#ab9aff" : "#ab9aff26")};
 `;
 
 const PaymentMethods = styled.div`
