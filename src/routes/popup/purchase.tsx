@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useHistory } from "~utils/hash_router";
 import browser from "webextension-polyfill";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { hoverEffect } from "~utils/theme";
 import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
-import { Section, Input, Card } from "@arconnect/components";
+import { Section, Card, Spacer } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
 
 export default function Purchase() {
@@ -24,9 +24,12 @@ export default function Purchase() {
           </BackWrapper>
         </Header>
         <MainSwap>
-          <FiatLabel>You pay</FiatLabel>
-          <FiatWrapper>
-            <FiatInput type="number" placeholder="Enter amount" />
+          <InputLabel>{browser.i18n.getMessage("buy_screen_pay")}</InputLabel>
+          <InputWrapper>
+            <QuantityInput
+              type="number"
+              placeholder={browser.i18n.getMessage("buy_screen_enter")}
+            />
             <FiatSelect
               onClick={() => setFiatSwitchOpen(true)}
               open={fiatSwitchOpen}
@@ -34,7 +37,17 @@ export default function Purchase() {
               $USD
               <SelectIcon />
             </FiatSelect>
-          </FiatWrapper>
+          </InputWrapper>
+          <Spacer y={1} />
+          <InputLabel>
+            {browser.i18n.getMessage("buy_screen_receive")}
+          </InputLabel>
+          <InputWrapper>
+            <QuantityInput
+              type="number"
+              placeholder={browser.i18n.getMessage("buy_screen_receive_x")}
+            />
+          </InputWrapper>
         </MainSwap>
       </div>
       <Section>
@@ -44,7 +57,7 @@ export default function Purchase() {
   );
 }
 
-const FiatLabel = styled.div`
+const InputLabel = styled.div`
   width: 100%
   display: flex;
   flex-direction: row;
@@ -54,7 +67,7 @@ const FiatLabel = styled.div`
   margin-bottom: 10px;
 `;
 
-const FiatWrapper = styled.div`
+const InputWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -65,7 +78,7 @@ const FiatWrapper = styled.div`
   border-radius: 12px;
 `;
 
-const FiatInput = styled.input`
+const QuantityInput = styled.input`
   width: 100%;
   background-color: transparent;
   color: #ffffffb2;
