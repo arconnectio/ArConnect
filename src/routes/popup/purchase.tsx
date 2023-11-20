@@ -3,7 +3,11 @@ import { useHistory } from "~utils/hash_router";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { hoverEffect } from "~utils/theme";
-import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
+import {
+  CloseIcon,
+  ChevronDownIcon,
+  CheckCircleIcon
+} from "@iconicicons/react";
 import { Section, Card, Spacer, Button } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
 // import applePay from "url:/assets/ecosystem/apple-pay.svg";
@@ -64,6 +68,7 @@ export default function Purchase() {
               {/* <img src={gPay} alt={"Google Pay"} draggable={false} /> */}
             </PaymentButton>
             <PaymentButton small secondary reversed>
+              <DotIcon />
               {/* <img src={creditDebit} alt={"Credit or Debit"} draggable={false} /> */}
             </PaymentButton>
           </PaymentMethods>
@@ -75,6 +80,10 @@ export default function Purchase() {
     </Wrapper>
   );
 }
+
+const DotIcon = styled(CheckCircleIcon)`
+  color: #ab9aff;
+`;
 
 const PaymentButton = styled(Button)`
   border-radius: 5px;
