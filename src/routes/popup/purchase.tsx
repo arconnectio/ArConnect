@@ -4,7 +4,7 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { hoverEffect } from "~utils/theme";
 import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
-import { Section, Card, Spacer } from "@arconnect/components";
+import { Section, Card, Spacer, Button } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
 
 export default function Purchase() {
@@ -53,6 +53,17 @@ export default function Purchase() {
           <PaymentLabel>
             {browser.i18n.getMessage("buy_screen_payment_method")}
           </PaymentLabel>
+          <PaymentMethods>
+            <PaymentButton small secondary reversed>
+              Test
+            </PaymentButton>
+            <PaymentButton small secondary reversed>
+              Tes
+            </PaymentButton>
+            <PaymentButton small secondary reversed>
+              Tes
+            </PaymentButton>
+          </PaymentMethods>
         </MainSwap>
       </div>
       <Section>
@@ -61,6 +72,19 @@ export default function Purchase() {
     </Wrapper>
   );
 }
+
+const PaymentButton = styled(Button)`
+  border-radius: 5px;
+`;
+
+const PaymentMethods = styled.div`
+  width: 100%;
+  height: 30px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 16px;
+`;
 
 const ReceiveToken = styled(Card)`
   display: flex;
