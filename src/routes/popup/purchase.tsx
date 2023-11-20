@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useHistory } from "~utils/hash_router";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -19,9 +19,24 @@ export default function Purchase() {
 
   const [fiatSwitchOpen, setFiatSwitchOpen] = useState(false);
 
+  const [showOptions, setShowOptions] = useState(false);
+
+  const [selectedFiat, setSelectedFiat] = useState("$USD");
+
+  const currencies = ["$USD", "$EUR", "$GBP", "$JPY", "$CAD"];
+
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     string | null
   >(null);
+
+  const handleFiat = (currency: string) => {
+    setSelectedFiat(currency); // Update the selected fiat currency
+    setFiatSwitchOpen(false); // Close the dropdown
+  };
+
+  useEffect(() => {
+    setShowOptions(fiatSwitchOpen);
+  }, [fiatSwitchOpen]);
 
   return (
     <Wrapper>
@@ -45,9 +60,23 @@ export default function Purchase() {
               onClick={() => setFiatSwitchOpen(!fiatSwitchOpen)}
               open={fiatSwitchOpen}
             >
-              $USD
+              {selectedFiat}
               <SelectIcon open={fiatSwitchOpen} />
             </FiatSelect>
+            {showOptions && (
+              <FiatDropdown>
+                <DropdownList>
+                  {currencies.map((currency) => (
+                    <DropdownItem
+                      key={currency}
+                      onClick={() => handleFiat(currency)}
+                    >
+                      {currency}
+                    </DropdownItem>
+                  ))}
+                </DropdownList>
+              </FiatDropdown>
+            )}
           </InputWrapper>
           <Spacer y={0.7} />
           <InputLabel>
@@ -109,6 +138,43 @@ export default function Purchase() {
     </Wrapper>
   );
 }
+
+const DropdownList = styled.ul`
+  list-style: none;
+  padding: 2px;
+  background-color: #ab9aff;
+  width: 50%;
+  font-size: 16px;
+  border-radius: 12px;
+  margin-right: 22px;
+`;
+
+const DropdownItem = styled.li`
+  padding: 2px;
+  cursor: pointer;
+  font-weight: 500;
+  &:hover {
+    background-color: #ab9aff26;
+  }
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 2px solid #ab9aff26;
+`;
+
+const FiatDropdown = styled.div`
+  position: absolute;
+  width: 100%;
+  z-index: 100;
+  top: 23.5%;
+  left: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+`;
 
 const PaySVG = styled.img`
   width: 30px;
