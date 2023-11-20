@@ -73,7 +73,11 @@ export default function Purchase() {
               reversed
             >
               <DotIcon selected={selectedPaymentMethod === "creditDebit"} />
-              {/* <PaySVG src={creditDebit} alt={"Credit or Debit"} draggable={false} /> */}
+              <PaySVG
+                src={creditDebit}
+                alt={"Credit or Debit"}
+                draggable={false}
+              />
               {browser.i18n.getMessage("credit_debit")}
             </PaymentButton>
             <PaymentButton
@@ -83,7 +87,7 @@ export default function Purchase() {
               secondary
               reversed
             >
-              {/* <DotIcon selected={selectedPaymentMethod === "applePay"} /> */}
+              <DotIcon selected={selectedPaymentMethod === "applePay"} />
               <PaySVG src={applePay} alt={"Apple Pay"} draggable={false} />
             </PaymentButton>
             <PaymentButton
@@ -93,7 +97,7 @@ export default function Purchase() {
               secondary
               reversed
             >
-              {/* <DotIcon selected={selectedPaymentMethod === "gPay"} /> */}
+              <DotIcon selected={selectedPaymentMethod === "gPay"} />
               <PaySVG src={gPay} alt={"Google Pay"} draggable={false} />
             </PaymentButton>
           </PaymentMethods>
