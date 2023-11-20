@@ -70,6 +70,7 @@ export default function Purchase() {
                     <DropdownItem
                       key={currency}
                       onClick={() => handleFiat(currency)}
+                      active={selectedFiat === currency}
                     >
                       {currency}
                     </DropdownItem>
@@ -142,26 +143,44 @@ export default function Purchase() {
 const DropdownList = styled.ul`
   list-style: none;
   padding: 2px;
-  background-color: #ab9aff;
+  background-color: rgb(22, 22, 22);
   width: 50%;
   font-size: 16px;
   border-radius: 12px;
   margin-right: 22px;
 `;
 
-const DropdownItem = styled.li`
+const DropdownItem = styled.li<{ active: boolean }>`
   padding: 2px;
   cursor: pointer;
   font-weight: 500;
-  &:hover {
-    background-color: #ab9aff26;
-  }
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  border: 2px solid #ab9aff26;
+  gap: 0.8rem;
+  background-color: rgba(
+    ${(props) => props.theme.theme},
+    ${(props) =>
+      props.active ? (props.theme.displayTheme === "light" ? ".2" : ".1") : "0"}
+  );
+  transition: all 0.23s ease-in-out;
+
+  &:hover {
+    background-color: rgba(
+      ${(props) =>
+        props.theme.theme +
+        ", " +
+        (props.active
+          ? props.theme.displayTheme === "light"
+            ? ".24"
+            : ".14"
+          : props.theme.displayTheme === "light"
+          ? ".14"
+          : ".04")}
+    );
+  }
 `;
 
 const FiatDropdown = styled.div`
