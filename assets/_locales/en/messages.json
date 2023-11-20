@@ -1420,5 +1420,9 @@
   "AR_button": {
     "message": "AR",
     "description": "Receive quantity button text"
+  },
+  "credit_debit": {
+    "message": "Credit/Debit Card",
+    "description": "Buy screen payment method text"
   }
 }

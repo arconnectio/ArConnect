@@ -6,9 +6,9 @@ import { hoverEffect } from "~utils/theme";
 import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
 import { Section, Card, Spacer, Button } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
-// import applePay from "url:/assets/ecosystem/apple-pay.svg";
-// import gPay from "url:/assets/ecosystem/g-pay.svg";
-// import creditDebit from "url:/assets/ecosystem/credit-debit.svg";
+import applePay from "url:/assets/ecosystem/apple-pay.svg";
+import gPay from "url:/assets/ecosystem/g-pay.svg";
+import creditDebit from "url:/assets/ecosystem/credit-debit.svg";
 
 interface SelectIconProps {
   open: boolean;
@@ -66,14 +66,25 @@ export default function Purchase() {
           </PaymentLabel>
           <PaymentMethods>
             <PaymentButton
+              onClick={() => setSelectedPaymentMethod("creditDebit")}
+              selected={selectedPaymentMethod === "creditDebit"}
+              small
+              secondary
+              reversed
+            >
+              <DotIcon selected={selectedPaymentMethod === "creditDebit"} />
+              {/* <PaySVG src={creditDebit} alt={"Credit or Debit"} draggable={false} /> */}
+              {browser.i18n.getMessage("credit_debit")}
+            </PaymentButton>
+            <PaymentButton
               onClick={() => setSelectedPaymentMethod("applePay")}
               selected={selectedPaymentMethod === "applePay"}
               small
               secondary
               reversed
             >
-              <DotIcon selected={selectedPaymentMethod === "applePay"} />
-              {/* <img src={applePay} alt={"Apple Pay"} draggable={false} /> */}
+              {/* <DotIcon selected={selectedPaymentMethod === "applePay"} /> */}
+              <PaySVG src={applePay} alt={"Apple Pay"} draggable={false} />
             </PaymentButton>
             <PaymentButton
               onClick={() => setSelectedPaymentMethod("gPay")}
@@ -82,18 +93,8 @@ export default function Purchase() {
               secondary
               reversed
             >
-              <DotIcon selected={selectedPaymentMethod === "gPay"} />
-              {/* <img src={gPay} alt={"Google Pay"} draggable={false} /> */}
-            </PaymentButton>
-            <PaymentButton
-              onClick={() => setSelectedPaymentMethod("creditDebit")}
-              selected={selectedPaymentMethod === "creditDebit"}
-              small
-              secondary
-              reversed
-            >
-              <DotIcon selected={selectedPaymentMethod === "creditDebit"} />
-              {/* <img src={creditDebit} alt={"Credit or Debit"} draggable={false} /> */}
+              {/* <DotIcon selected={selectedPaymentMethod === "gPay"} /> */}
+              <PaySVG src={gPay} alt={"Google Pay"} draggable={false} />
             </PaymentButton>
           </PaymentMethods>
         </MainSwap>
@@ -104,6 +105,11 @@ export default function Purchase() {
     </Wrapper>
   );
 }
+
+const PaySVG = styled.img`
+  width: 30px;
+  height: 20px;
+`;
 
 const DotIcon = styled.div<{ selected: boolean }>`
   width: 8px;
@@ -116,6 +122,11 @@ const DotIcon = styled.div<{ selected: boolean }>`
 const PaymentButton = styled(Button)<{ selected: boolean }>`
   border-radius: 5px;
   border: 1px solid ${(props) => (props.selected ? "#ab9aff" : "#ab9aff26")};
+  font-size: 7.3px;
+  color: #ffffff;
+  font-weight: normal;
+  padding: 5px;
+  gap: 5px;
 `;
 
 const PaymentMethods = styled.div`
