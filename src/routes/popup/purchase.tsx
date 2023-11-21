@@ -21,9 +21,103 @@ export default function Purchase() {
 
   const [showOptions, setShowOptions] = useState(false);
 
-  const [selectedFiat, setSelectedFiat] = useState("$EUR");
+  const [selectedFiat, setSelectedFiat] = useState("EUR");
 
-  const currencies = ["$USD", "$EUR", "$GBP", "$JPY", "$CAD"];
+  const currencies = [
+    "aed",
+    "aud",
+    "azn",
+    "bgn",
+    "bhd",
+    "brl",
+    "cad",
+    "clp",
+    "cop",
+    "crc",
+    "czk",
+    "dkk",
+    "dop",
+    "eur",
+    "gbp",
+    "gel",
+    "gtq",
+    "hkd",
+    "hnl",
+    "huf",
+    "idr",
+    "ils",
+    "inr",
+    "krw",
+    "kwd",
+    "mdl",
+    "mxn",
+    "myr",
+    "nok",
+    "nzd",
+    "omr",
+    "pen",
+    "php",
+    "pln",
+    "pyg",
+    "ron",
+    "rwf",
+    "sek",
+    "thb",
+    "try",
+    "twd",
+    "usd",
+    "uyu",
+    "vnd",
+    "zar",
+    "chf",
+    "jpy",
+    "isk",
+    "bzd",
+    "jmd",
+    "bbd",
+    "xof",
+    "xcd",
+    "kmf",
+    "scr",
+    "aoa",
+    "kgs",
+    "mga",
+    "mzn",
+    "tzs",
+    "khr",
+    "sgd",
+    "kes",
+    "ngn",
+    "fjd",
+    "bmd",
+    "fkp",
+    "gip",
+    "bnd",
+    "xaf",
+    "djf",
+    "kzt",
+    "mwk",
+    "mru",
+    "pgk",
+    "stn",
+    "sbd",
+    "srd",
+    "szl",
+    "tjs",
+    "top",
+    "tmt",
+    "ghs",
+    "rsd",
+    "mkd",
+    "amd",
+    "ang",
+    "bsd",
+    "kyd",
+    "bam",
+    "jod",
+    "ttd",
+    "pab"
+  ];
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     string | null
@@ -60,7 +154,7 @@ export default function Purchase() {
               onClick={() => setFiatSwitchOpen(!fiatSwitchOpen)}
               open={fiatSwitchOpen}
             >
-              {selectedFiat}
+              {selectedFiat.toLocaleUpperCase()}
               <SelectIcon open={fiatSwitchOpen} />
             </FiatSelect>
             {showOptions && (
@@ -72,7 +166,7 @@ export default function Purchase() {
                       onClick={() => handleFiat(currency)}
                       active={selectedFiat === currency}
                     >
-                      {currency}
+                      {currency.toLocaleUpperCase()}
                     </DropdownItem>
                   ))}
                 </DropdownList>
@@ -148,6 +242,16 @@ const DropdownList = styled.ul`
   font-size: 16px;
   border-radius: 12px;
   margin-right: 22px;
+  max-height: 130px;
+  overflow-y: auto;
+  scrollbar-width: none; /* For Firefox */
+  -ms-overflow-style: none; /* For Internet Explorer and Edge */
+
+  /* For WebKit browsers */
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
 `;
 
 const DropdownItem = styled.li<{ active: boolean }>`
