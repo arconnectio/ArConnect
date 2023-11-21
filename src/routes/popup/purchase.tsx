@@ -21,13 +21,13 @@ export default function Purchase() {
 
   const [showOptions, setShowOptions] = useState(false);
 
-  const [selectedFiat, setSelectedFiat] = useState("$USD");
+  const [selectedFiat, setSelectedFiat] = useState("$EUR");
 
   const currencies = ["$USD", "$EUR", "$GBP", "$JPY", "$CAD"];
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     string | null
-  >(null);
+  >("creditcard");
 
   const handleFiat = (currency: string) => {
     setSelectedFiat(currency); // Update the selected fiat currency
@@ -96,13 +96,13 @@ export default function Purchase() {
           </PaymentLabel>
           <PaymentMethods>
             <PaymentButton
-              onClick={() => setSelectedPaymentMethod("creditDebit")}
-              selected={selectedPaymentMethod === "creditDebit"}
+              onClick={() => setSelectedPaymentMethod("creditcard")}
+              selected={selectedPaymentMethod === "creditcard"}
               small
               secondary
               reversed
             >
-              <DotIcon selected={selectedPaymentMethod === "creditDebit"} />
+              <DotIcon selected={selectedPaymentMethod === "creditcard"} />
               <PaySVG
                 src={creditDebit}
                 alt={"Credit or Debit"}
@@ -111,23 +111,23 @@ export default function Purchase() {
               {browser.i18n.getMessage("credit_debit")}
             </PaymentButton>
             <PaymentButton
-              onClick={() => setSelectedPaymentMethod("applePay")}
-              selected={selectedPaymentMethod === "applePay"}
+              onClick={() => setSelectedPaymentMethod("applepay")}
+              selected={selectedPaymentMethod === "applepay"}
               small
               secondary
               reversed
             >
-              <DotIcon selected={selectedPaymentMethod === "applePay"} />
+              <DotIcon selected={selectedPaymentMethod === "applepay"} />
               <PaySVG src={applePay} alt={"Apple Pay"} draggable={false} />
             </PaymentButton>
             <PaymentButton
-              onClick={() => setSelectedPaymentMethod("gPay")}
-              selected={selectedPaymentMethod === "gPay"}
+              onClick={() => setSelectedPaymentMethod("googlepay")}
+              selected={selectedPaymentMethod === "googlepay"}
               small
               secondary
               reversed
             >
-              <DotIcon selected={selectedPaymentMethod === "gPay"} />
+              <DotIcon selected={selectedPaymentMethod === "googlepay"} />
               <PaySVG src={gPay} alt={"Google Pay"} draggable={false} />
             </PaymentButton>
           </PaymentMethods>
