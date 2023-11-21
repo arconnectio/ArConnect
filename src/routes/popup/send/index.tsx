@@ -7,6 +7,7 @@ import {
   Section,
   Spacer,
   Text,
+  Tooltip,
   useInput
 } from "@arconnect/components";
 import browser from "webextension-polyfill";
@@ -391,13 +392,27 @@ export default function Send({ id }: Props) {
             <ChevronRightIcon />
           </TokenSelectorRightSide>
         </TokenSelector>
-        <Button
-          disabled={invalidQty || parseFloat(qty) === 0 || qty === ""}
-          onClick={send}
+        <Tooltip
+          content={
+            token.id === "KTzTXT_ANmF84fWEKHzWURD1LWd9QaFR9yfYUwH2Lxw"
+              ? browser.i18n.getMessage("u_token_disabled")
+              : ""
+          }
         >
-          {browser.i18n.getMessage("send")}
-          <ArrowUpRightIcon />
-        </Button>
+          <Button
+            disabled={
+              invalidQty ||
+              parseFloat(qty) === 0 ||
+              qty === "" ||
+              token.id === "KTzTXT_ANmF84fWEKHzWURD1LWd9QaFR9yfYUwH2Lxw"
+            }
+            fullWidth
+            onClick={send}
+          >
+            {browser.i18n.getMessage("send")}
+            <ArrowUpRightIcon />
+          </Button>
+        </Tooltip>
       </BottomActions>
       <AnimatePresence>
         {showTokenSelector && (
