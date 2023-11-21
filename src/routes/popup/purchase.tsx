@@ -10,6 +10,7 @@ import applePay from "url:/assets/ecosystem/apple-pay.svg";
 import gPay from "url:/assets/ecosystem/g-pay.svg";
 import creditDebit from "url:/assets/ecosystem/credit-debit.svg";
 import supportedCurrencies from "~utils/supported_currencies";
+import { getQuote } from "~lib/onramper";
 
 interface SelectIconProps {
   open: boolean;
@@ -24,6 +25,8 @@ export default function Purchase() {
 
   const [selectedFiat, setSelectedFiat] = useState("eur");
 
+  const [fiatAmount, setFiatAmount] = useState(100);
+
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     string | null
   >("creditcard");
@@ -36,6 +39,8 @@ export default function Purchase() {
   useEffect(() => {
     setShowOptions(fiatSwitchOpen);
   }, [fiatSwitchOpen]);
+
+  useEffect(() => {}, [selectedFiat, selectedPaymentMethod, fiatAmount]);
 
   return (
     <Wrapper>
@@ -54,6 +59,28 @@ export default function Purchase() {
             <QuantityInput
               type="number"
               placeholder={browser.i18n.getMessage("buy_screen_enter")}
+              value={fiatAmount}
+              onKeyDown={(e) => {
+                if (
+                  [
+                    "Backspace",
+                    "0",
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                    "7",
+                    "8",
+                    "9",
+                    "."
+                  ].includes(e.key)
+                )
+                  return;
+                e.preventDefault();
+              }}
+              onChange={(e) => setFiatAmount(Number(e.target.value))}
             />
             <FiatSelect
               onClick={() => setFiatSwitchOpen(!fiatSwitchOpen)}
