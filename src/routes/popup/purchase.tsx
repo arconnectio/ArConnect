@@ -9,6 +9,7 @@ import BuyButton from "~components/popup/home/BuyButton";
 import applePay from "url:/assets/ecosystem/apple-pay.svg";
 import gPay from "url:/assets/ecosystem/g-pay.svg";
 import creditDebit from "url:/assets/ecosystem/credit-debit.svg";
+import supportedCurrencies from "~utils/supported_currencies";
 
 interface SelectIconProps {
   open: boolean;
@@ -22,102 +23,6 @@ export default function Purchase() {
   const [showOptions, setShowOptions] = useState(false);
 
   const [selectedFiat, setSelectedFiat] = useState("EUR");
-
-  const currencies = [
-    "aed",
-    "aud",
-    "azn",
-    "bgn",
-    "bhd",
-    "brl",
-    "cad",
-    "clp",
-    "cop",
-    "crc",
-    "czk",
-    "dkk",
-    "dop",
-    "eur",
-    "gbp",
-    "gel",
-    "gtq",
-    "hkd",
-    "hnl",
-    "huf",
-    "idr",
-    "ils",
-    "inr",
-    "krw",
-    "kwd",
-    "mdl",
-    "mxn",
-    "myr",
-    "nok",
-    "nzd",
-    "omr",
-    "pen",
-    "php",
-    "pln",
-    "pyg",
-    "ron",
-    "rwf",
-    "sek",
-    "thb",
-    "try",
-    "twd",
-    "usd",
-    "uyu",
-    "vnd",
-    "zar",
-    "chf",
-    "jpy",
-    "isk",
-    "bzd",
-    "jmd",
-    "bbd",
-    "xof",
-    "xcd",
-    "kmf",
-    "scr",
-    "aoa",
-    "kgs",
-    "mga",
-    "mzn",
-    "tzs",
-    "khr",
-    "sgd",
-    "kes",
-    "ngn",
-    "fjd",
-    "bmd",
-    "fkp",
-    "gip",
-    "bnd",
-    "xaf",
-    "djf",
-    "kzt",
-    "mwk",
-    "mru",
-    "pgk",
-    "stn",
-    "sbd",
-    "srd",
-    "szl",
-    "tjs",
-    "top",
-    "tmt",
-    "ghs",
-    "rsd",
-    "mkd",
-    "amd",
-    "ang",
-    "bsd",
-    "kyd",
-    "bam",
-    "jod",
-    "ttd",
-    "pab"
-  ];
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     string | null
@@ -160,7 +65,7 @@ export default function Purchase() {
             {showOptions && (
               <FiatDropdown>
                 <DropdownList>
-                  {currencies.map((currency) => (
+                  {supportedCurrencies.map((currency) => (
                     <DropdownItem
                       key={currency}
                       onClick={() => handleFiat(currency)}
