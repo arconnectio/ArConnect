@@ -22,7 +22,7 @@ export default function Purchase() {
 
   const [showOptions, setShowOptions] = useState(false);
 
-  const [selectedFiat, setSelectedFiat] = useState("EUR");
+  const [selectedFiat, setSelectedFiat] = useState("eur");
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     string | null
