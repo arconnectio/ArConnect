@@ -47,6 +47,30 @@ export default function Purchase() {
         selectedPaymentMethod,
         fiatAmount
       );
+
+      // Destructuring required data from response:
+      const {
+        availablePaymentMethods,
+        networkFee,
+        paymentMethod,
+        payout,
+        quoteId,
+        ramp,
+        rate,
+        recommendations,
+        transactionFee
+      } = quote[0];
+
+      console.log("Available Payment Methods:", availablePaymentMethods);
+      console.log("Network Fee:", networkFee);
+      console.log("Payment Method:", paymentMethod);
+      console.log("Payout:", payout);
+      console.log("Quote ID:", quoteId);
+      console.log("Ramp:", ramp);
+      console.log("Rate:", rate);
+      console.log("Recommendations:", recommendations);
+      console.log("Transaction Fee:", transactionFee);
+
       // Handle quote here
       return quote;
     };
