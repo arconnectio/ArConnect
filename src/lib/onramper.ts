@@ -11,7 +11,7 @@ export async function getQuote(
   amount: number
 ) {
   try {
-    const apiKey = process.env.ONRAMPER_API_KEY;
+    const apiKey = process.env.PLASMO_PUBLIC_ONRAMPER_API_KEY;
 
     if (!apiKey) {
       throw new Error("API key is undefined");

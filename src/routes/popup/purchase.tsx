@@ -40,7 +40,19 @@ export default function Purchase() {
     setShowOptions(fiatSwitchOpen);
   }, [fiatSwitchOpen]);
 
-  useEffect(() => {}, [selectedFiat, selectedPaymentMethod, fiatAmount]);
+  useEffect(() => {
+    const fetchQuote = async () => {
+      const quote = await getQuote(
+        selectedFiat,
+        selectedPaymentMethod,
+        fiatAmount
+      );
+      // Handle quote here
+      return quote;
+    };
+
+    fetchQuote();
+  }, [selectedFiat, selectedPaymentMethod, fiatAmount, getQuote]);
 
   return (
     <Wrapper>
