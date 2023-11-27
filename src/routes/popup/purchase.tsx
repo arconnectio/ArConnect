@@ -120,7 +120,12 @@ export default function Purchase() {
                   return;
                 e.preventDefault();
               }}
-              onChange={(e) => setFiatAmount(Number(e.target.value))}
+              onChange={(e) => {
+                setFiatAmount(Number(e.target.value));
+                if (e.target.value === "") {
+                  setFiatAmount(undefined);
+                }
+              }}
             />
             <FiatSelect
               onClick={() => setFiatSwitchOpen(!fiatSwitchOpen)}
