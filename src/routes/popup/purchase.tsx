@@ -212,7 +212,7 @@ export default function Purchase() {
           </PaymentMethods>
         </MainSwap>
       </div>
-      <BuySection disabled={quoteError && !isInitialMount.current}>
+      <BuySection disabled={quoteError || receivedAR === undefined}>
         <BuyButton padding={false} route={"/confirm-purchase"} logo={false} />
       </BuySection>
     </Wrapper>
