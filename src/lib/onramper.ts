@@ -31,6 +31,12 @@ export async function getQuote(
     }
 
     const data = await response.json();
+
+    const payout = data.length > 0 ? data[0].payout : undefined;
+    if (payout === undefined) {
+      throw new Error("Increase fiat amount");
+    }
+
     return data;
   } catch (error) {
     console.error("Error fetching quote: ", error);

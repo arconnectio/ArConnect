@@ -25,13 +25,9 @@ export default function Purchase() {
 
   const [selectedFiat, setSelectedFiat] = useState("eur");
 
-  const [fiatAmount, setFiatAmount] = useState(null);
+  const [fiatAmount, setFiatAmount] = useState(undefined);
 
-  const [receivedAR, setReceivedAR] = useState(null);
-
-  const [receivedPlaceholder, setReceivedPlaceholder] = useState(
-    browser.i18n.getMessage("buy_screen_receive_x")
-  );
+  const [receivedAR, setReceivedAR] = useState(undefined);
 
   const [quoteError, setQuoteError] = useState(false);
 
@@ -61,44 +57,22 @@ export default function Purchase() {
               fiatAmount
             );
 
-            const {
-              availablePaymentMethods,
-              networkFee,
-              paymentMethod,
-              payout,
-              quoteId,
-              ramp,
-              rate,
-              recommendations,
-              transactionFee
-            } = quote[0];
+            console.log("Fetched new quote:");
 
-            if (payout !== undefined) {
-              setQuoteError(false);
-              setReceivedAR(payout);
-            } else {
-              setQuoteError(true);
-            }
+            const { payout } = quote[0];
 
-            console.log("Fiat Amount:", fiatAmount);
-            console.log("Fiat Type:", selectedFiat);
-            console.log("Available Payment Methods:", availablePaymentMethods);
-            console.log("Network Fee:", networkFee);
-            console.log("Payment Method:", paymentMethod);
             console.log("Payout:", payout);
-            console.log("Quote ID:", quoteId);
-            console.log("Ramp:", ramp);
-            console.log("Rate:", rate);
-            console.log("Recommendations:", recommendations);
-            console.log("Transaction Fee:", transactionFee);
 
-            return quote;
+            setReceivedAR(payout);
+            setQuoteError(false);
           } catch (error) {
+            setQuoteError(true);
             console.error("Error fetching quote:", error);
+            setReceivedAR(undefined);
           }
         } else {
-          setReceivedAR(null);
-          setReceivedPlaceholder("Increase Fiat Amount");
+          setReceivedAR(undefined);
+          setQuoteError(true);
         }
       };
 
@@ -107,19 +81,6 @@ export default function Purchase() {
       isInitialMount.current = false;
     }
   }, [selectedFiat, selectedPaymentMethod, fiatAmount, getQuote]);
-
-  useEffect(() => {
-    console.log("fiatAmount:", fiatAmount);
-    console.log("receivedAR:", receivedAR);
-    console.log("quote error:", quoteError);
-  }, [fiatAmount]);
-
-  useEffect(() => {
-    if (quoteError && !isInitialMount.current) {
-      setReceivedAR(null);
-      setReceivedPlaceholder("Increase Fiat Amount");
-    }
-  }, [quoteError]);
 
   return (
     <Wrapper>
@@ -191,12 +152,18 @@ export default function Purchase() {
           <InputWrapper>
             <QuantityInput
               type="number"
-              placeholder={receivedPlaceholder}
+              placeholder={browser.i18n.getMessage("buy_screen_receive_x")}
               value={receivedAR}
               readOnly
             />
             <ReceiveToken>{browser.i18n.getMessage("AR_button")}</ReceiveToken>
           </InputWrapper>
+          <Spacer y={0.3} />
+          {quoteError && !isInitialMount.current && (
+            <ConversionError>
+              Invalid Conversion: Increase Fiat Amount
+            </ConversionError>
+          )}
           <Spacer y={0.7} />
           <PaymentLabel>
             {browser.i18n.getMessage("buy_screen_payment_method")}
@@ -240,12 +207,16 @@ export default function Purchase() {
           </PaymentMethods>
         </MainSwap>
       </div>
-      <BuySection disabled={quoteError}>
+      <BuySection disabled={quoteError && !isInitialMount.current}>
         <BuyButton padding={false} route={"/confirm-purchase"} logo={false} />
       </BuySection>
     </Wrapper>
   );
 }
+
+const ConversionError = styled.div`
+  color: #ff6b6b;
+`;
 
 const BuySection = styled(Section)<{ disabled: boolean }>`
   pointer-events: ${(props) => (props.disabled ? "none" : "auto")};
