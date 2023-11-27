@@ -27,6 +27,14 @@ export default function Purchase() {
 
   const [fiatAmount, setFiatAmount] = useState(null);
 
+  const [receivedAR, setReceivedAR] = useState(null);
+
+  const [receivedPlaceholder, setReceivedPlaceholder] = useState(
+    browser.i18n.getMessage("buy_screen_receive_x")
+  );
+
+  const [quoteError, setQuoteError] = useState(false);
+
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     string | null
   >("creditcard");
@@ -45,41 +53,52 @@ export default function Purchase() {
   useEffect(() => {
     if (!isInitialMount.current) {
       const fetchQuote = async () => {
-        // Ensure fiatAmount is a number before calling the API
         if (typeof fiatAmount === "number") {
-          const quote = await getQuote(
-            selectedFiat,
-            selectedPaymentMethod,
-            fiatAmount
-          );
+          try {
+            const quote = await getQuote(
+              selectedFiat,
+              selectedPaymentMethod,
+              fiatAmount
+            );
 
-          // Destructuring required data from response:
-          const {
-            availablePaymentMethods,
-            networkFee,
-            paymentMethod,
-            payout,
-            quoteId,
-            ramp,
-            rate,
-            recommendations,
-            transactionFee
-          } = quote[0];
+            const {
+              availablePaymentMethods,
+              networkFee,
+              paymentMethod,
+              payout,
+              quoteId,
+              ramp,
+              rate,
+              recommendations,
+              transactionFee
+            } = quote[0];
 
-          console.log("Fiat Amount:", fiatAmount);
-          console.log("Fiat Type:", selectedFiat);
-          console.log("Available Payment Methods:", availablePaymentMethods);
-          console.log("Network Fee:", networkFee);
-          console.log("Payment Method:", paymentMethod);
-          console.log("Payout:", payout);
-          console.log("Quote ID:", quoteId);
-          console.log("Ramp:", ramp);
-          console.log("Rate:", rate);
-          console.log("Recommendations:", recommendations);
-          console.log("Transaction Fee:", transactionFee);
+            if (payout !== undefined) {
+              setQuoteError(false);
+              setReceivedAR(payout);
+            } else {
+              setQuoteError(true);
+            }
 
-          // Handle quote here
-          return quote;
+            console.log("Fiat Amount:", fiatAmount);
+            console.log("Fiat Type:", selectedFiat);
+            console.log("Available Payment Methods:", availablePaymentMethods);
+            console.log("Network Fee:", networkFee);
+            console.log("Payment Method:", paymentMethod);
+            console.log("Payout:", payout);
+            console.log("Quote ID:", quoteId);
+            console.log("Ramp:", ramp);
+            console.log("Rate:", rate);
+            console.log("Recommendations:", recommendations);
+            console.log("Transaction Fee:", transactionFee);
+
+            return quote;
+          } catch (error) {
+            console.error("Error fetching quote:", error);
+          }
+        } else {
+          setReceivedAR(null);
+          setReceivedPlaceholder("Increase Fiat Amount");
         }
       };
 
@@ -88,6 +107,19 @@ export default function Purchase() {
       isInitialMount.current = false;
     }
   }, [selectedFiat, selectedPaymentMethod, fiatAmount, getQuote]);
+
+  useEffect(() => {
+    console.log("fiatAmount:", fiatAmount);
+    console.log("receivedAR:", receivedAR);
+    console.log("quote error:", quoteError);
+  }, [fiatAmount]);
+
+  useEffect(() => {
+    if (quoteError && !isInitialMount.current) {
+      setReceivedAR(null);
+      setReceivedPlaceholder("Increase Fiat Amount");
+    }
+  }, [quoteError]);
 
   return (
     <Wrapper>
@@ -159,7 +191,9 @@ export default function Purchase() {
           <InputWrapper>
             <QuantityInput
               type="number"
-              placeholder={browser.i18n.getMessage("buy_screen_receive_x")}
+              placeholder={receivedPlaceholder}
+              value={receivedAR}
+              readOnly
             />
             <ReceiveToken>{browser.i18n.getMessage("AR_button")}</ReceiveToken>
           </InputWrapper>
@@ -206,12 +240,16 @@ export default function Purchase() {
           </PaymentMethods>
         </MainSwap>
       </div>
-      <Section>
+      <BuySection disabled={quoteError}>
         <BuyButton padding={false} route={"/confirm-purchase"} logo={false} />
-      </Section>
+      </BuySection>
     </Wrapper>
   );
 }
+
+const BuySection = styled(Section)<{ disabled: boolean }>`
+  pointer-events: ${(props) => (props.disabled ? "none" : "auto")};
+`;
 
 const DropdownList = styled.ul`
   list-style: none;
