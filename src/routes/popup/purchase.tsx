@@ -4,9 +4,10 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { hoverEffect } from "~utils/theme";
+import { useTheme, hoverEffect } from "~utils/theme";
 import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
 import { Section, Card, Spacer, Button } from "@arconnect/components";
+import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
 import applePay from "url:/assets/ecosystem/apple-pay.svg";
 import gPay from "url:/assets/ecosystem/g-pay.svg";
@@ -20,6 +21,8 @@ interface SelectIconProps {
 
 export default function Purchase() {
   const [push] = useHistory();
+
+  const theme = useTheme();
 
   const [fiatSwitchOpen, setFiatSwitchOpen] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
@@ -114,8 +117,9 @@ export default function Purchase() {
         </Header>
         <MainSwap>
           <InputLabel>{browser.i18n.getMessage("buy_screen_pay")}</InputLabel>
-          <InputWrapper>
+          <InputWrapper displayTheme={theme}>
             <QuantityInput
+              displayTheme={theme}
               type="number"
               placeholder={browser.i18n.getMessage("buy_screen_enter")}
               value={fiatAmount}
@@ -149,17 +153,19 @@ export default function Purchase() {
             <FiatSelect
               onClick={() => setFiatSwitchOpen(!fiatSwitchOpen)}
               open={fiatSwitchOpen}
+              displayTheme={theme}
             >
               {selectedFiat.toLocaleUpperCase()}
               <SelectIcon open={fiatSwitchOpen} />
             </FiatSelect>
             {showOptions && (
               <FiatDropdown>
-                <DropdownList>
+                <DropdownList displayTheme={theme}>
                   {supportedCurrencies.map((currency) => (
                     <DropdownItem
                       key={currency}
                       onClick={() => handleFiat(currency)}
+                      displayTheme={theme}
                       active={selectedFiat === currency}
                     >
                       {currency.toLocaleUpperCase()}
@@ -173,8 +179,9 @@ export default function Purchase() {
           <InputLabel>
             {browser.i18n.getMessage("buy_screen_receive")}
           </InputLabel>
-          <InputWrapper>
+          <InputWrapper displayTheme={theme}>
             <QuantityInput
+              displayTheme={theme}
               type="number"
               placeholder={browser.i18n.getMessage("buy_screen_receive_x")}
               value={receivedAR}
@@ -199,6 +206,7 @@ export default function Purchase() {
               small
               secondary
               reversed
+              displayTheme={theme}
             >
               <DotIcon selected={selectedPaymentMethod === "creditcard"} />
               <PaySVG
@@ -214,6 +222,7 @@ export default function Purchase() {
               small
               secondary
               reversed
+              displayTheme={theme}
             >
               <DotIcon selected={selectedPaymentMethod === "applepay"} />
               <PaySVG src={applePay} alt={"Apple Pay"} draggable={false} />
@@ -224,6 +233,7 @@ export default function Purchase() {
               small
               secondary
               reversed
+              displayTheme={theme}
             >
               <DotIcon selected={selectedPaymentMethod === "googlepay"} />
               <PaySVG src={gPay} alt={"Google Pay"} draggable={false} />
@@ -246,10 +256,11 @@ const BuySection = styled(Section)<{ disabled: boolean }>`
   pointer-events: ${(props) => (props.disabled ? "none" : "auto")};
 `;
 
-const DropdownList = styled.ul`
+const DropdownList = styled.ul<{ displayTheme: DisplayTheme }>`
   list-style: none;
   padding: 2px;
-  background-color: rgb(22, 22, 22);
+  background-color: ${(props) =>
+    props.displayTheme === "light" ? "#ffffff" : "rgb(22, 22, 22)"};
   width: 50%;
   font-size: 16px;
   border-radius: 12px;
@@ -266,7 +277,7 @@ const DropdownList = styled.ul`
   }
 `;
 
-const DropdownItem = styled.li<{ active: boolean }>`
+const DropdownItem = styled.li<{ active: boolean; displayTheme: DisplayTheme }>`
   padding: 2px;
   cursor: pointer;
   font-weight: 500;
@@ -324,11 +335,14 @@ const DotIcon = styled.div<{ selected: boolean }>`
   border: 1px solid #ab9aff26;
 `;
 
-const PaymentButton = styled(Button)<{ selected: boolean }>`
+const PaymentButton = styled(Button)<{
+  selected: boolean;
+  displayTheme: DisplayTheme;
+}>`
   border-radius: 5px;
   border: 1px solid ${(props) => (props.selected ? "#ab9aff" : "#ab9aff26")};
   font-size: 7.3px;
-  color: #ffffff;
+  color: ${(props) => (props.displayTheme === "light" ? "#000000" : "#ffffff")};
   font-weight: normal;
   padding: 5px;
   gap: 5px;
@@ -355,6 +369,7 @@ const ReceiveToken = styled(Card)`
   border-radius: 12px;
   padding: 2px 0px 2px 0px;
   font-weight: 500;
+  color: #ffffff;
 `;
 
 const InputLabel = styled.div`
@@ -372,21 +387,25 @@ const PaymentLabel = styled(InputLabel)`
   line-height: 19.12px;
 `;
 
-const InputWrapper = styled.div`
+const InputWrapper = styled.div<{ displayTheme: DisplayTheme }>`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   background-color: #ab9aff26;
   padding: 10px;
-  border: 1px solid #ab9aff26;
+  border: ${(props) =>
+    props.displayTheme === "light"
+      ? "1px solid #AB9AFF"
+      : "1px solid #ab9aff26"};
   border-radius: 12px;
 `;
 
-const QuantityInput = styled.input`
+const QuantityInput = styled.input<{ displayTheme: DisplayTheme }>`
   width: 100%;
   background-color: transparent;
-  color: #ffffffb2;
+  color: ${(props) =>
+    props.displayTheme === "light" ? "#AB9AFF" : "#ffffffb2"};
   padding: 10px 10px 10px 3px;
   outline: none;
   border: none;
@@ -394,7 +413,8 @@ const QuantityInput = styled.input`
   font-weight: 500;
 
   &::placeholder {
-    color: #ffffffb2;
+    color: ${(props) =>
+      props.displayTheme === "light" ? "#AB9AFF" : "#ffffffb2"};
     font-size: 16px;
     /* Add any other placeholder styles you need */
   }
@@ -415,7 +435,7 @@ const SelectIcon = styled(ChevronDownIcon)<SelectIconProps>`
   transform: ${(props) => (props.open ? "rotate(180deg)" : "rotate(0)")};
 `;
 
-const FiatSelect = styled(Card)<{ open: boolean }>`
+const FiatSelect = styled(Card)<{ open: boolean; displayTheme: DisplayTheme }>`
   position: relative;
   display: flex;
   width: 84px;
@@ -429,6 +449,7 @@ const FiatSelect = styled(Card)<{ open: boolean }>`
   border-radius: 12px;
   padding: 2px 2px 2px 10px;
   font-weight: 500;
+  color: ${(props) => (props.displayTheme === "light" ? "#ffffff" : "#ffffff")};
 
   ${(props) =>
     props.open
