@@ -80,31 +80,7 @@ export default function Purchase() {
 
             saveQuoteToStorage(quoteData);
 
-            console.log("Fetched new quote:");
-
-            const {
-              availablePaymentMethods,
-              networkFee,
-              paymentMethod,
-              payout,
-              quoteId,
-              ramp,
-              rate,
-              recommendations,
-              transactionFee
-            } = quote[0];
-
-            console.log("Fiat Amount:", fiatAmount);
-            console.log("Fiat Type:", selectedFiat);
-            console.log("Available Payment Methods:", availablePaymentMethods);
-            console.log("Network Fee:", networkFee);
-            console.log("Payment Method:", paymentMethod);
-            console.log("Payout:", payout);
-            console.log("Quote ID:", quoteId);
-            console.log("Ramp:", ramp);
-            console.log("Rate:", rate);
-            console.log("Recommendations:", recommendations);
-            console.log("Transaction Fee:", transactionFee);
+            const { payout } = quote[0];
 
             setReceivedAR(payout);
             setQuoteError(false);
