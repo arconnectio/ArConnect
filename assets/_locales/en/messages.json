@@ -1392,5 +1392,41 @@
   "buy_ar_button": {
     "message": "Buy AR",
     "description": "Buy AR with Onramper button text"
+  },
+  "buy_screen_title": {
+    "message": "Buy",
+    "description": "Buy AR with Onramper button text"
+  },
+  "buy_screen_pay": {
+    "message": "You pay",
+    "description": "Payment input label title"
+  },
+  "buy_screen_receive": {
+    "message": "You receive",
+    "description": "Receive input label title"
+  },
+  "buy_screen_payment_method": {
+    "message": "Payment Method",
+    "description": "Select payment method title"
+  },
+  "buy_screen_enter": {
+    "message": "Enter amount",
+    "description": "Enter fiat amount placeholder"
+  },
+  "buy_screen_receive_x": {
+    "message": "xxxx.xxxx",
+    "description": "Receive quantity placeholder"
+  },
+  "AR_button": {
+    "message": "AR",
+    "description": "Receive quantity button text"
+  },
+  "credit_debit": {
+    "message": "Credit/Debit Card",
+    "description": "Buy screen payment method text"
+  },
+  "conversion_error": {
+    "message": "Invalid Conversion: Increase Fiat Amount",
+    "description": "Buy screen conversion error text"
   }
 }
