@@ -47,7 +47,7 @@ export default function Purchase() {
     null
   );
 
-  const saveQuoteToStorage = async (quoteData) => {
+  const saveQuoteToStorage = async (quoteData: Object) => {
     try {
       // Set the quote data in the state
       await setQuote(quoteData);
