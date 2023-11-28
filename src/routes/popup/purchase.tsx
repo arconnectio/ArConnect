@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useHistory } from "~utils/hash_router";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
+import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 import { hoverEffect } from "~utils/theme";
 import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
 import { Section, Card, Spacer, Button } from "@arconnect/components";
@@ -37,6 +39,24 @@ export default function Purchase() {
 
   const isInitialMount = useRef(true);
 
+  const [quote, setQuote] = useStorage<Object>(
+    {
+      key: "quote",
+      instance: ExtensionStorage
+    },
+    null
+  );
+
+  const saveQuoteToStorage = async (quoteData) => {
+    try {
+      // Set the quote data in the state
+      await setQuote(quoteData);
+      console.log("Quote data saved:", quoteData);
+    } catch (error) {
+      console.error("Error saving quote data:", error);
+    }
+  };
+
   const handleFiat = (currency: string) => {
     setSelectedFiat(currency); // Update the selected fiat currency
     setFiatSwitchOpen(false); // Close the dropdown
@@ -57,11 +77,33 @@ export default function Purchase() {
               fiatAmount
             );
 
+            saveQuoteToStorage(quote[0]);
+
             console.log("Fetched new quote:");
 
-            const { payout } = quote[0];
+            const {
+              availablePaymentMethods,
+              networkFee,
+              paymentMethod,
+              payout,
+              quoteId,
+              ramp,
+              rate,
+              recommendations,
+              transactionFee
+            } = quote[0];
 
+            console.log("Fiat Amount:", fiatAmount);
+            console.log("Fiat Type:", selectedFiat);
+            console.log("Available Payment Methods:", availablePaymentMethods);
+            console.log("Network Fee:", networkFee);
+            console.log("Payment Method:", paymentMethod);
             console.log("Payout:", payout);
+            console.log("Quote ID:", quoteId);
+            console.log("Ramp:", ramp);
+            console.log("Rate:", rate);
+            console.log("Recommendations:", recommendations);
+            console.log("Transaction Fee:", transactionFee);
 
             setReceivedAR(payout);
             setQuoteError(false);
