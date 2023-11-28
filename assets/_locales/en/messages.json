@@ -1424,5 +1424,9 @@
   "credit_debit": {
     "message": "Credit/Debit Card",
     "description": "Buy screen payment method text"
+  },
+  "conversion_error": {
+    "message": "Invalid Conversion: Increase Fiat Amount",
+    "description": "Buy screen conversion error text"
   }
 }

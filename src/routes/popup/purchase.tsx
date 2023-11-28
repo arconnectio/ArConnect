@@ -192,7 +192,7 @@ export default function Purchase() {
           <Spacer y={0.3} />
           {quoteError && !isInitialMount.current && (
             <ConversionError>
-              Invalid Conversion: Increase Fiat Amount
+              {browser.i18n.getMessage("conversion_error")}
             </ConversionError>
           )}
           <Spacer y={0.7} />
