@@ -22,17 +22,11 @@ export default function Purchase() {
   const [push] = useHistory();
 
   const [fiatSwitchOpen, setFiatSwitchOpen] = useState(false);
-
   const [showOptions, setShowOptions] = useState(false);
-
   const [selectedFiat, setSelectedFiat] = useState("eur");
-
   const [fiatAmount, setFiatAmount] = useState(undefined);
-
   const [receivedAR, setReceivedAR] = useState(undefined);
-
   const [quoteError, setQuoteError] = useState(false);
-
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     string | null
   >("creditcard");
@@ -77,7 +71,14 @@ export default function Purchase() {
               fiatAmount
             );
 
-            saveQuoteToStorage(quote[0]);
+            const quoteData = {
+              selectedFiat,
+              selectedPaymentMethod,
+              fiatAmount,
+              ...quote[0]
+            };
+
+            saveQuoteToStorage(quoteData);
 
             console.log("Fetched new quote:");
 
