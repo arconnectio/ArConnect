@@ -17,7 +17,12 @@ export default function ConfirmPurchase() {
   const theme = useTheme();
 
   const [activeWallet, setActiveWallet] = useState("");
-  const [activeQuote, setActiveQuote] = useState({});
+  const [selectedFiat, setSelectedFiat] = useState("");
+  const [payout, setPayout] = useState(0);
+  const [rate, setRate] = useState(0);
+  const [networkFee, setNetworkFee] = useState(0);
+  const [vendorFee, setVendorFee] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
 
   useEffect(() => {
     async function fetchActiveWallet() {
@@ -36,7 +41,19 @@ export default function ConfirmPurchase() {
   useEffect(() => {
     async function fetchActiveQuote() {
       const quote = await getActiveQuote();
-      setActiveQuote(quote);
+      console.log(quote);
+
+      setSelectedFiat(quote.selectedFiat.toUpperCase());
+      setPayout(quote.payout);
+      const totalRate = (Number(quote.payout) * Number(quote.rate)).toFixed(2);
+      setRate(totalRate);
+      setNetworkFee(quote.networkFee);
+      setVendorFee(quote.transactionFee);
+      const total =
+        Number(totalRate) +
+        Number(quote.networkFee) +
+        Number(quote.transactionFee);
+      setTotalCost(total);
     }
     fetchActiveQuote();
   }, []);
@@ -55,6 +72,40 @@ export default function ConfirmPurchase() {
         <MainContent>
           <WalletTitle>{browser.i18n.getMessage("wallet_address")}</WalletTitle>
           <Address>{activeWallet}</Address>
+          <OrderTitle>{browser.i18n.getMessage("order_details")}</OrderTitle>
+          <HL />
+          <DetailWrapper>
+            <DetailTitle>{browser.i18n.getMessage("confirm_rate")}</DetailTitle>
+            <DetailValue>
+              {payout} {browser.i18n.getMessage("AR_button")} = {rate}{" "}
+              {selectedFiat}
+            </DetailValue>
+          </DetailWrapper>
+          <HL />
+          <DetailWrapper>
+            <DetailTitle>
+              {browser.i18n.getMessage("transaction_fee")}
+            </DetailTitle>
+            <DetailValue>
+              {networkFee} {selectedFiat}
+            </DetailValue>
+          </DetailWrapper>
+          <HL />
+          <DetailWrapper>
+            <DetailTitle>
+              {browser.i18n.getMessage("confirm_vendor_fee")}
+            </DetailTitle>
+            <DetailValue>
+              {vendorFee} {selectedFiat}
+            </DetailValue>
+          </DetailWrapper>
+          <HL />
+          <DetailWrapper>
+            <OrderTitle>{browser.i18n.getMessage("confirm_total")}</OrderTitle>
+            <OrderTitle>
+              {totalCost} {selectedFiat}
+            </OrderTitle>
+          </DetailWrapper>
         </MainContent>
       </div>
       <Section>
@@ -64,9 +115,40 @@ export default function ConfirmPurchase() {
   );
 }
 
+const DetailValue = styled.div`
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+`;
+
+const DetailTitle = styled.div`
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 200;
+`;
+
+const DetailWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const HL = styled.hr`
+  width: 100%;
+  border: 1px solid #ab9aff26;
+`;
+
+const OrderTitle = styled.div`
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 14px;
+`;
+
 const Address = styled.div`
   color: #ffffffb2;
   font-size: 13px;
+  margin-bottom: 33px;
 `;
 
 const WalletTitle = styled.div`
@@ -89,7 +171,7 @@ const Header = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 23.6px 12px 12.4px 12px;
-  margin-bottom: 10px;
+  margin-bottom: 18px;
 `;
 
 const Title = styled.div`
