@@ -8,6 +8,7 @@ interface ButtonWrapperProps {
   padding?: boolean;
   route: string;
   logo?: boolean;
+  onClick?: () => void;
 }
 
 export default function BuyButton({
