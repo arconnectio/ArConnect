@@ -17,6 +17,7 @@ export default function ConfirmPurchase() {
   const theme = useTheme();
 
   const [activeWallet, setActiveWallet] = useState("");
+  const [activeQuote, setActiveQuote] = useState({});
 
   useEffect(() => {
     async function fetchActiveWallet() {
@@ -24,6 +25,20 @@ export default function ConfirmPurchase() {
       setActiveWallet(wallet.address);
     }
     fetchActiveWallet();
+  }, []);
+
+  async function getActiveQuote() {
+    const activeQuote = await ExtensionStorage.get("quote");
+
+    return activeQuote;
+  }
+
+  useEffect(() => {
+    async function fetchActiveQuote() {
+      const quote = await getActiveQuote();
+      setActiveQuote(quote);
+    }
+    fetchActiveQuote();
   }, []);
 
   return (
