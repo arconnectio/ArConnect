@@ -6,7 +6,7 @@ import arLogoDark from "url:/assets/ar/logo_dark.png";
 
 interface ButtonWrapperProps {
   padding?: boolean;
-  route: string;
+  route?: string;
   logo?: boolean;
   onClick?: () => void;
 }

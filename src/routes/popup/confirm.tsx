@@ -151,12 +151,7 @@ export default function ConfirmPurchase() {
         </MainContent>
       </div>
       <Section>
-        <BuyButton
-          padding={false}
-          route={"/confirm-purchase"}
-          logo={false}
-          onClick={buyAR}
-        />
+        <BuyButton padding={false} logo={false} onClick={buyAR} />
       </Section>
     </Wrapper>
   );
