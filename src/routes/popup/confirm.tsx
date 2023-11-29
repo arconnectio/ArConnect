@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useHistory } from "~utils/hash_router";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -8,11 +9,22 @@ import { CloseIcon } from "@iconicicons/react";
 import { Section, Card, Spacer, Button } from "@arconnect/components";
 import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
+import { getActiveWallet } from "~wallets";
 
 export default function ConfirmPurchase() {
   const [push] = useHistory();
 
   const theme = useTheme();
+
+  const [activeWallet, setActiveWallet] = useState("");
+
+  useEffect(() => {
+    async function fetchActiveWallet() {
+      const wallet = await getActiveWallet();
+      setActiveWallet(wallet.address);
+    }
+    fetchActiveWallet();
+  }, []);
 
   return (
     <Wrapper>
@@ -25,7 +37,10 @@ export default function ConfirmPurchase() {
             </ExitIcon>
           </BackWrapper>
         </Header>
-        <MainContent></MainContent>
+        <MainContent>
+          <WalletTitle>{browser.i18n.getMessage("wallet_address")}</WalletTitle>
+          <Address>{activeWallet}</Address>
+        </MainContent>
       </div>
       <Section>
         <BuyButton padding={false} route={"/confirm-purchase"} logo={false} />
@@ -33,6 +48,18 @@ export default function ConfirmPurchase() {
     </Wrapper>
   );
 }
+
+const Address = styled.div`
+  color: #ffffffb2;
+  font-size: 13px;
+`;
+
+const WalletTitle = styled.div`
+  height: 33px;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 500;
+`;
 
 const Wrapper = styled.div`
   display: flex;
@@ -47,6 +74,7 @@ const Header = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 23.6px 12px 12.4px 12px;
+  margin-bottom: 10px;
 `;
 
 const Title = styled.div`

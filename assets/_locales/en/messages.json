@@ -1432,5 +1432,9 @@
   "confirm_purchase_title": {
     "message": "Add AR to your Wallet",
     "description": "Confirm purchase header text"
+  },
+  "wallet_address": {
+    "message": "Wallet Address",
+    "description": "Confirm purchase wallet address header"
   }
 }
