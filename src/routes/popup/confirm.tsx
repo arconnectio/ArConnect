@@ -2,11 +2,10 @@ import { useState, useEffect } from "react";
 import { useHistory } from "~utils/hash_router";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useTheme, hoverEffect } from "~utils/theme";
-import { CloseIcon } from "@iconicicons/react";
-import { Section, Card, Spacer, Button } from "@arconnect/components";
+import { ArrowLeftIcon } from "@iconicicons/react";
+import { Section } from "@arconnect/components";
 import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
 import { getActiveWallet } from "~wallets";
@@ -62,12 +61,12 @@ export default function ConfirmPurchase() {
     <Wrapper>
       <div>
         <Header>
-          <Title>{browser.i18n.getMessage("confirm_purchase_title")}</Title>
           <BackWrapper>
             <ExitIcon onClick={() => push("/purchase")}>
               {browser.i18n.getMessage("exit_buy_screen")}
             </ExitIcon>
           </BackWrapper>
+          <Title>{browser.i18n.getMessage("confirm_purchase_title")}</Title>
         </Header>
         <MainContent>
           <WalletTitle>{browser.i18n.getMessage("wallet_address")}</WalletTitle>
@@ -169,7 +168,7 @@ const Header = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 23.6px 12px 12.4px 12px;
   margin-bottom: 18px;
 `;
@@ -187,6 +186,7 @@ const BackWrapper = styled.div`
   width: max-content;
   height: max-content;
   cursor: pointer;
+  margin: 0px 12px 0px 3px;
 
   ${hoverEffect}
 
@@ -201,7 +201,7 @@ const BackWrapper = styled.div`
   }
 `;
 
-const ExitIcon = styled(CloseIcon)`
+const ExitIcon = styled(ArrowLeftIcon)`
   color: #ab9aff;
   height: 30px;
   width: 30px;
