@@ -16,7 +16,7 @@ export default function NoBalance() {
         {browser.i18n.getMessage("home_no_balance", "$AR")}
       </NoBalanceText>
       <ButtonWrapper>
-        <BuyButton padding={false} route={"/purchase"} logo={true} />
+        <BuyButton route={"/purchase"} logo={true} />
         <Container>
           <CustomButton
             onClick={() => push("/receive")}

@@ -242,7 +242,7 @@ export default function Purchase() {
         </MainSwap>
       </div>
       <BuySection disabled={quoteError || receivedAR === undefined}>
-        <BuyButton padding={false} route={"/confirm-purchase"} />
+        <BuyButton route={"/confirm-purchase"} />
       </BuySection>
     </Wrapper>
   );

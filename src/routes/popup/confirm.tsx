@@ -151,7 +151,7 @@ export default function ConfirmPurchase() {
         </MainContent>
       </div>
       <Section>
-        <BuyButton padding={false} logo={false} onClick={buyAR} />
+        <BuyButton logo={false} onClick={buyAR} />
       </Section>
     </Wrapper>
   );
