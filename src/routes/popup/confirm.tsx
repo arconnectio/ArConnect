@@ -9,6 +9,7 @@ import { Section } from "@arconnect/components";
 import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
 import { getActiveWallet } from "~wallets";
+import { buyRequest } from "~lib/onramper";
 
 export default function ConfirmPurchase() {
   const [push] = useHistory();
@@ -22,6 +23,9 @@ export default function ConfirmPurchase() {
   const [networkFee, setNetworkFee] = useState(0);
   const [vendorFee, setVendorFee] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
+  const [onramp, setOnramp] = useState("");
+  const [fiatAmount, setFiatAmount] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState("");
 
   useEffect(() => {
     async function fetchActiveWallet() {
@@ -42,7 +46,10 @@ export default function ConfirmPurchase() {
       const quote = await getActiveQuote();
       console.log(quote);
 
+      setOnramp(quote.ramp);
       setSelectedFiat(quote.selectedFiat.toUpperCase());
+      setFiatAmount(quote.fiatAmount);
+      setPaymentMethod(quote.selectedPaymentMethod);
       setPayout(quote.payout);
       const totalRate = (Number(quote.payout) * Number(quote.rate)).toFixed(2);
       setRate(totalRate);
@@ -56,6 +63,42 @@ export default function ConfirmPurchase() {
     }
     fetchActiveQuote();
   }, []);
+
+  const buyAR = async () => {
+    try {
+      const requestBody = {
+        onramp,
+        source: selectedFiat,
+        amount: fiatAmount,
+        paymentMethod,
+        wallet: activeWallet
+      };
+
+      const response = await buyRequest(
+        requestBody.onramp,
+        requestBody.source,
+        requestBody.amount,
+        requestBody.paymentMethod,
+        requestBody.wallet
+      );
+
+      console.log("Purchase pending:", response);
+
+      if (
+        response &&
+        response.message &&
+        response.message.transactionInformation &&
+        response.message.transactionInformation.url
+      ) {
+        // Redirect the user to the provided URL
+        window.location.href = response.message.transactionInformation.url;
+      } else {
+        console.error("Invalid response format or missing URL");
+      }
+    } catch (error) {
+      console.error("Error buying AR:", error);
+    }
+  };
 
   return (
     <Wrapper>
@@ -108,7 +151,12 @@ export default function ConfirmPurchase() {
         </MainContent>
       </div>
       <Section>
-        <BuyButton padding={false} route={"/confirm-purchase"} logo={false} />
+        <BuyButton
+          padding={false}
+          route={"/confirm-purchase"}
+          logo={false}
+          onClick={buyAR}
+        />
       </Section>
     </Wrapper>
   );
