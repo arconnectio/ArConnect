@@ -1428,5 +1428,9 @@
   "conversion_error": {
     "message": "Invalid Conversion: Increase Fiat Amount",
     "description": "Buy screen conversion error text"
+  },
+  "confirm_purchase_title": {
+    "message": "Add AR to your Wallet",
+    "description": "Confirm purchase header text"
   }
 }
