@@ -155,7 +155,12 @@ export default function ConfirmPurchase() {
         </MainContent>
       </div>
       <Section>
-        <BuyButton logo={false} onClick={buyAR} />
+        <BuyButton
+          id="buy-ar-button"
+          useCustomClickHandler={true}
+          logo={false}
+          onClick={buyAR}
+        />
       </Section>
     </Wrapper>
   );
