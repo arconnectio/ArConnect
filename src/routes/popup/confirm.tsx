@@ -68,12 +68,16 @@ export default function ConfirmPurchase() {
     console.log("Confirmed purchase");
 
     try {
+      const wallet = {
+        address: activeWallet
+      };
+
       const requestBody = {
         onramp,
         source: selectedFiat,
         amount: fiatAmount,
         paymentMethod,
-        wallet: activeWallet
+        wallet: wallet
       };
 
       const response = await buyRequest(

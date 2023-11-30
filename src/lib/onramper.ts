@@ -53,7 +53,7 @@ export async function getQuote(
  * @param amount amount of fiat buying AR with
  * @param type <-- buy
  * @param paymentMethod chosen payment method
- * @param wallet user's active wallet address
+ * @param wallet.address user's active wallet address
  * @param network <-- arweave
  */
 
@@ -62,7 +62,7 @@ export async function buyRequest(
   source: string,
   amount: number,
   paymentMethod: string,
-  wallet: string
+  wallet: { address: string }
 ) {
   try {
     const apiKey = process.env.PLASMO_PUBLIC_ONRAMPER_API_KEY;
@@ -80,14 +80,19 @@ export async function buyRequest(
       amount,
       type: "buy",
       paymentMethod,
-      wallet,
+      wallet: {
+        address: wallet.address
+      },
       network: "arweave"
     };
+
+    console.log(requestBody);
 
     const response = await fetch(url, {
       method: "POST",
       headers: {
-        Authorization: apiKey
+        Authorization: apiKey,
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(requestBody)
     });
