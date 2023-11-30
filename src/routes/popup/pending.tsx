@@ -5,8 +5,9 @@ import styled from "styled-components";
 import { ExtensionStorage } from "~utils/storage";
 import { useTheme, hoverEffect } from "~utils/theme";
 import { ArrowLeftIcon } from "@iconicicons/react";
-import { Section, Button } from "@arconnect/components";
+import { Section } from "@arconnect/components";
 import type { DisplayTheme } from "@arconnect/components";
+import BuyButton from "~components/popup/home/BuyButton";
 
 export default function PendingPurchase() {
   const [push] = useHistory();
@@ -28,18 +29,12 @@ export default function PendingPurchase() {
       <div>
         <MainContent></MainContent>
       </div>
-      <ButtonWrapper>
-        <Button fullWidth>
-          {browser.i18n.getMessage("close_purchase_pending")}
-        </Button>
-      </ButtonWrapper>
+      <Section>
+        <BuyButton closeBuyAR />
+      </Section>
     </Wrapper>
   );
 }
-
-const ButtonWrapper = styled(Section)`
-  height: 55px;
-`;
 
 const Wrapper = styled.div`
   display: flex;
