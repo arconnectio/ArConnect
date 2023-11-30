@@ -100,6 +100,7 @@ export default function ConfirmPurchase() {
         browser.tabs.update({
           url: response.message.transactionInformation.url
         });
+        push("/purchase-pending");
       } else {
         console.error("Invalid response format or missing URL");
       }

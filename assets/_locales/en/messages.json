@@ -1452,5 +1452,9 @@
   "confirm_total": {
     "message": "Total",
     "description": "Confirm purchase total cost text"
+  },
+  "close_purchase_pending": {
+    "message": "Close",
+    "description": "Close button text on purchase in progress page"
   }
 }
