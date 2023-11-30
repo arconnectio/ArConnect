@@ -116,39 +116,47 @@ export default function ConfirmPurchase() {
           <Title>{browser.i18n.getMessage("confirm_purchase_title")}</Title>
         </Header>
         <MainContent>
-          <WalletTitle>{browser.i18n.getMessage("wallet_address")}</WalletTitle>
-          <Address>{activeWallet}</Address>
-          <OrderTitle>{browser.i18n.getMessage("order_details")}</OrderTitle>
+          <WalletTitle displayTheme={theme}>
+            {browser.i18n.getMessage("wallet_address")}
+          </WalletTitle>
+          <Address displayTheme={theme}>{activeWallet}</Address>
+          <OrderTitle displayTheme={theme}>
+            {browser.i18n.getMessage("order_details")}
+          </OrderTitle>
           <HL />
           <DetailWrapper>
-            <DetailTitle>{browser.i18n.getMessage("confirm_rate")}</DetailTitle>
-            <DetailValue>
+            <DetailTitle displayTheme={theme}>
+              {browser.i18n.getMessage("confirm_rate")}
+            </DetailTitle>
+            <DetailValue displayTheme={theme}>
               {payout} {browser.i18n.getMessage("AR_button")} = {rate}{" "}
               {selectedFiat}
             </DetailValue>
           </DetailWrapper>
           <HL />
           <DetailWrapper>
-            <DetailTitle>
+            <DetailTitle displayTheme={theme}>
               {browser.i18n.getMessage("transaction_fee")}
             </DetailTitle>
-            <DetailValue>
+            <DetailValue displayTheme={theme}>
               {networkFee} {selectedFiat}
             </DetailValue>
           </DetailWrapper>
           <HL />
           <DetailWrapper>
-            <DetailTitle>
+            <DetailTitle displayTheme={theme}>
               {browser.i18n.getMessage("confirm_vendor_fee")}
             </DetailTitle>
-            <DetailValue>
+            <DetailValue displayTheme={theme}>
               {vendorFee} {selectedFiat}
             </DetailValue>
           </DetailWrapper>
           <HL />
           <DetailWrapper>
-            <OrderTitle>{browser.i18n.getMessage("confirm_total")}</OrderTitle>
-            <OrderTitle>
+            <OrderTitle displayTheme={theme}>
+              {browser.i18n.getMessage("confirm_total")}
+            </OrderTitle>
+            <OrderTitle displayTheme={theme}>
               {totalCost} {selectedFiat}
             </OrderTitle>
           </DetailWrapper>
@@ -166,14 +174,14 @@ export default function ConfirmPurchase() {
   );
 }
 
-const DetailValue = styled.div`
-  color: #ffffff;
+const DetailValue = styled.div<{ displayTheme: DisplayTheme }>`
+  color: ${(props) => (props.displayTheme === "light" ? "000000" : "#ffffff")};
   font-size: 12px;
   font-weight: 500;
 `;
 
-const DetailTitle = styled.div`
-  color: #ffffff;
+const DetailTitle = styled.div<{ displayTheme: DisplayTheme }>`
+  color: ${(props) => (props.displayTheme === "light" ? "000000" : "#ffffff")};
   font-size: 12px;
   font-weight: 200;
 `;
@@ -190,21 +198,22 @@ const HL = styled.hr`
   border: 1px solid #ab9aff26;
 `;
 
-const OrderTitle = styled.div`
-  color: #ffffff;
+const OrderTitle = styled.div<{ displayTheme: DisplayTheme }>`
+  color: ${(props) => (props.displayTheme === "light" ? "000000" : "#ffffff")};
   font-weight: 500;
   font-size: 14px;
 `;
 
-const Address = styled.div`
-  color: #ffffffb2;
+const Address = styled.div<{ displayTheme: DisplayTheme }>`
+  color: ${(props) =>
+    props.displayTheme === "light" ? "000000" : "#ffffffb2"};
   font-size: 13px;
   margin-bottom: 33px;
 `;
 
-const WalletTitle = styled.div`
+const WalletTitle = styled.div<{ displayTheme: DisplayTheme }>`
   height: 33px;
-  color: #ffffff;
+  color: ${(props) => (props.displayTheme === "light" ? "000000" : "#ffffff")};
   font-size: 18px;
   font-weight: 500;
 `;
