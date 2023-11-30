@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
-import { useHistory } from "~utils/hash_router";
+import { useState } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { ExtensionStorage } from "~utils/storage";
-import { useTheme, hoverEffect } from "~utils/theme";
+import { useTheme } from "~utils/theme";
 import { Section } from "@arconnect/components";
 import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
@@ -29,10 +28,10 @@ export default function PendingPurchase() {
         <CongratsTitle>
           {browser.i18n.getMessage("congrats_purchase_pending")}
         </CongratsTitle>
-        <PurchasePendingText>
+        <PurchasePendingText displayTheme={theme}>
           {browser.i18n.getMessage("info_purchase_pending")}
         </PurchasePendingText>
-        <OrderID>
+        <OrderID displayTheme={theme}>
           {browser.i18n.getMessage("order_id_purchase_pending")} {orderID}
         </OrderID>
       </MainContent>
@@ -71,18 +70,18 @@ const CheckGraphic = styled.div`
   padding-left: 3px;
 `;
 
-const OrderID = styled.div`
+const OrderID = styled.div<{ displayTheme: DisplayTheme }>`
   text-align: center;
   font-size: 12px;
   font-weight: 100;
-  color: #ffffff;
+  color: ${(props) => (props.displayTheme === "light" ? "#000000" : "#ffffff")};
 `;
 
-const PurchasePendingText = styled.div`
+const PurchasePendingText = styled.div<{ displayTheme: DisplayTheme }>`
   text-align: center;
   font-weight: 500;
   font-size: 14px;
-  color: #ffffff;
+  color: ${(props) => (props.displayTheme === "light" ? "#000000" : "#ffffff")};
   margin-bottom: 17px;
   padding: 0px 20px 0px 20px;
 `;
