@@ -20,16 +20,6 @@ export default function PendingPurchase() {
 
   getActiveQuote();
 
-  //   useEffect(() => {
-  //     const quote = getActiveQuote();
-
-  //     console.log("quote: ", quote);
-
-  //     console.log("quote id: ", quote.quoteId);
-
-  //     setOrderID(quote.quoteId);
-  //   }, [getActiveQuote]);
-
   return (
     <Wrapper>
       <MainContent>
