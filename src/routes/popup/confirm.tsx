@@ -65,6 +65,8 @@ export default function ConfirmPurchase() {
   }, []);
 
   const buyAR = async () => {
+    console.log("Confirmed purchase");
+
     try {
       const requestBody = {
         onramp,
@@ -91,7 +93,9 @@ export default function ConfirmPurchase() {
         response.message.transactionInformation.url
       ) {
         // Redirect the user to the provided URL
-        window.location.href = response.message.transactionInformation.url;
+        browser.tabs.update({
+          url: response.message.transactionInformation.url
+        });
       } else {
         console.error("Invalid response format or missing URL");
       }
