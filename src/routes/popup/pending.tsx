@@ -4,35 +4,37 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { ExtensionStorage } from "~utils/storage";
 import { useTheme, hoverEffect } from "~utils/theme";
-import { CheckIcon } from "@iconicicons/react";
 import { Section } from "@arconnect/components";
 import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
 
 export default function PendingPurchase() {
-  const [push] = useHistory();
-
   const theme = useTheme();
 
   const [orderID, setOrderID] = useState("");
 
   async function getActiveQuote() {
     const activeQuote = await ExtensionStorage.get("quote");
-
-    return activeQuote;
+    setOrderID(activeQuote.quoteId);
   }
 
-  useEffect(() => {
-    const quote = getActiveQuote();
+  getActiveQuote();
 
-    setOrderID(quote.quoteId);
-  }, []);
+  //   useEffect(() => {
+  //     const quote = getActiveQuote();
+
+  //     console.log("quote: ", quote);
+
+  //     console.log("quote id: ", quote.quoteId);
+
+  //     setOrderID(quote.quoteId);
+  //   }, [getActiveQuote]);
 
   return (
     <Wrapper>
       <MainContent>
         <CheckGraphic>
-          <Check />
+          <CheckIcon />
         </CheckGraphic>
         <CongratsTitle>
           {browser.i18n.getMessage("congrats_purchase_pending")}
@@ -51,42 +53,55 @@ export default function PendingPurchase() {
   );
 }
 
-const Check = styled(CheckIcon)`
-  color: #ffffff;
-  width: 67px;
-  height: 53px;
-`;
+const CheckIcon = () => (
+  <svg
+    width="46.67px"
+    height="33.33px"
+    viewBox="0 0 11 8"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M3.67794 6.31171L1.30728 3.82401L0.5 4.66517L3.67794 8L10.5 0.841163L9.69841 0L3.67794 6.31171Z"
+      fill="white"
+    />
+  </svg>
+);
 
 const CheckGraphic = styled.div`
   border-radius: 100%;
   height: 100px;
   width: 100px;
-  background-color: #14d110;
-  border: 6.67px solid #14d1100d;
+  background-color: #14d1104d;
+  outline: 6.67px solid #14d110;
   display: flex;
   justify-content: center;
   align-items: center;
   margin-bottom: 24px;
+  padding-left: 3px;
 `;
 
 const OrderID = styled.div`
+  text-align: center;
   font-size: 12px;
-  font-weight: 200;
+  font-weight: 100;
   color: #ffffff;
 `;
 
 const PurchasePendingText = styled.div`
+  text-align: center;
   font-weight: 500;
   font-size: 14px;
   color: #ffffff;
-  margin-bottom: 10px;
+  margin-bottom: 17px;
+  padding: 0px 20px 0px 20px;
 `;
 
 const CongratsTitle = styled.div`
   font-size: 24px;
   font-weight: 500;
   color: #ab9aff;
-  margin-bottom: 10px;
+  margin-bottom: 17px;
 `;
 
 const Wrapper = styled.div`
