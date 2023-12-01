@@ -6,7 +6,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useTheme, hoverEffect } from "~utils/theme";
 import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
-import { Section, Card, Spacer, Button } from "@arconnect/components";
+import { Section, Card, Spacer, Button, Select } from "@arconnect/components";
 import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
 import applePay from "url:/assets/ecosystem/apple-pay.svg";
@@ -14,6 +14,7 @@ import gPay from "url:/assets/ecosystem/g-pay.svg";
 import creditDebit from "url:/assets/ecosystem/credit-debit.svg";
 import supportedCurrencies from "~utils/supported_currencies";
 import { getQuote } from "~lib/onramper";
+import InputMenu from "~components/InputMenu";
 
 interface SelectIconProps {
   open: boolean;
@@ -199,6 +200,7 @@ export default function Purchase() {
           <PaymentLabel>
             {browser.i18n.getMessage("buy_screen_payment_method")}
           </PaymentLabel>
+          <InputMenu />
           <PaymentMethods>
             <PaymentButton
               onClick={() => setSelectedPaymentMethod("creditcard")}
@@ -428,7 +430,7 @@ const QuantityInput = styled.input<{ displayTheme: DisplayTheme }>`
   appearance: textfield;
 `;
 
-const SelectIcon = styled(ChevronDownIcon)<SelectIconProps>`
+export const SelectIcon = styled(ChevronDownIcon)<SelectIconProps>`
   width: 37px;
   height: 37px;
   color: white;
