@@ -201,7 +201,7 @@ export default function Purchase() {
             {browser.i18n.getMessage("buy_screen_payment_method")}
           </PaymentLabel>
           <InputMenu />
-          <PaymentMethods>
+          {/* <PaymentMethods>
             <PaymentButton
               onClick={() => setSelectedPaymentMethod("creditcard")}
               selected={selectedPaymentMethod === "creditcard"}
@@ -240,7 +240,7 @@ export default function Purchase() {
               <DotIcon selected={selectedPaymentMethod === "googlepay"} />
               <PaySVG src={gPay} alt={"Google Pay"} draggable={false} />
             </PaymentButton>
-          </PaymentMethods>
+          </PaymentMethods> */}
         </MainSwap>
       </div>
       <BuySection disabled={quoteError || receivedAR === undefined}>

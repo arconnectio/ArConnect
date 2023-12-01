@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useTheme } from "~utils/theme";
 import type { DisplayTheme } from "@arconnect/components";
 import { SelectIcon } from "~routes/popup/purchase";
-import gPay from "url:/assets/ecosystem/g-pay.svg";
+import gPay from "url:/assets/ecosystem/google-pay.svg";
 
 export default function InputMenu() {
   const theme = useTheme();
@@ -11,12 +11,9 @@ export default function InputMenu() {
   return (
     <SelectInput displayTheme={theme}>
       <PaymentWrapper>
-        <IconWrapper>
-          <PaymentIcon src={gPay} alt={"Google Pay"} draggable={false} />
-        </IconWrapper>
+        <PaymentIcon src={gPay} alt={"Google Pay"} draggable={false} />
         Google Pay
       </PaymentWrapper>
-
       <SelectIcon open={false} />
     </SelectInput>
   );
@@ -48,15 +45,8 @@ const PaymentWrapper = styled.div`
   gap: 10px;
 `;
 
-const IconWrapper = styled.div`
-  width: 48px;
-  height: 48px;
-  border-radius: 100%;
-  background-color: #ffffff;
-`;
-
 const PaymentIcon = styled.img`
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   background-color: transparent;
 `;
