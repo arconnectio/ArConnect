@@ -52,11 +52,12 @@ const Art = styled.img.attrs({
   alt: "No balance art"
 })`
   user-select: none;
-  width: 184px;
+  width: 137px;
 `;
 
 const ButtonWrapper = styled.div`
   width: 100%;
+  margin-top: -10px;
 `;
 
 const Container = styled.div`
@@ -69,6 +70,14 @@ const CustomButton = styled(Button)`
   }
   background-color: black;
   border: 3px solid #ab9aff;
+  margin-bottom: 10px;
+  height: 46.78px;
+  transition: all 0.23s ease-in-out;
+
+  &:hover {
+    transform: scale(1.02);
+    border: 1px solid #ab9aff;
+  }
 `;
 
 const ArrowRight = styled(ArrowRightIcon)`
