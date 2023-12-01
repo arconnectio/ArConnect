@@ -1428,5 +1428,29 @@
   "conversion_error": {
     "message": "Invalid Conversion: Increase Fiat Amount",
     "description": "Buy screen conversion error text"
+  },
+  "confirm_purchase_title": {
+    "message": "Add AR to your Wallet",
+    "description": "Confirm purchase header text"
+  },
+  "wallet_address": {
+    "message": "Wallet Address",
+    "description": "Confirm purchase wallet address header"
+  },
+  "order_details": {
+    "message": "Order details",
+    "description": "Confirm purchase order details title"
+  },
+  "confirm_rate": {
+    "message": "Rate",
+    "description": "Confirm purchase rate text"
+  },
+  "confirm_vendor_fee": {
+    "message": "Vendor fee",
+    "description": "Confirm purchase vendor fee text"
+  },
+  "confirm_total": {
+    "message": "Total",
+    "description": "Confirm purchase total cost text"
   }
 }

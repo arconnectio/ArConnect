@@ -12,6 +12,7 @@ import HistoryProvider from "~components/popup/HistoryProvider";
 
 import Home from "~routes/popup";
 import Purchase from "~routes/popup/purchase";
+import ConfirmPurchase from "~routes/popup/confirm";
 import Receive from "~routes/popup/receive";
 import Send from "~routes/popup/send";
 import SendAuth from "~routes/popup/send/auth";
@@ -45,6 +46,7 @@ export default function Popup() {
             <HistoryProvider>
               <Route path="/" component={Home} />
               <Route path="/purchase" component={Purchase} />
+              <Route path="/confirm-purchase" component={ConfirmPurchase} />
               <Route path="/receive" component={Receive} />
               <Route path="/send/transfer/:id?">
                 {(params: { id?: string }) => <Send id={params?.id} />}
