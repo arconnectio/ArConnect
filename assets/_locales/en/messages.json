@@ -1452,5 +1452,21 @@
   "confirm_total": {
     "message": "Total",
     "description": "Confirm purchase total cost text"
+  },
+  "close_purchase_pending": {
+    "message": "Close",
+    "description": "Close button text on purchase in progress page"
+  },
+  "congrats_purchase_pending": {
+    "message": "Congrats!",
+    "description": "Congrats text on purchase in progress page"
+  },
+  "info_purchase_pending": {
+    "message": "Your purchase is in progress. This may take up to 30-60 minutes to complete.",
+    "description": "Info message text on purchase in progress page"
+  },
+  "order_id_purchase_pending": {
+    "message":  "Order ID:",
+    "description": "Order ID text on purchase in progress page"
   }
 }

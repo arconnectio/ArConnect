@@ -11,6 +11,7 @@ interface ButtonWrapperProps {
   logo?: boolean;
   onClick?: () => void;
   useCustomClickHandler?: boolean;
+  closeBuyAR?: boolean;
 }
 
 export default function BuyButton({
@@ -18,7 +19,8 @@ export default function BuyButton({
   route,
   logo,
   onClick,
-  useCustomClickHandler
+  useCustomClickHandler,
+  closeBuyAR
 }: ButtonWrapperProps) {
   const [push] = useHistory();
 
@@ -27,6 +29,8 @@ export default function BuyButton({
   const handleClick = () => {
     if (useCustomClickHandler) {
       onClick();
+    } else if (closeBuyAR) {
+      push("/");
     } else {
       push(targetRoute);
     }
@@ -40,7 +44,8 @@ export default function BuyButton({
         fullWidth
         onClick={handleClick}
       >
-        {browser.i18n.getMessage("buy_ar_button")}
+        {closeBuyAR && browser.i18n.getMessage("close_purchase_pending")}
+        {!closeBuyAR && browser.i18n.getMessage("buy_ar_button")}
         {logo && <ARLogo src={arLogoDark} alt={"AR"} draggable={false} />}
       </CustomButton>
     </ButtonWrapper>
