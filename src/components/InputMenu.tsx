@@ -11,79 +11,104 @@ import creditDebit from "url:/assets/ecosystem/credit-debit.svg";
 import gPay from "url:/assets/ecosystem/google-pay.svg";
 import mastercard from "url:/assets/ecosystem/mastercard.svg";
 import visa from "url:/assets/ecosystem/visa.svg";
+import supportedCurrencies from "~utils/supported_currencies";
 
-export default function InputMenu({ onPaymentMethodChange }) {
+interface InputMenuProps {
+  onPaymentMethodChange?: (methodId: string) => void;
+  onFiatCurrencyChange?: (currency: string) => void;
+  isPaymentMethod: boolean;
+}
+
+export default function InputMenu({
+  onPaymentMethodChange,
+  onFiatCurrencyChange,
+  isPaymentMethod
+}: InputMenuProps) {
   const theme = useTheme();
 
-  const [choosePayments, setChoosePayments] = useState(false);
+  const [chooseOption, setChooseOption] = useState(false);
 
-  const payments = [
-    {
-      id: "creditcard",
-      logo: creditDebit,
-      text: "Credit Card"
-    },
-    {
-      id: "debitcard",
-      logo: creditDebit,
-      text: "Debit Card"
-    },
-    {
-      id: "applepay",
-      logo: applePay,
-      text: "Apple Pay"
-    },
-    {
-      id: "googlepay",
-      logo: gPay,
-      text: "Google Pay"
-    }
-  ];
+  const options = isPaymentMethod
+    ? [
+        {
+          id: "creditcard",
+          logo: creditDebit,
+          text: "Credit Card"
+        },
+        {
+          id: "debitcard",
+          logo: creditDebit,
+          text: "Debit Card"
+        },
+        {
+          id: "applepay",
+          logo: applePay,
+          text: "Apple Pay"
+        },
+        {
+          id: "googlepay",
+          logo: gPay,
+          text: "Google Pay"
+        }
+      ]
+    : supportedCurrencies.map((currency) => ({
+        id: currency,
+        logo: `https://cdn.onramper.com/icons/tokens/${currency}.svg`,
+        text: currency.toLocaleUpperCase()
+      }));
 
-  const [chosenPayment, setChosenPayment] = useState(payments[0]);
+  const [chosenOption, setChosenOption] = useState(options[0]);
 
-  const PaymentSelect = () => (
-    <SelectInput displayTheme={theme} onClick={() => setChoosePayments(true)}>
+  const OptionSelect = () => (
+    <SelectInput displayTheme={theme} onClick={() => setChooseOption(true)}>
       <PaymentWrapper>
         <PaymentIcon
-          src={chosenPayment.logo}
-          alt={chosenPayment.text}
+          src={chosenOption.logo}
+          alt={chosenOption.text}
           draggable={false}
         />
-        {chosenPayment.text}
+        {chosenOption.text}
       </PaymentWrapper>
-      <SelectIcon open={choosePayments} />
+      <SelectIcon open={chooseOption} />
     </SelectInput>
   );
 
-  const PaymentModal = () => (
+  const OptionModal = () => (
     <Wrapper>
       <Content>
         <Header>
-          <Title>{browser.i18n.getMessage("choose_payment_method")}</Title>
+          <Title>
+            {isPaymentMethod
+              ? browser.i18n.getMessage("choose_payment_method")
+              : browser.i18n.getMessage("choose_fiat_currency")}
+          </Title>
           <BackWrapper>
-            <ExitIcon onClick={() => setChoosePayments(false)} />
+            <ExitIcon onClick={() => setChooseOption(false)} />
           </BackWrapper>
         </Header>
         <OptionsContainer>
-          {payments.map((payment) => (
+          {options.map((option) => (
             <Option
-              key={payment.id}
+              key={option.id}
               displayTheme={theme}
-              active={chosenPayment.id === payment.id}
+              active={chosenOption.id === option.id}
               onClick={() => {
-                setChosenPayment(payment);
-                setChoosePayments(false);
-                onPaymentMethodChange(payment.id);
+                setChosenOption(option);
+                setChooseOption(false);
+                if (isPaymentMethod) {
+                  onPaymentMethodChange(option.id);
+                } else {
+                  onFiatCurrencyChange(option.id);
+                }
               }}
             >
               <PaymentIcon
-                src={payment.logo}
-                alt={payment.text}
+                src={option.logo}
+                alt={option.text}
                 draggable={false}
               />
-              {payment.text}
-              {payment.id === "creditcard" && (
+              {option.text}
+              {isPaymentMethod && option.id === "creditcard" && (
                 <>
                   <CreditIcon src={visa} alt="visa" />
                   <CreditIcon src={mastercard} alt="mastercard" />
@@ -97,7 +122,7 @@ export default function InputMenu({ onPaymentMethodChange }) {
     </Wrapper>
   );
 
-  return <>{!choosePayments ? PaymentSelect() : PaymentModal()}</>;
+  return <>{!chooseOption ? OptionSelect() : OptionModal()}</>;
 }
 
 const OptionsContainer = styled.div`

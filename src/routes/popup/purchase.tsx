@@ -9,7 +9,6 @@ import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
 import { Section, Card, Spacer, Button, Select } from "@arconnect/components";
 import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
-import supportedCurrencies from "~utils/supported_currencies";
 import { getQuote } from "~lib/onramper";
 import InputMenu from "~components/InputMenu";
 
@@ -161,20 +160,25 @@ export default function Purchase() {
               <SelectIcon open={fiatSwitchOpen} />
             </FiatSelect>
             {showOptions && (
-              <FiatDropdown>
-                <DropdownList displayTheme={theme}>
-                  {supportedCurrencies.map((currency) => (
-                    <DropdownItem
-                      key={currency}
-                      onClick={() => handleFiat(currency)}
-                      displayTheme={theme}
-                      active={selectedFiat === currency}
-                    >
-                      {currency.toLocaleUpperCase()}
-                    </DropdownItem>
-                  ))}
-                </DropdownList>
-              </FiatDropdown>
+              // Update FiatDropdown to be the InputMenu Modal Pop-Up:
+              <InputMenu
+                onFiatCurrencyChange={handleFiat}
+                isPaymentMethod={false}
+              />
+              // <FiatDropdown>
+              //   <DropdownList displayTheme={theme}>
+              //     {supportedCurrencies.map((currency) => (
+              //       <DropdownItem
+              //         key={currency}
+              //         onClick={() => handleFiat(currency)}
+              //         displayTheme={theme}
+              //         active={selectedFiat === currency}
+              //       >
+              //         {currency.toLocaleUpperCase()}
+              //       </DropdownItem>
+              //     ))}
+              //   </DropdownList>
+              // </FiatDropdown>
             )}
           </InputWrapper>
           <Spacer y={0.7} />
@@ -201,7 +205,10 @@ export default function Purchase() {
           <PaymentLabel>
             {browser.i18n.getMessage("buy_screen_payment_method")}
           </PaymentLabel>
-          <InputMenu onPaymentMethodChange={handlePaymentMethodChange} />
+          <InputMenu
+            onPaymentMethodChange={handlePaymentMethodChange}
+            isPaymentMethod={true}
+          />
         </MainSwap>
       </div>
       <BuySection disabled={quoteError || receivedAR === undefined}>
