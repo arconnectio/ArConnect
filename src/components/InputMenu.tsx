@@ -65,32 +65,34 @@ export default function InputMenu({ onPaymentMethodChange }) {
             <ExitIcon onClick={() => setChoosePayments(false)} />
           </BackWrapper>
         </Header>
-        {payments.map((payment) => (
-          <Option
-            key={payment.id}
-            displayTheme={theme}
-            active={chosenPayment.id === payment.id}
-            onClick={() => {
-              setChosenPayment(payment);
-              setChoosePayments(false);
-              onPaymentMethodChange(payment.id);
-            }}
-          >
-            <PaymentIcon
-              src={payment.logo}
-              alt={payment.text}
-              draggable={false}
-            />
-            {payment.text}
-            {payment.id === "creditcard" && (
-              <>
-                <CreditIcon src={visa} alt="visa" />
-                <CreditIcon src={mastercard} alt="mastercard" />
-                <CreditIcon src={amex} alt="american express" />
-              </>
-            )}
-          </Option>
-        ))}
+        <OptionsContainer>
+          {payments.map((payment) => (
+            <Option
+              key={payment.id}
+              displayTheme={theme}
+              active={chosenPayment.id === payment.id}
+              onClick={() => {
+                setChosenPayment(payment);
+                setChoosePayments(false);
+                onPaymentMethodChange(payment.id);
+              }}
+            >
+              <PaymentIcon
+                src={payment.logo}
+                alt={payment.text}
+                draggable={false}
+              />
+              {payment.text}
+              {payment.id === "creditcard" && (
+                <>
+                  <CreditIcon src={visa} alt="visa" />
+                  <CreditIcon src={mastercard} alt="mastercard" />
+                  <CreditIcon src={amex} alt="american express" />
+                </>
+              )}
+            </Option>
+          ))}
+        </OptionsContainer>
       </Content>
     </Wrapper>
   );
@@ -98,13 +100,17 @@ export default function InputMenu({ onPaymentMethodChange }) {
   return <>{!choosePayments ? PaymentSelect() : PaymentModal()}</>;
 }
 
+const OptionsContainer = styled.div`
+  margin-top: 10px;
+`;
+
 const Option = styled.div<{ active: boolean; displayTheme: DisplayTheme }>`
   height: 53px;
   display: flex;
   flex-direction: row;
   align-items: center;
   border-radius: 15px;
-  padding: 3px 7px 3px 7px;
+  padding: 1px 7px 1px 7px;
   gap: 10px;
   cursor: pointer;
   font-size: 15px;
@@ -231,6 +237,6 @@ const Wrapper = styled.div`
   right: 0;
   bottom: 0;
   max-height: 100%;
-  padding-top: 60px;
+  padding-top: 40px;
   background-color: #191919;
 `;
