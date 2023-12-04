@@ -329,12 +329,14 @@ const Header = styled.div`
   justify-content: space-between;
   padding: 23.6px 12px 12.4px 12px;
 `;
+
 const Title = styled.div`
   color: #ab9aff;
   display: inline-block;
   font-size: 22px;
   font-weight: 500;
 `;
+
 const BackWrapper = styled.div`
   position: relative;
   display: flex;

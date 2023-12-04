@@ -267,6 +267,7 @@ const Content = styled.div`
   flex-direction: column;
   border-top: 1.29px solid #ab9aff;
   width: 100%;
+  background-color: #232323;
 `;
 
 const Wrapper = styled.div`
