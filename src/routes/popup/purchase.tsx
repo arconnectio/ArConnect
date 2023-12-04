@@ -282,7 +282,7 @@ const QuantityInput = styled.input<{ displayTheme: DisplayTheme }>`
   appearance: textfield;
 `;
 
-export const SelectIcon = styled(ChevronDownIcon)<SelectIconProps>`
+const SelectIcon = styled(ChevronDownIcon)<SelectIconProps>`
   width: 37px;
   height: 37px;
   color: white;
