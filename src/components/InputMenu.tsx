@@ -162,7 +162,7 @@ const PaymentWrapper = styled.div`
 
 const CreditIcon = styled.img`
   width: 27px;
-  height: 17px;
+  height: 19px;
 `;
 
 const PaymentIcon = styled.img`
