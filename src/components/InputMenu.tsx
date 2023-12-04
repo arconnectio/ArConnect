@@ -3,8 +3,7 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { useTheme, hoverEffect } from "~utils/theme";
 import type { DisplayTheme } from "@arconnect/components";
-import { CloseIcon } from "@iconicicons/react";
-import { SelectIcon } from "~routes/popup/purchase";
+import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
 import amex from "url:/assets/ecosystem/amex.svg";
 import applePay from "url:/assets/ecosystem/apple-pay.svg";
 import creditDebit from "url:/assets/ecosystem/credit-debit.svg";
@@ -52,12 +51,12 @@ export default function InputMenu({ onPaymentMethodChange }) {
         />
         {chosenPayment.text}
       </PaymentWrapper>
-      <SelectIcon open={choosePayments} />
+      <SelectIcon displayTheme={theme} />
     </SelectInput>
   );
 
   const PaymentModal = () => (
-    <Wrapper>
+    <Wrapper displayTheme={theme}>
       <Content>
         <Header>
           <Title>{browser.i18n.getMessage("choose_payment_method")}</Title>
@@ -137,6 +136,12 @@ const Option = styled.div<{ active: boolean; displayTheme: DisplayTheme }>`
           : ".04")}
     );
   }
+`;
+
+const SelectIcon = styled(ChevronDownIcon)<{ displayTheme: DisplayTheme }>`
+  width: 37px;
+  height: 37px;
+  color: ${(props) => (props.displayTheme === "light" ? "#000000" : "#ffffff")};
 `;
 
 const SelectInput = styled.div<{ displayTheme: DisplayTheme }>`
@@ -225,7 +230,7 @@ const Content = styled.div`
   paddding: 25px;
 `;
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ displayTheme: DisplayTheme }>`
   position: fixed;
   display: flex;
   flex-direction: column;
@@ -238,5 +243,6 @@ const Wrapper = styled.div`
   bottom: 0;
   max-height: 100%;
   padding-top: 40px;
-  background-color: #191919;
+  background-color: ${(props) =>
+    props.displayTheme === "light" ? "#ffffff" : "#191919"};
 `;
