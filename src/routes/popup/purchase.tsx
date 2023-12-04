@@ -57,6 +57,10 @@ export default function Purchase() {
     setFiatSwitchOpen(false); // Close the dropdown
   };
 
+  function handlePaymentMethodChange(methodId: string) {
+    setSelectedPaymentMethod(methodId);
+  }
+
   useEffect(() => {
     setShowOptions(fiatSwitchOpen);
   }, [fiatSwitchOpen]);
@@ -197,7 +201,7 @@ export default function Purchase() {
           <PaymentLabel>
             {browser.i18n.getMessage("buy_screen_payment_method")}
           </PaymentLabel>
-          <InputMenu />
+          <InputMenu onPaymentMethodChange={handlePaymentMethodChange} />
         </MainSwap>
       </div>
       <BuySection disabled={quoteError || receivedAR === undefined}>

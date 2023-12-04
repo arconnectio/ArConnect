@@ -1468,5 +1468,9 @@
   "order_id_purchase_pending": {
     "message":  "Order ID:",
     "description": "Order ID text on purchase in progress page"
+  },
+  "choose_payment_method": {
+    "message": "Choose payment method",
+    "description": "Payment method input modal title text"
   }
 }
