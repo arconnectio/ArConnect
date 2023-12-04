@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { useTheme, hoverEffect } from "~utils/theme";
@@ -59,6 +59,17 @@ export default function InputMenu({
 
   const [chosenOption, setChosenOption] = useState(options[0]);
 
+  useEffect(() => {
+    if (!isPaymentMethod) {
+      setChosenOption({
+        id: "eur",
+        logo: `https://cdn.onramper.com/icons/tokens/eur.svg`,
+        text: "EUR"
+      });
+      setChooseOption(true);
+    }
+  }, [isPaymentMethod]);
+
   const OptionSelect = () => (
     <SelectInput displayTheme={theme} onClick={() => setChooseOption(true)}>
       <PaymentWrapper>
@@ -83,7 +94,15 @@ export default function InputMenu({
               : browser.i18n.getMessage("choose_fiat_currency")}
           </Title>
           <BackWrapper>
-            <ExitIcon onClick={() => setChooseOption(false)} />
+            <ExitIcon
+              onClick={() => {
+                if (isPaymentMethod) {
+                  setChooseOption(false);
+                } else {
+                  onFiatCurrencyChange(chosenOption.id);
+                }
+              }}
+            />
           </BackWrapper>
         </Header>
         <OptionsContainer>
@@ -209,12 +228,14 @@ const Header = styled.div`
   justify-content: space-between;
   padding: 23.6px 12px 12.4px 12px;
 `;
+
 const Title = styled.div`
   color: #ab9aff;
   display: inline-block;
   font-size: 21px;
   font-weight: 500;
 `;
+
 const BackWrapper = styled.div`
   position: relative;
   display: flex;
@@ -246,8 +267,6 @@ const Content = styled.div`
   flex-direction: column;
   border-top: 1.29px solid #ab9aff;
   width: 100%;
-  height: 100%;
-  paddding: 25px;
 `;
 
 const Wrapper = styled.div`
