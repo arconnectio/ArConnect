@@ -82,6 +82,13 @@ export default function InputMenu({ onPaymentMethodChange }) {
               draggable={false}
             />
             {payment.text}
+            {payment.id === "creditcard" && (
+              <>
+                <CreditIcon src={visa} alt="visa" />
+                <CreditIcon src={mastercard} alt="mastercard" />
+                <CreditIcon src={amex} alt="american express" />
+              </>
+            )}
           </Option>
         ))}
       </Content>
@@ -154,8 +161,8 @@ const PaymentWrapper = styled.div`
 `;
 
 const CreditIcon = styled.img`
-  width: 30px;
-  height: 20px;
+  width: 27px;
+  height: 17px;
 `;
 
 const PaymentIcon = styled.img`
