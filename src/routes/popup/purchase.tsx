@@ -9,9 +9,6 @@ import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
 import { Section, Card, Spacer, Button, Select } from "@arconnect/components";
 import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
-import applePay from "url:/assets/ecosystem/apple-pay.svg";
-import gPay from "url:/assets/ecosystem/g-pay.svg";
-import creditDebit from "url:/assets/ecosystem/credit-debit.svg";
 import supportedCurrencies from "~utils/supported_currencies";
 import { getQuote } from "~lib/onramper";
 import InputMenu from "~components/InputMenu";
@@ -201,46 +198,6 @@ export default function Purchase() {
             {browser.i18n.getMessage("buy_screen_payment_method")}
           </PaymentLabel>
           <InputMenu />
-          {/* <PaymentMethods>
-            <PaymentButton
-              onClick={() => setSelectedPaymentMethod("creditcard")}
-              selected={selectedPaymentMethod === "creditcard"}
-              small
-              secondary
-              reversed
-              displayTheme={theme}
-            >
-              <DotIcon selected={selectedPaymentMethod === "creditcard"} />
-              <PaySVG
-                src={creditDebit}
-                alt={"Credit or Debit"}
-                draggable={false}
-              />
-              {browser.i18n.getMessage("credit_debit")}
-            </PaymentButton>
-            <PaymentButton
-              onClick={() => setSelectedPaymentMethod("applepay")}
-              selected={selectedPaymentMethod === "applepay"}
-              small
-              secondary
-              reversed
-              displayTheme={theme}
-            >
-              <DotIcon selected={selectedPaymentMethod === "applepay"} />
-              <PaySVG src={applePay} alt={"Apple Pay"} draggable={false} />
-            </PaymentButton>
-            <PaymentButton
-              onClick={() => setSelectedPaymentMethod("googlepay")}
-              selected={selectedPaymentMethod === "googlepay"}
-              small
-              secondary
-              reversed
-              displayTheme={theme}
-            >
-              <DotIcon selected={selectedPaymentMethod === "googlepay"} />
-              <PaySVG src={gPay} alt={"Google Pay"} draggable={false} />
-            </PaymentButton>
-          </PaymentMethods> */}
         </MainSwap>
       </div>
       <BuySection disabled={quoteError || receivedAR === undefined}>
