@@ -85,7 +85,7 @@ export default function InputMenu({
 
   const OptionModal = () => (
     <Wrapper displayTheme={theme}>
-      <Content>
+      <Content displayTheme={theme}>
         <Header>
           <Title>
             {isPaymentMethod
@@ -267,11 +267,13 @@ const ExitIcon = styled(CloseIcon)`
   width: 30px;
 `;
 
-const Content = styled.div`
+const Content = styled.div<{ displayTheme: DisplayTheme }>`
   display: flex;
   flex-direction: column;
   border-top: 1.29px solid #ab9aff;
   width: 100%;
+  background-color: ${(props) =>
+    props.displayTheme === "light" ? "#ffffff" : "#191919"};
 `;
 
 const Wrapper = styled.div<{ displayTheme: DisplayTheme }>`
