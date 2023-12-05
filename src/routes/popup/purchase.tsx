@@ -164,6 +164,7 @@ export default function Purchase() {
               <InputMenu
                 onFiatCurrencyChange={handleFiat}
                 isPaymentMethod={false}
+                selectedFiatCurrency={selectedFiat}
               />
             )}
           </InputWrapper>

@@ -16,12 +16,14 @@ interface InputMenuProps {
   onPaymentMethodChange?: (methodId: string) => void;
   onFiatCurrencyChange?: (currency: string) => void;
   isPaymentMethod: boolean;
+  selectedFiatCurrency?: string;
 }
 
 export default function InputMenu({
   onPaymentMethodChange,
   onFiatCurrencyChange,
-  isPaymentMethod
+  isPaymentMethod,
+  selectedFiatCurrency = "eur"
 }: InputMenuProps) {
   const theme = useTheme();
 
@@ -61,15 +63,18 @@ export default function InputMenu({
 
   useEffect(() => {
     if (!isPaymentMethod) {
-      const defaultCurrency = supportedCurrencies[13];
+      const activeCurrency =
+        supportedCurrencies.find(
+          (currency) => currency.id === selectedFiatCurrency
+        ) || supportedCurrencies[13];
       setChosenOption({
-        id: defaultCurrency.id,
-        logo: `https://cdn.onramper.com/icons/tokens/${defaultCurrency.id}.svg`,
-        text: defaultCurrency.name
+        id: activeCurrency.id,
+        logo: `https://cdn.onramper.com/icons/tokens/${activeCurrency.id}.svg`,
+        text: activeCurrency.name
       });
       setChooseOption(true);
     }
-  }, [isPaymentMethod]);
+  }, [isPaymentMethod, selectedFiatCurrency]);
 
   const OptionSelect = () => (
     <SelectInput displayTheme={theme} onClick={() => setChooseOption(true)}>
