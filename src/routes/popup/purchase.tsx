@@ -52,6 +52,7 @@ export default function Purchase() {
   };
 
   const handleFiat = (currency: string) => {
+    console.log("updated currency:", currency);
     setSelectedFiat(currency); // Update the selected fiat currency
     setFiatSwitchOpen(!fiatSwitchOpen); // Close the dropdown
   };

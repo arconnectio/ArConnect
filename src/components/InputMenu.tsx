@@ -61,7 +61,7 @@ export default function InputMenu({
 
   useEffect(() => {
     if (!isPaymentMethod) {
-      const defaultCurrency = supportedCurrencies[12];
+      const defaultCurrency = supportedCurrencies[13];
       setChosenOption({
         id: defaultCurrency.id,
         logo: `https://cdn.onramper.com/icons/tokens/${defaultCurrency.id}.svg`,
