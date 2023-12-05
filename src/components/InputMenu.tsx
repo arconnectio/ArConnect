@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import browser from "webextension-polyfill";
+import browser, { search } from "webextension-polyfill";
 import styled from "styled-components";
 import { useTheme, hoverEffect } from "~utils/theme";
 import type { DisplayTheme } from "@arconnect/components";
@@ -25,6 +25,7 @@ export default function InputMenu({
 }: InputMenuProps) {
   const theme = useTheme();
 
+  const [searchInput, setSearchInput] = useState("");
   const [chooseOption, setChooseOption] = useState(false);
 
   const options = isPaymentMethod
@@ -83,6 +84,10 @@ export default function InputMenu({
     </SelectInput>
   );
 
+  const filteredOptions = options.filter((option) =>
+    option.text.toLowerCase().includes(searchInput.toLowerCase())
+  );
+
   const OptionModal = () => (
     <Wrapper displayTheme={theme}>
       <Content displayTheme={theme}>
@@ -110,40 +115,74 @@ export default function InputMenu({
             <SearchInput
               displayTheme={theme}
               placeholder="Enter currency name"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
             />
           </SearchWrapper>
         )}
         <OptionsContainer>
-          {options.map((option) => (
-            <Option
-              key={option.id}
-              displayTheme={theme}
-              active={chosenOption.id === option.id}
-              onClick={() => {
-                setChosenOption(option);
-                setChooseOption(false);
-                if (isPaymentMethod) {
-                  onPaymentMethodChange(option.id);
-                } else {
-                  onFiatCurrencyChange(option.id);
-                }
-              }}
-            >
-              <OptionIcon
-                src={option.logo}
-                alt={option.text}
-                draggable={false}
-              />
-              {option.text}
-              {isPaymentMethod && option.id === "creditcard" && (
-                <>
-                  <CreditIcon src={visa} alt="visa" />
-                  <CreditIcon src={mastercard} alt="mastercard" />
-                  <CreditIcon src={amex} alt="american express" />
-                </>
-              )}
-            </Option>
-          ))}
+          {!searchInput &&
+            options.map((option) => (
+              <Option
+                key={option.id}
+                displayTheme={theme}
+                active={chosenOption.id === option.id}
+                onClick={() => {
+                  setChosenOption(option);
+                  setChooseOption(false);
+                  if (isPaymentMethod) {
+                    onPaymentMethodChange(option.id);
+                  } else {
+                    onFiatCurrencyChange(option.id);
+                  }
+                }}
+              >
+                <OptionIcon
+                  src={option.logo}
+                  alt={option.text}
+                  draggable={false}
+                />
+                {option.text}
+                {isPaymentMethod && option.id === "creditcard" && (
+                  <>
+                    <CreditIcon src={visa} alt="visa" />
+                    <CreditIcon src={mastercard} alt="mastercard" />
+                    <CreditIcon src={amex} alt="american express" />
+                  </>
+                )}
+              </Option>
+            ))}
+          {searchInput &&
+            filteredOptions.map((option) => (
+              <Option
+                key={option.id}
+                displayTheme={theme}
+                active={chosenOption.id === option.id}
+                onClick={() => {
+                  setChosenOption(option);
+                  setChooseOption(false);
+                  if (isPaymentMethod) {
+                    onPaymentMethodChange(option.id);
+                  } else {
+                    onFiatCurrencyChange(option.id);
+                  }
+                }}
+              >
+                <OptionIcon
+                  src={option.logo}
+                  alt={option.text}
+                  draggable={false}
+                />
+                {option.text}
+                {isPaymentMethod && option.id === "creditcard" && (
+                  <>
+                    <CreditIcon src={visa} alt="visa" />
+                    <CreditIcon src={mastercard} alt="mastercard" />
+                    <CreditIcon src={amex} alt="american express" />
+                  </>
+                )}
+              </Option>
+            ))}
         </OptionsContainer>
       </Content>
     </Wrapper>
