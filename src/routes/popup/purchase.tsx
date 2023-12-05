@@ -6,7 +6,14 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useTheme, hoverEffect } from "~utils/theme";
 import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
-import { Section, Card, Spacer, Button, Select } from "@arconnect/components";
+import {
+  Section,
+  Card,
+  Spacer,
+  Button,
+  Select,
+  Loading
+} from "@arconnect/components";
 import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
 import { getQuote } from "~lib/onramper";
@@ -26,6 +33,7 @@ export default function Purchase() {
   const [selectedFiat, setSelectedFiat] = useState("eur");
   const [fiatAmount, setFiatAmount] = useState(undefined);
   const [receivedAR, setReceivedAR] = useState(undefined);
+  const [isFetchingQuote, setIsFetchingQuote] = useState(false);
   const [quoteError, setQuoteError] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     string | null
@@ -69,6 +77,7 @@ export default function Purchase() {
     if (!isInitialMount.current) {
       const fetchQuote = async () => {
         if (typeof fiatAmount === "number") {
+          setIsFetchingQuote(true);
           try {
             const quote = await getQuote(
               selectedFiat,
@@ -93,6 +102,8 @@ export default function Purchase() {
             setQuoteError(true);
             console.error("Error fetching quote:", error);
             setReceivedAR(undefined);
+          } finally {
+            setIsFetchingQuote(false);
           }
         } else {
           setReceivedAR(undefined);
@@ -173,13 +184,16 @@ export default function Purchase() {
             {browser.i18n.getMessage("buy_screen_receive")}
           </InputLabel>
           <InputWrapper displayTheme={theme}>
-            <QuantityInput
-              displayTheme={theme}
-              type="number"
-              placeholder={browser.i18n.getMessage("buy_screen_receive_x")}
-              value={receivedAR}
-              readOnly
-            />
+            {!isFetchingQuote && (
+              <QuantityInput
+                displayTheme={theme}
+                type="number"
+                placeholder={browser.i18n.getMessage("buy_screen_receive_x")}
+                value={receivedAR}
+                readOnly
+              />
+            )}
+            {isFetchingQuote && <LoadingSpin />}
             <ReceiveToken>{browser.i18n.getMessage("AR_button")}</ReceiveToken>
           </InputWrapper>
           <Spacer y={0.3} />
@@ -204,6 +218,12 @@ export default function Purchase() {
     </Wrapper>
   );
 }
+
+const LoadingSpin = styled(Loading)`
+  height: 23px;
+  width: 23px;
+  margin-left: 5px;
+`;
 
 const ConversionError = styled.div`
   color: #ff6b6b;
@@ -247,7 +267,7 @@ const InputWrapper = styled.div<{ displayTheme: DisplayTheme }>`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   background-color: #ab9aff26;
   padding: 10px;
   border: ${(props) =>
