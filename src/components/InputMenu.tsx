@@ -114,7 +114,9 @@ export default function InputMenu({
             <InputSearchIcon />
             <SearchInput
               displayTheme={theme}
-              placeholder="Enter currency name"
+              placeholder={browser.i18n.getMessage(
+                "search_currency_placeholder"
+              )}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
