@@ -3,7 +3,7 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { useTheme, hoverEffect } from "~utils/theme";
 import type { DisplayTheme } from "@arconnect/components";
-import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
+import { CloseIcon, ChevronDownIcon, SearchIcon } from "@iconicicons/react";
 import amex from "url:/assets/ecosystem/amex.svg";
 import applePay from "url:/assets/ecosystem/apple-pay.svg";
 import creditDebit from "url:/assets/ecosystem/credit-debit.svg";
@@ -11,6 +11,7 @@ import gPay from "url:/assets/ecosystem/google-pay.svg";
 import mastercard from "url:/assets/ecosystem/mastercard.svg";
 import visa from "url:/assets/ecosystem/visa.svg";
 import supportedCurrencies from "~utils/supported_currencies";
+import SearchInput from "./dashboard/SearchInput";
 
 interface InputMenuProps {
   onPaymentMethodChange?: (methodId: string) => void;
@@ -104,6 +105,15 @@ export default function InputMenu({
             />
           </BackWrapper>
         </Header>
+        {!isPaymentMethod && (
+          <SearchWrapper displayTheme={theme}>
+            <InputSearchIcon />
+            <SearchInput
+              displayTheme={theme}
+              placeholder="Enter currency name"
+            />
+          </SearchWrapper>
+        )}
         <OptionsContainer>
           {options.map((option) => (
             <Option
@@ -142,6 +152,56 @@ export default function InputMenu({
 
   return <>{!chooseOption ? OptionSelect() : OptionModal()}</>;
 }
+
+const SearchInput = styled.input<{ displayTheme: DisplayTheme }>`
+  width: 100%;
+  background-color: transparent;
+  color: ${(props) =>
+    props.displayTheme === "light" ? "#AB9AFF" : "#ffffffb2"};
+  padding: 10px 10px 10px 3px;
+  outline: none;
+  border: none;
+  font-size: 1.2rem;
+  font-size: 16px;
+
+  &::placeholder {
+    color: ${(props) =>
+      props.displayTheme === "light" ? "#AB9AFF" : "#ffffffb2"};
+    font-size: 16px;
+    /* Add any other placeholder styles you need */
+  }
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  appearance: textfield;
+`;
+
+const SearchWrapper = styled.div<{ displayTheme: DisplayTheme }>`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 37px;
+  background-color: #ab9aff26;
+  padding: 10px 5px;
+  border: ${(props) =>
+    props.displayTheme === "light"
+      ? "1.5px solid #AB9AFF"
+      : "1.5px solid #ab9aff26"};
+  border-radius: 15px;
+  margin: 3px 15px 3px 12px;
+`;
+
+const InputSearchIcon = styled(SearchIcon)`
+  color: #ab9aff;
+  width: 40px;
+  height: 40px;
+  padding: 2px 7px 2px 0px;
+`;
 
 const OptionsContainer = styled.div`
   margin-top: 10px;
