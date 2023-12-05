@@ -71,14 +71,14 @@ export default function InputMenu({
 
   const OptionSelect = () => (
     <SelectInput displayTheme={theme} onClick={() => setChooseOption(true)}>
-      <PaymentWrapper>
-        <PaymentIcon
+      <OptionWrapper>
+        <OptionIcon
           src={chosenOption.logo}
           alt={chosenOption.text}
           draggable={false}
         />
         {chosenOption.text}
-      </PaymentWrapper>
+      </OptionWrapper>
       <SelectIcon displayTheme={theme} />
     </SelectInput>
   );
@@ -120,7 +120,7 @@ export default function InputMenu({
                 }
               }}
             >
-              <PaymentIcon
+              <OptionIcon
                 src={option.logo}
                 alt={option.text}
                 draggable={false}
@@ -207,7 +207,7 @@ const SelectInput = styled.div<{ displayTheme: DisplayTheme }>`
   cursor: pointer;
 `;
 
-const PaymentWrapper = styled.div`
+const OptionWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -220,7 +220,7 @@ const CreditIcon = styled.img`
   height: 19px;
 `;
 
-const PaymentIcon = styled.img`
+const OptionIcon = styled.img`
   width: 37px;
   height: 37px;
   background-color: transparent;
