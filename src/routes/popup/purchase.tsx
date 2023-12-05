@@ -6,14 +6,12 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useTheme, hoverEffect } from "~utils/theme";
 import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
-import { Section, Card, Spacer, Button } from "@arconnect/components";
+import { Section, Card, Spacer, Button, Select } from "@arconnect/components";
 import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
-import applePay from "url:/assets/ecosystem/apple-pay.svg";
-import gPay from "url:/assets/ecosystem/g-pay.svg";
-import creditDebit from "url:/assets/ecosystem/credit-debit.svg";
 import supportedCurrencies from "~utils/supported_currencies";
 import { getQuote } from "~lib/onramper";
+import InputMenu from "~components/InputMenu";
 
 interface SelectIconProps {
   open: boolean;
@@ -58,6 +56,10 @@ export default function Purchase() {
     setSelectedFiat(currency); // Update the selected fiat currency
     setFiatSwitchOpen(false); // Close the dropdown
   };
+
+  function handlePaymentMethodChange(methodId: string) {
+    setSelectedPaymentMethod(methodId);
+  }
 
   useEffect(() => {
     setShowOptions(fiatSwitchOpen);
@@ -199,46 +201,7 @@ export default function Purchase() {
           <PaymentLabel>
             {browser.i18n.getMessage("buy_screen_payment_method")}
           </PaymentLabel>
-          <PaymentMethods>
-            <PaymentButton
-              onClick={() => setSelectedPaymentMethod("creditcard")}
-              selected={selectedPaymentMethod === "creditcard"}
-              small
-              secondary
-              reversed
-              displayTheme={theme}
-            >
-              <DotIcon selected={selectedPaymentMethod === "creditcard"} />
-              <PaySVG
-                src={creditDebit}
-                alt={"Credit or Debit"}
-                draggable={false}
-              />
-              {browser.i18n.getMessage("credit_debit")}
-            </PaymentButton>
-            <PaymentButton
-              onClick={() => setSelectedPaymentMethod("applepay")}
-              selected={selectedPaymentMethod === "applepay"}
-              small
-              secondary
-              reversed
-              displayTheme={theme}
-            >
-              <DotIcon selected={selectedPaymentMethod === "applepay"} />
-              <PaySVG src={applePay} alt={"Apple Pay"} draggable={false} />
-            </PaymentButton>
-            <PaymentButton
-              onClick={() => setSelectedPaymentMethod("googlepay")}
-              selected={selectedPaymentMethod === "googlepay"}
-              small
-              secondary
-              reversed
-              displayTheme={theme}
-            >
-              <DotIcon selected={selectedPaymentMethod === "googlepay"} />
-              <PaySVG src={gPay} alt={"Google Pay"} draggable={false} />
-            </PaymentButton>
-          </PaymentMethods>
+          <InputMenu onPaymentMethodChange={handlePaymentMethodChange} />
         </MainSwap>
       </div>
       <BuySection disabled={quoteError || receivedAR === undefined}>
