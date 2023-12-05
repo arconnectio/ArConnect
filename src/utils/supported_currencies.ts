@@ -53,7 +53,7 @@ const supportedCurrencies = [
   },
   {
     id: "eur",
-    name: "Euro"
+    name: "Euro Member Countries"
   },
   {
     id: "gbp",

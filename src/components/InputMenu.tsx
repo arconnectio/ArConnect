@@ -52,19 +52,20 @@ export default function InputMenu({
         }
       ]
     : supportedCurrencies.map((currency) => ({
-        id: currency,
-        logo: `https://cdn.onramper.com/icons/tokens/${currency}.svg`,
-        text: currency.toLocaleUpperCase()
+        id: currency.id,
+        logo: `https://cdn.onramper.com/icons/tokens/${currency.id}.svg`,
+        text: currency.name
       }));
 
   const [chosenOption, setChosenOption] = useState(options[0]);
 
   useEffect(() => {
     if (!isPaymentMethod) {
+      const defaultCurrency = supportedCurrencies[12];
       setChosenOption({
-        id: "eur",
-        logo: `https://cdn.onramper.com/icons/tokens/eur.svg`,
-        text: "EUR"
+        id: defaultCurrency.id,
+        logo: `https://cdn.onramper.com/icons/tokens/${defaultCurrency.id}.svg`,
+        text: defaultCurrency.name
       });
       setChooseOption(true);
     }
@@ -84,8 +85,10 @@ export default function InputMenu({
     </SelectInput>
   );
 
-  const filteredOptions = options.filter((option) =>
-    option.text.toLowerCase().includes(searchInput.toLowerCase())
+  const filteredOptions = options.filter(
+    (option) =>
+      option.id.toLowerCase().includes(searchInput.toLowerCase()) ||
+      option.text.toLowerCase().includes(searchInput.toLowerCase())
   );
 
   const OptionModal = () => (
@@ -144,7 +147,13 @@ export default function InputMenu({
                   alt={option.text}
                   draggable={false}
                 />
-                {option.text}
+                {isPaymentMethod && option.text}
+                {!isPaymentMethod && (
+                  <OptionText>
+                    {option.id.toLocaleUpperCase()}
+                    <CurrencyName>{option.text}</CurrencyName>
+                  </OptionText>
+                )}
                 {isPaymentMethod && option.id === "creditcard" && (
                   <>
                     <CreditIcon src={visa} alt="visa" />
@@ -163,11 +172,7 @@ export default function InputMenu({
                 onClick={() => {
                   setChosenOption(option);
                   setChooseOption(false);
-                  if (isPaymentMethod) {
-                    onPaymentMethodChange(option.id);
-                  } else {
-                    onFiatCurrencyChange(option.id);
-                  }
+                  onFiatCurrencyChange(option.id);
                 }}
               >
                 <OptionIcon
@@ -175,14 +180,10 @@ export default function InputMenu({
                   alt={option.text}
                   draggable={false}
                 />
-                {option.text}
-                {isPaymentMethod && option.id === "creditcard" && (
-                  <>
-                    <CreditIcon src={visa} alt="visa" />
-                    <CreditIcon src={mastercard} alt="mastercard" />
-                    <CreditIcon src={amex} alt="american express" />
-                  </>
-                )}
+                <OptionText>
+                  {option.id.toLocaleUpperCase()}
+                  <CurrencyName>{option.text}</CurrencyName>
+                </OptionText>
               </Option>
             ))}
         </OptionsContainer>
@@ -241,6 +242,16 @@ const InputSearchIcon = styled(SearchIcon)`
   width: 40px;
   height: 40px;
   padding: 2px 7px 2px 0px;
+`;
+
+const CurrencyName = styled.div`
+  color: #aeadcd;
+  font-size: 11px;
+`;
+
+const OptionText = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
 
 const OptionsContainer = styled.div`
