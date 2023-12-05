@@ -272,7 +272,6 @@ const Content = styled.div`
   flex-direction: column;
   border-top: 1.29px solid #ab9aff;
   width: 100%;
-  height: 100%;
 `;
 
 const Wrapper = styled.div<{ displayTheme: DisplayTheme }>`
