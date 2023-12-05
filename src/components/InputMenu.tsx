@@ -11,7 +11,6 @@ import gPay from "url:/assets/ecosystem/google-pay.svg";
 import mastercard from "url:/assets/ecosystem/mastercard.svg";
 import visa from "url:/assets/ecosystem/visa.svg";
 import supportedCurrencies from "~utils/supported_currencies";
-import SearchInput from "./dashboard/SearchInput";
 
 interface InputMenuProps {
   onPaymentMethodChange?: (methodId: string) => void;
