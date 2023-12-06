@@ -6,14 +6,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useTheme, hoverEffect } from "~utils/theme";
 import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
-import {
-  Section,
-  Card,
-  Spacer,
-  Button,
-  Select,
-  Loading
-} from "@arconnect/components";
+import { Section, Card, Spacer, Loading } from "@arconnect/components";
 import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
 import { getQuote } from "~lib/onramper";
