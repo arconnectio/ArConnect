@@ -71,33 +71,35 @@ export default function Purchase() {
       const fetchQuote = async () => {
         if (typeof fiatAmount === "number") {
           setIsFetchingQuote(true);
-          try {
-            const quote = await getQuote(
-              selectedFiat,
-              selectedPaymentMethod,
-              fiatAmount
-            );
+          setTimeout(async () => {
+            try {
+              const quote = await getQuote(
+                selectedFiat,
+                selectedPaymentMethod,
+                fiatAmount
+              );
 
-            const quoteData = {
-              selectedFiat,
-              selectedPaymentMethod,
-              fiatAmount,
-              ...quote[0]
-            };
+              const quoteData = {
+                selectedFiat,
+                selectedPaymentMethod,
+                fiatAmount,
+                ...quote[0]
+              };
 
-            saveQuoteToStorage(quoteData);
+              saveQuoteToStorage(quoteData);
 
-            const { payout } = quote[0];
+              const { payout } = quote[0];
 
-            setReceivedAR(payout);
-            setQuoteError(false);
-          } catch (error) {
-            setQuoteError(true);
-            console.error("Error fetching quote:", error);
-            setReceivedAR(undefined);
-          } finally {
-            setIsFetchingQuote(false);
-          }
+              setReceivedAR(payout);
+              setQuoteError(false);
+            } catch (error) {
+              setQuoteError(true);
+              console.error("Error fetching quote:", error);
+              setReceivedAR(undefined);
+            } finally {
+              setIsFetchingQuote(false);
+            }
+          }, 200);
         } else {
           setReceivedAR(undefined);
           setQuoteError(true);
