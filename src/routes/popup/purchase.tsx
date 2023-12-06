@@ -9,7 +9,6 @@ import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
 import { Section, Card, Spacer, Button, Select } from "@arconnect/components";
 import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
-import supportedCurrencies from "~utils/supported_currencies";
 import { getQuote } from "~lib/onramper";
 import InputMenu from "~components/InputMenu";
 
@@ -53,8 +52,9 @@ export default function Purchase() {
   };
 
   const handleFiat = (currency: string) => {
+    console.log("updated currency:", currency);
     setSelectedFiat(currency); // Update the selected fiat currency
-    setFiatSwitchOpen(false); // Close the dropdown
+    setFiatSwitchOpen(!fiatSwitchOpen); // Close the dropdown
   };
 
   function handlePaymentMethodChange(methodId: string) {
@@ -161,20 +161,11 @@ export default function Purchase() {
               <SelectIcon open={fiatSwitchOpen} />
             </FiatSelect>
             {showOptions && (
-              <FiatDropdown>
-                <DropdownList displayTheme={theme}>
-                  {supportedCurrencies.map((currency) => (
-                    <DropdownItem
-                      key={currency}
-                      onClick={() => handleFiat(currency)}
-                      displayTheme={theme}
-                      active={selectedFiat === currency}
-                    >
-                      {currency.toLocaleUpperCase()}
-                    </DropdownItem>
-                  ))}
-                </DropdownList>
-              </FiatDropdown>
+              <InputMenu
+                onFiatCurrencyChange={handleFiat}
+                isPaymentMethod={false}
+                selectedFiatCurrency={selectedFiat}
+              />
             )}
           </InputWrapper>
           <Spacer y={0.7} />
@@ -201,7 +192,10 @@ export default function Purchase() {
           <PaymentLabel>
             {browser.i18n.getMessage("buy_screen_payment_method")}
           </PaymentLabel>
-          <InputMenu onPaymentMethodChange={handlePaymentMethodChange} />
+          <InputMenu
+            onPaymentMethodChange={handlePaymentMethodChange}
+            isPaymentMethod={true}
+          />
         </MainSwap>
       </div>
       <BuySection disabled={quoteError || receivedAR === undefined}>
@@ -217,107 +211,6 @@ const ConversionError = styled.div`
 
 const BuySection = styled(Section)<{ disabled: boolean }>`
   pointer-events: ${(props) => (props.disabled ? "none" : "auto")};
-`;
-
-const DropdownList = styled.ul<{ displayTheme: DisplayTheme }>`
-  list-style: none;
-  padding: 2px;
-  background-color: ${(props) =>
-    props.displayTheme === "light" ? "#ffffff" : "rgb(22, 22, 22)"};
-  width: 50%;
-  font-size: 16px;
-  border-radius: 12px;
-  margin-right: 22px;
-  max-height: 130px;
-  overflow-y: auto;
-  scrollbar-width: none; /* For Firefox */
-  -ms-overflow-style: none; /* For Internet Explorer and Edge */
-
-  /* For WebKit browsers */
-  &::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-  }
-`;
-
-const DropdownItem = styled.li<{ active: boolean; displayTheme: DisplayTheme }>`
-  padding: 2px;
-  cursor: pointer;
-  font-weight: 500;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  gap: 0.8rem;
-  background-color: rgba(
-    ${(props) => props.theme.theme},
-    ${(props) =>
-      props.active ? (props.theme.displayTheme === "light" ? ".2" : ".1") : "0"}
-  );
-  transition: all 0.23s ease-in-out;
-
-  &:hover {
-    background-color: rgba(
-      ${(props) =>
-        props.theme.theme +
-        ", " +
-        (props.active
-          ? props.theme.displayTheme === "light"
-            ? ".24"
-            : ".14"
-          : props.theme.displayTheme === "light"
-          ? ".14"
-          : ".04")}
-    );
-  }
-`;
-
-const FiatDropdown = styled.div`
-  position: absolute;
-  width: 100%;
-  z-index: 100;
-  top: 23.5%;
-  left: 0;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const PaySVG = styled.img`
-  width: 30px;
-  height: 20px;
-`;
-
-const DotIcon = styled.div<{ selected: boolean }>`
-  width: 8px;
-  height: 8px;
-  border-radius: 100%;
-  background-color: ${(props) => (props.selected ? "#ab9aff" : "transparent")};
-  border: 1px solid #ab9aff26;
-`;
-
-const PaymentButton = styled(Button)<{
-  selected: boolean;
-  displayTheme: DisplayTheme;
-}>`
-  border-radius: 5px;
-  border: 1px solid ${(props) => (props.selected ? "#ab9aff" : "#ab9aff26")};
-  font-size: 7.3px;
-  color: ${(props) => (props.displayTheme === "light" ? "#000000" : "#ffffff")};
-  font-weight: normal;
-  padding: 5px;
-  gap: 5px;
-`;
-
-const PaymentMethods = styled.div`
-  width: 100%;
-  height: 30px;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  gap: 16px;
 `;
 
 const ReceiveToken = styled(Card)`
@@ -438,12 +331,14 @@ const Header = styled.div`
   justify-content: space-between;
   padding: 23.6px 12px 12.4px 12px;
 `;
+
 const Title = styled.div`
   color: #ab9aff;
   display: inline-block;
   font-size: 22px;
   font-weight: 500;
 `;
+
 const BackWrapper = styled.div`
   position: relative;
   display: flex;

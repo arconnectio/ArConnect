@@ -1472,5 +1472,13 @@
   "choose_payment_method": {
     "message": "Choose payment method",
     "description": "Payment method input modal title text"
+  },
+  "choose_fiat_currency": {
+    "message": "Select fiat currency",
+    "description": "Fiat currency input modal title text"
+  },
+  "search_currency_placeholder": {
+    "message": "Enter currency name",
+    "description": "Currency search placeholder text"
   }
 }

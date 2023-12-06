@@ -1,103 +1,263 @@
-import { useState } from "react";
-import browser from "webextension-polyfill";
+import { useState, useEffect } from "react";
+import browser, { search } from "webextension-polyfill";
 import styled from "styled-components";
 import { useTheme, hoverEffect } from "~utils/theme";
 import type { DisplayTheme } from "@arconnect/components";
-import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
+import { CloseIcon, ChevronDownIcon, SearchIcon } from "@iconicicons/react";
 import amex from "url:/assets/ecosystem/amex.svg";
 import applePay from "url:/assets/ecosystem/apple-pay.svg";
 import creditDebit from "url:/assets/ecosystem/credit-debit.svg";
 import gPay from "url:/assets/ecosystem/google-pay.svg";
 import mastercard from "url:/assets/ecosystem/mastercard.svg";
 import visa from "url:/assets/ecosystem/visa.svg";
+import supportedCurrencies from "~utils/supported_currencies";
 
-export default function InputMenu({ onPaymentMethodChange }) {
+interface InputMenuProps {
+  onPaymentMethodChange?: (methodId: string) => void;
+  onFiatCurrencyChange?: (currency: string) => void;
+  isPaymentMethod: boolean;
+  selectedFiatCurrency?: string;
+}
+
+export default function InputMenu({
+  onPaymentMethodChange,
+  onFiatCurrencyChange,
+  isPaymentMethod,
+  selectedFiatCurrency = "eur"
+}: InputMenuProps) {
   const theme = useTheme();
 
-  const [choosePayments, setChoosePayments] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [chooseOption, setChooseOption] = useState(false);
 
-  const payments = [
-    {
-      id: "creditcard",
-      logo: creditDebit,
-      text: "Credit Card"
-    },
-    {
-      id: "debitcard",
-      logo: creditDebit,
-      text: "Debit Card"
-    },
-    {
-      id: "applepay",
-      logo: applePay,
-      text: "Apple Pay"
-    },
-    {
-      id: "googlepay",
-      logo: gPay,
-      text: "Google Pay"
+  const options = isPaymentMethod
+    ? [
+        {
+          id: "creditcard",
+          logo: creditDebit,
+          text: "Credit Card"
+        },
+        {
+          id: "debitcard",
+          logo: creditDebit,
+          text: "Debit Card"
+        },
+        {
+          id: "applepay",
+          logo: applePay,
+          text: "Apple Pay"
+        },
+        {
+          id: "googlepay",
+          logo: gPay,
+          text: "Google Pay"
+        }
+      ]
+    : supportedCurrencies.map((currency) => ({
+        id: currency.id,
+        logo: `https://cdn.onramper.com/icons/tokens/${currency.id}.svg`,
+        text: currency.name
+      }));
+
+  const [chosenOption, setChosenOption] = useState(options[0]);
+
+  useEffect(() => {
+    if (!isPaymentMethod) {
+      const activeCurrency =
+        supportedCurrencies.find(
+          (currency) => currency.id === selectedFiatCurrency
+        ) || supportedCurrencies[13];
+      setChosenOption({
+        id: activeCurrency.id,
+        logo: `https://cdn.onramper.com/icons/tokens/${activeCurrency.id}.svg`,
+        text: activeCurrency.name
+      });
+      setChooseOption(true);
     }
-  ];
+  }, [isPaymentMethod, selectedFiatCurrency]);
 
-  const [chosenPayment, setChosenPayment] = useState(payments[0]);
-
-  const PaymentSelect = () => (
-    <SelectInput displayTheme={theme} onClick={() => setChoosePayments(true)}>
-      <PaymentWrapper>
-        <PaymentIcon
-          src={chosenPayment.logo}
-          alt={chosenPayment.text}
+  const OptionSelect = () => (
+    <SelectInput displayTheme={theme} onClick={() => setChooseOption(true)}>
+      <OptionWrapper>
+        <OptionIcon
+          src={chosenOption.logo}
+          alt={chosenOption.text}
           draggable={false}
         />
-        {chosenPayment.text}
-      </PaymentWrapper>
+        {chosenOption.text}
+      </OptionWrapper>
       <SelectIcon displayTheme={theme} />
     </SelectInput>
   );
 
-  const PaymentModal = () => (
+  const filteredOptions = options.filter(
+    (option) =>
+      option.id.toLowerCase().includes(searchInput.toLowerCase()) ||
+      option.text.toLowerCase().includes(searchInput.toLowerCase())
+  );
+
+  const OptionModal = () => (
     <Wrapper displayTheme={theme}>
-      <Content>
+      <Content displayTheme={theme}>
         <Header>
-          <Title>{browser.i18n.getMessage("choose_payment_method")}</Title>
+          <Title>
+            {isPaymentMethod
+              ? browser.i18n.getMessage("choose_payment_method")
+              : browser.i18n.getMessage("choose_fiat_currency")}
+          </Title>
           <BackWrapper>
-            <ExitIcon onClick={() => setChoosePayments(false)} />
+            <ExitIcon
+              onClick={() => {
+                if (isPaymentMethod) {
+                  setChooseOption(false);
+                } else {
+                  onFiatCurrencyChange(chosenOption.id);
+                }
+              }}
+            />
           </BackWrapper>
         </Header>
-        <OptionsContainer>
-          {payments.map((payment) => (
-            <Option
-              key={payment.id}
+        {!isPaymentMethod && (
+          <SearchWrapper displayTheme={theme}>
+            <InputSearchIcon />
+            <SearchInput
               displayTheme={theme}
-              active={chosenPayment.id === payment.id}
-              onClick={() => {
-                setChosenPayment(payment);
-                setChoosePayments(false);
-                onPaymentMethodChange(payment.id);
-              }}
-            >
-              <PaymentIcon
-                src={payment.logo}
-                alt={payment.text}
-                draggable={false}
-              />
-              {payment.text}
-              {payment.id === "creditcard" && (
-                <>
-                  <CreditIcon src={visa} alt="visa" />
-                  <CreditIcon src={mastercard} alt="mastercard" />
-                  <CreditIcon src={amex} alt="american express" />
-                </>
+              placeholder={browser.i18n.getMessage(
+                "search_currency_placeholder"
               )}
-            </Option>
-          ))}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+          </SearchWrapper>
+        )}
+        <OptionsContainer>
+          {!searchInput &&
+            options.map((option) => (
+              <Option
+                key={option.id}
+                displayTheme={theme}
+                active={chosenOption.id === option.id}
+                onClick={() => {
+                  setChosenOption(option);
+                  setChooseOption(false);
+                  if (isPaymentMethod) {
+                    onPaymentMethodChange(option.id);
+                  } else {
+                    onFiatCurrencyChange(option.id);
+                  }
+                }}
+              >
+                <OptionIcon
+                  src={option.logo}
+                  alt={option.text}
+                  draggable={false}
+                />
+                {isPaymentMethod && option.text}
+                {!isPaymentMethod && (
+                  <OptionText>
+                    {option.id.toLocaleUpperCase()}
+                    <CurrencyName>{option.text}</CurrencyName>
+                  </OptionText>
+                )}
+                {isPaymentMethod && option.id === "creditcard" && (
+                  <>
+                    <CreditIcon src={visa} alt="visa" />
+                    <CreditIcon src={mastercard} alt="mastercard" />
+                    <CreditIcon src={amex} alt="american express" />
+                  </>
+                )}
+              </Option>
+            ))}
+          {searchInput &&
+            filteredOptions.map((option) => (
+              <Option
+                key={option.id}
+                displayTheme={theme}
+                active={chosenOption.id === option.id}
+                onClick={() => {
+                  setChosenOption(option);
+                  setChooseOption(false);
+                  onFiatCurrencyChange(option.id);
+                }}
+              >
+                <OptionIcon
+                  src={option.logo}
+                  alt={option.text}
+                  draggable={false}
+                />
+                <OptionText>
+                  {option.id.toLocaleUpperCase()}
+                  <CurrencyName>{option.text}</CurrencyName>
+                </OptionText>
+              </Option>
+            ))}
         </OptionsContainer>
       </Content>
     </Wrapper>
   );
 
-  return <>{!choosePayments ? PaymentSelect() : PaymentModal()}</>;
+  return <>{!chooseOption ? OptionSelect() : OptionModal()}</>;
 }
+
+const SearchInput = styled.input<{ displayTheme: DisplayTheme }>`
+  width: 100%;
+  background-color: transparent;
+  color: ${(props) =>
+    props.displayTheme === "light" ? "#AB9AFF" : "#ffffffb2"};
+  padding: 10px 10px 10px 3px;
+  outline: none;
+  border: none;
+  font-size: 1.2rem;
+  font-size: 16px;
+
+  &::placeholder {
+    color: ${(props) =>
+      props.displayTheme === "light" ? "#AB9AFF" : "#ffffffb2"};
+    font-size: 16px;
+    /* Add any other placeholder styles you need */
+  }
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  appearance: textfield;
+`;
+
+const SearchWrapper = styled.div<{ displayTheme: DisplayTheme }>`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 37px;
+  background-color: #ab9aff26;
+  padding: 10px 5px;
+  border: ${(props) =>
+    props.displayTheme === "light"
+      ? "1.5px solid #AB9AFF"
+      : "1.5px solid #ab9aff26"};
+  border-radius: 15px;
+  margin: 3px 15px 3px 12px;
+`;
+
+const InputSearchIcon = styled(SearchIcon)`
+  color: #ab9aff;
+  width: 40px;
+  height: 40px;
+  padding: 2px 7px 2px 0px;
+`;
+
+const CurrencyName = styled.div`
+  color: #aeadcd;
+  font-size: 11px;
+`;
+
+const OptionText = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
 
 const OptionsContainer = styled.div`
   margin-top: 10px;
@@ -163,7 +323,7 @@ const SelectInput = styled.div<{ displayTheme: DisplayTheme }>`
   cursor: pointer;
 `;
 
-const PaymentWrapper = styled.div`
+const OptionWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -176,7 +336,7 @@ const CreditIcon = styled.img`
   height: 19px;
 `;
 
-const PaymentIcon = styled.img`
+const OptionIcon = styled.img`
   width: 37px;
   height: 37px;
   background-color: transparent;
@@ -189,12 +349,14 @@ const Header = styled.div`
   justify-content: space-between;
   padding: 23.6px 12px 12.4px 12px;
 `;
+
 const Title = styled.div`
   color: #ab9aff;
   display: inline-block;
   font-size: 21px;
   font-weight: 500;
 `;
+
 const BackWrapper = styled.div`
   position: relative;
   display: flex;
@@ -221,13 +383,13 @@ const ExitIcon = styled(CloseIcon)`
   width: 30px;
 `;
 
-const Content = styled.div`
+const Content = styled.div<{ displayTheme: DisplayTheme }>`
   display: flex;
   flex-direction: column;
   border-top: 1.29px solid #ab9aff;
   width: 100%;
-  height: 100%;
-  paddding: 25px;
+  background-color: ${(props) =>
+    props.displayTheme === "light" ? "#ffffff" : "#191919"};
 `;
 
 const Wrapper = styled.div<{ displayTheme: DisplayTheme }>`
