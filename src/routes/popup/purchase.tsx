@@ -129,6 +129,7 @@ export default function Purchase() {
             <QuantityInput
               displayTheme={theme}
               type="number"
+              step="0.01"
               placeholder={browser.i18n.getMessage("buy_screen_enter")}
               value={fiatAmount}
               onKeyDown={(e) => {
@@ -183,6 +184,7 @@ export default function Purchase() {
               <QuantityInput
                 displayTheme={theme}
                 type="number"
+                step="any"
                 placeholder={browser.i18n.getMessage("buy_screen_receive_x")}
                 value={receivedAR}
                 readOnly
