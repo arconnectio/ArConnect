@@ -28,6 +28,7 @@ export default function Purchase() {
   const [receivedAR, setReceivedAR] = useState(undefined);
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
   const [quoteError, setQuoteError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     string | null
   >("creditcard");
@@ -71,33 +72,36 @@ export default function Purchase() {
       const fetchQuote = async () => {
         if (typeof fiatAmount === "number") {
           setIsFetchingQuote(true);
-          try {
-            const quote = await getQuote(
-              selectedFiat,
-              selectedPaymentMethod,
-              fiatAmount
-            );
+          setTimeout(async () => {
+            try {
+              const quote = await getQuote(
+                selectedFiat,
+                selectedPaymentMethod,
+                fiatAmount
+              );
 
-            const quoteData = {
-              selectedFiat,
-              selectedPaymentMethod,
-              fiatAmount,
-              ...quote[0]
-            };
+              const quoteData = {
+                selectedFiat,
+                selectedPaymentMethod,
+                fiatAmount,
+                ...quote[0]
+              };
 
-            saveQuoteToStorage(quoteData);
+              saveQuoteToStorage(quoteData);
 
-            const { payout } = quote[0];
+              const { payout } = quote[0];
 
-            setReceivedAR(payout);
-            setQuoteError(false);
-          } catch (error) {
-            setQuoteError(true);
-            console.error("Error fetching quote:", error);
-            setReceivedAR(undefined);
-          } finally {
-            setIsFetchingQuote(false);
-          }
+              setReceivedAR(payout);
+              setQuoteError(false);
+            } catch (error) {
+              setQuoteError(true);
+              setErrorMessage(error.message);
+              console.error(error);
+              setReceivedAR(undefined);
+            } finally {
+              setIsFetchingQuote(false);
+            }
+          }, 200);
         } else {
           setReceivedAR(undefined);
           setQuoteError(true);
@@ -191,9 +195,7 @@ export default function Purchase() {
           </InputWrapper>
           <Spacer y={0.3} />
           {quoteError && !isInitialMount.current && (
-            <ConversionError>
-              {browser.i18n.getMessage("conversion_error")}
-            </ConversionError>
+            <ConversionError>{errorMessage}</ConversionError>
           )}
           <Spacer y={0.7} />
           <PaymentLabel>
@@ -228,8 +230,9 @@ const BuySection = styled(Section)<{ disabled: boolean }>`
 
 const ReceiveToken = styled(Card)`
   display: flex;
-  width: 84px;
   height: 38px;
+  width: 100%;
+  max-width: 51px;
   align-items: center;
   justify-content: center;
   background-color: #ab9aff;

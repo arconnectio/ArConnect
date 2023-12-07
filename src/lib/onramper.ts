@@ -1,3 +1,5 @@
+import browser from "webextension-polyfill";
+
 /**
  * GET currency $AR price quote
  *
@@ -32,14 +34,20 @@ export async function getQuote(
 
     const data = await response.json();
 
+    console.log(data);
+
     const payout = data.length > 0 ? data[0].payout : undefined;
-    if (payout === undefined) {
-      throw new Error("Increase fiat amount");
+
+    if (payout === undefined && data[1].ramp === "transak") {
+      console.log(data[1].errors[0].message);
+      throw new Error(data[1].errors[0].message);
+    } else if (payout === "undefined") {
+      throw new Error(browser.i18n.getMessage("conversion_error"));
     }
 
     return data;
   } catch (error) {
-    console.error("Error fetching quote: ", error);
+    console.error(error);
     throw error;
   }
 }
