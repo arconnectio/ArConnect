@@ -26,6 +26,7 @@ export default function ConfirmPurchase() {
   const [onramp, setOnramp] = useState("");
   const [fiatAmount, setFiatAmount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymentName, setPaymentName] = useState("");
 
   useEffect(() => {
     async function fetchActiveWallet() {
@@ -50,6 +51,12 @@ export default function ConfirmPurchase() {
       setSelectedFiat(quote.selectedFiat.toUpperCase());
       setFiatAmount(quote.fiatAmount);
       setPaymentMethod(quote.selectedPaymentMethod);
+      const paymentChoice = quote.availablePaymentMethods.find(
+        (method) => method.paymentTypeId === quote.selectedPaymentMethod
+      );
+      if (paymentChoice) {
+        setPaymentName(paymentChoice.name);
+      }
       setPayout(quote.payout);
       const totalRate = (Number(quote.payout) * Number(quote.rate)).toFixed(2);
       setRate(totalRate);
@@ -128,6 +135,13 @@ export default function ConfirmPurchase() {
           <OrderTitle displayTheme={theme}>
             {browser.i18n.getMessage("order_details")}
           </OrderTitle>
+          <HL />
+          <DetailWrapper>
+            <DetailTitle displayTheme={theme}>
+              {browser.i18n.getMessage("buy_screen_payment_method")}
+            </DetailTitle>
+            <DetailValue displayTheme={theme}>{paymentName}</DetailValue>
+          </DetailWrapper>
           <HL />
           <DetailWrapper>
             <DetailTitle displayTheme={theme}>
