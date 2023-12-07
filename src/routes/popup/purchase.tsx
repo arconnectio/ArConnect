@@ -129,7 +129,6 @@ export default function Purchase() {
             <QuantityInput
               displayTheme={theme}
               type="number"
-              step="0.01"
               placeholder={browser.i18n.getMessage("buy_screen_enter")}
               value={fiatAmount}
               onKeyDown={(e) => {
@@ -184,7 +183,6 @@ export default function Purchase() {
               <QuantityInput
                 displayTheme={theme}
                 type="number"
-                step="any"
                 placeholder={browser.i18n.getMessage("buy_screen_receive_x")}
                 value={receivedAR}
                 readOnly
@@ -232,8 +230,9 @@ const BuySection = styled(Section)<{ disabled: boolean }>`
 
 const ReceiveToken = styled(Card)`
   display: flex;
-  width: 84px;
   height: 38px;
+  width: 100%;
+  max-width: 51px;
   align-items: center;
   justify-content: center;
   background-color: #ab9aff;

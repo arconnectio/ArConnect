@@ -34,7 +34,7 @@ export async function getQuote(
 
     const payout = data.length > 0 ? data[0].payout : undefined;
     if (payout === undefined) {
-      throw new Error("Increase fiat amount");
+      throw new Error("Invalid fiat amount");
     }
 
     return data;

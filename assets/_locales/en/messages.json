@@ -1426,7 +1426,7 @@
     "description": "Buy screen payment method text"
   },
   "conversion_error": {
-    "message": "Invalid Conversion: Increase Fiat Amount",
+    "message": "Failed Conversion: Invalid Fiat Amount",
     "description": "Buy screen conversion error text"
   },
   "confirm_purchase_title": {
