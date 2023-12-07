@@ -28,6 +28,7 @@ export default function Purchase() {
   const [receivedAR, setReceivedAR] = useState(undefined);
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
   const [quoteError, setQuoteError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     string | null
   >("creditcard");
@@ -94,7 +95,8 @@ export default function Purchase() {
               setQuoteError(false);
             } catch (error) {
               setQuoteError(true);
-              console.error("Error fetching quote:", error);
+              setErrorMessage(error.message);
+              console.error(error);
               setReceivedAR(undefined);
             } finally {
               setIsFetchingQuote(false);
@@ -193,9 +195,7 @@ export default function Purchase() {
           </InputWrapper>
           <Spacer y={0.3} />
           {quoteError && !isInitialMount.current && (
-            <ConversionError>
-              {browser.i18n.getMessage("conversion_error")}
-            </ConversionError>
+            <ConversionError>{errorMessage}</ConversionError>
           )}
           <Spacer y={0.7} />
           <PaymentLabel>
