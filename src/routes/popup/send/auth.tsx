@@ -33,9 +33,11 @@ import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
 import Arweave from "arweave";
-import { defaultGateway, Gateway } from "~gateways/gateway";
-
-export default function SendAuth() {
+import { defaultGateway, type Gateway } from "~gateways/gateway";
+interface Props {
+  tokenID?: string;
+}
+export default function SendAuth({ tokenID }: Props) {
   // loading
   const [loading, setLoading] = useState(false);
 
@@ -61,6 +63,12 @@ export default function SendAuth() {
       transaction: arweave.transactions.fromRaw(raw.transaction)
     };
   }
+
+  const isUToken =
+    // Test U-Token
+    tokenID === "FYJOKdtNKl18QgblxgLEZUfJMFUv6tZTQqGTtY-D6jQ" ||
+    // U-TOKEN
+    tokenID === "KTzTXT_ANmF84fWEKHzWURD1LWd9QaFR9yfYUwH2Lxw";
 
   /**
    * Submit transaction to the network
@@ -104,8 +112,18 @@ export default function SendAuth() {
         }))
       })
     );
-
-    await arweave.transactions.post(transaction);
+    if (isUToken) {
+      await fetch("https://gateway.warp.cc/gateway/sequencer/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+        body: JSON.stringify(transaction)
+      });
+    } else {
+      await arweave.transactions.post(transaction);
+    }
   }
 
   // toasts
@@ -161,7 +179,11 @@ export default function SendAuth() {
         content: browser.i18n.getMessage("sent_tx"),
         duration: 2000
       });
-      push(`/transaction/${transaction.id}?back=${encodeURIComponent("/")}`);
+      isUToken
+        ? push("/")
+        : push(
+            `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
+          );
     } catch (e) {
       console.log(e);
       setToast({
@@ -259,7 +281,11 @@ export default function SendAuth() {
           content: browser.i18n.getMessage("sent_tx"),
           duration: 2000
         });
-        push(`/transaction/${transaction.id}?back=${encodeURIComponent("/")}`);
+        isUToken
+          ? push(
+              `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
+            )
+          : push("/");
       } catch (e) {
         console.log(e);
         setToast({
@@ -278,6 +304,7 @@ export default function SendAuth() {
       <div>
         <Head title={browser.i18n.getMessage("titles_sign")} />
         <Spacer y={0.75} />
+        {tokenID}
         {wallet && (
           <Section>
             <Text noMargin>

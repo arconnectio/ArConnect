@@ -392,27 +392,15 @@ export default function Send({ id }: Props) {
             <ChevronRightIcon />
           </TokenSelectorRightSide>
         </TokenSelector>
-        <Tooltip
-          content={
-            token.id === "KTzTXT_ANmF84fWEKHzWURD1LWd9QaFR9yfYUwH2Lxw"
-              ? browser.i18n.getMessage("u_token_disabled")
-              : ""
-          }
+
+        <Button
+          disabled={invalidQty || parseFloat(qty) === 0 || qty === ""}
+          fullWidth
+          onClick={send}
         >
-          <Button
-            disabled={
-              invalidQty ||
-              parseFloat(qty) === 0 ||
-              qty === "" ||
-              token.id === "KTzTXT_ANmF84fWEKHzWURD1LWd9QaFR9yfYUwH2Lxw"
-            }
-            fullWidth
-            onClick={send}
-          >
-            {browser.i18n.getMessage("send")}
-            <ArrowUpRightIcon />
-          </Button>
-        </Tooltip>
+          {browser.i18n.getMessage("send")}
+          <ArrowUpRightIcon />
+        </Button>
       </BottomActions>
       <AnimatePresence>
         {showTokenSelector && (
