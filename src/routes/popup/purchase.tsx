@@ -35,6 +35,40 @@ export default function Purchase() {
 
   const isInitialMount = useRef(true);
 
+  async function checkIsBackFromConfirm() {
+    const isBack = await ExtensionStorage.get("isBackFromConfirm");
+    console.log("is back:", isBack);
+
+    return isBack;
+  }
+
+  async function getActiveQuote() {
+    const activeQuote = await ExtensionStorage.get("quote");
+    return activeQuote;
+  }
+
+  useEffect(() => {
+    async function fetchActiveQuote() {
+      const backIsTrue = checkIsBackFromConfirm();
+      console.log("back is true:", backIsTrue);
+      if (backIsTrue) {
+        const quote = await getActiveQuote();
+        console.log("active quote from confirm:", quote);
+
+        setSelectedFiat(quote.selectedFiat);
+        setFiatAmount(quote.fiatAmount);
+        setReceivedAR(quote.payout);
+        setSelectedPaymentMethod(quote.selectedPaymentMethod);
+
+        await ExtensionStorage.set("isBackFromConfirm", false);
+      }
+    }
+
+    fetchActiveQuote();
+  }, [isInitialMount]);
+
+  // ------------------------------------------------------------
+
   const [quote, setQuote] = useStorage<Object>(
     {
       key: "quote",

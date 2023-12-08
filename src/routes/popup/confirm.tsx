@@ -10,6 +10,7 @@ import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
 import { getActiveWallet } from "~wallets";
 import { buyRequest } from "~lib/onramper";
+import { useStorage } from "@plasmohq/storage/hook";
 
 export default function ConfirmPurchase() {
   const [push] = useHistory();
@@ -27,6 +28,14 @@ export default function ConfirmPurchase() {
   const [fiatAmount, setFiatAmount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [paymentName, setPaymentName] = useState("");
+
+  const [isBackFromConfirm, setIsBackFromConfirm] = useStorage(
+    {
+      key: "isBackFromConfirm",
+      instance: ExtensionStorage
+    },
+    null
+  );
 
   useEffect(() => {
     async function fetchActiveWallet() {
@@ -107,6 +116,7 @@ export default function ConfirmPurchase() {
         browser.tabs.update({
           url: response.message.transactionInformation.url
         });
+        setIsBackFromConfirm(false);
         push("/purchase-pending");
       } else {
         console.error("Invalid response format or missing URL");
@@ -116,12 +126,17 @@ export default function ConfirmPurchase() {
     }
   };
 
+  const handleBack = () => {
+    setIsBackFromConfirm(true);
+    push("/purchase");
+  };
+
   return (
     <Wrapper>
       <div>
         <Header>
           <BackWrapper>
-            <ExitIcon onClick={() => push("/purchase")}>
+            <ExitIcon onClick={() => handleBack()}>
               {browser.i18n.getMessage("exit_buy_screen")}
             </ExitIcon>
           </BackWrapper>
