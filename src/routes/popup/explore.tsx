@@ -114,16 +114,6 @@ export default function Explore() {
   return (
     <>
       <Head title={browser.i18n.getMessage("explore")} />
-      <PriceChart
-        token={{
-          name: "Arweave",
-          ticker: "AR"
-        }}
-        priceData={priceData}
-        latestPrice={latestPrice}
-      >
-        <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />
-      </PriceChart>
       <Section>
         <Shortcuts>
           <AppShortcut
