@@ -51,7 +51,7 @@ export default function Purchase() {
       setSelectedFiat(quote.selectedFiat);
       setFiatAmount(quote.fiatAmount);
       setReceivedAR(quote.payout);
-      setSelectedPaymentMethod(quote.selectedPaymentMethod);
+      handlePaymentMethodChange(quote.selectedPaymentMethod);
 
       await ExtensionStorage.set("isBackFromConfirm", false);
     } else {
@@ -88,8 +88,17 @@ export default function Purchase() {
   };
 
   function handlePaymentMethodChange(methodId: string) {
+    console.log("handlePaymentMethodChange called with:", methodId);
+    console.log(
+      "Selected payment method before update:",
+      selectedPaymentMethod
+    );
     setSelectedPaymentMethod(methodId);
   }
+
+  useEffect(() => {
+    console.log("Selected payment method after update:", selectedPaymentMethod);
+  }, [selectedPaymentMethod]);
 
   useEffect(() => {
     setShowOptions(fiatSwitchOpen);
@@ -231,6 +240,7 @@ export default function Purchase() {
           </PaymentLabel>
           <InputMenu
             onPaymentMethodChange={handlePaymentMethodChange}
+            selectedPaymentMethod={selectedPaymentMethod}
             isPaymentMethod={true}
           />
         </MainSwap>
