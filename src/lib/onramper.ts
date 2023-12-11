@@ -146,8 +146,6 @@ export async function getPaymentTypes(currency: string) {
 
     const data = await response.json();
 
-    console.log(data);
-
     return data.message;
   } catch (error) {
     console.error(error);
