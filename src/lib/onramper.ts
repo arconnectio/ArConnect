@@ -132,7 +132,7 @@ export async function getPaymentTypes(currency: string) {
     }
 
     const response = await fetch(
-      `https://api.onramper.com/supported/payment-types/${currency}`,
+      `https://api.onramper.com/supported/payment-types/transak/${currency}/ar_arweave`,
       {
         headers: {
           Authorization: apiKey
