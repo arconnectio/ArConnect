@@ -116,3 +116,41 @@ export async function buyRequest(
     throw error;
   }
 }
+
+/**
+ * GET Supported Payment Types for specific fiat currency
+ *
+ * @param currency symbol of currency to get payment types for
+ */
+
+export async function getPaymentTypes(currency: string) {
+  try {
+    const apiKey = process.env.PLASMO_PUBLIC_ONRAMPER_API_KEY;
+
+    if (!apiKey) {
+      throw new Error("API key is undefined");
+    }
+
+    const response = await fetch(
+      `https://api.onramper.com/supported/payment-types/${currency}`,
+      {
+        headers: {
+          Authorization: apiKey
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    console.log(data);
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
