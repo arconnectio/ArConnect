@@ -34,6 +34,7 @@ import Head from "~components/popup/Head";
 import styled from "styled-components";
 import Arweave from "arweave";
 import { defaultGateway, type Gateway } from "~gateways/gateway";
+import { isUToken, sendRequest } from "~utils/send";
 interface Props {
   tokenID?: string;
 }
@@ -64,11 +65,7 @@ export default function SendAuth({ tokenID }: Props) {
     };
   }
 
-  const isUToken =
-    // Test U-Token
-    tokenID === "FYJOKdtNKl18QgblxgLEZUfJMFUv6tZTQqGTtY-D6jQ" ||
-    // U-TOKEN
-    tokenID === "KTzTXT_ANmF84fWEKHzWURD1LWd9QaFR9yfYUwH2Lxw";
+  const uToken = isUToken(tokenID);
 
   /**
    * Submit transaction to the network
@@ -112,15 +109,22 @@ export default function SendAuth({ tokenID }: Props) {
         }))
       })
     );
-    if (isUToken) {
-      await fetch("https://gateway.warp.cc/gateway/sequencer/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json"
-        },
-        body: JSON.stringify(transaction)
-      });
+    if (uToken) {
+      try {
+        const config = {
+          url: "https://gateway.warp.cc/gateway/sequencer/register",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json"
+          },
+          body: JSON.stringify(transaction)
+        };
+        await sendRequest(config);
+      } catch (err) {
+        console.log("err", err);
+        throw new Error("Unknown error occurred");
+      }
     } else {
       await arweave.transactions.post(transaction);
     }
@@ -179,7 +183,7 @@ export default function SendAuth({ tokenID }: Props) {
         content: browser.i18n.getMessage("sent_tx"),
         duration: 2000
       });
-      isUToken
+      uToken
         ? push("/")
         : push(
             `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
@@ -281,7 +285,7 @@ export default function SendAuth({ tokenID }: Props) {
           content: browser.i18n.getMessage("sent_tx"),
           duration: 2000
         });
-        isUToken
+        uToken
           ? push(
               `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
             )
@@ -304,7 +308,6 @@ export default function SendAuth({ tokenID }: Props) {
       <div>
         <Head title={browser.i18n.getMessage("titles_sign")} />
         <Spacer y={0.75} />
-        {tokenID}
         {wallet && (
           <Section>
             <Text noMargin>

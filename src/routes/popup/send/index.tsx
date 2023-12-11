@@ -53,6 +53,7 @@ import Collectible from "~components/popup/Collectible";
 import { findGateway } from "~gateways/wayfinder";
 import { useHistory } from "~utils/hash_router";
 import { DREContract, DRENode } from "@arconnect/warp-dre";
+import { isUToken } from "~utils/send";
 
 // default size for the qty text
 const defaulQtytSize = 3.7;
@@ -266,6 +267,8 @@ export default function Send({ id }: Props) {
     setShownTokenSelector(false);
   }
 
+  const uToken = isUToken(tokenID);
+
   // qty text size
   const qtySize = useMemo(() => {
     const maxLengthDef = 7;
@@ -353,14 +356,16 @@ export default function Send({ id }: Props) {
           <Max onClick={() => setQty(max.toString())}>Max</Max>
         </QuantitySection>
         <Spacer y={1} />
-        <Message>
-          <Input
-            {...message.bindings}
-            type="text"
-            placeholder={browser.i18n.getMessage("send_message_optional")}
-            fullWidth
-          />
-        </Message>
+        {!uToken && (
+          <Message>
+            <Input
+              {...message.bindings}
+              type="text"
+              placeholder={browser.i18n.getMessage("send_message_optional")}
+              fullWidth
+            />
+          </Message>
+        )}
         <Spacer y={1} />
         <Datas>
           {!!price && (
