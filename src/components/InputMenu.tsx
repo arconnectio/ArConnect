@@ -5,12 +5,13 @@ import { useTheme, hoverEffect } from "~utils/theme";
 import type { DisplayTheme } from "@arconnect/components";
 import { CloseIcon, ChevronDownIcon, SearchIcon } from "@iconicicons/react";
 import amex from "url:/assets/ecosystem/amex.svg";
-import applePay from "url:/assets/ecosystem/apple-pay.svg";
-import creditDebit from "url:/assets/ecosystem/credit-debit.svg";
-import gPay from "url:/assets/ecosystem/google-pay.svg";
+// import applePay from "url:/assets/ecosystem/apple-pay.svg";
+// import creditDebit from "url:/assets/ecosystem/credit-debit.svg";
+// import gPay from "url:/assets/ecosystem/google-pay.svg";
 import mastercard from "url:/assets/ecosystem/mastercard.svg";
 import visa from "url:/assets/ecosystem/visa.svg";
 import supportedCurrencies from "~utils/supported_currencies";
+import { getPaymentTypes } from "~lib/onramper";
 
 interface InputMenuProps {
   onPaymentMethodChange?: (methodId: string) => void;
@@ -31,37 +32,27 @@ export default function InputMenu({
 
   const [searchInput, setSearchInput] = useState("");
   const [chooseOption, setChooseOption] = useState(false);
+  const [supportedPayments, setSupportedPayments] = useState([]);
 
   const options = isPaymentMethod
-    ? [
-        {
-          id: "creditcard",
-          logo: creditDebit,
-          text: "Credit Card"
-        },
-        {
-          id: "debitcard",
-          logo: creditDebit,
-          text: "Debit Card"
-        },
-        {
-          id: "applepay",
-          logo: applePay,
-          text: "Apple Pay"
-        },
-        {
-          id: "googlepay",
-          logo: gPay,
-          text: "Google Pay"
-        }
-      ]
+    ? supportedPayments.map((paymentType) => ({
+        id: paymentType.paymentTypeId,
+        logo: paymentType.icon,
+        text: paymentType.name
+      }))
     : supportedCurrencies.map((currency) => ({
         id: currency.id,
         logo: `https://cdn.onramper.com/icons/tokens/${currency.id}.svg`,
         text: currency.name
       }));
 
-  const [chosenOption, setChosenOption] = useState(options[0]);
+  const defaultPaymentMethod = {
+    id: "creditcard",
+    logo: "https://cdn.onramper.com/icons/payments/creditcard.svg",
+    text: "Credit Card"
+  };
+
+  const [chosenOption, setChosenOption] = useState(defaultPaymentMethod);
 
   useEffect(() => {
     if (!isPaymentMethod) {
@@ -80,6 +71,13 @@ export default function InputMenu({
 
   useEffect(() => {
     if (isPaymentMethod && onPaymentMethodChange) {
+      async function getPayments() {
+        const payments = await getPaymentTypes(selectedFiatCurrency);
+        console.log(payments);
+        setSupportedPayments(payments);
+      }
+      getPayments();
+
       const selectedMethod = options.find(
         (option) => option.id === selectedPaymentMethod
       );
@@ -87,7 +85,7 @@ export default function InputMenu({
         setChosenOption(selectedMethod);
       }
     }
-  }, [onPaymentMethodChange, isPaymentMethod]);
+  }, [onPaymentMethodChange, isPaymentMethod, selectedFiatCurrency]);
 
   const OptionSelect = () => (
     <SelectInput displayTheme={theme} onClick={() => setChooseOption(true)}>
