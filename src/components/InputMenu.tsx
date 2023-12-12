@@ -16,6 +16,7 @@ interface InputMenuProps {
   onPaymentMethodChange?: (methodId: string) => void;
   onFiatCurrencyChange?: (currency: string) => void;
   isPaymentMethod: boolean;
+  selectedPaymentMethod?: string;
   selectedFiatCurrency?: string;
 }
 
@@ -23,6 +24,7 @@ export default function InputMenu({
   onPaymentMethodChange,
   onFiatCurrencyChange,
   isPaymentMethod,
+  selectedPaymentMethod,
   selectedFiatCurrency = "eur"
 }: InputMenuProps) {
   const theme = useTheme();
@@ -75,6 +77,17 @@ export default function InputMenu({
       setChooseOption(true);
     }
   }, [isPaymentMethod, selectedFiatCurrency]);
+
+  useEffect(() => {
+    if (isPaymentMethod && onPaymentMethodChange) {
+      const selectedMethod = options.find(
+        (option) => option.id === selectedPaymentMethod
+      );
+      if (selectedMethod) {
+        setChosenOption(selectedMethod);
+      }
+    }
+  }, [onPaymentMethodChange, isPaymentMethod]);
 
   const OptionSelect = () => (
     <SelectInput displayTheme={theme} onClick={() => setChooseOption(true)}>

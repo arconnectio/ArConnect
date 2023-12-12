@@ -35,6 +35,32 @@ export default function Purchase() {
 
   const isInitialMount = useRef(true);
 
+  async function getActiveQuote() {
+    const activeQuote = await ExtensionStorage.get("quote");
+    return activeQuote;
+  }
+
+  async function checkIsBackFromConfirm() {
+    const isBack = await ExtensionStorage.get("isBackFromConfirm");
+
+    if (isBack === true) {
+      const quote = await getActiveQuote();
+
+      setSelectedFiat(quote.selectedFiat);
+      setFiatAmount(quote.fiatAmount);
+      setReceivedAR(quote.payout);
+      handlePaymentMethodChange(quote.selectedPaymentMethod);
+
+      await ExtensionStorage.set("isBackFromConfirm", false);
+    } else {
+      return false;
+    }
+  }
+
+  useEffect(() => {
+    checkIsBackFromConfirm();
+  }, [isInitialMount]);
+
   const [quote, setQuote] = useStorage<Object>(
     {
       key: "quote",
@@ -47,14 +73,12 @@ export default function Purchase() {
     try {
       // Set the quote data in the state
       await setQuote(quoteData);
-      console.log("Quote data saved:", quoteData);
     } catch (error) {
       console.error("Error saving quote data:", error);
     }
   };
 
   const handleFiat = (currency: string) => {
-    console.log("updated currency:", currency);
     setSelectedFiat(currency); // Update the selected fiat currency
     setFiatSwitchOpen(!fiatSwitchOpen); // Close the dropdown
   };
@@ -203,6 +227,7 @@ export default function Purchase() {
           </PaymentLabel>
           <InputMenu
             onPaymentMethodChange={handlePaymentMethodChange}
+            selectedPaymentMethod={selectedPaymentMethod}
             isPaymentMethod={true}
           />
         </MainSwap>
