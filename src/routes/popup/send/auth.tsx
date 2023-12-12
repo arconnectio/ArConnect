@@ -286,10 +286,10 @@ export default function SendAuth({ tokenID }: Props) {
           duration: 2000
         });
         uToken
-          ? push(
+          ? push("/")
+          : push(
               `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
-            )
-          : push("/");
+            );
       } catch (e) {
         console.log(e);
         setToast({
