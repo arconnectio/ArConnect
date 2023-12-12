@@ -144,7 +144,7 @@ export default function Recipient({ tokenID, qty, message }: Props) {
       await TempTransactionStorage.set(TRANSFER_TX_STORAGE, storedTx);
 
       // push to auth & signature
-      push(`/send/auth`);
+      push(`/send/auth/${tokenID}`);
     } catch {
       return setToast({
         type: "error",
