@@ -31,17 +31,39 @@ export default function InputMenu({
   const [chooseOption, setChooseOption] = useState(false);
   const [supportedPayments, setSupportedPayments] = useState([]);
 
-  const options = isPaymentMethod
-    ? supportedPayments.map((paymentType) => ({
-        id: paymentType.paymentTypeId,
-        logo: paymentType.icon,
-        text: paymentType.name
-      }))
-    : supportedCurrencies.map((currency) => ({
-        id: currency.id,
-        logo: `https://cdn.onramper.com/icons/tokens/${currency.id}.svg`,
-        text: currency.name
-      }));
+  // const options = isPaymentMethod
+  //   ? supportedPayments.map((paymentType) => ({
+  //       id: paymentType.paymentTypeId,
+  //       logo: paymentType.icon,
+  //       text: paymentType.name
+  //     }))
+  //   : supportedCurrencies.map((currency) => ({
+  //       id: currency.id,
+  //       logo: `https://cdn.onramper.com/icons/tokens/${currency.id}.svg`,
+  //       text: currency.name
+  //     }));
+
+  const [options, setOptions] = useState([]);
+
+  useEffect(() => {
+    if (isPaymentMethod) {
+      setOptions(
+        supportedPayments.map((paymentType) => ({
+          id: paymentType.paymentTypeId,
+          logo: paymentType.icon,
+          text: paymentType.name
+        }))
+      );
+    } else {
+      setOptions(
+        supportedCurrencies.map((currency) => ({
+          id: currency.id,
+          logo: `https://cdn.onramper.com/icons/tokens/${currency.id}.svg`,
+          text: currency.name
+        }))
+      );
+    }
+  }, [isPaymentMethod, supportedPayments]);
 
   const defaultPaymentMethod = {
     id: "creditcard",
@@ -60,7 +82,7 @@ export default function InputMenu({
         setChosenOption(selectedMethod);
       }
     }
-  }, [onPaymentMethodChange, isPaymentMethod, selectedFiatCurrency]);
+  }, [onPaymentMethodChange, isPaymentMethod, selectedPaymentMethod]);
 
   useEffect(() => {
     if (!isPaymentMethod) {
@@ -78,12 +100,35 @@ export default function InputMenu({
   }, [isPaymentMethod, selectedFiatCurrency]);
 
   useEffect(() => {
+    const updateOptions = () => {
+      if (isPaymentMethod) {
+        setOptions(
+          supportedPayments.map((paymentType) => ({
+            id: paymentType.paymentTypeId,
+            logo: paymentType.icon,
+            text: paymentType.name
+          }))
+        );
+      } else {
+        setOptions(
+          supportedCurrencies.map((currency) => ({
+            id: currency.id,
+            logo: `https://cdn.onramper.com/icons/tokens/${currency.id}.svg`,
+            text: currency.name
+          }))
+        );
+      }
+    };
+
+    updateOptions();
+  }, [isPaymentMethod, supportedPayments, supportedCurrencies]);
+
+  useEffect(() => {
     console.log("InputMenu received fiat currency:", selectedFiatCurrency);
     async function getPayments() {
       const payments = await getPaymentTypes(selectedFiatCurrency);
-      console.log(`${selectedFiatCurrency} payment types:`, payments);
       setSupportedPayments(payments);
-      console.log("set payments:", payments);
+      console.log(`$${selectedFiatCurrency} set payments:`, payments);
     }
     getPayments();
   }, [selectedFiatCurrency]);
