@@ -54,7 +54,6 @@ export default function ConfirmPurchase() {
   useEffect(() => {
     async function fetchActiveQuote() {
       const quote = await getActiveQuote();
-      console.log(quote);
 
       setOnramp(quote.ramp);
       setSelectedFiat(quote.selectedFiat.toUpperCase());
@@ -81,8 +80,6 @@ export default function ConfirmPurchase() {
   }, []);
 
   const buyAR = async () => {
-    console.log("Confirmed purchase");
-
     try {
       const wallet = {
         address: activeWallet
@@ -103,8 +100,6 @@ export default function ConfirmPurchase() {
         requestBody.paymentMethod,
         requestBody.wallet
       );
-
-      console.log("Purchase pending:", response);
 
       if (
         response &&
