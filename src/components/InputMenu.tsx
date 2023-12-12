@@ -52,6 +52,17 @@ export default function InputMenu({
   const [chosenOption, setChosenOption] = useState(defaultPaymentMethod);
 
   useEffect(() => {
+    if (isPaymentMethod && onPaymentMethodChange) {
+      const selectedMethod = options.find(
+        (option) => option.id === selectedPaymentMethod
+      );
+      if (selectedMethod) {
+        setChosenOption(selectedMethod);
+      }
+    }
+  }, [onPaymentMethodChange, isPaymentMethod, selectedFiatCurrency]);
+
+  useEffect(() => {
     if (!isPaymentMethod) {
       const activeCurrency =
         supportedCurrencies.find(
@@ -67,22 +78,15 @@ export default function InputMenu({
   }, [isPaymentMethod, selectedFiatCurrency]);
 
   useEffect(() => {
-    if (isPaymentMethod && onPaymentMethodChange) {
-      async function getPayments() {
-        const payments = await getPaymentTypes(selectedFiatCurrency);
-        console.log(payments);
-        setSupportedPayments(payments);
-      }
-      getPayments();
-
-      const selectedMethod = options.find(
-        (option) => option.id === selectedPaymentMethod
-      );
-      if (selectedMethod) {
-        setChosenOption(selectedMethod);
-      }
+    console.log("InputMenu received fiat currency:", selectedFiatCurrency);
+    async function getPayments() {
+      const payments = await getPaymentTypes(selectedFiatCurrency);
+      console.log(`${selectedFiatCurrency} payment types:`, payments);
+      setSupportedPayments(payments);
+      console.log("set payments:", payments);
     }
-  }, [onPaymentMethodChange, isPaymentMethod, selectedFiatCurrency]);
+    getPayments();
+  }, [selectedFiatCurrency]);
 
   const OptionSelect = () => (
     <SelectInput displayTheme={theme} onClick={() => setChooseOption(true)}>

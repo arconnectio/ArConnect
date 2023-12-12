@@ -140,6 +140,8 @@ export async function getPaymentTypes(currency: string) {
       }
     );
 
+    console.log("fetching payment types for:", currency);
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
