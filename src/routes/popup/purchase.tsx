@@ -42,11 +42,9 @@ export default function Purchase() {
 
   async function checkIsBackFromConfirm() {
     const isBack = await ExtensionStorage.get("isBackFromConfirm");
-    console.log("Back from confirm:", isBack);
 
     if (isBack === true) {
       const quote = await getActiveQuote();
-      console.log("active quote from confirm:", quote);
 
       setSelectedFiat(quote.selectedFiat);
       setFiatAmount(quote.fiatAmount);
@@ -75,30 +73,19 @@ export default function Purchase() {
     try {
       // Set the quote data in the state
       await setQuote(quoteData);
-      console.log("Quote data saved:", quoteData);
     } catch (error) {
       console.error("Error saving quote data:", error);
     }
   };
 
   const handleFiat = (currency: string) => {
-    console.log("updated currency:", currency);
     setSelectedFiat(currency); // Update the selected fiat currency
     setFiatSwitchOpen(!fiatSwitchOpen); // Close the dropdown
   };
 
   function handlePaymentMethodChange(methodId: string) {
-    console.log("handlePaymentMethodChange called with:", methodId);
-    console.log(
-      "Selected payment method before update:",
-      selectedPaymentMethod
-    );
     setSelectedPaymentMethod(methodId);
   }
-
-  useEffect(() => {
-    console.log("Selected payment method after update:", selectedPaymentMethod);
-  }, [selectedPaymentMethod]);
 
   useEffect(() => {
     setShowOptions(fiatSwitchOpen);
