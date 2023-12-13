@@ -68,6 +68,15 @@ export default function InputMenu({
   useEffect(() => {
     async function getPayments() {
       const payments = await getPaymentTypes(selectedFiatCurrency);
+
+      const isCurrentPaymentSupported = payments.some(
+        (payment) => payment.id === chosenOption.id
+      );
+
+      if (!isCurrentPaymentSupported && isPaymentMethod) {
+        setChosenOption(defaultPaymentMethod);
+      }
+
       setSupportedPayments(payments);
     }
     getPayments();
