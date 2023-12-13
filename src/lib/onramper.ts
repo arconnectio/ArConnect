@@ -34,8 +34,6 @@ export async function getQuote(
 
     const data = await response.json();
 
-    console.log(data);
-
     const payout = data.length > 0 ? data[0].payout : undefined;
 
     if (payout === undefined && data[1].ramp === "transak") {
@@ -94,8 +92,6 @@ export async function buyRequest(
       network: "arweave"
     };
 
-    console.log(requestBody);
-
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -139,8 +135,6 @@ export async function getPaymentTypes(currency: string) {
         }
       }
     );
-
-    console.log("fetching payment types for:", currency);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

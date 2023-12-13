@@ -226,9 +226,10 @@ export default function Purchase() {
             {browser.i18n.getMessage("buy_screen_payment_method")}
           </PaymentLabel>
           <InputMenu
-            onPaymentMethodChange={handlePaymentMethodChange}
-            selectedPaymentMethod={selectedPaymentMethod}
             isPaymentMethod={true}
+            onPaymentMethodChange={handlePaymentMethodChange}
+            selectedFiatCurrency={selectedFiat}
+            selectedPaymentMethod={selectedPaymentMethod}
           />
         </MainSwap>
       </div>
