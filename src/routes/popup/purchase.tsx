@@ -138,6 +138,12 @@ export default function Purchase() {
     }
   }, [selectedFiat, selectedPaymentMethod, fiatAmount, getQuote]);
 
+  useEffect(() => {
+    if (errorMessage.includes("does not support Payment Method")) {
+      setSelectedPaymentMethod("creditcard");
+    }
+  }, [errorMessage]);
+
   return (
     <Wrapper>
       <div>
