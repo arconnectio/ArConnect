@@ -19,7 +19,11 @@ const background: ModuleFunction<number[]> = async (
   dataItem: unknown
 ) => {
   // validate
-  isRawDataItem(dataItem);
+  try {
+    isRawDataItem(dataItem);
+  } catch (err) {
+    throw new Error(err);
+  }
 
   // grab the user's keyfile
   const decryptedWallet = await getActiveKeyfile().catch((e) => {
