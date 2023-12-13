@@ -70,7 +70,7 @@ export default function InputMenu({
       const payments = await getPaymentTypes(selectedFiatCurrency);
 
       const isCurrentPaymentSupported = payments.some(
-        (payment) => payment.id === chosenOption.id
+        (payment) => payment.paymentTypeId === chosenOption.id
       );
 
       if (!isCurrentPaymentSupported && isPaymentMethod) {
