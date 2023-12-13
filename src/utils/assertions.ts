@@ -133,7 +133,15 @@ export function isRawTransaction(input: unknown): asserts input is Transaction {
 }
 
 export function isTag(input: unknown): asserts input is DecodedTag {
-  isRecordWithKeys(input, ["name", "value"], "Invalid keys in tag.");
+  try {
+    isRecordWithKeys(input, ["name", "value"], "Invalid keys in tag.");
+  } catch {
+    throw new Error(
+      `Issue with ${JSON.stringify(
+        input
+      )}, please ensure that "name" and "value" exist on all tags`
+    );
+  }
   isString(input.name, "Tag name has to be a string");
   isString(input.value, "Tag value has to be a string.");
 }
@@ -248,6 +256,7 @@ export function isRawDataItem(input: unknown): asserts input is RawDataItem {
 
   if (input.target) isAddress(input.target);
   if (input.anchor) isString(input.anchor, "Anchor needs to be a string.");
+
   if (input.tags) isArrayOfType(input.tags, isTag, "Invalid tags array.");
 }
 
