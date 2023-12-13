@@ -184,10 +184,13 @@ export default function Purchase() {
                 e.preventDefault();
               }}
               onChange={(e) => {
-                setFiatAmount(Number(e.target.value));
-                if (e.target.value === "") {
-                  setFiatAmount(undefined);
+                let inputValue = e.target.value;
+                if (inputValue.slice(-1) === ".") {
+                  inputValue = inputValue.slice(0, -1);
                 }
+                setFiatAmount(
+                  inputValue === "" ? undefined : Number(inputValue)
+                );
               }}
             />
             <FiatSelect
