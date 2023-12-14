@@ -24,7 +24,7 @@ export default function NoBalance() {
             fullWidth
             className="normal-font-weight"
           >
-            {browser.i18n.getMessage("home_transfer_balance")}
+            {browser.i18n.getMessage("receive_AR_button")}
             <ArrowRight />
           </CustomButton>
         </Container>
