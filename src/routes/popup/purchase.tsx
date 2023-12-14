@@ -161,6 +161,7 @@ export default function Purchase() {
             <QuantityInput
               displayTheme={theme}
               type="number"
+              inputMode="decimal"
               placeholder={browser.i18n.getMessage("buy_screen_enter")}
               value={fiatAmount}
               onKeyDown={(e) => {
