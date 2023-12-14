@@ -3396,9 +3396,9 @@
   integrity sha512-op8YeoK60K6/GIx3snWs3JowBZ+/aeSnZzZuuwynA7VARWfzr3st9aQNk9RWfoBx5xqlNZjAsh2QttPUZnabCw==
 
 "@untitled-ui/icons-react@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@untitled-ui/icons-react/-/icons-react-0.1.1.tgz#ae77dd4cbee8164129f857c3db34bc44dc031289"
-  integrity sha512-r46L5+Ak6UsyhcglPuC1+y5WkjDLi2dBeeUemYrtJn0pBfQM15IcAzErvh+yEts4hT2arGedcp3TnNhDVlUvDw==
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@untitled-ui/icons-react/-/icons-react-0.1.2.tgz#6474599a086796affaee9c1af5560ea5065b67af"
+  integrity sha512-H4Ryn622t6kNxa5ldQEKL8i2LqtPskuKROA0mgTj54R1KSTNIx5jzrfOGTP6NUOtPyVMVRSyfex3RPqba3LPqg==
 
 "@vue/compiler-core@3.3.4":
   version "3.3.4"
