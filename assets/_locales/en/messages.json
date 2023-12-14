@@ -1480,5 +1480,9 @@
   "search_currency_placeholder": {
     "message": "Enter currency name",
     "description": "Currency search placeholder text"
+  },
+  "receive_AR_button": {
+    "message": "Receive AR", 
+    "description": "Button text for the receive AR button"
   }
 }
