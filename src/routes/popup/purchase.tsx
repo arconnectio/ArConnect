@@ -186,9 +186,6 @@ export default function Purchase() {
               }}
               onChange={(e) => {
                 let inputValue = e.target.value;
-                if (inputValue.slice(-1) === ".") {
-                  inputValue = inputValue.slice(0, -1);
-                }
                 setFiatAmount(
                   inputValue === "" ? undefined : Number(inputValue)
                 );
