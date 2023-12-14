@@ -32,7 +32,7 @@ export const Wrapper = styled(motion.div)<{ responsive?: boolean }>`
 
 const PageWrapper = styled(Wrapper)`
   position: absolute;
-  padding: 0 0 79px 0;
+  padding: 0 0 4rem 0;
   top: 0;
   width: 100%;
   background-color: rgb(${(props) => props.theme.background});
