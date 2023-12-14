@@ -8,36 +8,43 @@ import styled from "styled-components";
 import { useLocation } from "wouter";
 import { useHistory } from "~utils/hash_router";
 
-//TODO: Make sure there's space to see all collectibles
-
 export const NavigationBar = () => {
-  // router push
   const [push] = useHistory();
   const [location] = useLocation();
+  const isVisible = location !== "/send/transfer" && location !== "/receive";
+
   return (
-    <NavigationWrapper>
-      <Buttons>
-        <Button active={location === "/"}>
-          <ActionButton as={Home02} onClick={() => push("/")} />
-          Home
-        </Button>
-        <Button active={location === "/send/transfer"}>
-          <ActionButton onClick={() => push("/send/transfer")} />
-          Send
-        </Button>
-        <Button active={location === "/receive"}>
-          <ActionButton as={ArrowDownLeft} onClick={() => push("/receive")} />
-          Receive
-        </Button>
-        <Button active={location === "/explore"}>
-          <ActionButton as={Compass03} onClick={() => push("/explore")} />
-          Explore
-        </Button>
-      </Buttons>
-    </NavigationWrapper>
+    <>
+      {location !== "/send/transfer" && location !== "/receive" && (
+        <NavigationWrapper>
+          <Buttons>
+            <Button active={location === "/"} onClick={() => push("/")}>
+              <ActionButton as={Home02} />
+            </Button>
+            <Button
+              active={location === "/send/transfer"}
+              onClick={() => push("/send/transfer")}
+            >
+              <ActionButton />
+            </Button>
+            <Button
+              active={location === "/receive"}
+              onClick={() => push("/receive")}
+            >
+              <ActionButton as={ArrowDownLeft} />
+            </Button>
+            <Button
+              active={location === "/explore"}
+              onClick={() => push("/explore")}
+            >
+              <ActionButton as={Compass03} />
+            </Button>
+          </Buttons>
+        </NavigationWrapper>
+      )}
+    </>
   );
 };
-// border-bottom: 5px solid rgb(171, 154, 255, 0.15);
 
 const Buttons = styled.div`
   height: 100%;
@@ -47,23 +54,25 @@ const Buttons = styled.div`
   align-items: center;
 `;
 
-const Button = styled.div<{ active: boolean }>`
+// TODO: Update border bottom if we're keeping the current active identifier
+const Button = styled.button<{ active: boolean }>`
+  all: unset;
   display: flex;
   justify-content: center;
   flex-direction: column;
-  border-bottom: 8px solid
+  box-sizing: border-box;
+  border-bottom: 4px solid
     ${(props) => (props.active ? `rgba(171, 154, 255)` : `transparent`)};
   width: 100%;
+  cursor: pointer;
   height: 100%;
   align-items: center;
 `;
 
 const ActionButton = styled(ArrowUpRight)`
-  color: #fff;
-  font-size: 1.9rem;
-  width: 1em;
-  height: 1em;
-  cursor: pointer;
+  color: #ebebf1;
+  width: 1.9em;
+  height: 1.9em;
   transition: all 0.23s ease-in-out;
 
   &:hover {
@@ -79,13 +88,18 @@ const NavigationWrapper = styled.div`
   position: fixed;
   bottom: 0;
   width: 100%;
-  height: 79px;
+  height: 3.00625rem;
   color: #ebebf1;
 
-  background: rgb(26, 23, 38);
-  border-top-left-radius: 40px;
-  border-top-right-radius: 40px;
-  z-index: 1000;
+  border-top: 1px solid #423d59;
+  border-left: 1px solid #423d59;
+  border-right: 1px solid #423d59;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+
+  background: #2f2c3c;
+
+  z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: center;
