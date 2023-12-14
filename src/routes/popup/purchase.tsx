@@ -138,6 +138,12 @@ export default function Purchase() {
     }
   }, [selectedFiat, selectedPaymentMethod, fiatAmount, getQuote]);
 
+  useEffect(() => {
+    if (errorMessage.includes("does not support Payment Method")) {
+      setSelectedPaymentMethod("creditcard");
+    }
+  }, [errorMessage]);
+
   return (
     <Wrapper>
       <div>
@@ -226,9 +232,10 @@ export default function Purchase() {
             {browser.i18n.getMessage("buy_screen_payment_method")}
           </PaymentLabel>
           <InputMenu
-            onPaymentMethodChange={handlePaymentMethodChange}
-            selectedPaymentMethod={selectedPaymentMethod}
             isPaymentMethod={true}
+            onPaymentMethodChange={handlePaymentMethodChange}
+            selectedFiatCurrency={selectedFiat}
+            selectedPaymentMethod={selectedPaymentMethod}
           />
         </MainSwap>
       </div>
