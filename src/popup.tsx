@@ -53,7 +53,11 @@ export default function Popup() {
               <Route path="/send/transfer/:id?">
                 {(params: { id?: string }) => <Send id={params?.id} />}
               </Route>
-              <Route path="/send/auth" component={SendAuth} />
+              <Route path="/send/auth/:tokenID?">
+                {(params: { tokenID: string }) => (
+                  <SendAuth tokenID={params?.tokenID} />
+                )}
+              </Route>
               <Route path="/explore" component={Explore} />
               <Route path="/unlock" component={Unlock} />
               <Route path="/tokens" component={Tokens} />

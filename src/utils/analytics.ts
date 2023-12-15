@@ -141,8 +141,8 @@ export const trackEvent = async (eventName: EventType, properties: any) => {
   }
 };
 
-export const trackBalance = async (alarmInfo: Alarms.Alarm) => {
-  if (!alarmInfo.name.startsWith("track-balance")) return;
+export const trackBalance = async (alarmInfo?: Alarms.Alarm) => {
+  if (alarmInfo && !alarmInfo.name.startsWith("track-balance")) return;
   const wallets = await getWallets();
   const arweave = new Arweave(defaultGateway);
   let totalBalance = 0;
@@ -173,7 +173,6 @@ export const initializeARBalanceMonitor = async () => {
     periodInMinutes: oneMonthInMinutes
   });
 
-  // add uuid into storage explorer as ID - can't access analytics.identify() in background so
-  const userId = uuid();
-  await ExtensionStorage.set("user_id", userId);
+  // trigger tracker
+  await trackBalance();
 };

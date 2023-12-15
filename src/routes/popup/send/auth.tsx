@@ -33,9 +33,12 @@ import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
 import Arweave from "arweave";
-import { defaultGateway, Gateway } from "~gateways/gateway";
-
-export default function SendAuth() {
+import { defaultGateway, type Gateway } from "~gateways/gateway";
+import { isUToken, sendRequest } from "~utils/send";
+interface Props {
+  tokenID?: string;
+}
+export default function SendAuth({ tokenID }: Props) {
   // loading
   const [loading, setLoading] = useState(false);
 
@@ -61,6 +64,8 @@ export default function SendAuth() {
       transaction: arweave.transactions.fromRaw(raw.transaction)
     };
   }
+
+  const uToken = isUToken(tokenID);
 
   /**
    * Submit transaction to the network
@@ -104,8 +109,25 @@ export default function SendAuth() {
         }))
       })
     );
-
-    await arweave.transactions.post(transaction);
+    if (uToken) {
+      try {
+        const config = {
+          url: "https://gateway.warp.cc/gateway/sequencer/register",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json"
+          },
+          body: JSON.stringify(transaction)
+        };
+        await sendRequest(config);
+      } catch (err) {
+        console.log("err", err);
+        throw new Error("Unknown error occurred");
+      }
+    } else {
+      await arweave.transactions.post(transaction);
+    }
   }
 
   // toasts
@@ -161,7 +183,11 @@ export default function SendAuth() {
         content: browser.i18n.getMessage("sent_tx"),
         duration: 2000
       });
-      push(`/transaction/${transaction.id}?back=${encodeURIComponent("/")}`);
+      uToken
+        ? push("/")
+        : push(
+            `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
+          );
     } catch (e) {
       console.log(e);
       setToast({
@@ -259,7 +285,11 @@ export default function SendAuth() {
           content: browser.i18n.getMessage("sent_tx"),
           duration: 2000
         });
-        push(`/transaction/${transaction.id}?back=${encodeURIComponent("/")}`);
+        uToken
+          ? push("/")
+          : push(
+              `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
+            );
       } catch (e) {
         console.log(e);
         setToast({
