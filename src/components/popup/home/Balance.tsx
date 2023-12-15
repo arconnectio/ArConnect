@@ -316,7 +316,8 @@ const BalanceIconButton = styled(EyeIcon)`
   font-size: 1em;
   width: 1em;
   height: 1em;
-  color: #fff;
+  color: ${(props) =>
+    props.theme.displayTheme === "light" ? "#AB9AFF" : "#fff"};
   cursor: pointer;
   transition: all 0.23s ease-in-out;
 

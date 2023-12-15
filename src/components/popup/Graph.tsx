@@ -41,7 +41,7 @@ const Wrapper = styled.div<{ displayTheme: DisplayTheme }>`
   position: relative;
   background-color: rgb(
     ${(props) =>
-      props.displayTheme === "light" ? "0, 0, 0" : "171, 154, 255, 0.15"}
+      props.displayTheme === "light" ? "243, 240, 255" : "171, 154, 255, 0.15"}
   );
   border: 1.5px solid rgb(171, 154, 255, 0.15);
   border-radius: 27.5px;
@@ -150,7 +150,8 @@ const ChartSvg = styled.svg<{ blur?: boolean }>`
 
 export const GraphText = styled(Text)`
   line-height: 1em;
-  color: #fff;
+  color: ${(props) =>
+    props.theme.displayTheme === "light" ? "#AB9AFF" : "#fff"};
 
   span {
     font-size: 0.6em;
