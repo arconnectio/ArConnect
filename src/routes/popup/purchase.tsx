@@ -25,6 +25,7 @@ export default function Purchase() {
   const [showOptions, setShowOptions] = useState(false);
   const [selectedFiat, setSelectedFiat] = useState("eur");
   const [fiatAmount, setFiatAmount] = useState(undefined);
+  const [rawInput, setRawInput] = useState("");
   const [receivedAR, setReceivedAR] = useState(undefined);
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
   const [quoteError, setQuoteError] = useState(false);
@@ -47,6 +48,7 @@ export default function Purchase() {
       const quote = await getActiveQuote();
 
       setSelectedFiat(quote.selectedFiat);
+      setRawInput(quote.fiatAmount);
       setFiatAmount(quote.fiatAmount);
       setReceivedAR(quote.payout);
       handlePaymentMethodChange(quote.selectedPaymentMethod);
@@ -160,9 +162,10 @@ export default function Purchase() {
           <InputWrapper displayTheme={theme}>
             <QuantityInput
               displayTheme={theme}
-              type="number"
+              type="text"
+              inputMode="decimal"
               placeholder={browser.i18n.getMessage("buy_screen_enter")}
-              value={fiatAmount}
+              value={rawInput}
               onKeyDown={(e) => {
                 if (
                   [
@@ -184,10 +187,19 @@ export default function Purchase() {
                 e.preventDefault();
               }}
               onChange={(e) => {
-                setFiatAmount(Number(e.target.value));
-                if (e.target.value === "") {
-                  setFiatAmount(undefined);
-                }
+                const inputValue = e.target.value;
+                setRawInput(inputValue); // Set the raw input as is
+
+                // Process the input value for internal use
+                let processedValue = inputValue.endsWith(".")
+                  ? inputValue + "0"
+                  : inputValue;
+
+                // Convert the processed value to a number
+                const numericValue = Number(processedValue);
+
+                // Update fiatAmount accordingly
+                setFiatAmount(isNaN(numericValue) ? undefined : numericValue);
               }}
             />
             <FiatSelect
