@@ -9,7 +9,7 @@ import { cleanUpChunks, getChunks } from "../sign/chunks";
 import { freeDecryptedWallet } from "~wallets/encryption";
 import type { ModuleFunction } from "~api/background";
 import { createData, ArweaveSigner } from "arbundles";
-import { getPrice, uploadDataToBundlr } from "./uploader";
+import { getPrice, uploadDataToTurbo } from "./uploader";
 import type { DispatchResult } from "./index";
 import { signedTxTags } from "../sign/tags";
 import { getActiveKeyfile } from "~wallets";
@@ -98,7 +98,7 @@ const background: ModuleFunction<ReturnType> = async (
 
     // sign and upload bundler tx
     await dataEntry.sign(dataSigner);
-    await uploadDataToBundlr(dataEntry, await app.getBundler());
+    await uploadDataToTurbo(dataEntry);
 
     // update allowance spent amount (in winstons)
     await updateAllowance(appData.appURL, price);
@@ -117,7 +117,7 @@ const background: ModuleFunction<ReturnType> = async (
       }
     };
   } catch {
-    // sign & post if there is something wrong with the bundlr
+    // sign & post if there is something wrong with turbo
     // add ArConnect tags to the tx object
     for (const arcTag of signedTxTags) {
       transaction.addTag(arcTag.name, arcTag.value);
