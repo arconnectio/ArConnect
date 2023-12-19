@@ -3,6 +3,7 @@ import { type HistoryAction, useHistory } from "~utils/hash_router";
 import { createElement, type PropsWithChildren } from "react";
 import { useRoute, Route as BaseRoute } from "wouter";
 import styled from "styled-components";
+import { NavigationBar } from "./Navigation";
 
 /**
  * Custom Route component that allows iOS-like animations
@@ -32,7 +33,6 @@ export const Wrapper = styled(motion.div)<{ responsive?: boolean }>`
 
 const PageWrapper = styled(Wrapper)`
   position: absolute;
-  padding: 0 0 4rem 0;
   top: 0;
   width: 100%;
   background-color: rgb(${(props) => props.theme.background});
@@ -82,14 +82,17 @@ const Page = ({
   };
 
   return (
-    <PageWrapper
-      initial="initial"
-      animate="enter"
-      exit="exit"
-      variants={pageAnimation}
-    >
-      {children}
-    </PageWrapper>
+    <>
+      <PageWrapper
+        initial="initial"
+        animate="enter"
+        exit="exit"
+        variants={pageAnimation}
+      >
+        {children}
+      </PageWrapper>
+      <NavigationBar />
+    </>
   );
 };
 

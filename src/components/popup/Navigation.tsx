@@ -12,33 +12,37 @@ export const NavigationBar = () => {
   const [push] = useHistory();
   const [location] = useLocation();
 
+  const show =
+    !location.startsWith("/send") && !location.startsWith("/receive");
   return (
     <>
-      <NavigationWrapper>
-        <Buttons>
-          <Button active={location === "/"} onClick={() => push("/")}>
-            <ActionButton as={Home02} />
-          </Button>
-          <Button
-            active={location === "/send/transfer"}
-            onClick={() => push("/send/transfer")}
-          >
-            <ActionButton />
-          </Button>
-          <Button
-            active={location === "/receive"}
-            onClick={() => push("/receive")}
-          >
-            <ActionButton as={ArrowDownLeft} />
-          </Button>
-          <Button
-            active={location === "/explore"}
-            onClick={() => push("/explore")}
-          >
-            <ActionButton as={Compass03} />
-          </Button>
-        </Buttons>
-      </NavigationWrapper>
+      {show && (
+        <NavigationWrapper>
+          <Buttons>
+            <Button active={location === "/"} onClick={() => push("/")}>
+              <ActionButton as={Home02} />
+            </Button>
+            <Button
+              active={location === "/send/transfer"}
+              onClick={() => push("/send/transfer")}
+            >
+              <ActionButton />
+            </Button>
+            <Button
+              active={location === "/receive"}
+              onClick={() => push("/receive")}
+            >
+              <ActionButton as={ArrowDownLeft} />
+            </Button>
+            <Button
+              active={location === "/explore"}
+              onClick={() => push("/explore")}
+            >
+              <ActionButton as={Compass03} />
+            </Button>
+          </Buttons>
+        </NavigationWrapper>
+      )}
     </>
   );
 };
