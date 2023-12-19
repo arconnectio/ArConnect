@@ -83,6 +83,11 @@ export default function Purchase() {
   const handleFiat = (currency: string) => {
     setSelectedFiat(currency); // Update the selected fiat currency
     setFiatSwitchOpen(!fiatSwitchOpen); // Close the dropdown
+
+    if (currency === "usd") {
+      setQuoteError(true);
+      setErrorMessage("The U.S. dollar is not supported at this time.");
+    }
   };
 
   function handlePaymentMethodChange(methodId: string) {
