@@ -77,7 +77,6 @@ export default function Popup() {
                   />
                 )}
               </Route>
-              <NavigationBar />
             </HistoryProvider>
           </Router>
         </Wrapper>

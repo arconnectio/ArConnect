@@ -214,7 +214,7 @@ export default function WalletHeader() {
           position="bottom"
         >
           <Action
-            as={Settings01}
+            as={SettingsIcon}
             onClick={() =>
               browser.tabs.create({
                 url: browser.runtime.getURL("tabs/dashboard.html")
