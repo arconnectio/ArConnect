@@ -9,7 +9,7 @@ import { cleanUpChunks, getChunks } from "../sign/chunks";
 import { freeDecryptedWallet } from "~wallets/encryption";
 import type { ModuleFunction } from "~api/background";
 import { createData, ArweaveSigner } from "arbundles";
-import { getPrice, uploadDataToBundlr } from "./uploader";
+import { getPrice, uploadDataToTurbo } from "./uploader";
 import type { DispatchResult } from "./index";
 import { signedTxTags } from "../sign/tags";
 import { getActiveKeyfile } from "~wallets";
@@ -81,46 +81,83 @@ const background: ModuleFunction<ReturnType> = async (
   const allowance = await app.getAllowance();
 
   // attempt to create a bundle
-  // sign & post if there is something wrong with the bundlr
-  // add ArConnect tags to the tx object
-  for (const arcTag of signedTxTags) {
-    transaction.addTag(arcTag.name, arcTag.value);
-  }
-  // calculate price
-  const price = +transaction.reward + parseInt(transaction.quantity);
+  try {
+    // create bundlr tx as a data entry
+    const dataSigner = new ArweaveSigner(keyfile);
+    const dataEntry = createData(data, dataSigner, { tags });
 
-  // ensure allowance
-  await ensureAllowanceDispatch(
-    appData,
-    allowance,
-    decryptedWallet.keyfile,
-    price
-  );
+    // check allowance
+    const price = await getPrice(dataEntry, await app.getBundler());
 
-  // sign and upload
-  await arweave.transactions.sign(transaction, keyfile);
-  const uploader = await arweave.transactions.getUploader(transaction);
+    await ensureAllowanceDispatch(
+      appData,
+      allowance,
+      decryptedWallet.keyfile,
+      price
+    );
 
-  while (!uploader.isComplete) {
-    await uploader.uploadChunk();
-  }
+    // sign and upload bundler tx
+    await dataEntry.sign(dataSigner);
+    await uploadDataToTurbo(dataEntry);
 
-  // update allowance spent amount (in winstons)
-  await updateAllowance(appData.appURL, price);
+    // update allowance spent amount (in winstons)
+    await updateAllowance(appData.appURL, price);
 
-  // show notification
-  await signNotification(price, transaction.id, appData.appURL);
+    // show notification
+    await signNotification(0, dataEntry.id, appData.appURL, "dispatch");
 
-  // remove wallet from memory
-  freeDecryptedWallet(keyfile);
+    // remove wallet from memory
+    freeDecryptedWallet(keyfile);
 
-  return {
-    arConfetti: await arconfettiIcon(),
-    res: {
-      id: transaction.id,
-      type: "BASE"
+    return {
+      arConfetti: await arconfettiIcon(),
+      res: {
+        id: dataEntry.id,
+        type: "BUNDLED"
+      }
+    };
+  } catch {
+    // sign & post if there is something wrong with turbo
+    // add ArConnect tags to the tx object
+    for (const arcTag of signedTxTags) {
+      transaction.addTag(arcTag.name, arcTag.value);
     }
-  };
+    // calculate price
+    const price = +transaction.reward + parseInt(transaction.quantity);
+
+    // ensure allowance
+    await ensureAllowanceDispatch(
+      appData,
+      allowance,
+      decryptedWallet.keyfile,
+      price
+    );
+
+    // sign and upload
+    await arweave.transactions.sign(transaction, keyfile);
+    const uploader = await arweave.transactions.getUploader(transaction);
+
+    while (!uploader.isComplete) {
+      await uploader.uploadChunk();
+    }
+
+    // update allowance spent amount (in winstons)
+    await updateAllowance(appData.appURL, price);
+
+    // show notification
+    await signNotification(price, transaction.id, appData.appURL);
+
+    // remove wallet from memory
+    freeDecryptedWallet(keyfile);
+
+    return {
+      arConfetti: await arconfettiIcon(),
+      res: {
+        id: transaction.id,
+        type: "BASE"
+      }
+    };
+  }
 };
 
 export default background;
