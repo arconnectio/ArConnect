@@ -312,8 +312,8 @@
     "description": "Gateway title"
   },
   "bundlrNode": {
-    "message": "Bundlr node",
-    "description": "Bundlr node title"
+    "message": "Bundler",
+    "description": "Bundler node title"
   },
   "removeApp": {
     "message": "Remove app",
