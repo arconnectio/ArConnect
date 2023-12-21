@@ -7,7 +7,7 @@ import type { DataItem } from "arbundles";
  * @param node Bundlr node to upload to
  * @returns Bundlr node response
  */
-export async function defaultBundler(dataItem: DataItem, node: string) {
+export async function uploadDataToTurbo(dataItem: DataItem, node: string) {
   const res = await fetch(`${node}/tx`, {
     method: "POST",
     headers: {
