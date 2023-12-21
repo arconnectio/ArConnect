@@ -126,7 +126,11 @@ export default function SendAuth({ tokenID }: Props) {
         throw new Error("Unknown error occurred");
       }
     } else {
-      await arweave.transactions.post(transaction);
+      try {
+        await arweave.transactions.post(transaction);
+      } catch (err) {
+        throw new Error("Error with posting to Arweave");
+      }
     }
   }
 
@@ -189,7 +193,7 @@ export default function SendAuth({ tokenID }: Props) {
             `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
           );
     } catch (e) {
-      console.log(e);
+      console.error(e);
       setToast({
         type: "error",
         content: browser.i18n.getMessage("failed_tx"),
