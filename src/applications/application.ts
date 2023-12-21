@@ -6,7 +6,7 @@ import type { Storage } from "@plasmohq/storage";
 import { defaultGateway, Gateway } from "~gateways/gateway";
 
 export const PREFIX = "app_";
-export const defaultBundler = "https://turbo.ardrive.io/tx";
+export const defaultBundler = "https://turbo.ardrive.io";
 
 export default class Application {
   /** Root URL of the app */
