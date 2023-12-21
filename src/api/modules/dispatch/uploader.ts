@@ -7,8 +7,8 @@ import type { DataItem } from "arbundles";
  * @param node Bundlr node to upload to
  * @returns Bundlr node response
  */
-export async function uploadDataToTurbo(dataItem: DataItem) {
-  const res = await fetch(`https://turbo.ardrive.io/tx`, {
+export async function defaultBundler(dataItem: DataItem, node: string) {
+  const res = await fetch(`${node}/tx`, {
     method: "POST",
     headers: {
       "Content-Type": "application/octet-stream"
