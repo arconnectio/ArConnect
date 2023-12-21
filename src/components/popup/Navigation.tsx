@@ -12,37 +12,33 @@ export const NavigationBar = () => {
   const [push] = useHistory();
   const [location] = useLocation();
 
-  const show =
-    !location.startsWith("/send") && !location.startsWith("/receive");
   return (
     <>
-      {show && (
-        <NavigationWrapper>
-          <Buttons>
-            <Button active={location === "/"} onClick={() => push("/")}>
-              <ActionButton as={Home02} />
-            </Button>
-            <Button
-              active={location === "/send/transfer"}
-              onClick={() => push("/send/transfer")}
-            >
-              <ActionButton />
-            </Button>
-            <Button
-              active={location === "/receive"}
-              onClick={() => push("/receive")}
-            >
-              <ActionButton as={ArrowDownLeft} />
-            </Button>
-            <Button
-              active={location === "/explore"}
-              onClick={() => push("/explore")}
-            >
-              <ActionButton as={Compass03} />
-            </Button>
-          </Buttons>
-        </NavigationWrapper>
-      )}
+      <NavigationWrapper>
+        <Buttons>
+          <Button active={location === "/"} onClick={() => push("/")}>
+            <ActionButton as={Home02} />
+          </Button>
+          <Button
+            active={location === "/send/transfer"}
+            onClick={() => push("/send/transfer")}
+          >
+            <ActionButton />
+          </Button>
+          <Button
+            active={location === "/receive"}
+            onClick={() => push("/receive")}
+          >
+            <ActionButton as={ArrowDownLeft} />
+          </Button>
+          <Button
+            active={location === "/explore"}
+            onClick={() => push("/explore")}
+          >
+            <ActionButton as={Compass03} />
+          </Button>
+        </Buttons>
+      </NavigationWrapper>
     </>
   );
 };
@@ -88,7 +84,7 @@ const ActionButton = styled(ArrowUpRight)`
 `;
 
 const NavigationWrapper = styled.div`
-  position: fixed;
+  position: sticky;
   bottom: 0;
   width: 100%;
   height: 3.00625rem;
@@ -107,7 +103,6 @@ const NavigationWrapper = styled.div`
   background: ${(props) =>
     props.theme.displayTheme === "light" ? "#F3F0FF" : "#2f2c3c"};
 
-  z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: center;
