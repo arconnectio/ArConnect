@@ -1,3 +1,5 @@
+import redstone from "redstone-api";
+
 /**
  * Compare two currencies
  *
@@ -21,7 +23,19 @@ export async function getPrice(symbol: string, currency: string) {
  * @returns Price of 1 AR
  */
 export async function getArPrice(currency: string) {
-  return await getPrice("arweave", currency.toLowerCase());
+  try {
+    return await getPrice("arweave", currency.toLowerCase());
+  } catch (error) {
+    console.error(error, "redirecting to redstone");
+
+    const res = await redstone.getPrice("AR");
+
+    if (!res.value) {
+      return 0;
+    }
+
+    return res.source.coingecko;
+  }
 }
 
 interface CoinGeckoPriceResult {
