@@ -109,6 +109,14 @@ export default function SendAuth({ tokenID }: Props) {
         }))
       })
     );
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => {
+        reject(
+          new Error("Timeout: Posting to Arweave took more than 10 seconds")
+        );
+      }, 10000);
+    });
+
     if (uToken) {
       try {
         const config = {
@@ -127,7 +135,10 @@ export default function SendAuth({ tokenID }: Props) {
       }
     } else {
       try {
-        await arweave.transactions.post(transaction);
+        await Promise.race([
+          arweave.transactions.post(transaction),
+          timeoutPromise
+        ]);
       } catch (err) {
         throw new Error("Error with posting to Arweave");
       }
@@ -149,7 +160,7 @@ export default function SendAuth({ tokenID }: Props) {
     setLoading(true);
 
     // get tx and gateway
-    const { type, gateway, transaction } = await getTransaction();
+    let { type, gateway, transaction } = await getTransaction();
     const arweave = new Arweave(gateway);
 
     // decrypt wallet
@@ -180,8 +191,21 @@ export default function SendAuth({ tokenID }: Props) {
       await arweave.transactions.sign(transaction, keyfile);
 
       // post tx
-      await submitTx(transaction, arweave, type);
-
+      try {
+        await submitTx(transaction, arweave, type);
+      } catch (e) {
+        if (!uToken) {
+          // FALLBACK IF ISP BLOCKS ARWEAVE.NET OR IF WAYFINDER FAILS
+          gateway = {
+            host: "ar-io.dev",
+            port: 443,
+            protocol: "https"
+          };
+          const fallbackArweave = new Arweave(gateway);
+          await fallbackArweave.transactions.sign(transaction, keyfile);
+          await submitTx(transaction, fallbackArweave, type);
+        }
+      }
       setToast({
         type: "success",
         content: browser.i18n.getMessage("sent_tx"),
@@ -190,7 +214,9 @@ export default function SendAuth({ tokenID }: Props) {
       uToken
         ? push("/")
         : push(
-            `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
+            `/transaction/${transaction.id}/${encodeURIComponent(
+              concatGatewayURL(gateway)
+            )}?back=${encodeURIComponent("/")}`
           );
     } catch (e) {
       console.error(e);
