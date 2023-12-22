@@ -167,7 +167,7 @@ export default function SendAuth({ tokenID }: Props) {
     setLoading(true);
 
     // get tx and gateway
-    const { type, gateway, transaction } = await getTransaction();
+    let { type, gateway, transaction } = await getTransaction();
     const arweave = new Arweave(gateway);
 
     // decrypt wallet
@@ -203,7 +203,8 @@ export default function SendAuth({ tokenID }: Props) {
       } catch (e) {
         if (!uToken) {
           // FALLBACK IF ISP BLOCKS ARWEAVE.NET OR IF WAYFINDER FAILS
-          const fallbackArweave = new Arweave(fallbackGateway);
+          gateway = fallbackGateway;
+          const fallbackArweave = new Arweave(gateway);
           await fallbackArweave.transactions.sign(transaction, keyfile);
           await submitTx(transaction, fallbackArweave, type);
           await trackEvent(EventType.FALLBACK, {});
