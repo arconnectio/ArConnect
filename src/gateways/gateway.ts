@@ -46,4 +46,10 @@ export const testnets: Gateway[] = [
   }
 ];
 
+export const fallbackGateway = {
+  host: "ar-io.dev",
+  port: 443,
+  protocol: "https"
+};
+
 export const defaultGateway = suggestedGateways[0];
