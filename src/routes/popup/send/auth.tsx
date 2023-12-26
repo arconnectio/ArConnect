@@ -33,8 +33,13 @@ import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
 import Arweave from "arweave";
-import { defaultGateway, type Gateway } from "~gateways/gateway";
+import {
+  defaultGateway,
+  fallbackGateway,
+  type Gateway
+} from "~gateways/gateway";
 import { isUToken, sendRequest } from "~utils/send";
+import { EventType, trackEvent } from "~utils/analytics";
 interface Props {
   tokenID?: string;
 }
@@ -109,6 +114,14 @@ export default function SendAuth({ tokenID }: Props) {
         }))
       })
     );
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => {
+        reject(
+          new Error("Timeout: Posting to Arweave took more than 10 seconds")
+        );
+      }, 10000);
+    });
+
     if (uToken) {
       try {
         const config = {
@@ -126,7 +139,16 @@ export default function SendAuth({ tokenID }: Props) {
         throw new Error("Unknown error occurred");
       }
     } else {
-      await arweave.transactions.post(transaction);
+      try {
+        await Promise.race([
+          arweave.transactions.post(transaction),
+          timeoutPromise
+        ]);
+      } catch (err) {
+        // SEGMENT
+        await trackEvent(EventType.TRANSACTION_INCOMPLETE, {});
+        throw new Error("Error with posting to Arweave");
+      }
     }
   }
 
@@ -145,7 +167,7 @@ export default function SendAuth({ tokenID }: Props) {
     setLoading(true);
 
     // get tx and gateway
-    const { type, gateway, transaction } = await getTransaction();
+    let { type, gateway, transaction } = await getTransaction();
     const arweave = new Arweave(gateway);
 
     // decrypt wallet
@@ -176,8 +198,18 @@ export default function SendAuth({ tokenID }: Props) {
       await arweave.transactions.sign(transaction, keyfile);
 
       // post tx
-      await submitTx(transaction, arweave, type);
-
+      try {
+        await submitTx(transaction, arweave, type);
+      } catch (e) {
+        if (!uToken) {
+          // FALLBACK IF ISP BLOCKS ARWEAVE.NET OR IF WAYFINDER FAILS
+          gateway = fallbackGateway;
+          const fallbackArweave = new Arweave(gateway);
+          await fallbackArweave.transactions.sign(transaction, keyfile);
+          await submitTx(transaction, fallbackArweave, type);
+          await trackEvent(EventType.FALLBACK, {});
+        }
+      }
       setToast({
         type: "success",
         content: browser.i18n.getMessage("sent_tx"),
@@ -186,10 +218,12 @@ export default function SendAuth({ tokenID }: Props) {
       uToken
         ? push("/")
         : push(
-            `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
+            `/transaction/${transaction.id}/${encodeURIComponent(
+              concatGatewayURL(gateway)
+            )}?back=${encodeURIComponent("/")}`
           );
     } catch (e) {
-      console.log(e);
+      console.error(e);
       setToast({
         type: "error",
         content: browser.i18n.getMessage("failed_tx"),

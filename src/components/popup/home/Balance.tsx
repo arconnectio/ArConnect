@@ -49,11 +49,6 @@ export default function Balance() {
   const [fiat, setFiat] = useState(0);
   const [currency] = useSetting<string>("currency");
 
-  const [StoredArPrice, setStoredArPrice] = useStorage<number>({
-    key: "ArPrice",
-    instance: ExtensionStorage
-  });
-
   useEffect(() => {
     (async () => {
       if (!currency) return;
@@ -61,13 +56,8 @@ export default function Balance() {
       // fetch price in currency
       const arPrice = await getArPrice(currency);
 
-      if (arPrice === 0 || !arPrice) {
-        setFiat(StoredArPrice * balance);
-      } else {
-        // calculate fiat balance
-        setFiat(arPrice * balance);
-        setStoredArPrice(arPrice);
-      }
+      // calculate fiat balance
+      setFiat(arPrice * balance);
     })();
   }, [balance, currency]);
 

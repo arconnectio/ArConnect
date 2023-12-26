@@ -98,7 +98,7 @@ const background: ModuleFunction<ReturnType> = async (
 
     // sign and upload bundler tx
     await dataEntry.sign(dataSigner);
-    await uploadDataToTurbo(dataEntry);
+    await uploadDataToTurbo(dataEntry, await app.getBundler());
 
     // update allowance spent amount (in winstons)
     await updateAllowance(appData.appURL, price);
