@@ -87,6 +87,7 @@ const NavigationWrapper = styled.div`
   position: sticky;
   bottom: 0;
   width: 100%;
+  z-index: 10;
   height: 3.00625rem;
   color: ${(props) =>
     props.theme.displayTheme === "light" ? "#AB9AFF" : "#ebebf1"};
