@@ -22,6 +22,7 @@ import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import { PageType, trackPage } from "~utils/analytics";
+import { NavigationBar } from "~components/popup/Navigation";
 
 export default function Explore() {
   // ar price period
@@ -199,6 +200,7 @@ export default function Explore() {
         Array(6)
           .fill("")
           .map((_, i) => <LoadingArticle key={i} />)}
+      <NavigationBar />
     </>
   );
 }
