@@ -9,13 +9,10 @@ import { useStorage } from "@plasmohq/storage/hook";
 export default function SignSettings() {
   const [signSettingsState, setSignSettingsState] = useState(false);
 
-  const [signatureAllowance, setSignatureAllowance] = useStorage(
-    {
-      key: "signatureAllowance",
-      instance: ExtensionStorage
-    },
-    () => 10
-  );
+  const [signatureAllowance, setSignatureAllowance] = useStorage({
+    key: "signatureAllowance",
+    instance: ExtensionStorage
+  });
 
   useEffect(() => {
     async function fetchSignSettings() {
@@ -34,9 +31,12 @@ export default function SignSettings() {
     await ExtensionStorage.set("setting_sign_notification", newSetting);
   };
 
-  const handleAllowanceChange = (e) => {
+  const handleAllowanceChange = async (e) => {
     const newAllowance = Number(e.target.value);
     setSignatureAllowance(newAllowance);
+
+    // Save the updated allowance to the extension storage
+    await ExtensionStorage.set("signatureAllowance", newAllowance);
   };
 
   return (
