@@ -200,7 +200,6 @@ export default function Explore() {
         Array(6)
           .fill("")
           .map((_, i) => <LoadingArticle key={i} />)}
-      <NavigationBar />
     </>
   );
 }

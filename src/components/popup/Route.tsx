@@ -3,6 +3,7 @@ import { type HistoryAction, useHistory } from "~utils/hash_router";
 import { createElement, type PropsWithChildren } from "react";
 import { useRoute, Route as BaseRoute } from "wouter";
 import styled from "styled-components";
+import { NavigationBar } from "./Navigation";
 
 /**
  * Custom Route component that allows iOS-like animations
@@ -88,6 +89,7 @@ const Page = ({
       variants={pageAnimation}
     >
       {children}
+      <NavigationBar />
     </PageWrapper>
   );
 };
