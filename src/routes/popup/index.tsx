@@ -12,7 +12,6 @@ import { isExpired } from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
 import { trackEvent, EventType, trackPage, PageType } from "~utils/analytics";
 import { findGateway } from "~gateways/wayfinder";
-import { NavigationBar } from "~components/popup/Navigation";
 
 export default function Home() {
   // get if the user has no balance
@@ -64,7 +63,6 @@ export default function Home() {
         </>
       )) || <NoBalance />}
       <AnalyticsConsent />
-      <NavigationBar />
     </>
   );
 }
