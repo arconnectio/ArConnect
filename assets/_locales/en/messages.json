@@ -923,6 +923,14 @@
     "message": "Manage tokens added by dApps or the user",
     "description": "Tokens setting description"
   },
+  "setting_contacts": {
+    "message": "Contacts",
+    "description": "Contacts setting title"
+  },
+  "setting_contacts_description": {
+    "message": "Add/edit contacts",
+    "description": "Contacts setting description"
+  },
   "explore": {
     "message": "Explore",
     "description": "Explore title"

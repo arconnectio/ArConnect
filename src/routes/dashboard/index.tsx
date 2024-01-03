@@ -13,6 +13,7 @@ import {
   GridIcon,
   InformationIcon,
   TrashIcon,
+  UsersIcon,
   WalletIcon
 } from "@iconicicons/react";
 import WalletSettings from "~components/dashboard/subsettings/WalletSettings";
@@ -24,6 +25,7 @@ import SettingEl from "~components/dashboard/Setting";
 import Wallets from "~components/dashboard/Wallets";
 import Application from "~applications/application";
 import Tokens from "~components/dashboard/Tokens";
+import Contacts from "~components/dashboard/Contacts";
 import About from "~components/dashboard/About";
 import Reset from "~components/dashboard/Reset";
 import browser from "webextension-polyfill";
@@ -242,6 +244,13 @@ const allSettings: Omit<Setting, "active">[] = [
     description: "setting_tokens_description",
     icon: TicketIcon,
     component: Tokens
+  },
+  {
+    name: "contacts",
+    displayName: "setting_contacts",
+    description: "setting_contacts_description",
+    icon: UsersIcon,
+    component: Contacts
   },
   ...settings.map((setting) => ({
     name: setting.name,
