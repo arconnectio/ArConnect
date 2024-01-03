@@ -15,14 +15,20 @@ export default function SignSettings() {
   });
 
   useEffect(() => {
-    async function fetchSignSettings() {
+    async function initializeSettings() {
       const currentSetting = await ExtensionStorage.get(
         "setting_sign_notification"
       );
       setSignSettingsState(currentSetting !== "false");
+
+      // Check if signatureAllowance is set, if not, initialize to 10
+      let allowance = await ExtensionStorage.get("signatureAllowance");
+      if (allowance === undefined || allowance === null) {
+        await ExtensionStorage.set("signatureAllowance", 10);
+      }
     }
 
-    fetchSignSettings();
+    initializeSettings();
   }, []);
 
   const toggleSignSettings = async () => {
