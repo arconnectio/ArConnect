@@ -2,6 +2,7 @@ import { getSetting } from "~settings";
 import { nanoid } from "nanoid";
 import type Transaction from "arweave/web/lib/transaction";
 import Application from "~applications/application";
+import { ExtensionStorage } from "~utils/storage";
 import iconUrl from "url:/assets/icon512.png";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
@@ -70,10 +71,13 @@ export async function signNotification(
   appURL: string,
   type: "sign" | "dispatch" = "sign"
 ) {
+  async function getNotificationSetting() {
+    return await ExtensionStorage.get("setting_sign_notification");
+  }
   // fetch if notification is enabled
-  const notificationSetting = getSetting("sign_notification");
+  const notificationSetting = await getNotificationSetting();
 
-  if (!(await notificationSetting.getValue())) return;
+  if (notificationSetting === "false" || !notificationSetting) return;
 
   // get gateway config
   const app = new Application(appURL);

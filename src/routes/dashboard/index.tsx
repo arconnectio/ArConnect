@@ -13,7 +13,8 @@ import {
   GridIcon,
   InformationIcon,
   TrashIcon,
-  WalletIcon
+  WalletIcon,
+  BellIcon
 } from "@iconicicons/react";
 import WalletSettings from "~components/dashboard/subsettings/WalletSettings";
 import TokenSettings from "~components/dashboard/subsettings/TokenSettings";
@@ -30,6 +31,7 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import settings from "~settings";
 import { PageType, trackPage } from "~utils/analytics";
+import SignSettings from "~components/dashboard/SignSettings";
 
 export default function Settings({ params }: Props) {
   // router location
@@ -242,6 +244,13 @@ const allSettings: Omit<Setting, "active">[] = [
     description: "setting_tokens_description",
     icon: TicketIcon,
     component: Tokens
+  },
+  {
+    name: "sign_notification",
+    displayName: "setting_sign_settings",
+    description: "setting_sign_notification_description",
+    icon: BellIcon,
+    component: SignSettings
   },
   ...settings.map((setting) => ({
     name: setting.name,

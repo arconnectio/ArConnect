@@ -391,6 +391,10 @@
     "message": "Sign notification",
     "description": "Sign notification settings title"
   },
+  "setting_sign_settings": {
+    "message": "Sign settings",
+    "description": "Sign settings title"
+  },
   "setting_display_theme": {
     "message": "Theme",
     "description": "Theme settings title"
@@ -1492,5 +1496,9 @@
   "receive_AR_button": {
     "message": "Receive AR", 
     "description": "Button text for the receive AR button"
+  },
+  "password_allowance": {
+    "message": "Password required allowance",
+    "description": "Input title for the password allowance label"
   }
 }
