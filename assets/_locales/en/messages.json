@@ -395,6 +395,10 @@
     "message": "Sign notification",
     "description": "Sign notification settings title"
   },
+  "setting_sign_settings": {
+    "message": "Sign settings",
+    "description": "Sign settings title"
+  },
   "setting_display_theme": {
     "message": "Theme",
     "description": "Theme settings title"
@@ -1587,6 +1591,9 @@
   },
   "address_in_use": {
     "message": "Address is already in use.",
-    "description": "Contacts error message if address is already in use"
+    "description": "Contacts error message if address is already in use"},
+  "password_allowance": {
+    "message": "Password required allowance",
+    "description": "Input title for the password allowance label"
   }
 }
