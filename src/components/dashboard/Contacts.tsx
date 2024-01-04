@@ -1,5 +1,5 @@
 import { Spacer, useInput } from "@arconnect/components";
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { SettingsList } from "./list/BaseElement";
@@ -11,24 +11,65 @@ import styled from "styled-components";
 import { IconButton } from "~components/IconButton";
 
 export default function Contacts() {
+  // contacts
+  const [storedContacts, setStoredContacts] = useStorage(
+    {
+      key: "contacts",
+      instance: ExtensionStorage
+    },
+    []
+  );
+
+  // setStoredContacts([
+  //   {
+  //     name: "Michael Scott",
+  //     address: "ZtcbvuxHMDc6noCfWW6GzfWGyuN7BysYalOsN0o6cIg",
+  //     profileIcon:
+  //       "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg"
+  //   },
+  //   {
+  //     name: "John Doe",
+  //     address: "XsmRAPh9dKSxZKxfeRQC6O4ixxuA1xCJbSgjRN-XBZ0",
+  //     profileIcon:
+  //       "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg"
+  //   },
+  //   {
+  //     name: "Sally May",
+  //     address: "XsmRAPh9dKSxZKxfeRQC6O4ixxuA1xCJbSgjRN-XBZ0",
+  //     profileIcon:
+  //       "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg"
+  //   },
+  // ]);
+
   const [contacts, setContacts] = useState<SettingsContactData[]>([]);
 
   useEffect(() => {
-    setContacts([
-      {
-        name: "Michael Scott",
-        address: "ZtcbvuxHMDc6noCfWW6GzfWGyuN7BysYalOsN0o6cIg",
-        profileIcon:
-          "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg"
-      },
-      {
-        name: "John Doe",
-        address: "XsmRAPh9dKSxZKxfeRQC6O4ixxuA1xCJbSgjRN-XBZ0",
-        profileIcon:
-          "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg"
+    async function fetchContacts() {
+      const storedContacts = await ExtensionStorage.get("contacts");
+      if (storedContacts) {
+        storedContacts.sort((a, b) => a.name.localeCompare(b.name));
+        setContacts(storedContacts);
       }
-    ]);
+    }
+
+    fetchContacts();
   }, []);
+
+  function groupContactsByFirstLetter(contacts) {
+    return contacts.reduce((groups, contact) => {
+      const firstLetter = contact.name[0].toUpperCase();
+      if (!groups[firstLetter]) {
+        groups[firstLetter] = [];
+      }
+      groups[firstLetter].push(contact);
+      return groups;
+    }, {});
+  }
+
+  const groupedContacts = useMemo(
+    () => groupContactsByFirstLetter(contacts),
+    [contacts]
+  );
 
   // router
   const [, params] = useRoute<{ contact?: string }>("/contacts/:contact?");
@@ -70,13 +111,19 @@ export default function Contacts() {
       </SearchWrapper>
       <Spacer y={1} />
       <SettingsList>
-        {contacts.filter(filterSearchResults).map((contact) => (
-          <ContactListItem
-            name={contact.name}
-            address={contact.address}
-            profileIcon={contact.profileIcon}
-            active={activeContact === contact.address}
-          />
+        {Object.entries(groupedContacts).map(([letter, contacts]) => (
+          <React.Fragment key={letter}>
+            <LetterHeader>{letter}</LetterHeader>
+            {contacts.filter(filterSearchResults).map((contact) => (
+              <ContactListItem
+                key={contact.address}
+                name={contact.name}
+                address={contact.address}
+                profileIcon={contact.profileIcon}
+                active={activeContact === contact.address}
+              />
+            ))}
+          </React.Fragment>
         ))}
       </SettingsList>
     </Wrapper>
@@ -91,6 +138,10 @@ interface SettingsContactData {
 
 const Wrapper = styled.div`
   position: relative;
+`;
+
+const LetterHeader = styled.div`
+  font-size: 12px;
 `;
 
 const SearchWrapper = styled.div`
