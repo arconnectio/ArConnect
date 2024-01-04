@@ -1,4 +1,4 @@
-import { Spacer } from "@arconnect/components";
+import { Spacer, useInput } from "@arconnect/components";
 import { useState, useEffect, useMemo } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -40,11 +40,28 @@ export default function Contacts() {
     [params]
   );
 
+  const searchInput = useInput();
+
+  // search filter function
+  function filterSearchResults(contact: SettingsContactData) {
+    const query = searchInput.state;
+
+    if (query === "" || !query) {
+      return true;
+    }
+
+    return (
+      contact.name.toLowerCase().includes(query.toLowerCase()) ||
+      contact.address.toLowerCase().includes(query.toLowerCase())
+    );
+  }
+
   return (
     <Wrapper>
       <SearchWrapper>
         <SearchInput
           placeholder={browser.i18n.getMessage("search_contacts")}
+          {...searchInput.bindings}
           sticky
         />
         <AddContactButton onClick={() => setLocation("/contacts/new")}>
@@ -53,7 +70,7 @@ export default function Contacts() {
       </SearchWrapper>
       <Spacer y={1} />
       <SettingsList>
-        {contacts.map((contact) => (
+        {contacts.filter(filterSearchResults).map((contact) => (
           <ContactListItem
             name={contact.name}
             address={contact.address}
