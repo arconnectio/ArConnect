@@ -1500,5 +1500,9 @@
   "receive_AR_button": {
     "message": "Receive AR", 
     "description": "Button text for the receive AR button"
+  },
+  "search_contacts": {
+    "message": "Search contacts...",
+    "description": "Search input placeholder for contacts"
   }
 }
