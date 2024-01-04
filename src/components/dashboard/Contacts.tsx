@@ -1,4 +1,4 @@
-import { Spacer, useInput } from "@arconnect/components";
+import { Button, Spacer, useInput } from "@arconnect/components";
 import React, { useState, useEffect, useMemo } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -35,7 +35,7 @@ export default function Contacts() {
   //   },
   //   {
   //     name: "Sally May",
-  //     address: "XsmRAPh9dKSxZKxfeRQC6O4ixxuA1xCJbSgjRN-XBZ0",
+  //     address: "JYrBzU36VPKoUZPW8adw3PYFovfmdRQztRAo7L-0RGc",
   //     profileIcon:
   //       "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg"
   //   },
@@ -111,20 +111,34 @@ export default function Contacts() {
       </SearchWrapper>
       <Spacer y={1} />
       <SettingsList>
-        {Object.entries(groupedContacts).map(([letter, contacts]) => (
-          <React.Fragment key={letter}>
-            <LetterHeader>{letter}</LetterHeader>
-            {contacts.filter(filterSearchResults).map((contact) => (
-              <ContactListItem
-                key={contact.address}
-                name={contact.name}
-                address={contact.address}
-                profileIcon={contact.profileIcon}
-                active={activeContact === contact.address}
-              />
-            ))}
-          </React.Fragment>
-        ))}
+        {Object.entries(groupedContacts).map(([letter, contacts]) => {
+          const filteredContacts = contacts.filter(filterSearchResults);
+
+          if (filteredContacts.length === 0) {
+            return null; // Do not render the letter header or contacts if none match the filter
+          }
+
+          return (
+            <React.Fragment key={letter}>
+              <LetterHeader>{letter}</LetterHeader>
+              {filteredContacts.map((contact) => (
+                <React.Fragment key={contact.address}>
+                  <ContactListItem
+                    name={contact.name}
+                    address={contact.address}
+                    profileIcon={contact.profileIcon}
+                    active={activeContact === contact.address}
+                  />
+                  {activeContact === contact.address && (
+                    <SendToContact small>
+                      {browser.i18n.getMessage("send_transaction")}
+                    </SendToContact>
+                  )}
+                </React.Fragment>
+              ))}
+            </React.Fragment>
+          );
+        })}
       </SettingsList>
     </Wrapper>
   );
@@ -139,6 +153,8 @@ interface SettingsContactData {
 const Wrapper = styled.div`
   position: relative;
 `;
+
+const SendToContact = styled(Button)``;
 
 const LetterHeader = styled.div`
   font-size: 12px;

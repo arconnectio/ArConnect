@@ -1508,5 +1508,9 @@
   "add_contact": {
     "message": "Add contact",
     "description": "Add a contact button text"
+  },
+  "send_transaction": {
+    "message": "Send transaction",
+    "description": "Active contact send button text"
   }
 }
