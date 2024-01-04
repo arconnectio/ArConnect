@@ -1504,5 +1504,9 @@
   "search_contacts": {
     "message": "Search contacts...",
     "description": "Search input placeholder for contacts"
+  },
+  "add_contact": {
+    "message": "Add contact",
+    "description": "Add a contact button text"
   }
 }

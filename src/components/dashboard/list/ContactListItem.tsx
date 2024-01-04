@@ -10,9 +10,13 @@ export default function ContactListItem({
   ...props
 }: Props & HTMLProps<HTMLDivElement>) {
   return (
-    <BaseElement title={name} description={address} active={active} {...props}>
-      {<ContactImage src={profileIcon} />}
-    </BaseElement>
+    <BaseElement
+      title={name}
+      description={address}
+      active={active}
+      img={profileIcon}
+      {...props}
+    ></BaseElement>
   );
 }
 
@@ -22,8 +26,3 @@ interface Props {
   profileIcon: string;
   active: boolean;
 }
-
-const ContactImage = styled.img`
-  width: 48px;
-  height: 48px;
-`;
