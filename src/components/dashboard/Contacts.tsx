@@ -81,6 +81,11 @@ export default function Contacts() {
     [params]
   );
 
+  // Update the URL when a contact is clicked
+  const handleContactClick = (contactAddress: string) => {
+    setLocation(`/contacts/${encodeURIComponent(contactAddress)}`);
+  };
+
   const searchInput = useInput();
 
   // search filter function
@@ -128,6 +133,7 @@ export default function Contacts() {
                     address={contact.address}
                     profileIcon={contact.profileIcon}
                     active={activeContact === contact.address}
+                    onClick={() => handleContactClick(contact.address)}
                   />
                   {activeContact === contact.address && (
                     <SendToContact small>
