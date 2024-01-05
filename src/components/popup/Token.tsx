@@ -109,10 +109,10 @@ export const LogoAndDetails = styled.div`
   gap: 0.8rem;
 `;
 
-export const LogoWrapper = styled(Squircle)`
+export const LogoWrapper = styled(Squircle)<{ small?: boolean }>`
   position: relative;
-  width: 2.8rem;
-  height: 2.8rem;
+  width: ${(props) => (props.small ? "2.1875rem" : "2.8rem;")};
+  height: ${(props) => (props.small ? "2.1875rem" : "2.8rem;")};
   flex-shrink: 0;
   color: rgba(${(props) => props.theme.theme}, 0.2);
 `;
