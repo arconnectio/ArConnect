@@ -102,6 +102,10 @@ export default function Contacts() {
     );
   }
 
+  const handleSendToContact = (contactAddress: string) => {
+    // Logic for handling send button click
+  };
+
   return (
     <Wrapper>
       <SearchWrapper>
@@ -134,12 +138,8 @@ export default function Contacts() {
                     profileIcon={contact.profileIcon}
                     active={activeContact === contact.address}
                     onClick={() => handleContactClick(contact.address)}
+                    onSendClick={() => handleSendToContact(contact.address)}
                   />
-                  {activeContact === contact.address && (
-                    <SendToContact small>
-                      {browser.i18n.getMessage("send_transaction")}
-                    </SendToContact>
-                  )}
                 </React.Fragment>
               ))}
             </React.Fragment>
@@ -159,8 +159,6 @@ interface SettingsContactData {
 const Wrapper = styled.div`
   position: relative;
 `;
-
-const SendToContact = styled(Button)``;
 
 const LetterHeader = styled.div`
   font-size: 12px;
