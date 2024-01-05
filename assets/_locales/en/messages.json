@@ -811,6 +811,10 @@
     "message": "Enter password to generate wallet",
     "description": "Request to enter password before generating a wallet in settings"
   },
+  "select_recipient" : {
+    "message": "Select Recipient",
+    "description": "Select recipient when sending currency"
+  },
   "no_close_window": {
     "message": "Don't close the window!",
     "description": "Request to not close the window"
