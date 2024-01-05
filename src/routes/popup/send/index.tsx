@@ -320,6 +320,8 @@ export default function Send({ id }: Props) {
             type="number"
             placeholder={"Amount"}
             value={qty}
+            error={invalidQty}
+            status={invalidQty ? "error" : "default"}
             onChange={(e) => setQty((e.target as HTMLInputElement).value)}
             fullWidth
             icon={
@@ -389,7 +391,7 @@ export default function Send({ id }: Props) {
           fullWidth
           onClick={send}
         >
-          {browser.i18n.getMessage("send")}
+          {browser.i18n.getMessage("next")}
           <ArrowUpRightIcon />
         </SendButton>
       </BottomActions>
@@ -443,7 +445,7 @@ const CurrencyButton = styled(Button)`
 `;
 
 const Wrapper = styled.div`
-  height: calc(100vh - 32px);
+  height: calc(100vh - 15px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -492,17 +494,11 @@ const SendButton = styled(Button)<{ alternate?: boolean }>`
   color: ${(props) => props.alternate && "#b9b9b9"};
   padding: 10px;
   font-weight: 400;
-
-  // TODO Continue here
-  &:hover: {
-    // border-color: ${(props) => "rgba(" + props.theme.theme + ", .5"};
-    // border: 0.1px solid;
-  }
 `;
 
-const SendInput = styled(Input)`
+const SendInput = styled(Input)<{ error?: boolean }>`
+  color: ${(props) => (props.error ? "red" : "#b9b9b9")};
   background-color: rgba(171, 154, 255, 0.15);
-  border-radius: 10px;
   padding: 10px;
 `;
 
