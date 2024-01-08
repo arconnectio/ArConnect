@@ -516,7 +516,7 @@ export const SendInput = styled(Input)<{ error?: boolean }>`
 
 const InputIcons = styled.div`
   display: flex;
-  gap: 1rem;
+  gap: 0.625rem;
 `;
 
 const qtyTextStyle = css`
