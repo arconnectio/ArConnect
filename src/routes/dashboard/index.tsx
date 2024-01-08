@@ -19,6 +19,7 @@ import {
 import WalletSettings from "~components/dashboard/subsettings/WalletSettings";
 import TokenSettings from "~components/dashboard/subsettings/TokenSettings";
 import AppSettings from "~components/dashboard/subsettings/AppSettings";
+import ContactSettings from "~components/dashboard/subsettings/ContactSettings";
 import AddWallet from "~components/dashboard/subsettings/AddWallet";
 import Applications from "~components/dashboard/Applications";
 import SettingEl from "~components/dashboard/Setting";
@@ -138,6 +139,9 @@ export default function Settings({ params }: Props) {
         )}
         {activeSetting === "tokens" && activeSubSetting && (
           <TokenSettings id={activeSubSetting} />
+        )}
+        {activeSetting === "contacts" && activeSubSetting && (
+          <ContactSettings address={activeSubSetting} key={activeSubSetting} />
         )}
       </Panel>
     </SettingsWrapper>

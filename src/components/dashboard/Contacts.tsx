@@ -72,7 +72,9 @@ export default function Contacts() {
   );
 
   // router
-  const [, params] = useRoute<{ contact?: string }>("/contacts/:contact?");
+  const [matches, params] = useRoute<{ contact?: string }>(
+    "/contacts/:contact?"
+  );
   const [, setLocation] = useLocation();
 
   // active subsetting

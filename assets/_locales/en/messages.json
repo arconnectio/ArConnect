@@ -1512,5 +1512,9 @@
   "send_transaction": {
     "message": "Send transaction",
     "description": "Active contact send button text"
+  },
+  "contact_info": {
+    "message": "Contact Info",
+    "description": "Contact settings title"
   }
 }
