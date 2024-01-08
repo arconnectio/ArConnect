@@ -147,6 +147,9 @@ export default function Send({ id }: Props) {
   const [balance, setBalance] = useState(0);
   const arBalance = useBalance();
 
+  // Handle Recipient Slider
+  const [showSlider, setShowSlider] = useState<boolean>(false);
+
   useEffect(() => {
     (async () => {
       if (token.id === "AR") {
@@ -327,7 +330,10 @@ export default function Send({ id }: Props) {
             icon={
               <InputIcons>
                 <CurrencyButton small onClick={switchQtyMode}>
-                  USD/AR
+                  <Currency active={qtyMode === "fiat"}>USD</Currency>/
+                  <Currency active={qtyMode === "token"}>
+                    {token.ticker.toUpperCase()}
+                  </Currency>
                 </CurrencyButton>
                 <Button
                   small
@@ -437,10 +443,16 @@ export default function Send({ id }: Props) {
   );
 }
 
+const Currency = styled.span<{ active: boolean }>`
+  color: ${(props) => (!props.active ? "#B9B9B9" : "#ffffff")};
+`;
+
 const CurrencyButton = styled(Button)`
   font-weight: 400;
   background-color: transparent;
   border-radius: 4px;
+  gap: 0;
+  display: flex;
   padding: 2px;
 `;
 
@@ -496,7 +508,7 @@ const SendButton = styled(Button)<{ alternate?: boolean }>`
   font-weight: 400;
 `;
 
-const SendInput = styled(Input)<{ error?: boolean }>`
+export const SendInput = styled(Input)<{ error?: boolean }>`
   color: ${(props) => (props.error ? "red" : "#b9b9b9")};
   background-color: rgba(171, 154, 255, 0.15);
   padding: 10px;
@@ -568,9 +580,9 @@ const TokenSelectorRightSide = styled.div`
   }
 `;
 
-const TokenSelectorWrapper = styled(motion.div)`
+const TokenSelectorWrapper = styled(motion.div)<{ partial?: boolean }>`
   position: fixed;
-  top: 0;
+  top: ${(props) => (props.partial ? "50px" : 0)};
   left: 0;
   bottom: 0;
   right: 0;
