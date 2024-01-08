@@ -189,13 +189,7 @@ export default function SendAuth({ tokenID }: Props) {
       });
     }
 
-    console.log(typeof latestTxQty);
-
-    console.log(latestTxQty);
-
     const transactionAmount = Number(latestTxQty);
-
-    console.log(transactionAmount);
 
     // get tx and gateway
     let { type, gateway, transaction } = await getTransaction();
