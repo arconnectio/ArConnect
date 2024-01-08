@@ -121,6 +121,13 @@ export default function HeadV2({
           )}
         </AnimatePresence>
       </ClickableAvatar>
+      {isOpen && <CloseLayer onClick={() => setOpen(false)} />}
+      <WalletSwitcher
+        open={isOpen}
+        close={() => setOpen(false)}
+        showOptions={showOptions}
+        exactTop={true}
+      />
     </HeadWrapper>
   );
 }
