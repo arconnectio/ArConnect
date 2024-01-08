@@ -178,20 +178,24 @@ export default function SendAuth({ tokenID }: Props) {
   async function sendLocal() {
     setLoading(true);
 
-    // Retrieve latest transaction details from localStorage
-    const latestTxJSON = localStorage.getItem("latest_tx");
-    if (!latestTxJSON) {
+    // Retrieve latest tx amount details from localStorage
+    const latestTxQty = await ExtensionStorage.get("last_send_qty");
+    if (!latestTxQty) {
       setLoading(false);
       return setToast({
         type: "error",
-        content: "No transaction found",
+        content: "No send quantity found",
         duration: 2000
       });
     }
-    const latestTx = JSON.parse(latestTxJSON);
 
-    // Parse the transaction quantity
-    const transactionAmount = latestTx.quantity.ar;
+    console.log(typeof latestTxQty);
+
+    console.log(latestTxQty);
+
+    const transactionAmount = Number(latestTxQty);
+
+    console.log(transactionAmount);
 
     // get tx and gateway
     let { type, gateway, transaction } = await getTransaction();
@@ -199,6 +203,14 @@ export default function SendAuth({ tokenID }: Props) {
 
     const decryptedWallet = await getActiveKeyfile();
     isLocalWallet(decryptedWallet);
+
+    console.log(
+      "transaction amount:",
+      transactionAmount,
+      "vs.",
+      "sign allowance:",
+      signAllowance
+    );
 
     // Check if the transaction amount is less than the signature allowance
     if (transactionAmount <= signAllowance) {
