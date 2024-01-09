@@ -158,6 +158,7 @@ interface SettingsContactData {
   name: string;
   address: string;
   profileIcon: string;
+  arNSAdress?: string;
   notes?: string;
 }
 

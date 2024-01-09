@@ -4,7 +4,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
-import { Edit02 } from "@untitled-ui/icons-react";
+import { Edit02, Upload01 } from "@untitled-ui/icons-react";
 
 export default function ContactSettings({ address }: Props) {
   // contacts
@@ -34,7 +34,10 @@ export default function ContactSettings({ address }: Props) {
           <EditIcon onClick={() => setEditable(!editable)} />
         </Header>
         <SubTitle>Avatar</SubTitle>
-        <ContactPic src={contact.profileIcon} />
+        <PicWrapper>
+          <ContactPic src={contact.profileIcon} />
+          {editable ? <Upload01 /> : null}
+        </PicWrapper>
         <SubTitle>Name*</SubTitle>
         <ContactInfo>{contact.name}</ContactInfo>
         <SubTitle>Arweave Account Address*</SubTitle>
@@ -83,6 +86,12 @@ const Header = styled.div`
 const Footer = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 10px;
+`;
+
+const PicWrapper = styled.div`
+  display: flex;
+  align-items: center;
   gap: 10px;
 `;
 
