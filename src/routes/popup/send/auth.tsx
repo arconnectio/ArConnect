@@ -219,8 +219,19 @@ export default function SendAuth({ tokenID }: Props) {
         // Sign the transaction
         await arweave.transactions.sign(transaction, keyfile);
 
-        // Post the transaction
-        await submitTx(transaction, arweave, type);
+        try {
+          // Post the transaction
+          await submitTx(transaction, arweave, type);
+        } catch (e) {
+          if (!uToken) {
+            // FALLBACK IF ISP BLOCKS ARWEAVE.NET OR IF WAYFINDER FAILS
+            gateway = fallbackGateway;
+            const fallbackArweave = new Arweave(gateway);
+            await fallbackArweave.transactions.sign(transaction, keyfile);
+            await submitTx(transaction, fallbackArweave, type);
+            await trackEvent(EventType.FALLBACK, {});
+          }
+        }
 
         // Success toast
         setToast({
@@ -277,8 +288,19 @@ export default function SendAuth({ tokenID }: Props) {
         // sign
         await arweave.transactions.sign(transaction, keyfile);
 
-        // post tx
-        await submitTx(transaction, arweave, type);
+        try {
+          // post tx
+          await submitTx(transaction, arweave, type);
+        } catch (e) {
+          if (!uToken) {
+            // FALLBACK IF ISP BLOCKS ARWEAVE.NET OR IF WAYFINDER FAILS
+            gateway = fallbackGateway;
+            const fallbackArweave = new Arweave(gateway);
+            await fallbackArweave.transactions.sign(transaction, keyfile);
+            await submitTx(transaction, fallbackArweave, type);
+            await trackEvent(EventType.FALLBACK, {});
+          }
+        }
 
         setToast({
           type: "success",
