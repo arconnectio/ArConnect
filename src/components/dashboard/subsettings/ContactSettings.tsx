@@ -52,7 +52,7 @@ export default function ContactSettings({ address }: Props) {
         <Button small fullWidth>
           Save changes
         </Button>
-        <RemoveContact small fullWidth>
+        <RemoveContact small fullWidth secondary>
           Remove contact
         </RemoveContact>
       </Footer>
@@ -82,6 +82,12 @@ const Footer = styled.div`
 const RemoveContact = styled(Button)`
   background-color: #ea433580;
   color: #ea4335;
+  border: 2px solid #ea433580;
+  transition: all 0.29s ease-in-out;
+
+  &:hover {
+    transform: scale(1.02);
+  }
 `;
 
 const ContactPic = styled.img`
@@ -108,6 +114,7 @@ const ContactNotes = styled.textarea`
   border: 1.5px solid #ab9aff26;
   padding: 12px;
   background-color: #ab9aff26;
+  font-size: 16px;
   ::placeholder {
     color: #b9b9b9;
     font-size: 16px;
