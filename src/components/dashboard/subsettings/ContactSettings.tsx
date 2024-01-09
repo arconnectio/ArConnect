@@ -1,5 +1,5 @@
 import { Text, Button } from "@arconnect/components";
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import styled from "styled-components";
@@ -16,6 +16,8 @@ export default function ContactSettings({ address }: Props) {
     []
   );
 
+  const [editable, setEditable] = useState(false);
+
   // contact
   const contact = useMemo(
     () => storedContacts.find((c) => c.address === address),
@@ -29,7 +31,7 @@ export default function ContactSettings({ address }: Props) {
       <div>
         <Header>
           <Title>{browser.i18n.getMessage("contact_info")}</Title>
-          <Edit02 />
+          <EditIcon onClick={() => setEditable(!editable)} />
         </Header>
         <SubTitle>Avatar</SubTitle>
         <ContactPic src={contact.profileIcon} />
@@ -46,16 +48,21 @@ export default function ContactSettings({ address }: Props) {
               </ContactInfo>
             )} */}
         <SubTitle>Notes</SubTitle>
-        <ContactNotes placeholder="Type a message here..." />
+        <ContactNotes
+          placeholder="Type a message here..."
+          value={contact.notes}
+        />
       </div>
-      <Footer>
-        <Button small fullWidth>
-          Save changes
-        </Button>
-        <RemoveContact small fullWidth secondary>
-          Remove contact
-        </RemoveContact>
-      </Footer>
+      {editable && (
+        <Footer>
+          <Button small fullWidth>
+            Save changes
+          </Button>
+          <RemoveContact small fullWidth secondary>
+            Remove contact
+          </RemoveContact>
+        </Footer>
+      )}
     </Wrapper>
   );
 }
@@ -79,11 +86,16 @@ const Footer = styled.div`
   gap: 10px;
 `;
 
+const EditIcon = styled(Edit02)`
+  cursor: pointer;
+`;
+
 const RemoveContact = styled(Button)`
   background-color: #ea433580;
   color: #ea4335;
   border: 2px solid #ea433580;
   transition: all 0.29s ease-in-out;
+  height: 46.79px;
 
   &:hover {
     transform: scale(1.02);

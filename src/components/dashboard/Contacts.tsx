@@ -25,7 +25,8 @@ export default function Contacts() {
   //     name: "Michael Scott",
   //     address: "ZtcbvuxHMDc6noCfWW6GzfWGyuN7BysYalOsN0o6cIg",
   //     profileIcon:
-  //       "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg"
+  //       "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg",
+  //     notes: "Manager at the Dunder Mifflin Paper Company."
   //   },
   //   {
   //     name: "John Doe",
@@ -34,10 +35,11 @@ export default function Contacts() {
   //       "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg"
   //   },
   //   {
-  //     name: "Sally May",
+  //     name: "Fannie Mae",
   //     address: "JYrBzU36VPKoUZPW8adw3PYFovfmdRQztRAo7L-0RGc",
   //     profileIcon:
-  //       "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg"
+  //       "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg",
+  //     notes: "Provides affordable mortgage financing to renters, homebuyers, and homeowners."
   //   },
   // ]);
 
@@ -156,6 +158,7 @@ interface SettingsContactData {
   name: string;
   address: string;
   profileIcon: string;
+  notes?: string;
 }
 
 const Wrapper = styled.div`
