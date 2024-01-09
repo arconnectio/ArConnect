@@ -1,9 +1,10 @@
-import { Text } from "@arconnect/components";
+import { Text, Button } from "@arconnect/components";
 import { useMemo } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
+import { Edit02 } from "@untitled-ui/icons-react";
 
 export default function ContactSettings({ address }: Props) {
   // contacts
@@ -26,7 +27,10 @@ export default function ContactSettings({ address }: Props) {
   return (
     <Wrapper>
       <div>
-        <Title>{browser.i18n.getMessage("contact_info")}</Title>
+        <Header>
+          <Title>{browser.i18n.getMessage("contact_info")}</Title>
+          <Edit02 />
+        </Header>
         <SubTitle>Avatar</SubTitle>
         <ContactPic src={contact.profileIcon} />
         <SubTitle>Name*</SubTitle>
@@ -44,6 +48,14 @@ export default function ContactSettings({ address }: Props) {
         <SubTitle>Notes</SubTitle>
         <ContactNotes placeholder="Type a message here..." />
       </div>
+      <Footer>
+        <Button small fullWidth>
+          Save changes
+        </Button>
+        <RemoveContact small fullWidth>
+          Remove contact
+        </RemoveContact>
+      </Footer>
     </Wrapper>
   );
 }
@@ -53,6 +65,23 @@ const Wrapper = styled.div`
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+`;
+
+const Header = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 20px;
+`;
+
+const Footer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const RemoveContact = styled(Button)`
+  background-color: #ea433580;
+  color: #ea4335;
 `;
 
 const ContactPic = styled.img`
