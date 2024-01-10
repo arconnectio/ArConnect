@@ -26,7 +26,8 @@ export default function Contacts() {
   //     address: "ZtcbvuxHMDc6noCfWW6GzfWGyuN7BysYalOsN0o6cIg",
   //     profileIcon:
   //       "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg",
-  //     notes: "Manager at the Dunder Mifflin Paper Company."
+  //     notes: "Manager at the Dunder Mifflin Paper Company.",
+  //     ArNSAddress: "worldsbestboss.ar"
   //   },
   //   {
   //     name: "John Doe",

@@ -1,4 +1,4 @@
-import { Text, Button } from "@arconnect/components";
+import { Text, Button, Input } from "@arconnect/components";
 import { useState, useMemo } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -26,6 +26,30 @@ export default function ContactSettings({ address }: Props) {
 
   if (!contact) return;
 
+  const renderArNSAddress = () => {
+    if (editable) {
+      return (
+        <>
+          <SubTitle>ArNS Address</SubTitle>
+          <InputWrapper>
+            <ContactInput
+              fullWidth
+              small
+              placeholder={contact.ArNSAddress ?? "Account address"}
+            />
+          </InputWrapper>
+        </>
+      );
+    } else if (contact.ArNSAddress) {
+      return (
+        <>
+          <SubTitle>ArNS Address</SubTitle>
+          <ContactInfo>{contact.ArNSAddress}</ContactInfo>
+        </>
+      );
+    }
+  };
+
   return (
     <Wrapper>
       <div>
@@ -36,20 +60,35 @@ export default function ContactSettings({ address }: Props) {
         <SubTitle>Avatar</SubTitle>
         <PicWrapper>
           <ContactPic src={contact.profileIcon} />
-          {editable ? <Upload01 /> : null}
+          {editable ? <UploadIcon /> : null}
         </PicWrapper>
         <SubTitle>Name*</SubTitle>
-        <ContactInfo>{contact.name}</ContactInfo>
+        {editable ? (
+          <InputWrapper>
+            <ContactInput
+              fullWidth
+              small
+              placeholder={contact.name ? contact.name : "First and Last name"}
+            />
+          </InputWrapper>
+        ) : (
+          <ContactInfo>{contact.name}</ContactInfo>
+        )}
         <SubTitle>Arweave Account Address*</SubTitle>
-        <ContactInfo>{contact.address}</ContactInfo>
-        {/* {arNSAddress && (
-              <SubTitle>
-                ArNS Address
-              </SubTitle>
-              <ContactInfo>
-                Arweave.ar
-              </ContactInfo>
-            )} */}
+        {editable ? (
+          <InputWrapper>
+            <ContactInput
+              fullWidth
+              small
+              placeholder={
+                contact.address ? contact.address : "Account address"
+              }
+            />
+          </InputWrapper>
+        ) : (
+          <ContactInfo>{contact.address}</ContactInfo>
+        )}
+        {<>{renderArNSAddress()}</>}
         <SubTitle>Notes</SubTitle>
         <ContactNotes
           placeholder="Type a message here..."
@@ -95,6 +134,10 @@ const PicWrapper = styled.div`
   gap: 10px;
 `;
 
+const UploadIcon = styled(Upload01)`
+  cursor: pointer;
+`;
+
 const EditIcon = styled(Edit02)`
   cursor: pointer;
 `;
@@ -116,6 +159,21 @@ const ContactPic = styled.img`
   height: 100px;
   border-radius: 100%;
   margin-bottom: 10px;
+`;
+
+const InputWrapper = styled.div`
+  margin-bottom: 20px;
+`;
+
+const ContactInput = styled(Input)`
+  height: 33px;
+  padding: 10px 20px 10px 20px;
+  color: #b9b9b9;
+  font-size: 16px;
+  ::placeholder {
+    color: #b9b9b9;
+    font-size: 16px;
+  }
 `;
 
 const ContactInfo = styled(Text).attrs({
