@@ -1,5 +1,5 @@
 import { Text, Button, Input } from "@arconnect/components";
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import styled from "styled-components";
@@ -17,14 +17,54 @@ export default function ContactSettings({ address }: Props) {
   );
 
   const [editable, setEditable] = useState(false);
+  const [contact, setContact] = useState({
+    name: "",
+    address: "",
+    profileIcon: "",
+    notes: "",
+    ArNSAddress: ""
+  });
+  const [contactIndex, setContactIndex] = useState(-1);
 
-  // contact
-  const contact = useMemo(
-    () => storedContacts.find((c) => c.address === address),
-    [storedContacts, address]
-  );
+  useEffect(() => {
+    const loadedContact = storedContacts.find((c) => c.address === address);
 
-  if (!contact) return;
+    if (loadedContact) {
+      setContact(loadedContact);
+      setContactIndex(storedContacts.indexOf(loadedContact));
+    } else {
+      setContact({
+        name: "",
+        address: "",
+        profileIcon: "",
+        notes: "",
+        ArNSAddress: ""
+      });
+      setContactIndex(-1);
+    }
+  }, [storedContacts, address]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setContact({
+      ...contact,
+      [name]: value
+    });
+  };
+
+  const saveContact = async () => {
+    if (contactIndex !== -1) {
+      const updatedContacts = [...storedContacts];
+      updatedContacts[contactIndex] = contact;
+      try {
+        await ExtensionStorage.set("contacts", updatedContacts);
+      } catch (error) {
+        console.error("Error updating contacts:", error);
+      }
+    }
+
+    setEditable(false);
+  };
 
   const renderArNSAddress = () => {
     if (editable) {
@@ -35,7 +75,12 @@ export default function ContactSettings({ address }: Props) {
             <ContactInput
               fullWidth
               small
-              placeholder={contact.ArNSAddress ?? "Account address"}
+              name="ArNSAddress"
+              placeholder={
+                contact.ArNSAddress ? contact.ArNSAddress : "Account address"
+              }
+              value={contact.ArNSAddress}
+              onChange={handleInputChange}
             />
           </InputWrapper>
         </>
@@ -68,7 +113,10 @@ export default function ContactSettings({ address }: Props) {
             <ContactInput
               fullWidth
               small
+              name="name"
               placeholder={contact.name ? contact.name : "First and Last name"}
+              value={contact.name}
+              onChange={handleInputChange}
             />
           </InputWrapper>
         ) : (
@@ -80,9 +128,12 @@ export default function ContactSettings({ address }: Props) {
             <ContactInput
               fullWidth
               small
+              name="address"
               placeholder={
                 contact.address ? contact.address : "Account address"
               }
+              value={contact.address}
+              onChange={handleInputChange}
             />
           </InputWrapper>
         ) : (
@@ -92,12 +143,14 @@ export default function ContactSettings({ address }: Props) {
         <SubTitle>Notes</SubTitle>
         <ContactNotes
           placeholder="Type a message here..."
-          value={contact.notes}
+          value={contact.notes || ""}
+          onChange={(e) => setContact({ ...contact, notes: e.target.value })}
+          style={{ height: editable ? "235px" : "269px" }}
         />
       </div>
       {editable && (
         <Footer>
-          <Button small fullWidth>
+          <Button small fullWidth onClick={saveContact}>
             Save changes
           </Button>
           <RemoveContact small fullWidth secondary>
@@ -188,7 +241,6 @@ const ContactInfo = styled(Text).attrs({
 const ContactNotes = styled.textarea`
   display: flex;
   width: 96%;
-  height: 269px;
   border-radius: 15px;
   border: 1.5px solid #ab9aff26;
   padding: 12px;

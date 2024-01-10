@@ -20,30 +20,6 @@ export default function Contacts() {
     []
   );
 
-  // setStoredContacts([
-  //   {
-  //     name: "Michael Scott",
-  //     address: "ZtcbvuxHMDc6noCfWW6GzfWGyuN7BysYalOsN0o6cIg",
-  //     profileIcon:
-  //       "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg",
-  //     notes: "Manager at the Dunder Mifflin Paper Company.",
-  //     ArNSAddress: "worldsbestboss.ar"
-  //   },
-  //   {
-  //     name: "John Doe",
-  //     address: "XsmRAPh9dKSxZKxfeRQC6O4ixxuA1xCJbSgjRN-XBZ0",
-  //     profileIcon:
-  //       "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg"
-  //   },
-  //   {
-  //     name: "Fannie Mae",
-  //     address: "JYrBzU36VPKoUZPW8adw3PYFovfmdRQztRAo7L-0RGc",
-  //     profileIcon:
-  //       "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg",
-  //     notes: "Provides affordable mortgage financing to renters, homebuyers, and homeowners."
-  //   },
-  // ]);
-
   const [contacts, setContacts] = useState<SettingsContactData[]>([]);
 
   useEffect(() => {
