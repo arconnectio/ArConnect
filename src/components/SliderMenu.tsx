@@ -19,6 +19,7 @@ export default function SliderMenu({
     <Wrapper displayTheme={theme.displayTheme}>
       <Body>
         <Header>
+          <Title>{title}</Title>
           <ExitButton onClick={onClose} />
         </Header>
         {children}

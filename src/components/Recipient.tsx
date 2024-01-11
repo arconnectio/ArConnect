@@ -75,7 +75,6 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
       <Input
         {...targetInput.bindings}
         type="text"
-        label={browser.i18n.getMessage("transaction_send_address_input_label")}
         placeholder={browser.i18n.getMessage(
           "transaction_send_address_input_placeholder"
         )}
