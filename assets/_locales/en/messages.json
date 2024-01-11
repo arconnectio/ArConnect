@@ -815,6 +815,10 @@
     "message": "Select Recipient",
     "description": "Select recipient when sending currency"
   },
+  "send_to" : {
+    "message" : "Send To",
+    "description" : "Send To for slider menu"
+  },
   "no_close_window": {
     "message": "Don't close the window!",
     "description": "Request to not close the window"

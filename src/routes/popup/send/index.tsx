@@ -471,7 +471,7 @@ export default function Send({ id }: Props) {
             exit="hidden"
           >
             <SliderMenu
-              title={browser.i18n.getMessage("select_recipient")}
+              title={browser.i18n.getMessage("send_to")}
               onClose={() => {
                 setShowSlider(false);
               }}
