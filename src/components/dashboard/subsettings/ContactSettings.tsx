@@ -283,7 +283,7 @@ const ContactPic = styled.img`
 `;
 
 const InputWrapper = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 `;
 
 const ContactInput = styled(Input)`
