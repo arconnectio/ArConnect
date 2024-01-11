@@ -1,10 +1,18 @@
-import { Text, Button, Input } from "@arconnect/components";
+import {
+  Text,
+  Button,
+  Input,
+  Modal,
+  Spacer,
+  useModal
+} from "@arconnect/components";
 import { useState, useEffect } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
 import { Edit02, Upload01 } from "@untitled-ui/icons-react";
+import { useLocation } from "wouter";
 
 export default function ContactSettings({ address }: Props) {
   // contacts
@@ -95,6 +103,27 @@ export default function ContactSettings({ address }: Props) {
     }
   };
 
+  const [, setLocation] = useLocation();
+
+  const removeContactModal = useModal();
+
+  const confirmRemoveContact = async () => {
+    // remove contact & update storage
+    if (contactIndex !== -1) {
+      const updatedContacts = [...storedContacts];
+      updatedContacts.splice(contactIndex, 1);
+      try {
+        await ExtensionStorage.set("contacts", updatedContacts);
+        console.log("Contact removed succcessfully");
+      } catch (error) {
+        console.error("Error removing contact:", error);
+      }
+    }
+
+    removeContactModal.setOpen(false);
+    setLocation("/contacts");
+  };
+
   return (
     <Wrapper>
       <div>
@@ -149,14 +178,43 @@ export default function ContactSettings({ address }: Props) {
         />
       </div>
       {editable && (
-        <Footer>
-          <Button small fullWidth onClick={saveContact}>
-            Save changes
-          </Button>
-          <RemoveContact small fullWidth secondary>
-            Remove contact
-          </RemoveContact>
-        </Footer>
+        <>
+          <Footer>
+            <Button small fullWidth onClick={saveContact}>
+              Save changes
+            </Button>
+            <RemoveContact
+              small
+              fullWidth
+              secondary
+              onClick={() => removeContactModal.setOpen(true)}
+            >
+              Remove contact
+            </RemoveContact>
+          </Footer>
+          <Modal
+            {...removeContactModal.bindings}
+            root={document.getElementById("__plasmo")}
+          >
+            <CenterText heading>Remove contact</CenterText>
+            <Spacer y={0.55} />
+            <CenterText noMargin>
+              Are you sure you want to remove this contact?
+            </CenterText>
+            <Spacer y={1.75} />
+            <Button fullWidth onClick={confirmRemoveContact}>
+              Yes
+            </Button>
+            <Spacer y={0.75} />
+            <Button
+              fullWidth
+              secondary
+              onClick={() => removeContactModal.setOpen(false)}
+            >
+              No
+            </Button>
+          </Modal>
+        </>
       )}
     </Wrapper>
   );
@@ -179,6 +237,16 @@ const Footer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
+`;
+
+const CenterText = styled(Text)`
+  text-align: center;
+  max-width: 22vw;
+  margin: 0 auto;
+
+  @media screen and (max-width: 720px) {
+    max-width: 90vw;
+  }
 `;
 
 const PicWrapper = styled.div`
