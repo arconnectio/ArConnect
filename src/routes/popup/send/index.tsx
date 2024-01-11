@@ -56,6 +56,9 @@ import { useHistory } from "~utils/hash_router";
 import { DREContract, DRENode } from "@arconnect/warp-dre";
 import { isUToken } from "~utils/send";
 import HeadV2 from "~components/popup/HeadV2";
+import SliderMenu from "~components/SliderMenu";
+import Recipient from "~components/Recipient";
+import { formatAddress } from "~utils/format";
 
 // default size for the qty text
 const defaulQtytSize = 3.7;
@@ -147,8 +150,9 @@ export default function Send({ id }: Props) {
   const [balance, setBalance] = useState(0);
   const arBalance = useBalance();
 
-  // Handle Recipient Slider
+  // Handle Recipient Input and Slider
   const [showSlider, setShowSlider] = useState<boolean>(false);
+  const [recipient, setRecipient] = useState<string>("");
 
   useEffect(() => {
     (async () => {
@@ -325,14 +329,24 @@ export default function Send({ id }: Props) {
   }
 
   return (
-    <Wrapper>
+    <Wrapper showOverlay={showSlider}>
       <SendForm>
         <HeadV2 title={browser.i18n.getMessage("send")} />
         {/* TOP INPUT */}
         <div style={{ gap: "7px", display: "flex", flexDirection: "column" }}>
           {/* TODO: onclick make this hover similar to focus on input */}
-          <SendButton fullWidth alternate>
-            <span>{browser.i18n.getMessage("select_recipient")}</span>
+          <SendButton
+            fullWidth
+            alternate
+            onClick={() => {
+              setShowSlider(!showSlider);
+            }}
+          >
+            <span>
+              {!recipient
+                ? browser.i18n.getMessage("select_recipient")
+                : formatAddress(recipient, 10)}
+            </span>
             <ChevronDownIcon />
           </SendButton>
           <SendInput
@@ -413,7 +427,7 @@ export default function Send({ id }: Props) {
       </BottomActions>
       <AnimatePresence>
         {showTokenSelector && (
-          <TokenSelectorWrapper
+          <SliderWrapper
             variants={animation}
             initial="hidden"
             animate="shown"
@@ -446,7 +460,28 @@ export default function Send({ id }: Props) {
                   />
                 ))}
             </CollectiblesList>
-          </TokenSelectorWrapper>
+          </SliderWrapper>
+        )}
+        {showSlider && (
+          <SliderWrapper
+            partial
+            variants={animation2}
+            initial="hidden"
+            animate="shown"
+            exit="hidden"
+          >
+            <SliderMenu
+              title={browser.i18n.getMessage("select_recipient")}
+              onClose={() => {
+                setShowSlider(false);
+              }}
+            >
+              <Recipient
+                onClick={setRecipient}
+                onClose={() => setShowSlider(false)}
+              />
+            </SliderMenu>
+          </SliderWrapper>
         )}
       </AnimatePresence>
     </Wrapper>
@@ -475,11 +510,24 @@ const CurrencyButton = styled(Button)`
   padding: 2px;
 `;
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ showOverlay: boolean }>`
   height: calc(100vh - 15px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute; // Position the overlay
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    display: ${({ showOverlay }) => (showOverlay ? "block" : "none")};
+  }
 `;
 
 const SendForm = styled.div`
@@ -525,11 +573,17 @@ export const SendButton = styled(Button)<{ alternate?: boolean }>`
   color: ${(props) => props.alternate && "#b9b9b9"};
   padding: 10px;
   font-weight: 400;
+
+  &:hover:not(:active):not(:disabled) {
+    box-shadow: 0 0 0 0.075rem rgba(${(props) => props.theme.theme}, 0.5);
+  }
 `;
 
 export const SendInput = styled(Input)<{ error?: boolean }>`
   color: ${(props) => (props.error ? "red" : "#b9b9b9")};
   background-color: rgba(171, 154, 255, 0.15);
+  font-weight: 400;
+  font-size: 1rem;
   padding: 10px;
 `;
 
@@ -599,7 +653,7 @@ const TokenSelectorRightSide = styled.div`
   }
 `;
 
-const TokenSelectorWrapper = styled(motion.div)<{ partial?: boolean }>`
+const SliderWrapper = styled(motion.div)<{ partial?: boolean }>`
   position: fixed;
   top: ${(props) => (props.partial ? "50px" : 0)};
   left: 0;
@@ -613,6 +667,23 @@ const TokenSelectorWrapper = styled(motion.div)<{ partial?: boolean }>`
 const animation: Variants = {
   hidden: { opacity: 0 },
   shown: { opacity: 1 }
+};
+
+const animation2: Variants = {
+  hidden: {
+    y: "100vh",
+    transition: {
+      duration: 0.2,
+      ease: "easeOut"
+    }
+  },
+  shown: {
+    y: "0",
+    transition: {
+      duration: 0.2,
+      ease: "easeInOut"
+    }
+  }
 };
 
 const TokensSection = styled(Section)`
