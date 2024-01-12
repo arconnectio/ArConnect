@@ -3,6 +3,8 @@ import { Button } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
+import { EventType, trackEvent } from "~utils/analytics";
+import { useLocation } from "wouter";
 
 interface ButtonWrapperProps {
   id?: string;
@@ -14,6 +16,10 @@ interface ButtonWrapperProps {
   closeBuyAR?: boolean;
 }
 
+interface RouteEventMap {
+  [route: string]: EventType;
+}
+
 export default function BuyButton({
   padding,
   route,
@@ -23,10 +29,24 @@ export default function BuyButton({
   closeBuyAR
 }: ButtonWrapperProps) {
   const [push] = useHistory();
+  const [location] = useLocation();
+
+  const eventMap: RouteEventMap = {
+    "/": EventType.BUY_AR_DASHBOARD,
+    "/purchase": EventType.BUY_AR_PURCHASE,
+    "/confirm-purchase": EventType.BUY_AR_CONFIRM_PURCHASE
+  };
 
   const targetRoute = route === "/purchase" ? "/purchase" : "/confirm-purchase";
 
-  const handleClick = () => {
+  const handleClick = async () => {
+    const eventType = eventMap[location];
+
+    if (eventType) {
+      console.log(eventType);
+      await trackEvent(eventType, {});
+    }
+
     if (useCustomClickHandler) {
       onClick();
     } else if (closeBuyAR) {
