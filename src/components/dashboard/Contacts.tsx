@@ -32,7 +32,7 @@ export default function Contacts() {
     }
 
     fetchContacts();
-  }, []);
+  }, [storedContacts]);
 
   function groupContactsByFirstLetter(contacts) {
     return contacts.reduce((groups, contact) => {
