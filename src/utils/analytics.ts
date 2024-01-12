@@ -169,6 +169,11 @@ export const trackBalance = async (alarmInfo?: Alarms.Alarm) => {
   );
   try {
     await trackDirect(EventType.BALANCE, { totalBalance });
+    const timer = setToNextMonth(new Date());
+    await ExtensionStorage.set(`balance_tracker`, timer.getTime());
+    browser.alarms.create("track-balance", {
+      when: timer.getTime()
+    });
   } catch (err) {
     console.log("err tracking", err);
   }
@@ -176,11 +181,31 @@ export const trackBalance = async (alarmInfo?: Alarms.Alarm) => {
 
 export const initializeARBalanceMonitor = async () => {
   // schedule monthly alarm
-  const oneMonthInMinutes = 30 * 24 * 60;
-  browser.alarms.create("track-balance", {
-    periodInMinutes: oneMonthInMinutes
-  });
+  const alarm = await ExtensionStorage.get(`balance_tracker`);
 
-  // trigger tracker
-  await trackBalance();
+  if (alarm) {
+    const time = new Date(alarm);
+    browser.alarms.create("track-balance", {
+      when: time.getTime()
+    });
+  } else {
+    const timer = setToNextMonth(new Date());
+
+    browser.alarms.create("track-balance", {
+      when: timer.getTime()
+    });
+    await ExtensionStorage.set(`balance_tracker`, timer.getTime());
+  }
+};
+
+const setToNextMonth = (currentDate: Date): Date => {
+  const newDate = new Date(currentDate.getTime());
+  const currentMonth = newDate.getMonth();
+  newDate.setMonth(currentMonth + 1);
+
+  if (newDate.getMonth() !== (currentMonth + 1) % 12) {
+    newDate.setDate(0);
+  }
+
+  return newDate;
 };
