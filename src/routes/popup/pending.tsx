@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { ExtensionStorage } from "~utils/storage";
@@ -6,6 +6,7 @@ import { useTheme } from "~utils/theme";
 import { Section } from "@arconnect/components";
 import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
+import { PageType, trackPage } from "~utils/analytics";
 
 export default function PendingPurchase() {
   const theme = useTheme();
@@ -18,6 +19,11 @@ export default function PendingPurchase() {
   }
 
   getActiveQuote();
+
+  //segment
+  useEffect(() => {
+    trackPage(PageType.ONRAMP_PURCHASE_PENDING);
+  }, []);
 
   return (
     <Wrapper>

@@ -11,6 +11,7 @@ import BuyButton from "~components/popup/home/BuyButton";
 import { getActiveWallet } from "~wallets";
 import { buyRequest } from "~lib/onramper";
 import { useStorage } from "@plasmohq/storage/hook";
+import { PageType, trackPage } from "~utils/analytics";
 
 export default function ConfirmPurchase() {
   const [push] = useHistory();
@@ -36,6 +37,11 @@ export default function ConfirmPurchase() {
     },
     null
   );
+
+  //segment
+  useEffect(() => {
+    trackPage(PageType.ONRAMP_CONFIRM_PURCHASE);
+  }, []);
 
   useEffect(() => {
     async function fetchActiveWallet() {
