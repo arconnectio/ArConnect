@@ -40,12 +40,7 @@ export default function BuyButton({
   const targetRoute = route === "/purchase" ? "/purchase" : "/confirm-purchase";
 
   const handleClick = async () => {
-    const eventType = eventMap[location];
-
-    if (eventType) {
-      console.log(eventType);
-      await trackEvent(eventType, {});
-    }
+    await trackEvent(eventMap[location], {});
 
     if (useCustomClickHandler) {
       onClick();
