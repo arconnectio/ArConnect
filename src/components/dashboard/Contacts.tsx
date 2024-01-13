@@ -1,4 +1,4 @@
-import { Button, Spacer, useInput } from "@arconnect/components";
+import { Spacer, useInput } from "@arconnect/components";
 import React, { useState, useEffect, useMemo } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -105,7 +105,7 @@ export default function Contacts() {
           const filteredContacts = contacts.filter(filterSearchResults);
 
           if (filteredContacts.length === 0) {
-            return null; // Do not render the letter header or contacts if none match the filter
+            return null;
           }
 
           return (

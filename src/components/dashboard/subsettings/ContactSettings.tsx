@@ -74,6 +74,14 @@ export default function ContactSettings({ address }: Props) {
     setEditable(false);
   };
 
+  // generate profile icon from the first name
+  const generateProfileIcon = (name) => {
+    if (name && name.length > 0) {
+      return name[0].toUpperCase();
+    }
+    return "";
+  };
+
   const renderArNSAddress = () => {
     if (editable) {
       return (
@@ -133,7 +141,10 @@ export default function ContactSettings({ address }: Props) {
         </Header>
         <SubTitle>Avatar</SubTitle>
         <PicWrapper>
-          <ContactPic src={contact.profileIcon} />
+          {contact.profileIcon && <ContactPic src={contact.profileIcon} />}
+          {!contact.profileIcon && (
+            <AutoContactPic>{generateProfileIcon(contact.name)}</AutoContactPic>
+          )}
           {editable ? <UploadIcon /> : null}
         </PicWrapper>
         <SubTitle>Name*</SubTitle>
@@ -274,6 +285,19 @@ const RemoveContact = styled(Button)`
   &:hover {
     transform: scale(1.02);
   }
+`;
+
+const AutoContactPic = styled.div`
+  width: 100px;
+  height: 100px;
+  border-radius: 100%;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 500;
+  font-size: 44px;
+  background-color: #ab9aff26;
 `;
 
 const ContactPic = styled.img`
