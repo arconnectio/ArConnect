@@ -3,6 +3,7 @@ import {
   Button,
   Input,
   Modal,
+  Select,
   Spacer,
   useModal
 } from "@arconnect/components";
@@ -33,13 +34,14 @@ export default function ContactSettings({ address }: Props) {
     ArNSAddress: ""
   });
   const [contactIndex, setContactIndex] = useState(-1);
+  const [arnsResults, setArnsResults] = useState([]);
 
   useEffect(() => {
     const loadedContact = storedContacts.find((c) => c.address === address);
-
     if (loadedContact) {
       setContact(loadedContact);
       setContactIndex(storedContacts.indexOf(loadedContact));
+      fetchArnsAddresses(loadedContact.address);
     } else {
       setContact({
         name: "",
@@ -51,6 +53,33 @@ export default function ContactSettings({ address }: Props) {
       setContactIndex(-1);
     }
   }, [storedContacts, address]);
+
+  async function fetchArnsAddresses(ownerAddress) {
+    const arnsNames = await getAllArNSNames(ownerAddress);
+    setArnsResults(arnsNames.records || []);
+  }
+
+  async function getANTsContractTxIds(owner) {
+    const response = await fetch(
+      `https://api.arns.app/v1/wallet/${owner}/contracts?type=ant`
+    );
+    const data = await response.json();
+    return data.contractTxIds;
+  }
+
+  async function getAllArNSNames(owner) {
+    const contractTxIds = await getANTsContractTxIds(owner);
+    if (contractTxIds.length === 0) return [];
+
+    const url = [
+      "https://api.arns.app/v1/contract/bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U/records?",
+      ...contractTxIds.map((txId) => `contractTxId=${txId}`)
+    ].join("&");
+
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -88,16 +117,26 @@ export default function ContactSettings({ address }: Props) {
         <>
           <SubTitle>ArNS Address</SubTitle>
           <InputWrapper>
-            <ContactInput
+            <SelectInput
               fullWidth
               small
               name="ArNSAddress"
-              placeholder={
-                contact.ArNSAddress ? contact.ArNSAddress : "Account address"
-              }
               value={contact.ArNSAddress}
-              onChange={handleInputChange}
-            />
+              onChange={(e) =>
+                setContact({ ...contact, ArNSAddress: e.target.value })
+              }
+            >
+              <option value="">
+                {arnsResults.length === 0
+                  ? "No ArNS addresses found"
+                  : "Select ArNS address"}
+              </option>
+              {Object.entries(arnsResults).map(([contractTxId]) => (
+                <option key={contractTxId} value={contractTxId}>
+                  {contractTxId + ".arweave.ar"}
+                </option>
+              ))}
+            </SelectInput>
           </InputWrapper>
         </>
       );
@@ -105,7 +144,7 @@ export default function ContactSettings({ address }: Props) {
       return (
         <>
           <SubTitle>ArNS Address</SubTitle>
-          <ContactInfo>{contact.ArNSAddress}</ContactInfo>
+          <ContactInfo>{contact.ArNSAddress + ".arweave.ar"}</ContactInfo>
         </>
       );
     }
@@ -309,6 +348,17 @@ const ContactPic = styled.img`
 
 const InputWrapper = styled.div`
   margin-bottom: 10px;
+`;
+
+const SelectInput = styled(Select)`
+  height: 53px;
+  padding: 10px 20px 10px 20px;
+  color: #b9b9b9;
+  font-size: 16px;
+  ::placeholder {
+    color: #b9b9b9;
+    font-size: 16px;
+  }
 `;
 
 const ContactInput = styled(Input)`
