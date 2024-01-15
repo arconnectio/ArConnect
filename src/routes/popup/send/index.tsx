@@ -335,19 +335,13 @@ export default function Send({ id }: Props) {
                     {token.ticker.toUpperCase()}
                   </Currency>
                 </CurrencyButton>
-                <Button
+                <MaxButton
+                  altColor={theme === "dark" && "#423D59"}
                   small
                   onClick={() => setQty(max.toString())}
-                  style={{
-                    borderRadius: "3px",
-                    padding: "5px",
-                    color: "#B9B9B9",
-                    backgroundColor: "#423D59",
-                    fontWeight: 400
-                  }}
                 >
                   Max
-                </Button>
+                </MaxButton>
               </InputIcons>
             }
           />
@@ -445,6 +439,15 @@ export default function Send({ id }: Props) {
 
 const Currency = styled.span<{ active: boolean }>`
   color: ${(props) => (!props.active ? "#B9B9B9" : "#ffffff")};
+`;
+
+const MaxButton = styled(Button)<{ altColor?: string }>`
+  border-radius: 3px;
+  padding: 5px;
+  color: ${(props) => (props.altColor ? "#b9b9b9" : props.theme.theme)};
+  background-color: ${(props) =>
+    props.altColor ? props.altColor : props.theme.theme};
+  font-weight: 400;
 `;
 
 const CurrencyButton = styled(Button)`
