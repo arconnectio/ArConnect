@@ -13,9 +13,9 @@ import {
   GridIcon,
   InformationIcon,
   TrashIcon,
-  UsersIcon,
   WalletIcon
 } from "@iconicicons/react";
+import { Users01 } from "@untitled-ui/icons-react";
 import WalletSettings from "~components/dashboard/subsettings/WalletSettings";
 import TokenSettings from "~components/dashboard/subsettings/TokenSettings";
 import AppSettings from "~components/dashboard/subsettings/AppSettings";
@@ -253,7 +253,7 @@ const allSettings: Omit<Setting, "active">[] = [
     name: "contacts",
     displayName: "setting_contacts",
     description: "setting_contacts_description",
-    icon: UsersIcon,
+    icon: Users01,
     component: Contacts
   },
   ...settings.map((setting) => ({
