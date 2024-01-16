@@ -14,6 +14,7 @@ import styled from "styled-components";
 import browser from "webextension-polyfill";
 import { Edit02, Upload01 } from "@untitled-ui/icons-react";
 import { useLocation } from "wouter";
+import { uploadUserAvatar } from "~lib/avatar";
 
 export default function ContactSettings({ address }: Props) {
   // contacts
@@ -35,6 +36,7 @@ export default function ContactSettings({ address }: Props) {
   });
   const [contactIndex, setContactIndex] = useState(-1);
   const [arnsResults, setArnsResults] = useState([]);
+  const [selectedAvatar, setSelectedAvatar] = useState(null);
 
   useEffect(() => {
     const loadedContact = storedContacts.find((c) => c.address === address);
@@ -111,6 +113,22 @@ export default function ContactSettings({ address }: Props) {
     return "";
   };
 
+  const handleAvatarUpload = async (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      try {
+        const avatarTxId = await uploadUserAvatar(selectedFile);
+        // Update the contact's profileIcon with the avatarTxId
+        setContact({
+          ...contact,
+          profileIcon: avatarTxId
+        });
+      } catch (error) {
+        console.error("Error uploading avatar:", error);
+      }
+    }
+  };
+
   const renderArNSAddress = () => {
     if (editable) {
       return (
@@ -128,7 +146,7 @@ export default function ContactSettings({ address }: Props) {
             >
               <option value="">
                 {arnsResults.length === 0
-                  ? "No ArNS addresses found"
+                  ? "No ArNS address found"
                   : "Select ArNS address"}
               </option>
               {Object.entries(arnsResults).map(([contractTxId]) => (
@@ -184,7 +202,20 @@ export default function ContactSettings({ address }: Props) {
           {!contact.profileIcon && (
             <AutoContactPic>{generateProfileIcon(contact.name)}</AutoContactPic>
           )}
-          {editable ? <UploadIcon /> : null}
+          {editable ? (
+            <>
+              <label htmlFor="avatarUpload" style={{ cursor: "pointer" }}>
+                <UploadIcon />
+              </label>
+              <input
+                id="avatarUpload"
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleAvatarUpload}
+              />
+            </>
+          ) : null}
         </PicWrapper>
         <SubTitle>Name*</SubTitle>
         {editable ? (
