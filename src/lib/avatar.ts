@@ -1,5 +1,5 @@
 import Arweave from "arweave";
-import { getActiveKeyfile, getActiveWallet } from "~wallets";
+import { getActiveKeyfile } from "~wallets";
 
 const arweave = new Arweave({
   host: "ar-io.net",
@@ -24,7 +24,6 @@ function waitFor(delay: number) {
 }
 
 export async function uploadUserAvatar(avatar: File) {
-  const address = await getActiveWallet();
   const wallet = await getActiveKeyfile();
 
   if (wallet.type === "hardware") {
@@ -39,7 +38,6 @@ export async function uploadUserAvatar(avatar: File) {
     const inputTags = [
       { name: "App-Name", value: "ArConnect.io" },
       { name: "Content-Type", value: avatar.type },
-      { name: "Creator", value: address || "" },
       { name: "Type", value: "avatar-update" }
     ];
 
@@ -62,7 +60,23 @@ export async function uploadUserAvatar(avatar: File) {
         `${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`
       );
     }
+
+    const txId = transaction.id;
+    console.log("Transaction ID:", txId);
+
+    return transaction.id;
   } catch (e) {
-    console.log("Unable to upload avatar.", e);
+    console.log("Unable to upload avatar", e);
   }
 }
+
+export const getUserAvatar = async (txId: string) => {
+  try {
+    const data = await arweave.transactions.getData(txId, { decode: true });
+    const blob = new Blob([data], { type: "image" });
+    const imageUrl = URL.createObjectURL(blob);
+    return imageUrl;
+  } catch (e) {
+    console.error("Error fetching avatar:", e);
+  }
+};

@@ -14,7 +14,9 @@ import styled from "styled-components";
 import browser from "webextension-polyfill";
 import { Edit02, Upload01 } from "@untitled-ui/icons-react";
 import { useLocation } from "wouter";
-import { uploadUserAvatar } from "~lib/avatar";
+import { uploadUserAvatar, getUserAvatar } from "~lib/avatar";
+import { useToasts } from "@arconnect/components";
+import copy from "copy-to-clipboard";
 
 export default function ContactSettings({ address }: Props) {
   // contacts
@@ -25,6 +27,8 @@ export default function ContactSettings({ address }: Props) {
     },
     []
   );
+
+  const { setToast } = useToasts();
 
   const [editable, setEditable] = useState(false);
   const [contact, setContact] = useState({
@@ -118,16 +122,38 @@ export default function ContactSettings({ address }: Props) {
     if (selectedFile) {
       try {
         const avatarTxId = await uploadUserAvatar(selectedFile);
-        // Update the contact's profileIcon with the avatarTxId
-        setContact({
-          ...contact,
-          profileIcon: avatarTxId
+        setToast({
+          type: "success",
+          content:
+            "Uploaded avatar to Arweave. Your contact's avatar will be updated shortly.",
+          duration: 5000,
+          action: {
+            name: browser.i18n.getMessage("copyId"),
+            task: () => copy(avatarTxId)
+          }
         });
+        setSelectedAvatar(avatarTxId);
       } catch (error) {
         console.error("Error uploading avatar:", error);
       }
     }
   };
+
+  useEffect(() => {
+    if (selectedAvatar) {
+      getUserAvatar(selectedAvatar)
+        .then((imageUrl) => {
+          console.log("fetched avatar:", imageUrl);
+          setContact({
+            ...contact,
+            profileIcon: imageUrl
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching avatar:", error);
+        });
+    }
+  }, [selectedAvatar]);
 
   const renderArNSAddress = () => {
     if (editable) {
