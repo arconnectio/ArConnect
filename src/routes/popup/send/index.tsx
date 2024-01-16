@@ -350,6 +350,7 @@ export default function Send({ id }: Props) {
             <ChevronDownIcon />
           </SendButton>
           <SendInput
+            alternative
             type="number"
             placeholder={"Amount"}
             value={qty}
@@ -394,6 +395,7 @@ export default function Send({ id }: Props) {
         </Datas>
         {!uToken && (
           <SendInput
+            alternative
             {...message.bindings}
             type="text"
             placeholder={browser.i18n.getMessage("send_message_optional")}
