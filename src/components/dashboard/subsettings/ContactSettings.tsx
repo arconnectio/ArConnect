@@ -5,7 +5,8 @@ import {
   Modal,
   Select,
   Spacer,
-  useModal
+  useModal,
+  useToasts
 } from "@arconnect/components";
 import { useState, useEffect } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -15,7 +16,6 @@ import browser from "webextension-polyfill";
 import { Edit02, Upload01 } from "@untitled-ui/icons-react";
 import { useLocation } from "wouter";
 import { uploadUserAvatar, getUserAvatar } from "~lib/avatar";
-import { useToasts } from "@arconnect/components";
 import copy from "copy-to-clipboard";
 
 export default function ContactSettings({ address }: Props) {
@@ -331,27 +331,27 @@ export default function ContactSettings({ address }: Props) {
   );
 }
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
 `;
 
-const Header = styled.div`
+export const Header = styled.div`
   display: flex;
   align-items: center;
   gap: 20px;
 `;
 
-const Footer = styled.div`
+export const Footer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding-top: 10px;
 `;
 
-const CenterText = styled(Text)`
+export const CenterText = styled(Text)`
   text-align: center;
   max-width: 22vw;
   margin: 0 auto;
@@ -361,13 +361,13 @@ const CenterText = styled(Text)`
   }
 `;
 
-const PicWrapper = styled.div`
+export const PicWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
 `;
 
-const UploadIcon = styled(Upload01)`
+export const UploadIcon = styled(Upload01)`
   cursor: pointer;
 `;
 
@@ -375,7 +375,7 @@ const EditIcon = styled(Edit02)`
   cursor: pointer;
 `;
 
-const RemoveContact = styled(Button)`
+export const RemoveContact = styled(Button)`
   background-color: #ea433580;
   color: #ea4335;
   border: 2px solid #ea433580;
@@ -387,7 +387,7 @@ const RemoveContact = styled(Button)`
   }
 `;
 
-const AutoContactPic = styled.div`
+export const AutoContactPic = styled.div`
   width: 100px;
   height: 100px;
   border-radius: 100%;
@@ -400,18 +400,18 @@ const AutoContactPic = styled.div`
   background-color: #ab9aff26;
 `;
 
-const ContactPic = styled.img`
+export const ContactPic = styled.img`
   width: 100px;
   height: 100px;
   border-radius: 100%;
   margin-bottom: 10px;
 `;
 
-const InputWrapper = styled.div`
+export const InputWrapper = styled.div`
   margin-bottom: 10px;
 `;
 
-const SelectInput = styled(Select)`
+export const SelectInput = styled(Select)`
   height: 53px;
   padding: 10px 20px 10px 20px;
   color: #b9b9b9;
@@ -422,7 +422,7 @@ const SelectInput = styled(Select)`
   }
 `;
 
-const ContactInput = styled(Input)`
+export const ContactInput = styled(Input)`
   height: 33px;
   padding: 10px 20px 10px 20px;
   color: #b9b9b9;
@@ -442,7 +442,7 @@ const ContactInfo = styled(Text).attrs({
   flex-wrap: wrap;
 `;
 
-const ContactNotes = styled.textarea`
+export const ContactNotes = styled.textarea`
   display: flex;
   width: 96%;
   border-radius: 15px;
@@ -461,13 +461,13 @@ const ContactNotes = styled.textarea`
   color: #b9b9b9;
 `;
 
-const SubTitle = styled(Text)`
+export const SubTitle = styled(Text)`
   font-size: 16px;
   color: #aeadcd;
   margin-bottom: 4px;
 `;
 
-const Title = styled(Text).attrs({
+export const Title = styled(Text).attrs({
   title: true
 })`
   font-weight: 600;
