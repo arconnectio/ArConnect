@@ -222,6 +222,10 @@ export default function ContactSettings({ address }: Props) {
     setLocation("/contacts");
   };
 
+  const areFieldsEmpty = () => {
+    return !contact.name || !contact.address;
+  };
+
   return (
     <Wrapper>
       <div>
@@ -302,7 +306,12 @@ export default function ContactSettings({ address }: Props) {
       {editable && (
         <>
           <Footer>
-            <Button small fullWidth onClick={saveContact}>
+            <Button
+              small
+              fullWidth
+              onClick={saveContact}
+              disabled={areFieldsEmpty()}
+            >
               {browser.i18n.getMessage("save_changes")}
             </Button>
             <RemoveContact

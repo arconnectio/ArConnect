@@ -191,6 +191,10 @@ export default function AddContact() {
     setLocation("/contacts");
   };
 
+  const areFieldsEmpty = () => {
+    return !contact.name || !contact.address;
+  };
+
   return (
     <Wrapper>
       <div>
@@ -276,7 +280,12 @@ export default function AddContact() {
       </div>
       <>
         <Footer>
-          <Button small fullWidth onClick={saveNewContact}>
+          <Button
+            small
+            fullWidth
+            onClick={saveNewContact}
+            disabled={areFieldsEmpty()}
+          >
             {browser.i18n.getMessage("save_new_contact")}
           </Button>
           <RemoveContact
