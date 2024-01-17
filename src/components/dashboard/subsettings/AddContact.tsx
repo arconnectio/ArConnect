@@ -131,8 +131,12 @@ export default function AddContact() {
   }
 
   async function fetchArnsAddresses(ownerAddress) {
-    const arnsNames = await getAllArNSNames(ownerAddress);
-    setArnsResults(arnsNames.records || []);
+    try {
+      const arnsNames = await getAllArNSNames(ownerAddress);
+      setArnsResults(arnsNames.records || []);
+    } catch (error) {
+      console.error("Error fetching ArNS addresses:", error);
+    }
   }
 
   useEffect(() => {
