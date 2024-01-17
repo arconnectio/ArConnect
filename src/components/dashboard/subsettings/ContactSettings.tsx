@@ -179,7 +179,7 @@ export default function ContactSettings({ address }: Props) {
               </option>
               {Object.entries(arnsResults).map(([contractTxId]) => (
                 <option key={contractTxId} value={contractTxId}>
-                  {contractTxId + ".arweave.ar"}
+                  {contractTxId + browser.i18n.getMessage("arweave_url")}
                 </option>
               ))}
             </SelectInput>

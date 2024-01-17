@@ -67,8 +67,7 @@ export default function AddContact() {
         const avatarTxId = await uploadUserAvatar(selectedFile);
         setToast({
           type: "success",
-          content:
-            "Uploaded avatar to Arweave. Your contact's avatar will be updated shortly.",
+          content: browser.i18n.getMessage("uploaded_avatar"),
           duration: 5000,
           action: {
             name: browser.i18n.getMessage("copyId"),
@@ -194,7 +193,7 @@ export default function AddContact() {
         <Header>
           <Title>{browser.i18n.getMessage("add_new_contact")}</Title>
         </Header>
-        <SubTitle>Avatar</SubTitle>
+        <SubTitle>{browser.i18n.getMessage("contact_avatar")}</SubTitle>
         <PicWrapper>
           {contact.avatarId && contact.profileIcon && (
             <ContactPic src={contact.profileIcon} />
@@ -213,29 +212,35 @@ export default function AddContact() {
             onChange={handleAvatarUpload}
           />
         </PicWrapper>
-        <SubTitle>Name*</SubTitle>
+        <SubTitle>{browser.i18n.getMessage("name")}*</SubTitle>
         <InputWrapper>
           <ContactInput
             fullWidth
             small
             name="name"
-            placeholder={"First and Last name"}
+            placeholder={browser.i18n.getMessage("first_last_name")}
             value={contact.name}
             onChange={handleInputChange}
           />
         </InputWrapper>
-        <SubTitle>Arweave Account Address*</SubTitle>
+        <SubTitle>
+          {browser.i18n.getMessage("arweave_account_address")}*
+        </SubTitle>
         <InputWrapper>
           <ContactInput
             fullWidth
             small
             name="address"
-            placeholder={contact.address ? contact.address : "Account address"}
+            placeholder={
+              contact.address
+                ? contact.address
+                : browser.i18n.getMessage("account_address")
+            }
             value={contact.address}
             onChange={handleInputChange}
           />
         </InputWrapper>
-        <SubTitle>ArNS Address</SubTitle>
+        <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
         <InputWrapper>
           <SelectInput
             fullWidth
@@ -248,19 +253,19 @@ export default function AddContact() {
           >
             <option value="">
               {arnsResults.length === 0
-                ? "No ArNS address found"
-                : "Select ArNS address"}
+                ? browser.i18n.getMessage("no_ArNS_address_found")
+                : browser.i18n.getMessage("select_ArNS_address")}
             </option>
             {Object.entries(arnsResults).map(([contractTxId]) => (
               <option key={contractTxId} value={contractTxId}>
-                {contractTxId + ".arweave.ar"}
+                {contractTxId + browser.i18n.getMessage("arweave_url")}
               </option>
             ))}
           </SelectInput>
         </InputWrapper>
-        <SubTitle>Notes</SubTitle>
+        <SubTitle>{browser.i18n.getMessage("notes")}</SubTitle>
         <NewContactNotes
-          placeholder="Type a message here..."
+          placeholder={browser.i18n.getMessage("type_message_here")}
           value={contact.notes || ""}
           onChange={(e) => setContact({ ...contact, notes: e.target.value })}
         />
@@ -268,7 +273,7 @@ export default function AddContact() {
       <>
         <Footer>
           <Button small fullWidth onClick={saveNewContact}>
-            Save new contact
+            {browser.i18n.getMessage("save_new_contact")}
           </Button>
           <RemoveContact
             small
@@ -276,21 +281,23 @@ export default function AddContact() {
             secondary
             onClick={() => removeContactModal.setOpen(true)}
           >
-            Remove contact
+            {browser.i18n.getMessage("remove_contact")}
           </RemoveContact>
         </Footer>
         <Modal
           {...removeContactModal.bindings}
           root={document.getElementById("__plasmo")}
         >
-          <CenterText heading>Remove contact</CenterText>
+          <CenterText heading>
+            {browser.i18n.getMessage("remove_contact")}
+          </CenterText>
           <Spacer y={0.55} />
           <CenterText noMargin>
-            Are you sure you want to remove this contact?
+            {browser.i18n.getMessage("remove_contact_question")}
           </CenterText>
           <Spacer y={1.75} />
           <Button fullWidth onClick={confirmRemoveContact}>
-            Yes
+            {browser.i18n.getMessage("yes")}
           </Button>
           <Spacer y={0.75} />
           <Button
@@ -298,7 +305,7 @@ export default function AddContact() {
             secondary
             onClick={() => removeContactModal.setOpen(false)}
           >
-            No
+            {browser.i18n.getMessage("no")}
           </Button>
         </Modal>
       </>

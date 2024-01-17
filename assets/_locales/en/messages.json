@@ -1580,5 +1580,9 @@
   "remove_contact_question": {
     "message": "Are you sure you want to remove this contact?",
     "description": "Remove contact modal text"
+  },
+  "save_new_contact": {
+    "message": "Save new contact",
+    "description": "Save new contact button text"
   }
 }
