@@ -169,8 +169,7 @@ export const trackBalance = async (alarmInfo?: Alarms.Alarm) => {
   );
   try {
     await trackDirect(EventType.BALANCE, { totalBalance });
-    const timer = setToNextMonth(new Date());
-    await ExtensionStorage.set(`balance_tracker`, timer.getTime());
+    const timer = setToStartOfNextMonth(new Date());
     browser.alarms.create("track-balance", {
       when: timer.getTime()
     });
@@ -179,33 +178,38 @@ export const trackBalance = async (alarmInfo?: Alarms.Alarm) => {
   }
 };
 
+/**
+ * Initializes the AR balance event tracker.
+ * This function sets up a monthly alarm to track the total balance.
+ * It schedules the first alarm to the start of the next month and
+ * stores this schedule time in the extension storage.
+ */
+
 export const initializeARBalanceMonitor = async () => {
-  // schedule monthly alarm
-  const alarm = await ExtensionStorage.get(`balance_tracker`);
-
-  if (alarm) {
-    const time = new Date(alarm);
-    browser.alarms.create("track-balance", {
-      when: time.getTime()
-    });
-  } else {
-    const timer = setToNextMonth(new Date());
-
-    browser.alarms.create("track-balance", {
-      when: timer.getTime()
-    });
-    await ExtensionStorage.set(`balance_tracker`, timer.getTime());
-  }
+  const timer = setToStartOfNextMonth(new Date());
+  browser.alarms.create("track-balance", {
+    when: timer.getTime()
+  });
 };
 
-const setToNextMonth = (currentDate: Date): Date => {
-  const newDate = new Date(currentDate.getTime());
-  const currentMonth = newDate.getMonth();
-  newDate.setMonth(currentMonth + 1);
+/**
+ * Sets the given date to the start of the next month in UTC
+ * The time is set to beginning of the month (00:00:00.000).
+ * @param {Date} currentDate
+ * @returns {Date} Date to trigger alarm
+ */
 
-  if (newDate.getMonth() !== (currentMonth + 1) % 12) {
-    newDate.setDate(0);
-  }
-
+const setToStartOfNextMonth = (currentDate: Date): Date => {
+  const newDate = new Date(
+    Date.UTC(
+      currentDate.getUTCFullYear(),
+      currentDate.getUTCMonth() + 1,
+      1,
+      0,
+      0,
+      0,
+      0
+    )
+  );
   return newDate;
 };
