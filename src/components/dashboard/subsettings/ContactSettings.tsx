@@ -36,11 +36,11 @@ export default function ContactSettings({ address }: Props) {
     address: "",
     profileIcon: "",
     notes: "",
-    ArNSAddress: ""
+    ArNSAddress: "",
+    avatarId: ""
   });
   const [contactIndex, setContactIndex] = useState(-1);
   const [arnsResults, setArnsResults] = useState([]);
-  const [selectedAvatar, setSelectedAvatar] = useState(null);
 
   useEffect(() => {
     const loadedContact = storedContacts.find((c) => c.address === address);
@@ -54,7 +54,8 @@ export default function ContactSettings({ address }: Props) {
         address: "",
         profileIcon: "",
         notes: "",
-        ArNSAddress: ""
+        ArNSAddress: "",
+        avatarId: ""
       });
       setContactIndex(-1);
     }
@@ -132,7 +133,10 @@ export default function ContactSettings({ address }: Props) {
             task: () => copy(avatarTxId)
           }
         });
-        setSelectedAvatar(avatarTxId);
+        setContact({
+          ...contact,
+          avatarId: avatarTxId
+        });
       } catch (error) {
         console.error("Error uploading avatar:", error);
       }
@@ -140,8 +144,8 @@ export default function ContactSettings({ address }: Props) {
   };
 
   useEffect(() => {
-    if (selectedAvatar) {
-      getUserAvatar(selectedAvatar)
+    if (contact.avatarId) {
+      getUserAvatar(contact.avatarId)
         .then((imageUrl) => {
           console.log("fetched avatar:", imageUrl);
           setContact({
@@ -153,7 +157,7 @@ export default function ContactSettings({ address }: Props) {
           console.error("Error fetching avatar:", error);
         });
     }
-  }, [selectedAvatar]);
+  }, [contact.avatarId]);
 
   const renderArNSAddress = () => {
     if (editable) {
@@ -224,7 +228,7 @@ export default function ContactSettings({ address }: Props) {
         </Header>
         <SubTitle>Avatar</SubTitle>
         <PicWrapper>
-          {contact.profileIcon && <ContactPic src={contact.profileIcon} />}
+          {contact.avatarId && <ContactPic src={contact.profileIcon} />}
           {!contact.profileIcon && (
             <AutoContactPic>{generateProfileIcon(contact.name)}</AutoContactPic>
           )}
