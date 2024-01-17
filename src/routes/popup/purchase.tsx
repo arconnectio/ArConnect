@@ -11,6 +11,7 @@ import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
 import { getQuote } from "~lib/onramper";
 import InputMenu from "~components/InputMenu";
+import { PageType, trackPage } from "~utils/analytics";
 
 interface SelectIconProps {
   open: boolean;
@@ -62,6 +63,11 @@ export default function Purchase() {
   useEffect(() => {
     checkIsBackFromConfirm();
   }, [isInitialMount]);
+
+  //segment
+  useEffect(() => {
+    trackPage(PageType.ONRAMP_PURCHASE);
+  }, []);
 
   const [quote, setQuote] = useStorage<Object>(
     {
