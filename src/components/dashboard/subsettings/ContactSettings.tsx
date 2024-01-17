@@ -125,8 +125,7 @@ export default function ContactSettings({ address }: Props) {
         const avatarTxId = await uploadUserAvatar(selectedFile);
         setToast({
           type: "success",
-          content:
-            "Uploaded avatar to Arweave. Your contact's avatar will be updated shortly.",
+          content: browser.i18n.getMessage("uploaded_avatar"),
           duration: 5000,
           action: {
             name: browser.i18n.getMessage("copyId"),
@@ -147,7 +146,6 @@ export default function ContactSettings({ address }: Props) {
     if (contact.avatarId) {
       getUserAvatar(contact.avatarId)
         .then((imageUrl) => {
-          console.log("fetched avatar:", imageUrl);
           setContact({
             ...contact,
             profileIcon: imageUrl
@@ -163,7 +161,7 @@ export default function ContactSettings({ address }: Props) {
     if (editable) {
       return (
         <>
-          <SubTitle>ArNS Address</SubTitle>
+          <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
           <InputWrapper>
             <SelectInput
               fullWidth
@@ -176,8 +174,8 @@ export default function ContactSettings({ address }: Props) {
             >
               <option value="">
                 {arnsResults.length === 0
-                  ? "No ArNS address found"
-                  : "Select ArNS address"}
+                  ? browser.i18n.getMessage("no_ArNS_address_found")
+                  : browser.i18n.getMessage("select_ArNS_address")}
               </option>
               {Object.entries(arnsResults).map(([contractTxId]) => (
                 <option key={contractTxId} value={contractTxId}>
@@ -191,8 +189,10 @@ export default function ContactSettings({ address }: Props) {
     } else if (contact.ArNSAddress) {
       return (
         <>
-          <SubTitle>ArNS Address</SubTitle>
-          <ContactInfo>{contact.ArNSAddress + ".arweave.ar"}</ContactInfo>
+          <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
+          <ContactInfo>
+            {contact.ArNSAddress + browser.i18n.getMessage("arweave_url")}
+          </ContactInfo>
         </>
       );
     }
@@ -209,7 +209,6 @@ export default function ContactSettings({ address }: Props) {
       updatedContacts.splice(contactIndex, 1);
       try {
         await ExtensionStorage.set("contacts", updatedContacts);
-        console.log("Contact removed succcessfully");
       } catch (error) {
         console.error("Error removing contact:", error);
       }
@@ -226,7 +225,7 @@ export default function ContactSettings({ address }: Props) {
           <Title>{browser.i18n.getMessage("contact_info")}</Title>
           <EditIcon onClick={() => setEditable(!editable)} />
         </Header>
-        <SubTitle>Avatar</SubTitle>
+        <SubTitle>{browser.i18n.getMessage("contact_avatar")}</SubTitle>
         <PicWrapper>
           {contact.avatarId && <ContactPic src={contact.profileIcon} />}
           {!contact.profileIcon && (
@@ -247,14 +246,18 @@ export default function ContactSettings({ address }: Props) {
             </>
           ) : null}
         </PicWrapper>
-        <SubTitle>Name*</SubTitle>
+        <SubTitle>{browser.i18n.getMessage("name")}*</SubTitle>
         {editable ? (
           <InputWrapper>
             <ContactInput
               fullWidth
               small
               name="name"
-              placeholder={contact.name ? contact.name : "First and Last name"}
+              placeholder={
+                contact.name
+                  ? contact.name
+                  : browser.i18n.getMessage("first_last_name")
+              }
               value={contact.name}
               onChange={handleInputChange}
             />
@@ -262,7 +265,9 @@ export default function ContactSettings({ address }: Props) {
         ) : (
           <ContactInfo>{contact.name}</ContactInfo>
         )}
-        <SubTitle>Arweave Account Address*</SubTitle>
+        <SubTitle>
+          {browser.i18n.getMessage("arweave_account_address")}*
+        </SubTitle>
         {editable ? (
           <InputWrapper>
             <ContactInput
@@ -270,7 +275,9 @@ export default function ContactSettings({ address }: Props) {
               small
               name="address"
               placeholder={
-                contact.address ? contact.address : "Account address"
+                contact.address
+                  ? contact.address
+                  : browser.i18n.getMessage("account_address")
               }
               value={contact.address}
               onChange={handleInputChange}
@@ -280,9 +287,9 @@ export default function ContactSettings({ address }: Props) {
           <ContactInfo>{contact.address}</ContactInfo>
         )}
         {<>{renderArNSAddress()}</>}
-        <SubTitle>Notes</SubTitle>
+        <SubTitle>{browser.i18n.getMessage("notes")}</SubTitle>
         <ContactNotes
-          placeholder="Type a message here..."
+          placeholder={browser.i18n.getMessage("type_message_here")}
           value={contact.notes || ""}
           onChange={(e) => setContact({ ...contact, notes: e.target.value })}
           style={{ height: editable ? "235px" : "269px" }}
@@ -292,7 +299,7 @@ export default function ContactSettings({ address }: Props) {
         <>
           <Footer>
             <Button small fullWidth onClick={saveContact}>
-              Save changes
+              {browser.i18n.getMessage("save_changes")}
             </Button>
             <RemoveContact
               small
@@ -300,21 +307,23 @@ export default function ContactSettings({ address }: Props) {
               secondary
               onClick={() => removeContactModal.setOpen(true)}
             >
-              Remove contact
+              {browser.i18n.getMessage("remove_contact")}
             </RemoveContact>
           </Footer>
           <Modal
             {...removeContactModal.bindings}
             root={document.getElementById("__plasmo")}
           >
-            <CenterText heading>Remove contact</CenterText>
+            <CenterText heading>
+              {browser.i18n.getMessage("remove_contact")}
+            </CenterText>
             <Spacer y={0.55} />
             <CenterText noMargin>
-              Are you sure you want to remove this contact?
+              {browser.i18n.getMessage("remove_contact_question")}
             </CenterText>
             <Spacer y={1.75} />
             <Button fullWidth onClick={confirmRemoveContact}>
-              Yes
+              {browser.i18n.getMessage("yes")}
             </Button>
             <Spacer y={0.75} />
             <Button
@@ -322,7 +331,7 @@ export default function ContactSettings({ address }: Props) {
               secondary
               onClick={() => removeContactModal.setOpen(false)}
             >
-              No
+              {browser.i18n.getMessage("no")}
             </Button>
           </Modal>
         </>
