@@ -26,7 +26,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
-import { uploadUserAvatar } from "~lib/avatar";
+import { uploadUserAvatar, getUserAvatar } from "~lib/avatar";
 import styled from "styled-components";
 import { useLocation } from "wouter";
 import copy from "copy-to-clipboard";
@@ -85,6 +85,22 @@ export default function AddContact() {
     }
   };
 
+  useEffect(() => {
+    if (contact.avatarId) {
+      getUserAvatar(contact.avatarId)
+        .then((imageUrl) => {
+          console.log("fetched avatar:", imageUrl);
+          setContact({
+            ...contact,
+            profileIcon: imageUrl
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching avatar:", error);
+        });
+    }
+  }, [contact.avatarId]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setContact({
@@ -122,7 +138,7 @@ export default function AddContact() {
 
   useEffect(() => {
     fetchArnsAddresses(contact.address);
-  }, []);
+  }, [contact.address]);
 
   const [, setLocation] = useLocation();
 
@@ -180,8 +196,10 @@ export default function AddContact() {
         </Header>
         <SubTitle>Avatar</SubTitle>
         <PicWrapper>
-          {contact.avatarId && <ContactPic src={contact.profileIcon} />}
-          {!contact.profileIcon && (
+          {contact.avatarId && contact.profileIcon && (
+            <ContactPic src={contact.profileIcon} />
+          )}
+          {!contact.avatarId && !contact.profileIcon && (
             <AutoContactPic>{generateProfileIcon(contact.name)}</AutoContactPic>
           )}
           <label htmlFor="avatarUpload" style={{ cursor: "pointer" }}>
