@@ -1516,5 +1516,9 @@
   "contact_info": {
     "message": "Contact Info",
     "description": "Contact settings title"
+  },
+  "add_new_contact": {
+    "message": "Add a new contact",
+    "description": "Add a new contact title"
   }
 }
