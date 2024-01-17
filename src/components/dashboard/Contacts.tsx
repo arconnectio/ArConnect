@@ -1,4 +1,4 @@
-import { Button, Spacer, useInput } from "@arconnect/components";
+import { Spacer, useInput } from "@arconnect/components";
 import React, { useState, useEffect, useMemo } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -20,27 +20,6 @@ export default function Contacts() {
     []
   );
 
-  // setStoredContacts([
-  //   {
-  //     name: "Michael Scott",
-  //     address: "ZtcbvuxHMDc6noCfWW6GzfWGyuN7BysYalOsN0o6cIg",
-  //     profileIcon:
-  //       "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg"
-  //   },
-  //   {
-  //     name: "John Doe",
-  //     address: "XsmRAPh9dKSxZKxfeRQC6O4ixxuA1xCJbSgjRN-XBZ0",
-  //     profileIcon:
-  //       "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg"
-  //   },
-  //   {
-  //     name: "Sally May",
-  //     address: "JYrBzU36VPKoUZPW8adw3PYFovfmdRQztRAo7L-0RGc",
-  //     profileIcon:
-  //       "https://t4.ftcdn.net/jpg/04/60/03/13/240_F_460031310_ObbCLA1tKrqjsHa7je6G6BSa7iAYBANP.jpg"
-  //   },
-  // ]);
-
   const [contacts, setContacts] = useState<SettingsContactData[]>([]);
 
   useEffect(() => {
@@ -53,7 +32,7 @@ export default function Contacts() {
     }
 
     fetchContacts();
-  }, []);
+  }, [storedContacts]);
 
   function groupContactsByFirstLetter(contacts) {
     return contacts.reduce((groups, contact) => {
@@ -72,7 +51,9 @@ export default function Contacts() {
   );
 
   // router
-  const [, params] = useRoute<{ contact?: string }>("/contacts/:contact?");
+  const [matches, params] = useRoute<{ contact?: string }>(
+    "/contacts/:contact?"
+  );
   const [, setLocation] = useLocation();
 
   // active subsetting
@@ -124,7 +105,7 @@ export default function Contacts() {
           const filteredContacts = contacts.filter(filterSearchResults);
 
           if (filteredContacts.length === 0) {
-            return null; // Do not render the letter header or contacts if none match the filter
+            return null;
           }
 
           return (
@@ -154,6 +135,8 @@ interface SettingsContactData {
   name: string;
   address: string;
   profileIcon: string;
+  arNSAdress?: string;
+  notes?: string;
 }
 
 const Wrapper = styled.div`

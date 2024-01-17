@@ -144,6 +144,10 @@ export function useTokens() {
   const [updatedTokens, setUpdatedTokens] = useState(false);
 
   useEffect(() => {
+    setUpdatedTokens(false);
+  }, [activeAddress]);
+
+  useEffect(() => {
     (async () => {
       if (tokens.length === 0 || !activeAddress || updatedTokens) return;
 
@@ -180,7 +184,7 @@ export function useTokens() {
       );
       setUpdatedTokens(true);
     })();
-  }, [tokens, activeAddress]);
+  }, [tokens, activeAddress, updatedTokens]);
 
   return tokens;
 }

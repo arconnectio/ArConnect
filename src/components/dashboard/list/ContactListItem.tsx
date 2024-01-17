@@ -1,8 +1,9 @@
 import type { HTMLProps } from "react";
-import BaseElement from "./BaseElement";
+import BaseElement, { SettingIcon } from "./BaseElement";
 import styled from "styled-components";
 import { Button } from "@arconnect/components";
 import browser from "webextension-polyfill";
+import { User01 } from "@untitled-ui/icons-react";
 
 export default function ContactListItem({
   name,
@@ -18,9 +19,10 @@ export default function ContactListItem({
       <Contact
         title={name}
         description={address}
-        img={profileIcon}
-        {...props}
-      />
+        /* img={profileIcon} */ {...props}
+      >
+        {/*{!profileIcon && */ <SettingIcon as={User01} />}
+      </Contact>
       {active && (
         <SendToContact small fullWidth onClick={onSendClick}>
           {browser.i18n.getMessage("send_transaction")}

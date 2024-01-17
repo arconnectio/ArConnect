@@ -8,7 +8,9 @@ export const whitelistedSites: RegExp[] = [
   /ans\.gg/,
   /permacast\.app/,
   /arcode\.studio/,
-  /pianity\.com/
+  /pianity\.com/,
+  /alex\.arweave\.dev/,
+  /helix\.arweave\.dev/
 ];
 
 export const getWhitelistRegExp = () =>
