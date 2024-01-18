@@ -292,7 +292,7 @@ export default function Send({ id }: Props) {
   // prepare tx to send
   async function send() {
     // check qty
-    if (invalidQty || qty === "" || Number(qty) === 0) return;
+    // if (invalidQty || qty === "" || Number(qty) === 0) return;
 
     const finalQty = fractionedToBalance(Number(qty), {
       id: token.id,
@@ -300,12 +300,15 @@ export default function Send({ id }: Props) {
       divisibility: token.divisibility
     });
 
-    // continue to recipient selection
+    // continue to confirmation page
     push(
-      `/send/recipient/${tokenID}/${finalQty}${
-        message.state ? `/${message.state}` : ""
-      }`
+      `/send/confirm/${tokenID}/${finalQty}/${"hY70z-mbKfDByqXh4y43ybSxReFVo1i9lB1dDdCkO_U"}`
     );
+    // push(
+    //   `/send/recipient/${tokenID}/${finalQty}${
+    //     message.state ? `/${message.state}` : ""
+    //   }`
+    // );
   }
 
   return (
@@ -498,7 +501,7 @@ const QuantitySection = styled.div<{ qtyMode: QtyMode; invalidValue: boolean }>`
 `;
 
 // Make this dynamic
-const SendButton = styled(Button)<{ alternate?: boolean }>`
+export const SendButton = styled(Button)<{ alternate?: boolean }>`
   background-color: ${(props) => props.alternate && "rgb(171, 154, 255, 0.15)"};
   border: 1px solid rgba(171, 154, 255, 0.15);
   border-radius: 10px;

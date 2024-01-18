@@ -25,6 +25,7 @@ import Collectibles from "~routes/popup/collectibles";
 import Collectible from "~routes/popup/collectible/[id]";
 import Transaction from "~routes/popup/transaction/[id]";
 import Recipient from "~routes/popup/send/recipient";
+import Confirm from "~routes/popup/send/confirm";
 
 export default function Popup() {
   const theme = useTheme();
@@ -71,6 +72,21 @@ export default function Popup() {
               <Route path="/transaction/:id/:gateway?">
                 {(params: { id: string; gateway?: string }) => (
                   <Transaction id={params?.id} gw={params?.gateway} />
+                )}
+              </Route>
+              <Route path="/send/confirm/:token/:qty/:recipient/:message?">
+                {(params: {
+                  token: string;
+                  qty: string;
+                  recipient: string;
+                  message?: string;
+                }) => (
+                  <Confirm
+                    tokenID={params?.token}
+                    recipient={params?.recipient}
+                    qty={Number(params?.qty || "0")}
+                    message={params?.message || ""}
+                  />
                 )}
               </Route>
               <Route path="/send/recipient/:token/:qty/:message?">
