@@ -1542,7 +1542,7 @@
     "description": "No ArNS address found text"
   },
   "arweave_url": {
-    "message": ".arweave.ar",
+    "message": "ar://",
     "description": "Arweave address for ArNS names"
   },
   "contact_avatar": {

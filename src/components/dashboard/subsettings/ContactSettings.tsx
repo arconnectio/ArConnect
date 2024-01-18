@@ -180,12 +180,12 @@ export default function ContactSettings({ address }: Props) {
                 {!contact.ArNSAddress && arnsResults.length === 0
                   ? browser.i18n.getMessage("no_ArNS_address_found")
                   : contact.ArNSAddress
-                  ? contact.ArNSAddress + browser.i18n.getMessage("arweave_url")
+                  ? browser.i18n.getMessage("arweave_url") + contact.ArNSAddress
                   : browser.i18n.getMessage("select_ArNS_address")}
               </option>
               {Object.entries(arnsResults).map(([contractTxId]) => (
                 <option key={contractTxId} value={contractTxId}>
-                  {contractTxId + browser.i18n.getMessage("arweave_url")}
+                  {browser.i18n.getMessage("arweave_url") + contractTxId}
                 </option>
               ))}
             </SelectInput>
@@ -197,7 +197,7 @@ export default function ContactSettings({ address }: Props) {
         <>
           <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
           <ContactInfo>
-            {contact.ArNSAddress + browser.i18n.getMessage("arweave_url")}
+            {browser.i18n.getMessage("arweave_url") + contact.ArNSAddress}
           </ContactInfo>
         </>
       );

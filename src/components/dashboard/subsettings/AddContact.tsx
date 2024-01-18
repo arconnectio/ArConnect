@@ -266,7 +266,7 @@ export default function AddContact() {
             </option>
             {Object.entries(arnsResults).map(([contractTxId]) => (
               <option key={contractTxId} value={contractTxId}>
-                {contractTxId + browser.i18n.getMessage("arweave_url")}
+                {browser.i18n.getMessage("arweave_url") + contractTxId}
               </option>
             ))}
           </SelectInput>
