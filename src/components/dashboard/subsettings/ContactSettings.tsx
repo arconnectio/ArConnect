@@ -13,7 +13,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
-import { Edit02, Upload01 } from "@untitled-ui/icons-react";
+import { Edit02, Share04, Upload01 } from "@untitled-ui/icons-react";
 import { useLocation } from "wouter";
 import { uploadUserAvatar, getUserAvatar } from "~lib/avatar";
 import copy from "copy-to-clipboard";
@@ -198,6 +198,13 @@ export default function ContactSettings({ address }: Props) {
           <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
           <ContactInfo>
             {browser.i18n.getMessage("arweave_url") + contact.ArNSAddress}
+            <Link
+              onClick={() =>
+                browser.tabs.create({
+                  url: `https://${contact.ArNSAddress}.arweave.ar`
+                })
+              }
+            />
           </ContactInfo>
         </>
       );
@@ -355,6 +362,11 @@ export default function ContactSettings({ address }: Props) {
   );
 }
 
+const Link = styled(Share04)`
+  margin-left: 10px;
+  cursor: pointer;
+`;
+
 export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -463,6 +475,7 @@ const ContactInfo = styled(Text).attrs({
   margin-bottom: 20px;
   font-weight: 500;
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
 `;
 
