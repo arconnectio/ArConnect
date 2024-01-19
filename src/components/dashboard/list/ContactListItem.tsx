@@ -41,7 +41,10 @@ interface Props {
 }
 
 const ContactWrapper = styled.div<{ active: boolean }>`
-  padding: 12.8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0px 12.8px 12.8px 12.8px;
   border-radius: 20px;
   background-color: rgba(
     ${(props) => props.theme.theme},
