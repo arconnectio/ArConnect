@@ -80,6 +80,27 @@ export default function ContactSettings({ address }: Props) {
   };
 
   const saveContact = async () => {
+    // check if the address has been changed to a different one that's already in use
+    const addressChanged =
+      contact.address !== storedContacts[contactIndex].address;
+    const addressUsedByAnotherContact = storedContacts.some(
+      (existingContact, index) =>
+        existingContact.address === contact.address && index !== contactIndex
+    );
+
+    if (addressChanged && addressUsedByAnotherContact) {
+      setToast({
+        type: "error",
+        content: browser.i18n.getMessage("address_in_use"),
+        duration: 3000
+      });
+      setContact({
+        ...contact,
+        address: storedContacts[contactIndex].address
+      });
+      return;
+    }
+
     if (contactIndex !== -1) {
       const updatedContacts = [...storedContacts];
       updatedContacts[contactIndex] = contact;

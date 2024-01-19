@@ -1584,5 +1584,9 @@
   "save_new_contact": {
     "message": "Save new contact",
     "description": "Save new contact button text"
+  },
+  "address_in_use": {
+    "message": "Address is already in use.",
+    "description": "Contacts error message if address is already in use"
   }
 }

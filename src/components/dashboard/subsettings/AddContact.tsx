@@ -125,6 +125,20 @@ export default function AddContact() {
   const [, setLocation] = useLocation();
 
   const saveNewContact = async () => {
+    // check if the contact address already exists
+    const addressUsed = storedContacts.some(
+      (existingContact) => existingContact.address === contact.address
+    );
+
+    if (addressUsed) {
+      setToast({
+        type: "error",
+        content: browser.i18n.getMessage("address_in_use"),
+        duration: 3000
+      });
+      return;
+    }
+
     const newContact = {
       name: contact.name,
       address: contact.address,
