@@ -156,10 +156,8 @@ export default function ContactSettings({ address }: Props) {
               }
             >
               <option value="">
-                {!contact.ArNSAddress && arnsResults.length === 0
+                {arnsResults.length === 0 && !contact.ArNSAddress
                   ? browser.i18n.getMessage("no_ArNS_address_found")
-                  : contact.ArNSAddress
-                  ? browser.i18n.getMessage("arweave_url") + contact.ArNSAddress
                   : browser.i18n.getMessage("select_ArNS_address")}
               </option>
               {Object.entries(arnsResults).map(([contractTxId]) => (
