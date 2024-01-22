@@ -120,7 +120,7 @@ export const SettingImage = styled.img.attrs({
 interface Props {
   title: string | ReactNode;
   description: string | ReactNode;
-  active: boolean;
+  active?: boolean;
   img?: string;
   dragControls?: DragControls;
 }

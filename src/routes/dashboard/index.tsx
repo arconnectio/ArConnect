@@ -15,15 +15,19 @@ import {
   TrashIcon,
   WalletIcon
 } from "@iconicicons/react";
+import { Users01 } from "@untitled-ui/icons-react";
 import WalletSettings from "~components/dashboard/subsettings/WalletSettings";
 import TokenSettings from "~components/dashboard/subsettings/TokenSettings";
 import AppSettings from "~components/dashboard/subsettings/AppSettings";
+import ContactSettings from "~components/dashboard/subsettings/ContactSettings";
 import AddWallet from "~components/dashboard/subsettings/AddWallet";
+import AddContact from "~components/dashboard/subsettings/AddContact";
 import Applications from "~components/dashboard/Applications";
 import SettingEl from "~components/dashboard/Setting";
 import Wallets from "~components/dashboard/Wallets";
 import Application from "~applications/application";
 import Tokens from "~components/dashboard/Tokens";
+import Contacts from "~components/dashboard/Contacts";
 import About from "~components/dashboard/About";
 import Reset from "~components/dashboard/Reset";
 import browser from "webextension-polyfill";
@@ -137,6 +141,17 @@ export default function Settings({ params }: Props) {
         {activeSetting === "tokens" && activeSubSetting && (
           <TokenSettings id={activeSubSetting} />
         )}
+        {activeSetting === "contacts" &&
+          activeSubSetting &&
+          activeSubSetting !== "new" && (
+            <ContactSettings
+              address={activeSubSetting}
+              key={activeSubSetting}
+            />
+          )}
+        {activeSetting === "contacts" && activeSubSetting === "new" && (
+          <AddContact key="new-contacts" />
+        )}
       </Panel>
     </SettingsWrapper>
   );
@@ -242,6 +257,13 @@ const allSettings: Omit<Setting, "active">[] = [
     description: "setting_tokens_description",
     icon: TicketIcon,
     component: Tokens
+  },
+  {
+    name: "contacts",
+    displayName: "setting_contacts",
+    description: "setting_contacts_description",
+    icon: Users01,
+    component: Contacts
   },
   ...settings.map((setting) => ({
     name: setting.name,

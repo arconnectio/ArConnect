@@ -21,6 +21,10 @@
     "message": "Yes",
     "description": "The word \"yes\""
   },
+  "no": {
+    "message": "No",
+    "description": "The word \"no\""
+  },
   "accept": {
     "message": "Accept",
     "description": "Accept terms"
@@ -923,6 +927,14 @@
     "message": "Manage tokens added by dApps or the user",
     "description": "Tokens setting description"
   },
+  "setting_contacts": {
+    "message": "Contacts",
+    "description": "Contacts setting title"
+  },
+  "setting_contacts_description": {
+    "message": "Add/edit contacts",
+    "description": "Contacts setting description"
+  },
   "explore": {
     "message": "Explore",
     "description": "Explore title"
@@ -1492,5 +1504,89 @@
   "receive_AR_button": {
     "message": "Receive AR", 
     "description": "Button text for the receive AR button"
+  },
+  "search_contacts": {
+    "message": "Search contacts...",
+    "description": "Search input placeholder for contacts"
+  },
+  "add_contact": {
+    "message": "Add contact",
+    "description": "Add a contact button text"
+  },
+  "send_transaction": {
+    "message": "Send transaction",
+    "description": "Active contact send button text"
+  },
+  "contact_info": {
+    "message": "Contact Info",
+    "description": "Contact settings title"
+  },
+  "add_new_contact": {
+    "message": "Add a new contact",
+    "description": "Add a new contact title"
+  },
+  "uploaded_avatar": {
+    "message": "Uploaded avatar to Arweave.",
+    "description": "Successful upload toast text"
+  },
+  "ArNS_address": {
+    "message": "ArNS Address",
+    "description": "Contact ArNS address subtitle"
+  },
+  "select_ArNS_address": {
+    "message": "Select ArNS address",
+    "description": "Select ArNS address text"
+  },
+  "no_ArNS_address_found": {
+    "message": "No ArNS address found",
+    "description": "No ArNS address found text"
+  },
+  "arweave_url": {
+    "message": "ar://",
+    "description": "Arweave address for ArNS names"
+  },
+  "contact_avatar": {
+    "message": "Avatar",
+    "description": "Contact Avatar subtitle"
+  },
+  "first_last_name": {
+    "message": "First and Last name",
+    "description": "Contact name input placeholder text"
+  },
+  "arweave_account_address": {
+    "message": "Arweave Account Address",
+    "description": "Contact arweave account address subtitle"
+  },
+  "account_address": {
+    "message": "Account address",
+    "description": "Contact account address input placeholder text"
+  },
+  "notes": {
+    "message": "Notes",
+    "description": "Contact notes subtitle"
+  },
+  "type_message_here": {
+    "message": "Type a message here...",
+    "description": "Contact notes input placeholder text"
+  },
+  "save_changes": {
+    "message": "Save changes",
+    "description": "Save button text"
+  },
+  "remove_contact": {
+    "message": "Remove contact",
+    "description": "Remove contact button text"
+  },
+  "remove_contact_question": {
+    "message": "Are you sure you want to remove this contact?",
+    "description": "Remove contact modal text"
+  },
+  "save_new_contact": {
+    "message": "Save new contact",
+    "description": "Save new contact button text"
+  },
+  "address_in_use": {
+    "message": "Address is already in use.",
+    "description": "Contacts error message if address is already in use"
   }
 }
