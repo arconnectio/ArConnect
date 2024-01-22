@@ -1,5 +1,6 @@
 import Arweave from "arweave";
 import { getActiveKeyfile } from "~wallets";
+import { freeDecryptedWallet } from "~wallets/encryption";
 
 const arweave = new Arweave({
   host: "ar-io.net",
@@ -63,6 +64,9 @@ export async function uploadUserAvatar(avatar: File) {
 
     const txId = transaction.id;
     console.log("Transaction ID:", txId);
+
+    // remove wallet from memory
+    freeDecryptedWallet(keyfile);
 
     return transaction.id;
   } catch (e) {
