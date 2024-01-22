@@ -296,17 +296,13 @@ export default function Send({ id }: Props) {
   // prepare tx to send
   async function send() {
     // check qty
-    // if (invalidQty || qty === "" || Number(qty) === 0) return;
+    if (invalidQty || qty === "" || Number(qty) === 0) return;
 
     const finalQty = fractionedToBalance(Number(qty), {
       id: token.id,
       decimals: token.decimals,
       divisibility: token.divisibility
     });
-
-    // TODO: Validate this
-    // need, selected token, token information, amount, network fee
-    // formatTokenBalance(secondaryQty)
 
     await TempTransactionStorage.set("send", {
       networkFee,
@@ -317,15 +313,7 @@ export default function Send({ id }: Props) {
     });
 
     // continue to confirmation page
-    push(
-      // TODO: update this with modal
-      `/send/confirm/${tokenID}/${finalQty}/${"asiofjdPlaceHolderAddress"}`
-    );
-    // push(
-    //   `/send/recipient/${tokenID}/${finalQty}${
-    //     message.state ? `/${message.state}` : ""
-    //   }`
-    // );
+    push(`/send/confirm/${tokenID}/${finalQty}/${recipient}`);
   }
 
   return (
