@@ -300,9 +300,22 @@ export default function Send({ id }: Props) {
       divisibility: token.divisibility
     });
 
+    // TODO: Validate this
+    // need, selected token, token information, amount, network fee
+    // formatTokenBalance(secondaryQty)
+
+    await TempTransactionStorage.set("send", {
+      networkFee,
+      qty: qtyMode === "fiat" ? formatTokenBalance(secondaryQty) : qty,
+      token,
+      estimatedFiat: qtyMode === "fiat" ? qty : secondaryQty,
+      estimatedNetworkFee: formatTokenBalance(networkFee)
+    });
+
     // continue to confirmation page
     push(
-      `/send/confirm/${tokenID}/${finalQty}/${"hY70z-mbKfDByqXh4y43ybSxReFVo1i9lB1dDdCkO_U"}`
+      // TODO: update this with modal
+      `/send/confirm/${tokenID}/${finalQty}/${"asiofjdPlaceHolderAddress"}`
     );
     // push(
     //   `/send/recipient/${tokenID}/${finalQty}${
