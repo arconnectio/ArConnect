@@ -333,12 +333,11 @@ export default function Confirm({ tokenID, qty, recipient, message }: Props) {
       } else {
         const activeWallet = await getActiveWallet();
         if (activeWallet.type === "hardware") {
-          // return setLoading(false);
           return;
         }
         let keyfile: JWKInterface;
         try {
-          console.log("state", passwordInput.state);
+          console.log("hello", passwordInput.state);
           keyfile = await decryptWallet(
             activeWallet.keyfile,
             passwordInput.state
@@ -396,6 +395,7 @@ export default function Confirm({ tokenID, qty, recipient, message }: Props) {
         <BodyWrapper>
           <AddressWrapper>
             <Address>
+              {/* TODO: Update to Wallet Name*/}
               Main{" "}
               <span style={{ color: "#aeadcd" }}>
                 ({activeAddress && formatAddress(activeAddress, 5)})
@@ -433,7 +433,7 @@ export default function Confirm({ tokenID, qty, recipient, message }: Props) {
               <Input
                 placeholder="Enter your password"
                 small
-                {...passwordInput}
+                {...passwordInput.bindings}
                 label={"Password"}
                 type="password"
                 fullWidth
@@ -444,7 +444,7 @@ export default function Confirm({ tokenID, qty, recipient, message }: Props) {
         </BodyWrapper>
         <SendButton
           fullWidth
-          // disabled={needsSign && !passwordInput.state}
+          disabled={needsSign && !passwordInput.state}
           onClick={async () => {
             await sendLocal();
           }}
