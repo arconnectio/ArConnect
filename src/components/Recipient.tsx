@@ -110,7 +110,7 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
 
   return (
     <>
-      <div style={{ display: "flex", gap: "4px" }}>
+      <SearchBarWrapper>
         <Input
           small
           alternative={true}
@@ -122,7 +122,6 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
           fullWidth
           autoFocus
           onKeyDown={(e) => {
-            // setShow(true);
             if (e.key !== "Enter" || !isAddressFormat(targetInput.state))
               return;
           }}
@@ -131,12 +130,12 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
           small
           style={{ borderRadius: "10px", width: "56px", padding: 0 }}
         >
-          Add
+          {browser.i18n.getMessage("add")}
         </Button>
-      </div>
+      </SearchBarWrapper>
       <AddressesList>
         <Recents onClick={() => setShow(!show)}>
-          <SubText>Recents</SubText>
+          <SubText>{browser.i18n.getMessage("recents")}</SubText>
           {show ? <ChevronUpIcon /> : <ChevronDownIcon />}
         </Recents>
         {show &&
@@ -153,7 +152,7 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
           ))}
       </AddressesList>
       <ContactsSection>
-        <SubText>Your Contacts</SubText>
+        <SubText>{browser.i18n.getMessage("your_contacts")}</SubText>
         {Object.keys(groupedContacts).map((letter) => (
           <ContactList key={letter}>
             <ContactAddress style={{ color: "white" }}>{letter}</ContactAddress>
@@ -188,6 +187,11 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
     </>
   );
 }
+
+const SearchBarWrapper = styled.div`
+  display: flex;
+  gap: 4px;
+`;
 
 const SubText = styled.h3`
   font-weight: 500;
