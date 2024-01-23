@@ -54,9 +54,11 @@ export default function AddContact() {
   });
   const [arnsResults, setArnsResults] = useState([]);
 
-  const generateProfileIcon = (name) => {
+  const generateProfileIcon = (name, address) => {
     if (name && name.length > 0) {
       return name[0].toUpperCase();
+    } else if (address && address.length > 0) {
+      return address[0].toUpperCase();
     }
     return "";
   };
@@ -185,7 +187,7 @@ export default function AddContact() {
   };
 
   const areFieldsEmpty = () => {
-    return !contact.name || !contact.address;
+    return !contact.address;
   };
 
   return (
@@ -200,7 +202,9 @@ export default function AddContact() {
             <ContactPic src={contact.profileIcon} />
           )}
           {!contact.avatarId && !contact.profileIcon && (
-            <AutoContactPic>{generateProfileIcon(contact.name)}</AutoContactPic>
+            <AutoContactPic>
+              {generateProfileIcon(contact.name, contact.address)}
+            </AutoContactPic>
           )}
           <label htmlFor="avatarUpload" style={{ cursor: "pointer" }}>
             <UploadIcon />
@@ -213,7 +217,7 @@ export default function AddContact() {
             onChange={handleAvatarUpload}
           />
         </PicWrapper>
-        <SubTitle>{browser.i18n.getMessage("name")}*</SubTitle>
+        <SubTitle>{browser.i18n.getMessage("name")}</SubTitle>
         <InputWrapper>
           <ContactInput
             fullWidth

@@ -115,9 +115,11 @@ export default function ContactSettings({ address }: Props) {
   };
 
   // generate profile icon from the first name
-  const generateProfileIcon = (name) => {
+  const generateProfileIcon = (name, address) => {
     if (name && name.length > 0) {
       return name[0].toUpperCase();
+    } else if (address && address.length > 0) {
+      return address[0].toUpperCase();
     }
     return "";
   };
@@ -230,7 +232,7 @@ export default function ContactSettings({ address }: Props) {
   };
 
   const areFieldsEmpty = () => {
-    return !contact.name || !contact.address;
+    return !contact.address;
   };
 
   return (
@@ -244,7 +246,9 @@ export default function ContactSettings({ address }: Props) {
         <PicWrapper>
           {contact.avatarId && <ContactPic src={contact.profileIcon} />}
           {!contact.profileIcon && (
-            <AutoContactPic>{generateProfileIcon(contact.name)}</AutoContactPic>
+            <AutoContactPic>
+              {generateProfileIcon(contact.name, contact.address)}
+            </AutoContactPic>
           )}
           {editable ? (
             <>
@@ -261,7 +265,7 @@ export default function ContactSettings({ address }: Props) {
             </>
           ) : null}
         </PicWrapper>
-        <SubTitle>{browser.i18n.getMessage("name")}*</SubTitle>
+        {contact.name && <SubTitle>{browser.i18n.getMessage("name")}</SubTitle>}
         {editable ? (
           <InputWrapper>
             <ContactInput

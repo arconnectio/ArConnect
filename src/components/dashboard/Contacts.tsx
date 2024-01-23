@@ -9,6 +9,7 @@ import browser from "webextension-polyfill";
 import SearchInput from "./SearchInput";
 import styled from "styled-components";
 import { IconButton } from "~components/IconButton";
+import { formatAddress } from "~utils/format";
 
 export default function Contacts() {
   // contacts
@@ -36,7 +37,7 @@ export default function Contacts() {
 
   function groupContactsByFirstLetter(contacts) {
     return contacts.reduce((groups, contact) => {
-      const firstLetter = contact.name[0].toUpperCase();
+      const firstLetter = contact.name ? contact.name[0].toUpperCase() : "";
       if (!groups[firstLetter]) {
         groups[firstLetter] = [];
       }
@@ -114,8 +115,12 @@ export default function Contacts() {
               {filteredContacts.map((contact) => (
                 <React.Fragment key={contact.address}>
                   <ContactListItem
-                    name={contact.name}
-                    address={contact.address}
+                    name={
+                      contact.name
+                        ? contact.name
+                        : formatAddress(contact.address, 4)
+                    }
+                    address={formatAddress(contact.address, 8)}
                     profileIcon={contact.profileIcon}
                     active={activeContact === contact.address}
                     onClick={() => handleContactClick(contact.address)}
@@ -132,7 +137,7 @@ export default function Contacts() {
 }
 
 interface SettingsContactData {
-  name: string;
+  name?: string;
   address: string;
   profileIcon: string;
   arNSAdress?: string;
