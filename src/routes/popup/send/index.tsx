@@ -321,7 +321,7 @@ export default function Send({ id }: Props) {
       <SendForm>
         <HeadV2 title={browser.i18n.getMessage("send")} />
         {/* TOP INPUT */}
-        <div style={{ gap: "7px", display: "flex", flexDirection: "column" }}>
+        <RecipientAmountWrapper>
           {/* TODO: onclick make this hover similar to focus on input */}
           <SendButton
             fullWidth
@@ -364,7 +364,7 @@ export default function Send({ id }: Props) {
               </InputIcons>
             }
           />
-        </div>
+        </RecipientAmountWrapper>
         <Datas>
           {!!price && (
             <Text noMargin>
@@ -382,13 +382,15 @@ export default function Send({ id }: Props) {
           </Text>
         </Datas>
         {!uToken && (
-          <SendInput
-            alternative
-            {...message.bindings}
-            type="text"
-            placeholder={browser.i18n.getMessage("send_message_optional")}
-            fullWidth
-          />
+          <MessageWrapper>
+            <SendInput
+              alternative
+              {...message.bindings}
+              type="text"
+              placeholder={browser.i18n.getMessage("send_message_optional")}
+              fullWidth
+            />
+          </MessageWrapper>
         )}
       </SendForm>
       <Spacer y={1} />
@@ -407,7 +409,12 @@ export default function Send({ id }: Props) {
         </TokenSelector>
 
         <SendButton
-          disabled={invalidQty || parseFloat(qty) === 0 || qty === ""}
+          disabled={
+            invalidQty ||
+            parseFloat(qty) === 0 ||
+            qty === "" ||
+            recipient === ""
+          }
           fullWidth
           onClick={send}
         >
@@ -482,6 +489,17 @@ const Currency = styled.span<{ active: boolean }>`
   color: ${(props) => (!props.active ? "#B9B9B9" : "#ffffff")};
 `;
 
+const MessageWrapper = styled.div`
+  padding: 0 15px;
+`;
+
+const RecipientAmountWrapper = styled.div`
+  display: flex;
+  padding: 0 15px;
+  flex-direction: column;
+  gap: 7px;
+`;
+
 const MaxButton = styled(Button)<{ altColor?: string }>`
   border-radius: 3px;
   padding: 5px;
@@ -523,7 +541,6 @@ const Wrapper = styled.div<{ showOverlay: boolean }>`
 const SendForm = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0 15px;
   gap: 15px;
   justify-content: space-between;
 `;
@@ -597,6 +614,7 @@ const BottomActions = styled(Section)`
 
 const Datas = styled.div`
   display: flex;
+  padding: 0 15px;
   gap: 0.3rem;
   flex-direction: column;
   justify-content: center;
