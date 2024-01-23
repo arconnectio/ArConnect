@@ -26,11 +26,13 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
+import { findGateway } from "~gateways/wayfinder";
 import { uploadUserAvatar, getUserAvatar } from "~lib/avatar";
 import { getAllArNSNames } from "~lib/arns";
 import styled from "styled-components";
 import { useLocation } from "wouter";
 import copy from "copy-to-clipboard";
+import { gql } from "~gateways/api";
 
 export default function AddContact() {
   // contacts
@@ -41,6 +43,12 @@ export default function AddContact() {
     },
     []
   );
+
+  // active address
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
 
   const { setToast } = useToasts();
 
@@ -122,7 +130,36 @@ export default function AddContact() {
 
   useEffect(() => {
     fetchArnsAddresses(contact.address);
-  }, [contact.address]);
+
+    (async () => {
+      if (!activeAddress) return;
+      const gateway = await findGateway({ graphql: true });
+
+      // fetch last outgoing txs
+      const { data } = await gql(
+        `
+          query($address: [String!]) {
+            transactions(owners: $address, first: 100) {
+              edges {
+                node {
+                  recipient
+                }
+              }
+            }
+          }
+        `,
+        { address: activeAddress },
+        gateway
+      );
+
+      // filter addresses
+      const recipients = data.transactions.edges
+        .filter((tx) => tx.node.recipient !== "")
+        .map((tx) => tx.node.recipient);
+
+      console.log(recipients);
+    })();
+  }, [contact.address, activeAddress]);
 
   const [, setLocation] = useLocation();
 
