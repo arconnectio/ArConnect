@@ -23,5 +23,5 @@ jobs:
       - name: Browser Platform Publish
         uses: PlasmoHQ/bpp@v2
         with:
-          keys: ${{ secrets.SUBMIT_KEYS }}
+          keys: ${{ secrets.SUBMIT_KEYS_STAGING }}
           artifact: build/chrome-mv3-prod.zip
