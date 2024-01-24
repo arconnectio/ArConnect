@@ -21,7 +21,9 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: Install dependencies
         run: yarn install
-      - name: Package the extension into a zip artifact
+      - name: Create .env file
+        run: echo "PLASMO_PUBLIC_ONRAMPER_API_KEY=${{ secrets.ONRAMPER_API_KEY }}" >> .env
+      - name: Build and Package the extension into a zip artifact
         run: yarn build:chrome --zip
       - name: Browser Platform Publish
         uses: PlasmoHQ/bpp@v3
