@@ -21,10 +21,8 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: Install dependencies
         run: yarn install
-      - name: Build the extension
-        run: yarn build
       - name: Package the extension into a zip artifact
-        run: yarn package
+        run: yarn build:chrome --zip
       - name: Browser Platform Publish
         uses: PlasmoHQ/bpp@v3
         with:
