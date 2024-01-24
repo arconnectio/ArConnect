@@ -61,6 +61,7 @@ export default function AddContact() {
     avatarId: ""
   });
   const [arnsResults, setArnsResults] = useState([]);
+  const [lastRecipients, setLastRecipients] = useState<string[]>([]);
 
   const generateProfileIcon = (name, address) => {
     if (name && name.length > 0) {
@@ -158,6 +159,7 @@ export default function AddContact() {
         .map((tx) => tx.node.recipient);
 
       console.log(recipients);
+      setLastRecipients([...new Set(recipients)]);
     })();
   }, [contact.address, activeAddress]);
 
@@ -269,7 +271,9 @@ export default function AddContact() {
           {browser.i18n.getMessage("arweave_account_address")}*
         </SubTitle>
         <InputWrapper>
-          <ContactInput
+          <AddressInput
+            type="text"
+            list="addressOptions"
             fullWidth
             small
             name="address"
@@ -281,6 +285,13 @@ export default function AddContact() {
             value={contact.address}
             onChange={handleInputChange}
           />
+          <datalist id="addressOptions">
+            {lastRecipients.map((recipient, i) => (
+              <option key={i} value={recipient}>
+                {recipient}
+              </option>
+            ))}
+          </datalist>
         </InputWrapper>
         <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
         <InputWrapper>
@@ -359,6 +370,13 @@ export default function AddContact() {
     </Wrapper>
   );
 }
+
+const AddressInput = styled(ContactInput)`
+  &:hover::after,
+  &:active::after {
+    content: none;
+  }
+`;
 
 const NewContactNotes = styled(ContactNotes)`
   height: 235px;
