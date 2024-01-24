@@ -372,10 +372,8 @@ export default function AddContact() {
 }
 
 const AddressInput = styled(ContactInput)`
-  &:hover::after,
-  &:active::after {
-    content: none;
-  }
+  ::-webkit-calendar-picker-indicator {
+    display:none !important;
 `;
 
 const NewContactNotes = styled(ContactNotes)`
