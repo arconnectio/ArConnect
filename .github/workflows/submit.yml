@@ -6,12 +6,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "20"
-          cache: "yarn"
       - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3.4.1
+        with:
+          node-version: "20.x"
+          cache: "yarn"
       - name: Cache yarn modules
         uses: actions/cache@v3
         with:
@@ -21,10 +21,12 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: Install dependencies
         run: yarn install
-      - name: Build and zip extension artifact
-        run: yarn build --zip
+      - name: Build the extension
+        run: yarn build
+      - name: Package the extension into a zip artifact
+        run: yarn package
       - name: Browser Platform Publish
-        uses: PlasmoHQ/bpp@v2
+        uses: PlasmoHQ/bpp@v3
         with:
           keys: ${{ secrets.SUBMIT_KEYS_STAGING }}
           artifact: build/chrome-mv3-prod.zip
