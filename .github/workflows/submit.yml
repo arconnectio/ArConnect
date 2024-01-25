@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up Node.js
-        uses: actions/setup-node@v3.4.1
+        uses: actions/setup-node@v4.0.1
         with:
           node-version: "20.x"
           cache: "yarn"
@@ -23,10 +23,17 @@ jobs:
         run: yarn install
       - name: Create .env file
         run: echo "PLASMO_PUBLIC_ONRAMPER_API_KEY=${{ secrets.ONRAMPER_API_KEY }}" >> .env
+
+      - name: Modify package.json for BETA
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          jq '.displayName = "ArConnect BETA"' package.json > temp.json
+          mv temp.json package.json
+
       - name: Build and Package the extension into a zip artifact
         run: yarn build:chrome --zip
       - name: Browser Platform Publish
         uses: PlasmoHQ/bpp@v3
         with:
-          keys: ${{ secrets.SUBMIT_KEYS_STAGING }}
+          keys: ${{ github.ref == 'refs/heads/production' && secrets.SUBMIT_KEYS_PRODUCTION || secrets.SUBMIT_KEYS_STAGING }}
           artifact: build/chrome-mv3-prod.zip
