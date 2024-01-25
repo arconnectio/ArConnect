@@ -57,11 +57,11 @@ export default function Contacts() {
           }
 
           if (!a.name && aFirstChar.match(/[0-9]/)) {
-            return 1; // Contact with no name and starts with a number comes after
+            return 1;
           }
 
           if (!b.name && bFirstChar.match(/[0-9]/)) {
-            return -1; // Contact with no name and starts with a number comes before
+            return -1;
           }
 
           return a.address.localeCompare(b.address);
