@@ -67,11 +67,7 @@ export default function Contacts() {
           return a.address.localeCompare(b.address);
         });
 
-        console.log("address only:", addressOnlyContacts);
-
         const sortedContacts = [...namedContacts, ...addressOnlyContacts];
-
-        console.log("all:", sortedContacts);
 
         setContacts(sortedContacts);
       }
@@ -94,8 +90,6 @@ export default function Contacts() {
         groups[firstLetter] = [];
       }
       groups[firstLetter].push(contact);
-
-      console.log("groups:", groups);
       return groups;
     }, {});
   }
@@ -158,8 +152,6 @@ export default function Contacts() {
       <SettingsList>
         {Object.entries(groupedContacts).map(([letter, contacts]) => {
           const filteredContacts = contacts.filter(filterSearchResults);
-
-          console.log("filtered contacts:", filteredContacts);
 
           if (filteredContacts.length === 0) {
             return null;
