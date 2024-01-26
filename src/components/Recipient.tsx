@@ -8,7 +8,6 @@ import { gql } from "~gateways/api";
 import { findGateway } from "~gateways/wayfinder";
 import { formatAddress, isAddressFormat } from "~utils/format";
 import { ExtensionStorage } from "~utils/storage";
-import { generateProfileIcon } from "./dashboard/subsettings/AddContact";
 
 type Contact = {
   name: string;
@@ -17,6 +16,13 @@ type Contact = {
   notes: string;
   ArNSAddress: string;
   avatarId: string;
+};
+
+const generateProfileIcon = (name) => {
+  if (name && name.length > 0) {
+    return name[0].toUpperCase();
+  }
+  return "";
 };
 
 type Contacts = Contact[];
