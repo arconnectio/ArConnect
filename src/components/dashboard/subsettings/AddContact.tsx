@@ -232,9 +232,12 @@ export default function AddContact() {
   return (
     <Wrapper>
       <div>
-        <Header>
-          <Title>{browser.i18n.getMessage("add_new_contact")}</Title>
-        </Header>
+        <div>
+          <Spacer y={0.45} />
+          <Header>
+            <Title>{browser.i18n.getMessage("add_new_contact")}</Title>
+          </Header>
+        </div>
         <SubTitle>{browser.i18n.getMessage("contact_avatar")}</SubTitle>
         <PicWrapper>
           {contact.avatarId && contact.profileIcon && (
