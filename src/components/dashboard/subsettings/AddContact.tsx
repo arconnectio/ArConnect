@@ -34,13 +34,6 @@ import { useLocation } from "wouter";
 import copy from "copy-to-clipboard";
 import { gql } from "~gateways/api";
 
-export const generateProfileIcon = (name) => {
-  if (name && name.length > 0) {
-    return name[0].toUpperCase();
-  }
-  return "";
-};
-
 export default function AddContact() {
   // contacts
   const [storedContacts, setStoredContacts] = useStorage(
@@ -70,7 +63,6 @@ export default function AddContact() {
   const [arnsResults, setArnsResults] = useState([]);
   const [lastRecipients, setLastRecipients] = useState<string[]>([]);
 
-<<<<<<< HEAD
   const generateProfileIcon = (name, address) => {
     if (name && name.length > 0) {
       return name[0].toUpperCase();
@@ -80,8 +72,6 @@ export default function AddContact() {
     return "";
   };
 
-=======
->>>>>>> 9161eac (feat: added contacts to recipient modal)
   const handleAvatarUpload = async (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
