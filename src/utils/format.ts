@@ -50,3 +50,22 @@ export function formatAddress(address: string, count = 13) {
  * @returns Valid address or not
  */
 export const isAddressFormat = (addr: string) => /[a-z0-9_-]{43}/i.test(addr);
+
+/**
+ * Capitalizes first letters of settings name and replaces "_" with " "
+ *
+ * @param name String to format
+ * @returns Formatted name
+ */
+export const formatSettingName = (name: string) => {
+  if (!name) return "";
+
+  if (name === "arconfetti") {
+    return "ArConfetti";
+  }
+
+  return name
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};

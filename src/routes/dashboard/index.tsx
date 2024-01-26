@@ -34,6 +34,7 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import settings from "~settings";
 import { PageType, trackPage } from "~utils/analytics";
+import { formatSettingName } from "~utils/format";
 
 export default function Settings({ params }: Props) {
   // router location
@@ -102,7 +103,13 @@ export default function Settings({ params }: Props) {
           activeSetting !== "tokens"
         }
       >
-        <Spacer y={3.3} />
+        <Spacer y={0.45} />
+        <MidSettingsTitle>
+          {formatSettingName(
+            allSettings.find((s) => s.name === activeSetting)?.name
+          ) || ""}
+        </MidSettingsTitle>
+        <Spacer y={0.85} />
         {activeSetting &&
           ((definedSetting && (
             <SettingEl
@@ -222,6 +229,14 @@ const SettingsTitle = styled(Text).attrs({
   noMargin: true
 })`
   padding: 0 ${setting_element_padding};
+`;
+
+const MidSettingsTitle = styled(Text).attrs({
+  title: true,
+  noMargin: true
+})`
+  padding: 0 ${setting_element_padding};
+  font-weight: 600;
 `;
 
 interface Setting extends SettingItemData {
