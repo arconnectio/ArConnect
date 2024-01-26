@@ -238,10 +238,13 @@ export default function ContactSettings({ address }: Props) {
   return (
     <Wrapper>
       <div>
-        <Header>
-          <Title>{browser.i18n.getMessage("contact_info")}</Title>
-          <EditIcon onClick={() => setEditable(!editable)} />
-        </Header>
+        <div>
+          <Spacer y={0.45} />
+          <Header>
+            <Title>{browser.i18n.getMessage("contact_info")}</Title>
+            <EditIcon onClick={() => setEditable(!editable)} />
+          </Header>
+        </div>
         <SubTitle>{browser.i18n.getMessage("contact_avatar")}</SubTitle>
         <PicWrapper>
           {contact.avatarId && <ContactPic src={contact.profileIcon} />}
