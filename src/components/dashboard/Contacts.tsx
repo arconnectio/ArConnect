@@ -9,6 +9,7 @@ import browser from "webextension-polyfill";
 import SearchInput from "./SearchInput";
 import styled from "styled-components";
 import { IconButton } from "~components/IconButton";
+import { formatAddress } from "~utils/format";
 
 export default function Contacts() {
   // contacts
@@ -25,9 +26,50 @@ export default function Contacts() {
   useEffect(() => {
     async function fetchContacts() {
       const storedContacts = await ExtensionStorage.get("contacts");
+
       if (storedContacts) {
-        storedContacts.sort((a, b) => a.name.localeCompare(b.name));
-        setContacts(storedContacts);
+        const namedContacts = storedContacts.filter((contact) => contact.name);
+        const addressOnlyContacts = storedContacts.filter(
+          (contact) => !contact.name
+        );
+
+        namedContacts.sort((a, b) => a.name.localeCompare(b.name));
+
+        addressOnlyContacts.sort((a, b) => {
+          const aFirstChar = a.address.charAt(0);
+          const bFirstChar = b.address.charAt(0);
+
+          const getOrder = (char) => {
+            if (char.match(/[A-Z]/i)) {
+              return 0; // Letters first
+            } else if (char.match(/[0-9]/)) {
+              return 1; // Numbers second
+            } else {
+              return 2; // Other chars last
+            }
+          };
+
+          const orderA = getOrder(aFirstChar);
+          const orderB = getOrder(bFirstChar);
+
+          if (orderA !== orderB) {
+            return orderA - orderB;
+          }
+
+          if (!a.name && aFirstChar.match(/[0-9]/)) {
+            return 1;
+          }
+
+          if (!b.name && bFirstChar.match(/[0-9]/)) {
+            return -1;
+          }
+
+          return a.address.localeCompare(b.address);
+        });
+
+        const sortedContacts = [...namedContacts, ...addressOnlyContacts];
+
+        setContacts(sortedContacts);
       }
     }
 
@@ -36,7 +78,14 @@ export default function Contacts() {
 
   function groupContactsByFirstLetter(contacts) {
     return contacts.reduce((groups, contact) => {
-      const firstLetter = contact.name[0].toUpperCase();
+      let firstLetter = contact.name
+        ? contact.name[0].toUpperCase()
+        : contact.address[0].toUpperCase();
+
+      if (!firstLetter.match(/[A-Z]/)) {
+        firstLetter = "0-9";
+      }
+
       if (!groups[firstLetter]) {
         groups[firstLetter] = [];
       }
@@ -113,14 +162,28 @@ export default function Contacts() {
               <LetterHeader>{letter}</LetterHeader>
               {filteredContacts.map((contact) => (
                 <React.Fragment key={contact.address}>
-                  <ContactListItem
-                    name={contact.name}
-                    address={contact.address}
-                    profileIcon={contact.profileIcon}
-                    active={activeContact === contact.address}
-                    onClick={() => handleContactClick(contact.address)}
-                    onSendClick={() => handleSendToContact(contact.address)}
-                  />
+                  {/* Check if contact has name */}
+                  {contact.name && (
+                    <ContactListItem
+                      name={contact.name}
+                      address={formatAddress(contact.address, 8)}
+                      profileIcon={contact.profileIcon}
+                      active={activeContact === contact.address}
+                      onClick={() => handleContactClick(contact.address)}
+                      onSendClick={() => handleSendToContact(contact.address)}
+                    />
+                  )}
+                  {/* Address only contacts */}
+                  {!contact.name && (
+                    <ContactListItem
+                      name={formatAddress(contact.address, 4)}
+                      address={formatAddress(contact.address, 8)}
+                      profileIcon={contact.profileIcon}
+                      active={activeContact === contact.address}
+                      onClick={() => handleContactClick(contact.address)}
+                      onSendClick={() => handleSendToContact(contact.address)}
+                    />
+                  )}
                 </React.Fragment>
               ))}
             </React.Fragment>
@@ -132,7 +195,7 @@ export default function Contacts() {
 }
 
 interface SettingsContactData {
-  name: string;
+  name?: string;
   address: string;
   profileIcon: string;
   arNSAdress?: string;

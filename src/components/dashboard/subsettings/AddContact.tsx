@@ -26,11 +26,13 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
+import { findGateway } from "~gateways/wayfinder";
 import { uploadUserAvatar, getUserAvatar } from "~lib/avatar";
 import { getAllArNSNames } from "~lib/arns";
 import styled from "styled-components";
 import { useLocation } from "wouter";
 import copy from "copy-to-clipboard";
+import { gql } from "~gateways/api";
 
 export default function AddContact() {
   // contacts
@@ -41,6 +43,12 @@ export default function AddContact() {
     },
     []
   );
+
+  // active address
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
 
   const { setToast } = useToasts();
 
@@ -53,10 +61,13 @@ export default function AddContact() {
     avatarId: ""
   });
   const [arnsResults, setArnsResults] = useState([]);
+  const [lastRecipients, setLastRecipients] = useState<string[]>([]);
 
-  const generateProfileIcon = (name) => {
+  const generateProfileIcon = (name, address) => {
     if (name && name.length > 0) {
       return name[0].toUpperCase();
+    } else if (address && address.length > 0) {
+      return address[0].toUpperCase();
     }
     return "";
   };
@@ -120,7 +131,37 @@ export default function AddContact() {
 
   useEffect(() => {
     fetchArnsAddresses(contact.address);
-  }, [contact.address]);
+
+    (async () => {
+      if (!activeAddress) return;
+      const gateway = await findGateway({ graphql: true });
+
+      // fetch last outgoing txs
+      const { data } = await gql(
+        `
+          query($address: [String!]) {
+            transactions(owners: $address, first: 100) {
+              edges {
+                node {
+                  recipient
+                }
+              }
+            }
+          }
+        `,
+        { address: activeAddress },
+        gateway
+      );
+
+      // filter addresses
+      const recipients = data.transactions.edges
+        .filter((tx) => tx.node.recipient !== "")
+        .map((tx) => tx.node.recipient);
+
+      console.log(recipients);
+      setLastRecipients([...new Set(recipients)]);
+    })();
+  }, [contact.address, activeAddress]);
 
   const [, setLocation] = useLocation();
 
@@ -185,7 +226,7 @@ export default function AddContact() {
   };
 
   const areFieldsEmpty = () => {
-    return !contact.name || !contact.address;
+    return !contact.address;
   };
 
   return (
@@ -200,7 +241,9 @@ export default function AddContact() {
             <ContactPic src={contact.profileIcon} />
           )}
           {!contact.avatarId && !contact.profileIcon && (
-            <AutoContactPic>{generateProfileIcon(contact.name)}</AutoContactPic>
+            <AutoContactPic>
+              {generateProfileIcon(contact.name, contact.address)}
+            </AutoContactPic>
           )}
           <label htmlFor="avatarUpload" style={{ cursor: "pointer" }}>
             <UploadIcon />
@@ -213,7 +256,7 @@ export default function AddContact() {
             onChange={handleAvatarUpload}
           />
         </PicWrapper>
-        <SubTitle>{browser.i18n.getMessage("name")}*</SubTitle>
+        <SubTitle>{browser.i18n.getMessage("name")}</SubTitle>
         <InputWrapper>
           <ContactInput
             fullWidth
@@ -228,7 +271,9 @@ export default function AddContact() {
           {browser.i18n.getMessage("arweave_account_address")}*
         </SubTitle>
         <InputWrapper>
-          <ContactInput
+          <AddressInput
+            type="text"
+            list="addressOptions"
             fullWidth
             small
             name="address"
@@ -240,6 +285,13 @@ export default function AddContact() {
             value={contact.address}
             onChange={handleInputChange}
           />
+          <datalist id="addressOptions">
+            {lastRecipients.map((recipient, i) => (
+              <option key={i} value={recipient}>
+                {recipient}
+              </option>
+            ))}
+          </datalist>
         </InputWrapper>
         <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
         <InputWrapper>
@@ -318,6 +370,11 @@ export default function AddContact() {
     </Wrapper>
   );
 }
+
+const AddressInput = styled(ContactInput)`
+  ::-webkit-calendar-picker-indicator {
+    display:none !important;
+`;
 
 const NewContactNotes = styled(ContactNotes)`
   height: 235px;
