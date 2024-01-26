@@ -100,7 +100,8 @@ export default function Settings({ params }: Props) {
         normalPadding={
           activeSetting !== "apps" &&
           activeSetting !== "wallets" &&
-          activeSetting !== "tokens"
+          activeSetting !== "tokens" &&
+          activeSetting !== "contacts"
         }
       >
         <Spacer y={0.45} />
