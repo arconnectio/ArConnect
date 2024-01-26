@@ -317,7 +317,9 @@ export default function Confirm({ tokenID, qty, recipient, message }: Props) {
           uToken
             ? push("/")
             : push(
-                `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
+                `/transaction/${
+                  convertedTransaction.id
+                }?back=${encodeURIComponent("/")}`
               );
 
           // remove wallet from memory
@@ -337,7 +339,6 @@ export default function Confirm({ tokenID, qty, recipient, message }: Props) {
         }
         let keyfile: JWKInterface;
         try {
-          console.log("hello", passwordInput.state);
           keyfile = await decryptWallet(
             activeWallet.keyfile,
             passwordInput.state
@@ -374,7 +375,9 @@ export default function Confirm({ tokenID, qty, recipient, message }: Props) {
           uToken
             ? push("/")
             : push(
-                `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
+                `/transaction/${
+                  convertedTransaction.id
+                }?back=${encodeURIComponent("/")}`
               );
           freeDecryptedWallet(keyfile);
         } catch (e) {

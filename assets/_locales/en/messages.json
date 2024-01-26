@@ -1537,6 +1537,14 @@
     "message": "Contact Info",
     "description": "Contact settings title"
   },
+  "user_not_in_contacts": {
+    "message": "This user is not in your contacts.",
+    "description": "Small message title on transaction confirmation page"
+  },
+  "create_contact": {
+    "message": "Create contact?",
+    "description": "Create contact question"
+  },
   "add_new_contact": {
     "message": "Add a new contact",
     "description": "Add a new contact title"

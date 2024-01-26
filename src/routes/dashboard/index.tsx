@@ -151,17 +151,20 @@ export default function Settings({ params }: Props) {
         {activeSetting === "tokens" && activeSubSetting && (
           <TokenSettings id={activeSubSetting} />
         )}
+
         {activeSetting === "contacts" &&
           activeSubSetting &&
-          activeSubSetting !== "new" && (
+          activeSubSetting.startsWith("new") && (
+            <AddContact key="new-contacts" />
+          )}
+        {activeSetting === "contacts" &&
+          activeSubSetting &&
+          !activeSubSetting.startsWith("new") && (
             <ContactSettings
               address={activeSubSetting}
               key={activeSubSetting}
             />
           )}
-        {activeSetting === "contacts" && activeSubSetting === "new" && (
-          <AddContact key="new-contacts" />
-        )}
       </Panel>
     </SettingsWrapper>
   );
