@@ -57,7 +57,11 @@ import { DREContract, DRENode } from "@arconnect/warp-dre";
 import { isUToken } from "~utils/send";
 import HeadV2 from "~components/popup/HeadV2";
 import SliderMenu from "~components/SliderMenu";
-import Recipient from "~components/Recipient";
+import Recipient, {
+  AutoContactPic,
+  generateProfileIcon,
+  type Contact
+} from "~components/Recipient";
 import { formatAddress } from "~utils/format";
 
 // default size for the qty text
@@ -69,6 +73,11 @@ const arPlaceholder: TokenInterface = {
   type: "asset",
   balance: 0,
   decimals: 12
+};
+
+export type RecipientType = {
+  contact?: Contact;
+  address: string;
 };
 
 export default function Send({ id }: Props) {
@@ -152,7 +161,7 @@ export default function Send({ id }: Props) {
 
   // Handle Recipient Input and Slider
   const [showSlider, setShowSlider] = useState<boolean>(false);
-  const [recipient, setRecipient] = useState<string>("");
+  const [recipient, setRecipient] = useState<RecipientType>({ address: "" });
 
   useEffect(() => {
     (async () => {
@@ -308,6 +317,7 @@ export default function Send({ id }: Props) {
       networkFee,
       qty: qtyMode === "fiat" ? formatTokenBalance(secondaryQty) : qty,
       token,
+      recipient,
       estimatedFiat: qtyMode === "fiat" ? qty : secondaryQty,
       estimatedNetworkFee: formatTokenBalance(networkFee)
     });
@@ -330,10 +340,17 @@ export default function Send({ id }: Props) {
               setShowSlider(!showSlider);
             }}
           >
-            <span>
-              {!recipient
+            <span style={{ display: "flex", alignItems: "center" }}>
+              {recipient.contact && (
+                <AutoContactPic size="24px">
+                  {generateProfileIcon(recipient.contact.name)}
+                </AutoContactPic>
+              )}
+              {!recipient.address
                 ? browser.i18n.getMessage("select_recipient")
-                : formatAddress(recipient, 10)}
+                : recipient.contact
+                ? recipient.contact.name
+                : formatAddress(recipient.address, 10)}
             </span>
             <ChevronDownIcon />
           </SendButton>
@@ -413,7 +430,7 @@ export default function Send({ id }: Props) {
             invalidQty ||
             parseFloat(qty) === 0 ||
             qty === "" ||
-            recipient === ""
+            recipient.address === ""
           }
           fullWidth
           onClick={send}

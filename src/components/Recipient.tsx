@@ -9,7 +9,7 @@ import { findGateway } from "~gateways/wayfinder";
 import { formatAddress, isAddressFormat } from "~utils/format";
 import { ExtensionStorage } from "~utils/storage";
 
-type Contact = {
+export type Contact = {
   name: string;
   address: string;
   profileIcon: string;
@@ -18,17 +18,23 @@ type Contact = {
   avatarId: string;
 };
 
-const generateProfileIcon = (name) => {
+export const generateProfileIcon = (name) => {
   if (name && name.length > 0) {
     return name[0].toUpperCase();
   }
   return "";
 };
 
-type Contacts = Contact[];
+export type Contacts = Contact[];
 
 interface RecipientProps {
-  onClick?: (address: string) => void;
+  onClick?: ({
+    address,
+    contact
+  }: {
+    address: string;
+    contact?: Contact;
+  }) => void;
   onClose: () => void;
 }
 
@@ -149,7 +155,7 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
             <Address
               key={i}
               onClick={() => {
-                onClick(recipient);
+                onClick({ address: recipient });
                 onClose();
               }}
             >
@@ -167,7 +173,7 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
               <ContactItem
                 key={contact.address}
                 onClick={() => {
-                  onClick(contact.address);
+                  onClick({ contact, address: contact.address });
                   onClose();
                 }}
               >
@@ -249,9 +255,9 @@ const ProfilePicture = styled.img`
   margin-right: 10px;
 `;
 
-const AutoContactPic = styled.div`
-  width: 34px;
-  height: 34px;
+export const AutoContactPic = styled.div<{ size?: string }>`
+  width: ${(props) => (props.size ? props.size : "34px")};
+  height: ${(props) => (props.size ? props.size : "34px")};
   display: flex;
   background-color: #ab9aff26;
   align-items: center;

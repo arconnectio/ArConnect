@@ -3,7 +3,7 @@ import { ArrowRightIcon } from "@iconicicons/react";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
 import HeadV2 from "~components/popup/HeadV2";
-import { SendButton } from ".";
+import { SendButton, type RecipientType } from ".";
 import { formatAddress } from "~utils/format";
 import type Transaction from "arweave/web/lib/transaction";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -30,11 +30,16 @@ import { isUToken, sendRequest } from "~utils/send";
 import { EventType, trackEvent } from "~utils/analytics";
 import { concatGatewayURL } from "~gateways/utils";
 import type { JWKInterface } from "arbundles";
+import {
+  AutoContactPic,
+  generateProfileIcon,
+  type Contact
+} from "~components/Recipient";
 
 interface Props {
   tokenID: string;
   qty: number;
-  recipient: string;
+  recipient?: string;
   message?: string;
 }
 
@@ -55,6 +60,7 @@ interface TransactionData {
   qty: string;
   token: Token;
   estimatedNetworkFee: string;
+  recipient: RecipientType;
 }
 
 function formatNumber(amount: number, decimalPlaces: number = 2): string {
@@ -66,7 +72,7 @@ function formatNumber(amount: number, decimalPlaces: number = 2): string {
   return rounded;
 }
 
-export default function Confirm({ tokenID, qty, recipient, message }: Props) {
+export default function Confirm({ tokenID, qty, message }: Props) {
   // TODO: Need to get Token information
   const [ticker, setTicker] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
@@ -78,6 +84,9 @@ export default function Confirm({ tokenID, qty, recipient, message }: Props) {
   const [estimatedFiatNetworkFee, setEstimatedFiatNetworkFee] =
     useState<string>("");
   const [estimatedTotal, setEstimatedTotal] = useState<string>("");
+  const [recipient, setRecipient] = useState<RecipientType | undefined>(
+    undefined
+  );
   // TODO: Remove
   const [signAllowance, setSignAllowance] = useState<number>(10);
   const [needsSign, setNeedsSign] = useState<boolean>(true);
@@ -107,6 +116,7 @@ export default function Confirm({ tokenID, qty, recipient, message }: Props) {
               Number(data.estimatedFiat) + Number(data.estimatedNetworkFee)
             ).toFixed(2)
           );
+          setRecipient(data.recipient);
           setEstimatedTotal(estimatedFiatTotal.toString());
           setTicker(data.token.ticker);
           setNetworkFee(data.networkFee);
@@ -277,7 +287,7 @@ export default function Confirm({ tokenID, qty, recipient, message }: Props) {
 
     // Prepare transaction
     const transactionAmount = Number(latestTxQty);
-    const prepared = await prepare(recipient);
+    const prepared = await prepare(recipient.address);
     if (prepared) {
       let { gateway, transaction, type } = prepared;
       const arweave = new Arweave(gateway);
@@ -405,7 +415,16 @@ export default function Confirm({ tokenID, qty, recipient, message }: Props) {
               </span>
             </Address>
             <ArrowRightIcon />
-            <Address>{formatAddress(recipient, 5)}</Address>
+            <Address>
+              {recipient && recipient.contact && (
+                <AutoContactPic size="22px">
+                  {generateProfileIcon(recipient.contact.name)}
+                </AutoContactPic>
+              )}
+              {recipient && recipient.contact && recipient.contact.name
+                ? recipient.contact.name.slice(0, 8)
+                : recipient && formatAddress(recipient.address, 5)}
+            </Address>
           </AddressWrapper>
           <div style={{ marginTop: "16px" }}>
             <BodySection
@@ -544,6 +563,7 @@ const ConfirmWrapper = styled.div`
 `;
 
 const Address = styled.div`
+  display: flex;
   background-color: rgba(171, 154, 255, 0.15);
   border: 1px solid rgba(171, 154, 255, 0.17);
   padding: 7px 4px;

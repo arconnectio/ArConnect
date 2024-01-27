@@ -75,15 +75,9 @@ export default function Popup() {
                 )}
               </Route>
               <Route path="/send/confirm/:token/:qty/:recipient/:message?">
-                {(params: {
-                  token: string;
-                  qty: string;
-                  recipient: string;
-                  message?: string;
-                }) => (
+                {(params: { token: string; qty: string; message?: string }) => (
                   <Confirm
                     tokenID={params?.token}
-                    recipient={params?.recipient}
                     qty={Number(params?.qty || "0")}
                     message={params?.message || ""}
                   />

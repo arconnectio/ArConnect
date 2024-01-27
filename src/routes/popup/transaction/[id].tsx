@@ -21,6 +21,14 @@ import Arweave from "arweave";
 import HeadV2 from "~components/popup/HeadV2";
 import dayjs from "dayjs";
 import { SendButton } from "../send";
+import {
+  AutoContactPic,
+  generateProfileIcon,
+  type Contacts
+} from "~components/Recipient";
+import { ExtensionStorage } from "~utils/storage";
+
+// pull contacts and check if to address is in contacts
 
 export default function Transaction({ id: rawId, gw }: Props) {
   // fixup id
@@ -30,6 +38,7 @@ export default function Transaction({ id: rawId, gw }: Props) {
 
   // fetch tx data
   const [transaction, setTransaction] = useState<GQLNodeInterface>();
+  const [contact, setContact] = useState<any | undefined>(undefined);
 
   // arweave gateway
   const defaultGateway = useGateway({
@@ -107,6 +116,23 @@ export default function Transaction({ id: rawId, gw }: Props) {
     };
   }, [id, gateway]);
 
+  // Get All Contacts
+  useEffect(() => {
+    const getContacts = async () => {
+      const storedContacts: Contacts = await ExtensionStorage.get("contacts");
+      if (transaction) {
+        const recipient = transaction.recipient;
+        const contactMatch = storedContacts.find(
+          (contact) => contact.address === recipient
+        );
+        if (contactMatch) {
+          setContact(contactMatch);
+        }
+      }
+    };
+
+    getContacts();
+  }, [transaction]);
   // transaction confirmations
   const [confirmations, setConfirmations] = useState(0);
 
@@ -222,6 +248,7 @@ export default function Transaction({ id: rawId, gw }: Props) {
               <AmountTitle>
                 {formatTokenBalance(Number(transaction.quantity.ar))}
                 <span>AR</span>
+                {console.log("contact ", contact)}
               </AmountTitle>
               <FiatAmount>{formatFiatBalance(fiatPrice, currency)}</FiatAmount>
             </Section>
@@ -250,23 +277,34 @@ export default function Transaction({ id: rawId, gw }: Props) {
                   </PropertyName>
                   <PropertyValue>
                     <div>
-                      {(transaction.recipient &&
-                        formatAddress(transaction.recipient, 6)) ||
-                        "-"}
-                      <AddContact>
-                        {browser.i18n.getMessage("user_not_in_contacts")}{" "}
-                        <span
-                          onClick={() => {
-                            browser.tabs.create({
-                              url: browser.runtime.getURL(
-                                `tabs/dashboard.html#/contacts/new?address=${transaction.recipient}`
-                              )
-                            });
-                          }}
-                        >
-                          {browser.i18n.getMessage("create_contact")}
-                        </span>
-                      </AddContact>
+                      {!contact ? (
+                        <>
+                          {(transaction.recipient &&
+                            formatAddress(transaction.recipient, 6)) ||
+                            "-"}
+                          <AddContact>
+                            {browser.i18n.getMessage("user_not_in_contacts")}{" "}
+                            <span
+                              onClick={() => {
+                                browser.tabs.create({
+                                  url: browser.runtime.getURL(
+                                    `tabs/dashboard.html#/contacts/new?address=${transaction.recipient}`
+                                  )
+                                });
+                              }}
+                            >
+                              {browser.i18n.getMessage("create_contact")}
+                            </span>
+                          </AddContact>
+                        </>
+                      ) : (
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <AutoContactPic size="19px">
+                            {generateProfileIcon(contact.name)}
+                          </AutoContactPic>
+                          {contact.name}
+                        </div>
+                      )}
                     </div>
                   </PropertyValue>
                 </TransactionProperty>
