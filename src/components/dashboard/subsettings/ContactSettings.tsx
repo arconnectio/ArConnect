@@ -2,6 +2,7 @@ import {
   Text,
   Button,
   Input,
+  Loading,
   Modal,
   Select,
   Spacer,
@@ -42,6 +43,7 @@ export default function ContactSettings({ address }: Props) {
   });
   const [contactIndex, setContactIndex] = useState(-1);
   const [arnsResults, setArnsResults] = useState([]);
+  const [avatarLoading, setAvatarLoading] = useState(false);
 
   useEffect(() => {
     const loadedContact = storedContacts.find((c) => c.address === address);
@@ -155,15 +157,18 @@ export default function ContactSettings({ address }: Props) {
 
   useEffect(() => {
     if (contact.avatarId) {
+      setAvatarLoading(true);
       getUserAvatar(contact.avatarId)
         .then((imageUrl) => {
           setContact({
             ...contact,
             profileIcon: imageUrl
           });
+          setAvatarLoading(false);
         })
         .catch((error) => {
           console.error("Error fetching avatar:", error);
+          setAvatarLoading(false);
         });
     }
   }, [contact.avatarId]);
@@ -252,7 +257,16 @@ export default function ContactSettings({ address }: Props) {
         </div>
         <SubTitle>{browser.i18n.getMessage("contact_avatar")}</SubTitle>
         <PicWrapper>
-          {contact.avatarId && <ContactPic src={contact.profileIcon} />}
+          {contact.avatarId && !avatarLoading ? (
+            <ContactPic src={contact.profileIcon} />
+          ) : (
+            avatarLoading &&
+            contact.avatarId && (
+              <AutoContactPic>
+                <LoadingSpin />
+              </AutoContactPic>
+            )
+          )}
           {!contact.profileIcon && (
             <AutoContactPic>
               {generateProfileIcon(contact.name, contact.address)}
@@ -371,6 +385,11 @@ export default function ContactSettings({ address }: Props) {
     </Wrapper>
   );
 }
+
+const LoadingSpin = styled(Loading)`
+  height: 23px;
+  width: 23px;
+`;
 
 const Link = styled(Share04)`
   margin-left: 10px;
