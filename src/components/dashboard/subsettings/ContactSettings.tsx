@@ -143,6 +143,11 @@ export default function ContactSettings({ address }: Props) {
           avatarId: avatarTxId
         });
       } catch (error) {
+        setToast({
+          type: "error",
+          content: `File size too large. ${error}`,
+          duration: 5000
+        });
         console.error("Error uploading avatar:", error);
       }
     }

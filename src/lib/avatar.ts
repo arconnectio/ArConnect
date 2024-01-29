@@ -1,6 +1,10 @@
 import Arweave from "arweave";
 import { getActiveKeyfile } from "~wallets";
 import { freeDecryptedWallet } from "~wallets/encryption";
+import { createData, ArweaveSigner } from "arbundles";
+import { uploadDataToTurbo } from "~api/modules/dispatch/uploader";
+
+const MAX_FILE_SIZE = 500 * 1024; // 500KB
 
 const arweave = new Arweave({
   host: "ar-io.net",
@@ -20,11 +24,11 @@ function toArrayBuffer(data: any) {
   });
 }
 
-function waitFor(delay: number) {
-  return new Promise((res) => setTimeout(res, delay));
-}
-
 export async function uploadUserAvatar(avatar: File) {
+  if (avatar.size > MAX_FILE_SIZE) {
+    throw new Error("Avatar size exceeds the maximum limit of 500KB");
+  }
+
   const wallet = await getActiveKeyfile();
 
   if (wallet.type === "hardware") {
@@ -32,45 +36,29 @@ export async function uploadUserAvatar(avatar: File) {
   }
   const keyfile = wallet.keyfile;
 
-  try {
-    const data = (await toArrayBuffer(avatar)) as ArrayBuffer;
-    await waitFor(500);
+  const node = "https://turbo.ardrive.io";
 
-    const inputTags = [
+  try {
+    const arrayBuffer = (await toArrayBuffer(avatar)) as ArrayBuffer;
+    const data = new Uint8Array(arrayBuffer);
+    const dataSigner = new ArweaveSigner(keyfile);
+    const tags = [
       { name: "App-Name", value: "ArConnect.io" },
       { name: "Content-Type", value: avatar.type },
       { name: "Type", value: "avatar-update" }
     ];
 
-    const transaction = await arweave.createTransaction(
-      {
-        data
-      },
-      keyfile
-    );
-
-    inputTags.forEach((tag) => transaction.addTag(tag.name, tag.value));
-
-    await arweave.transactions.sign(transaction, keyfile);
-
-    const uploader = await arweave.transactions.getUploader(transaction);
-
-    while (!uploader.isComplete) {
-      await uploader.uploadChunk();
-      console.log(
-        `${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`
-      );
-    }
-
-    const txId = transaction.id;
-    console.log("Transaction ID:", txId);
+    const dataEntry = createData(data, dataSigner, { tags });
+    await dataEntry.sign(dataSigner);
+    await uploadDataToTurbo(dataEntry, node);
 
     // remove wallet from memory
     freeDecryptedWallet(keyfile);
 
-    return transaction.id;
-  } catch (e) {
-    console.log("Unable to upload avatar", e);
+    // return transaction id
+    return dataEntry.id;
+  } catch (error) {
+    console.log("Unable to upload avatar", error);
   }
 }
 
