@@ -96,6 +96,7 @@ export default function AppSettings({ app, showTitle = false }: Props) {
     <>
       {showTitle && (
         <>
+          <Spacer y={0.45} />
           <AppName>{settings?.name || settings?.url}</AppName>
           <AppUrl
             href={`https://${settings?.url || ""}`}
