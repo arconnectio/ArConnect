@@ -1,5 +1,9 @@
-// Sort an array of letters, numbers, and/or symbols
-// In the order listed above
+/**
+ * Sort an array of letters, numbers, and/or symbols
+ * in the order listed above
+ *
+ * @param options is an array to be sorted in order
+ */
 
 export const multiSort = (options) => {
   return options.sort((a, b) => {
