@@ -248,7 +248,6 @@ export default function Transaction({ id: rawId, gw }: Props) {
               <AmountTitle>
                 {formatTokenBalance(Number(transaction.quantity.ar))}
                 <span>AR</span>
-                {console.log("contact ", contact)}
               </AmountTitle>
               <FiatAmount>{formatFiatBalance(fiatPrice, currency)}</FiatAmount>
             </Section>
@@ -488,7 +487,7 @@ export const FiatAmount = styled(Text).attrs({
   }
 `;
 
-const AddContact = styled(Text)`
+const AddContact = styled.div`
   font-size: 10px;
   font-weight: 600;
   color: rgb(${(props) => props.theme.primaryText});

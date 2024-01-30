@@ -120,6 +120,25 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
     );
   }, [lastRecipients, targetInput]);
 
+  const filteredAndGroupedContacts = useMemo(() => {
+    const query = targetInput.state ? targetInput.state.toLowerCase() : "";
+
+    const filteredContacts = storedContacts.filter(
+      (contact) =>
+        contact.name.toLowerCase().includes(query) ||
+        contact.address.toLowerCase().includes(query)
+    );
+
+    return filteredContacts.reduce((groups, contact) => {
+      const letter = contact.name[0].toUpperCase();
+      if (!groups[letter]) {
+        groups[letter] = [];
+      }
+      groups[letter].push(contact);
+      return groups;
+    }, {} as Record<string, Contacts>);
+  }, [storedContacts, targetInput.state]);
+
   return (
     <>
       <SearchBarWrapper>
@@ -165,11 +184,11 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
       </AddressesList>
       <ContactsSection>
         <SubText>{browser.i18n.getMessage("your_contacts")}</SubText>
-        {Object.keys(groupedContacts).map((letter) => (
+        {Object.keys(filteredAndGroupedContacts).map((letter) => (
           <ContactList key={letter}>
             <ContactAddress style={{ color: "white" }}>{letter}</ContactAddress>
 
-            {groupedContacts[letter].map((contact) => (
+            {filteredAndGroupedContacts[letter].map((contact) => (
               <ContactItem
                 key={contact.address}
                 onClick={() => {

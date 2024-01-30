@@ -35,23 +35,13 @@ import {
   generateProfileIcon,
   type Contact
 } from "~components/Recipient";
+import { fractionedToBalance } from "~tokens/currency";
+import { type Token } from "~tokens/token";
 
 interface Props {
   tokenID: string;
   qty: number;
   recipient?: string;
-  message?: string;
-}
-
-interface Token {
-  id: string;
-  name: string;
-  ticker: string;
-  type: string;
-  balance: number;
-  divisibility: number;
-  defaultLogo: string;
-  dre: string;
 }
 
 interface TransactionData {
@@ -61,6 +51,7 @@ interface TransactionData {
   token: Token;
   estimatedNetworkFee: string;
   recipient: RecipientType;
+  message?: string;
 }
 
 function formatNumber(amount: number, decimalPlaces: number = 2): string {
@@ -72,9 +63,9 @@ function formatNumber(amount: number, decimalPlaces: number = 2): string {
   return rounded;
 }
 
-export default function Confirm({ tokenID, qty, message }: Props) {
+export default function Confirm({ tokenID, qty }: Props) {
   // TODO: Need to get Token information
-  const [ticker, setTicker] = useState<string>("");
+  const [token, setToken] = useState<Token | undefined>();
   const [amount, setAmount] = useState<string>("");
   // const [password, setPassword] = useState<string>("");
 
@@ -84,6 +75,7 @@ export default function Confirm({ tokenID, qty, message }: Props) {
   const [estimatedFiatNetworkFee, setEstimatedFiatNetworkFee] =
     useState<string>("");
   const [estimatedTotal, setEstimatedTotal] = useState<string>("");
+  const [message, setMessage] = useState<string | undefined>();
   const [recipient, setRecipient] = useState<RecipientType | undefined>(
     undefined
   );
@@ -118,11 +110,16 @@ export default function Confirm({ tokenID, qty, message }: Props) {
           );
           setRecipient(data.recipient);
           setEstimatedTotal(estimatedFiatTotal.toString());
-          setTicker(data.token.ticker);
+          setToken(data.token);
           setNetworkFee(data.networkFee);
           setAmount(data.qty);
           setEstimatedFiatAmount(data.estimatedFiat);
           setEstimatedFiatNetworkFee(data.estimatedNetworkFee);
+
+          //optional message state
+          if (data.message) {
+            setMessage(data.message);
+          }
         } else {
           push("/send/transfer");
         }
@@ -164,7 +161,7 @@ export default function Confirm({ tokenID, qty, message }: Props) {
           JSON.stringify({
             function: "transfer",
             target: target,
-            qty
+            qty: fractionedToBalance(Number(amount), token)
           })
         );
         addTransferTags(tx);
@@ -173,7 +170,7 @@ export default function Confirm({ tokenID, qty, message }: Props) {
       } else {
         const tx = await arweave.createTransaction({
           target,
-          quantity: qty.toString(),
+          quantity: fractionedToBalance(Number(amount), token).toString(),
           data: message ? decodeURIComponent(message) : undefined
         });
 
@@ -427,26 +424,30 @@ export default function Confirm({ tokenID, qty, message }: Props) {
             </Address>
           </AddressWrapper>
           <div style={{ marginTop: "16px" }}>
-            <BodySection
-              ticker={ticker}
-              title={`Sending ${ticker}`}
-              value={formatNumber(Number(amount))}
-              estimatedValue={estimatedFiatAmount}
-            />
-            <BodySection
-              alternate
-              title={"AR network fee"}
-              subtitle="(estimated)"
-              value={networkFee}
-              estimatedValue={estimatedFiatNetworkFee}
-            />
-            <BodySection
-              alternate
-              title={"Total"}
-              value={amount.toString()}
-              ticker={ticker}
-              estimatedValue={estimatedTotal}
-            />
+            {token && (
+              <>
+                <BodySection
+                  ticker={token?.ticker}
+                  title={`Sending ${token?.ticker}`}
+                  value={formatNumber(Number(amount))}
+                  estimatedValue={estimatedFiatAmount}
+                />
+                <BodySection
+                  alternate
+                  title={"AR network fee"}
+                  subtitle="(estimated)"
+                  value={networkFee}
+                  estimatedValue={estimatedFiatNetworkFee}
+                />
+                <BodySection
+                  alternate
+                  title={"Total"}
+                  value={amount.toString()}
+                  ticker={token.ticker}
+                  estimatedValue={estimatedTotal}
+                />
+              </>
+            )}
           </div>
           {/* Password if Necessary */}
           {needsSign && (

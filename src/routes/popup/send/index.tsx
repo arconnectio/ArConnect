@@ -319,7 +319,8 @@ export default function Send({ id }: Props) {
       token,
       recipient,
       estimatedFiat: qtyMode === "fiat" ? qty : secondaryQty,
-      estimatedNetworkFee: formatTokenBalance(networkFee)
+      estimatedNetworkFee: formatTokenBalance(networkFee),
+      message: message.state
     });
 
     // continue to confirmation page
@@ -362,6 +363,17 @@ export default function Send({ id }: Props) {
             error={invalidQty}
             status={invalidQty ? "error" : "default"}
             onChange={(e) => setQty((e.target as HTMLInputElement).value)}
+            onKeyDown={(e) => {
+              if (
+                e.key !== "Enter" ||
+                invalidQty ||
+                parseFloat(qty) === 0 ||
+                qty === "" ||
+                recipient.address === ""
+              )
+                return;
+              send();
+            }}
             fullWidth
             icon={
               <InputIcons>
