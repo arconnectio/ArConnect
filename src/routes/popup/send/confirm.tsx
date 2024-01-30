@@ -13,7 +13,7 @@ import {
   TRANSFER_TX_STORAGE,
   type RawStoredTransfer
 } from "~utils/storage";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTokens } from "~tokens";
 import { findGateway } from "~gateways/wayfinder";
 import Arweave from "arweave";
@@ -23,7 +23,7 @@ import {
   fallbackGateway,
   type Gateway
 } from "~gateways/gateway";
-import { getActiveKeyfile, getActiveWallet } from "~wallets";
+import { getActiveKeyfile, getActiveWallet, type StoredWallet } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
 import { isUToken, sendRequest } from "~utils/send";
@@ -130,6 +130,24 @@ export default function Confirm({ tokenID, qty }: Props) {
 
     fetchData();
   }, []);
+
+  const [wallets] = useStorage<StoredWallet[]>(
+    {
+      key: "wallets",
+      instance: ExtensionStorage
+    },
+    []
+  );
+
+  const walletName = useMemo(() => {
+    if (wallets && activeAddress) {
+      const wallet = wallets.find(({ address }) => address === activeAddress);
+      let name = wallet?.nickname || wallet.address;
+      return name.slice(0, 4);
+    } else {
+      return "";
+    }
+  }, [activeAddress]);
 
   async function prepare(
     target: string
@@ -405,8 +423,7 @@ export default function Confirm({ tokenID, qty }: Props) {
         <BodyWrapper>
           <AddressWrapper>
             <Address>
-              {/* TODO: Update to Wallet Name*/}
-              Main{" "}
+              {walletName}{" "}
               <span style={{ color: "#aeadcd" }}>
                 ({activeAddress && formatAddress(activeAddress, 5)})
               </span>
