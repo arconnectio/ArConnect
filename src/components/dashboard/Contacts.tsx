@@ -10,6 +10,7 @@ import SearchInput from "./SearchInput";
 import styled from "styled-components";
 import { IconButton } from "~components/IconButton";
 import { formatAddress } from "~utils/format";
+import { multiSort } from "~utils/multi_sort";
 
 export default function Contacts() {
   // contacts
@@ -35,39 +36,9 @@ export default function Contacts() {
 
         namedContacts.sort((a, b) => a.name.localeCompare(b.name));
 
-        addressOnlyContacts.sort((a, b) => {
-          const aFirstChar = a.address.charAt(0);
-          const bFirstChar = b.address.charAt(0);
+        const sortedAddressOnlyContacts = multiSort(addressOnlyContacts);
 
-          const getOrder = (char) => {
-            if (char.match(/[A-Z]/i)) {
-              return 0; // Letters first
-            } else if (char.match(/[0-9]/)) {
-              return 1; // Numbers second
-            } else {
-              return 2; // Other chars last
-            }
-          };
-
-          const orderA = getOrder(aFirstChar);
-          const orderB = getOrder(bFirstChar);
-
-          if (orderA !== orderB) {
-            return orderA - orderB;
-          }
-
-          if (!a.name && aFirstChar.match(/[0-9]/)) {
-            return 1;
-          }
-
-          if (!b.name && bFirstChar.match(/[0-9]/)) {
-            return -1;
-          }
-
-          return a.address.localeCompare(b.address);
-        });
-
-        const sortedContacts = [...namedContacts, ...addressOnlyContacts];
+        const sortedContacts = [...namedContacts, ...sortedAddressOnlyContacts];
 
         setContacts(sortedContacts);
       }
