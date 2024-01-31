@@ -24,11 +24,12 @@ jobs:
       - name: Create .env file
         run: echo "PLASMO_PUBLIC_ONRAMPER_API_KEY=${{ secrets.ONRAMPER_API_KEY }}" >> .env
 
-      - name: Modify package.json for BETA
+      - name: Modify package.json  and icons for BETA
         if: github.ref == 'refs/heads/staging'
         run: |
           jq '.displayName = "ArConnect BETA"' package.json > temp.json
           mv temp.json package.json
+          cp -rf assets-beta/* assets/
 
       - name: Build and Package the extension into a zip artifact
         run: yarn build:chrome --zip
