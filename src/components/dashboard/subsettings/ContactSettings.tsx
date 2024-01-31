@@ -345,7 +345,10 @@ export default function ContactSettings({ address }: Props) {
         ) : (
           <AddressWrapper>
             <Address>{contact.address}</Address>
-            <Tooltip content={browser.i18n.getMessage("copy_address")}>
+            <Tooltip
+              content={browser.i18n.getMessage("copy_address")}
+              position="topEnd"
+            >
               <Action
                 as={copied ? CheckIcon : CopyIcon}
                 onClick={copyAddress}
@@ -476,9 +479,7 @@ const Address = styled(Text).attrs({
   font-weight: 500;
   display: flex;
   align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  width: full;
+  word-break: break-all;
 `;
 
 const AddressWrapper = styled.div`
@@ -486,7 +487,6 @@ const AddressWrapper = styled.div`
   align-items: center;
   gap: 0.37rem;
   width: 100%;
-  flex-wrap: wrap;
   margin-bottom: 20px;
 `;
 
