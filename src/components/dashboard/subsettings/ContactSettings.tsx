@@ -47,6 +47,7 @@ export default function ContactSettings({ address }: Props) {
   const [arnsResults, setArnsResults] = useState([]);
   const [avatarLoading, setAvatarLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [originalContact, setOriginalContact] = useState(null);
 
   useEffect(() => {
     const loadedContact = storedContacts.find((c) => c.address === address);
@@ -259,6 +260,20 @@ export default function ContactSettings({ address }: Props) {
     // });
   };
 
+  const toggleEdit = () => {
+    if (!editable) {
+      // entering edit mode, store the current contact data
+      setOriginalContact(contact);
+    } else {
+      // check for unsaved changes
+      if (originalContact) {
+        // reset contact state
+        setContact(originalContact);
+      }
+    }
+    setEditable(!editable);
+  };
+
   const areFieldsEmpty = () => {
     return !contact.address;
   };
@@ -270,7 +285,7 @@ export default function ContactSettings({ address }: Props) {
           <Spacer y={0.45} />
           <Header>
             <Title>{browser.i18n.getMessage("contact_info")}</Title>
-            <EditIcon onClick={() => setEditable(!editable)} />
+            <EditIcon onClick={toggleEdit} />
           </Header>
         </div>
         <SubTitle>{browser.i18n.getMessage("contact_avatar")}</SubTitle>
