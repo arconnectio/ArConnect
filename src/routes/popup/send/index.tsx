@@ -60,9 +60,11 @@ import SliderMenu from "~components/SliderMenu";
 import Recipient, {
   AutoContactPic,
   generateProfileIcon,
-  type Contact
+  type Contact,
+  ProfilePicture
 } from "~components/Recipient";
 import { formatAddress } from "~utils/format";
+import { useContact } from "~contacts/hooks";
 
 // default size for the qty text
 const defaulQtytSize = 3.7;
@@ -79,6 +81,16 @@ export type RecipientType = {
   contact?: Contact;
   address: string;
 };
+
+export interface TransactionData {
+  networkFee: string;
+  estimatedFiat: string;
+  qty: string;
+  token: TokenInterface;
+  estimatedNetworkFee: string;
+  recipient: RecipientType;
+  message?: string;
+}
 
 export default function Send({ id }: Props) {
   // Segment
@@ -138,6 +150,17 @@ export default function Send({ id }: Props) {
     setQty("");
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      const existingTxn: TransactionData = await TempTransactionStorage.get(
+        "send"
+      );
+      if (existingTxn.recipient) {
+        setRecipient(existingTxn.recipient);
+      }
+    })();
+  }, []);
+
   // token logo
   const [logo, setLogo] = useState<string>();
   const theme = useTheme();
@@ -162,6 +185,7 @@ export default function Send({ id }: Props) {
   // Handle Recipient Input and Slider
   const [showSlider, setShowSlider] = useState<boolean>(false);
   const [recipient, setRecipient] = useState<RecipientType>({ address: "" });
+  const contact = useContact(recipient.address);
 
   useEffect(() => {
     (async () => {
@@ -225,6 +249,7 @@ export default function Send({ id }: Props) {
 
   // network fee
   const [networkFee, setNetworkFee] = useState<string>("0");
+  const [, goBack] = useHistory();
 
   useEffect(() => {
     (async () => {
@@ -330,10 +355,15 @@ export default function Send({ id }: Props) {
   return (
     <Wrapper showOverlay={showSlider}>
       <SendForm>
-        <HeadV2 title={browser.i18n.getMessage("send")} />
+        <HeadV2
+          back={() => {
+            TempTransactionStorage.removeItem("send");
+            goBack();
+          }}
+          title={browser.i18n.getMessage("send")}
+        />
         {/* TOP INPUT */}
         <RecipientAmountWrapper>
-          {/* TODO: onclick make this hover similar to focus on input */}
           <SendButton
             fullWidth
             alternate
@@ -342,15 +372,19 @@ export default function Send({ id }: Props) {
             }}
           >
             <span style={{ display: "flex", alignItems: "center" }}>
-              {recipient.contact && (
-                <AutoContactPic size="24px">
-                  {generateProfileIcon(recipient.contact.name)}
-                </AutoContactPic>
+              {contact && contact.profileIcon ? (
+                <ProfilePicture size="24px" src={contact.profileIcon} />
+              ) : (
+                contact && (
+                  <AutoContactPic size="24px">
+                    {generateProfileIcon(contact.name || contact.address)}
+                  </AutoContactPic>
+                )
               )}
               {!recipient.address
                 ? browser.i18n.getMessage("select_recipient")
-                : recipient.contact
-                ? recipient.contact.name
+                : contact && contact.name
+                ? contact.name
                 : formatAddress(recipient.address, 10)}
             </span>
             <ChevronDownIcon />

@@ -24,9 +24,10 @@ import { SendButton } from "../send";
 import {
   AutoContactPic,
   generateProfileIcon,
-  type Contacts
+  ProfilePicture
 } from "~components/Recipient";
-import { ExtensionStorage } from "~utils/storage";
+import { TempTransactionStorage } from "~utils/storage";
+import { useContact } from "~contacts/hooks";
 
 // pull contacts and check if to address is in contacts
 
@@ -38,7 +39,8 @@ export default function Transaction({ id: rawId, gw }: Props) {
 
   // fetch tx data
   const [transaction, setTransaction] = useState<GQLNodeInterface>();
-  const [contact, setContact] = useState<any | undefined>(undefined);
+  // const [contact, setContact] = useState<any | undefined>(undefined);
+  const contact = useContact(transaction?.recipient);
 
   // arweave gateway
   const defaultGateway = useGateway({
@@ -116,23 +118,6 @@ export default function Transaction({ id: rawId, gw }: Props) {
     };
   }, [id, gateway]);
 
-  // Get All Contacts
-  useEffect(() => {
-    const getContacts = async () => {
-      const storedContacts: Contacts = await ExtensionStorage.get("contacts");
-      if (transaction) {
-        const recipient = transaction.recipient;
-        const contactMatch = storedContacts.find(
-          (contact) => contact.address === recipient
-        );
-        if (contactMatch) {
-          setContact(contactMatch);
-        }
-      }
-    };
-
-    getContacts();
-  }, [transaction]);
   // transaction confirmations
   const [confirmations, setConfirmations] = useState(0);
 
@@ -226,6 +211,13 @@ export default function Transaction({ id: rawId, gw }: Props) {
     setBackPath(back);
   }, []);
 
+  // Clears out current transaction
+  useEffect(() => {
+    (async () => {
+      await TempTransactionStorage.removeItem("send");
+    })();
+  }, []);
+
   // router push
   const [push] = useHistory();
 
@@ -298,10 +290,19 @@ export default function Transaction({ id: rawId, gw }: Props) {
                         </>
                       ) : (
                         <div style={{ display: "flex", alignItems: "center" }}>
-                          <AutoContactPic size="19px">
-                            {generateProfileIcon(contact.name)}
-                          </AutoContactPic>
-                          {contact.name}
+                          {contact.profileIcon ? (
+                            <ProfilePicture
+                              src={contact.profileIcon}
+                              size="19px"
+                            />
+                          ) : (
+                            <AutoContactPic size="19px">
+                              {generateProfileIcon(
+                                contact?.name || contact.address
+                              )}
+                            </AutoContactPic>
+                          )}
+                          {contact?.name || formatAddress(contact.address, 6)}
                         </div>
                       )}
                     </div>

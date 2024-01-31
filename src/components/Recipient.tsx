@@ -1,11 +1,10 @@
 import { useInput, Text, Button, Input } from "@arconnect/components";
 import { ChevronDownIcon, ChevronUpIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
-import { gql } from "~gateways/api";
-import { findGateway } from "~gateways/wayfinder";
+import { useContacts } from "~contacts/hooks";
 import { formatAddress, isAddressFormat } from "~utils/format";
 import { ExtensionStorage } from "~utils/storage";
 
@@ -39,70 +38,14 @@ interface RecipientProps {
 }
 
 export default function Recipient({ onClick, onClose }: RecipientProps) {
-  const [storedContacts, setContacts] = useState<Contacts>([]);
-  useEffect(() => {
-    const getContacts = async () => {
-      const storedContacts: Contacts = await ExtensionStorage.get("contacts");
-
-      if (storedContacts) {
-        const sortedContacts = storedContacts.sort((a, b) =>
-          a.name.localeCompare(b.name)
-        );
-        setContacts(sortedContacts);
-      }
-    };
-
-    getContacts();
-  }, []);
-
-  const groupedContacts = storedContacts.reduce((groups, contact) => {
-    const letter = contact.name[0].toUpperCase();
-    if (!groups[letter]) {
-      groups[letter] = [];
-    }
-    groups[letter].push(contact);
-    return groups;
-  }, {} as Record<string, Contacts>);
-
   const targetInput = useInput();
   const [activeAddress] = useStorage<string>({
     key: "active_address",
     instance: ExtensionStorage
   });
 
-  const [lastRecipients, setLastRecipients] = useState<string[]>([]);
   const [show, setShow] = useState<boolean>(true);
-  useEffect(() => {
-    (async () => {
-      if (!activeAddress) return;
-
-      const gateway = await findGateway({ graphql: true });
-
-      // fetch last outgoing txs
-      const { data } = await gql(
-        `
-          query($address: [String!]) {
-            transactions(owners: $address, first: 100) {
-              edges {
-                node {
-                  recipient
-                }
-              }
-            }
-          }
-        `,
-        { address: activeAddress },
-        gateway
-      );
-
-      // filter addresses
-      const recipients = data.transactions.edges
-        .filter((tx) => tx.node.recipient !== "")
-        .map((tx) => tx.node.recipient);
-
-      setLastRecipients([...new Set(recipients)]);
-    })();
-  }, [activeAddress]);
+  const { lastRecipients, storedContacts } = useContacts(activeAddress);
 
   const possibleTargets = useMemo(() => {
     const query = targetInput.state;
@@ -125,12 +68,15 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
 
     const filteredContacts = storedContacts.filter(
       (contact) =>
-        contact.name.toLowerCase().includes(query) ||
+        contact?.name.toLowerCase().includes(query) ||
         contact.address.toLowerCase().includes(query)
     );
 
     return filteredContacts.reduce((groups, contact) => {
-      const letter = contact.name[0].toUpperCase();
+      const letter = contact.name
+        ? contact?.name[0].toUpperCase()
+        : contact.address[0].toUpperCase();
+
       if (!groups[letter]) {
         groups[letter] = [];
       }
@@ -160,6 +106,11 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
         <Button
           small
           style={{ borderRadius: "10px", width: "56px", padding: 0 }}
+          disabled={!isAddressFormat(targetInput.state)}
+          onClick={() => {
+            onClick({ address: targetInput.state });
+            onClose();
+          }}
         >
           {browser.i18n.getMessage("add")}
         </Button>
@@ -196,16 +147,16 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
                   onClose();
                 }}
               >
-                {contact.avatarId && contact.profileIcon ? (
+                {contact.profileIcon ? (
                   <ProfilePicture src={contact.profileIcon} alt="Profile" />
                 ) : (
                   <AutoContactPic>
-                    {generateProfileIcon(contact.name)}
+                    {generateProfileIcon(contact?.name || contact.address)}
                   </AutoContactPic>
                 )}
 
                 <div>
-                  <Name>{contact.name}</Name>
+                  <Name>{contact?.name}</Name>
                   <ContactAddress>
                     {formatAddress(contact.address)}
                   </ContactAddress>
@@ -267,9 +218,9 @@ const ContactItem = styled.div`
   }
 `;
 
-const ProfilePicture = styled.img`
-  width: 34px;
-  height: 34px;
+export const ProfilePicture = styled.img<{ size?: string }>`
+  width: ${(props) => (props.size ? props.size : "34px")};
+  height: ${(props) => (props.size ? props.size : "34px")};
   border-radius: 50%;
   margin-right: 10px;
 `;

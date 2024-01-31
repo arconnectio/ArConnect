@@ -3,7 +3,7 @@ import { ArrowRightIcon } from "@iconicicons/react";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
 import HeadV2 from "~components/popup/HeadV2";
-import { SendButton, type RecipientType } from ".";
+import { SendButton, type RecipientType, type TransactionData } from ".";
 import { formatAddress } from "~utils/format";
 import type Transaction from "arweave/web/lib/transaction";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -33,25 +33,17 @@ import type { JWKInterface } from "arbundles";
 import {
   AutoContactPic,
   generateProfileIcon,
-  type Contact
+  type Contact,
+  ProfilePicture
 } from "~components/Recipient";
 import { fractionedToBalance } from "~tokens/currency";
 import { type Token } from "~tokens/token";
+import { useContact } from "~contacts/hooks";
 
 interface Props {
   tokenID: string;
   qty: number;
   recipient?: string;
-}
-
-interface TransactionData {
-  networkFee: string;
-  estimatedFiat: string;
-  qty: string;
-  token: Token;
-  estimatedNetworkFee: string;
-  recipient: RecipientType;
-  message?: string;
 }
 
 function formatNumber(amount: number, decimalPlaces: number = 2): string {
@@ -79,6 +71,7 @@ export default function Confirm({ tokenID, qty }: Props) {
   const [recipient, setRecipient] = useState<RecipientType | undefined>(
     undefined
   );
+  const contact = useContact(recipient?.address);
   // TODO: Remove
   const [signAllowance, setSignAllowance] = useState<number>(10);
   const [needsSign, setNeedsSign] = useState<boolean>(true);
@@ -95,7 +88,11 @@ export default function Confirm({ tokenID, qty }: Props) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const allowance = await ExtensionStorage.get("signatureAllowance");
+      let allowance = await ExtensionStorage.get("signatureAllowance");
+      if (!allowance) {
+        await ExtensionStorage.set("signatureAllowance", 10);
+        allowance = await ExtensionStorage.get("signatureAllowance");
+      }
       setSignAllowance(Number(allowance));
       try {
         const data: TransactionData = await TempTransactionStorage.get("send");
@@ -430,13 +427,17 @@ export default function Confirm({ tokenID, qty }: Props) {
             </Address>
             <ArrowRightIcon />
             <Address>
-              {recipient && recipient.contact && (
-                <AutoContactPic size="22px">
-                  {generateProfileIcon(recipient.contact.name)}
-                </AutoContactPic>
+              {contact && contact.profileIcon ? (
+                <ProfilePicture size="22px" src={contact.profileIcon} />
+              ) : (
+                contact && (
+                  <AutoContactPic size="22px">
+                    {generateProfileIcon(contact?.name || contact.address)}
+                  </AutoContactPic>
+                )
               )}
-              {recipient && recipient.contact && recipient.contact.name
-                ? recipient.contact.name.slice(0, 8)
+              {contact && contact.name
+                ? contact.name.slice(0, 8)
                 : recipient && formatAddress(recipient.address, 5)}
             </Address>
           </AddressWrapper>
@@ -469,7 +470,9 @@ export default function Confirm({ tokenID, qty }: Props) {
           {/* Password if Necessary */}
           {needsSign && (
             <PasswordWrapper>
-              <Description>Enter password to sign transaction</Description>
+              <Description>
+                {browser.i18n.getMessage("sign_enter_password")}
+              </Description>
               <Input
                 placeholder="Enter your password"
                 small
