@@ -324,9 +324,23 @@ export default function ContactSettings({ address }: Props) {
         ) : (
           <ContactInfo>{contact.name}</ContactInfo>
         )}
-        <SubTitle>
-          {browser.i18n.getMessage("arweave_account_address")}*
-        </SubTitle>
+        <AddressWrapper>
+          <SubTitle>
+            {browser.i18n.getMessage("arweave_account_address")}
+            {editable && "*"}
+          </SubTitle>
+          {!editable && (
+            <Tooltip
+              content={browser.i18n.getMessage("copy_address")}
+              position="top"
+            >
+              <Action
+                as={copied ? CheckIcon : CopyIcon}
+                onClick={copyAddress}
+              />
+            </Tooltip>
+          )}
+        </AddressWrapper>
         {editable ? (
           <InputWrapper>
             <ContactInput
@@ -343,18 +357,7 @@ export default function ContactSettings({ address }: Props) {
             />
           </InputWrapper>
         ) : (
-          <AddressWrapper>
-            <Address>{contact.address}</Address>
-            <Tooltip
-              content={browser.i18n.getMessage("copy_address")}
-              position="topEnd"
-            >
-              <Action
-                as={copied ? CheckIcon : CopyIcon}
-                onClick={copyAddress}
-              />
-            </Tooltip>
-          </AddressWrapper>
+          <Address>{contact.address}</Address>
         )}
         {<>{renderArNSAddress()}</>}
         <SubTitle>{browser.i18n.getMessage("notes")}</SubTitle>
@@ -419,7 +422,7 @@ const Action = styled(CopyIcon)`
   font-size: 1.25rem;
   width: 1em;
   height: 1em;
-  color: rgb(${(props) => props.theme.primaryText});
+  color: rgb(${(props) => props.theme.secondaryText});
   transition: all 0.23s ease-in-out;
   cursor: pointer;
 
@@ -475,7 +478,7 @@ export const CenterText = styled(Text)`
 const Address = styled(Text).attrs({
   heading: true
 })`
-  margin-bottom: 0px;
+  margin-bottom: 20px;
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -486,8 +489,6 @@ const AddressWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 0.37rem;
-  width: 100%;
-  margin-bottom: 20px;
 `;
 
 export const PicWrapper = styled.div`
