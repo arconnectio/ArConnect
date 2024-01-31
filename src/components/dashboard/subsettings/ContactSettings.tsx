@@ -6,10 +6,12 @@ import {
   Modal,
   Select,
   Spacer,
+  Tooltip,
   useModal,
   useToasts
 } from "@arconnect/components";
-import { useState, useEffect } from "react";
+import { CheckIcon, CopyIcon } from "@iconicicons/react";
+import { useState, useEffect, type MouseEventHandler } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import styled from "styled-components";
@@ -44,6 +46,7 @@ export default function ContactSettings({ address }: Props) {
   const [contactIndex, setContactIndex] = useState(-1);
   const [arnsResults, setArnsResults] = useState([]);
   const [avatarLoading, setAvatarLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const loadedContact = storedContacts.find((c) => c.address === address);
@@ -241,6 +244,21 @@ export default function ContactSettings({ address }: Props) {
     setLocation("/contacts");
   };
 
+  const copyAddress: MouseEventHandler = (e) => {
+    e.stopPropagation();
+    copy(contact.address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1000);
+    // setToast({
+    //   type: "success",
+    //   duration: 2000,
+    //   content: browser.i18n.getMessage("copied_address", [
+    //     walletName,
+    //     formatAddress(activeAddress, 3)
+    //   ])
+    // });
+  };
+
   const areFieldsEmpty = () => {
     return !contact.address;
   };
@@ -325,7 +343,15 @@ export default function ContactSettings({ address }: Props) {
             />
           </InputWrapper>
         ) : (
-          <ContactInfo>{contact.address}</ContactInfo>
+          <AddressWrapper>
+            <Address>{contact.address}</Address>
+            <Tooltip content={browser.i18n.getMessage("copy_address")}>
+              <Action
+                as={copied ? CheckIcon : CopyIcon}
+                onClick={copyAddress}
+              />
+            </Tooltip>
+          </AddressWrapper>
         )}
         {<>{renderArNSAddress()}</>}
         <SubTitle>{browser.i18n.getMessage("notes")}</SubTitle>
@@ -386,6 +412,23 @@ export default function ContactSettings({ address }: Props) {
   );
 }
 
+const Action = styled(CopyIcon)`
+  font-size: 1.25rem;
+  width: 1em;
+  height: 1em;
+  color: rgb(${(props) => props.theme.primaryText});
+  transition: all 0.23s ease-in-out;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+`;
+
 const LoadingSpin = styled(Loading)`
   height: 23px;
   width: 23px;
@@ -424,6 +467,27 @@ export const CenterText = styled(Text)`
   @media screen and (max-width: 720px) {
     max-width: 90vw;
   }
+`;
+
+const Address = styled(Text).attrs({
+  heading: true
+})`
+  margin-bottom: 0px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  width: full;
+`;
+
+const AddressWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.37rem;
+  width: 100%;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
 `;
 
 export const PicWrapper = styled.div`
@@ -505,7 +569,6 @@ const ContactInfo = styled(Text).attrs({
   font-weight: 500;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
 `;
 
 export const ContactNotes = styled.textarea`
