@@ -3,6 +3,7 @@ import type { Contact, Contacts } from "~components/Recipient";
 import { gql } from "~gateways/api";
 import { findGateway } from "~gateways/wayfinder";
 import { getUserAvatar } from "~lib/avatar";
+import { multiSort } from "~utils/multi_sort";
 import { ExtensionStorage } from "~utils/storage";
 
 export const useContacts = (activeAddress: string) => {
@@ -15,9 +16,21 @@ export const useContacts = (activeAddress: string) => {
         const storedContacts: Contacts = await ExtensionStorage.get("contacts");
 
         if (storedContacts) {
-          const sortedContacts = storedContacts.sort((a, b) =>
-            a.name.localeCompare(b.name)
+          const namedContacts = storedContacts.filter(
+            (contact) => contact.name
           );
+          const addressOnlyContacts = storedContacts.filter(
+            (contact) => !contact.name
+          );
+
+          namedContacts.sort((a, b) => a.name.localeCompare(b.name));
+
+          const sortedAddressOnlyContacts = multiSort(addressOnlyContacts);
+
+          const sortedContacts = [
+            ...namedContacts,
+            ...sortedAddressOnlyContacts
+          ];
 
           const contactsWithImages = await Promise.all(
             sortedContacts.map(enrichContact)
