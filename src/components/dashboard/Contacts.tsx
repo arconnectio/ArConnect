@@ -10,6 +10,8 @@ import SearchInput from "./SearchInput";
 import styled from "styled-components";
 import { IconButton } from "~components/IconButton";
 import { formatAddress } from "~utils/format";
+import { multiSort } from "~utils/multi_sort";
+import { enrichContact } from "~contacts/hooks";
 
 export default function Contacts() {
   // contacts
@@ -33,43 +35,24 @@ export default function Contacts() {
           (contact) => !contact.name
         );
 
-        namedContacts.sort((a, b) => a.name.localeCompare(b.name));
-
-        addressOnlyContacts.sort((a, b) => {
-          const aFirstChar = a.address.charAt(0);
-          const bFirstChar = b.address.charAt(0);
-
-          const getOrder = (char) => {
-            if (char.match(/[A-Z]/i)) {
-              return 0; // Letters first
-            } else if (char.match(/[0-9]/)) {
-              return 1; // Numbers second
-            } else {
-              return 2; // Other chars last
-            }
-          };
-
-          const orderA = getOrder(aFirstChar);
-          const orderB = getOrder(bFirstChar);
-
-          if (orderA !== orderB) {
-            return orderA - orderB;
+        namedContacts.sort((a, b) => {
+          const nameComparison = a.name.localeCompare(b.name);
+          if (nameComparison !== 0) {
+            return nameComparison;
           }
 
-          if (!a.name && aFirstChar.match(/[0-9]/)) {
-            return 1;
-          }
-
-          if (!b.name && bFirstChar.match(/[0-9]/)) {
-            return -1;
-          }
-
-          return a.address.localeCompare(b.address);
+          return multiSort([a, b])[0] === a ? -1 : 1;
         });
 
-        const sortedContacts = [...namedContacts, ...addressOnlyContacts];
+        const sortedAddressOnlyContacts = multiSort(addressOnlyContacts);
 
-        setContacts(sortedContacts);
+        const sortedContacts = [...namedContacts, ...sortedAddressOnlyContacts];
+
+        const enrichedContacts = await Promise.all(
+          sortedContacts.map(async (contact) => await enrichContact(contact))
+        );
+
+        setContacts(enrichedContacts);
       }
     }
 
@@ -132,10 +115,6 @@ export default function Contacts() {
     );
   }
 
-  const handleSendToContact = (contactAddress: string) => {
-    // Logic for handling send button click
-  };
-
   return (
     <Wrapper>
       <SearchWrapper>
@@ -170,7 +149,6 @@ export default function Contacts() {
                       profileIcon={contact.profileIcon}
                       active={activeContact === contact.address}
                       onClick={() => handleContactClick(contact.address)}
-                      onSendClick={() => handleSendToContact(contact.address)}
                     />
                   )}
                   {/* Address only contacts */}
@@ -181,7 +159,6 @@ export default function Contacts() {
                       profileIcon={contact.profileIcon}
                       active={activeContact === contact.address}
                       onClick={() => handleContactClick(contact.address)}
-                      onSendClick={() => handleSendToContact(contact.address)}
                     />
                   )}
                 </React.Fragment>

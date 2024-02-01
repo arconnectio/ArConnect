@@ -2,13 +2,16 @@ import {
   Text,
   Button,
   Input,
+  Loading,
   Modal,
   Select,
   Spacer,
+  Tooltip,
   useModal,
   useToasts
 } from "@arconnect/components";
-import { useState, useEffect } from "react";
+import { CheckIcon, CopyIcon } from "@iconicicons/react";
+import { useState, useEffect, type MouseEventHandler } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import styled from "styled-components";
@@ -42,6 +45,9 @@ export default function ContactSettings({ address }: Props) {
   });
   const [contactIndex, setContactIndex] = useState(-1);
   const [arnsResults, setArnsResults] = useState([]);
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [originalContact, setOriginalContact] = useState(null);
 
   useEffect(() => {
     const loadedContact = storedContacts.find((c) => c.address === address);
@@ -155,15 +161,18 @@ export default function ContactSettings({ address }: Props) {
 
   useEffect(() => {
     if (contact.avatarId) {
+      setAvatarLoading(true);
       getUserAvatar(contact.avatarId)
         .then((imageUrl) => {
           setContact({
             ...contact,
             profileIcon: imageUrl
           });
+          setAvatarLoading(false);
         })
         .catch((error) => {
           console.error("Error fetching avatar:", error);
+          setAvatarLoading(false);
         });
     }
   }, [contact.avatarId]);
@@ -236,6 +245,27 @@ export default function ContactSettings({ address }: Props) {
     setLocation("/contacts");
   };
 
+  const copyAddress: MouseEventHandler = (e) => {
+    e.stopPropagation();
+    copy(contact.address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1000);
+  };
+
+  const toggleEdit = () => {
+    if (!editable) {
+      // entering edit mode, store the current contact data
+      setOriginalContact(contact);
+    } else {
+      // check for unsaved changes
+      if (originalContact) {
+        // reset contact state
+        setContact(originalContact);
+      }
+    }
+    setEditable(!editable);
+  };
+
   const areFieldsEmpty = () => {
     return !contact.address;
   };
@@ -247,12 +277,21 @@ export default function ContactSettings({ address }: Props) {
           <Spacer y={0.45} />
           <Header>
             <Title>{browser.i18n.getMessage("contact_info")}</Title>
-            <EditIcon onClick={() => setEditable(!editable)} />
+            <EditIcon onClick={toggleEdit} />
           </Header>
         </div>
         <SubTitle>{browser.i18n.getMessage("contact_avatar")}</SubTitle>
         <PicWrapper>
-          {contact.avatarId && <ContactPic src={contact.profileIcon} />}
+          {contact.avatarId && !avatarLoading ? (
+            <ContactPic src={contact.profileIcon} />
+          ) : (
+            avatarLoading &&
+            contact.avatarId && (
+              <AutoContactPic>
+                <LoadingSpin />
+              </AutoContactPic>
+            )
+          )}
           {!contact.profileIcon && (
             <AutoContactPic>
               {generateProfileIcon(contact.name, contact.address)}
@@ -292,9 +331,23 @@ export default function ContactSettings({ address }: Props) {
         ) : (
           <ContactInfo>{contact.name}</ContactInfo>
         )}
-        <SubTitle>
-          {browser.i18n.getMessage("arweave_account_address")}*
-        </SubTitle>
+        <AddressWrapper>
+          <SubTitle>
+            {browser.i18n.getMessage("arweave_account_address")}
+            {editable && "*"}
+          </SubTitle>
+          {!editable && (
+            <Tooltip
+              content={browser.i18n.getMessage("copy_address")}
+              position="top"
+            >
+              <Action
+                as={copied ? CheckIcon : CopyIcon}
+                onClick={copyAddress}
+              />
+            </Tooltip>
+          )}
+        </AddressWrapper>
         {editable ? (
           <InputWrapper>
             <ContactInput
@@ -311,7 +364,7 @@ export default function ContactSettings({ address }: Props) {
             />
           </InputWrapper>
         ) : (
-          <ContactInfo>{contact.address}</ContactInfo>
+          <Address>{contact.address}</Address>
         )}
         {<>{renderArNSAddress()}</>}
         <SubTitle>{browser.i18n.getMessage("notes")}</SubTitle>
@@ -372,6 +425,28 @@ export default function ContactSettings({ address }: Props) {
   );
 }
 
+const Action = styled(CopyIcon)`
+  font-size: 1.25rem;
+  width: 1em;
+  height: 1em;
+  color: rgb(${(props) => props.theme.secondaryText});
+  transition: all 0.23s ease-in-out;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+`;
+
+const LoadingSpin = styled(Loading)`
+  height: 23px;
+  width: 23px;
+`;
+
 const Link = styled(Share04)`
   margin-left: 10px;
   cursor: pointer;
@@ -405,6 +480,22 @@ export const CenterText = styled(Text)`
   @media screen and (max-width: 720px) {
     max-width: 90vw;
   }
+`;
+
+const Address = styled(Text).attrs({
+  heading: true
+})`
+  margin-bottom: 20px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  word-break: break-all;
+`;
+
+const AddressWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.37rem;
 `;
 
 export const PicWrapper = styled.div`
@@ -486,7 +577,6 @@ const ContactInfo = styled(Text).attrs({
   font-weight: 500;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
 `;
 
 export const ContactNotes = styled.textarea`
