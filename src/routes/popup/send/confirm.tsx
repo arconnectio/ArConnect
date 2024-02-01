@@ -316,8 +316,6 @@ export default function Confirm({ tokenID, qty }: Props) {
           await arweave.transactions.sign(convertedTransaction, keyfile);
 
           try {
-            console.log("sup");
-
             await submitTx(convertedTransaction, arweave, type);
           } catch (e) {
             if (!uToken) {
