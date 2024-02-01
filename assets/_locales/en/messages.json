@@ -1339,6 +1339,10 @@
     "message": "Copy address",
     "description": "Click to copy address tooltip"
   },
+  "expand_view": {
+    "message": "Expand view",
+    "description": "Click to open extension in a browser tab"
+  },
   "allowance_edit": {
     "message": "Edit allowance",
     "description": "Edit allowance tooltip"

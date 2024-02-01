@@ -28,7 +28,8 @@ import {
   GlobeIcon,
   LogOutIcon,
   SettingsIcon,
-  UserIcon
+  UserIcon,
+  MaximizeIcon
 } from "@iconicicons/react";
 import WalletSwitcher, { popoverAnimation } from "./WalletSwitcher";
 import Application, { type AppInfo } from "~applications/application";
@@ -39,7 +40,7 @@ import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
-import { Gateway } from "~gateways/gateway";
+import { type Gateway } from "~gateways/gateway";
 
 export default function WalletHeader() {
   // current address
@@ -79,6 +80,14 @@ export default function WalletHeader() {
     });
   };
 
+  // expand view
+  const expandView: MouseEventHandler = (e) => {
+    window.open(window.document.URL + "?expanded=true");
+  };
+
+  // is the popup open in a tab
+  const [isExpanded, setExpanded] = useState(false);
+
   // profile picture
   const ansProfile = useAnsProfile(activeAddress);
 
@@ -116,6 +125,11 @@ export default function WalletHeader() {
     const listener = () => setScrollY(window.scrollY);
 
     window.addEventListener("scroll", listener);
+
+    const queryParameters = new URLSearchParams(window.location.search);
+    const expanded = queryParameters.get("expanded");
+
+    if (expanded) setExpanded(true);
 
     return () => window.removeEventListener("scroll", listener);
   }, []);
@@ -217,6 +231,14 @@ export default function WalletHeader() {
           <Action as={GlobeIcon} />
           <AppOnline online={!!activeAppData} />
         </AppAction>
+        {!isExpanded && (
+          <Tooltip
+            content={browser.i18n.getMessage("expand_view")}
+            position="bottomEnd"
+          >
+            <Action as={MaximizeIcon} onClick={expandView} />
+          </Tooltip>
+        )}
         <AnimatePresence>
           {appDataOpen && (
             <AppInfoWrapper

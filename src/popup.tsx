@@ -101,6 +101,10 @@ export default function Popup() {
 
 const HideScrollbar = createGlobalStyle`
   body {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
     scrollbar-width: none;
 
     &::-webkit-scrollbar {
