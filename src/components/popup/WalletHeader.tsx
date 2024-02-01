@@ -82,8 +82,11 @@ export default function WalletHeader() {
 
   // expand view
   const expandView: MouseEventHandler = (e) => {
-    window.open(window.document.URL);
+    window.open(window.document.URL + "?expanded=true");
   };
+
+  // is the popup open in a tab
+  const [isExpanded, setExpanded] = useState(false);
 
   // profile picture
   const ansProfile = useAnsProfile(activeAddress);
@@ -122,6 +125,11 @@ export default function WalletHeader() {
     const listener = () => setScrollY(window.scrollY);
 
     window.addEventListener("scroll", listener);
+
+    const queryParameters = new URLSearchParams(window.location.search);
+    const expanded = queryParameters.get("expanded");
+
+    if (expanded) setExpanded(true);
 
     return () => window.removeEventListener("scroll", listener);
   }, []);
@@ -223,12 +231,14 @@ export default function WalletHeader() {
           <Action as={GlobeIcon} />
           <AppOnline online={!!activeAppData} />
         </AppAction>
-        <Tooltip
-          content={browser.i18n.getMessage("expand_view")}
-          position="bottomEnd"
-        >
-          <Action as={MaximizeIcon} onClick={expandView} />
-        </Tooltip>
+        {!isExpanded && (
+          <Tooltip
+            content={browser.i18n.getMessage("expand_view")}
+            position="bottomEnd"
+          >
+            <Action as={MaximizeIcon} onClick={expandView} />
+          </Tooltip>
+        )}
         <AnimatePresence>
           {appDataOpen && (
             <AppInfoWrapper
