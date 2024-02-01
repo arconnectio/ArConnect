@@ -305,18 +305,19 @@ export default function Confirm({ tokenID, qty }: Props) {
       const arweave = new Arweave(gateway);
 
       const convertedTransaction = arweave.transactions.fromRaw(transaction);
+      const decryptedWallet = await getActiveKeyfile();
+      isLocalWallet(decryptedWallet);
+      const keyfile = decryptedWallet.keyfile;
 
       if (transactionAmount <= signAllowance) {
         try {
-          const decryptedWallet = await getActiveKeyfile();
-          isLocalWallet(decryptedWallet);
-          const keyfile = decryptedWallet.keyfile;
-
           convertedTransaction.setOwner(keyfile.n);
 
           await arweave.transactions.sign(convertedTransaction, keyfile);
 
           try {
+            console.log("sup");
+
             await submitTx(convertedTransaction, arweave, type);
           } catch (e) {
             if (!uToken) {
@@ -348,6 +349,7 @@ export default function Confirm({ tokenID, qty }: Props) {
           freeDecryptedWallet(keyfile);
         } catch (e) {
           console.log(e);
+          freeDecryptedWallet(keyfile);
           setToast({
             type: "error",
             content: browser.i18n.getMessage("failed_tx"),
@@ -366,6 +368,7 @@ export default function Confirm({ tokenID, qty }: Props) {
             passwordInput.state
           );
         } catch {
+          freeDecryptedWallet(keyfile);
           return setToast({
             type: "error",
             content: browser.i18n.getMessage("invalidPassword"),
@@ -403,6 +406,7 @@ export default function Confirm({ tokenID, qty }: Props) {
               );
           freeDecryptedWallet(keyfile);
         } catch (e) {
+          freeDecryptedWallet(keyfile);
           setToast({
             type: "error",
             content: browser.i18n.getMessage("failed_tx"),
