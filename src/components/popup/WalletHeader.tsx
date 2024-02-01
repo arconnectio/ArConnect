@@ -28,7 +28,8 @@ import {
   GlobeIcon,
   LogOutIcon,
   SettingsIcon,
-  UserIcon
+  UserIcon,
+  MaximizeIcon
 } from "@iconicicons/react";
 import WalletSwitcher, { popoverAnimation } from "./WalletSwitcher";
 import Application, { type AppInfo } from "~applications/application";
@@ -39,7 +40,7 @@ import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
-import { Gateway } from "~gateways/gateway";
+import { type Gateway } from "~gateways/gateway";
 
 export default function WalletHeader() {
   // current address
@@ -77,6 +78,11 @@ export default function WalletHeader() {
         formatAddress(activeAddress, 3)
       ])
     });
+  };
+
+  // expand view
+  const expandView: MouseEventHandler = (e) => {
+    window.open(window.document.URL);
   };
 
   // profile picture
@@ -217,6 +223,12 @@ export default function WalletHeader() {
           <Action as={GlobeIcon} />
           <AppOnline online={!!activeAppData} />
         </AppAction>
+        <Tooltip
+          content={browser.i18n.getMessage("expand_view")}
+          position="bottomEnd"
+        >
+          <Action as={MaximizeIcon} onClick={expandView} />
+        </Tooltip>
         <AnimatePresence>
           {appDataOpen && (
             <AppInfoWrapper
