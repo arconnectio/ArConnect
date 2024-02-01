@@ -35,7 +35,14 @@ export default function Contacts() {
           (contact) => !contact.name
         );
 
-        namedContacts.sort((a, b) => a.name.localeCompare(b.name));
+        namedContacts.sort((a, b) => {
+          const nameComparison = a.name.localeCompare(b.name);
+          if (nameComparison !== 0) {
+            return nameComparison;
+          }
+
+          return multiSort([a, b])[0] === a ? -1 : 1;
+        });
 
         const sortedAddressOnlyContacts = multiSort(addressOnlyContacts);
 
