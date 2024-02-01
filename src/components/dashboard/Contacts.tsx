@@ -11,6 +11,7 @@ import styled from "styled-components";
 import { IconButton } from "~components/IconButton";
 import { formatAddress } from "~utils/format";
 import { multiSort } from "~utils/multi_sort";
+import { enrichContact } from "~contacts/hooks";
 
 export default function Contacts() {
   // contacts
@@ -40,7 +41,11 @@ export default function Contacts() {
 
         const sortedContacts = [...namedContacts, ...sortedAddressOnlyContacts];
 
-        setContacts(sortedContacts);
+        const enrichedContacts = await Promise.all(
+          sortedContacts.map(async (contact) => await enrichContact(contact))
+        );
+
+        setContacts(enrichedContacts);
       }
     }
 

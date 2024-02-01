@@ -16,12 +16,8 @@ export default function ContactListItem({
   return (
     <ContactWrapper active={active}>
       {/* @ts-ignore */}
-      <Contact
-        title={name}
-        description={address}
-        /* img={profileIcon} */ {...props}
-      >
-        {/*{!profileIcon && */ <SettingIcon as={User01} />}
+      <Contact title={name} description={address} img={profileIcon} {...props}>
+        {!profileIcon && <SettingIcon as={User01} />}
       </Contact>
       {active && (
         <SendToContact small fullWidth onClick={onSendClick}>

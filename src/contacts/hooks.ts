@@ -104,7 +104,7 @@ export const useContact = (contactAddress?: string): Contact => {
   return contact;
 };
 
-const enrichContact = async (contact: Contact) => {
+export const enrichContact = async (contact: Contact) => {
   let updatedContact = { ...contact };
 
   if (contact.avatarId) {
