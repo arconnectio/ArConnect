@@ -51,6 +51,8 @@ export default function AddContact() {
   });
 
   const { setToast } = useToasts();
+  const [location] = useLocation();
+  const address = location.split("=")[1];
 
   const [contact, setContact] = useState({
     name: "",
@@ -60,6 +62,14 @@ export default function AddContact() {
     ArNSAddress: "",
     avatarId: ""
   });
+
+  // if address exists from query param
+  useEffect(() => {
+    if (address) {
+      setContact({ ...contact, address: address });
+    }
+  }, []);
+
   const [arnsResults, setArnsResults] = useState([]);
   const [lastRecipients, setLastRecipients] = useState<string[]>([]);
 

@@ -15,6 +15,7 @@ import Head from "~components/popup/Head";
 import * as viewblock from "~lib/viewblock";
 import {
   ArrowUpRightIcon,
+  ChevronDownIcon,
   ChevronRightIcon,
   RefreshIcon
 } from "@iconicicons/react";
@@ -54,6 +55,16 @@ import { findGateway } from "~gateways/wayfinder";
 import { useHistory } from "~utils/hash_router";
 import { DREContract, DRENode } from "@arconnect/warp-dre";
 import { isUToken } from "~utils/send";
+import HeadV2 from "~components/popup/HeadV2";
+import SliderMenu from "~components/SliderMenu";
+import Recipient, {
+  AutoContactPic,
+  generateProfileIcon,
+  type Contact,
+  ProfilePicture
+} from "~components/Recipient";
+import { formatAddress } from "~utils/format";
+import { useContact } from "~contacts/hooks";
 
 // default size for the qty text
 const defaulQtytSize = 3.7;
@@ -65,6 +76,22 @@ const arPlaceholder: TokenInterface = {
   balance: 0,
   decimals: 12
 };
+
+export type RecipientType = {
+  contact?: Contact;
+  address: string;
+};
+
+export interface TransactionData {
+  networkFee: string;
+  estimatedFiat: string;
+  qty: string;
+  token: TokenInterface;
+  estimatedNetworkFee: string;
+  recipient: RecipientType;
+  qtyMode: string;
+  message?: string;
+}
 
 export default function Send({ id }: Props) {
   // Segment
@@ -124,6 +151,18 @@ export default function Send({ id }: Props) {
     setQty("");
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      const existingTxn: TransactionData = await TempTransactionStorage.get(
+        "send"
+      );
+      if (existingTxn.recipient) {
+        setRecipient(existingTxn.recipient);
+        setQtyMode(existingTxn.qtyMode as QtyMode);
+      }
+    })();
+  }, []);
+
   // token logo
   const [logo, setLogo] = useState<string>();
   const theme = useTheme();
@@ -145,6 +184,11 @@ export default function Send({ id }: Props) {
   const [balance, setBalance] = useState(0);
   const arBalance = useBalance();
 
+  // Handle Recipient Input and Slider
+  const [showSlider, setShowSlider] = useState<boolean>(false);
+  const [recipient, setRecipient] = useState<RecipientType>({ address: "" });
+  const contact = useContact(recipient.address);
+
   useEffect(() => {
     (async () => {
       if (token.id === "AR") {
@@ -155,7 +199,7 @@ export default function Send({ id }: Props) {
       setBalance(token.balance);
 
       const dre = await getDreForToken(token.id);
-      const contract = new DREContract(id, new DRENode(dre));
+      const contract = new DREContract(id || tokenID, new DRENode(dre));
       const result = await contract.query<[number]>(
         `$.balances.${activeAddress}`
       );
@@ -168,7 +212,7 @@ export default function Send({ id }: Props) {
         })
       );
     })();
-  }, [token, activeAddress, arBalance]);
+  }, [token, activeAddress, arBalance, id]);
 
   // token price
   const [price, setPrice] = useState(0);
@@ -207,6 +251,7 @@ export default function Send({ id }: Props) {
 
   // network fee
   const [networkFee, setNetworkFee] = useState<string>("0");
+  const [, goBack] = useHistory();
 
   useEffect(() => {
     (async () => {
@@ -295,78 +340,100 @@ export default function Send({ id }: Props) {
       divisibility: token.divisibility
     });
 
-    // continue to recipient selection
-    push(
-      `/send/recipient/${tokenID}/${finalQty}${
-        message.state ? `/${message.state}` : ""
-      }`
-    );
+    await TempTransactionStorage.set("send", {
+      networkFee,
+      qty: qtyMode === "fiat" ? formatTokenBalance(secondaryQty) : qty,
+      token,
+      recipient,
+      estimatedFiat: qtyMode === "fiat" ? qty : secondaryQty,
+      estimatedNetworkFee: formatTokenBalance(networkFee),
+      message: message.state,
+      qtyMode
+    });
+
+    // continue to confirmation page
+    push(`/send/confirm/${tokenID}/${finalQty}/${recipient}`);
   }
 
   return (
-    <Wrapper>
-      <div>
-        <Head title={browser.i18n.getMessage("send")} />
-        <Spacer y={1} />
-        <QuantitySection qtyMode={qtyMode} invalidValue={invalidQty}>
-          <Switch disabled={!price} onClick={switchQtyMode} />
-          {qtyMode === "fiat" && (
-            <Ticker style={{ fontSize: `${qtySize}rem` }}>
-              {getCurrencySymbol(currency)}
-            </Ticker>
-          )}
-          <Quantity>
-            <QuantityInput
-              value={qty}
-              onKeyDown={(e) => {
-                if (
-                  [
-                    "Backspace",
-                    "0",
-                    "1",
-                    "2",
-                    "3",
-                    "4",
-                    "5",
-                    "6",
-                    "7",
-                    "8",
-                    "9",
-                    "."
-                  ].includes(e.key)
+    <Wrapper showOverlay={showSlider}>
+      <SendForm>
+        <HeadV2
+          back={() => {
+            TempTransactionStorage.removeItem("send");
+            setQty("");
+            goBack();
+          }}
+          title={browser.i18n.getMessage("send")}
+        />
+        {/* TOP INPUT */}
+        <RecipientAmountWrapper>
+          <SendButton
+            fullWidth
+            alternate
+            onClick={() => {
+              setShowSlider(!showSlider);
+            }}
+          >
+            <span style={{ display: "flex", alignItems: "center" }}>
+              {contact && contact.profileIcon ? (
+                <ProfilePicture size="24px" src={contact.profileIcon} />
+              ) : (
+                contact && (
+                  <AutoContactPic size="24px">
+                    {generateProfileIcon(contact.name || contact.address)}
+                  </AutoContactPic>
                 )
-                  return;
-                e.preventDefault();
-              }}
-              onChange={(e) => setQty(e.target.value)}
-              placeholder="0.00"
-              style={{ fontSize: `${qtySize}rem` }}
-              qtyMode={qtyMode}
-              autoFocus
-            />
-            <Imitate style={{ fontSize: `${qtySize}rem` }}>
-              {qty !== "" ? qty : "0.00"}
-            </Imitate>
-          </Quantity>
-          {qtyMode === "token" && (
-            <Ticker style={{ fontSize: `${qtySize}rem` }}>
-              {token.ticker.toUpperCase()}
-            </Ticker>
-          )}
-          <Max onClick={() => setQty(max.toString())}>Max</Max>
-        </QuantitySection>
-        <Spacer y={1} />
-        {!uToken && (
-          <Message>
-            <Input
-              {...message.bindings}
-              type="text"
-              placeholder={browser.i18n.getMessage("send_message_optional")}
-              fullWidth
-            />
-          </Message>
-        )}
-        <Spacer y={1} />
+              )}
+              {!recipient.address
+                ? browser.i18n.getMessage("select_recipient")
+                : contact && contact.name
+                ? contact.name
+                : formatAddress(recipient.address, 10)}
+            </span>
+            <ChevronDownIcon />
+          </SendButton>
+          <SendInput
+            alternative
+            type="number"
+            placeholder={"Amount"}
+            value={qty}
+            error={invalidQty}
+            status={invalidQty ? "error" : "default"}
+            onChange={(e) => setQty((e.target as HTMLInputElement).value)}
+            onKeyDown={(e) => {
+              if (
+                e.key !== "Enter" ||
+                invalidQty ||
+                parseFloat(qty) === 0 ||
+                qty === "" ||
+                recipient.address === ""
+              )
+                return;
+              send();
+            }}
+            fullWidth
+            icon={
+              <InputIcons>
+                {!!price && (
+                  <CurrencyButton small onClick={switchQtyMode}>
+                    <Currency active={qtyMode === "fiat"}>USD</Currency>/
+                    <Currency active={qtyMode === "token"}>
+                      {token.ticker.toUpperCase()}
+                    </Currency>
+                  </CurrencyButton>
+                )}
+                <MaxButton
+                  altColor={theme === "dark" && "#423D59"}
+                  small
+                  onClick={() => setQty(max.toString())}
+                >
+                  Max
+                </MaxButton>
+              </InputIcons>
+            }
+          />
+        </RecipientAmountWrapper>
         <Datas>
           {!!price && (
             <Text noMargin>
@@ -383,11 +450,23 @@ export default function Send({ id }: Props) {
             {browser.i18n.getMessage("network_fee")}
           </Text>
         </Datas>
-      </div>
+        {!uToken && (
+          <MessageWrapper>
+            <SendInput
+              alternative
+              {...message.bindings}
+              type="text"
+              placeholder={browser.i18n.getMessage("send_message_optional")}
+              fullWidth
+            />
+          </MessageWrapper>
+        )}
+      </SendForm>
+      <Spacer y={1} />
       <BottomActions>
         <TokenSelector onClick={() => setShownTokenSelector(true)}>
           <LogoAndDetails>
-            <LogoWrapper>
+            <LogoWrapper small>
               <Logo src={logo || arweaveLogo} />
             </LogoWrapper>
             <TokenName>{token.name || token.ticker}</TokenName>
@@ -398,18 +477,23 @@ export default function Send({ id }: Props) {
           </TokenSelectorRightSide>
         </TokenSelector>
 
-        <Button
-          disabled={invalidQty || parseFloat(qty) === 0 || qty === ""}
+        <SendButton
+          disabled={
+            invalidQty ||
+            parseFloat(qty) === 0 ||
+            qty === "" ||
+            recipient.address === ""
+          }
           fullWidth
           onClick={send}
         >
-          {browser.i18n.getMessage("send")}
+          {browser.i18n.getMessage("next")}
           <ArrowUpRightIcon />
-        </Button>
+        </SendButton>
       </BottomActions>
       <AnimatePresence>
         {showTokenSelector && (
-          <TokenSelectorWrapper
+          <SliderWrapper
             variants={animation}
             initial="hidden"
             animate="shown"
@@ -442,23 +526,92 @@ export default function Send({ id }: Props) {
                   />
                 ))}
             </CollectiblesList>
-          </TokenSelectorWrapper>
+          </SliderWrapper>
+        )}
+        {showSlider && (
+          <SliderWrapper
+            partial
+            variants={animation2}
+            initial="hidden"
+            animate="shown"
+            exit="hidden"
+          >
+            <SliderMenu
+              title={browser.i18n.getMessage("send_to")}
+              onClose={() => {
+                setShowSlider(false);
+              }}
+            >
+              <Recipient
+                onClick={setRecipient}
+                onClose={() => setShowSlider(false)}
+              />
+            </SliderMenu>
+          </SliderWrapper>
         )}
       </AnimatePresence>
     </Wrapper>
   );
 }
 
-const Message = styled.div`
-  padding: 0 1.25rem;
+const Currency = styled.span<{ active: boolean }>`
+  color: ${(props) => (!props.active ? "#B9B9B9" : "#ffffff")};
 `;
 
-const Wrapper = styled.div`
+const MessageWrapper = styled.div`
+  padding: 0 15px;
+`;
+
+const RecipientAmountWrapper = styled.div`
+  display: flex;
+  padding: 0 15px;
+  flex-direction: column;
+  gap: 7px;
+`;
+
+const MaxButton = styled(Button)<{ altColor?: string }>`
+  border-radius: 3px;
+  padding: 5px;
+  color: ${(props) => (props.altColor ? "#b9b9b9" : props.theme.theme)};
+  background-color: ${(props) =>
+    props.altColor ? props.altColor : props.theme.theme};
+  font-weight: 400;
+`;
+
+const CurrencyButton = styled(Button)`
+  font-weight: 400;
+  background-color: transparent;
+  border-radius: 4px;
+  gap: 0;
+  display: flex;
+  padding: 2px;
+`;
+
+const Wrapper = styled.div<{ showOverlay: boolean }>`
+  height: calc(100vh - 15px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100vh;
-  gap: 2.5rem;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute; // Position the overlay
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    display: ${({ showOverlay }) => (showOverlay ? "block" : "none")};
+  }
+`;
+
+const SendForm = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  justify-content: space-between;
 `;
 
 interface Props {
@@ -484,11 +637,35 @@ const QuantitySection = styled.div<{ qtyMode: QtyMode; invalidValue: boolean }>`
   }
 `;
 
-const Quantity = styled.div`
-  position: relative;
-  width: max-content;
-  z-index: 1;
-  height: max-content;
+// Make this dynamic
+export const SendButton = styled(Button)<{ alternate?: boolean }>`
+  background-color: ${(props) => props.alternate && "rgb(171, 154, 255, 0.15)"};
+  border: 1px solid rgba(171, 154, 255, 0.15);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: ${(props) => (props.alternate ? "space-between" : "center")};
+  width: 100%;
+  color: ${(props) => props.alternate && "#b9b9b9"};
+  padding: 10px;
+  font-weight: 400;
+
+  &:hover:not(:active):not(:disabled) {
+    box-shadow: 0 0 0 0.075rem rgba(${(props) => props.theme.theme}, 0.5);
+  }
+`;
+
+export const SendInput = styled(Input)<{ error?: boolean }>`
+  color: ${(props) => (props.error ? "red" : "#b9b9b9")};
+  background-color: rgba(171, 154, 255, 0.15);
+  font-weight: 400;
+  font-size: 1rem;
+  padding: 10px;
+`;
+
+const InputIcons = styled.div`
+  display: flex;
+  gap: 0.625rem;
 `;
 
 const qtyTextStyle = css`
@@ -497,87 +674,23 @@ const qtyTextStyle = css`
   line-height: 1.1em;
 `;
 
-const QuantityInput = styled.input.attrs({
-  type: "text"
-})<{ qtyMode: QtyMode }>`
-  position: absolute;
-  width: 100%;
-  outline: none;
-  border: none;
-  background-color: transparent;
-  padding: 0;
-  z-index: 10;
-  text-align: ${(props) => (props.qtyMode === "token" ? "right" : "left")};
-  ${qtyTextStyle}
-`;
-
-const Imitate = styled.p`
-  color: transparent;
-  z-index: 1;
-  margin: 0;
-  text-align: right;
-  ${qtyTextStyle}
-`;
-
-const Ticker = styled.p`
-  margin: 0;
-  text-transform: uppercase;
-  ${qtyTextStyle}
-`;
-
 const BottomActions = styled(Section)`
   display: flex;
+  padding: 0 15px;
   gap: 1rem;
   flex-direction: column;
 `;
 
 const Datas = styled.div`
   display: flex;
+  padding: 0 15px;
   gap: 0.3rem;
   flex-direction: column;
   justify-content: center;
-  padding: 0 1.25rem;
 
   p {
     font-size: 0.83rem;
   }
-`;
-
-const floatingAction = css`
-  position: absolute;
-  top: 50%;
-  cursor: pointer;
-  transform: translateY(-50%);
-  transition: all 0.17s ease;
-
-  &:hover {
-    opacity: 0.83;
-  }
-
-  &:active {
-    transform: translateY(-50%) scale(0.94);
-  }
-`;
-
-const Max = styled(Text).attrs({
-  noMargin: true
-})`
-  color: rgb(${(props) => props.theme.primaryText});
-  font-size: 0.95rem;
-  right: 20px;
-  text-transform: uppercase;
-  text-align: center;
-  ${floatingAction}
-`;
-
-const Switch = styled(RefreshIcon)<{ disabled: boolean }>`
-  font-size: 1.45rem;
-  width: 1em;
-  height: 1em;
-  left: 20px;
-  opacity: ${(props) => (props.disabled ? ".7" : "1")};
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")} !important;
-  ${floatingAction}
 `;
 
 const TokenSelector = styled.div`
@@ -585,7 +698,7 @@ const TokenSelector = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 0.55rem 1.1rem;
-  border-radius: 25px;
+  border-radius: 10px;
   cursor: pointer;
   background-color: rgba(${(props) => props.theme.theme}, 0.15);
   transition: all 0.12s ease-;
@@ -617,9 +730,9 @@ const TokenSelectorRightSide = styled.div`
   }
 `;
 
-const TokenSelectorWrapper = styled(motion.div)`
+const SliderWrapper = styled(motion.div)<{ partial?: boolean }>`
   position: fixed;
-  top: 0;
+  top: ${(props) => (props.partial ? "50px" : 0)};
   left: 0;
   bottom: 0;
   right: 0;
@@ -633,14 +746,20 @@ const animation: Variants = {
   shown: { opacity: 1 }
 };
 
-const expandAnimation: Variants = {
+const animation2: Variants = {
   hidden: {
-    opacity: 0,
-    height: 0
+    y: "100vh",
+    transition: {
+      duration: 0.2,
+      ease: "easeOut"
+    }
   },
   shown: {
-    opacity: 1,
-    height: "auto"
+    y: "0",
+    transition: {
+      duration: 0.2,
+      ease: "easeInOut"
+    }
   }
 };
 
