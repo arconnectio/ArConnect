@@ -250,14 +250,6 @@ export default function ContactSettings({ address }: Props) {
     copy(contact.address);
     setCopied(true);
     setTimeout(() => setCopied(false), 1000);
-    // setToast({
-    //   type: "success",
-    //   duration: 2000,
-    //   content: browser.i18n.getMessage("copied_address", [
-    //     walletName,
-    //     formatAddress(activeAddress, 3)
-    //   ])
-    // });
   };
 
   const toggleEdit = () => {
