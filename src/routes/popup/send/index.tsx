@@ -89,6 +89,7 @@ export interface TransactionData {
   token: TokenInterface;
   estimatedNetworkFee: string;
   recipient: RecipientType;
+  qtyMode: string;
   message?: string;
 }
 
@@ -157,6 +158,7 @@ export default function Send({ id }: Props) {
       );
       if (existingTxn.recipient) {
         setRecipient(existingTxn.recipient);
+        setQtyMode(existingTxn.qtyMode as QtyMode);
       }
     })();
   }, []);
@@ -197,7 +199,7 @@ export default function Send({ id }: Props) {
       setBalance(token.balance);
 
       const dre = await getDreForToken(token.id);
-      const contract = new DREContract(id, new DRENode(dre));
+      const contract = new DREContract(id || tokenID, new DRENode(dre));
       const result = await contract.query<[number]>(
         `$.balances.${activeAddress}`
       );
@@ -210,7 +212,7 @@ export default function Send({ id }: Props) {
         })
       );
     })();
-  }, [token, activeAddress, arBalance]);
+  }, [token, activeAddress, arBalance, id]);
 
   // token price
   const [price, setPrice] = useState(0);
@@ -345,7 +347,8 @@ export default function Send({ id }: Props) {
       recipient,
       estimatedFiat: qtyMode === "fiat" ? qty : secondaryQty,
       estimatedNetworkFee: formatTokenBalance(networkFee),
-      message: message.state
+      message: message.state,
+      qtyMode
     });
 
     // continue to confirmation page
@@ -358,6 +361,7 @@ export default function Send({ id }: Props) {
         <HeadV2
           back={() => {
             TempTransactionStorage.removeItem("send");
+            setQty("");
             goBack();
           }}
           title={browser.i18n.getMessage("send")}
@@ -411,12 +415,14 @@ export default function Send({ id }: Props) {
             fullWidth
             icon={
               <InputIcons>
-                <CurrencyButton small onClick={switchQtyMode}>
-                  <Currency active={qtyMode === "fiat"}>USD</Currency>/
-                  <Currency active={qtyMode === "token"}>
-                    {token.ticker.toUpperCase()}
-                  </Currency>
-                </CurrencyButton>
+                {!!price && (
+                  <CurrencyButton small onClick={switchQtyMode}>
+                    <Currency active={qtyMode === "fiat"}>USD</Currency>/
+                    <Currency active={qtyMode === "token"}>
+                      {token.ticker.toUpperCase()}
+                    </Currency>
+                  </CurrencyButton>
+                )}
                 <MaxButton
                   altColor={theme === "dark" && "#423D59"}
                   small

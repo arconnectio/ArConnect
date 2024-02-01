@@ -233,7 +233,12 @@ export default function Transaction({ id: rawId, gw }: Props) {
   return (
     <Wrapper>
       <div>
-        <HeadV2 title="Transaction Complete" />
+        <HeadV2
+          title="Transaction Complete"
+          back={() => {
+            push("/");
+          }}
+        />
         {(transaction && (
           <>
             <Section style={{ paddingTop: 9, paddingBottom: 8 }}>
