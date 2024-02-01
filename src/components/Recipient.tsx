@@ -73,9 +73,13 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
     );
 
     return filteredContacts.reduce((groups, contact) => {
-      const letter = contact.name
+      let letter = contact.name
         ? contact?.name[0].toUpperCase()
         : contact.address[0].toUpperCase();
+
+      if (!letter.match(/[A-Z]/)) {
+        letter = "0-9";
+      }
 
       if (!groups[letter]) {
         groups[letter] = [];
