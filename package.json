@@ -1,7 +1,7 @@
 {
   "name": "arconnect",
   "displayName": "ArConnect",
-  "version": "1.1.2",
+  "version": "1.1.6",
   "description": "__MSG_extensionDescription__",
   "author": "th8ta",
   "packageManager": "yarn@1.22.18",
@@ -47,7 +47,7 @@
     ]
   },
   "dependencies": {
-    "@arconnect/components": "^0.2.5",
+    "@arconnect/components": "^0.2.6",
     "@arconnect/keystone-sdk": "^0.0.5",
     "@arconnect/warp-dre": "^0.0.1",
     "@arconnect/webext-bridge": "^5.0.6",
@@ -88,6 +88,8 @@
     "wouter": "^2.8.0-alpha.2"
   },
   "devDependencies": {
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^9.2.6",
     "@types/chrome": "^0.0.196",
     "@types/human-crypto-keys": "^0.1.0",
     "@types/react": "^18.0.18",
@@ -106,6 +108,7 @@
     "plasmo": "^0.82.0",
     "prettier": "^2.2.1",
     "querystring-es3": "^0.2.1",
+    "semantic-release": "^23.0.0",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "timers-browserify": "^2.0.12",
