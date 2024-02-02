@@ -120,6 +120,11 @@ export default function Contacts() {
     );
   }
 
+  const addContact = () => {
+    setLocation("/contacts/new");
+    trackEvent(EventType.ADD_CONTACT, {});
+  };
+
   return (
     <Wrapper>
       <SearchWrapper>
@@ -128,7 +133,7 @@ export default function Contacts() {
           {...searchInput.bindings}
           sticky
         />
-        <AddContactButton onClick={() => setLocation("/contacts/new")}>
+        <AddContactButton onClick={addContact}>
           {browser.i18n.getMessage("add_contact")}
         </AddContactButton>
       </SearchWrapper>

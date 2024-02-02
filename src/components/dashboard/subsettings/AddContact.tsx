@@ -33,7 +33,6 @@ import styled from "styled-components";
 import { useLocation } from "wouter";
 import copy from "copy-to-clipboard";
 import { gql } from "~gateways/api";
-import { EventType, trackEvent } from "~utils/analytics";
 
 export default function AddContact() {
   // contacts
@@ -65,7 +64,6 @@ export default function AddContact() {
   });
 
   useEffect(() => {
-    trackEvent(EventType.ADD_CONTACT, {});
     if (address) {
       setContact({ ...contact, address: address });
     }
