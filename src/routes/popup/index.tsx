@@ -60,7 +60,7 @@ export default function Home() {
       <Balance />
       {(!noBalance && (
         <>
-          <BuyButton padding={true} route={"/purchase"} logo={true} />
+          {/* <BuyButton padding={true} route={"/purchase"} logo={true} /> */}
           <Tokens />
           <Collectibles />
         </>
