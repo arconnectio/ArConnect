@@ -121,8 +121,8 @@ export default function Contacts() {
   }
 
   const addContact = () => {
+    trackEvent(EventType.ADD_CONTACT, { fromContactSettings: true });
     setLocation("/contacts/new");
-    trackEvent(EventType.ADD_CONTACT, {});
   };
 
   return (
