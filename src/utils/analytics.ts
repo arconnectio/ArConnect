@@ -55,7 +55,7 @@ export const trackPage = async (title: PageType) => {
   if (!enabled) return;
 
   // only track in prod
-  if (process.env.NODE_ENV === "development") return;
+  if (process.env.PLASMO_PUBLIC_NODE_ENV === "development") return;
 
   try {
     await analytics.page("ArConnect Extension", {
@@ -75,7 +75,7 @@ export const trackDirect = async (
   if (!enabled) return;
 
   // only track in prod
-  if (process.env.NODE_ENV === "development") return;
+  if (process.env.PLASMO_PUBLIC_NODE_ENV === "development") return;
 
   let userId = await ExtensionStorage.get("user_id");
   if (!userId) {
@@ -105,7 +105,7 @@ export const trackEvent = async (eventName: EventType, properties: any) => {
   if (!enabled) return;
 
   // only track in prod
-  if (process.env.NODE_ENV === "development") return;
+  if (process.env.PLASMO_PUBLIC_NODE_ENV === "development") return;
 
   const ONE_HOUR_IN_MS = 3600000;
 
