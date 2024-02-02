@@ -12,6 +12,7 @@ import { IconButton } from "~components/IconButton";
 import { formatAddress } from "~utils/format";
 import { multiSort } from "~utils/multi_sort";
 import { enrichContact } from "~contacts/hooks";
+import { EventType, trackEvent } from "~utils/analytics";
 
 export default function Contacts() {
   // contacts
@@ -24,6 +25,10 @@ export default function Contacts() {
   );
 
   const [contacts, setContacts] = useState<SettingsContactData[]>([]);
+
+  useEffect(() => {
+    trackEvent(EventType.CONTACTS, {});
+  }, []);
 
   useEffect(() => {
     async function fetchContacts() {
