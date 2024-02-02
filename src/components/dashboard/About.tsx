@@ -2,14 +2,16 @@ import { Spacer, Text } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import logo from "url:/assets/icon512.png";
 import styled from "styled-components";
-import packageJson from "~../package.json";
 
 export default function About() {
   return (
     <>
       <Logo />
       <Spacer y={0.85} />
-      <Name>{packageJson?.displayName || "ArConnect"}</Name>
+      <Name>
+        ArConnect
+        {process.env.PLASMO_PUBLIC_NODE_ENV === "development" && " BETA"}
+      </Name>
       <Version>
         {"v" + browser.runtime.getManifest().version}
         {(process.env.PLASMO_PUBLIC_NODE_ENV === "development" ||
