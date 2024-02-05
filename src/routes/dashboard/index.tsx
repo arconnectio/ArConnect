@@ -287,7 +287,7 @@ const allSettings: Omit<Setting, "active">[] = [
     component: Contacts
   },
   {
-    name: "sign_notification",
+    name: "sign_settings",
     displayName: "setting_sign_settings",
     description: "setting_sign_notification_description",
     icon: BellIcon,
