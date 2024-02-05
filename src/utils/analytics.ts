@@ -7,7 +7,7 @@ import { defaultGateway } from "~gateways/gateway";
 import { v4 as uuid } from "uuid";
 import browser, { type Alarms } from "webextension-polyfill";
 
-const PUBLIC_SEGMENT_WRITEKEY = "FEoUFQHxY7x02meawdm5XibRDGbkBpcS";
+const PUBLIC_SEGMENT_WRITEKEY = "J97E4cvSZqmpeEdiUQNC2IxS1Kw4Cwxm";
 
 const analytics = AnalyticsBrowser.load({
   writeKey: PUBLIC_SEGMENT_WRITEKEY
@@ -57,12 +57,12 @@ export enum PageType {
 }
 
 export const trackPage = async (title: PageType) => {
-  // const enabled = await getSetting("analytics").getValue();
+  const enabled = await getSetting("analytics").getValue();
 
-  // if (!enabled) return;
+  if (!enabled) return;
 
-  // // only track in prod
-  // if (process.env.NODE_ENV === "development") return;
+  // only track in prod
+  if (process.env.NODE_ENV === "development") return;
 
   try {
     await analytics.page("ArConnect Extension", {
@@ -77,12 +77,12 @@ export const trackDirect = async (
   event: EventType,
   properties: Record<string, unknown>
 ) => {
-  // const enabled = await getSetting("analytics").getValue();
+  const enabled = await getSetting("analytics").getValue();
 
-  // if (!enabled) return;
+  if (!enabled) return;
 
-  // // only track in prod
-  // if (process.env.NODE_ENV === "development") return;
+  // only track in prod
+  if (process.env.NODE_ENV === "development") return;
 
   let userId = await ExtensionStorage.get("user_id");
   if (!userId) {
@@ -107,12 +107,12 @@ export const trackDirect = async (
 
 export const trackEvent = async (eventName: EventType, properties: any) => {
   // first we check if we are allowed to collect data
-  // const enabled = await getSetting("analytics").getValue();
+  const enabled = await getSetting("analytics").getValue();
 
-  // if (!enabled) return;
+  if (!enabled) return;
 
-  // // only track in prod
-  // if (process.env.NODE_ENV === "development") return;
+  // only track in prod
+  if (process.env.NODE_ENV === "development") return;
 
   const ONE_HOUR_IN_MS = 3600000;
 
