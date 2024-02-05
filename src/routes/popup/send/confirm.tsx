@@ -335,6 +335,11 @@ export default function Confirm({ tokenID, qty }: Props) {
             content: browser.i18n.getMessage("sent_tx"),
             duration: 2000
           });
+          trackEvent(EventType.TX_SENT, {
+            contact: contact ? true : false,
+            amount: transactionAmount,
+            fee: networkFee
+          });
           // Redirect
           uToken
             ? push("/")
