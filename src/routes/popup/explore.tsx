@@ -22,7 +22,6 @@ import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import { PageType, trackPage } from "~utils/analytics";
-import { NavigationBar } from "~components/popup/Navigation";
 
 export default function Explore() {
   // ar price period

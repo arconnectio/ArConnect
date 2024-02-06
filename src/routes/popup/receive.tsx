@@ -10,6 +10,7 @@ import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { useEffect } from "react";
 import { PageType, trackPage } from "~utils/analytics";
+import HeadV2 from "~components/popup/HeadV2";
 
 export default function Receive() {
   // active address
@@ -26,7 +27,7 @@ export default function Receive() {
   return (
     <Wrapper>
       <div>
-        <Head title={browser.i18n.getMessage("receive")} />
+        <HeadV2 title={browser.i18n.getMessage("receive")} />
         <AddressField>
           {formatAddress(activeAddress ?? "", 6)}
           <Tooltip
@@ -61,7 +62,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100vh;
+  height: calc(100vh - 72px);
 `;
 
 const AddressField = styled.div`
