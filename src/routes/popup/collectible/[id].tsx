@@ -13,9 +13,9 @@ import Thumbnail from "~components/popup/asset/Thumbnail";
 import Skeleton from "~components/Skeleton";
 import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
-import Head from "~components/popup/Head";
 import styled from "styled-components";
 import { useGateway } from "~gateways/wayfinder";
+import HeadV2 from "~components/popup/HeadV2";
 
 export default function Collectible({ id }: Props) {
   // load state
@@ -64,7 +64,7 @@ export default function Collectible({ id }: Props) {
 
   return (
     <>
-      <Head title={browser.i18n.getMessage("collectible")} />
+      <HeadV2 title={browser.i18n.getMessage("collectible")} />
       <Spacer y={0.75} />
       <Thumbnail src={`${concatGatewayURL(gateway)}/${id}`} />
       <Section>
