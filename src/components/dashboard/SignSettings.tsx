@@ -47,8 +47,8 @@ export default function SignSettings() {
     const newAllowance = Number(e.target.value);
     if (newAllowance !== signatureAllowance) {
       trackEvent(EventType.SEND_ALLOWANCE_CHANGE, {
-        Before: signatureAllowance,
-        After: newAllowance
+        before: signatureAllowance,
+        after: newAllowance
       });
       setSignatureAllowance(newAllowance);
 

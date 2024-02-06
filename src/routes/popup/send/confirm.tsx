@@ -337,7 +337,7 @@ export default function Confirm({ tokenID, qty }: Props) {
           });
           trackEvent(EventType.TX_SENT, {
             contact: contact ? true : false,
-            amount: transactionAmount,
+            amount: tokenID === "AR" ? transactionAmount : 0,
             fee: networkFee
           });
           // Redirect
@@ -400,6 +400,11 @@ export default function Confirm({ tokenID, qty }: Props) {
             type: "success",
             content: browser.i18n.getMessage("sent_tx"),
             duration: 2000
+          });
+          trackEvent(EventType.TX_SENT, {
+            contact: contact ? true : false,
+            amount: tokenID === "AR" ? transactionAmount : 0,
+            fee: networkFee
           });
           uToken
             ? push("/")
