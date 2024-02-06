@@ -18,10 +18,10 @@ import getPermawebNewsFeed from "~lib/permaweb_news";
 import AppIcon from "~components/popup/home/AppIcon";
 import Skeleton from "~components/Skeleton";
 import browser from "webextension-polyfill";
-import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import { PageType, trackPage } from "~utils/analytics";
+import HeadV2 from "~components/popup/HeadV2";
 
 export default function Explore() {
   // ar price period
@@ -113,7 +113,7 @@ export default function Explore() {
 
   return (
     <>
-      <Head title={browser.i18n.getMessage("explore")} />
+      <HeadV2 title={browser.i18n.getMessage("explore")} />
       <Section>
         <Shortcuts>
           <AppShortcut

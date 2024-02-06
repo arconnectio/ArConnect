@@ -13,6 +13,7 @@ import { isExpired } from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
 import { trackEvent, EventType, trackPage, PageType } from "~utils/analytics";
 import { findGateway } from "~gateways/wayfinder";
+import styled from "styled-components";
 
 export default function Home() {
   // get if the user has no balance
@@ -54,7 +55,7 @@ export default function Home() {
   }, []);
 
   return (
-    <>
+    <HomeWrapper>
       <WalletHeader />
       <Balance />
       {(!noBalance && (
@@ -64,7 +65,10 @@ export default function Home() {
           <Collectibles />
         </>
       )) || <NoBalance />}
-      <AnalyticsConsent />
-    </>
+    </HomeWrapper>
   );
 }
+
+const HomeWrapper = styled.div`
+  padding-bottom: 62px;
+`;

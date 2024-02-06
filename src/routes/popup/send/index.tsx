@@ -588,7 +588,7 @@ const CurrencyButton = styled(Button)`
 `;
 
 const Wrapper = styled.div<{ showOverlay: boolean }>`
-  height: calc(100vh - 15px);
+  height: calc(100vh - 72px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;

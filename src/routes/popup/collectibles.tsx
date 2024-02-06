@@ -4,8 +4,8 @@ import { useTokens } from "~tokens";
 import { useMemo } from "react";
 import Collectible from "~components/popup/Collectible";
 import browser from "webextension-polyfill";
-import Head from "~components/popup/Head";
 import styled from "styled-components";
+import HeadV2 from "~components/popup/HeadV2";
 
 export default function Collectibles() {
   // all tokens
@@ -22,7 +22,7 @@ export default function Collectibles() {
 
   return (
     <>
-      <Head title={browser.i18n.getMessage("collectibles")} />
+      <HeadV2 title={browser.i18n.getMessage("collectibles")} />
       <CollectiblesList>
         {collectibles.map((collectible, i) => (
           <Collectible
