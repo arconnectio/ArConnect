@@ -16,10 +16,11 @@ import HardwareWalletIcon, {
 } from "~components/hardware/HardwareWalletIcon";
 import { useHardwareApi } from "~wallets/hooks";
 import { useHistory } from "~utils/hash_router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
 import WalletSwitcher from "./WalletSwitcher";
 import styled from "styled-components";
+import { svgie } from "~utils/svgies";
 
 export default function Head({
   title,
@@ -71,6 +72,11 @@ export default function Head({
 
   const ans = useAnsProfile(activeAddress);
 
+  const svgieAvatar = useMemo(
+    () => svgie(activeAddress, { asDataURI: true }),
+    [activeAddress]
+  );
+
   // first render for animation
   const [firstRender, setFirstRender] = useState(true);
 
@@ -111,13 +117,13 @@ export default function Head({
       >
         <PageTitle>{title}</PageTitle>
         <ClickableAvatar
-          img={ans?.avatar}
+          img={ans?.avatar || svgieAvatar}
           onClick={() => {
             if (!allowOpen) return;
             setOpen(true);
           }}
         >
-          {!ans?.avatar && <NoAvatarIcon />}
+          {!ans?.avatar && !svgieAvatar && <NoAvatarIcon />}
           <AnimatePresence initial={false}>
             {hardwareApi === "keystone" && (
               <HardwareWalletIcon
