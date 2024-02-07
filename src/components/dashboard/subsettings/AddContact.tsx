@@ -63,7 +63,6 @@ export default function AddContact() {
     avatarId: ""
   });
 
-  // if address exists from query param
   useEffect(() => {
     if (address) {
       setContact({ ...contact, address: address });

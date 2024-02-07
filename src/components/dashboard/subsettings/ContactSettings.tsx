@@ -21,6 +21,7 @@ import { useLocation } from "wouter";
 import { uploadUserAvatar, getUserAvatar } from "~lib/avatar";
 import { getAllArNSNames } from "~lib/arns";
 import copy from "copy-to-clipboard";
+import { EventType, trackEvent } from "~utils/analytics";
 
 export default function ContactSettings({ address }: Props) {
   // contacts
@@ -230,6 +231,7 @@ export default function ContactSettings({ address }: Props) {
   const removeContactModal = useModal();
 
   const confirmRemoveContact = async () => {
+    trackEvent(EventType.REMOVE_CONTACT, {});
     // remove contact & update storage
     if (contactIndex !== -1) {
       const updatedContacts = [...storedContacts];

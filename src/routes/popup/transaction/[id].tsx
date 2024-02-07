@@ -28,6 +28,7 @@ import {
 } from "~components/Recipient";
 import { TempTransactionStorage } from "~utils/storage";
 import { useContact } from "~contacts/hooks";
+import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
 
 // pull contacts and check if to address is in contacts
 
@@ -112,6 +113,7 @@ export default function Transaction({ id: rawId, gw }: Props) {
     };
 
     fetchTx();
+    trackPage(PageType.SEND_COMPLETE);
 
     return () => {
       if (timeoutID) clearTimeout(timeoutID);
@@ -282,6 +284,9 @@ export default function Transaction({ id: rawId, gw }: Props) {
                             {browser.i18n.getMessage("user_not_in_contacts")}{" "}
                             <span
                               onClick={() => {
+                                trackEvent(EventType.ADD_CONTACT, {
+                                  fromSendFlow: true
+                                });
                                 browser.tabs.create({
                                   url: browser.runtime.getURL(
                                     `tabs/dashboard.html#/contacts/new?address=${transaction.recipient}`

@@ -27,7 +27,7 @@ import { getActiveKeyfile, getActiveWallet, type StoredWallet } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
 import { isUToken, sendRequest } from "~utils/send";
-import { EventType, trackEvent } from "~utils/analytics";
+import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
 import { concatGatewayURL } from "~gateways/utils";
 import type { JWKInterface } from "arbundles";
 import {
@@ -126,6 +126,7 @@ export default function Confirm({ tokenID, qty }: Props) {
     };
 
     fetchData();
+    trackPage(PageType.CONFIRM_SEND);
   }, []);
 
   const [wallets] = useStorage<StoredWallet[]>(
@@ -334,6 +335,11 @@ export default function Confirm({ tokenID, qty }: Props) {
             content: browser.i18n.getMessage("sent_tx"),
             duration: 2000
           });
+          trackEvent(EventType.TX_SENT, {
+            contact: contact ? true : false,
+            amount: tokenID === "AR" ? transactionAmount : 0,
+            fee: networkFee
+          });
           // Redirect
           uToken
             ? push("/")
@@ -394,6 +400,11 @@ export default function Confirm({ tokenID, qty }: Props) {
             type: "success",
             content: browser.i18n.getMessage("sent_tx"),
             duration: 2000
+          });
+          trackEvent(EventType.TX_SENT, {
+            contact: contact ? true : false,
+            amount: tokenID === "AR" ? transactionAmount : 0,
+            fee: networkFee
           });
           uToken
             ? push("/")

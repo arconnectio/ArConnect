@@ -12,6 +12,7 @@ import { IconButton } from "~components/IconButton";
 import { formatAddress } from "~utils/format";
 import { multiSort } from "~utils/multi_sort";
 import { enrichContact } from "~contacts/hooks";
+import { EventType, trackEvent } from "~utils/analytics";
 
 export default function Contacts() {
   // contacts
@@ -24,6 +25,10 @@ export default function Contacts() {
   );
 
   const [contacts, setContacts] = useState<SettingsContactData[]>([]);
+
+  useEffect(() => {
+    trackEvent(EventType.CONTACTS, {});
+  }, []);
 
   useEffect(() => {
     async function fetchContacts() {
@@ -115,6 +120,11 @@ export default function Contacts() {
     );
   }
 
+  const addContact = () => {
+    trackEvent(EventType.ADD_CONTACT, { fromContactSettings: true });
+    setLocation("/contacts/new");
+  };
+
   return (
     <Wrapper>
       <SearchWrapper>
@@ -123,7 +133,7 @@ export default function Contacts() {
           {...searchInput.bindings}
           sticky
         />
-        <AddContactButton onClick={() => setLocation("/contacts/new")}>
+        <AddContactButton onClick={addContact}>
           {browser.i18n.getMessage("add_contact")}
         </AddContactButton>
       </SearchWrapper>
