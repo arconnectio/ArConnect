@@ -3,16 +3,18 @@ name: Finalize Versioning and Open PR to Production
 on:
   workflow_dispatch:
 
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
 jobs:
-  version-and-create-pr:
+  release:
+    name: Release
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+      - name: Checkout Repo
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v4.0.1
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "yarn"
@@ -20,33 +22,7 @@ jobs:
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Run Changeset Version
-        run: npx changeset version
-
-      - name: Configure Git
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email github-actions[bot]@users.noreply.github.com
-
-      - name: Create New Branch
-        run: |
-          PACKAGE_VERSION=$(jq -r '.version' package.json)
-          VERSION_BRANCH="release-$PACKAGE_VERSION"
-          echo "VERSION_BRANCH=$VERSION_BRANCH" >> $GITHUB_ENV
-          git checkout -b $VERSION_BRANCH
-        shell: /usr/bin/bash -e {0}
-
-      - name: Commit and Push Changes
-        run: |
-          git add .
-          git commit -m "chore: apply changeset versions"
-          git push origin ${{ env.VERSION_BRANCH }}
-
-      - name: Open PR to Production
-        uses: repo-sync/pull-request@v2
-        with:
-          source_branch: "${{ env.VERSION_BRANCH }}"
-          destination_branch: "production"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          pr_title: "Release: ${{ env.VERSION_BRANCH }}"
-          pr_body: "This PR includes changes specified in CHANGELOG.md."
+      - name: Create Release Pull Request
+        uses: changesets/action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
