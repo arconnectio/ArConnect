@@ -84,12 +84,22 @@ const Page = ({
     }
   };
 
+  const opacityAnimation: Variants = {
+    initial: { opacity: 0, scale: 0.8 },
+    enter: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, y: 0, transition: { duration: 0.2 } }
+  };
+
   return (
     <PageWrapper
       initial="initial"
       animate="enter"
       exit="exit"
-      variants={pageAnimation}
+      variants={
+        new URLSearchParams(window.location.search).get("expanded")
+          ? opacityAnimation
+          : pageAnimation
+      }
     >
       {children}
     </PageWrapper>
