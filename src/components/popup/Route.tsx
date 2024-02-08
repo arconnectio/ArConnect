@@ -24,17 +24,21 @@ const Route: typeof BaseRoute = ({ path, component, children }) => {
   );
 };
 
-export const Wrapper = styled(motion.div)<{ responsive?: boolean }>`
+export const Wrapper = styled(motion.div)<{
+  responsive?: boolean;
+  expanded?: boolean;
+}>`
   position: relative;
   width: ${(props) => (props.responsive ? "100%" : "377.5px")};
-  min-height: 600px;
+  min-height: ${(props) => (props.expanded ? "100vh" : "600px")};
+  max-height: max-content;
+  background-color: rgb(${(props) => props.theme.background});
 `;
 
 const PageWrapper = styled(Wrapper)`
   position: absolute;
   top: 0;
   width: 100%;
-  background-color: rgb(${(props) => props.theme.background});
   transition: background-color 0.23s ease-in-out;
 `;
 
@@ -80,12 +84,22 @@ const Page = ({
     }
   };
 
+  const opacityAnimation: Variants = {
+    initial: { opacity: 0, scale: 0.8 },
+    enter: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, y: 0, transition: { duration: 0.2 } }
+  };
+
   return (
     <PageWrapper
       initial="initial"
       animate="enter"
       exit="exit"
-      variants={pageAnimation}
+      variants={
+        new URLSearchParams(window.location.search).get("expanded")
+          ? opacityAnimation
+          : pageAnimation
+      }
     >
       {children}
     </PageWrapper>
