@@ -13,6 +13,7 @@
     "build:firefox": "plasmo build --target=firefox-mv2 --no-hoist",
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check .",
+    "release": "yarn build:chrome && changeset publish",
     "prepare": "husky install"
   },
   "manifest": {

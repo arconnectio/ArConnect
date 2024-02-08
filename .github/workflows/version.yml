@@ -24,6 +24,6 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-            publish: yarn build:chrome && changeset publish
+          publish: yarn build:chrome && changeset publish
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
