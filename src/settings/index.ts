@@ -52,14 +52,6 @@ const settings: Setting[] = [
     defaultValue: 60
   }),*/
   new Setting({
-    name: "sign_notification",
-    displayName: "setting_sign_notification",
-    icon: BellIcon,
-    description: "setting_sign_notification_description",
-    type: "boolean",
-    defaultValue: true
-  }),
-  new Setting({
     name: "display_theme",
     displayName: "setting_display_theme",
     icon: SunIcon,

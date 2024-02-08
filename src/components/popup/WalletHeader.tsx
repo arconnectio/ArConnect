@@ -28,7 +28,8 @@ import {
   GlobeIcon,
   LogOutIcon,
   SettingsIcon,
-  UserIcon
+  UserIcon,
+  MaximizeIcon
 } from "@iconicicons/react";
 import WalletSwitcher, { popoverAnimation } from "./WalletSwitcher";
 import Application, { type AppInfo } from "~applications/application";
@@ -39,7 +40,8 @@ import Squircle from "~components/Squircle";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
-import { Gateway } from "~gateways/gateway";
+import { type Gateway } from "~gateways/gateway";
+import { Settings01 } from "@untitled-ui/icons-react";
 
 export default function WalletHeader() {
   // current address
@@ -79,6 +81,14 @@ export default function WalletHeader() {
     });
   };
 
+  // expand view
+  const expandView: MouseEventHandler = (e) => {
+    window.open(window.document.URL + "?expanded=true");
+  };
+
+  // is the popup open in a tab
+  const [isExpanded, setExpanded] = useState(false);
+
   // profile picture
   const ansProfile = useAnsProfile(activeAddress);
 
@@ -116,6 +126,11 @@ export default function WalletHeader() {
     const listener = () => setScrollY(window.scrollY);
 
     window.addEventListener("scroll", listener);
+
+    const queryParameters = new URLSearchParams(window.location.search);
+    const expanded = queryParameters.get("expanded");
+
+    if (expanded) setExpanded(true);
 
     return () => window.removeEventListener("scroll", listener);
   }, []);
@@ -166,31 +181,37 @@ export default function WalletHeader() {
   const [copied, setCopied] = useState(false);
 
   return (
-    <Wrapper
-      onClick={() => {
-        if (!isOpen) setOpen(true);
-      }}
-      displayTheme={theme}
-      scrolled={scrollY > 14}
-    >
-      <Wallet>
-        <Avatar img={ansProfile?.avatar}>
-          {!ansProfile?.avatar && <NoAvatarIcon />}
-          <AnimatePresence initial={false}>
-            {hardwareApi === "keystone" && (
-              <HardwareWalletIcon
-                icon={keystoneLogo}
-                color="#2161FF"
-                {...hwIconAnimateProps}
-              />
-            )}
-          </AnimatePresence>
-        </Avatar>
-        <WithArrow>
-          <Text noMargin>{displayName}</Text>
-          <ExpandArrow open={isOpen} />
-        </WithArrow>
-      </Wallet>
+    <Wrapper displayTheme={theme} scrolled={scrollY > 14}>
+      <AddressContainer>
+        <Wallet
+          onClick={() => {
+            if (!isOpen) setOpen(true);
+          }}
+        >
+          <Avatar img={ansProfile?.avatar}>
+            {!ansProfile?.avatar && <NoAvatarIcon />}
+            <AnimatePresence initial={false}>
+              {hardwareApi === "keystone" && (
+                <HardwareWalletIcon
+                  icon={keystoneLogo}
+                  color="#2161FF"
+                  {...hwIconAnimateProps}
+                />
+              )}
+            </AnimatePresence>
+          </Avatar>
+          <WithArrow>
+            <Text noMargin>{displayName}</Text>
+            <ExpandArrow open={isOpen} />
+          </WithArrow>
+        </Wallet>
+        <Tooltip
+          content={browser.i18n.getMessage("copy_address")}
+          position="bottom"
+        >
+          <Action as={copied ? CheckIcon : CopyIcon} onClick={copyAddress} />
+        </Tooltip>
+      </AddressContainer>
       <WalletActions>
         <Tooltip content="Viewblock" position="bottom">
           <Action
@@ -203,10 +224,17 @@ export default function WalletHeader() {
           />
         </Tooltip>
         <Tooltip
-          content={browser.i18n.getMessage("copy_address")}
+          content={browser.i18n.getMessage("settings")}
           position="bottom"
         >
-          <Action as={copied ? CheckIcon : CopyIcon} onClick={copyAddress} />
+          <Action
+            as={SettingsIcon}
+            onClick={() =>
+              browser.tabs.create({
+                url: browser.runtime.getURL("tabs/dashboard.html")
+              })
+            }
+          />
         </Tooltip>
         <AppAction
           onClick={(e) => {
@@ -217,6 +245,14 @@ export default function WalletHeader() {
           <Action as={GlobeIcon} />
           <AppOnline online={!!activeAppData} />
         </AppAction>
+        {!isExpanded && (
+          <Tooltip
+            content={browser.i18n.getMessage("expand_view")}
+            position="bottomEnd"
+          >
+            <Action as={MaximizeIcon} onClick={expandView} />
+          </Tooltip>
+        )}
         <AnimatePresence>
           {appDataOpen && (
             <AppInfoWrapper
@@ -327,7 +363,6 @@ const Wrapper = styled(Section)<{
   align-items: center;
   justify-content: space-between;
   padding: 1.475rem 20px 0.775rem calc(20px - 0.9rem);
-  cursor: pointer;
   z-index: 100;
   top: 0;
   left: 0;
@@ -346,7 +381,13 @@ const Wrapper = styled(Section)<{
 
 const avatarSize = "1.425rem";
 
+const AddressContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const Wallet = styled.div`
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.64rem;
@@ -437,6 +478,7 @@ const AppOnline = styled.div<{ online: boolean }>`
 `;
 
 const Action = styled(CopyIcon)`
+  cursor: pointer;
   font-size: 1.25rem;
   width: 1em;
   height: 1em;

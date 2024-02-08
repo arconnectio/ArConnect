@@ -218,6 +218,7 @@ export default function AddWallet() {
             <BackupWalletPage seed={generatedWallet.seedphrase} />
           )) || (
           <>
+            <Spacer y={0.45} />
             <Title>{browser.i18n.getMessage("add_wallet")}</Title>
             <Text>
               {browser.i18n.getMessage("provide_seedphrase_paragraph")}

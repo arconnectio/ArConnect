@@ -5,8 +5,8 @@ import { useTokens } from "~tokens";
 import { useMemo } from "react";
 import browser from "webextension-polyfill";
 import Token from "~components/popup/Token";
-import Head from "~components/popup/Head";
 import styled from "styled-components";
+import HeadV2 from "~components/popup/HeadV2";
 
 export default function Tokens() {
   // all tokens
@@ -23,7 +23,7 @@ export default function Tokens() {
 
   return (
     <>
-      <Head title={browser.i18n.getMessage("assets")} />
+      <HeadV2 title={browser.i18n.getMessage("assets")} />
       <TokensList>
         {assets.map((token, i) => (
           <Token

@@ -40,6 +40,7 @@ export default function TokenSettings({ id }: Props) {
   return (
     <Wrapper>
       <div>
+        <Spacer y={0.45} />
         <TokenName>{token.name}</TokenName>
         <Spacer y={0.5} />
         <Select

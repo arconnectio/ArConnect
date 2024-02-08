@@ -13,23 +13,30 @@ import {
   GridIcon,
   InformationIcon,
   TrashIcon,
-  WalletIcon
+  WalletIcon,
+  BellIcon
 } from "@iconicicons/react";
+import { Users01 } from "@untitled-ui/icons-react";
 import WalletSettings from "~components/dashboard/subsettings/WalletSettings";
 import TokenSettings from "~components/dashboard/subsettings/TokenSettings";
 import AppSettings from "~components/dashboard/subsettings/AppSettings";
+import ContactSettings from "~components/dashboard/subsettings/ContactSettings";
 import AddWallet from "~components/dashboard/subsettings/AddWallet";
+import AddContact from "~components/dashboard/subsettings/AddContact";
 import Applications from "~components/dashboard/Applications";
 import SettingEl from "~components/dashboard/Setting";
 import Wallets from "~components/dashboard/Wallets";
 import Application from "~applications/application";
 import Tokens from "~components/dashboard/Tokens";
+import Contacts from "~components/dashboard/Contacts";
 import About from "~components/dashboard/About";
 import Reset from "~components/dashboard/Reset";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import settings from "~settings";
 import { PageType, trackPage } from "~utils/analytics";
+import { formatSettingName } from "~utils/format";
+import SignSettings from "~components/dashboard/SignSettings";
 
 export default function Settings({ params }: Props) {
   // router location
@@ -95,10 +102,17 @@ export default function Settings({ params }: Props) {
         normalPadding={
           activeSetting !== "apps" &&
           activeSetting !== "wallets" &&
-          activeSetting !== "tokens"
+          activeSetting !== "tokens" &&
+          activeSetting !== "contacts"
         }
       >
-        <Spacer y={3.3} />
+        <Spacer y={0.45} />
+        <MidSettingsTitle>
+          {formatSettingName(
+            allSettings.find((s) => s.name === activeSetting)?.name
+          ) || ""}
+        </MidSettingsTitle>
+        <Spacer y={0.85} />
         {activeSetting &&
           ((definedSetting && (
             <SettingEl
@@ -137,6 +151,20 @@ export default function Settings({ params }: Props) {
         {activeSetting === "tokens" && activeSubSetting && (
           <TokenSettings id={activeSubSetting} />
         )}
+
+        {activeSetting === "contacts" &&
+          activeSubSetting &&
+          activeSubSetting.startsWith("new") && (
+            <AddContact key="new-contacts" />
+          )}
+        {activeSetting === "contacts" &&
+          activeSubSetting &&
+          !activeSubSetting.startsWith("new") && (
+            <ContactSettings
+              address={activeSubSetting}
+              key={activeSubSetting}
+            />
+          )}
       </Panel>
     </SettingsWrapper>
   );
@@ -209,6 +237,14 @@ const SettingsTitle = styled(Text).attrs({
   padding: 0 ${setting_element_padding};
 `;
 
+const MidSettingsTitle = styled(Text).attrs({
+  title: true,
+  noMargin: true
+})`
+  padding: 0 ${setting_element_padding};
+  font-weight: 600;
+`;
+
 interface Setting extends SettingItemData {
   name: string;
   component?: (...args: any[]) => JSX.Element;
@@ -242,6 +278,20 @@ const allSettings: Omit<Setting, "active">[] = [
     description: "setting_tokens_description",
     icon: TicketIcon,
     component: Tokens
+  },
+  {
+    name: "contacts",
+    displayName: "setting_contacts",
+    description: "setting_contacts_description",
+    icon: Users01,
+    component: Contacts
+  },
+  {
+    name: "sign_settings",
+    displayName: "setting_sign_settings",
+    description: "setting_sign_notification_description",
+    icon: BellIcon,
+    component: SignSettings
   },
   ...settings.map((setting) => ({
     name: setting.name,

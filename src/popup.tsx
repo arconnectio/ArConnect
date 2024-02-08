@@ -25,6 +25,8 @@ import Collectibles from "~routes/popup/collectibles";
 import Collectible from "~routes/popup/collectible/[id]";
 import Transaction from "~routes/popup/transaction/[id]";
 import Recipient from "~routes/popup/send/recipient";
+import Confirm from "~routes/popup/send/confirm";
+import { NavigationBar } from "~components/popup/Navigation";
 
 export default function Popup() {
   const theme = useTheme();
@@ -73,6 +75,14 @@ export default function Popup() {
                   <Transaction id={params?.id} gw={params?.gateway} />
                 )}
               </Route>
+              <Route path="/send/confirm/:token/:qty/:recipient/:message?">
+                {(params: { token: string; qty: string }) => (
+                  <Confirm
+                    tokenID={params?.token}
+                    qty={Number(params?.qty || "0")}
+                  />
+                )}
+              </Route>
               <Route path="/send/recipient/:token/:qty/:message?">
                 {(params: { token: string; qty: string; message?: string }) => (
                   <Recipient
@@ -82,6 +92,7 @@ export default function Popup() {
                   />
                 )}
               </Route>
+              <NavigationBar />
             </HistoryProvider>
           </Router>
         </Wrapper>
@@ -92,6 +103,10 @@ export default function Popup() {
 
 const HideScrollbar = createGlobalStyle`
   body {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
     scrollbar-width: none;
 
     &::-webkit-scrollbar {
