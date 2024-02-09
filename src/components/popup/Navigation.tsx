@@ -43,12 +43,17 @@ export const NavigationBar = () => {
   const theme = useTheme();
   const [push] = useHistory();
   const [location] = useLocation();
-  const shouldShowNavigationBar = buttons.some(
-    (button) => location === button.route
-  );
+  const shouldShowNavigationBar = buttons.some((button) => {
+    if (button.title === "Send") {
+      return location.startsWith(button.route);
+    } else {
+      return location === button.route;
+    }
+  });
 
   return (
     <>
+      {console.log("here", shouldShowNavigationBar, location)}
       {shouldShowNavigationBar && (
         <NavigationBarWrapper displayTheme={theme}>
           <>
