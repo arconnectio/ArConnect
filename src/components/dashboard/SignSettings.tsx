@@ -5,6 +5,7 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "@plasmohq/storage/hook";
+import { EventType, trackEvent } from "~utils/analytics";
 
 export default function SignSettings() {
   const [signSettingsState, setSignSettingsState] = useState(false);
@@ -13,6 +14,8 @@ export default function SignSettings() {
     key: "signatureAllowance",
     instance: ExtensionStorage
   });
+
+  const [editingValue, setEditingValue] = useState(null);
 
   useEffect(() => {
     async function initializeSettings() {
@@ -25,6 +28,9 @@ export default function SignSettings() {
       let allowance = await ExtensionStorage.get("signatureAllowance");
       if (allowance === undefined || allowance === null) {
         await ExtensionStorage.set("signatureAllowance", 10);
+        setEditingValue(10);
+      } else {
+        setEditingValue(allowance);
       }
     }
 
@@ -37,12 +43,22 @@ export default function SignSettings() {
     await ExtensionStorage.set("setting_sign_notification", newSetting);
   };
 
-  const handleAllowanceChange = async (e) => {
+  const handleBlur = async (e) => {
     const newAllowance = Number(e.target.value);
-    setSignatureAllowance(newAllowance);
+    if (newAllowance !== signatureAllowance) {
+      trackEvent(EventType.SEND_ALLOWANCE_CHANGE, {
+        before: signatureAllowance,
+        after: newAllowance
+      });
+      setSignatureAllowance(newAllowance);
 
-    // Save the updated allowance to the extension storage
-    await ExtensionStorage.set("signatureAllowance", newAllowance);
+      // Save the updated allowance to the extension storage
+      await ExtensionStorage.set("signatureAllowance", newAllowance);
+    }
+  };
+
+  const handleChange = (e) => {
+    setEditingValue(e.target.value);
   };
 
   return (
@@ -64,8 +80,9 @@ export default function SignSettings() {
         <Input
           label={browser.i18n.getMessage("password_allowance")}
           type="number"
-          value={signatureAllowance}
-          onChange={handleAllowanceChange}
+          value={editingValue}
+          onChange={handleChange}
+          onBlur={handleBlur}
           fullWidth
         />
       </Wrapper>

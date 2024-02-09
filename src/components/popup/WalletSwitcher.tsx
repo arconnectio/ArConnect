@@ -24,6 +24,7 @@ import browser from "webextension-polyfill";
 import Squircle from "~components/Squircle";
 import styled from "styled-components";
 import Arweave from "arweave";
+import { svgie } from "~utils/svgies";
 
 export default function WalletSwitcher({
   open,
@@ -82,6 +83,7 @@ export default function WalletSwitcher({
       setWallets((val) =>
         val.map((wallet) => {
           const profile = profiles.find(({ user }) => user === wallet.address);
+          const svgieAvatar = svgie(wallet.address, { asDataURI: true });
 
           return {
             ...wallet,
@@ -90,6 +92,8 @@ export default function WalletSwitcher({
               : wallet.name,
             avatar: profile?.avatar
               ? concatGatewayURL(gateway) + "/" + profile.avatar
+              : svgieAvatar
+              ? svgieAvatar
               : undefined,
             hasAns: !!profile
           };

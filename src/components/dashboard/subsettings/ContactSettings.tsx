@@ -11,7 +11,7 @@ import {
   useToasts
 } from "@arconnect/components";
 import { CheckIcon, CopyIcon } from "@iconicicons/react";
-import { useState, useEffect, type MouseEventHandler } from "react";
+import { useState, useEffect, type MouseEventHandler, useMemo } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import styled from "styled-components";
@@ -21,6 +21,8 @@ import { useLocation } from "wouter";
 import { uploadUserAvatar, getUserAvatar } from "~lib/avatar";
 import { getAllArNSNames } from "~lib/arns";
 import copy from "copy-to-clipboard";
+import { EventType, trackEvent } from "~utils/analytics";
+import { svgie } from "~utils/svgies";
 
 export default function ContactSettings({ address }: Props) {
   // contacts
@@ -48,6 +50,13 @@ export default function ContactSettings({ address }: Props) {
   const [avatarLoading, setAvatarLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [originalContact, setOriginalContact] = useState(null);
+
+  const svgieAvatar = useMemo(() => {
+    if (!contact.address || contact.avatarId) {
+      return "";
+    }
+    return svgie(contact.address, { asDataURI: true });
+  }, [contact.address, contact.avatarId]);
 
   useEffect(() => {
     const loadedContact = storedContacts.find((c) => c.address === address);
@@ -230,6 +239,7 @@ export default function ContactSettings({ address }: Props) {
   const removeContactModal = useModal();
 
   const confirmRemoveContact = async () => {
+    trackEvent(EventType.REMOVE_CONTACT, {});
     // remove contact & update storage
     if (contactIndex !== -1) {
       const updatedContacts = [...storedContacts];
@@ -292,7 +302,10 @@ export default function ContactSettings({ address }: Props) {
               </AutoContactPic>
             )
           )}
-          {!contact.profileIcon && (
+          {!contact.profileIcon && svgieAvatar && (
+            <ContactPic src={svgieAvatar} />
+          )}
+          {!contact.profileIcon && !svgieAvatar && (
             <AutoContactPic>
               {generateProfileIcon(contact.name, contact.address)}
             </AutoContactPic>

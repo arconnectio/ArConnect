@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
 import { useContacts } from "~contacts/hooks";
+import { searchArNSName } from "~lib/arns";
+import { useToasts } from "@arconnect/components";
 import { formatAddress, isAddressFormat } from "~utils/format";
 import { ExtensionStorage } from "~utils/storage";
 
@@ -46,6 +48,7 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
 
   const [show, setShow] = useState<boolean>(true);
   const { lastRecipients, storedContacts } = useContacts(activeAddress);
+  const { setToast } = useToasts();
 
   const possibleTargets = useMemo(() => {
     const query = targetInput.state;
@@ -62,6 +65,36 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
       addr.toLowerCase().includes(query.toLowerCase())
     );
   }, [lastRecipients, targetInput]);
+
+  const submit = async () => {
+    try {
+      if (isAddressFormat(targetInput.state)) {
+        onClick({ address: targetInput.state });
+        onClose();
+        return;
+      } else {
+        let search = targetInput.state;
+        if (targetInput.state.startsWith("ar://"))
+          search = targetInput.state.substring(5);
+        const result = await searchArNSName(search);
+        if (!result.success) {
+          onClick({ address: result.record.owner });
+          onClose();
+          setToast({
+            type: "success",
+            content: browser.i18n.getMessage("arns_added", [search]),
+            duration: 2400
+          });
+          return;
+        }
+      }
+      setToast({
+        type: "error",
+        content: browser.i18n.getMessage("check_address"),
+        duration: 2400
+      });
+    } catch {}
+  };
 
   const filteredAndGroupedContacts = useMemo(() => {
     const query = targetInput.state ? targetInput.state.toLowerCase() : "";
@@ -110,10 +143,8 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
         <Button
           small
           style={{ borderRadius: "10px", width: "56px", padding: 0 }}
-          disabled={!isAddressFormat(targetInput.state)}
           onClick={() => {
-            onClick({ address: targetInput.state });
-            onClose();
+            submit();
           }}
         >
           {browser.i18n.getMessage("add")}

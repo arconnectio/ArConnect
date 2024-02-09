@@ -7,6 +7,7 @@ import type { StoredWallet } from "~wallets";
 import HardwareWalletIcon from "~components/hardware/HardwareWalletIcon";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
 import BaseElement, { SettingIcon } from "./BaseElement";
+import { svgie } from "~utils/svgies";
 
 export default function WalletListItem({
   wallet,
@@ -18,6 +19,11 @@ export default function WalletListItem({
 }: Props & HTMLProps<HTMLDivElement>) {
   // format address
   const formattedAddress = useMemo(() => formatAddress(address, 8), [address]);
+
+  const svgieAvatar = useMemo(
+    () => svgie(address, { asDataURI: true }),
+    [address]
+  );
 
   // allow dragging with the drag icon
   const dragControls = useDragControls();
@@ -34,11 +40,11 @@ export default function WalletListItem({
         title={name}
         description={formattedAddress}
         active={active}
-        img={avatar}
+        img={avatar || svgieAvatar}
         dragControls={dragControls}
         {...props}
       >
-        {!avatar && <SettingIcon as={WalletIcon} />}
+        {!avatar && !svgieAvatar && <SettingIcon as={WalletIcon} />}
         {wallet.type === "hardware" && wallet.api === "keystone" && (
           <HardwareIcon icon={keystoneLogo} color="#2161FF" />
         )}
