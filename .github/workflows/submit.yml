@@ -30,6 +30,7 @@ jobs:
           jq '.displayName = "ArConnect BETA"' package.json > temp.json
           mv temp.json package.json
           cp -rf assets-beta/* assets/
+          echo "PLASMO_PUBLIC_NODE_ENV=development" >> .env
 
       - name: Build and Package the extension into a zip artifact
         run: yarn build:chrome --zip

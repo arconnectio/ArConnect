@@ -8,10 +8,13 @@ export default function About() {
     <>
       <Logo />
       <Spacer y={0.85} />
-      <Name>ArConnect</Name>
+      <Name>
+        ArConnect
+        {process.env.PLASMO_PUBLIC_NODE_ENV === "development" && " BETA"}
+      </Name>
       <Version>
         {"v" + browser.runtime.getManifest().version}
-        {(process.env.NODE_ENV === "development" ||
+        {(process.env.PLASMO_PUBLIC_NODE_ENV === "development" ||
           !!process.env.BETA_VERSION) && (
           <DevelopmentVersion>
             {process.env.BETA_VERSION ||
