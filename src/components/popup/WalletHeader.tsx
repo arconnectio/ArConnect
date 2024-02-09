@@ -84,7 +84,7 @@ export default function WalletHeader() {
 
   // expand view
   const expandView: MouseEventHandler = (e) => {
-    window.open(window.document.URL + "?expanded=true");
+    window.open(window.location.href.split("#")[0] + "?expanded=true");
   };
 
   // is the popup open in a tab
