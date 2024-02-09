@@ -16,7 +16,7 @@ export default function NoBalance() {
         {browser.i18n.getMessage("home_no_balance", "$AR")}
       </NoBalanceText>
       <ButtonWrapper>
-        <BuyButton route={"/purchase"} logo={true} />
+        {/* <BuyButton route={"/purchase"} logo={true} /> */}
         <Container>
           <CustomButton
             onClick={() => push("/receive")}
@@ -52,12 +52,12 @@ const Art = styled.img.attrs({
   alt: "No balance art"
 })`
   user-select: none;
-  width: 137px;
+  width: 184px;
 `;
 
 const ButtonWrapper = styled.div`
   width: 100%;
-  margin-top: -10px;
+  margin-top: -2px;
 `;
 
 const Container = styled.div`
