@@ -37,6 +37,7 @@ const Wrapper = styled.div<{ displayTheme: DisplayTheme }>`
   display: flex;
   flex-direction: column;
   min-height: 100%;
+  padding-bottom: 62px;
   width: 100%;
   background-color: ${(props) =>
     props.displayTheme === "light" ? "#ffffff" : "#191919"};

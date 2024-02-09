@@ -1300,7 +1300,7 @@
     "description": "Label for the address input"
   },
   "transaction_send_address_input_placeholder": {
-    "message": "Address or ANS name...",
+    "message": "Address or ArNS name...",
     "description": "Placeholder for the address input"
   },
   "transaction_send_scan_address": {
@@ -1627,5 +1627,19 @@
   "your_contacts": {
     "message": "Your Contacts",
     "desription": "Your Contacts title in Send Modal"
+  },
+  "check_address" : {
+    "message": "Please check the recipient address",
+    "description": "Error message for invalid address/ArNS"
+  },
+  "arns_added":{
+    "message": " ar://$ADDRESS$ added", 
+    "description": "ArNS recipient added",
+    "placeholders": {
+      "address": {
+        "content": "$1",
+        "example": "Address"
+      }
+    } 
   }
 }
