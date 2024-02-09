@@ -1631,5 +1631,15 @@
   "check_address" : {
     "message": "Please check the recipient address",
     "description": "Error message for invalid address/ArNS"
+  },
+  "arns_added":{
+    "message": " ar://$ADDRESS$ added", 
+    "description": "ArNS recipient added",
+    "placeholders": {
+      "address": {
+        "content": "$1",
+        "example": "Address"
+      }
+    } 
   }
 }

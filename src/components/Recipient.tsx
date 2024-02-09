@@ -73,10 +73,18 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
         onClose();
         return;
       } else {
-        const result = await searchArNSName(targetInput.state);
+        let search = targetInput.state;
+        if (targetInput.state.startsWith("ar://"))
+          search = targetInput.state.substring(5);
+        const result = await searchArNSName(search);
         if (!result.success) {
           onClick({ address: result.record.owner });
           onClose();
+          setToast({
+            type: "success",
+            content: browser.i18n.getMessage("arns_added", [search]),
+            duration: 2400
+          });
           return;
         }
       }
