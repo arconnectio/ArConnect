@@ -352,7 +352,7 @@ export default function Send({ id }: Props) {
     });
 
     // continue to confirmation page
-    push(`/send/confirm/${tokenID}/${finalQty}/${recipient}`);
+    push(`/send/confirm/${tokenID}/${finalQty}/${recipient.address}`);
   }
 
   return (

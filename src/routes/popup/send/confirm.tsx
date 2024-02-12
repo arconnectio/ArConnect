@@ -140,7 +140,7 @@ export default function Confirm({ tokenID, qty }: Props) {
   const walletName = useMemo(() => {
     if (wallets && activeAddress) {
       const wallet = wallets.find(({ address }) => address === activeAddress);
-      let name = wallet?.nickname || wallet.address;
+      let name = wallet?.nickname || wallet?.address || "";
       return name.slice(0, 4);
     } else {
       return "";
