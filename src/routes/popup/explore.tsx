@@ -22,6 +22,9 @@ import useSetting from "~settings/hook";
 import styled from "styled-components";
 import { PageType, trackPage } from "~utils/analytics";
 import HeadV2 from "~components/popup/HeadV2";
+import logo from "url:/assets/icon512.png";
+import { SendButton } from "./send";
+import { useHistory } from "~utils/hash_router";
 
 export default function Explore() {
   // ar price period
@@ -50,6 +53,7 @@ export default function Explore() {
 
   // load latest ar price
   const [latestPrice, setLatestPrice] = useState(0);
+  const [push] = useHistory();
 
   useEffect(() => {
     (async () => {
@@ -80,29 +84,39 @@ export default function Explore() {
 
   // parse permaweb.news RSS
   const [feed, setFeed] = useState<ArticleInterface[]>();
+  const [error, setIsError] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
       // get feed
-      const permawebNews = await getPermawebNewsFeed();
+      try {
+        const permawebNews = await getPermawebNewsFeed();
 
-      // TODO: add other sources
+        // TODO: add other sources
 
-      // construct feed
-      const unsortedFeed: ArticleInterface[] = permawebNews.map((article) => ({
-        source: "permaweb.news",
-        title: article.title,
-        date: article.pubDate,
-        link: article.link,
-        content: article.contentSnippet,
-        cover: parseCoverImageFromContent(article.content)
-      }));
+        // construct feed
+        const unsortedFeed: ArticleInterface[] = permawebNews.map(
+          (article) => ({
+            source: "permaweb.news",
+            title: article.title,
+            date: article.pubDate,
+            link: article.link,
+            content: article.contentSnippet,
+            cover: parseCoverImageFromContent(article.content)
+          })
+        );
 
-      setFeed(
-        unsortedFeed.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        )
-      );
+        setFeed(
+          unsortedFeed.sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          )
+        );
+        if (unsortedFeed.length < 1) {
+          setIsError(true);
+        }
+      } catch (err) {
+        console.log("err fetching articles", err);
+      }
     })();
   }, []);
 
@@ -157,51 +171,97 @@ export default function Explore() {
         </Shortcuts>
       </Section>
       <Spacer y={0.1} />
-      <FeaturedArticles>
-        <AnimatePresence>
-          {(feed && (
-            <FeaturedArticle
-              key={featuredPage}
-              background={feed[featuredPage]?.cover}
-              onClick={() =>
-                browser.tabs.create({
-                  url: feed[featuredPage]?.link
-                })
-              }
-            >
-              <ArticleTitle>{feed[featuredPage]?.title || ""}</ArticleTitle>
-            </FeaturedArticle>
-          )) || (
-            <FeaturedSkeleton>
-              <ArticleTitle>
-                <Skeleton width="15rem" height="1.2rem" />
-              </ArticleTitle>
-            </FeaturedSkeleton>
+      {!error ? (
+        <>
+          <FeaturedArticles>
+            <AnimatePresence>
+              {(feed && (
+                <FeaturedArticle
+                  key={featuredPage}
+                  background={feed[featuredPage]?.cover}
+                  onClick={() =>
+                    browser.tabs.create({
+                      url: feed[featuredPage]?.link
+                    })
+                  }
+                >
+                  <ArticleTitle>{feed[featuredPage]?.title || ""}</ArticleTitle>
+                </FeaturedArticle>
+              )) || (
+                <FeaturedSkeleton>
+                  <ArticleTitle>
+                    <Skeleton width="15rem" height="1.2rem" />
+                  </ArticleTitle>
+                </FeaturedSkeleton>
+              )}
+            </AnimatePresence>
+          </FeaturedArticles>
+          {feed && (
+            <NavigationWrapper>
+              {Array.from({ length: numberOfFeatured }).map((_, index) => (
+                <NavigationButton
+                  key={index}
+                  featured={index === featuredPage}
+                  onClick={() => setFeaturedPage(index)}
+                />
+              ))}
+            </NavigationWrapper>
           )}
-        </AnimatePresence>
-      </FeaturedArticles>
-      {feed && (
-        <NavigationWrapper>
-          {Array.from({ length: numberOfFeatured }).map((_, index) => (
-            <NavigationButton
-              key={index}
-              featured={index === featuredPage}
-              onClick={() => setFeaturedPage(index)}
-            />
-          ))}
-        </NavigationWrapper>
-      )}
 
-      <Spacer y={0.6} />
-      {feed &&
-        feed.slice(4).map((article, i) => <Article {...article} key={i} />)}
-      {!feed &&
-        Array(6)
-          .fill("")
-          .map((_, i) => <LoadingArticle key={i} />)}
+          <Spacer y={0.6} />
+          {feed &&
+            feed.slice(4).map((article, i) => <Article {...article} key={i} />)}
+          {!feed &&
+            Array(6)
+              .fill("")
+              .map((_, i) => <LoadingArticle key={i} />)}
+        </>
+      ) : (
+        <ErrorSection>
+          <Logo />
+          <h2>This page is having a problem</h2>
+          <p>Error: unable to establish a connection to permaweb.news</p>
+          <p style={{ fontSize: "14px" }}>Please try again another time.</p>
+          <p>
+            ArConnect status: <span style={{ color: "#14D110" }}>Online</span>
+          </p>
+          <SendButton onClick={() => push("/")}>Back to home</SendButton>
+        </ErrorSection>
+      )}
     </>
   );
 }
+
+const Logo = styled.img.attrs({
+  draggable: false,
+  alt: "ArConnect",
+  src: logo
+})`
+  width: 75px;
+`;
+
+const ErrorSection = styled.div`
+  align-items: center;
+  justify-content: center;
+  padding: 28px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  h2 {
+    font-weight: 600;
+    font-size: 18px;
+    margin: 0;
+  }
+
+  p {
+    font-size: 12px;
+    font-weight: 500;
+    color: #a3a3a3;
+    white-space: nowrap;
+    margin: 0;
+  }
+`;
 
 const FeaturedArticles = styled.div`
   position: relative;

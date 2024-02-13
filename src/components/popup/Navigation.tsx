@@ -53,7 +53,6 @@ export const NavigationBar = () => {
 
   return (
     <>
-      {console.log("here", shouldShowNavigationBar, location)}
       {shouldShowNavigationBar && (
         <NavigationBarWrapper displayTheme={theme}>
           <>
