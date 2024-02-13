@@ -245,7 +245,6 @@ const ErrorSection = styled.div`
   justify-content: center;
   padding: 28px 15px;
   display: flex;
-  overflow-y: hidden;
   flex-direction: column;
   gap: 18px;
 
