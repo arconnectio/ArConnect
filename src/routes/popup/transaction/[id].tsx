@@ -14,12 +14,23 @@ import CustomGatewayWarning from "~components/auth/CustomGatewayWarning";
 import Skeleton from "~components/Skeleton";
 import CodeArea from "~components/CodeArea";
 import browser from "webextension-polyfill";
-import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import prettyBytes from "pretty-bytes";
 import styled from "styled-components";
 import Arweave from "arweave";
+import HeadV2 from "~components/popup/HeadV2";
 import dayjs from "dayjs";
+import { SendButton } from "../send";
+import {
+  AutoContactPic,
+  generateProfileIcon,
+  ProfilePicture
+} from "~components/Recipient";
+import { TempTransactionStorage } from "~utils/storage";
+import { useContact } from "~contacts/hooks";
+import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
+
+// pull contacts and check if to address is in contacts
 
 export default function Transaction({ id: rawId, gw }: Props) {
   // fixup id
@@ -29,6 +40,8 @@ export default function Transaction({ id: rawId, gw }: Props) {
 
   // fetch tx data
   const [transaction, setTransaction] = useState<GQLNodeInterface>();
+  // const [contact, setContact] = useState<any | undefined>(undefined);
+  const contact = useContact(transaction?.recipient);
 
   // arweave gateway
   const defaultGateway = useGateway({
@@ -100,6 +113,7 @@ export default function Transaction({ id: rawId, gw }: Props) {
     };
 
     fetchTx();
+    trackPage(PageType.SEND_COMPLETE);
 
     return () => {
       if (timeoutID) clearTimeout(timeoutID);
@@ -199,6 +213,13 @@ export default function Transaction({ id: rawId, gw }: Props) {
     setBackPath(back);
   }, []);
 
+  // Clears out current transaction
+  useEffect(() => {
+    (async () => {
+      await TempTransactionStorage.removeItem("send");
+    })();
+  }, []);
+
   // router push
   const [push] = useHistory();
 
@@ -214,18 +235,20 @@ export default function Transaction({ id: rawId, gw }: Props) {
   return (
     <Wrapper>
       <div>
-        <Head
-          title={browser.i18n.getMessage("titles_transaction")}
-          back={(backPath && (() => push(backPath))) || undefined}
+        <HeadV2
+          title="Transaction Complete"
+          back={() => {
+            push("/");
+          }}
         />
         {(transaction && (
           <>
-            <Section style={{ paddingBottom: 0 }}>
-              <FiatAmount>{formatFiatBalance(fiatPrice, currency)}</FiatAmount>
+            <Section style={{ paddingTop: 9, paddingBottom: 8 }}>
               <AmountTitle>
                 {formatTokenBalance(Number(transaction.quantity.ar))}
                 <span>AR</span>
               </AmountTitle>
+              <FiatAmount>{formatFiatBalance(fiatPrice, currency)}</FiatAmount>
             </Section>
             <AnimatePresence>
               {gw && <CustomGatewayWarning simple />}
@@ -251,18 +274,48 @@ export default function Transaction({ id: rawId, gw }: Props) {
                     {browser.i18n.getMessage("transaction_to")}
                   </PropertyName>
                   <PropertyValue>
-                    {(transaction.recipient &&
-                      formatAddress(transaction.recipient, 6)) ||
-                      "-"}
-                  </PropertyValue>
-                </TransactionProperty>
-                <TransactionProperty>
-                  <PropertyName>
-                    {browser.i18n.getMessage("transaction_fee")}
-                  </PropertyName>
-                  <PropertyValue>
-                    {transaction.fee.ar}
-                    {" AR"}
+                    <div>
+                      {!contact ? (
+                        <>
+                          {(transaction.recipient &&
+                            formatAddress(transaction.recipient, 6)) ||
+                            "-"}
+                          <AddContact>
+                            {browser.i18n.getMessage("user_not_in_contacts")}{" "}
+                            <span
+                              onClick={() => {
+                                trackEvent(EventType.ADD_CONTACT, {
+                                  fromSendFlow: true
+                                });
+                                browser.tabs.create({
+                                  url: browser.runtime.getURL(
+                                    `tabs/dashboard.html#/contacts/new?address=${transaction.recipient}`
+                                  )
+                                });
+                              }}
+                            >
+                              {browser.i18n.getMessage("create_contact")}
+                            </span>
+                          </AddContact>
+                        </>
+                      ) : (
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          {contact.profileIcon ? (
+                            <ProfilePicture
+                              src={contact.profileIcon}
+                              size="19px"
+                            />
+                          ) : (
+                            <AutoContactPic size="19px">
+                              {generateProfileIcon(
+                                contact?.name || contact.address
+                              )}
+                            </AutoContactPic>
+                          )}
+                          {contact?.name || formatAddress(contact.address, 6)}
+                        </div>
+                      )}
+                    </div>
                   </PropertyValue>
                 </TransactionProperty>
                 <TransactionProperty>
@@ -304,11 +357,9 @@ export default function Transaction({ id: rawId, gw }: Props) {
                     {confirmations.toLocaleString()}
                   </PropertyValue>
                 </TransactionProperty>
-                <Spacer y={0.1} />
                 <PropertyName>
                   {browser.i18n.getMessage("transaction_tags")}
                 </PropertyName>
-                <Spacer y={0.05} />
                 {transaction.tags.map(
                   (tag, i) =>
                     tag.name !== "Input" && (
@@ -409,7 +460,7 @@ export default function Transaction({ id: rawId, gw }: Props) {
             exit="hidden"
           >
             <Section>
-              <Button
+              <SendButton
                 fullWidth
                 onClick={() =>
                   browser.tabs.create({
@@ -419,7 +470,7 @@ export default function Transaction({ id: rawId, gw }: Props) {
               >
                 Viewblock
                 <ShareIcon />
-              </Button>
+              </SendButton>
             </Section>
           </motion.div>
         )}
@@ -439,14 +490,29 @@ export const FiatAmount = styled(Text).attrs({
   noMargin: true
 })`
   text-align: center;
+  font-size: 12px;
+  font-weight: 600;
 
   ${Skeleton} {
     margin: 0 auto 0.3em;
   }
 `;
 
+const AddContact = styled.div`
+  font-size: 10px;
+  font-weight: 600;
+  color: rgb(${(props) => props.theme.primaryText});
+  margin: 0;
+
+  span {
+    cursor: pointer;
+    color: #ab9aff;
+    padding: 0;
+  }
+`;
+
 export const AmountTitle = styled.h1`
-  font-size: 2.8rem;
+  font-size: 2.5rem;
   font-weight: 600;
   color: rgb(${(props) => props.theme.primaryText});
   text-align: center;
@@ -455,7 +521,7 @@ export const AmountTitle = styled.h1`
 
   span {
     text-transform: uppercase;
-    font-size: 0.55em;
+    font-size: 1.25rem;
     margin-left: 0.34rem;
   }
 
@@ -467,12 +533,11 @@ export const AmountTitle = styled.h1`
 export const Properties = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.32rem;
+  gap: 0.625rem;
 `;
 
 export const TransactionProperty = styled.div`
   display: flex;
-  align-items: center;
   justify-content: space-between;
 `;
 
@@ -498,10 +563,17 @@ const BasePropertyText = styled(Text).attrs({
 `;
 
 export const PropertyName = styled(BasePropertyText)`
+  display: flex;
+  align-items: start;
+  font-size: 14px;
+  font-weight: 500;
+
   color: rgb(${(props) => props.theme.primaryText});
 `;
 
 export const PropertyValue = styled(BasePropertyText)`
+  font-size: 14px;
+  font-weight: 500;
   text-align: right;
 `;
 

@@ -41,10 +41,10 @@ import TokenLoading from "~components/popup/asset/Loading";
 import * as viewblock from "~lib/viewblock";
 import browser from "webextension-polyfill";
 import Skeleton from "~components/Skeleton";
-import Head from "~components/popup/Head";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import { useGateway } from "~gateways/wayfinder";
+import HeadV2 from "~components/popup/HeadV2";
 
 export default function Asset({ id }: Props) {
   // load state
@@ -214,7 +214,7 @@ export default function Asset({ id }: Props) {
 
   return (
     <>
-      <Head title={browser.i18n.getMessage("asset")} />
+      <HeadV2 title={browser.i18n.getMessage("asset")} />
       <Spacer y={0.75} />
       <AnimatePresence>
         {state && (

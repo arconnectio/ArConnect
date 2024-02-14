@@ -1,7 +1,8 @@
 import {
   type RawStoredTransfer,
   TempTransactionStorage,
-  TRANSFER_TX_STORAGE
+  TRANSFER_TX_STORAGE,
+  ExtensionStorage
 } from "~utils/storage";
 import { concatGatewayURL } from "~gateways/utils";
 import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
@@ -13,7 +14,7 @@ import { useScanner } from "@arconnect/keystone-sdk";
 import { useActiveWallet } from "~wallets/hooks";
 import { useHistory } from "~utils/hash_router";
 import { useEffect, useState } from "react";
-import { getActiveWallet } from "~wallets";
+import { getActiveKeyfile, getActiveWallet } from "~wallets";
 import type { UR } from "@ngraveio/bc-ur";
 import {
   Button,
@@ -39,6 +40,7 @@ import {
   type Gateway
 } from "~gateways/gateway";
 import { isUToken, sendRequest } from "~utils/send";
+import { isLocalWallet } from "~utils/assertions";
 import { EventType, trackEvent } from "~utils/analytics";
 interface Props {
   tokenID?: string;
@@ -46,6 +48,16 @@ interface Props {
 export default function SendAuth({ tokenID }: Props) {
   // loading
   const [loading, setLoading] = useState(false);
+
+  const [signAllowance, setSignAllowance] = useState<number>(10);
+
+  useEffect(() => {
+    const fetchSignAllowance = async () => {
+      const allowance = await ExtensionStorage.get("signatureAllowance");
+      setSignAllowance(Number(allowance));
+    };
+    fetchSignAllowance();
+  }, []);
 
   // password input
   const passwordInput = useInput();
@@ -166,73 +178,152 @@ export default function SendAuth({ tokenID }: Props) {
   async function sendLocal() {
     setLoading(true);
 
+    // Retrieve latest tx amount details from localStorage
+    const latestTxQty = await ExtensionStorage.get("last_send_qty");
+    if (!latestTxQty) {
+      setLoading(false);
+      return setToast({
+        type: "error",
+        content: "No send quantity found",
+        duration: 2000
+      });
+    }
+
+    const transactionAmount = Number(latestTxQty);
+
     // get tx and gateway
     let { type, gateway, transaction } = await getTransaction();
     const arweave = new Arweave(gateway);
 
-    // decrypt wallet
-    const activeWallet = await getActiveWallet();
+    const decryptedWallet = await getActiveKeyfile();
+    isLocalWallet(decryptedWallet);
 
-    if (activeWallet.type === "hardware") {
-      return setLoading(false);
-    }
+    console.log(
+      "transaction amount:",
+      transactionAmount,
+      "vs.",
+      "sign allowance:",
+      signAllowance
+    );
 
-    let keyfile: JWKInterface;
-
-    try {
-      keyfile = await decryptWallet(activeWallet.keyfile, passwordInput.state);
-    } catch {
-      setLoading(false);
-      return setToast({
-        type: "error",
-        content: browser.i18n.getMessage("invalidPassword"),
-        duration: 2000
-      });
-    }
-
-    // set owner
-    transaction.setOwner(keyfile.n);
-
-    try {
-      // sign
-      await arweave.transactions.sign(transaction, keyfile);
-
-      // post tx
+    // Check if the transaction amount is less than the signature allowance
+    if (transactionAmount <= signAllowance) {
+      // Process transaction without user signing
       try {
-        await submitTx(transaction, arweave, type);
-      } catch (e) {
-        if (!uToken) {
-          // FALLBACK IF ISP BLOCKS ARWEAVE.NET OR IF WAYFINDER FAILS
-          gateway = fallbackGateway;
-          const fallbackArweave = new Arweave(gateway);
-          await fallbackArweave.transactions.sign(transaction, keyfile);
-          await submitTx(transaction, fallbackArweave, type);
-          await trackEvent(EventType.FALLBACK, {});
-        }
-      }
-      setToast({
-        type: "success",
-        content: browser.i18n.getMessage("sent_tx"),
-        duration: 2000
-      });
-      uToken
-        ? push("/")
-        : push(
-            `/transaction/${transaction.id}/${encodeURIComponent(
-              concatGatewayURL(gateway)
-            )}?back=${encodeURIComponent("/")}`
-          );
-    } catch (e) {
-      console.error(e);
-      setToast({
-        type: "error",
-        content: browser.i18n.getMessage("failed_tx"),
-        duration: 2000
-      });
-    }
+        // Decrypt wallet without user input
+        const keyfile = decryptedWallet.keyfile;
 
-    // remove wallet from memory
-    freeDecryptedWallet(keyfile);
+        // Set owner
+        transaction.setOwner(keyfile.n);
+
+        // Sign the transaction
+        await arweave.transactions.sign(transaction, keyfile);
+
+        try {
+          // Post the transaction
+          await submitTx(transaction, arweave, type);
+        } catch (e) {
+          if (!uToken) {
+            // FALLBACK IF ISP BLOCKS ARWEAVE.NET OR IF WAYFINDER FAILS
+            gateway = fallbackGateway;
+            const fallbackArweave = new Arweave(gateway);
+            await fallbackArweave.transactions.sign(transaction, keyfile);
+            await submitTx(transaction, fallbackArweave, type);
+            await trackEvent(EventType.FALLBACK, {});
+          }
+        }
+
+        // Success toast
+        setToast({
+          type: "success",
+          content: browser.i18n.getMessage("sent_tx"),
+          duration: 2000
+        });
+
+        // Redirect
+        uToken
+          ? push("/")
+          : push(
+              `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
+            );
+
+        // remove wallet from memory
+        freeDecryptedWallet(keyfile);
+      } catch (e) {
+        console.log(e);
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("failed_tx"),
+          duration: 2000
+        });
+      }
+    } else {
+      // decrypt wallet
+      const activeWallet = await getActiveWallet();
+
+      if (activeWallet.type === "hardware") {
+        return setLoading(false);
+      }
+
+      let keyfile: JWKInterface;
+
+      try {
+        keyfile = await decryptWallet(
+          activeWallet.keyfile,
+          passwordInput.state
+        );
+      } catch {
+        setLoading(false);
+        return setToast({
+          type: "error",
+          content: browser.i18n.getMessage("invalidPassword"),
+          duration: 2000
+        });
+      }
+
+      // set owner
+      transaction.setOwner(keyfile.n);
+
+      try {
+        // sign
+        await arweave.transactions.sign(transaction, keyfile);
+
+        try {
+          // post tx
+          await submitTx(transaction, arweave, type);
+        } catch (e) {
+          if (!uToken) {
+            // FALLBACK IF ISP BLOCKS ARWEAVE.NET OR IF WAYFINDER FAILS
+            gateway = fallbackGateway;
+            const fallbackArweave = new Arweave(gateway);
+            await fallbackArweave.transactions.sign(transaction, keyfile);
+            await submitTx(transaction, fallbackArweave, type);
+            await trackEvent(EventType.FALLBACK, {});
+          }
+        }
+
+        setToast({
+          type: "success",
+          content: browser.i18n.getMessage("sent_tx"),
+          duration: 2000
+        });
+        uToken
+          ? push("/")
+          : push(
+              `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
+            );
+
+        // remove wallet from memory
+        freeDecryptedWallet(keyfile);
+      } catch (e) {
+        console.log(e);
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("failed_tx"),
+          duration: 2000
+        });
+      }
+    }
 
     setLoading(false);
   }

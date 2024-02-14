@@ -167,6 +167,7 @@ export default function WalletSettings({ address }: Props) {
   return (
     <Wrapper>
       <div>
+        <Spacer y={0.45} />
         <WalletName>
           {ansLabel || wallet.nickname}
           {wallet.type === "hardware" && (

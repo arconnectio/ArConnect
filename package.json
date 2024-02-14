@@ -47,7 +47,7 @@
     ]
   },
   "dependencies": {
-    "@arconnect/components": "^0.2.5",
+    "@arconnect/components": "^0.2.6",
     "@arconnect/keystone-sdk": "^0.0.5",
     "@arconnect/warp-dre": "^0.0.1",
     "@arconnect/webext-bridge": "^5.0.6",
@@ -88,6 +88,7 @@
     "wouter": "^2.8.0-alpha.2"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.1",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^9.2.6",
     "@types/chrome": "^0.0.196",

@@ -17,7 +17,7 @@ export default function Graph({
       <Wrapper {...(props as any)} displayTheme={theme}>
         <Content>
           <ChildrenWrapper>{children}</ChildrenWrapper>
-          <ActionBar>{actionBar}</ActionBar>
+          {actionBar && <ActionBar>{actionBar}</ActionBar>}
         </Content>
         <Chart data={data} blur={blur} />
       </Wrapper>
@@ -36,12 +36,14 @@ const GraphSection = styled(Section)`
   padding-bottom: 0.3rem;
 `;
 
+// TODO: update cardBackground entirely in @arconnect/components - light mode still WIP
 const Wrapper = styled.div<{ displayTheme: DisplayTheme }>`
   position: relative;
   background-color: rgb(
     ${(props) =>
-      props.displayTheme === "light" ? "0, 0, 0" : props.theme.cardBackground}
+      props.displayTheme === "light" ? "243, 240, 255" : "171, 154, 255, 0.15"}
   );
+  border: 1.5px solid rgb(171, 154, 255, 0.15);
   border-radius: 27.5px;
   overflow: hidden;
   z-index: 1;
@@ -51,6 +53,7 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
   color: #fff;
+  height: 188px;
   z-index: 20;
   gap: 1.75rem;
 `;
@@ -147,7 +150,8 @@ const ChartSvg = styled.svg<{ blur?: boolean }>`
 
 export const GraphText = styled(Text)`
   line-height: 1em;
-  color: #fff;
+  color: ${(props) =>
+    props.theme.displayTheme === "light" ? "#AB9AFF" : "#fff"};
 
   span {
     font-size: 0.6em;
