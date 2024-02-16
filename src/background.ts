@@ -6,6 +6,7 @@ import { handleGatewayUpdate } from "~gateways/cache";
 import { onMessage } from "@arconnect/webext-bridge";
 import { handleTabUpdate } from "~applications/tab";
 import protocolHandler from "~gateways/ar_protocol";
+import { notificationsHandler } from "~notifications/api";
 import { appsChangeListener } from "~applications";
 import handleFeeAlarm from "~api/modules/sign/fee";
 import { ExtensionStorage } from "~utils/storage";
@@ -26,6 +27,9 @@ browser.tabs.onActivated.addListener(({ tabId }) => handleTabUpdate(tabId));
 
 // handle fee alarm (send fees asyncronously)
 browser.alarms.onAlarm.addListener(handleFeeAlarm);
+
+// handle norifications
+browser.alarms.onAlarm.addListener(notificationsHandler);
 
 browser.alarms.onAlarm.addListener(trackBalance);
 
