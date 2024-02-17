@@ -42,7 +42,6 @@ import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { type Gateway } from "~gateways/gateway";
 import { Settings01 } from "@untitled-ui/icons-react";
-import { svgie } from "~utils/svgies";
 
 export default function WalletHeader() {
   // current address
@@ -93,14 +92,11 @@ export default function WalletHeader() {
   // profile picture
   const ansProfile = useAnsProfile(activeAddress);
 
-  // fallback svgie for profile picture
-  const svgieAvatar = useMemo(
-    () => svgie(activeAddress, { asDataURI: true }),
-    [activeAddress]
-  );
-
   // wallet nickname for copy
   const [displayName, setDisplayName] = useState("");
+
+  // wallet avatar
+  const [avatar, setAvatar] = useState("");
 
   // wallet name
   const walletName = useMemo(() => {
@@ -113,6 +109,7 @@ export default function WalletHeader() {
         name = address;
       }
       setDisplayName(name);
+      setAvatar(wallet?.avatar || "");
 
       return wallet?.nickname || "Wallet";
     }
@@ -195,8 +192,8 @@ export default function WalletHeader() {
             if (!isOpen) setOpen(true);
           }}
         >
-          <Avatar img={ansProfile?.avatar || svgieAvatar}>
-            {!ansProfile?.avatar && !svgieAvatar && <NoAvatarIcon />}
+          <Avatar img={ansProfile?.avatar || avatar}>
+            {!ansProfile?.avatar && !avatar && <NoAvatarIcon />}
             <AnimatePresence initial={false}>
               {hardwareApi === "keystone" && (
                 <HardwareWalletIcon

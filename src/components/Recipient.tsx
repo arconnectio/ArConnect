@@ -9,6 +9,7 @@ import { searchArNSName } from "~lib/arns";
 import { useToasts } from "@arconnect/components";
 import { formatAddress, isAddressFormat } from "~utils/format";
 import { ExtensionStorage } from "~utils/storage";
+import Squircle from "./Squircle";
 
 export type Contact = {
   name: string;
@@ -17,6 +18,7 @@ export type Contact = {
   notes: string;
   ArNSAddress: string;
   avatarId: string;
+  avatar: string;
 };
 
 export const generateProfileIcon = (name) => {
@@ -183,7 +185,7 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
                 }}
               >
                 {contact.profileIcon ? (
-                  <ProfilePicture src={contact.profileIcon} alt="Profile" />
+                  <ProfilePicture img={contact.profileIcon} />
                 ) : (
                   <AutoContactPic>
                     {generateProfileIcon(contact?.name || contact.address)}
@@ -253,16 +255,15 @@ const ContactItem = styled.div`
   }
 `;
 
-export const ProfilePicture = styled.img<{ size?: string }>`
-  width: ${(props) => (props.size ? props.size : "34px")};
-  height: ${(props) => (props.size ? props.size : "34px")};
-  border-radius: 50%;
+export const ProfilePicture = styled(Squircle)<{ size?: string }>`
+  width: ${(props) => (props.size ? props.size : "2rem")};
+  height: ${(props) => (props.size ? props.size : "2rem")};
   margin-right: 10px;
 `;
 
-export const AutoContactPic = styled.div<{ size?: string }>`
-  width: ${(props) => (props.size ? props.size : "34px")};
-  height: ${(props) => (props.size ? props.size : "34px")};
+export const AutoContactPic = styled(Squircle)<{ size?: string }>`
+  width: ${(props) => (props.size ? props.size : "2rem")};
+  height: ${(props) => (props.size ? props.size : "2rem")};
   display: flex;
   background-color: #ab9aff26;
   align-items: center;

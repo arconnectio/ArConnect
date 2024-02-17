@@ -14,7 +14,7 @@ export const svgie = (address: string, opts?: svgieOptions) => {
 
   const hexAddress = addressToHex(address);
   const hexPaths = hexAddress.slice(0, 40);
-  const hexColors = hexAddress.slice(40);
+  const hexColors = hexAddress.slice(32);
 
   const c = getColors(hexColors);
   const p = getSPaths(hexPaths);

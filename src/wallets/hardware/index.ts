@@ -11,6 +11,7 @@ export interface HardwareWallet {
   address: string;
   publicKey: string;
   xfp: string;
+  avatar?: string;
 }
 
 /**

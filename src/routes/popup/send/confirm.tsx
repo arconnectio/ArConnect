@@ -441,10 +441,10 @@ export default function Confirm({ tokenID, qty }: Props) {
             <ArrowRightIcon />
             <Address>
               {contact && contact.profileIcon ? (
-                <ProfilePicture size="22px" src={contact.profileIcon} />
+                <ProfilePicture size="1.5rem" img={contact.profileIcon} />
               ) : (
                 contact && (
-                  <AutoContactPic size="22px">
+                  <AutoContactPic size="1.5rem">
                     {generateProfileIcon(contact?.name || contact.address)}
                   </AutoContactPic>
                 )

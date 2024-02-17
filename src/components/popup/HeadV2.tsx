@@ -20,7 +20,7 @@ import { useEffect, useMemo, useState } from "react";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
 import WalletSwitcher from "./WalletSwitcher";
 import styled from "styled-components";
-import { svgie } from "~utils/svgies";
+import type { StoredWallet } from "~wallets";
 
 export default function HeadV2({
   title,
@@ -73,9 +73,19 @@ export default function HeadV2({
 
   const ans = useAnsProfile(activeAddress);
 
-  const svgieAvatar = useMemo(
-    () => svgie(activeAddress, { asDataURI: true }),
-    [activeAddress]
+  // wallets
+  const [wallets, setWallets] = useStorage<StoredWallet[]>(
+    {
+      key: "wallets",
+      instance: ExtensionStorage
+    },
+    []
+  );
+
+  // this wallet
+  const wallet = useMemo(
+    () => wallets?.find((w) => w.address === activeAddress),
+    [wallets, activeAddress]
   );
 
   // first render for animation
@@ -110,13 +120,13 @@ export default function HeadV2({
       <PageTitle>{title}</PageTitle>
 
       <ClickableAvatar
-        img={ans?.avatar || svgieAvatar}
+        img={ans?.avatar || wallet?.avatar}
         onClick={() => {
           if (!allowOpen) return;
           setOpen(true);
         }}
       >
-        {!ans?.avatar && !svgieAvatar && <NoAvatarIcon />}
+        {!ans?.avatar && !wallet?.avatar && <NoAvatarIcon />}
         <AnimatePresence initial={false}>
           {hardwareApi === "keystone" && (
             <HardwareWalletIcon

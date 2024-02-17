@@ -24,7 +24,7 @@ import browser from "webextension-polyfill";
 import Squircle from "~components/Squircle";
 import styled from "styled-components";
 import Arweave from "arweave";
-import { svgie } from "~utils/svgies";
+import { getSvgies } from "~contacts/hooks";
 
 export default function WalletSwitcher({
   open,
@@ -79,11 +79,16 @@ export default function WalletSwitcher({
       )) as AnsUser[];
       const gateway = await findGateway({ startBlock: 0 });
 
+      // get svgie avatars
+      const svgies = await getSvgies(wallets);
+
       // update wallets state
       setWallets((val) =>
         val.map((wallet) => {
           const profile = profiles.find(({ user }) => user === wallet.address);
-          const svgieAvatar = svgie(wallet.address, { asDataURI: true });
+          const svgieAvatar = svgies.find(
+            (avatar) => avatar.address === wallet.address
+          );
 
           return {
             ...wallet,
@@ -92,8 +97,8 @@ export default function WalletSwitcher({
               : wallet.name,
             avatar: profile?.avatar
               ? concatGatewayURL(gateway) + "/" + profile.avatar
-              : svgieAvatar
-              ? svgieAvatar
+              : svgieAvatar?.avatar
+              ? svgieAvatar.avatar
               : undefined,
             hasAns: !!profile
           };
@@ -194,8 +199,8 @@ export default function WalletSwitcher({
                         <span>AR</span>
                       </Balance>
                     </WalletData>
-                    <Avatar img={wallet.avatar}>
-                      {!wallet.avatar && <NoAvatarIcon />}
+                    <Avatar img={wallet?.avatar}>
+                      {!wallet?.avatar && <NoAvatarIcon />}
                       {wallet.api === "keystone" && (
                         <HardwareWalletIcon
                           icon={keystoneLogo}

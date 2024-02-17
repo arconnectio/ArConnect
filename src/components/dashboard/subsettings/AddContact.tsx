@@ -33,6 +33,7 @@ import styled from "styled-components";
 import { useLocation } from "wouter";
 import copy from "copy-to-clipboard";
 import { gql } from "~gateways/api";
+import { arSvgie } from "@7i7o/arsvgies";
 
 export default function AddContact() {
   // contacts
@@ -60,7 +61,8 @@ export default function AddContact() {
     profileIcon: "",
     notes: "",
     ArNSAddress: "",
-    avatarId: ""
+    avatarId: "",
+    avatar: ""
   });
 
   useEffect(() => {
@@ -128,10 +130,24 @@ export default function AddContact() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setContact({
-      ...contact,
-      [name]: value
-    });
+    if (name !== "address") {
+      setContact({
+        ...contact,
+        [name]: value
+      });
+    } else {
+      if (!value || value.length !== 43) {
+        setContact({
+          ...contact,
+          [name]: value,
+          avatar: ""
+        });
+      } else {
+        arSvgie(value, { asDataURI: true }).then((avatar) =>
+          setContact({ ...contact, [name]: value, avatar })
+        );
+      }
+    }
   };
 
   async function fetchArnsAddresses(ownerAddress) {
@@ -200,7 +216,8 @@ export default function AddContact() {
       profileIcon: contact.profileIcon,
       notes: contact.notes,
       ArNSAddress: contact.ArNSAddress,
-      avatarId: contact.avatarId
+      avatarId: contact.avatarId,
+      avatar: contact.avatar
     };
 
     try {
@@ -213,7 +230,8 @@ export default function AddContact() {
         profileIcon: "",
         notes: "",
         ArNSAddress: "",
-        avatarId: ""
+        avatarId: "",
+        avatar: ""
       });
 
       setLocation(`/contacts/${contact.address}`);
@@ -232,7 +250,8 @@ export default function AddContact() {
       profileIcon: "",
       notes: "",
       ArNSAddress: "",
-      avatarId: ""
+      avatarId: "",
+      avatar: ""
     });
 
     removeContactModal.setOpen(false);
@@ -257,7 +276,10 @@ export default function AddContact() {
           {contact.avatarId && contact.profileIcon && (
             <ContactPic src={contact.profileIcon} />
           )}
-          {!contact.avatarId && !contact.profileIcon && (
+          {!contact.profileIcon && contact.avatar && (
+            <ContactPic img={contact.avatar} />
+          )}
+          {!contact.avatarId && !contact.profileIcon && !contact.avatar && (
             <AutoContactPic>
               {generateProfileIcon(contact.name, contact.address)}
             </AutoContactPic>

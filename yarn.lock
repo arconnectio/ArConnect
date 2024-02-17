@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@7i7o/arsvgies@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@7i7o/arsvgies/-/arsvgies-1.1.0.tgz#98bdad739f5d6cd6cc2d94727bb950d7516f9a7d"
+  integrity sha512-w1+hTKDCFgOSugMY+L/8xWjIJ74FzYLbDe5qpHvRMbcauUUsrZ4y9OGPrJNsThuV6XzIoqGX5RccJdFGFyl2iA==
+
 "@ampproject/remapping@^2.2.0", "@ampproject/remapping@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.1.tgz#99e8e11851128b8702cd57c33684f1d0f260b630"

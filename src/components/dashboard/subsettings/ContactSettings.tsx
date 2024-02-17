@@ -11,7 +11,7 @@ import {
   useToasts
 } from "@arconnect/components";
 import { CheckIcon, CopyIcon } from "@iconicicons/react";
-import { useState, useEffect, type MouseEventHandler, useMemo } from "react";
+import { useState, useEffect, type MouseEventHandler } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import styled from "styled-components";
@@ -22,7 +22,8 @@ import { uploadUserAvatar, getUserAvatar } from "~lib/avatar";
 import { getAllArNSNames } from "~lib/arns";
 import copy from "copy-to-clipboard";
 import { EventType, trackEvent } from "~utils/analytics";
-import { svgie } from "~utils/svgies";
+import Squircle from "~components/Squircle";
+import { arSvgie } from "@7i7o/arsvgies";
 
 export default function ContactSettings({ address }: Props) {
   // contacts
@@ -43,20 +44,14 @@ export default function ContactSettings({ address }: Props) {
     profileIcon: "",
     notes: "",
     ArNSAddress: "",
-    avatarId: ""
+    avatarId: "",
+    avatar: ""
   });
   const [contactIndex, setContactIndex] = useState(-1);
   const [arnsResults, setArnsResults] = useState([]);
   const [avatarLoading, setAvatarLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [originalContact, setOriginalContact] = useState(null);
-
-  const svgieAvatar = useMemo(() => {
-    if (!contact.address || contact.avatarId) {
-      return "";
-    }
-    return svgie(contact.address, { asDataURI: true });
-  }, [contact.address, contact.avatarId]);
 
   useEffect(() => {
     const loadedContact = storedContacts.find((c) => c.address === address);
@@ -71,7 +66,8 @@ export default function ContactSettings({ address }: Props) {
         profileIcon: "",
         notes: "",
         ArNSAddress: "",
-        avatarId: ""
+        avatarId: "",
+        avatar: ""
       });
       setContactIndex(-1);
     }
@@ -88,11 +84,29 @@ export default function ContactSettings({ address }: Props) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setContact({
-      ...contact,
-      [name]: value
-    });
+    if (name !== "address") {
+      setContact({
+        ...contact,
+        [name]: value
+      });
+    } else {
+      if (!value || value.length !== 43) {
+        setContact({
+          ...contact,
+          [name]: value,
+          avatar: ""
+        });
+      } else {
+        arSvgie(value, { asDataURI: true }).then((avatar) =>
+          setContact({ ...contact, [name]: value, avatar })
+        );
+      }
+    }
   };
+
+  useEffect(() => {
+    console.log(`Changed Address: ${contact.address}`);
+  }, [contact.address]);
 
   const saveContact = async () => {
     // check if the address has been changed to a different one that's already in use
@@ -293,7 +307,7 @@ export default function ContactSettings({ address }: Props) {
         <SubTitle>{browser.i18n.getMessage("contact_avatar")}</SubTitle>
         <PicWrapper>
           {contact.avatarId && !avatarLoading ? (
-            <ContactPic src={contact.profileIcon} />
+            <ContactPic img={contact.profileIcon} />
           ) : (
             avatarLoading &&
             contact.avatarId && (
@@ -302,10 +316,10 @@ export default function ContactSettings({ address }: Props) {
               </AutoContactPic>
             )
           )}
-          {!contact.profileIcon && svgieAvatar && (
-            <ContactPic src={svgieAvatar} />
+          {!contact.profileIcon && contact.avatar && (
+            <ContactPic img={contact.avatar} />
           )}
-          {!contact.profileIcon && !svgieAvatar && (
+          {!contact.profileIcon && !contact.avatar && (
             <AutoContactPic>
               {generateProfileIcon(contact.name, contact.address)}
             </AutoContactPic>
@@ -550,10 +564,9 @@ export const AutoContactPic = styled.div`
   background-color: #ab9aff26;
 `;
 
-export const ContactPic = styled.img`
+export const ContactPic = styled(Squircle)`
   width: 100px;
   height: 100px;
-  border-radius: 100%;
   margin-bottom: 10px;
 `;
 

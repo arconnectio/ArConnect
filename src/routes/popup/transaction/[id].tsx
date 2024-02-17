@@ -302,7 +302,7 @@ export default function Transaction({ id: rawId, gw }: Props) {
                         <div style={{ display: "flex", alignItems: "center" }}>
                           {contact.profileIcon ? (
                             <ProfilePicture
-                              src={contact.profileIcon}
+                              img={contact.profileIcon}
                               size="19px"
                             />
                           ) : (
