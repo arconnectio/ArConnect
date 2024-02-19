@@ -6,10 +6,16 @@ import { useMemo } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Token from "../Token";
+import { useAo, useAoTokens } from "~tokens/aoTokens/ao";
+import { useTokenIDs } from "~tokens/aoTokens/router";
 
 export default function Tokens() {
   // all tokens
   const tokens = useTokens();
+  const ao = useAo();
+
+  // all tokens
+  const [aoTokens] = useAoTokens();
 
   // assets
   const assets = useMemo(
@@ -23,6 +29,7 @@ export default function Tokens() {
   return (
     <Section>
       <Heading>
+        {console.log("ao", aoTokens)}
         <Title noMargin>{browser.i18n.getMessage("assets")}</Title>
         <ViewAll
           onClick={() => {
