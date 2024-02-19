@@ -1643,11 +1643,11 @@
     } 
   },
   "setting_ao_experimental": {
-    "message": "AO Experimental",
-    "description": "AO Experimental settings title"
+    "message": "ao (experimental)",
+    "description": "ao experimental settings title"
   },
   "setting_ao_experimental_description": {
-    "message": "Show AO tokens in your wallet",
-    "description": "AO Experimental settings description"
+    "message": "Show ao tokens in your wallet",
+    "description": "ao experimental settings description"
   }
 }

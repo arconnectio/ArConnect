@@ -65,7 +65,7 @@ export const formatSettingName = (name: string) => {
   }
 
   if (name === "ao_experimental") {
-    return "AO Experimental";
+    return "ao (experimental)";
   }
 
   return name
