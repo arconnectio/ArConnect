@@ -2,11 +2,10 @@ import { CompassIcon } from "~components/popup/home/Balance";
 import { currencies } from "~lib/coingecko";
 import { NODES } from "@arconnect/warp-dre";
 import {
-  BellIcon,
-  CheckIcon,
   ChartIcon,
   CloudIcon,
   DollarIcon,
+  LayersIcon,
   PercentageIcon,
   StarIcon,
   SunIcon
@@ -17,6 +16,14 @@ export const PREFIX = "setting_";
 
 /** All settings */
 const settings: Setting[] = [
+  new Setting({
+    name: "ao_experimental",
+    displayName: "setting_ao_experimental",
+    icon: LayersIcon,
+    description: "setting_ao_experimental_description",
+    type: "boolean",
+    defaultValue: true
+  }),
   new Setting({
     name: "fee_multiplier",
     displayName: "setting_fee_multiplier",
