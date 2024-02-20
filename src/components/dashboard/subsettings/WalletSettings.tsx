@@ -1,5 +1,5 @@
 import {
-  Button,
+  ButtonV2,
   Input,
   Modal,
   Spacer,
@@ -221,65 +221,67 @@ export default function WalletSettings({ address }: Props) {
         </InputWithBtn>
       </div>
       <div>
-        <Button
+        <ButtonV2
           fullWidth
-          small
           onClick={() => exportModal.setOpen(true)}
           disabled={wallet.type === "hardware"}
         >
-          <DownloadIcon />
+          <DownloadIcon style={{ marginRight: "5px" }} />
           {browser.i18n.getMessage("export_keyfile")}
-        </Button>
+        </ButtonV2>
         <Spacer y={1} />
-        <Button
-          fullWidth
-          secondary
-          small
-          onClick={() => removeModal.setOpen(true)}
-        >
-          <TrashIcon />
+        <ButtonV2 fullWidth secondary onClick={() => removeModal.setOpen(true)}>
+          <TrashIcon style={{ marginRight: "5px" }} />
           {browser.i18n.getMessage("remove_wallet")}
-        </Button>
+        </ButtonV2>
       </div>
       <Modal
         {...removeModal.bindings}
         root={document.getElementById("__plasmo")}
       >
-        <CenterText heading>
+        <CenterText heading noMargin>
           {browser.i18n.getMessage("remove_wallet_modal_title")}
         </CenterText>
-        <CenterText>
+        <Spacer y={0.55} />
+        <CenterText noMargin>
           {browser.i18n.getMessage("remove_wallet_modal_content")}
         </CenterText>
-        <Spacer y={1.75} />
-        <Button
-          fullWidth
-          onClick={async () => {
-            try {
-              await removeWallet(address);
-              setToast({
-                type: "success",
-                content: browser.i18n.getMessage("removed_wallet_notification"),
-                duration: 2000
-              });
-            } catch (e) {
-              console.log("Error removing wallet", e);
-              setToast({
-                type: "error",
-                content: browser.i18n.getMessage(
-                  "remove_wallet_error_notification"
-                ),
-                duration: 2000
-              });
-            }
-          }}
-        >
-          {browser.i18n.getMessage("confirm")}
-        </Button>
         <Spacer y={0.75} />
-        <Button fullWidth secondary onClick={() => removeModal.setOpen(false)}>
-          {browser.i18n.getMessage("cancel")}
-        </Button>
+        <ButtonWrapper>
+          <ButtonV2
+            fullWidth
+            secondary
+            onClick={() => removeModal.setOpen(false)}
+          >
+            {browser.i18n.getMessage("cancel")}
+          </ButtonV2>
+          <ButtonV2
+            fullWidth
+            onClick={async () => {
+              try {
+                await removeWallet(address);
+                setToast({
+                  type: "success",
+                  content: browser.i18n.getMessage(
+                    "removed_wallet_notification"
+                  ),
+                  duration: 2000
+                });
+              } catch (e) {
+                console.log("Error removing wallet", e);
+                setToast({
+                  type: "error",
+                  content: browser.i18n.getMessage(
+                    "remove_wallet_error_notification"
+                  ),
+                  duration: 2000
+                });
+              }
+            }}
+          >
+            {browser.i18n.getMessage("confirm")}
+          </ButtonV2>
+        </ButtonWrapper>
       </Modal>
       <Modal
         {...exportModal.bindings}
@@ -294,10 +296,10 @@ export default function WalletSettings({ address }: Props) {
           {...passwordInput.bindings}
           fullWidth
         />
-        <Spacer y={1.75} />
-        <Button fullWidth onClick={exportWallet}>
+        <Spacer y={0.75} />
+        <ButtonV2 fullWidth onClick={exportWallet}>
           {browser.i18n.getMessage("export")}
-        </Button>
+        </ButtonV2>
       </Modal>
     </Wrapper>
   );
@@ -364,6 +366,12 @@ const Title = styled(Text).attrs({
 
 const Warning = styled(Text)`
   color: rgb(255, 0, 0, 0.6);
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
 `;
 
 interface Props {

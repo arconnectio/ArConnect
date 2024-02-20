@@ -1,15 +1,17 @@
 import {
   Text,
   Spacer,
-  Button,
+  ButtonV2,
   useModal,
   Modal,
-  useToasts
+  useToasts,
+  type DisplayTheme
 } from "@arconnect/components";
 import { ExtensionStorage } from "~utils/storage";
 import { TrashIcon } from "@iconicicons/react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
+import { useTheme } from "~utils/theme";
 
 export default function Reset() {
   // reset modal
@@ -17,6 +19,8 @@ export default function Reset() {
 
   // toasts
   const { setToast } = useToasts();
+
+  const theme = useTheme();
 
   // reset ArConnect
   async function reset() {
@@ -58,8 +62,11 @@ export default function Reset() {
         <b>{browser.i18n.getMessage("irreversible_action")}</b>
       </Warning>
       <Spacer y={4} />
-      <ResetButton onClick={() => resetModal.setOpen(true)}>
-        <TrashIcon />
+      <ResetButton
+        displayTheme={theme}
+        onClick={() => resetModal.setOpen(true)}
+      >
+        <TrashIcon style={{ marginRight: "5px" }} />
         {browser.i18n.getMessage("reset")}
       </ResetButton>
       <Modal
@@ -71,7 +78,7 @@ export default function Reset() {
           {browser.i18n.getMessage("setting_reset_description")}
         </ModalText>
         <Spacer y={0.75} />
-        <ResetButton onClick={reset}>
+        <ResetButton displayTheme={theme} onClick={reset}>
           {browser.i18n.getMessage("confirm")}
         </ResetButton>
       </Modal>
@@ -83,15 +90,19 @@ const Warning = styled(Text)`
   color: #ff0000;
 `;
 
-const ResetButton = styled(Button).attrs({
+const ResetButton = styled(ButtonV2).attrs({
   secondary: true,
   fullWidth: true
-})`
-  background-color: rgba(255, 0, 0, 0.2);
-  color: #ff0000;
+})<{ displayTheme: DisplayTheme }>`
+  background-color: ${(props) =>
+    props.displayTheme === "light" ? "#F58080" : "#8C1A1A"};
+  border: 1.5px solid
+    ${(props) => (props.displayTheme === "light" ? "#EB0000" : "#FF1A1A")};
+  color: #ffffff;
 
-  &:hover:not(:active):not(:disabled) {
-    box-shadow: 0 0 0 0.19rem rgb(255, 0, 0, 0.2);
+  &:hover {
+    background-color: ${(props) =>
+      props.displayTheme === "light" ? "#F58080" : "#C51A1A"};
   }
 `;
 

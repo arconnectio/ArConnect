@@ -1,4 +1,4 @@
-import { Button, Select, Spacer, Text } from "@arconnect/components";
+import { ButtonV2, Select, Spacer, Text } from "@arconnect/components";
 import type { Token, TokenType } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -62,10 +62,10 @@ export default function TokenSettings({ id }: Props) {
           {token.gateway && <CustomGatewayWarning />}
         </AnimatePresence>
       </div>
-      <Button onClick={() => removeToken(id)}>
-        <TrashIcon />
+      <ButtonV2 fullWidth onClick={() => removeToken(id)}>
+        <TrashIcon style={{ marginRight: "5px" }} />
         {browser.i18n.getMessage("remove_token")}
-      </Button>
+      </ButtonV2>
     </Wrapper>
   );
 }
