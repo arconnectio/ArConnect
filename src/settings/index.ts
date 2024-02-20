@@ -18,9 +18,9 @@ export const PREFIX = "setting_";
 const settings: Setting[] = [
   new Setting({
     name: "ao_experimental",
-    displayName: "setting_ao_experimental",
+    displayName: "setting_ao_support",
     icon: LayersIcon,
-    description: "setting_ao_experimental_description",
+    description: "setting_ao_support_description",
     type: "boolean",
     defaultValue: true
   }),

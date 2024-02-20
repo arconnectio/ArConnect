@@ -1642,12 +1642,12 @@
       }
     } 
   },
-  "setting_ao_experimental": {
-    "message": "ao (experimental)",
-    "description": "ao experimental settings title"
+  "setting_ao_support": {
+    "message": "ao support",
+    "description": "ao support settings title"
   },
-  "setting_ao_experimental_description": {
-    "message": "Show ao tokens in your wallet",
-    "description": "ao experimental settings description"
+  "setting_ao_support_description": {
+    "message": "Show ao tokens in your wallet (beta)",
+    "description": "ao support settings description"
   }
 }
