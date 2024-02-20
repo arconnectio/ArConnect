@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import styled, { css } from "styled-components";
 import {
   Button,
+  ButtonV2,
   Input,
   Section,
   Spacer,
@@ -476,7 +477,6 @@ export default function Send({ id }: Props) {
             <ChevronRightIcon />
           </TokenSelectorRightSide>
         </TokenSelector>
-
         <SendButton
           disabled={
             invalidQty ||
@@ -488,7 +488,7 @@ export default function Send({ id }: Props) {
           onClick={send}
         >
           {browser.i18n.getMessage("next")}
-          <ArrowUpRightIcon />
+          <ArrowUpRightIcon style={{ marginLeft: "5px" }} />
         </SendButton>
       </BottomActions>
       <AnimatePresence>
@@ -638,7 +638,7 @@ const QuantitySection = styled.div<{ qtyMode: QtyMode; invalidValue: boolean }>`
 `;
 
 // Make this dynamic
-export const SendButton = styled(Button)<{ alternate?: boolean }>`
+export const SendButton = styled(ButtonV2)<{ alternate?: boolean }>`
   background-color: ${(props) => props.alternate && "rgb(171, 154, 255, 0.15)"};
   border: 1px solid rgba(171, 154, 255, 0.15);
   border-radius: 10px;

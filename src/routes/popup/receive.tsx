@@ -1,4 +1,4 @@
-import { Button, Section, Tooltip } from "@arconnect/components";
+import { ButtonV2, Section, Tooltip } from "@arconnect/components";
 import { CopyIcon, ShareIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -49,10 +49,10 @@ export default function Receive() {
         </QRCodeWrapper>
       </Section>
       <Section>
-        <Button fullWidth>
+        <ButtonV2 fullWidth>
           {browser.i18n.getMessage("share")}
-          <ShareIcon />
-        </Button>
+          <ShareIcon style={{ marginLeft: "5px" }} />
+        </ButtonV2>
       </Section>
     </Wrapper>
   );

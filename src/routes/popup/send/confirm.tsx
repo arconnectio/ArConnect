@@ -1,5 +1,5 @@
 import { Input, Text, useInput, useToasts } from "@arconnect/components";
-import { ArrowRightIcon } from "@iconicicons/react";
+import { ArrowRightIcon, ChevronRightIcon } from "@iconicicons/react";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
 import HeadV2 from "~components/popup/HeadV2";
@@ -505,7 +505,7 @@ export default function Confirm({ tokenID, qty }: Props) {
             await sendLocal();
           }}
         >
-          Confirm {">"}
+          Confirm <ChevronRightIcon />
         </SendButton>
       </ConfirmWrapper>
     </Wrapper>

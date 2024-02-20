@@ -1,6 +1,6 @@
 import { EditIcon, PlusIcon, WalletIcon } from "@iconicicons/react";
 import {
-  Button,
+  ButtonV2,
   Card,
   Section,
   Text,
@@ -217,7 +217,7 @@ export default function WalletSwitcher({
                       })
                     }
                   >
-                    <PlusIcon />
+                    <PlusIcon style={{ marginRight: "5px" }} />
                     {browser.i18n.getMessage("add_wallet")}
                   </AddWalletButton>
                   <Tooltip content={browser.i18n.getMessage("edit")}>
@@ -406,12 +406,9 @@ const ActionBar = styled.div`
   background-color: rgb(${(props) => props.theme.cardBackground});
 `;
 
-const AddWalletButton = styled(Button).attrs({
-  fullWidth: true,
-  small: true
-})`
-  padding: 0.72rem 0;
-`;
+const AddWalletButton = styled(ButtonV2).attrs({
+  fullWidth: true
+})``;
 
 const EditButton = styled(EditIcon)`
   font-size: 1.5rem;
