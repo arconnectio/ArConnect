@@ -324,7 +324,7 @@
     "description": "Remove app button"
   },
   "removeAppNote": {
-    "message": "This will remove all permissions from the app and disconnect it from ArConnect.",
+    "message": "Remove all permissions and disconnect the app from ArConnect.",
     "description": "Remove app note paragraph"
   },
   "remove": {

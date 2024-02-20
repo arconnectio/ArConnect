@@ -10,6 +10,7 @@ import PermissionCheckbox, {
 import { removeApp } from "~applications";
 import {
   Button,
+  ButtonV2,
   Input,
   Modal,
   Select,
@@ -290,14 +291,13 @@ export default function AppSettings({ app, showTitle = false }: Props) {
         placeholder="https://node2.bundlr.network"
       />
       <Spacer y={1.65} />
-      <Button fullWidth small onClick={() => removeModal.setOpen(true)}>
+      <ButtonV2 fullWidth onClick={() => removeModal.setOpen(true)}>
         {browser.i18n.getMessage("removeApp")}
-      </Button>
+      </ButtonV2>
       <Spacer y={0.7} />
-      <Button
+      <ButtonV2
         fullWidth
         secondary
-        small
         onClick={() =>
           updateSettings((val) => ({
             ...val,
@@ -306,7 +306,7 @@ export default function AppSettings({ app, showTitle = false }: Props) {
         }
       >
         {browser.i18n.getMessage(settings.blocked ? "unblock" : "block")}
-      </Button>
+      </ButtonV2>
       <Modal
         {...removeModal.bindings}
         root={document.getElementById("__plasmo")}
@@ -316,14 +316,15 @@ export default function AppSettings({ app, showTitle = false }: Props) {
         <CenterText noMargin>
           {browser.i18n.getMessage("removeAppNote")}
         </CenterText>
-        <Spacer y={1.75} />
-        <Button fullWidth onClick={() => removeApp(app.url)}>
-          {browser.i18n.getMessage("remove")}
-        </Button>
         <Spacer y={0.75} />
-        <Button fullWidth secondary onClick={() => removeModal.setOpen(false)}>
-          {browser.i18n.getMessage("cancel")}
-        </Button>
+        <ButtonWrapper>
+          <ButtonV2 onClick={() => removeApp(app.url)}>
+            {browser.i18n.getMessage("remove")}
+          </ButtonV2>
+          <ButtonV2 secondary onClick={() => removeModal.setOpen(false)}>
+            {browser.i18n.getMessage("cancel")}
+          </ButtonV2>
+        </ButtonWrapper>
       </Modal>
     </>
   );
@@ -408,4 +409,10 @@ const CenterText = styled(Text)`
   @media screen and (max-width: 720px) {
     max-width: 90vw;
   }
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
 `;
