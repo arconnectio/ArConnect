@@ -20,6 +20,7 @@ import styled from "styled-components";
 import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
 import { useGateway } from "~gateways/wayfinder";
+import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { getUserAvatar } from "~lib/avatar";
 
 export default function Token({ onClick, ...props }: Props) {
@@ -76,10 +77,8 @@ export default function Token({ onClick, ...props }: Props) {
         <LogoWrapper>
           <Logo src={logo || ""} alt="" key={props.id} />
         </LogoWrapper>
-        <div>
-          <TokenName>{props.name || props.ticker || "???"}</TokenName>
-          {props?.ao && <FiatBalance ao={true}>ao</FiatBalance>}
-        </div>
+        <TokenName>{props.name || props.ticker || "???"}</TokenName>
+        {props?.ao && <Image src={aoLogo} alt="ao logo" />}
       </LogoAndDetails>
       <BalanceSection>
         <NativeBalance>
@@ -110,6 +109,13 @@ const Wrapper = styled.div`
   &:active {
     transform: scale(0.98);
   }
+`;
+
+const Image = styled.img`
+  width: 16px;
+  padding: 0 8px;
+  border: 1px solid rgb(${(props) => props.theme.cardBorder});
+  border-radius: 2px;
 `;
 
 export const LogoAndDetails = styled.div`
@@ -161,18 +167,6 @@ const FiatBalance = styled.span<{ ao?: boolean }>`
   font-size: 0.75rem;
   color: rgb(${(props) => props.theme.secondaryText});
   font-weight: 400;
-
-  ${(props) =>
-    props.ao &&
-    `
-    display: flex;
-    justify-content: center;
-    width: 18px;
-    align-items: center;
-    border: 1px solid rgb(${props.theme.cardBorder});
-    border-radius: 4px;
-    padding: 0 2px;
-  `}
 `;
 
 const BalanceSection = styled.div`

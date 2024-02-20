@@ -26,6 +26,11 @@ export default function Tokens() {
   // router push
   const [push] = useHistory();
 
+  // handle aoClick
+  function handleTokenClick(tokenId) {
+    push(`/send/transfer/${tokenId}`);
+  }
+
   return (
     <Section>
       <Heading>
@@ -52,16 +57,20 @@ export default function Tokens() {
             key={i}
           />
         ))}
-        {aoTokens.map((token, i) => (
-          <Token
-            ao={true}
-            type={"asset"}
-            defaultLogo={token?.Logo}
-            id={token.id}
-            ticker={token.Ticker}
-            balance={Number(token.balance)}
-          />
-        ))}
+        {aoTokens
+          .filter((token) => token.balance > 0)
+          .map((token) => (
+            <Token
+              key={token.id}
+              ao={true}
+              type={"asset"}
+              defaultLogo={token?.Logo}
+              id={token.id}
+              ticker={token.Ticker}
+              balance={Number(token.balance)}
+              onClick={() => handleTokenClick(token.id)}
+            />
+          ))}
       </TokensList>
     </Section>
   );
