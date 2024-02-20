@@ -64,8 +64,8 @@ export const formatSettingName = (name: string) => {
     return "ArConfetti";
   }
 
-  if (name === "ao_experimental") {
-    return "ao (experimental)";
+  if (name === "ao_support") {
+    return "ao support";
   }
 
   return name
