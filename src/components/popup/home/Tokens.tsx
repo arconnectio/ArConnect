@@ -29,7 +29,6 @@ export default function Tokens() {
   return (
     <Section>
       <Heading>
-        {console.log("ao", aoTokens)}
         <Title noMargin>{browser.i18n.getMessage("assets")}</Title>
         <ViewAll
           onClick={() => {
@@ -51,6 +50,16 @@ export default function Tokens() {
             {...token}
             onClick={() => push(`/token/${token.id}`)}
             key={i}
+          />
+        ))}
+        {aoTokens.map((token, i) => (
+          <Token
+            ao={true}
+            type={"asset"}
+            defaultLogo={token?.Logo}
+            id={token.id}
+            ticker={token.Ticker}
+            balance={Number(token.balance)}
           />
         ))}
       </TokensList>

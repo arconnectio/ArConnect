@@ -20,6 +20,7 @@ import styled from "styled-components";
 import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
 import { useGateway } from "~gateways/wayfinder";
+import { getUserAvatar } from "~lib/avatar";
 
 export default function Token({ onClick, ...props }: Props) {
   // display theme
@@ -59,8 +60,13 @@ export default function Token({ onClick, ...props }: Props) {
   useEffect(() => {
     (async () => {
       if (!props?.id || logo) return;
-      setLogo(viewblock.getTokenLogo(props.id));
-      setLogo(await loadTokenLogo(props.id, props.defaultLogo, theme));
+      if (!props?.ao) {
+        setLogo(viewblock.getTokenLogo(props.id));
+        setLogo(await loadTokenLogo(props.id, props.defaultLogo, theme));
+      } else {
+        const logo = await getUserAvatar(props.defaultLogo);
+        setLogo(logo);
+      }
     })();
   }, [props, theme, logo]);
 
@@ -70,7 +76,10 @@ export default function Token({ onClick, ...props }: Props) {
         <LogoWrapper>
           <Logo src={logo || ""} alt="" key={props.id} />
         </LogoWrapper>
-        <TokenName>{props.name || props.ticker || "???"}</TokenName>
+        <div>
+          <TokenName>{props.name || props.ticker || "???"}</TokenName>
+          {props?.ao && <FiatBalance ao={true}>ao</FiatBalance>}
+        </div>
       </LogoAndDetails>
       <BalanceSection>
         <NativeBalance>
@@ -148,10 +157,22 @@ const NativeBalance = styled(Text).attrs({
   color: rgba(${(props) => props.theme.primaryText}, 0.83);
 `;
 
-const FiatBalance = styled.span`
+const FiatBalance = styled.span<{ ao?: boolean }>`
   font-size: 0.75rem;
   color: rgb(${(props) => props.theme.secondaryText});
   font-weight: 400;
+
+  ${(props) =>
+    props.ao &&
+    `
+    display: flex;
+    justify-content: center;
+    width: 18px;
+    align-items: center;
+    border: 1px solid rgb(${props.theme.cardBorder});
+    border-radius: 4px;
+    padding: 0 2px;
+  `}
 `;
 
 const BalanceSection = styled.div`
@@ -167,6 +188,7 @@ const BalanceSection = styled.div`
 `;
 
 interface Props extends Token {
+  ao?: boolean;
   onClick?: MouseEventHandler<HTMLDivElement>;
 }
 
