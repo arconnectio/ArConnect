@@ -1,6 +1,6 @@
 import {
   Text,
-  Button,
+  ButtonV2,
   Input,
   Loading,
   Modal,
@@ -8,21 +8,23 @@ import {
   Spacer,
   Tooltip,
   useModal,
-  useToasts
+  useToasts,
+  type DisplayTheme
 } from "@arconnect/components";
-import { CheckIcon, CopyIcon } from "@iconicicons/react";
 import { useState, useEffect, type MouseEventHandler, useMemo } from "react";
+import { Edit02, Share04, Upload01 } from "@untitled-ui/icons-react";
+import { uploadUserAvatar, getUserAvatar } from "~lib/avatar";
+import { CheckIcon, CopyIcon } from "@iconicicons/react";
+import { EventType, trackEvent } from "~utils/analytics";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import styled from "styled-components";
 import browser from "webextension-polyfill";
-import { Edit02, Share04, Upload01 } from "@untitled-ui/icons-react";
-import { useLocation } from "wouter";
-import { uploadUserAvatar, getUserAvatar } from "~lib/avatar";
 import { getAllArNSNames } from "~lib/arns";
-import copy from "copy-to-clipboard";
-import { EventType, trackEvent } from "~utils/analytics";
+import { useTheme } from "~utils/theme";
+import styled from "styled-components";
 import { svgie } from "~utils/svgies";
+import { useLocation } from "wouter";
+import copy from "copy-to-clipboard";
 
 export default function ContactSettings({ address }: Props) {
   // contacts
@@ -35,6 +37,7 @@ export default function ContactSettings({ address }: Props) {
   );
 
   const { setToast } = useToasts();
+  const theme = useTheme();
 
   const [editable, setEditable] = useState(false);
   const [contact, setContact] = useState({
@@ -391,19 +394,18 @@ export default function ContactSettings({ address }: Props) {
       {editable && (
         <>
           <Footer>
-            <Button
-              small
+            <ButtonV2
               fullWidth
               onClick={saveContact}
               disabled={areFieldsEmpty()}
             >
               {browser.i18n.getMessage("save_changes")}
-            </Button>
+            </ButtonV2>
             <RemoveContact
-              small
               fullWidth
               secondary
               onClick={() => removeContactModal.setOpen(true)}
+              displayTheme={theme}
             >
               {browser.i18n.getMessage("remove_contact")}
             </RemoveContact>
@@ -420,23 +422,29 @@ export default function ContactSettings({ address }: Props) {
               {browser.i18n.getMessage("remove_contact_question")}
             </CenterText>
             <Spacer y={1.75} />
-            <Button fullWidth onClick={confirmRemoveContact}>
-              {browser.i18n.getMessage("yes")}
-            </Button>
-            <Spacer y={0.75} />
-            <Button
-              fullWidth
-              secondary
-              onClick={() => removeContactModal.setOpen(false)}
-            >
-              {browser.i18n.getMessage("no")}
-            </Button>
+            <ButtonWrapper>
+              <ButtonV2
+                secondary
+                onClick={() => removeContactModal.setOpen(false)}
+              >
+                {browser.i18n.getMessage("no")}
+              </ButtonV2>
+              <ButtonV2 onClick={confirmRemoveContact}>
+                {browser.i18n.getMessage("yes")}
+              </ButtonV2>
+            </ButtonWrapper>
           </Modal>
         </>
       )}
     </Wrapper>
   );
 }
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+`;
 
 const Action = styled(CopyIcon)`
   font-size: 1.25rem;
@@ -482,7 +490,7 @@ export const Footer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding-top: 10px;
+  padding: 10px 0px;
 `;
 
 export const CenterText = styled(Text)`
@@ -525,15 +533,16 @@ const EditIcon = styled(Edit02)`
   cursor: pointer;
 `;
 
-export const RemoveContact = styled(Button)`
-  background-color: #ea433580;
-  color: #ea4335;
-  border: 2px solid #ea433580;
-  transition: all 0.29s ease-in-out;
-  height: 46.79px;
+export const RemoveContact = styled(ButtonV2)<{ displayTheme: DisplayTheme }>`
+  background-color: ${(props) =>
+    props.displayTheme === "light" ? "#F58080" : "#8C1A1A"};
+  border: 1.5px solid
+    ${(props) => (props.displayTheme === "light" ? "#EB0000" : "#FF1A1A")};
+  color: #ffffff;
 
   &:hover {
-    transform: scale(1.02);
+    background-color: ${(props) =>
+      props.displayTheme === "light" ? "#F58080" : "#C51A1A"};
   }
 `;
 
