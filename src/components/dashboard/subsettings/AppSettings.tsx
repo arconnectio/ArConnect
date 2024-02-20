@@ -318,11 +318,11 @@ export default function AppSettings({ app, showTitle = false }: Props) {
         </CenterText>
         <Spacer y={0.75} />
         <ButtonWrapper>
-          <ButtonV2 onClick={() => removeApp(app.url)}>
-            {browser.i18n.getMessage("remove")}
-          </ButtonV2>
           <ButtonV2 secondary onClick={() => removeModal.setOpen(false)}>
             {browser.i18n.getMessage("cancel")}
+          </ButtonV2>
+          <ButtonV2 onClick={() => removeApp(app.url)}>
+            {browser.i18n.getMessage("remove")}
           </ButtonV2>
         </ButtonWrapper>
       </Modal>
