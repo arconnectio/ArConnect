@@ -64,6 +64,10 @@ export const formatSettingName = (name: string) => {
     return "ArConfetti";
   }
 
+  if (name === "ao_support") {
+    return "ao support";
+  }
+
   return name
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
