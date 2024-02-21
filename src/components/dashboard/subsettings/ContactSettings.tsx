@@ -9,7 +9,8 @@ import {
   Tooltip,
   useModal,
   useToasts,
-  type DisplayTheme
+  type DisplayTheme,
+  InputV2
 } from "@arconnect/components";
 import { useState, useEffect, type MouseEventHandler, useMemo } from "react";
 import { Edit02, Share04, Upload01 } from "@untitled-ui/icons-react";
@@ -331,9 +332,8 @@ export default function ContactSettings({ address }: Props) {
         {contact.name && <SubTitle>{browser.i18n.getMessage("name")}</SubTitle>}
         {editable ? (
           <InputWrapper>
-            <ContactInput
+            <InputV2
               fullWidth
-              small
               name="name"
               placeholder={
                 contact.name
@@ -366,9 +366,8 @@ export default function ContactSettings({ address }: Props) {
         </AddressWrapper>
         {editable ? (
           <InputWrapper>
-            <ContactInput
+            <InputV2
               fullWidth
-              small
               name="address"
               placeholder={
                 contact.address

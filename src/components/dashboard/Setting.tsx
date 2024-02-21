@@ -1,4 +1,4 @@
-import { Input, Spacer, Text, useInput } from "@arconnect/components";
+import { InputV2, Spacer, Text, useInput } from "@arconnect/components";
 import { setting_element_padding } from "./list/BaseElement";
 import PermissionCheckbox from "~components/auth/PermissionCheckbox";
 import type SettingType from "~settings/setting";
@@ -78,7 +78,7 @@ export default function Setting({ setting }: Props) {
     case "number":
     case "string":
       return (
-        <Input
+        <InputV2
           label={browser.i18n.getMessage(setting.displayName)}
           type={setting.type === "string" ? "text" : "number"}
           value={settingState}

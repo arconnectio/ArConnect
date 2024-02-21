@@ -9,9 +9,9 @@ import PermissionCheckbox, {
 } from "~components/auth/PermissionCheckbox";
 import { removeApp } from "~applications";
 import {
-  Button,
   ButtonV2,
   Input,
+  InputV2,
   Modal,
   Select,
   Spacer,
@@ -250,7 +250,7 @@ export default function AppSettings({ app, showTitle = false }: Props) {
           <Spacer y={0.8} />
           <InputWithBtn>
             <InputWrapper>
-              <Input
+              <InputV2
                 {...customGatewayInput.bindings}
                 type="text"
                 placeholder="https://arweave.net:443"
@@ -278,7 +278,7 @@ export default function AppSettings({ app, showTitle = false }: Props) {
       )}
       <Spacer y={1} />
       <Title>{browser.i18n.getMessage("bundlrNode")}</Title>
-      <Input
+      <InputV2
         value={settings.bundler}
         onChange={(e) =>
           updateSettings((val) => ({

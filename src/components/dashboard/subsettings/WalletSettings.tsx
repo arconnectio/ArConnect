@@ -1,6 +1,7 @@
 import {
   ButtonV2,
   Input,
+  InputV2,
   Modal,
   Spacer,
   Text,
@@ -207,7 +208,7 @@ export default function WalletSettings({ address }: Props) {
         )}
         <InputWithBtn>
           <InputWrapper>
-            <Input
+            <InputV2
               {...walletNameInput.bindings}
               type="text"
               placeholder={browser.i18n.getMessage("edit_wallet_name")}
@@ -290,7 +291,7 @@ export default function WalletSettings({ address }: Props) {
         <CenterText heading>
           {browser.i18n.getMessage("export_wallet_modal_title")}
         </CenterText>
-        <Input
+        <InputV2
           type="password"
           placeholder={browser.i18n.getMessage("password")}
           {...passwordInput.bindings}
