@@ -7,7 +7,6 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Token from "../Token";
 import { useAo, useAoTokens } from "~tokens/aoTokens/ao";
-import { useTokenIDs } from "~tokens/aoTokens/router";
 
 export default function Tokens() {
   // all tokens

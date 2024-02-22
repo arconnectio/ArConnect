@@ -4,12 +4,12 @@ import { Tag } from "arweave/web/lib/transaction";
 export interface Config {
   CU_URL: string;
   MU_URL: string;
-  GATEWAY_URL: string;
+  GATEWAY_URL?: string;
 }
 
 export const defaultConfig: Config = {
-  CU_URL: "https://cu.ao-testnet.xyz",
-  MU_URL: "https://mu.ao-testnet.xyz",
+  CU_URL: "https://ao-cu-1.onrender.com",
+  MU_URL: "https://ao-mu-1.onrender.com",
   GATEWAY_URL: "https://g8way.io:443"
 };
 

@@ -2,7 +2,7 @@ import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
 import { AnimatePresence, type Variants, motion } from "framer-motion";
 import { Button, Section, Spacer, Text } from "@arconnect/components";
 import type { GQLNodeInterface } from "ar-gql/dist/faces";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useState } from "react";
 import { useGateway } from "~gateways/wayfinder";
 import { useHistory } from "~utils/hash_router";
 import { ShareIcon } from "@iconicicons/react";
@@ -42,6 +42,8 @@ export default function Transaction({ id: rawId, gw }: Props) {
   const [transaction, setTransaction] = useState<GQLNodeInterface>();
   // const [contact, setContact] = useState<any | undefined>(undefined);
   const contact = useContact(transaction?.recipient);
+
+  const [isAo, setIsAo] = useState<boolean>(false);
 
   // arweave gateway
   const defaultGateway = useGateway({
@@ -108,6 +110,20 @@ export default function Transaction({ id: rawId, gw }: Props) {
         timeoutID = setTimeout(fetchTx, 5000);
       } else {
         timeoutID = undefined;
+
+        const sdkTag = data.transaction.tags.find((tag) => tag.name === "SDK");
+        if (sdkTag && sdkTag.value === "aoconnect") {
+          setIsAo(true);
+          const aoRecipient = data.transaction.tags.find(
+            (tag) => tag.name === "Recipient"
+          );
+          const aoQuantity = data.transaction.tags.find(
+            (tag) => tag.name === "Quantity"
+          );
+          data.transaction.quantity = { ar: aoQuantity.value, winston: "" };
+          data.transaction.recipient = aoRecipient.value;
+        }
+
         setTransaction(data.transaction);
       }
     };
@@ -246,9 +262,12 @@ export default function Transaction({ id: rawId, gw }: Props) {
             <Section style={{ paddingTop: 9, paddingBottom: 8 }}>
               <AmountTitle>
                 {formatTokenBalance(Number(transaction.quantity.ar))}
-                <span>AR</span>
+                {/* NEEDS TO BE DYNAMIC */}
+                {!isAo && <span>AR</span>}
               </AmountTitle>
-              <FiatAmount>{formatFiatBalance(fiatPrice, currency)}</FiatAmount>
+              <FiatAmount>
+                {isAo ? "$-.--" : formatFiatBalance(fiatPrice, currency)}
+              </FiatAmount>
             </Section>
             <AnimatePresence>
               {gw && <CustomGatewayWarning simple />}

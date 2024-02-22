@@ -5,6 +5,9 @@ import { type Tag } from "arweave/web/lib/transaction";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { getTokenInfo, useTokenIDs } from "./router";
+import { ArweaveSigner, createData } from "arbundles";
+import { getActiveKeyfile } from "~wallets";
+import { isLocalWallet } from "~utils/assertions";
 
 export type AoInstance = ReturnType<typeof connect>;
 
@@ -14,6 +17,22 @@ export interface Message {
   Target: string;
   Data: string;
 }
+
+type CreateDataItemArgs = {
+  data: any;
+  tags?: Tag[];
+  target?: string;
+  anchor?: string;
+};
+
+type DataItemResult = {
+  id: string;
+  raw: ArrayBuffer;
+};
+
+type CreateDataItemSigner = (
+  wallet: any
+) => (args: CreateDataItemArgs) => Promise<DataItemResult>;
 
 export function useAo() {
   // ao instance
@@ -141,6 +160,59 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
  */
 export const getTagValue = (tagName: string, tags: Tag[]) =>
   tags.find((t) => t.name === tagName)?.value;
+
+export const sendAoTransfer = async (
+  ao: AoInstance,
+  process: string,
+  recipient: string,
+  amount: string
+) => {
+  try {
+    const decryptedWallet = await getActiveKeyfile();
+    isLocalWallet(decryptedWallet);
+    const keyfile = decryptedWallet.keyfile;
+
+    const createDataItemSigner =
+      (wallet: any) =>
+      async ({
+        data,
+        tags = [],
+        target,
+        anchor
+      }: {
+        data: any;
+        tags?: { name: string; value: string }[];
+        target?: string;
+        anchor?: string;
+      }): Promise<{ id: string; raw: ArrayBuffer }> => {
+        const signer = new ArweaveSigner(wallet);
+        const dataItem = createData(data, signer, { tags, target, anchor });
+
+        await dataItem.sign(signer);
+
+        return {
+          id: dataItem.id,
+          raw: dataItem.getRaw()
+        };
+      };
+    const signer = createDataItemSigner(keyfile);
+    const transferID = await ao.message({
+      process,
+      signer,
+      tags: [
+        { name: "Action", value: "Transfer" },
+        {
+          name: "Recipient",
+          value: recipient
+        },
+        { name: "Quantity", value: amount }
+      ]
+    });
+    return transferID;
+  } catch (err) {
+    console.log("err", err);
+  }
+};
 
 /**
  * Get balance for address
