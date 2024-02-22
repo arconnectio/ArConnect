@@ -41,7 +41,7 @@ export default function Tokens() {
           }}
         >
           {browser.i18n.getMessage("view_all")}
-          <TokenCount>{assets.length}</TokenCount>
+          <TokenCount>{assets.length + aoTokens.length}</TokenCount>
         </ViewAll>
       </Heading>
       <Spacer y={0.8} />
@@ -56,20 +56,18 @@ export default function Tokens() {
             key={i}
           />
         ))}
-        {aoTokens
-          .filter((token) => token.balance > 0)
-          .map((token) => (
-            <Token
-              key={token.id}
-              ao={true}
-              type={"asset"}
-              defaultLogo={token?.Logo}
-              id={token.id}
-              ticker={token.Ticker}
-              balance={Number(token.balance)}
-              onClick={() => handleTokenClick(token.id)}
-            />
-          ))}
+        {aoTokens.map((token) => (
+          <Token
+            key={token.id}
+            ao={true}
+            type={"asset"}
+            defaultLogo={token?.Logo}
+            id={token.id}
+            ticker={token.Ticker}
+            balance={Number(token.balance)}
+            onClick={() => handleTokenClick(token.id)}
+          />
+        ))}
       </TokensList>
     </Section>
   );

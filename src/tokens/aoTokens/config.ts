@@ -8,8 +8,8 @@ export interface Config {
 }
 
 export const defaultConfig: Config = {
-  CU_URL: "https://ao-cu-1.onrender.com",
-  MU_URL: "https://ao-mu-1.onrender.com",
+  CU_URL: "https://cu.ao-testnet.xyz",
+  MU_URL: "https://mu.ao-testnet.xyz",
   GATEWAY_URL: "https://g8way.io:443"
 };
 

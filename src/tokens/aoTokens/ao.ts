@@ -92,10 +92,12 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
   );
   const tokensWithBalances = useMemo(
     () =>
-      tokens.map((token) => ({
-        ...token,
-        balance: balances.find((bal) => bal.id === token.id)?.balance || 0
-      })),
+      tokens
+        .map((token) => ({
+          ...token,
+          balance: balances.find((bal) => bal.id === token.id)?.balance || 0
+        }))
+        .filter((token) => token.balance > 0),
     [tokens, balances]
   );
 
@@ -104,6 +106,11 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
 
   const [activeAddress] = useStorage<string>({
     key: "active_address",
+    instance: ExtensionStorage
+  });
+
+  const [aoSetting] = useStorage<boolean>({
+    key: "setting_ao_support",
     instance: ExtensionStorage
   });
 
@@ -136,7 +143,7 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
 
   useEffect(() => {
     (async () => {
-      if (ids.length === 0 || loadingIDs || !activeAddress) {
+      if (ids.length === 0 || loadingIDs || !activeAddress || !aoSetting) {
         return setBalances([]);
       }
 
