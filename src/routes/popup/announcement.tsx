@@ -1,18 +1,11 @@
-import {
-  ButtonV2,
-  Checkbox,
-  Modal,
-  Spacer,
-  Text,
-  useModal
-} from "@arconnect/components";
+import { ButtonV2, Modal, Spacer, Text } from "@arconnect/components";
 import aoGraphic from "url:/assets/ecosystem/ao-arconnect.svg";
 import { Square } from "@untitled-ui/icons-react";
 import styled from "styled-components";
 
 export const AnnouncementPopup = ({ isOpen, setOpen }) => {
   return (
-    <AnnouncementModal
+    <Modal
       root={document.getElementById("__plasmo")}
       open={isOpen}
       setOpen={setOpen}
@@ -32,7 +25,7 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
         <UncheckedBox />
         <CenterText>Display ao tokens in ArConnect (Beta)</CenterText>
       </Content>
-    </AnnouncementModal>
+    </Modal>
   );
 };
 
@@ -60,11 +53,4 @@ const CenterText = styled(Text)`
   text-align: center;
   color: #ffffff;
   font-size: 12px;
-`;
-
-const AnnouncementModal = styled(Modal)`
-  box-sizing: border-box;
-  width: 300px;
-  height: 364px;
-  padding: 24px 30px;
 `;
