@@ -20,6 +20,7 @@ import {
   getDecryptionKey,
   setDecryptionKey
 } from "./auth";
+import { arSvgie } from "@7i7o/arsvgies";
 
 /**
  * Locally stored wallet
@@ -31,6 +32,7 @@ export interface LocalWallet<KeyfileFormat = string> {
   nickname: string;
   address: string;
   keyfile: KeyfileFormat;
+  avatar: string;
 }
 
 /**
@@ -249,13 +251,17 @@ export async function addWallet(
       continue;
     }
 
+    // get avatar
+    const avatar = await arSvgie(address, { asDataURI: true });
+
     // push wallet
     wallets.push({
       type: "local",
       // @ts-expect-error
       nickname: item.nickname || `Account ${wallets.length + 1}`,
       address,
-      keyfile: encrypted
+      keyfile: encrypted,
+      avatar
     });
   }
 

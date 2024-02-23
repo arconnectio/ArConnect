@@ -5,7 +5,7 @@ import { findGateway } from "~gateways/wayfinder";
 import { getUserAvatar } from "~lib/avatar";
 import { multiSort } from "~utils/multi_sort";
 import { ExtensionStorage } from "~utils/storage";
-import { svgie } from "~utils/svgies";
+import { arSvgie } from "@7i7o/arsvgies";
 
 export const useContacts = (activeAddress: string) => {
   const [storedContacts, setContacts] = useState<Contacts>([]);
@@ -122,14 +122,42 @@ export const enrichContact = async (contact: Contact) => {
       );
     }
   } else {
-    const svgieAvatar = svgie(contact.address, { asDataURI: true });
-    if (svgieAvatar) {
+    if (contact.avatar) {
       updatedContact = {
         ...updatedContact,
-        profileIcon: svgieAvatar
+        profileIcon: contact.avatar
       };
     }
   }
 
   return updatedContact;
+};
+
+export const useSvgie = (address?: string): string => {
+  const [svgie, setSvgie] = useState("");
+  const addressRegex = /^[a-z0-9-_]{43}$/i;
+  useEffect(() => {
+    const fetchSvgie = async () => {
+      const svgieAvatar = await arSvgie(address, { asDataURI: true });
+      setSvgie(svgieAvatar);
+    };
+
+    if (address && address.length === 43 && addressRegex.test(address)) {
+      fetchSvgie();
+    }
+  }, [address]);
+  return svgie;
+};
+
+export const getSvgies = async (
+  wallets?: { address: string }[]
+): Promise<{ address: string; avatar: string }[]> => {
+  const svgies = [];
+  for (const wallet of wallets) {
+    svgies.push({
+      address: wallet.address,
+      avatar: await arSvgie(wallet.address, { asDataURI: true })
+    });
+  }
+  return svgies;
 };

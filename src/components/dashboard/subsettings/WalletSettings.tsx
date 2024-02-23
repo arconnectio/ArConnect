@@ -29,6 +29,7 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { formatAddress } from "~utils/format";
+import Squircle from "~components/Squircle";
 
 export default function WalletSettings({ address }: Props) {
   // wallets
@@ -219,6 +220,11 @@ export default function WalletSettings({ address }: Props) {
             <CheckIcon />
           </IconButton>
         </InputWithBtn>
+        <Spacer y={1} />
+        <PictureWrapper>
+          <ProfilePicture img={wallet?.avatar} size="240px" />
+        </PictureWrapper>
+        <Spacer y={1} />
       </div>
       <div>
         <Button
@@ -312,6 +318,17 @@ const Wrapper = styled.div`
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+`;
+
+const PictureWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+`;
+
+const ProfilePicture = styled(Squircle)<{ size?: string }>`
+  width: ${(props) => (props.size ? props.size : "2rem")};
+  height: ${(props) => (props.size ? props.size : "2rem")};
 `;
 
 const WalletName = styled(Text).attrs({

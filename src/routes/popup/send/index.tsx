@@ -403,10 +403,10 @@ export default function Send({ id }: Props) {
           >
             <span style={{ display: "flex", alignItems: "center" }}>
               {contact && contact.profileIcon ? (
-                <ProfilePicture size="24px" src={contact.profileIcon} />
+                <ProfilePicture size="1.5rem" img={contact.profileIcon} />
               ) : (
                 contact && (
-                  <AutoContactPic size="24px">
+                  <AutoContactPic size="1.5rem">
                     {generateProfileIcon(contact.name || contact.address)}
                   </AutoContactPic>
                 )
