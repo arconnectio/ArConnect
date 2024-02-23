@@ -1,20 +1,11 @@
 import { ButtonV2, Modal, Spacer, Text } from "@arconnect/components";
 import aoGraphic from "url:/assets/ecosystem/ao-arconnect.svg";
-import { CheckSquare, Square } from "@untitled-ui/icons-react";
-import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
+import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { useState } from "react";
 
 export const AnnouncementPopup = ({ isOpen, setOpen }) => {
-  const [showAnnouncement, setShowAnnouncement] = useStorage(
-    {
-      key: "showAnnouncement",
-      instance: ExtensionStorage
-    },
-    []
-  );
-
   const [checked, setChecked] = useState(true);
 
   return (
@@ -34,7 +25,14 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
             <Spacer y={1} />
             <CenterText>
               Look out for new updates around ao in the future. To learn more
-              visit <Link>ao.computer</Link>
+              visit{" "}
+              <Link
+                onClick={() =>
+                  browser.tabs.create({ url: "https://ao.computer" })
+                }
+              >
+                ao.computer
+              </Link>
             </CenterText>
             <Spacer y={1} />
             <CheckContainer>
@@ -78,7 +76,10 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
         </Content>
         <ButtonV2
           fullWidth
-          onClick={() => setOpen(false)}
+          onClick={() => {
+            setOpen(false);
+            ExtensionStorage.set("show_announcement", false);
+          }}
           style={{ marginTop: "43px" }}
         >
           Dismiss
@@ -157,29 +158,6 @@ const UncheckedSvg = styled.svg`
   flex: none;
   flex-grow: 0;
 `;
-
-// const CheckedBox = styled(CheckSquare)`
-//   position: absolute;
-//   left: calc(50% - 24px / 2 - 113px);
-//   width: 24px;
-//   height: 24px;
-//   cursor: pointer;
-//   flex: none;
-//   flex-grow: 0;
-//   color: #FFFFFF;
-//   background: #8E7BEA;
-// `;
-
-// const UncheckedBox = styled(Square)`
-//   position: absolute;
-//   left: calc(50% - 22px / 2 - 113px);
-//   color: #a3a3a3;
-//   width: 22px;
-//   height: 22px;
-//   cursor: pointer;
-//   flex: none;
-//   flex-grow: 0;
-// `;
 
 const HeaderText = styled(Text)`
   font-size: 18px;

@@ -25,6 +25,10 @@ export default function Home() {
     key: "active_address",
     instance: ExtensionStorage
   });
+  const [showAnnouncement, setShowAnnouncement] = useStorage<boolean>({
+    key: "show_announcement",
+    instance: ExtensionStorage
+  });
 
   useEffect(() => {
     (async () => {
@@ -54,7 +58,19 @@ export default function Home() {
       }
     };
     checkExpiration();
-    setOpen(true);
+
+    // check whether to show announcement
+    (async () => {
+      const announcement = await ExtensionStorage.get("show_announcement");
+      if (announcement === undefined) {
+        setShowAnnouncement(true);
+      }
+      if (announcement || announcement === "true") {
+        setOpen(true);
+      } else {
+        setOpen(false);
+      }
+    })();
   }, []);
 
   return (
