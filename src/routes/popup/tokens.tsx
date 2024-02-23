@@ -7,17 +7,22 @@ import browser from "webextension-polyfill";
 import Token from "~components/popup/Token";
 import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
+import { useAoTokens } from "~tokens/aoTokens/ao";
 
 export default function Tokens() {
   // all tokens
   const tokens = useTokens();
+  // ao Tokens
+  const [aoTokens] = useAoTokens();
 
   // assets
   const assets = useMemo(
     () => tokens.filter((token) => token.type === "asset"),
     [tokens]
   );
-
+  function handleTokenClick(tokenId) {
+    push(`/send/transfer/${tokenId}`);
+  }
   // router push
   const [push] = useHistory();
 
@@ -30,6 +35,18 @@ export default function Tokens() {
             {...token}
             onClick={() => push(`/token/${token.id}`)}
             key={i}
+          />
+        ))}
+        {aoTokens.map((token) => (
+          <Token
+            key={token.id}
+            ao={true}
+            type={"asset"}
+            defaultLogo={token?.Logo}
+            id={token.id}
+            ticker={token.Ticker}
+            balance={Number(token.balance)}
+            onClick={() => handleTokenClick(token.id)}
           />
         ))}
         <ManageButton

@@ -65,6 +65,8 @@ import Recipient, {
 } from "~components/Recipient";
 import { formatAddress } from "~utils/format";
 import { useContact } from "~contacts/hooks";
+import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
+import { useAoTokens } from "~tokens/aoTokens/ao";
 
 // default size for the qty text
 const defaulQtytSize = 3.7;
@@ -91,6 +93,7 @@ export interface TransactionData {
   recipient: RecipientType;
   qtyMode: string;
   message?: string;
+  isAo?: boolean;
 }
 
 export default function Send({ id }: Props) {
@@ -117,6 +120,12 @@ export default function Send({ id }: Props) {
   // currency setting
   const [currency] = useSetting<string>("currency");
 
+  // aoTokens
+  const [aoTokens] = useAoTokens();
+
+  // set ao for following page
+  const [isAo, setIsAo] = useState<boolean>(false);
+
   // qty mode (fiat/token)
   const [qtyMode, setQtyMode] = useStorage<QtyMode>(
     {
@@ -138,10 +147,26 @@ export default function Send({ id }: Props) {
     "AR"
   );
 
-  const token = useMemo<TokenInterface>(
-    () => tokens.find((t) => t.id === tokenID) || arPlaceholder,
-    [tokenID]
-  );
+  const token = useMemo<TokenInterface>(() => {
+    const matchingTokenInTokens = tokens.find((t) => t.id === tokenID);
+
+    const matchingTokenInAoTokens = !matchingTokenInTokens
+      ? aoTokens.find((aoToken) => aoToken.id === tokenID)
+      : null;
+    if (matchingTokenInAoTokens) {
+      setIsAo(true);
+      return {
+        id: matchingTokenInAoTokens.id,
+        ticker: matchingTokenInAoTokens.Ticker,
+        type: "asset",
+        balance: matchingTokenInAoTokens.balance,
+        defaultLogo: matchingTokenInAoTokens.Logo
+      };
+    }
+
+    setIsAo(false);
+    return matchingTokenInTokens || arPlaceholder;
+  }, [tokenID, tokens, aoTokens]);
 
   // if the ID is defined on mount, that means that
   // we need to reset the qty field
@@ -348,7 +373,8 @@ export default function Send({ id }: Props) {
       estimatedFiat: qtyMode === "fiat" ? qty : secondaryQty,
       estimatedNetworkFee: formatTokenBalance(networkFee),
       message: message.state,
-      qtyMode
+      qtyMode,
+      isAo
     });
 
     // continue to confirmation page
@@ -435,7 +461,7 @@ export default function Send({ id }: Props) {
           />
         </RecipientAmountWrapper>
         <Datas>
-          {!!price && (
+          {!!price && !isAo ? (
             <Text noMargin>
               ≈
               {qtyMode === "fiat"
@@ -443,6 +469,8 @@ export default function Send({ id }: Props) {
                 : formatFiatBalance(secondaryQty, currency)}
               {qtyMode === "fiat" && " " + token.ticker}
             </Text>
+          ) : (
+            <></>
           )}
           <Text noMargin>
             ~{networkFee}
@@ -470,6 +498,7 @@ export default function Send({ id }: Props) {
               <Logo src={logo || arweaveLogo} />
             </LogoWrapper>
             <TokenName>{token.name || token.ticker}</TokenName>
+            {isAo && <Image src={aoLogo} alt="ao logo" />}
           </LogoAndDetails>
           <TokenSelectorRightSide>
             <Text noMargin>{browser.i18n.getMessage("setting_currency")}</Text>
@@ -508,6 +537,20 @@ export default function Send({ id }: Props) {
                     {...token}
                     onClick={() => updateSelectedToken(token.id)}
                     key={i}
+                  />
+                ))}
+              {aoTokens
+                .filter((token) => token.balance > 0)
+                .map((token, i) => (
+                  <Token
+                    key={token.id}
+                    ao={true}
+                    type={"asset"}
+                    defaultLogo={token?.Logo}
+                    id={token.id}
+                    ticker={token.Ticker}
+                    balance={Number(token.balance)}
+                    onClick={() => updateSelectedToken(token.id)}
                   />
                 ))}
             </TokensSection>
@@ -556,6 +599,13 @@ export default function Send({ id }: Props) {
 
 const Currency = styled.span<{ active: boolean }>`
   color: ${(props) => (!props.active ? "#B9B9B9" : "#ffffff")};
+`;
+
+const Image = styled.img`
+  width: 16px;
+  padding: 0 8px;
+  border: 1px solid rgb(${(props) => props.theme.cardBorder});
+  border-radius: 2px;
 `;
 
 const MessageWrapper = styled.div`
