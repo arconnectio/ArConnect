@@ -6,10 +6,15 @@ import { useMemo } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Token from "../Token";
+import { useAo, useAoTokens } from "~tokens/aoTokens/ao";
 
 export default function Tokens() {
   // all tokens
   const tokens = useTokens();
+  const ao = useAo();
+
+  // all tokens
+  const [aoTokens] = useAoTokens();
 
   // assets
   const assets = useMemo(
@@ -19,6 +24,11 @@ export default function Tokens() {
 
   // router push
   const [push] = useHistory();
+
+  // handle aoClick
+  function handleTokenClick(tokenId) {
+    push(`/send/transfer/${tokenId}`);
+  }
 
   return (
     <Section>
@@ -31,7 +41,7 @@ export default function Tokens() {
           }}
         >
           {browser.i18n.getMessage("view_all")}
-          <TokenCount>{assets.length}</TokenCount>
+          <TokenCount>{assets.length + aoTokens.length}</TokenCount>
         </ViewAll>
       </Heading>
       <Spacer y={0.8} />
@@ -44,6 +54,18 @@ export default function Tokens() {
             {...token}
             onClick={() => push(`/token/${token.id}`)}
             key={i}
+          />
+        ))}
+        {aoTokens.map((token) => (
+          <Token
+            key={token.id}
+            ao={true}
+            type={"asset"}
+            defaultLogo={token?.Logo}
+            id={token.id}
+            ticker={token.Ticker}
+            balance={Number(token.balance)}
+            onClick={() => handleTokenClick(token.id)}
           />
         ))}
       </TokensList>

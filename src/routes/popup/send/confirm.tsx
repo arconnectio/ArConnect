@@ -39,6 +39,7 @@ import {
 import { fractionedToBalance } from "~tokens/currency";
 import { type Token } from "~tokens/token";
 import { useContact } from "~contacts/hooks";
+import { sendAoTransfer, useAo } from "~tokens/aoTokens/ao";
 
 interface Props {
   tokenID: string;
@@ -59,8 +60,8 @@ export default function Confirm({ tokenID, qty }: Props) {
   // TODO: Need to get Token information
   const [token, setToken] = useState<Token | undefined>();
   const [amount, setAmount] = useState<string>("");
-  // const [password, setPassword] = useState<string>("");
 
+  const [isAo, setIsAo] = useState<boolean>(false);
   const passwordInput = useInput();
   const [estimatedFiatAmount, setEstimatedFiatAmount] = useState<string>("");
   const [networkFee, setNetworkFee] = useState<string>("");
@@ -76,7 +77,10 @@ export default function Confirm({ tokenID, qty }: Props) {
   const [signAllowance, setSignAllowance] = useState<number>(10);
   const [needsSign, setNeedsSign] = useState<boolean>(true);
   const { setToast } = useToasts();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const uToken = isUToken(tokenID);
+
+  const ao = useAo();
 
   const tokens = useTokens();
   const [activeAddress] = useStorage<string>({
@@ -105,6 +109,7 @@ export default function Confirm({ tokenID, qty }: Props) {
               Number(data.estimatedFiat) + Number(data.estimatedNetworkFee)
             ).toFixed(2)
           );
+          setIsAo(data.isAo);
           setRecipient(data.recipient);
           setEstimatedTotal(estimatedFiatTotal.toString());
           setToken(data.token);
@@ -288,8 +293,10 @@ export default function Confirm({ tokenID, qty }: Props) {
   }
 
   async function sendLocal() {
+    setIsLoading(true);
     const latestTxQty = await ExtensionStorage.get("last_send_qty");
     if (!latestTxQty) {
+      setIsLoading(false);
       // setLoading(false);
       return setToast({
         type: "error",
@@ -298,6 +305,30 @@ export default function Confirm({ tokenID, qty }: Props) {
       });
     }
 
+    // 2/21/24: Checking first if it's an ao transfer and will handle in this block
+    if (isAo) {
+      try {
+        const res = await sendAoTransfer(
+          ao,
+          tokenID,
+          recipient.address,
+          amount
+        );
+        if (res) {
+          setToast({
+            type: "success",
+            content: browser.i18n.getMessage("sent_tx"),
+            duration: 2000
+          });
+          push(`/transaction/${res}`);
+          setIsLoading(false);
+        }
+        return res;
+      } catch (err) {
+        console.log("err in ao", err);
+        throw err;
+      }
+    }
     // Prepare transaction
     const transactionAmount = Number(latestTxQty);
     const prepared = await prepare(recipient.address);
@@ -330,6 +361,7 @@ export default function Confirm({ tokenID, qty }: Props) {
               await trackEvent(EventType.FALLBACK, {});
             }
           }
+          setIsLoading(false);
           setToast({
             type: "success",
             content: browser.i18n.getMessage("sent_tx"),
@@ -353,6 +385,7 @@ export default function Confirm({ tokenID, qty }: Props) {
           freeDecryptedWallet(keyfile);
         } catch (e) {
           console.log(e);
+          setIsLoading(false);
           freeDecryptedWallet(keyfile);
           setToast({
             type: "error",
@@ -373,6 +406,7 @@ export default function Confirm({ tokenID, qty }: Props) {
           );
         } catch {
           freeDecryptedWallet(keyfile);
+          setIsLoading(false);
           return setToast({
             type: "error",
             content: browser.i18n.getMessage("invalidPassword"),
@@ -396,6 +430,7 @@ export default function Confirm({ tokenID, qty }: Props) {
               await trackEvent(EventType.FALLBACK, {});
             }
           }
+          setIsLoading(false);
           setToast({
             type: "success",
             content: browser.i18n.getMessage("sent_tx"),
@@ -416,6 +451,7 @@ export default function Confirm({ tokenID, qty }: Props) {
           freeDecryptedWallet(keyfile);
         } catch (e) {
           freeDecryptedWallet(keyfile);
+          setIsLoading(false);
           setToast({
             type: "error",
             content: browser.i18n.getMessage("failed_tx"),
@@ -461,7 +497,7 @@ export default function Confirm({ tokenID, qty }: Props) {
                   ticker={token?.ticker}
                   title={`Sending ${token?.ticker}`}
                   value={formatNumber(Number(amount))}
-                  estimatedValue={estimatedFiatAmount}
+                  estimatedValue={isAo ? "-.--" : estimatedFiatAmount}
                 />
                 <BodySection
                   alternate
@@ -475,7 +511,7 @@ export default function Confirm({ tokenID, qty }: Props) {
                   title={"Total"}
                   value={amount.toString()}
                   ticker={token.ticker}
-                  estimatedValue={estimatedTotal}
+                  estimatedValue={isAo ? "-.--" : estimatedTotal}
                 />
               </>
             )}
@@ -500,7 +536,7 @@ export default function Confirm({ tokenID, qty }: Props) {
         </BodyWrapper>
         <SendButton
           fullWidth
-          disabled={needsSign && !passwordInput.state}
+          disabled={(needsSign && !passwordInput.state) || isLoading}
           onClick={async () => {
             await sendLocal();
           }}
