@@ -98,13 +98,13 @@ export default function HeadV2({
       collapse={scrollDirection === "down"}
       scrolled={scrolled}
     >
-      <BackWrapper>
-        <BackButton
-          onClick={async () => {
-            if (back) await back();
-            else goBack();
-          }}
-        />
+      <BackWrapper
+        onClick={async () => {
+          if (back) await back();
+          else goBack();
+        }}
+      >
+        <BackButton />
       </BackWrapper>
 
       <PageTitle>{title}</PageTitle>
@@ -170,7 +170,9 @@ const BackWrapper = styled.div`
   position: relative;
   display: flex;
   width: max-content;
-  height: max-content;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
   cursor: pointer;
 
   ${hoverEffect}
