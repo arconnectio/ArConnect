@@ -1,22 +1,18 @@
 import { ButtonV2, ModalV2, Spacer, Text } from "@arconnect/components";
 import aoGraphic from "url:/assets/ecosystem/ao-arconnect.svg";
 import { ExtensionStorage } from "~utils/storage";
-import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
+import { useState } from "react";
 
 export const AnnouncementPopup = ({ isOpen, setOpen }) => {
   const [checked, setChecked] = useState(true);
 
-  useEffect(() => {
-    (async () => {
-      if (checked) {
-        await ExtensionStorage.set("setting_ao_support", true);
-      } else {
-        await ExtensionStorage.set("setting_ao_support", false);
-      }
-    })();
-  }, [checked]);
+  const handleCheckbox = async () => {
+    const newState = !checked;
+    setChecked(newState);
+    await ExtensionStorage.set("setting_ao_support", newState);
+  };
 
   return (
     <ModalV2
@@ -48,7 +44,7 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
             <CheckContainer>
               {checked ? (
                 <CheckedSvg
-                  onClick={() => setChecked(false)}
+                  onClick={handleCheckbox}
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -60,7 +56,7 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
                 </CheckedSvg>
               ) : (
                 <UncheckedSvg
-                  onClick={() => setChecked(true)}
+                  onClick={handleCheckbox}
                   width="19"
                   height="18"
                   viewBox="0 0 19 18"
