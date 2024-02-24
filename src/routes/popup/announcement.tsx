@@ -1,4 +1,4 @@
-import { ButtonV2, Modal, Spacer, Text } from "@arconnect/components";
+import { ButtonV2, ModalV2, Spacer, Text } from "@arconnect/components";
 import aoGraphic from "url:/assets/ecosystem/ao-arconnect.svg";
 import { ExtensionStorage } from "~utils/storage";
 import { useEffect, useState } from "react";
@@ -19,7 +19,7 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
   }, [checked]);
 
   return (
-    <Modal
+    <ModalV2
       root={document.getElementById("__plasmo")}
       open={isOpen}
       setOpen={setOpen}
@@ -78,7 +78,7 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
                   />
                 </UncheckedSvg>
               )}
-              <CenterText style={{ marginLeft: "24px" }}>
+              <CenterText style={{ marginLeft: "24px", fontWeight: "400" }}>
                 Display AO tokens in ArConnect (Beta)
               </CenterText>
             </CheckContainer>
@@ -90,12 +90,12 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
             setOpen(false);
             ExtensionStorage.set("show_announcement", false);
           }}
-          style={{ marginTop: "43px" }}
+          style={{ marginTop: "43px", fontWeight: "400" }}
         >
           Dismiss
         </ButtonV2>
       </ContentWrapper>
-    </Modal>
+    </ModalV2>
   );
 };
 
@@ -124,6 +124,7 @@ const CenterText = styled(Text).attrs({
   width: 245px;
   text-align: center;
   color: #ffffff;
+  font-weight: 400;
   font-size: 11px;
   line-height: 16px;
   align-self: stretch;
@@ -171,4 +172,5 @@ const UncheckedSvg = styled.svg`
 
 const HeaderText = styled(Text)`
   font-size: 18px;
+  font-weight: 500;
 `;
