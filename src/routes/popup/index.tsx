@@ -8,6 +8,7 @@ import NoBalance from "~components/popup/home/NoBalance";
 import Balance from "~components/popup/home/Balance";
 import BuyButton from "~components/popup/home/BuyButton";
 import Tokens from "~components/popup/home/Tokens";
+import { AnnouncementPopup } from "./announcement";
 import Arweave from "arweave";
 import { isExpired } from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
@@ -18,9 +19,14 @@ import styled from "styled-components";
 export default function Home() {
   // get if the user has no balance
   const [noBalance, setNoBalance] = useState(false);
+  const [isOpen, setOpen] = useState(false);
   const [push] = useHistory();
   const [activeAddress] = useStorage<string>({
     key: "active_address",
+    instance: ExtensionStorage
+  });
+  const [showAnnouncement, setShowAnnouncement] = useStorage<boolean>({
+    key: "show_announcement",
     instance: ExtensionStorage
   });
 
@@ -52,10 +58,24 @@ export default function Home() {
       }
     };
     checkExpiration();
+
+    // check whether to show announcement
+    (async () => {
+      const announcement = await ExtensionStorage.get("show_announcement");
+      if (announcement === undefined) {
+        setShowAnnouncement(true);
+      }
+      if (announcement || announcement === "true") {
+        setOpen(true);
+      } else {
+        setOpen(false);
+      }
+    })();
   }, []);
 
   return (
     <HomeWrapper>
+      <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />
       <WalletHeader />
       <Balance />
       {(!noBalance && (
