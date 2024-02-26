@@ -35,18 +35,17 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
           <img src={aoGraphic} alt="ao graphic" />
           <div>
             <HeaderText noMargin heading>
-              AO testnet is now live!
+              {browser.i18n.getMessage("ao_announcement_title")}
             </HeaderText>
             <Spacer y={1} />
             <CenterText>
-              Look out for new updates around ao in the future. To learn more
-              visit{" "}
+              {browser.i18n.getMessage("ao_announcement_text")}{" "}
               <Link
                 onClick={() =>
                   browser.tabs.create({ url: "https://ao.computer" })
                 }
               >
-                ao.computer
+                {browser.i18n.getMessage("ao_computer")}
               </Link>
             </CenterText>
             <Spacer y={1} />
@@ -84,7 +83,7 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
                 </UncheckedSvg>
               )}
               <CenterText style={{ marginLeft: "24px", fontWeight: "400" }}>
-                Display AO tokens in ArConnect (Beta)
+                {browser.i18n.getMessage("display_ao_tokens")}
               </CenterText>
             </CheckContainer>
           </div>
@@ -97,7 +96,7 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
           }}
           style={{ marginTop: "43px", fontWeight: "400" }}
         >
-          Dismiss
+          {browser.i18n.getMessage("got_it")}
         </ButtonV2>
       </ContentWrapper>
     </ModalV2>
@@ -178,4 +177,5 @@ const UncheckedSvg = styled.svg`
 const HeaderText = styled(Text)`
   font-size: 18px;
   font-weight: 500;
+  color: #ffffff;
 `;
