@@ -16,7 +16,8 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
 
   useEffect(() => {
     (async () => {
-      if (checked) {
+      const aoSupport = await ExtensionStorage.get("setting_ao_support");
+      if (aoSupport === undefined) {
         await ExtensionStorage.set("setting_ao_support", true);
       }
     })();
