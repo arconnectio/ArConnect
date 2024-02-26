@@ -1,12 +1,21 @@
-import { ButtonV2, ModalV2, Spacer, Text } from "@arconnect/components";
+import {
+  ButtonV2,
+  ModalV2,
+  Spacer,
+  Text,
+  type DisplayTheme
+} from "@arconnect/components";
 import aoGraphic from "url:/assets/ecosystem/ao-arconnect.svg";
 import { ExtensionStorage } from "~utils/storage";
 import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
+import { useTheme } from "~utils/theme";
 import styled from "styled-components";
 
 export const AnnouncementPopup = ({ isOpen, setOpen }) => {
   const [checked, setChecked] = useState(true);
+
+  const theme = useTheme();
 
   const handleCheckbox = async () => {
     const newState = !checked;
@@ -82,7 +91,7 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
                   />
                 </UncheckedSvg>
               )}
-              <CenterText style={{ marginLeft: "24px", fontWeight: "400" }}>
+              <CenterText displayTheme={theme} style={{ marginLeft: "24px" }}>
                 {browser.i18n.getMessage("display_ao_tokens")}
               </CenterText>
             </CheckContainer>
@@ -124,11 +133,12 @@ const ContentWrapper = styled.div`
 
 const CenterText = styled(Text).attrs({
   noMargin: true
-})`
+})<{ displayTheme: DisplayTheme }>`
   width: 245px;
   text-align: center;
-  color: #ffffff;
-  font-weight: 400;
+  color: ${(props) =>
+    props.theme.displayTheme === "light" ? "#191919" : "#FFFFFF"};
+  font-weight: 500;
   font-size: 11px;
   line-height: 16px;
   align-self: stretch;
@@ -174,8 +184,9 @@ const UncheckedSvg = styled.svg`
   flex-grow: 0;
 `;
 
-const HeaderText = styled(Text)`
+const HeaderText = styled(Text)<{ displayTheme: DisplayTheme }>`
   font-size: 18px;
   font-weight: 500;
-  color: #ffffff;
+  color: ${(props) =>
+    props.theme.displayTheme === "light" ? "#191919" : "#FFFFFF"};
 `;
