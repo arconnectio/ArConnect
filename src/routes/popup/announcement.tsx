@@ -1,9 +1,9 @@
 import { ButtonV2, ModalV2, Spacer, Text } from "@arconnect/components";
 import aoGraphic from "url:/assets/ecosystem/ao-arconnect.svg";
 import { ExtensionStorage } from "~utils/storage";
+import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import { useState } from "react";
 
 export const AnnouncementPopup = ({ isOpen, setOpen }) => {
   const [checked, setChecked] = useState(true);
@@ -13,6 +13,14 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
     setChecked(newState);
     await ExtensionStorage.set("setting_ao_support", newState);
   };
+
+  useEffect(() => {
+    (async () => {
+      if (checked) {
+        await ExtensionStorage.set("setting_ao_support", true);
+      }
+    })();
+  }, []);
 
   return (
     <ModalV2
