@@ -1632,7 +1632,7 @@
     "message": "Please check the recipient address",
     "description": "Error message for invalid address/ArNS"
   },
-  "arns_added":{
+  "arns_added": {
     "message": " ar://$ADDRESS$ added", 
     "description": "ArNS recipient added",
     "placeholders": {
@@ -1641,5 +1641,13 @@
         "example": "Address"
       }
     } 
+  },
+  "setting_ao_support": {
+    "message": "ao support",
+    "description": "ao support settings title"
+  },
+  "setting_ao_support_description": {
+    "message": "Show ao tokens in your wallet (beta)",
+    "description": "ao support settings description"
   }
 }

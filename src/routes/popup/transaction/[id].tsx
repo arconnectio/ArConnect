@@ -32,6 +32,12 @@ import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
 
 // pull contacts and check if to address is in contacts
 
+// need to manually set/replace tokenAddress here for ao interactions
+interface ao {
+  isAo: boolean;
+  tokenId?: string | null;
+}
+
 export default function Transaction({ id: rawId, gw }: Props) {
   // fixup id
   const id = useMemo(() => rawId.split("?")[0], [rawId]);
@@ -42,6 +48,8 @@ export default function Transaction({ id: rawId, gw }: Props) {
   const [transaction, setTransaction] = useState<GQLNodeInterface>();
   // const [contact, setContact] = useState<any | undefined>(undefined);
   const contact = useContact(transaction?.recipient);
+
+  const [ao, setAo] = useState<ao>({ isAo: false });
 
   // arweave gateway
   const defaultGateway = useGateway({
@@ -108,6 +116,20 @@ export default function Transaction({ id: rawId, gw }: Props) {
         timeoutID = setTimeout(fetchTx, 5000);
       } else {
         timeoutID = undefined;
+
+        const sdkTag = data.transaction.tags.find((tag) => tag.name === "SDK");
+        if (sdkTag && sdkTag.value === "aoconnect") {
+          setAo({ isAo: true, tokenId: data.transaction.recipient });
+          const aoRecipient = data.transaction.tags.find(
+            (tag) => tag.name === "Recipient"
+          );
+          const aoQuantity = data.transaction.tags.find(
+            (tag) => tag.name === "Quantity"
+          );
+          data.transaction.quantity = { ar: aoQuantity.value, winston: "" };
+          data.transaction.recipient = aoRecipient.value;
+        }
+
         setTransaction(data.transaction);
       }
     };
@@ -246,9 +268,12 @@ export default function Transaction({ id: rawId, gw }: Props) {
             <Section style={{ paddingTop: 9, paddingBottom: 8 }}>
               <AmountTitle>
                 {formatTokenBalance(Number(transaction.quantity.ar))}
-                <span>AR</span>
+                {/* NEEDS TO BE DYNAMIC */}
+                {!ao.isAo && <span>AR</span>}
               </AmountTitle>
-              <FiatAmount>{formatFiatBalance(fiatPrice, currency)}</FiatAmount>
+              <FiatAmount>
+                {ao.isAo ? "$-.--" : formatFiatBalance(fiatPrice, currency)}
+              </FiatAmount>
             </Section>
             <AnimatePresence>
               {gw && <CustomGatewayWarning simple />}
@@ -462,13 +487,15 @@ export default function Transaction({ id: rawId, gw }: Props) {
             <Section>
               <SendButton
                 fullWidth
-                onClick={() =>
-                  browser.tabs.create({
-                    url: `https://viewblock.io/arweave/tx/${id}`
-                  })
-                }
+                onClick={() => {
+                  const url = ao.isAo
+                    ? `https://ao_marton.g8way.io/#/process/${ao.tokenId}/${id}`
+                    : `https://viewblock.io/arweave/tx/${id}`;
+
+                  browser.tabs.create({ url });
+                }}
               >
-                Viewblock
+                {ao.isAo ? "ao Scanner" : "Viewblock"}
                 <ShareIcon />
               </SendButton>
             </Section>
