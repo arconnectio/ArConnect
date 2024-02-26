@@ -172,16 +172,9 @@ const BackWrapper = styled.div`
   width: max-content;
   align-items: center;
   justify-content: center;
+  padding: 8px 0;
   height: 100%;
   cursor: pointer;
-
-  ${hoverEffect}
-
-  &::after {
-    width: 158%;
-    height: 158%;
-    border-radius: 100%;
-  }
 
   &:active svg {
     transform: scale(0.92);
