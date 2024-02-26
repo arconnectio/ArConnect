@@ -1,4 +1,4 @@
-import { Spacer, useInput } from "@arconnect/components";
+import { ButtonV2, Spacer, useInput } from "@arconnect/components";
 import React, { useState, useEffect, useMemo } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -200,7 +200,7 @@ const LetterHeader = styled.div`
 const SearchWrapper = styled.div`
   position: sticky;
   display: grid;
-  gap: 5px;
+  gap: 8px;
   top: 0;
   left: 0;
   right: 0;
@@ -208,13 +208,9 @@ const SearchWrapper = styled.div`
   grid-template-columns: auto auto;
 `;
 
-const AddContactButton = styled(IconButton).attrs({
+const AddContactButton = styled(ButtonV2).attrs({
   secondary: true
 })`
-  background: linear-gradient(
-      0deg,
-      rgba(${(props) => props.theme.theme}, 0.2),
-      rgba(${(props) => props.theme.theme}, 0.2)
-    ),
-    rgb(${(props) => props.theme.background});
+  width: 100%;
+  height: 100%;
 `;
