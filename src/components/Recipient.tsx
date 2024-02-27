@@ -1,4 +1,4 @@
-import { useInput, Text, Button, Input } from "@arconnect/components";
+import { useInput, Text, ButtonV2, Input } from "@arconnect/components";
 import { ChevronDownIcon, ChevronUpIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { useMemo, useState } from "react";
@@ -140,15 +140,14 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
               return;
           }}
         />
-        <Button
-          small
+        <ButtonV2
           style={{ borderRadius: "10px", width: "56px", padding: 0 }}
           onClick={() => {
             submit();
           }}
         >
           {browser.i18n.getMessage("add")}
-        </Button>
+        </ButtonV2>
       </SearchBarWrapper>
       <AddressesList>
         <Recents onClick={() => setShow(!show)}>
