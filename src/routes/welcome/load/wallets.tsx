@@ -9,7 +9,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { useLocation, useRoute } from "wouter";
 import { PasswordContext } from "../setup";
 import {
-  Button,
+  ButtonV2,
   Modal,
   Spacer,
   Text,
@@ -191,10 +191,10 @@ export default function Wallets() {
       <Spacer y={1.25} />
       <KeystoneButton onSuccess={keystoneDone} />
       <Spacer y={1} />
-      <Button fullWidth onClick={done} loading={loading}>
+      <ButtonV2 fullWidth onClick={done}>
         {browser.i18n.getMessage("next")}
-        <ArrowRightIcon />
-      </Button>
+        <ArrowRightIcon style={{ marginLeft: "5px" }} />
+      </ButtonV2>
       <Modal
         {...migrationModal.bindings}
         root={document.getElementById("__plasmo")}
@@ -206,7 +206,7 @@ export default function Wallets() {
           {browser.i18n.getMessage("migration_available_paragraph")}
         </ModalText>
         <Spacer y={1.75} />
-        <Button
+        <ButtonV2
           fullWidth
           onClick={async () => {
             try {
@@ -228,9 +228,9 @@ export default function Wallets() {
           }}
         >
           {browser.i18n.getMessage("migrate")}
-        </Button>
+        </ButtonV2>
         <Spacer y={0.75} />
-        <Button
+        <ButtonV2
           fullWidth
           secondary
           onClick={() => {
@@ -239,7 +239,7 @@ export default function Wallets() {
           }}
         >
           {browser.i18n.getMessage("cancel")}
-        </Button>
+        </ButtonV2>
       </Modal>
     </>
   );

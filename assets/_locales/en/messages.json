@@ -534,7 +534,7 @@
     "description": "Password input placeholder"
   },
   "enter_password_again": {
-    "message": "Re-enter your passwor...",
+    "message": "Re-enter your password...",
     "description": "Re-enter password input placeholder"
   },
   "passwords_match": {
