@@ -158,7 +158,7 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
         );
       } catch {}
     })();
-  }, [ids, loading, activeAddress, ao]);
+  }, [ids, loading, activeAddress, ao, aoSetting]);
   return [tokensWithBalances, loading];
 }
 
