@@ -580,7 +580,7 @@ export const SelectInput = styled(Select)`
   }
 `;
 
-export const ContactInput = styled(Input)`
+export const ContactInput = styled(InputV2)`
   height: 33px;
   padding: 10px 20px 10px 20px;
   color: #b9b9b9;
