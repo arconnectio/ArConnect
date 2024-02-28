@@ -509,6 +509,10 @@
       }
     }
   },
+  "copied_address_2": {
+    "message": "address copied",
+    "description": "Address copy notification 2"
+  },
   "cannot_edit_with_ans": {
     "message": "Cannot edit nickname. Wallet already has an ANS label.",
     "description": "Explainer for disabled edits for wallets with ANS profiles"
