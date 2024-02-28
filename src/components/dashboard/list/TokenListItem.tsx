@@ -2,12 +2,12 @@ import { DREContract, DRENode, NODES } from "@arconnect/warp-dre";
 import { loadTokenLogo, type Token } from "~tokens/token";
 import { Reorder, useDragControls } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
+import { ListItem } from "@arconnect/components";
 import { formatAddress } from "~utils/format";
 import { getDreForToken } from "~tokens";
 import { useTheme } from "~utils/theme";
 import { useLocation } from "wouter";
 import * as viewblock from "~lib/viewblock";
-import BaseElement from "./BaseElement";
 import styled from "styled-components";
 import { useGateway } from "~gateways/wayfinder";
 import { concatGatewayURL } from "~gateways/utils";
@@ -67,7 +67,7 @@ export default function TokenListItem({ token, active }: Props) {
       dragControls={dragControls}
       onClick={() => setLocation(`/tokens/${token.id}`)}
     >
-      <BaseElement
+      <ListItem
         title={`${token.name} (${token.ticker})`}
         description={
           <>
@@ -79,7 +79,7 @@ export default function TokenListItem({ token, active }: Props) {
         dragControls={dragControls}
       >
         <TokenLogo src={image} />
-      </BaseElement>
+      </ListItem>
     </Reorder.Item>
   );
 }
