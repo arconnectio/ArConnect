@@ -1,10 +1,14 @@
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useLocation, useRoute } from "wouter";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Token } from "~tokens/token";
 import { Reorder } from "framer-motion";
 import TokenListItem from "./list/TokenListItem";
+import styled from "styled-components";
+import PermissionCheckbox from "~components/auth/PermissionCheckbox";
+import browser from "webextension-polyfill";
+import { Button, Spacer, Text } from "@arconnect/components";
 
 export default function Tokens() {
   // tokens
@@ -15,6 +19,21 @@ export default function Tokens() {
     },
     []
   );
+
+  const [aoSettingsState, setaoSettingsState] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const currentSetting = await ExtensionStorage.get("setting_ao_support");
+      setaoSettingsState(currentSetting);
+    })();
+  }, []);
+
+  const toggleaoSettings = async () => {
+    const newSetting = !aoSettingsState;
+    setaoSettingsState(newSetting);
+    await ExtensionStorage.set("setting_ao_support", newSetting);
+  };
 
   // router
   const [matches, params] = useRoute<{ id?: string }>("/tokens/:id?");
@@ -43,20 +62,44 @@ export default function Tokens() {
   }, [tokens, activeTokenSetting]);
 
   return (
-    <Reorder.Group
-      as="div"
-      axis="y"
-      onReorder={setTokens}
-      values={tokens}
-      style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}
-    >
-      {tokens.map((token) => (
-        <TokenListItem
-          token={token}
-          active={activeTokenSetting === token.id}
-          key={token.id}
-        />
-      ))}
-    </Reorder.Group>
+    <Wrapper>
+      <div>
+        <PermissionCheckbox
+          checked={aoSettingsState}
+          onChange={toggleaoSettings}
+          style={{ padding: "0 9.6px" }}
+        >
+          {browser.i18n.getMessage(!!aoSettingsState ? "enabled" : "disabled")}
+          <br />
+          <Text noMargin>
+            {browser.i18n.getMessage("setting_ao_support_description")}
+          </Text>
+        </PermissionCheckbox>
+        <Spacer y={1.7} />
+        <Reorder.Group
+          as="div"
+          axis="y"
+          onReorder={setTokens}
+          values={tokens}
+          style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}
+        >
+          {tokens.map((token) => (
+            <TokenListItem
+              token={token}
+              active={activeTokenSetting === token.id}
+              key={token.id}
+            />
+          ))}
+        </Reorder.Group>
+      </div>
+      <Button fullWidth>{browser.i18n.getMessage("import_token")}</Button>
+    </Wrapper>
   );
 }
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: calc(100% - 64px);
+`;
