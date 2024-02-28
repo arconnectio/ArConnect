@@ -46,6 +46,9 @@ export default function Tokens() {
   );
 
   useEffect(() => {
+    if (activeTokenSetting === "new") {
+      return;
+    }
     if (!matches) return;
 
     const firstToken = tokens?.[0];
@@ -60,6 +63,10 @@ export default function Tokens() {
 
     setLocation("/tokens/" + firstToken.id);
   }, [tokens, activeTokenSetting]);
+
+  const addToken = () => {
+    setLocation("/tokens/new");
+  };
 
   return (
     <Wrapper>
@@ -92,7 +99,9 @@ export default function Tokens() {
           ))}
         </Reorder.Group>
       </div>
-      <Button fullWidth>{browser.i18n.getMessage("import_token")}</Button>
+      <Button fullWidth onClick={addToken}>
+        {browser.i18n.getMessage("import_token")}
+      </Button>
     </Wrapper>
   );
 }
