@@ -1669,5 +1669,17 @@
   "ao_announcement_title": {
     "message": "AO testnet is now live!",
     "description": "ao announcement title text"
+  },
+  "import_token": {
+    "message": "Import Token",
+    "description": "import token button description"
+  },
+  "token_already_added": {
+    "message": "Token Already Added",
+    "description": "token already imported"
+  },
+  "token_imported": {
+    "message": "Token Succesfully Added",
+    "description": "token added"
   }
 }

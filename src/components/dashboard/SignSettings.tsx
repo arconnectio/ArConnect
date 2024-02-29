@@ -22,7 +22,7 @@ export default function SignSettings() {
       const currentSetting = await ExtensionStorage.get(
         "setting_sign_notification"
       );
-      setSignSettingsState(currentSetting !== "false");
+      setSignSettingsState(currentSetting);
 
       // Check if signatureAllowance is set, if not, initialize to 10
       let allowance = await ExtensionStorage.get("signatureAllowance");
