@@ -13,7 +13,7 @@ import {
   Input,
   InputV2,
   Modal,
-  Select,
+  SelectV2,
   Spacer,
   Text,
   Tooltip,
@@ -216,7 +216,7 @@ export default function AppSettings({ app, showTitle = false }: Props) {
       </Text>
       <Spacer y={1} />
       <Title>{browser.i18n.getMessage("gateway")}</Title>
-      <Select
+      <SelectV2
         onChange={(e) => {
           // @ts-expect-error
           if (e.target.value === "custom") {
@@ -244,7 +244,7 @@ export default function AppSettings({ app, showTitle = false }: Props) {
         <option value="custom" selected={isCustom}>
           Custom
         </option>
-      </Select>
+      </SelectV2>
       {editingCustom && (
         <>
           <Spacer y={0.8} />

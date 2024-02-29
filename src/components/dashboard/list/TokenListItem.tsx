@@ -13,6 +13,7 @@ import { useGateway } from "~gateways/wayfinder";
 import { concatGatewayURL } from "~gateways/utils";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { getUserAvatar } from "~lib/avatar";
+import BaseElement from "./BaseElement";
 
 export default function TokenListItem({ token, active, ao }: Props) {
   // format address

@@ -1,16 +1,15 @@
 import {
   Text,
   ButtonV2,
-  Input,
+  InputV2,
   Loading,
   Modal,
-  Select,
+  SelectV2,
   Spacer,
   Tooltip,
   useModal,
   useToasts,
-  type DisplayTheme,
-  InputV2
+  type DisplayTheme
 } from "@arconnect/components";
 import { useState, useEffect, type MouseEventHandler, useMemo } from "react";
 import { Edit02, Share04, Upload01 } from "@untitled-ui/icons-react";
@@ -569,7 +568,7 @@ export const InputWrapper = styled.div`
   margin-bottom: 10px;
 `;
 
-export const SelectInput = styled(Select)`
+export const SelectInput = styled(SelectV2)`
   height: 53px;
   padding: 10px 20px 10px 20px;
   color: #b9b9b9;
