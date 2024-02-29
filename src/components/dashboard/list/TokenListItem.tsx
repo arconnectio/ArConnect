@@ -11,8 +11,10 @@ import BaseElement from "./BaseElement";
 import styled from "styled-components";
 import { useGateway } from "~gateways/wayfinder";
 import { concatGatewayURL } from "~gateways/utils";
+import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
+import { getUserAvatar } from "~lib/avatar";
 
-export default function TokenListItem({ token, active }: Props) {
+export default function TokenListItem({ token, active, ao }: Props) {
   // format address
   const formattedAddress = useMemo(
     () => formatAddress(token.id, 8),
@@ -40,6 +42,10 @@ export default function TokenListItem({ token, active }: Props) {
             `${concatGatewayURL(token.gateway || gateway)}/${token.id}`
           );
         }
+        if (ao) {
+          const logo = await getUserAvatar(token.defaultLogo);
+          return setImage(logo);
+        }
 
         // query community logo using Warp DRE
         const node = new DRENode(await getDreForToken(token.id));
@@ -58,7 +64,21 @@ export default function TokenListItem({ token, active }: Props) {
   // router
   const [, setLocation] = useLocation();
 
-  return (
+  return ao ? (
+    <BaseElement
+      ao={true}
+      title={`${token.name} (${token.ticker})`}
+      description={
+        <div style={{ display: "flex", gap: "8px" }}>
+          {formattedAddress}
+          <Image src={aoLogo} alt="ao logo" />
+        </div>
+      }
+      active={active}
+    >
+      <TokenLogo src={image} />
+    </BaseElement>
+  ) : (
     <Reorder.Item
       as="div"
       value={token}
@@ -83,6 +103,13 @@ export default function TokenListItem({ token, active }: Props) {
     </Reorder.Item>
   );
 }
+
+const Image = styled.img`
+  width: 16px;
+  padding: 0 8px;
+  border: 1px solid rgb(${(props) => props.theme.cardBorder});
+  border-radius: 2px;
+`;
 
 const TokenLogo = styled.img.attrs({
   alt: "token-logo",
@@ -111,5 +138,6 @@ const TokenType = styled.span`
 
 interface Props {
   token: Token;
+  ao?: boolean;
   active: boolean;
 }

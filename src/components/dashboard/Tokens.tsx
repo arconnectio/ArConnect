@@ -2,13 +2,14 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useLocation, useRoute } from "wouter";
 import { useEffect, useMemo, useState } from "react";
-import type { Token } from "~tokens/token";
+import type { Token, TokenType } from "~tokens/token";
 import { Reorder } from "framer-motion";
 import TokenListItem from "./list/TokenListItem";
 import styled from "styled-components";
 import PermissionCheckbox from "~components/auth/PermissionCheckbox";
 import browser from "webextension-polyfill";
-import { Button, Spacer, Text } from "@arconnect/components";
+import { Button, Label, Spacer, Text } from "@arconnect/components";
+import { useAoTokens } from "~tokens/aoTokens/ao";
 
 export default function Tokens() {
   // tokens
@@ -20,11 +21,26 @@ export default function Tokens() {
     []
   );
 
+  const [aoTokens] = useAoTokens();
+
+  const enhancedAoTokens = useMemo(() => {
+    return aoTokens.map((token) => ({
+      id: token.id,
+      defaultLogo: token.Logo,
+      balance: token.balance,
+      ticker: token.Ticker,
+      type: "asset" as TokenType,
+      name: token.Name
+    }));
+  }, [aoTokens]);
+
   const [aoSettingsState, setaoSettingsState] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const currentSetting = await ExtensionStorage.get("setting_ao_support");
+      const currentSetting = await ExtensionStorage.get<boolean>(
+        "setting_ao_support"
+      );
       setaoSettingsState(currentSetting);
     })();
   }, []);
@@ -97,9 +113,25 @@ export default function Tokens() {
               key={token.id}
             />
           ))}
+          <Spacer y={2} />
+          {enhancedAoTokens.length > 0 && (
+            <>
+              <Label style={{ paddingLeft: "4px", margin: "0" }}>
+                ao tokens
+              </Label>
+              {enhancedAoTokens.map((token) => (
+                <TokenListItem
+                  token={token}
+                  ao={true}
+                  active={activeTokenSetting === token.id}
+                  key={token.id}
+                />
+              ))}
+            </>
+          )}
         </Reorder.Group>
       </div>
-      <Button fullWidth onClick={addToken}>
+      <Button fullWidth onClick={addToken} disabled={!aoSettingsState}>
         {browser.i18n.getMessage("import_token")}
       </Button>
     </Wrapper>
