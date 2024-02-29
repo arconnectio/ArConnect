@@ -383,165 +383,167 @@ export default function Send({ id }: Props) {
   }
 
   return (
-    <Wrapper showOverlay={showSlider}>
-      <SendForm>
-        <HeadV2
-          back={() => {
-            TempTransactionStorage.removeItem("send");
-            setQty("");
-            goBack();
-          }}
-          title={browser.i18n.getMessage("send")}
-        />
-        {/* TOP INPUT */}
-        <RecipientAmountWrapper>
-          <SendButton
-            fullWidth
-            alternate
-            onClick={() => {
-              setShowSlider(!showSlider);
-            }}
-          >
-            <span style={{ display: "flex", alignItems: "center" }}>
-              {contact && contact.profileIcon ? (
-                <ProfilePicture size="24px" src={contact.profileIcon} />
-              ) : (
-                contact && (
-                  <AutoContactPic size="24px">
-                    {generateProfileIcon(contact.name || contact.address)}
-                  </AutoContactPic>
-                )
-              )}
-              {!recipient.address
-                ? browser.i18n.getMessage("select_recipient")
-                : contact && contact.name
-                ? contact.name
-                : formatAddress(recipient.address, 10)}
-            </span>
-            <ChevronDownIcon />
-          </SendButton>
-          <SendInput
-            alternative
-            type="number"
-            placeholder={"Amount"}
-            value={qty}
-            error={invalidQty}
-            status={invalidQty ? "error" : "default"}
-            onChange={(e) => setQty((e.target as HTMLInputElement).value)}
-            onKeyDown={(e) => {
-              if (
-                e.key !== "Enter" ||
-                invalidQty ||
-                parseFloat(qty) === 0 ||
-                qty === "" ||
-                recipient.address === ""
-              )
-                return;
-              send();
-            }}
-            fullWidth
-            icon={
-              <InputIcons>
-                {!!price && (
-                  <CurrencyButton small onClick={switchQtyMode}>
-                    <Currency active={qtyMode === "fiat"}>USD</Currency>/
-                    <Currency active={qtyMode === "token"}>
-                      {token.ticker.toUpperCase()}
-                    </Currency>
-                  </CurrencyButton>
+    <>
+      <HeadV2
+        back={() => {
+          TempTransactionStorage.removeItem("send");
+          setQty("");
+          goBack();
+        }}
+        title={browser.i18n.getMessage("send")}
+      />
+      <Wrapper showOverlay={showSlider}>
+        <SendForm>
+          {/* TOP INPUT */}
+          <RecipientAmountWrapper>
+            <SendButton
+              fullWidth
+              alternate
+              onClick={() => {
+                setShowSlider(!showSlider);
+              }}
+            >
+              <span style={{ display: "flex", alignItems: "center" }}>
+                {contact && contact.profileIcon ? (
+                  <ProfilePicture size="24px" src={contact.profileIcon} />
+                ) : (
+                  contact && (
+                    <AutoContactPic size="24px">
+                      {generateProfileIcon(contact.name || contact.address)}
+                    </AutoContactPic>
+                  )
                 )}
-                <MaxButton
-                  altColor={theme === "dark" && "#423D59"}
-                  small
-                  onClick={() => setQty(max.toString())}
-                >
-                  Max
-                </MaxButton>
-              </InputIcons>
-            }
-          />
-        </RecipientAmountWrapper>
-        <Datas>
-          {!!price && !isAo ? (
-            <Text noMargin>
-              ≈
-              {qtyMode === "fiat"
-                ? formatTokenBalance(secondaryQty)
-                : formatFiatBalance(secondaryQty, currency)}
-              {qtyMode === "fiat" && " " + token.ticker}
-            </Text>
-          ) : (
-            <></>
-          )}
-          <Text noMargin>
-            ~{networkFee}
-            {" AR "}
-            {browser.i18n.getMessage("network_fee")}
-          </Text>
-        </Datas>
-        {!uToken && (
-          <MessageWrapper>
+                {!recipient.address
+                  ? browser.i18n.getMessage("select_recipient")
+                  : contact && contact.name
+                  ? contact.name
+                  : formatAddress(recipient.address, 10)}
+              </span>
+              <ChevronDownIcon />
+            </SendButton>
             <SendInput
               alternative
-              {...message.bindings}
-              type="text"
-              placeholder={browser.i18n.getMessage("send_message_optional")}
+              type="number"
+              placeholder={"Amount"}
+              value={qty}
+              error={invalidQty}
+              status={invalidQty ? "error" : "default"}
+              onChange={(e) => setQty((e.target as HTMLInputElement).value)}
+              onKeyDown={(e) => {
+                if (
+                  e.key !== "Enter" ||
+                  invalidQty ||
+                  parseFloat(qty) === 0 ||
+                  qty === "" ||
+                  recipient.address === ""
+                )
+                  return;
+                send();
+              }}
               fullWidth
+              icon={
+                <InputIcons>
+                  {!!price && (
+                    <CurrencyButton small onClick={switchQtyMode}>
+                      <Currency active={qtyMode === "fiat"}>USD</Currency>/
+                      <Currency active={qtyMode === "token"}>
+                        {token.ticker.toUpperCase()}
+                      </Currency>
+                    </CurrencyButton>
+                  )}
+                  <MaxButton
+                    altColor={theme === "dark" && "#423D59"}
+                    small
+                    onClick={() => setQty(max.toString())}
+                  >
+                    Max
+                  </MaxButton>
+                </InputIcons>
+              }
             />
-          </MessageWrapper>
-        )}
-      </SendForm>
-      <Spacer y={1} />
-      <BottomActions>
-        <TokenSelector onClick={() => setShownTokenSelector(true)}>
-          <LogoAndDetails>
-            <LogoWrapper small>
-              <Logo src={logo || arweaveLogo} />
-            </LogoWrapper>
-            <TokenName>{token.name || token.ticker}</TokenName>
-            {isAo && <Image src={aoLogo} alt="ao logo" />}
-          </LogoAndDetails>
-          <TokenSelectorRightSide>
-            <Text noMargin>{browser.i18n.getMessage("setting_currency")}</Text>
-            <ChevronRightIcon />
-          </TokenSelectorRightSide>
-        </TokenSelector>
-        <SendButton
-          disabled={
-            invalidQty ||
-            parseFloat(qty) === 0 ||
-            qty === "" ||
-            recipient.address === ""
-          }
-          fullWidth
-          onClick={send}
-        >
-          {browser.i18n.getMessage("next")}
-          <ArrowUpRightIcon style={{ marginLeft: "5px" }} />
-        </SendButton>
-      </BottomActions>
-      <AnimatePresence>
-        {showTokenSelector && (
-          <SliderWrapper
-            variants={animation}
-            initial="hidden"
-            animate="shown"
-            exit="hidden"
+          </RecipientAmountWrapper>
+          <Datas>
+            {!!price && !isAo ? (
+              <Text noMargin>
+                ≈
+                {qtyMode === "fiat"
+                  ? formatTokenBalance(secondaryQty)
+                  : formatFiatBalance(secondaryQty, currency)}
+                {qtyMode === "fiat" && " " + token.ticker}
+              </Text>
+            ) : (
+              <></>
+            )}
+            <Text noMargin>
+              ~{networkFee}
+              {" AR "}
+              {browser.i18n.getMessage("network_fee")}
+            </Text>
+          </Datas>
+          {!uToken && (
+            <MessageWrapper>
+              <SendInput
+                alternative
+                {...message.bindings}
+                type="text"
+                placeholder={browser.i18n.getMessage("send_message_optional")}
+                fullWidth
+              />
+            </MessageWrapper>
+          )}
+        </SendForm>
+        <Spacer y={1} />
+        <BottomActions>
+          <TokenSelector onClick={() => setShownTokenSelector(true)}>
+            <LogoAndDetails>
+              <LogoWrapper small>
+                <Logo src={logo || arweaveLogo} />
+              </LogoWrapper>
+              <TokenName>{token.name || token.ticker}</TokenName>
+              {isAo && <Image src={aoLogo} alt="ao logo" />}
+            </LogoAndDetails>
+            <TokenSelectorRightSide>
+              <Text noMargin>
+                {browser.i18n.getMessage("setting_currency")}
+              </Text>
+              <ChevronRightIcon />
+            </TokenSelectorRightSide>
+          </TokenSelector>
+
+          <SendButton
+            disabled={
+              invalidQty ||
+              parseFloat(qty) === 0 ||
+              qty === "" ||
+              recipient.address === ""
+            }
+            fullWidth
+            onClick={send}
           >
-            <TokensSection>
-              <ArToken onClick={() => updateSelectedToken("AR")} />
-              {tokens
-                .filter((token) => token.type === "asset")
-                .map((token, i) => (
-                  <Token
-                    {...token}
-                    onClick={() => updateSelectedToken(token.id)}
-                    key={i}
-                  />
-                ))}
-              {aoTokens
-                .filter((token) => token.balance > 0)
-                .map((token, i) => (
+            {browser.i18n.getMessage("next")}
+            <ArrowUpRightIcon style={{ marginLeft: "5px" }} />
+          </SendButton>
+        </BottomActions>
+        <AnimatePresence>
+          {showTokenSelector && (
+            <SliderWrapper
+              variants={animation}
+              initial="hidden"
+              animate="shown"
+              exit="hidden"
+            >
+              <TokensSection>
+                <ArToken onClick={() => updateSelectedToken("AR")} />
+                {tokens
+                  .filter((token) => token.type === "asset")
+                  .map((token, i) => (
+                    <Token
+                      {...token}
+                      onClick={() => updateSelectedToken(token.id)}
+                      key={i}
+                    />
+                  ))}
+                {aoTokens.map((token, i) => (
                   <Token
                     key={token.id}
                     ao={true}
@@ -553,47 +555,48 @@ export default function Send({ id }: Props) {
                     onClick={() => updateSelectedToken(token.id)}
                   />
                 ))}
-            </TokensSection>
-            <CollectiblesList>
-              {tokens
-                .filter((token) => token.type === "collectible")
-                .map((token, i) => (
-                  <Collectible
-                    id={token.id}
-                    name={token.name || token.ticker}
-                    balance={token.balance}
-                    divisibility={token.divisibility}
-                    decimals={token.decimals}
-                    onClick={() => updateSelectedToken(token.id)}
-                    key={i}
-                  />
-                ))}
-            </CollectiblesList>
-          </SliderWrapper>
-        )}
-        {showSlider && (
-          <SliderWrapper
-            partial
-            variants={animation2}
-            initial="hidden"
-            animate="shown"
-            exit="hidden"
-          >
-            <SliderMenu
-              title={browser.i18n.getMessage("send_to")}
-              onClose={() => {
-                setShowSlider(false);
-              }}
+              </TokensSection>
+              <CollectiblesList>
+                {tokens
+                  .filter((token) => token.type === "collectible")
+                  .map((token, i) => (
+                    <Collectible
+                      id={token.id}
+                      name={token.name || token.ticker}
+                      balance={token.balance}
+                      divisibility={token.divisibility}
+                      decimals={token.decimals}
+                      onClick={() => updateSelectedToken(token.id)}
+                      key={i}
+                    />
+                  ))}
+              </CollectiblesList>
+            </SliderWrapper>
+          )}
+          {showSlider && (
+            <SliderWrapper
+              partial
+              variants={animation2}
+              initial="hidden"
+              animate="shown"
+              exit="hidden"
             >
-              <Recipient
-                onClick={setRecipient}
-                onClose={() => setShowSlider(false)}
-              />
-            </SliderMenu>
-          </SliderWrapper>
-        )}
-      </AnimatePresence>
-    </Wrapper>
+              <SliderMenu
+                title={browser.i18n.getMessage("send_to")}
+                onClose={() => {
+                  setShowSlider(false);
+                }}
+              >
+                <Recipient
+                  onClick={setRecipient}
+                  onClose={() => setShowSlider(false)}
+                />
+              </SliderMenu>
+            </SliderWrapper>
+          )}
+        </AnimatePresence>
+      </Wrapper>
+    </>
   );
 }
 
@@ -638,7 +641,8 @@ const CurrencyButton = styled(Button)`
 `;
 
 const Wrapper = styled.div<{ showOverlay: boolean }>`
-  height: calc(100vh - 72px);
+  height: calc(100vh - 144px);
+  padding-top: 2px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

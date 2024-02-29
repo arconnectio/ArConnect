@@ -1649,5 +1649,37 @@
   "setting_ao_support_description": {
     "message": "Show ao tokens in your wallet (beta)",
     "description": "ao support settings description"
+  },
+  "got_it": {
+    "message": "Got it",
+    "description": "Got it button text"
+  },
+  "display_ao_tokens": {
+    "message": "Display AO tokens in ArConnect (Beta)",
+    "description": "Display AO tokens description"
+  },
+  "ao_computer": {
+    "message": "ao.computer",
+    "description": "ao computer url"
+  },
+  "ao_announcement_text": {
+    "message": "Look out for new updates around ao in the future. To learn more visit",
+    "description": "ao announcement description text"
+  },
+  "ao_announcement_title": {
+    "message": "AO testnet is now live!",
+    "description": "ao announcement title text"
+  },
+  "import_token": {
+    "message": "Import Token",
+    "description": "import token button description"
+  },
+  "token_already_added": {
+    "message": "Token Already Added",
+    "description": "token already imported"
+  },
+  "token_imported": {
+    "message": "Token Succesfully Added",
+    "description": "token added"
   }
 }
