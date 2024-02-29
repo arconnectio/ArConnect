@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAo, type AoInstance, getTagValue, type TokenInfo } from "./ao";
 import { ROUTER_PROCESS, type Message } from "./config";
+import { getAoTokens } from "~tokens";
 
 export async function getTokenInfo(
   id: string,
@@ -32,17 +33,6 @@ export async function getTokenInfo(
   return { Denomination: 1 };
 }
 
-export async function getTokens(ao: AoInstance) {
-  const res = await ao.dryrun({
-    Id: "0000000000000000000000000000000000000000001",
-    Owner: "0000000000000000000000000000000000000000001",
-    process: ROUTER_PROCESS,
-    tags: [{ name: "Action", value: "Get-Tokens" }]
-  });
-
-  return JSON.parse(res.Output.data || "[]");
-}
-
 export function useTokenIDs(): [string[], boolean] {
   // all token ids
   const [tokenIDs, setTokenIDs] = useState<string[]>([]);
@@ -58,9 +48,9 @@ export function useTokenIDs(): [string[], boolean] {
       setLoading(true);
 
       try {
-        const ids = await getTokens(ao);
-        // TODO: THIS IS ADDITIONALLY ADDED FOR TESTING PURPOSES
-        setTokenIDs([...ids, "HineOJKYihQiIcZEWxFtgTyxD_dhDNqGvoBlWj55yDs"]);
+        const aoTokens = await getAoTokens();
+        const aoTokenIds = aoTokens.map((token) => token.processId);
+        setTokenIDs(aoTokenIds);
       } catch {}
 
       setLoading(false);

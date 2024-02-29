@@ -37,6 +37,7 @@ import settings from "~settings";
 import { PageType, trackPage } from "~utils/analytics";
 import { formatSettingName } from "~utils/format";
 import SignSettings from "~components/dashboard/SignSettings";
+import AddToken from "~components/dashboard/subsettings/AddToken";
 
 export default function Settings({ params }: Props) {
   // router location
@@ -148,10 +149,12 @@ export default function Settings({ params }: Props) {
         {activeSetting === "wallets" && activeSubSetting === "new" && (
           <AddWallet key="new-wallet" />
         )}
-        {activeSetting === "tokens" && activeSubSetting && (
+        {activeSetting === "tokens" && activeSubSetting !== "new" && (
           <TokenSettings id={activeSubSetting} />
         )}
-
+        {activeSetting === "tokens" && activeSubSetting === "new" && (
+          <AddToken key="new-token" />
+        )}
         {activeSetting === "contacts" &&
           activeSubSetting &&
           activeSubSetting.startsWith("new") && (

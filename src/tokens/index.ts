@@ -12,6 +12,7 @@ import {
   type TokenState,
   type TokenType
 } from "./token";
+import type { TokenInfo } from "./aoTokens/ao";
 
 /** Default tokens */
 const defaultTokens: Token[] = [
@@ -51,6 +52,16 @@ export async function getTokens() {
   const tokens = await ExtensionStorage.get<Token[]>("tokens");
 
   return tokens || defaultTokens;
+}
+/**
+ * Get stored ao tokens
+ */
+export async function getAoTokens() {
+  const tokens = await ExtensionStorage.get<
+    (TokenInfo & { processId: string })[]
+  >("ao_tokens");
+
+  return tokens || [];
 }
 
 /**
@@ -106,6 +117,12 @@ export async function removeToken(id: string) {
     "tokens",
     tokens.filter((token) => token.id !== id)
   );
+}
+
+export async function removeAoToken(id: string) {
+  const tokens = await getAoTokens();
+  const updatedTokens = tokens.filter((token) => token.processId !== id);
+  await ExtensionStorage.set("ao_tokens", updatedTokens);
 }
 
 /**
