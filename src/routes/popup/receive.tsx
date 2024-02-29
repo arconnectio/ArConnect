@@ -1,5 +1,5 @@
 import {
-  Button,
+  ButtonV2,
   Section,
   Tooltip,
   useToasts,
@@ -53,31 +53,33 @@ export default function Receive() {
       <div>
         <HeadV2 title={browser.i18n.getMessage("receive")} />
       </div>
-      <Section>
-        <QRCodeWrapper displayTheme={theme}>
-          <QRCode
-            displayTheme={theme}
-            fgColor="#fff"
-            bgColor={theme.displayTheme === "light" ? "#7866D3" : "#8E7BEA"}
-            size={285.84}
-            value={activeAddress ?? ""}
-          />
-        </QRCodeWrapper>
-      </Section>
-      <Section>
-        <AddressField>
-          {formatAddress(activeAddress ?? "", 6)}
-          <Tooltip
-            content={browser.i18n.getMessage("copy_address")}
-            position="bottom"
-          >
-            <CopyAction
-              as={copied ? CheckIcon : CopyIcon}
-              onClick={copyAddress}
+      <ContentWrapper>
+        <Section style={{ paddingBottom: "8px" }}>
+          <QRCodeWrapper displayTheme={theme}>
+            <QRCode
+              displayTheme={theme}
+              fgColor="#fff"
+              bgColor={theme.displayTheme === "light" ? "#7866D3" : "#8E7BEA"}
+              size={285.84}
+              value={activeAddress ?? ""}
             />
-          </Tooltip>
-        </AddressField>
-      </Section>
+          </QRCodeWrapper>
+        </Section>
+        <Section style={{ paddingTop: "8px" }}>
+          <AddressField fullWidth>
+            {formatAddress(activeAddress ?? "", 6)}
+            <Tooltip
+              content={browser.i18n.getMessage("copy_address")}
+              position="bottom"
+            >
+              <CopyAction
+                as={copied ? CheckIcon : CopyIcon}
+                onClick={copyAddress}
+              />
+            </Tooltip>
+          </AddressField>
+        </Section>
+      </ContentWrapper>
     </Wrapper>
   );
 }
@@ -89,14 +91,18 @@ const Wrapper = styled.div`
   height: calc(100vh - 72px);
 `;
 
-const AddressField = styled(Button)`
+const ContentWrapper = styled.div`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
+
+const AddressField = styled(ButtonV2)`
   display: flex;
   align-items: center;
   gap: 5px;
   font-weight: 500;
-  margin: 0 auto;
-  background-color: rgb(${(props) => props.theme.theme});
-  color: #fff;
 `;
 
 const CopyAction = styled(CopyIcon)`
@@ -124,7 +130,7 @@ const QRCodeWrapper = styled.div<{ displayTheme: DisplayTheme }>`
   background-color: ${(props) =>
     props.theme.displayTheme === "light" ? "#7866D3" : "#8E7BEA"};
   border-radius: 21.44px;
-  padding: 17.15px;
+  padding: 25.83px 0px;
 `;
 
 const QRCode = styled(QRCodeSVG)<{ displayTheme: DisplayTheme }>``;
