@@ -56,10 +56,9 @@ export default function Receive() {
       <ContentWrapper>
         <Section style={{ paddingBottom: "8px" }}>
           <QRCodeWrapper displayTheme={theme}>
-            <QRCode
-              displayTheme={theme}
+            <QRCodeSVG
               fgColor="#fff"
-              bgColor={theme.displayTheme === "light" ? "#7866D3" : "#8E7BEA"}
+              bgColor="transparent"
               size={285.84}
               value={activeAddress ?? ""}
             />
@@ -132,5 +131,3 @@ const QRCodeWrapper = styled.div<{ displayTheme: DisplayTheme }>`
   border-radius: 21.44px;
   padding: 25.83px 0px;
 `;
-
-const QRCode = styled(QRCodeSVG)<{ displayTheme: DisplayTheme }>``;
