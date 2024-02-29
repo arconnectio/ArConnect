@@ -542,20 +542,18 @@ export default function Send({ id }: Props) {
                       key={i}
                     />
                   ))}
-                {aoTokens
-                  .filter((token) => token.balance > 0)
-                  .map((token, i) => (
-                    <Token
-                      key={token.id}
-                      ao={true}
-                      type={"asset"}
-                      defaultLogo={token?.Logo}
-                      id={token.id}
-                      ticker={token.Ticker}
-                      balance={Number(token.balance)}
-                      onClick={() => updateSelectedToken(token.id)}
-                    />
-                  ))}
+                {aoTokens.map((token, i) => (
+                  <Token
+                    key={token.id}
+                    ao={true}
+                    type={"asset"}
+                    defaultLogo={token?.Logo}
+                    id={token.id}
+                    ticker={token.Ticker}
+                    balance={Number(token.balance)}
+                    onClick={() => updateSelectedToken(token.id)}
+                  />
+                ))}
               </TokensSection>
               <CollectiblesList>
                 {tokens
