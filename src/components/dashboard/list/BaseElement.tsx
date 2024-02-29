@@ -13,10 +13,11 @@ export default function BaseElement({
   active,
   img,
   dragControls,
+  ao = false,
   ...props
 }: Props & HTMLProps<HTMLDivElement>) {
   return (
-    <SettingWrapper active={active} {...(props as any)}>
+    <SettingWrapper active={active} {...(props as any)} ao={ao}>
       <ContentWrapper>
         <SettingIconWrapper img={img}>{children}</SettingIconWrapper>
         <div>
@@ -31,35 +32,39 @@ export default function BaseElement({
 
 export const setting_element_padding = ".8rem";
 
-const SettingWrapper = styled.div<{ active: boolean }>`
+const SettingWrapper = styled.div<{ active: boolean; ao?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: ${setting_element_padding};
   border-radius: 20px;
   overflow: hidden;
-  cursor: pointer;
+  cursor: ${(props) => (props.ao ? "default" : "pointer")};
   background-color: rgba(
     ${(props) => props.theme.theme},
     ${(props) =>
       props.active ? (props.theme.displayTheme === "light" ? ".2" : ".1") : "0"}
   );
   transition: all 0.23s ease-in-out;
-
-  &:hover {
-    background-color: rgba(
-      ${(props) =>
-        props.theme.theme +
-        ", " +
-        (props.active
-          ? props.theme.displayTheme === "light"
-            ? ".24"
-            : ".14"
-          : props.theme.displayTheme === "light"
-          ? ".14"
-          : ".04")}
-    );
-  }
+  ${(props) =>
+    !props.ao &&
+    `
+    &:hover {
+      background-color: rgba(
+        ${
+          props.theme.theme +
+          ", " +
+          (props.active
+            ? props.theme.displayTheme === "light"
+              ? ".24"
+              : ".14"
+            : props.theme.displayTheme === "light"
+            ? ".14"
+            : ".04")
+        }
+      );
+    }
+  `}
 `;
 
 const ContentWrapper = styled.div`
@@ -122,6 +127,7 @@ interface Props {
   description: string | ReactNode;
   active?: boolean;
   img?: string;
+  ao?: boolean;
   dragControls?: DragControls;
 }
 

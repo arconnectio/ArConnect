@@ -92,12 +92,10 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
   );
   const tokensWithBalances = useMemo(
     () =>
-      tokens
-        .map((token) => ({
-          ...token,
-          balance: balances.find((bal) => bal.id === token.id)?.balance || 0
-        }))
-        .filter((token) => token.balance > 0),
+      tokens.map((token) => ({
+        ...token,
+        balance: balances.find((bal) => bal.id === token.id)?.balance || 0
+      })),
     [tokens, balances]
   );
 
@@ -126,6 +124,9 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
       setLoading(true);
 
       try {
+        if (!aoSetting) {
+          return setTokens([]);
+        }
         setTokens(
           await Promise.all(
             ids.map(async (id) => ({
@@ -139,7 +140,7 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
 
       setLoading(false);
     })();
-  }, [ids, ao, loadingIDs]);
+  }, [ids, ao, loadingIDs, aoSetting]);
 
   useEffect(() => {
     (async () => {
