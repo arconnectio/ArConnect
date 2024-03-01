@@ -692,7 +692,7 @@ const QuantitySection = styled.div<{ qtyMode: QtyMode; invalidValue: boolean }>`
 `;
 
 // Make this dynamic
-export const SendButton = styled(ButtonV2)<{ alternate?: boolean }>`
+export const SendButton = styled(Button)<{ alternate?: boolean }>`
   background-color: ${(props) => props.alternate && "rgb(171, 154, 255, 0.15)"};
   border: 1px solid rgba(171, 154, 255, 0.15);
   border-radius: 10px;

@@ -496,7 +496,7 @@ export default function Transaction({ id: rawId, gw }: Props) {
                 }}
               >
                 {ao.isAo ? "ao Scanner" : "Viewblock"}
-                <ShareIcon />
+                <ShareIcon style={{ marginLeft: "5px" }} />
               </SendButton>
             </Section>
           </motion.div>
