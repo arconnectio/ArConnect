@@ -15,7 +15,7 @@ import {
   SelectV2,
   Spacer,
   Text,
-  Tooltip,
+  TooltipV2,
   useInput,
   useModal,
   useToasts
@@ -168,7 +168,10 @@ export default function AppSettings({ app, showTitle = false }: Props) {
         {": "}
         {arweave.ar.winstonToAr(spent)}
         {" AR "}
-        <Tooltip content={browser.i18n.getMessage("resetSpentQty")}>
+        <TooltipV2
+          content={browser.i18n.getMessage("resetSpentQty")}
+          position="top"
+        >
           <ResetButton
             onClick={() =>
               updateSettings((val) => ({
@@ -183,7 +186,7 @@ export default function AppSettings({ app, showTitle = false }: Props) {
           >
             {browser.i18n.getMessage("reset")}
           </ResetButton>
-        </Tooltip>
+        </TooltipV2>
       </Text>
       <Spacer y={0.55} />
       <Text noMargin>
@@ -206,12 +209,15 @@ export default function AppSettings({ app, showTitle = false }: Props) {
         )) ||
           arweave.ar.winstonToAr(limit)}
         {" AR "}
-        <Tooltip content={browser.i18n.getMessage("allowance_edit")}>
+        <TooltipV2
+          content={browser.i18n.getMessage("allowance_edit")}
+          position="top"
+        >
           <EditLimitButton
             as={editingLimit ? CheckIcon : EditIcon}
             onClick={() => setEditingLimit((val) => !val)}
           />
-        </Tooltip>
+        </TooltipV2>
       </Text>
       <Spacer y={1} />
       <Title>{browser.i18n.getMessage("gateway")}</Title>

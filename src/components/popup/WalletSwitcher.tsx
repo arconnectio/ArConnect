@@ -4,7 +4,7 @@ import {
   Card,
   Section,
   Text,
-  Tooltip,
+  TooltipV2,
   useToasts
 } from "@arconnect/components";
 import { concatGatewayURL } from "~gateways/utils";
@@ -220,7 +220,10 @@ export default function WalletSwitcher({
                     <PlusIcon style={{ marginRight: "5px" }} />
                     {browser.i18n.getMessage("add_wallet")}
                   </AddWalletButton>
-                  <Tooltip content={browser.i18n.getMessage("edit")}>
+                  <TooltipV2
+                    content={browser.i18n.getMessage("edit")}
+                    position="topEnd"
+                  >
                     <EditButton
                       onClick={() =>
                         browser.tabs.create({
@@ -230,7 +233,7 @@ export default function WalletSwitcher({
                         })
                       }
                     />
-                  </Tooltip>
+                  </TooltipV2>
                 </ActionBar>
               )}
             </WalletsCard>
