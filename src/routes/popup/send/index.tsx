@@ -521,7 +521,7 @@ export default function Send({ id }: Props) {
             onClick={send}
           >
             {browser.i18n.getMessage("next")}
-            <ArrowUpRightIcon style={{ marginLeft: "5px" }} />
+            <ArrowUpRightIcon />
           </SendButton>
         </BottomActions>
         <AnimatePresence>
