@@ -12,7 +12,7 @@ import { removeApp } from "~applications";
 import { useAnsProfile } from "~lib/ans";
 import { useTheme } from "~utils/theme";
 import {
-  Button,
+  ButtonV2,
   Card,
   type DisplayTheme,
   Section,
@@ -311,8 +311,7 @@ export default function WalletHeader() {
                   )) || (
                     <>
                       <AppActionButtons>
-                        <Button
-                          small
+                        <ButtonV2
                           fullWidth
                           secondary
                           onClick={() =>
@@ -323,11 +322,10 @@ export default function WalletHeader() {
                             })
                           }
                         >
-                          <SettingsIcon />
+                          <SettingsIcon style={{ marginRight: "5px" }} />
                           {browser.i18n.getMessage("settings")}
-                        </Button>
-                        <Button
-                          small
+                        </ButtonV2>
+                        <ButtonV2
                           fullWidth
                           onClick={async () => {
                             await removeApp(getAppURL(activeTab.url));
@@ -335,9 +333,19 @@ export default function WalletHeader() {
                             setAppDataOpen(false);
                           }}
                         >
-                          <LogOutIcon />
-                          {browser.i18n.getMessage("disconnect")}
-                        </Button>
+                          <LogOutIcon
+                            style={{
+                              position: "absolute",
+                              right: "120px",
+                              width: "24px",
+                              height: "24px",
+                              marginRight: "5px"
+                            }}
+                          />
+                          <div style={{ marginLeft: "24px" }}>
+                            {browser.i18n.getMessage("disconnect")}
+                          </div>
+                        </ButtonV2>
                       </AppActionButtons>
                     </>
                   )}
