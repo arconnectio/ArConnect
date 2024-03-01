@@ -4,7 +4,7 @@ import {
   ModalV2,
   Spacer,
   Text,
-  Tooltip,
+  TooltipV2,
   useInput,
   useModal,
   useToasts
@@ -171,7 +171,7 @@ export default function WalletSettings({ address }: Props) {
         <WalletName>
           {ansLabel || wallet.nickname}
           {wallet.type === "hardware" && (
-            <Tooltip
+            <TooltipV2
               content={
                 wallet.api.slice(0, 1).toUpperCase() + wallet.api.slice(1)
               }
@@ -180,12 +180,15 @@ export default function WalletSettings({ address }: Props) {
               <HardwareWalletIcon
                 src={wallet.api === "keystone" ? keystoneLogo : undefined}
               />
-            </Tooltip>
+            </TooltipV2>
           )}
         </WalletName>
         <WalletAddress>
           {wallet.address}
-          <Tooltip content={browser.i18n.getMessage("copy_address")}>
+          <TooltipV2
+            content={browser.i18n.getMessage("copy_address")}
+            position="bottom"
+          >
             <CopyButton
               onClick={() => {
                 copy(wallet.address);
@@ -199,7 +202,7 @@ export default function WalletSettings({ address }: Props) {
                 });
               }}
             />
-          </Tooltip>
+          </TooltipV2>
         </WalletAddress>
         <Title>{browser.i18n.getMessage("edit_wallet_name")}</Title>
         {!!ansLabel && (

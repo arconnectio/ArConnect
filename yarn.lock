@@ -15,10 +15,10 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@arconnect/components@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.3.3.tgz#6bd96f45984fa3feca97d037ddf1cdf381fd1a85"
-  integrity sha512-swy2pgh9RNpIe89wgUjRv6WZiwceQvbXe0DxeogTviVLXxJL7GK+7epLx6hF9kcDj4v1iGBHJnoApKTCjRFDKw==
+"@arconnect/components@^0.3.4":
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.3.4.tgz#00112b6d97dc329b8f1b3cb30992b5a73684f95d"
+  integrity sha512-EI4yoweyi87zSNhsy8MCJXG2q5OuexLNGu45L/tHshotWpfa27/AWUnVvKeWdzOXXJzP2NXCTqNtCFqCuSGDDw==
   dependencies:
     "@iconicicons/react" "^1.5.1"
     axios "^1.6.7"

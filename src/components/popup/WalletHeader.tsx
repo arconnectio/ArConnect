@@ -17,7 +17,7 @@ import {
   type DisplayTheme,
   Section,
   Text,
-  Tooltip,
+  TooltipV2,
   useToasts
 } from "@arconnect/components";
 import {
@@ -212,15 +212,15 @@ export default function WalletHeader() {
             <ExpandArrow open={isOpen} />
           </WithArrow>
         </Wallet>
-        <Tooltip
+        <TooltipV2
           content={browser.i18n.getMessage("copy_address")}
           position="bottom"
         >
           <Action as={copied ? CheckIcon : CopyIcon} onClick={copyAddress} />
-        </Tooltip>
+        </TooltipV2>
       </AddressContainer>
       <WalletActions>
-        <Tooltip content="Viewblock" position="bottom">
+        <TooltipV2 content="Viewblock" position="bottom">
           <Action
             as={BoxIcon}
             onClick={() =>
@@ -229,8 +229,8 @@ export default function WalletHeader() {
               })
             }
           />
-        </Tooltip>
-        <Tooltip
+        </TooltipV2>
+        <TooltipV2
           content={browser.i18n.getMessage("settings")}
           position="bottom"
         >
@@ -242,7 +242,7 @@ export default function WalletHeader() {
               })
             }
           />
-        </Tooltip>
+        </TooltipV2>
         <AppAction
           onClick={(e) => {
             e.stopPropagation();
@@ -253,12 +253,12 @@ export default function WalletHeader() {
           <AppOnline online={!!activeAppData} />
         </AppAction>
         {!isExpanded && (
-          <Tooltip
+          <TooltipV2
             content={browser.i18n.getMessage("expand_view")}
             position="bottomEnd"
           >
             <Action as={MaximizeIcon} onClick={expandView} />
-          </Tooltip>
+          </TooltipV2>
         )}
         <AnimatePresence>
           {appDataOpen && (
@@ -269,7 +269,7 @@ export default function WalletHeader() {
               <Card>
                 <AppInfo>
                   {(!!activeAppData && (
-                    <Tooltip
+                    <TooltipV2
                       content={
                         browser.i18n.getMessage("gateway") +
                         ": " +
@@ -287,7 +287,7 @@ export default function WalletHeader() {
                         )) || <NoAppIcon />}
                         <AppOnline online={!!activeAppData} />
                       </ActiveAppIcon>
-                    </Tooltip>
+                    </TooltipV2>
                   )) || (
                     <ActiveAppIcon connected={false}>
                       <NoAppIcon />

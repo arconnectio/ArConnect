@@ -6,7 +6,7 @@ import {
   ModalV2,
   SelectV2,
   Spacer,
-  Tooltip,
+  TooltipV2,
   useModal,
   useToasts,
   type DisplayTheme
@@ -352,7 +352,7 @@ export default function ContactSettings({ address }: Props) {
             {editable && "*"}
           </SubTitle>
           {!editable && (
-            <Tooltip
+            <TooltipV2
               content={browser.i18n.getMessage("copy_address")}
               position="top"
             >
@@ -360,7 +360,7 @@ export default function ContactSettings({ address }: Props) {
                 as={copied ? CheckIcon : CopyIcon}
                 onClick={copyAddress}
               />
-            </Tooltip>
+            </TooltipV2>
           )}
         </AddressWrapper>
         {editable ? (
