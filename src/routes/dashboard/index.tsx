@@ -321,9 +321,9 @@ const allSettings: Omit<Setting, "active">[] = [
     component: About
   },
   {
-    name: "Notifs",
-    displayName: "Notifs",
-    description: "Notifs Description",
+    name: "notifications",
+    displayName: "setting_notifications",
+    description: "setting_notifications_description",
     icon: InformationIcon,
     component: Notifications
   },

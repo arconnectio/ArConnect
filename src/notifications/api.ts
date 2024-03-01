@@ -1,9 +1,11 @@
 import { ExtensionStorage } from "~utils/storage";
 import { getActiveAddress } from "~wallets";
+import iconUrl from "url:/assets/icon512.png";
+import browser from "webextension-polyfill";
 
 const GRAPHQL_ENDPOINT = "https://ar-io.net/graphql";
 
-// TODO Save to all different addresses of a wallet
+// TODO: do we want it to fetch notifications across all wallets?
 export async function notificationsHandler() {
   const address = await getActiveAddress();
   const receiversQuery = {
@@ -49,10 +51,14 @@ export async function notificationsHandler() {
   };
 
   try {
-    const storedNotifications = await ExtensionStorage.get("notifications");
+    const storedNotifications = await ExtensionStorage.get(
+      `notifications_${address}`
+    );
     const parsedNotifications = storedNotifications
       ? JSON.parse(storedNotifications)
       : null;
+
+    // if it doesnt exist, we set it to 0
     const lastStoredHeight = parsedNotifications
       ? Math.max(
           ...parsedNotifications?.combinedTransactions?.map((tx) =>
@@ -85,6 +91,7 @@ export async function notificationsHandler() {
     const combinedTransactions =
       receiversTransactions.concat(ownersTransactions);
 
+    // sorting the combined transactions by block height
     combinedTransactions.sort((a, b) => {
       // If either transaction lacks a block, treat it as the most recent
       if (!a.node.block || !b.node.block) {
@@ -108,15 +115,61 @@ export async function notificationsHandler() {
       }));
 
     const newMaxHeight = Math.max(
-      ...enrichedTransactions.map((tx) =>
-        tx.node.block ? tx.node.block.height : 0
-      )
+      ...enrichedTransactions
+        .filter((tx) => tx.node.block) // Filter out transactions without a block
+        .map((tx) => tx.node.block.height)
     );
+    // filters out transactions that are older than last stored height,
     console.log("filtered", enrichedTransactions);
+    if (newMaxHeight !== lastStoredHeight) {
+      const newTransactions = enrichedTransactions.filter(
+        (transaction) =>
+          transaction.node.block &&
+          transaction.node.block.height > lastStoredHeight
+      );
 
-    if (newMaxHeight > lastStoredHeight) {
+      // if it's the first time loading notifications, don't send a message && notifications are enabled
+      if (lastStoredHeight !== 0) {
+        if (newTransactions.length !== 1) {
+          const notificationMessage = `You have ${newTransactions.length} new transactions.`;
+          console.log("notification message", notificationMessage);
+
+          // IF NOTIFICATIONS ARE ENABLED
+          const notificationId = await browser.notifications.create({
+            type: "basic",
+            iconUrl,
+            title: "New Transactions",
+            message: notificationMessage
+          });
+        } else {
+          const notificationMessage = `You have 1 new transaction.`;
+          console.log(
+            "notification message and new txn",
+            notificationMessage,
+            newTransactions
+          );
+
+          // IF NOTIFICATIONS ARE ENABLED
+          const notificationId = await browser.notifications.create({
+            type: "basic",
+            iconUrl,
+            title: "New Transactions",
+            message: notificationMessage
+          });
+          browser.notifications.onClicked.addListener(
+            (clickedNotificationId) => {
+              const txnId = newTransactions[0].node.id;
+              if (clickedNotificationId === notificationId) {
+                browser.tabs.create({
+                  url: `https://viewblock.io/arweave/tx/${txnId}`
+                });
+              }
+            }
+          );
+        }
+      }
       await ExtensionStorage.set(
-        "notifications",
+        `notifications_${address}`,
         JSON.stringify({
           combinedTransactions: enrichedTransactions,
           lastBlockHeight: newMaxHeight

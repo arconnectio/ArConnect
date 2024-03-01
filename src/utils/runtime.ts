@@ -20,6 +20,9 @@ export async function onInstalled(details: Runtime.OnInstalledDetailsType) {
   // init monthly AR
   await initializeARBalanceMonitor();
 
+  // initialize alarm to fetch notifications
+  browser.alarms.create("notifications", { periodInMinutes: 1 });
+
   // wayfinder
   await scheduleGatewayUpdate();
   await handleGatewayUpdate();
