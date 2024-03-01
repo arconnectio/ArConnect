@@ -3,7 +3,7 @@ import {
   Spacer,
   ButtonV2,
   useModal,
-  Modal,
+  ModalV2,
   useToasts,
   type DisplayTheme
 } from "@arconnect/components";
@@ -69,19 +69,21 @@ export default function Reset() {
         <TrashIcon style={{ marginRight: "5px" }} />
         {browser.i18n.getMessage("reset")}
       </ResetButton>
-      <Modal
+      <ModalV2
         {...resetModal.bindings}
         root={document.getElementById("__plasmo")}
+        actions={
+          <ResetButton displayTheme={theme} onClick={reset}>
+            {browser.i18n.getMessage("confirm")}
+          </ResetButton>
+        }
       >
         <ModalText heading>{browser.i18n.getMessage("reset")}</ModalText>
         <ModalText>
           {browser.i18n.getMessage("setting_reset_description")}
         </ModalText>
         <Spacer y={0.75} />
-        <ResetButton displayTheme={theme} onClick={reset}>
-          {browser.i18n.getMessage("confirm")}
-        </ResetButton>
-      </Modal>
+      </ModalV2>
     </>
   );
 }

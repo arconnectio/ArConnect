@@ -10,9 +10,8 @@ import PermissionCheckbox, {
 import { removeApp } from "~applications";
 import {
   ButtonV2,
-  Input,
   InputV2,
-  Modal,
+  ModalV2,
   SelectV2,
   Spacer,
   Text,
@@ -307,9 +306,19 @@ export default function AppSettings({ app, showTitle = false }: Props) {
       >
         {browser.i18n.getMessage(settings.blocked ? "unblock" : "block")}
       </ButtonV2>
-      <Modal
+      <ModalV2
         {...removeModal.bindings}
         root={document.getElementById("__plasmo")}
+        actions={
+          <>
+            <ButtonV2 secondary onClick={() => removeModal.setOpen(false)}>
+              {browser.i18n.getMessage("cancel")}
+            </ButtonV2>
+            <ButtonV2 onClick={() => removeApp(app.url)}>
+              {browser.i18n.getMessage("remove")}
+            </ButtonV2>
+          </>
+        }
       >
         <CenterText heading>{browser.i18n.getMessage("removeApp")}</CenterText>
         <Spacer y={0.55} />
@@ -317,15 +326,7 @@ export default function AppSettings({ app, showTitle = false }: Props) {
           {browser.i18n.getMessage("removeAppNote")}
         </CenterText>
         <Spacer y={0.75} />
-        <ButtonWrapper>
-          <ButtonV2 secondary onClick={() => removeModal.setOpen(false)}>
-            {browser.i18n.getMessage("cancel")}
-          </ButtonV2>
-          <ButtonV2 onClick={() => removeApp(app.url)}>
-            {browser.i18n.getMessage("remove")}
-          </ButtonV2>
-        </ButtonWrapper>
-      </Modal>
+      </ModalV2>
     </>
   );
 }
@@ -409,10 +410,4 @@ const CenterText = styled(Text)`
   @media screen and (max-width: 720px) {
     max-width: 90vw;
   }
-`;
-
-const ButtonWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
 `;

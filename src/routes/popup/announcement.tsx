@@ -43,11 +43,11 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
         <Content>
           <img src={aoGraphic} alt="ao graphic" />
           <div>
-            <HeaderText noMargin heading>
+            <HeaderText displayTheme={theme} noMargin heading>
               {browser.i18n.getMessage("ao_announcement_title")}
             </HeaderText>
             <Spacer y={1} />
-            <CenterText>
+            <CenterText displayTheme={theme}>
               {browser.i18n.getMessage("ao_announcement_text")}{" "}
               <Link
                 onClick={() =>

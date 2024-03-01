@@ -17,7 +17,7 @@ import {
 } from "./ContactSettings";
 import {
   ButtonV2,
-  Modal,
+  ModalV2,
   Spacer,
   useModal,
   useToasts
@@ -360,9 +360,23 @@ export default function AddContact() {
             {browser.i18n.getMessage("remove_contact")}
           </RemoveContact>
         </Footer>
-        <Modal
+        <ModalV2
           {...removeContactModal.bindings}
           root={document.getElementById("__plasmo")}
+          actions={
+            <>
+              <ButtonV2
+                fullWidth
+                secondary
+                onClick={() => removeContactModal.setOpen(false)}
+              >
+                {browser.i18n.getMessage("no")}
+              </ButtonV2>
+              <ButtonV2 fullWidth onClick={confirmRemoveContact}>
+                {browser.i18n.getMessage("yes")}
+              </ButtonV2>
+            </>
+          }
         >
           <CenterText heading>
             {browser.i18n.getMessage("remove_contact")}
@@ -371,19 +385,8 @@ export default function AddContact() {
           <CenterText noMargin>
             {browser.i18n.getMessage("remove_contact_question")}
           </CenterText>
-          <Spacer y={1.75} />
-          <ButtonV2 fullWidth onClick={confirmRemoveContact}>
-            {browser.i18n.getMessage("yes")}
-          </ButtonV2>
-          <Spacer y={0.75} />
-          <ButtonV2
-            fullWidth
-            secondary
-            onClick={() => removeContactModal.setOpen(false)}
-          >
-            {browser.i18n.getMessage("no")}
-          </ButtonV2>
-        </Modal>
+          <Spacer y={1} />
+        </ModalV2>
       </>
     </Wrapper>
   );

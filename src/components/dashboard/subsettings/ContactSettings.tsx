@@ -3,7 +3,7 @@ import {
   ButtonV2,
   InputV2,
   Loading,
-  Modal,
+  ModalV2,
   SelectV2,
   Spacer,
   Tooltip,
@@ -408,9 +408,22 @@ export default function ContactSettings({ address }: Props) {
               {browser.i18n.getMessage("remove_contact")}
             </RemoveContact>
           </Footer>
-          <Modal
+          <ModalV2
             {...removeContactModal.bindings}
             root={document.getElementById("__plasmo")}
+            actions={
+              <>
+                <ButtonV2
+                  secondary
+                  onClick={() => removeContactModal.setOpen(false)}
+                >
+                  {browser.i18n.getMessage("no")}
+                </ButtonV2>
+                <ButtonV2 onClick={confirmRemoveContact}>
+                  {browser.i18n.getMessage("yes")}
+                </ButtonV2>
+              </>
+            }
           >
             <CenterText heading>
               {browser.i18n.getMessage("remove_contact")}
@@ -419,30 +432,13 @@ export default function ContactSettings({ address }: Props) {
             <CenterText noMargin>
               {browser.i18n.getMessage("remove_contact_question")}
             </CenterText>
-            <Spacer y={1.75} />
-            <ButtonWrapper>
-              <ButtonV2
-                secondary
-                onClick={() => removeContactModal.setOpen(false)}
-              >
-                {browser.i18n.getMessage("no")}
-              </ButtonV2>
-              <ButtonV2 onClick={confirmRemoveContact}>
-                {browser.i18n.getMessage("yes")}
-              </ButtonV2>
-            </ButtonWrapper>
-          </Modal>
+            <Spacer y={1} />
+          </ModalV2>
         </>
       )}
     </Wrapper>
   );
 }
-
-const ButtonWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-`;
 
 const Action = styled(CopyIcon)`
   font-size: 1.25rem;
