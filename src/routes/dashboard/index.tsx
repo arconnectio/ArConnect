@@ -37,11 +37,7 @@ import settings from "~settings";
 import { PageType, trackPage } from "~utils/analytics";
 import { formatSettingName } from "~utils/format";
 import SignSettings from "~components/dashboard/SignSettings";
-<<<<<<< HEAD
 import AddToken from "~components/dashboard/subsettings/AddToken";
-=======
-import Notifications from "~components/dashboard/Notifications";
->>>>>>> 5a8f60a (feat: basic notification background worker completed)
 
 export default function Settings({ params }: Props) {
   // router location
@@ -319,13 +315,6 @@ const allSettings: Omit<Setting, "active">[] = [
     description: "setting_about_description",
     icon: InformationIcon,
     component: About
-  },
-  {
-    name: "notifications",
-    displayName: "setting_notifications",
-    description: "setting_notifications_description",
-    icon: InformationIcon,
-    component: Notifications
   },
   {
     name: "reset",

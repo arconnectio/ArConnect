@@ -7,6 +7,9 @@ const GRAPHQL_ENDPOINT = "https://ar-io.net/graphql";
 
 // TODO: do we want it to fetch notifications across all wallets?
 export async function notificationsHandler() {
+  const notificationSetting = await ExtensionStorage.get(
+    "setting_notifications"
+  );
   const address = await getActiveAddress();
   const receiversQuery = {
     query: `
@@ -120,7 +123,6 @@ export async function notificationsHandler() {
         .map((tx) => tx.node.block.height)
     );
     // filters out transactions that are older than last stored height,
-    console.log("filtered", enrichedTransactions);
     if (newMaxHeight !== lastStoredHeight) {
       const newTransactions = enrichedTransactions.filter(
         (transaction) =>
@@ -129,12 +131,9 @@ export async function notificationsHandler() {
       );
 
       // if it's the first time loading notifications, don't send a message && notifications are enabled
-      if (lastStoredHeight !== 0) {
+      if (lastStoredHeight !== 0 && notificationSetting) {
         if (newTransactions.length !== 1) {
           const notificationMessage = `You have ${newTransactions.length} new transactions.`;
-          console.log("notification message", notificationMessage);
-
-          // IF NOTIFICATIONS ARE ENABLED
           const notificationId = await browser.notifications.create({
             type: "basic",
             iconUrl,
@@ -143,13 +142,7 @@ export async function notificationsHandler() {
           });
         } else {
           const notificationMessage = `You have 1 new transaction.`;
-          console.log(
-            "notification message and new txn",
-            notificationMessage,
-            newTransactions
-          );
 
-          // IF NOTIFICATIONS ARE ENABLED
           const notificationId = await browser.notifications.create({
             type: "basic",
             iconUrl,

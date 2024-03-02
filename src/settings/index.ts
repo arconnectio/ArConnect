@@ -5,6 +5,7 @@ import {
   ChartIcon,
   CloudIcon,
   DollarIcon,
+  InformationIcon,
   LayersIcon,
   PercentageIcon,
   StarIcon,
@@ -58,6 +59,14 @@ const settings: Setting[] = [
     type: "pick",
     options: ["light", "dark", "system"],
     defaultValue: "system"
+  }),
+  new Setting({
+    name: "notifications",
+    displayName: "setting_notifications",
+    description: "setting_notifications_description",
+    icon: InformationIcon,
+    type: "boolean",
+    defaultValue: false
   }),
   new Setting({
     name: "arconfetti",
