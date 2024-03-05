@@ -2,56 +2,22 @@ import { ExtensionStorage } from "~utils/storage";
 import { getActiveAddress } from "~wallets";
 import iconUrl from "url:/assets/icon512.png";
 import browser from "webextension-polyfill";
+import { gql } from "~gateways/api";
+import { suggestedGateways } from "~gateways/gateway";
+import {
+  AO_RECEIVER_QUERY,
+  AO_SENT_QUERY,
+  AR_RECEIVER_QUERY,
+  AR_SENT_QUERY,
+  combineAndSortTransactions,
+  enrichTransactions
+} from "./utils";
 
-const GRAPHQL_ENDPOINT = "https://ar-io.net/graphql";
-
-// TODO: do we want it to fetch notifications across all wallets?
 export async function notificationsHandler() {
-  const notificationSetting = await ExtensionStorage.get(
+  const notificationSetting: boolean = await ExtensionStorage.get(
     "setting_notifications"
   );
   const address = await getActiveAddress();
-  const receiversQuery = {
-    query: `
-      query {
-        transactions(first: 10, recipients: ["${address}"], tags: [{ name: "Type", values: ["Transfer"] }]) {
-          pageInfo {
-            hasNextPage
-          }
-          edges {
-            cursor
-            node {
-              id
-              owner { address }
-              quantity { ar }
-              block { timestamp, height }
-            }
-          }
-        }
-      }
-    `
-  };
-
-  const ownersQuery = {
-    query: `
-      query {
-        transactions(first: 10, owners: ["${address}"], tags: [{ name: "Type", values: ["Transfer"] }]) { 
-          pageInfo {
-            hasNextPage
-          }
-          edges {
-            cursor
-            node {
-              id
-              owner { address }
-              quantity { ar }
-              block { timestamp, height }
-            }
-          }
-        }
-      }
-    `
-  };
 
   try {
     const storedNotifications = await ExtensionStorage.get(
@@ -60,62 +26,108 @@ export async function notificationsHandler() {
     const parsedNotifications = storedNotifications
       ? JSON.parse(storedNotifications)
       : null;
+    const aoBlockHeight =
+      parsedNotifications?.aoNotifications?.lastStoredBlockHeight ?? 0;
+    const arBalanceBlockHeight =
+      parsedNotifications?.arBalanceNotifications?.lastStoredBlockHeight ?? 0;
 
-    // if it doesnt exist, we set it to 0
-    const lastStoredHeight = parsedNotifications
-      ? Math.max(
-          ...parsedNotifications?.combinedTransactions?.map((tx) =>
-            tx.node.block ? tx.node.block.height : 0
-          )
-        )
-      : 0;
+    const [arNotifications, nextArMaxHeight, newArTransactions] =
+      await arNotificationsHandler(
+        address,
+        arBalanceBlockHeight,
+        notificationSetting
+      );
+    const [aoNotifications, nextAoMaxHeight, newAoTransactions] =
+      await arNotificationsHandler(
+        address,
+        aoBlockHeight,
+        notificationSetting,
+        true
+      );
 
+    const newTransactions = [...newArTransactions, ...newAoTransactions];
+
+    if (newTransactions.length > 0) {
+      if (newTransactions.length > 1) {
+        // Case for multiple new transactions
+        const notificationMessage = `You have ${newTransactions.length} new transactions.`;
+        await browser.notifications.create({
+          type: "basic",
+          iconUrl,
+          title: "New Transactions",
+          message: notificationMessage
+        });
+      } else {
+        // Case for a single new transaction
+        const notificationMessage = `You have 1 new transaction.`;
+        const notificationId = await browser.notifications.create({
+          type: "basic",
+          iconUrl,
+          title: "New Transactions",
+          message: notificationMessage
+        });
+
+        // Listen for clicks on the notification
+        browser.notifications.onClicked.addListener((clickedNotificationId) => {
+          if (clickedNotificationId === notificationId) {
+            const txnId = newTransactions[0].node.id;
+            browser.tabs.create({
+              url: `https://viewblock.io/arweave/tx/${txnId}`
+            });
+          }
+        });
+      }
+    }
+
+    await ExtensionStorage.set(
+      `notifications_${address}`,
+      JSON.stringify({
+        arBalanceNotifications: {
+          arNotifications,
+          lastStoredBlockHeight: nextArMaxHeight
+        },
+        aoNotifications: {
+          aoNotifications,
+          lastStoredBlockHeight: nextAoMaxHeight
+        }
+      })
+    );
+  } catch (err) {
+    console.error("Error updating notifications:", err);
+  }
+}
+
+const arNotificationsHandler = async (
+  address: string,
+  lastStoredHeight: number,
+  notificationSetting: boolean,
+  isAo?: boolean
+) => {
+  try {
+    let transactionDiff = [];
     const [receiversResponse, ownersResponse] = await Promise.all([
-      fetch(GRAPHQL_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(receiversQuery)
-      }).then((response) => response.json()),
-
-      fetch(GRAPHQL_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(ownersQuery)
-      }).then((response) => response.json())
+      gql(
+        isAo ? AO_RECEIVER_QUERY : AR_RECEIVER_QUERY,
+        { address },
+        suggestedGateways[1]
+      ),
+      gql(
+        isAo ? AO_SENT_QUERY : AR_SENT_QUERY,
+        { address },
+        suggestedGateways[1]
+      )
     ]);
 
-    const receiversTransactions = receiversResponse.data.transactions.edges;
-    const ownersTransactions = ownersResponse.data.transactions.edges;
+    const combinedTransactions = combineAndSortTransactions(
+      receiversResponse,
+      ownersResponse
+    );
 
-    const combinedTransactions =
-      receiversTransactions.concat(ownersTransactions);
-
-    // sorting the combined transactions by block height
-    combinedTransactions.sort((a, b) => {
-      // If either transaction lacks a block, treat it as the most recent
-      if (!a.node.block || !b.node.block) {
-        // If both lack a block, maintain their order
-        if (!a.node.block && !b.node.block) {
-          return 0;
-        }
-        return a.node.block ? 1 : -1;
-      }
-      // For transactions with blocks, sort by timestamp in descending order (newer timestamps first)
-      return b.node.block.timestamp - a.node.block.timestamp;
-    });
-
-    // Filter out transactions with AR quantity > 0 + Adds transactionType
-    const enrichedTransactions = combinedTransactions
-      .filter((transaction) => parseFloat(transaction.node.quantity.ar) > 0)
-      .map((transaction) => ({
-        ...transaction,
-        transactionType:
-          transaction.node.owner.address === address ? "Sent" : "Received"
-      }));
+    const enrichedTransactions = enrichTransactions(
+      combinedTransactions,
+      address,
+      isAo
+    );
 
     const newMaxHeight = Math.max(
       ...enrichedTransactions
@@ -132,44 +144,11 @@ export async function notificationsHandler() {
 
       // if it's the first time loading notifications, don't send a message && notifications are enabled
       if (lastStoredHeight !== 0 && notificationSetting) {
-        if (newTransactions.length !== 1) {
-          const notificationMessage = `You have ${newTransactions.length} new transactions.`;
-          const notificationId = await browser.notifications.create({
-            type: "basic",
-            iconUrl,
-            title: "New Transactions",
-            message: notificationMessage
-          });
-        } else {
-          const notificationMessage = `You have 1 new transaction.`;
-
-          const notificationId = await browser.notifications.create({
-            type: "basic",
-            iconUrl,
-            title: "New Transactions",
-            message: notificationMessage
-          });
-          browser.notifications.onClicked.addListener(
-            (clickedNotificationId) => {
-              const txnId = newTransactions[0].node.id;
-              if (clickedNotificationId === notificationId) {
-                browser.tabs.create({
-                  url: `https://viewblock.io/arweave/tx/${txnId}`
-                });
-              }
-            }
-          );
-        }
+        transactionDiff = newTransactions;
       }
-      await ExtensionStorage.set(
-        `notifications_${address}`,
-        JSON.stringify({
-          combinedTransactions: enrichedTransactions,
-          lastBlockHeight: newMaxHeight
-        })
-      );
     }
+    return [enrichedTransactions, newMaxHeight, transactionDiff];
   } catch (err) {
-    console.error("Error updating notifications:", err);
+    console.log("err", err);
   }
-}
+};
