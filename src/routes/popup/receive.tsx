@@ -1,7 +1,7 @@
 import {
   ButtonV2,
   Section,
-  Tooltip,
+  TooltipV2,
   useToasts,
   type DisplayTheme
 } from "@arconnect/components";
@@ -65,17 +65,14 @@ export default function Receive() {
           </QRCodeWrapper>
         </Section>
         <Section style={{ paddingTop: "8px" }}>
-          <AddressField fullWidth>
+          <AddressField fullWidth onClick={copyAddress}>
             {formatAddress(activeAddress ?? "", 6)}
-            <Tooltip
+            <TooltipV2
               content={browser.i18n.getMessage("copy_address")}
               position="bottom"
             >
-              <CopyAction
-                as={copied ? CheckIcon : CopyIcon}
-                onClick={copyAddress}
-              />
-            </Tooltip>
+              <CopyAction as={copied ? CheckIcon : CopyIcon} />
+            </TooltipV2>
           </AddressField>
         </Section>
       </ContentWrapper>
