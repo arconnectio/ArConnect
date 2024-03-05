@@ -1,4 +1,10 @@
-import { Input, Text, useInput, useToasts } from "@arconnect/components";
+import {
+  Input,
+  Spacer,
+  Text,
+  useInput,
+  useToasts
+} from "@arconnect/components";
 import { ArrowRightIcon } from "@iconicicons/react";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
@@ -46,6 +52,7 @@ import { useActiveWallet } from "~wallets/hooks";
 import { UR } from "@ngraveio/bc-ur";
 import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
 import { useScanner } from "@arconnect/keystone-sdk";
+import Progress from "~components/Progress";
 
 interface Props {
   tokenID: string;
@@ -521,15 +528,13 @@ export default function Confirm({ tokenID, qty }: Props) {
   }, [wallet]);
 
   // current hardware wallet operation
-  const [hardwareStatus, setHardwareStatus] = useState<"play" | "scan">("play");
+  const [hardwareStatus, setHardwareStatus] = useState<"play" | "scan">();
 
   // qr-tx scanner
   const scanner = useScanner(
     // handle scanner success,
     // post transfer
     async (res) => {
-      setLoading(true);
-
       try {
         if (!preparedTx) return;
 
@@ -579,8 +584,6 @@ export default function Confirm({ tokenID, qty }: Props) {
           duration: 2000
         });
       }
-
-      setLoading(false);
     }
   );
 
@@ -613,7 +616,7 @@ export default function Confirm({ tokenID, qty }: Props) {
             </Address>
           </AddressWrapper>
           <div style={{ marginTop: "16px" }}>
-            {token && (
+            {token && !hardwareStatus && (
               <>
                 <BodySection
                   ticker={token?.ticker}
@@ -635,6 +638,31 @@ export default function Confirm({ tokenID, qty }: Props) {
                   ticker={token.ticker}
                   estimatedValue={isAo ? "-.--" : estimatedTotal}
                 />
+              </>
+            )}
+            {hardwareStatus === "play" && transactionUR && (
+              <AnimatedQRPlayer data={transactionUR} />
+            )}
+            {hardwareStatus === "scan" && (
+              <>
+                <AnimatedQRScanner
+                  {...scanner.bindings}
+                  onError={(error) =>
+                    setToast({
+                      type: "error",
+                      duration: 2300,
+                      content: browser.i18n.getMessage(`keystone_${error}`)
+                    })
+                  }
+                />
+                <Spacer y={1} />
+                <Text>
+                  {browser.i18n.getMessage(
+                    "keystone_scan_progress",
+                    `${scanner.progress.toFixed(0)}%`
+                  )}
+                </Text>
+                <Progress percentage={scanner.progress} />
               </>
             )}
           </div>
@@ -660,7 +688,8 @@ export default function Confirm({ tokenID, qty }: Props) {
           fullWidth
           disabled={(needsSign && !passwordInput.state) || isLoading}
           onClick={async () => {
-            await sendLocal();
+            if (wallet.type === "local") await sendLocal();
+            else setHardwareStatus("play");
           }}
         >
           Confirm {">"}
