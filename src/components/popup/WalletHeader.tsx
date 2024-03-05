@@ -18,6 +18,7 @@ import {
   Section,
   Text,
   Tooltip,
+  TooltipV2,
   useToasts
 } from "@arconnect/components";
 import {
@@ -29,7 +30,8 @@ import {
   LogOutIcon,
   SettingsIcon,
   UserIcon,
-  MaximizeIcon
+  MaximizeIcon,
+  BellIcon
 } from "@iconicicons/react";
 import WalletSwitcher, { popoverAnimation } from "./WalletSwitcher";
 import Application, { type AppInfo } from "~applications/application";
@@ -43,6 +45,7 @@ import copy from "copy-to-clipboard";
 import { type Gateway } from "~gateways/gateway";
 import { Settings01 } from "@untitled-ui/icons-react";
 import { svgie } from "~utils/svgies";
+import { useHistory } from "~utils/hash_router";
 
 export default function WalletHeader() {
   // current address
@@ -125,6 +128,9 @@ export default function WalletHeader() {
 
   // ui theme
   const theme = useTheme();
+
+  // router push
+  const [push] = useHistory();
 
   // scroll position
   const [scrollY, setScrollY] = useState(0);
@@ -220,6 +226,9 @@ export default function WalletHeader() {
         </Tooltip>
       </AddressContainer>
       <WalletActions>
+        <TooltipV2 content="Notifications" position="bottom">
+          <Action as={BellIcon} onClick={() => push("/notifications")} />
+        </TooltipV2>
         <Tooltip content="Viewblock" position="bottom">
           <Action
             as={BoxIcon}
