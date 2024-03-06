@@ -1,5 +1,6 @@
 import { fetchNotifications } from "~utils/notifications";
 import { getTokenInfo } from "~tokens/aoTokens/router";
+import { Loading } from "@arconnect/components";
 import { formatAddress } from "~utils/format";
 import HeadV2 from "~components/popup/HeadV2";
 import browser from "webextension-polyfill";
@@ -10,6 +11,7 @@ import styled from "styled-components";
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const [formattedTxMsgs, setFormattedTxMsgs] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const ao = useAo();
 
@@ -27,6 +29,7 @@ export default function Notifications() {
 
   useEffect(() => {
     (async () => {
+      setLoading(true);
       const n = await fetchNotifications();
       const sortedNotifications = mergeAndSortNotifications(
         n.arBalanceNotifications.arNotifications,
@@ -35,6 +38,7 @@ export default function Notifications() {
       setNotifications(sortedNotifications);
       const formattedTxMsgs = await formatTxMessage(sortedNotifications);
       setFormattedTxMsgs(formattedTxMsgs);
+      setLoading(false);
     })();
   }, []);
 
@@ -95,22 +99,37 @@ export default function Notifications() {
     <>
       <HeadV2 title={browser.i18n.getMessage("setting_notifications")} />
       <Wrapper>
-        {notifications.map((notification, index) => (
-          <NotificationItem key={notification.node.id}>
-            <Description>
-              <div>Transaction</div>
-              <div>{formatDate(notification.node.block.timestamp)}</div>
-            </Description>
-            <TitleMessage>{formattedTxMsgs[index]}</TitleMessage>
-            <Link onClick={() => handleLink(notification)}>
-              See transaction
-            </Link>
-          </NotificationItem>
-        ))}
+        {loading && (
+          <LoadingWrapper>
+            <Loading style={{ width: "20px", height: "20px" }} />
+          </LoadingWrapper>
+        )}
+        {!loading &&
+          notifications.map((notification, index) => (
+            <NotificationItem key={notification.node.id}>
+              <Description>
+                <div>Transaction</div>
+                <div>{formatDate(notification.node.block.timestamp)}</div>
+              </Description>
+              <TitleMessage>{formattedTxMsgs[index]}</TitleMessage>
+              <Link onClick={() => handleLink(notification)}>
+                See transaction
+              </Link>
+            </NotificationItem>
+          ))}
       </Wrapper>
     </>
   );
 }
+
+const LoadingWrapper = styled.div`
+  position: absolute;
+  width: calc(100% - 30px);
+  height: calc(100% - 64.59px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 const Link = styled.a`
   color: ${(props) => props.theme.primary};
