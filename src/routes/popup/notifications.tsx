@@ -22,6 +22,8 @@ export default function Notifications() {
       ...aoNotifications.map((notification) => ({ ...notification, ao: true }))
     ];
 
+    console.log(mergedNotifications);
+
     return mergedNotifications.sort(
       (a, b) => b.node.block.timestamp - a.node.block.timestamp
     );
@@ -45,29 +47,30 @@ export default function Notifications() {
   const formatTxMessage = async (notifications) => {
     const formattedTxMsgs = [];
     for (const notification of notifications) {
-      const ticker = notification.ao
-        ? await getTicker(notification.tokenId)
-        : "AR";
-      const formattedQuantity =
-        notification.transactionType === "Sent"
-          ? `Sent ${
-              notification.ar
-                ? Number(notification.node.quantity.ar).toFixed(2)
-                : Number(notification.quantity).toFixed(2)
-            } ${ticker} to ${
-              notification.ao
-                ? formatAddress(notification.node.tags[1].value, 8)
-                : formatAddress(notification.node.owner.address, 8)
-            }`
-          : `Received ${
-              notification.ar
-                ? Number(notification.node.quantity.ar).toFixed(2)
-                : Number(notification.quantity).toFixed(2)
-            } ${ticker} from ${formatAddress(
-              notification.node.owner.address,
-              8
-            )}`;
-      formattedTxMsgs.push(formattedQuantity);
+      const ticker =
+        notification.ao && notification.transactionType !== "Message"
+          ? await getTicker(notification.tokenId)
+          : notification.tokenId;
+      let formattedMessage: string;
+      if (notification.transactionType === "Sent") {
+        formattedMessage = `Sent ${Number(notification.quantity).toFixed(
+          2
+        )} ${ticker} to ${
+          notification.ao
+            ? formatAddress(notification.node.tags[1].value, 8)
+            : formatAddress(notification.node.recipient, 8)
+        }`;
+      } else if (notification.transactionType === "Received") {
+        formattedMessage = `Received ${Number(notification.quantity).toFixed(
+          2
+        )} ${ticker} from ${formatAddress(notification.node.owner.address, 8)}`;
+      } else if (notification.transactionType === "Message") {
+        formattedMessage = `New message from ${formatAddress(
+          notification.node.owner.address,
+          8
+        )}`;
+      }
+      formattedTxMsgs.push(formattedMessage);
     }
     return formattedTxMsgs;
   };
@@ -81,6 +84,17 @@ export default function Notifications() {
   const formatDate = (timestamp) => {
     const date = new Date(timestamp * 1000);
     return date.toDateString();
+  };
+
+  const createMessage = (message) => {
+    let action: string;
+    message.node.tags.find((t) => {
+      if (t.name === "Action") {
+        action = t.value;
+      }
+    });
+    const aoMessage = `${action.replace("-", " ")} from ao`;
+    return aoMessage;
   };
 
   const handleLink = (n) => {
@@ -108,12 +122,21 @@ export default function Notifications() {
           notifications.map((notification, index) => (
             <NotificationItem key={notification.node.id}>
               <Description>
-                <div>Transaction</div>
+                <div>
+                  {notification.transactionType === "Message"
+                    ? "Message"
+                    : "Transaction"}
+                </div>
                 <div>{formatDate(notification.node.block.timestamp)}</div>
               </Description>
               <TitleMessage>{formattedTxMsgs[index]}</TitleMessage>
+              {notification.transactionType === "Message" && (
+                <Description>{createMessage(notification)}</Description>
+              )}
               <Link onClick={() => handleLink(notification)}>
-                See transaction
+                {notification.transactionType === "Message"
+                  ? "See message"
+                  : "See transaction"}
               </Link>
             </NotificationItem>
           ))}
