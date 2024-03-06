@@ -104,6 +104,7 @@ query ($address: String!) {
     edges {
       node {
         id
+        recipient
         owner { address }
         quantity { ar }
         block { timestamp, height }
@@ -122,6 +123,7 @@ export const AR_SENT_QUERY = `query ($address: String!) {
     edges {
       node {
         id
+        recipient
         owner { address }
         quantity { ar }
         block { timestamp, height }
@@ -160,24 +162,41 @@ export const enrichTransactions = (combinedTransactions, address, isAo) => {
   if (isAo) {
     return allAoTransactions(combinedTransactions, address);
   } else {
-    return combinedTransactions.map((transaction) => {
-      let quantity = "0";
-      let tokenId = "";
-      let transactionType = "";
-      if (transaction.node.quantity.ar > 0) {
-        tokenId = "AR";
-        quantity = transaction.node.quantity.ar;
-      }
-      transactionType =
-        transaction.node.owner.address === address ? "Sent" : "Received";
-      return {
-        ...transaction,
-        transactionType,
-        quantity,
-        tokenId
-      };
-    });
+    return allArTransactions(combinedTransactions, address);
   }
+};
+
+export const allArTransactions = (
+  combinedTransactions: any[],
+  address: string
+) => {
+  return combinedTransactions.map((transaction) => {
+    let quantity = "0";
+    let warpContract = false;
+    let tokenId = "";
+    let transactionType = "";
+    if (transaction.node.quantity.ar > 0) {
+      tokenId = "AR";
+      quantity = transaction.node.quantity.ar;
+    } else {
+      const contract = transaction.node.tags.find(
+        (tag) => tag.name === "Contract"
+      );
+      if (contract) {
+        tokenId = contract.value;
+        warpContract = true;
+      }
+    }
+    transactionType =
+      transaction.node.owner.address === address ? "Sent" : "Received";
+    return {
+      ...transaction,
+      transactionType,
+      quantity,
+      ...(warpContract && { warpContract }),
+      tokenId
+    };
+  });
 };
 
 export const allAoTransactions = (
@@ -192,10 +211,6 @@ export const allAoTransactions = (
       if (typeTag.value === "Transfer") {
         transactionType =
           transaction.node.owner.address === address ? "Sent" : "Received";
-      } else if (typeTag.value === "Debit-Notice") {
-        transactionType = "Received";
-      } else if (typeTag.value === "Credit-Notice") {
-        transactionType = "Sent";
       }
     }
 
@@ -215,10 +230,6 @@ export const allAoTransactions = (
       if (recipientTag) {
         if (typeTag.value === "Transfer") {
           modifiedTransaction["tokenId"] = transaction.node.recipient;
-        } else {
-          modifiedTransaction["tokenId"] = transaction.node.tags.find(
-            (tag) => tag.name === "From-Process"
-          ).value;
         }
       }
       if (quantityTag) {
