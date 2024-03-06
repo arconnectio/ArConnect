@@ -28,6 +28,7 @@ import Transaction from "~routes/popup/transaction/[id]";
 import Recipient from "~routes/popup/send/recipient";
 import Confirm from "~routes/popup/send/confirm";
 import { NavigationBar } from "~components/popup/Navigation";
+import MessageNotification from "~routes/popup/notification/[id]";
 
 export default function Popup() {
   const theme = useTheme();
@@ -71,6 +72,14 @@ export default function Popup() {
                 <Route path="/explore" component={Explore} />
                 <Route path="/unlock" component={Unlock} />
                 <Route path="/notifications" component={Notifications} />
+                <Route path="/notification/:id/:message">
+                  {(params: { id: string; message: string }) => (
+                    <MessageNotification
+                      id={params?.id}
+                      message={params?.message}
+                    />
+                  )}
+                </Route>
                 <Route path="/tokens" component={Tokens} />
                 <Route path="/token/:id">
                   {(params: { id: string }) => <Asset id={params?.id} />}

@@ -1,5 +1,6 @@
 import { fetchNotifications } from "~utils/notifications";
 import { getTokenInfo } from "~tokens/aoTokens/router";
+import { useHistory } from "~utils/hash_router";
 import { Loading } from "@arconnect/components";
 import { formatAddress } from "~utils/format";
 import HeadV2 from "~components/popup/HeadV2";
@@ -14,6 +15,7 @@ export default function Notifications() {
   const [loading, setLoading] = useState(false);
 
   const ao = useAo();
+  const [push] = useHistory();
 
   // Function to merge and sort AR and AO notifications by timestamp
   const mergeAndSortNotifications = (arNotifications, aoNotifications) => {
@@ -31,16 +33,22 @@ export default function Notifications() {
 
   useEffect(() => {
     (async () => {
-      setLoading(true);
-      const n = await fetchNotifications();
-      const sortedNotifications = mergeAndSortNotifications(
-        n.arBalanceNotifications.arNotifications,
-        n.aoNotifications.aoNotifications
-      );
-      setNotifications(sortedNotifications);
-      const formattedTxMsgs = await formatTxMessage(sortedNotifications);
-      setFormattedTxMsgs(formattedTxMsgs);
-      setLoading(false);
+      try {
+        setLoading(true);
+        const n = await fetchNotifications();
+        const sortedNotifications = mergeAndSortNotifications(
+          n.arBalanceNotifications.arNotifications,
+          n.aoNotifications.aoNotifications
+        );
+        setNotifications(sortedNotifications);
+        const formattedTxMsgs = await formatTxMessage(sortedNotifications);
+        setFormattedTxMsgs(formattedTxMsgs);
+        setLoading(false);
+      } catch (error) {
+        console.log(error);
+        setLoading(false);
+        setFormattedTxMsgs(["Error fetching messages"]);
+      }
     })();
   }, []);
 
@@ -77,13 +85,15 @@ export default function Notifications() {
 
   const getTicker = async (tokenId: string) => {
     const result = await getTokenInfo(tokenId, ao);
-    console.log(result.Ticker);
     return result.Ticker;
   };
 
   const formatDate = (timestamp) => {
     const date = new Date(timestamp * 1000);
-    return date.toDateString();
+    return date.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric"
+    });
   };
 
   const createMessage = (message) => {
@@ -98,15 +108,13 @@ export default function Notifications() {
   };
 
   const handleLink = (n) => {
-    if (n.ar) {
-      browser.tabs.create({
-        url: `https://viewblock.io/arweave/tx/${n.node.id}`
-      });
-    } else {
-      browser.tabs.create({
-        url: `https://ao_marton.g8way.io/#/process/${n.tokenId}/${n.node.id}`
-      });
-    }
+    const notificationString = JSON.stringify(n);
+
+    n.transactionType === "Message"
+      ? push(
+          `/notification/${n.node.id}/${encodeURIComponent(notificationString)}`
+        )
+      : push(`/transaction/${n.node.id}`);
   };
 
   return (
