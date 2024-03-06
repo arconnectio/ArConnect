@@ -18,7 +18,6 @@ import {
   Section,
   Text,
   Tooltip,
-  TooltipV2,
   useToasts
 } from "@arconnect/components";
 import {
@@ -226,9 +225,9 @@ export default function WalletHeader() {
         </Tooltip>
       </AddressContainer>
       <WalletActions>
-        <TooltipV2 content="Notifications" position="bottom">
+        <Tooltip content="Notifications" position="bottom">
           <Action as={BellIcon} onClick={() => push("/notifications")} />
-        </TooltipV2>
+        </Tooltip>
         <Tooltip content="Viewblock" position="bottom">
           <Action
             as={BoxIcon}

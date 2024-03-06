@@ -50,7 +50,11 @@ export default function Notifications() {
               notification.ar
                 ? Number(notification.node.quantity.ar).toFixed(2)
                 : Number(notification.quantity).toFixed(2)
-            } ${ticker} to ${formatAddress(notification.node.owner.address, 8)}`
+            } ${ticker} to ${
+              notification.ao
+                ? formatAddress(notification.node.tags[1].value, 8)
+                : formatAddress(notification.node.owner.address, 8)
+            }`
           : `Received ${
               notification.ar
                 ? Number(notification.node.quantity.ar).toFixed(2)
