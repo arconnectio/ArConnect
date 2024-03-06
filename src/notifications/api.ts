@@ -11,6 +11,8 @@ import {
   AO_SENT_QUERY,
   AR_RECEIVER_QUERY,
   AR_SENT_QUERY,
+  ALL_AR_RECEIVER_QUERY,
+  ALL_AR_SENT_QUERY,
   combineAndSortTransactions,
   enrichTransactions
 } from "./utils";
@@ -19,28 +21,49 @@ export async function notificationsHandler() {
   const notificationSetting: boolean = await ExtensionStorage.get(
     "setting_notifications"
   );
-  const aoNotificationSetting: boolean = true;
+  let aoNotificationSetting: string[] | undefined = await ExtensionStorage.get(
+    "setting_notifications_customize"
+  );
+
+  if (!aoNotificationSetting) {
+    await ExtensionStorage.set("setting_notifications_customize", ["default"]);
+    aoNotificationSetting = ["default"];
+  }
   const address = await getActiveAddress();
 
   try {
     const storedNotifications = await ExtensionStorage.get(
       `notifications_${address}`
     );
+
     const parsedNotifications = storedNotifications
       ? JSON.parse(storedNotifications)
       : null;
+
     const aoBlockHeight =
       parsedNotifications?.aoNotifications?.lastStoredBlockHeight ?? 0;
+
     const arBalanceBlockHeight =
       parsedNotifications?.arBalanceNotifications?.lastStoredBlockHeight ?? 0;
+
     const [arNotifications, newArMaxHeight, newArTransactions] =
       await arNotificationsHandler(
         address,
         arBalanceBlockHeight,
         notificationSetting,
         [
-          { query: AR_RECEIVER_QUERY, variables: { address } },
-          { query: AR_SENT_QUERY, variables: { address } }
+          {
+            query: aoNotificationSetting.includes("allTxns")
+              ? ALL_AR_RECEIVER_QUERY
+              : AR_RECEIVER_QUERY,
+            variables: { address }
+          },
+          {
+            query: aoNotificationSetting.includes("allTxns")
+              ? ALL_AR_SENT_QUERY
+              : AR_SENT_QUERY,
+            variables: { address }
+          }
         ],
         false
       );
@@ -52,24 +75,28 @@ export async function notificationsHandler() {
 
         [
           {
-            query: aoNotificationSetting
+            query: aoNotificationSetting.includes("allAo")
               ? AO_ALL_RECEIVER_QUERY
               : AO_RECEIVER_QUERY,
             variables: { address }
           },
           {
-            query: aoNotificationSetting ? AO_ALL_SENT_QUERY : AO_SENT_QUERY,
+            query: aoNotificationSetting.includes("allAo")
+              ? AO_ALL_SENT_QUERY
+              : AO_SENT_QUERY,
             variables: {
               address
             }
           }
         ],
         true,
-        aoNotificationSetting
+        aoNotificationSetting.includes("allAo")
       );
 
-    const newTransactions = [...newAoTransactions, ...newArTransactions];
-    console.log("here", aoNotifications, arNotifications);
+    const newTransactions = [
+      ...(Array.isArray(newAoTransactions) ? newAoTransactions : []),
+      ...(Array.isArray(newArTransactions) ? newArTransactions : [])
+    ];
     if (newTransactions.length > 0) {
       if (newTransactions.length > 1) {
         // Case for multiple new transactions
@@ -96,6 +123,7 @@ export async function notificationsHandler() {
             const txnId = newTransactions[0].node.id;
             browser.tabs.create({
               url:
+                Array.isArray(newAoTransactions) &&
                 newAoTransactions.length === 1
                   ? `https://viewblock.io/ao/tx/${txnId}`
                   : `https://viewblock.io/arweave/tx/${txnId}`

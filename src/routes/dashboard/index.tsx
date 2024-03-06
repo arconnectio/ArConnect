@@ -38,6 +38,7 @@ import { PageType, trackPage } from "~utils/analytics";
 import { formatSettingName } from "~utils/format";
 import SignSettings from "~components/dashboard/SignSettings";
 import AddToken from "~components/dashboard/subsettings/AddToken";
+import NotificationSettings from "~components/dashboard/NotificationSettings";
 
 export default function Settings({ params }: Props) {
   // router location
@@ -295,6 +296,13 @@ const allSettings: Omit<Setting, "active">[] = [
     description: "setting_sign_notification_description",
     icon: BellIcon,
     component: SignSettings
+  },
+  {
+    name: "notifications",
+    displayName: "setting_notifications",
+    description: "setting_notifications_description",
+    icon: BellIcon,
+    component: NotificationSettings
   },
   ...settings.map((setting) => ({
     name: setting.name,

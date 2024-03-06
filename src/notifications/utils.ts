@@ -118,8 +118,46 @@ query ($address: String!) {
 }
 `;
 
+export const ALL_AR_RECEIVER_QUERY = `
+query ($address: String!) {
+  transactions(first: 10, recipients: [$address]) {
+    edges {
+      node {
+        id
+        recipient
+        owner { address }
+        quantity { ar }
+        block { timestamp, height }
+        tags {
+          name, 
+          value
+        }
+      }
+    }
+  }
+}
+`;
+
 export const AR_SENT_QUERY = `query ($address: String!) {
   transactions(first: 10, owners: [$address], tags: [{ name: "Type", values: ["Transfer"] }]) {
+    edges {
+      node {
+        id
+        recipient
+        owner { address }
+        quantity { ar }
+        block { timestamp, height }
+        tags {
+          name
+          value
+        }
+      }
+    }
+  }
+}`;
+
+export const ALL_AR_SENT_QUERY = `query ($address: String!) {
+  transactions(first: 10, owners: [$address]) {
     edges {
       node {
         id
