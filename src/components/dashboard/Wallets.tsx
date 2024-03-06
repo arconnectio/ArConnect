@@ -162,6 +162,7 @@ const SearchWrapper = styled.div`
   right: 0;
   z-index: 20;
   grid-template-columns: auto auto;
+  background-color: rgb(${(props) => props.theme.cardBackground});
 `;
 
 const AddWalletButton = styled(ButtonV2).attrs({

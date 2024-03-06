@@ -102,11 +102,12 @@ export default function Setting({ setting }: Props) {
           {/** search for "pick" settings with more than 6 options */}
           {setting?.options && setting.options.length > 6 && (
             <>
-              <SearchInput
-                placeholder={browser.i18n.getMessage("search_pick_option")}
-                {...searchInput.bindings}
-                sticky
-              />
+              <SearchWrapper>
+                <SearchInput
+                  placeholder={browser.i18n.getMessage("search_pick_option")}
+                  {...searchInput.bindings}
+                />
+              </SearchWrapper>
               <Spacer y={1} />
             </>
           )}
@@ -181,4 +182,13 @@ const RadioItem = styled.div`
       ${(props) => (props.theme.displayTheme === "light" ? "0.14" : "0.04")}
     );
   }
+`;
+
+const SearchWrapper = styled.div`
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background-color: rgb(${(props) => props.theme.cardBackground});
 `;
