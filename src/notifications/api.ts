@@ -5,6 +5,8 @@ import browser from "webextension-polyfill";
 import { gql } from "~gateways/api";
 import { suggestedGateways } from "~gateways/gateway";
 import {
+  AO_ALL_RECEIVER_QUERY,
+  AO_ALL_SENT_QUERY,
   AO_RECEIVER_QUERY,
   AO_SENT_QUERY,
   AR_RECEIVER_QUERY,
@@ -17,6 +19,7 @@ export async function notificationsHandler() {
   const notificationSetting: boolean = await ExtensionStorage.get(
     "setting_notifications"
   );
+  const aoNotificationSetting: boolean = true;
   const address = await getActiveAddress();
 
   try {
@@ -30,23 +33,43 @@ export async function notificationsHandler() {
       parsedNotifications?.aoNotifications?.lastStoredBlockHeight ?? 0;
     const arBalanceBlockHeight =
       parsedNotifications?.arBalanceNotifications?.lastStoredBlockHeight ?? 0;
-
-    const [arNotifications, nextArMaxHeight, newArTransactions] =
+    const [arNotifications, newArMaxHeight, newArTransactions] =
       await arNotificationsHandler(
         address,
         arBalanceBlockHeight,
-        notificationSetting
+        notificationSetting,
+        [
+          { query: AR_RECEIVER_QUERY, variables: { address } },
+          { query: AR_SENT_QUERY, variables: { address } }
+        ],
+        false
       );
-    const [aoNotifications, nextAoMaxHeight, newAoTransactions] =
+    const [aoNotifications, newAoMaxHeight, newAoTransactions] =
       await arNotificationsHandler(
         address,
         aoBlockHeight,
         notificationSetting,
-        true
+
+        [
+          {
+            query: aoNotificationSetting
+              ? AO_ALL_RECEIVER_QUERY
+              : AO_RECEIVER_QUERY,
+            variables: { address }
+          },
+          {
+            query: aoNotificationSetting ? AO_ALL_SENT_QUERY : AO_SENT_QUERY,
+            variables: {
+              address
+            }
+          }
+        ],
+        true,
+        aoNotificationSetting
       );
 
-    const newTransactions = [...newArTransactions, ...newAoTransactions];
-
+    const newTransactions = [...newAoTransactions, ...newArTransactions];
+    console.log("here", aoNotifications, arNotifications);
     if (newTransactions.length > 0) {
       if (newTransactions.length > 1) {
         // Case for multiple new transactions
@@ -72,7 +95,10 @@ export async function notificationsHandler() {
           if (clickedNotificationId === notificationId) {
             const txnId = newTransactions[0].node.id;
             browser.tabs.create({
-              url: `https://viewblock.io/arweave/tx/${txnId}`
+              url:
+                newAoTransactions.length === 1
+                  ? `https://viewblock.io/ao/tx/${txnId}`
+                  : `https://viewblock.io/arweave/tx/${txnId}`
             });
           }
         });
@@ -84,11 +110,11 @@ export async function notificationsHandler() {
       JSON.stringify({
         arBalanceNotifications: {
           arNotifications,
-          lastStoredBlockHeight: nextArMaxHeight
+          lastStoredBlockHeight: newArMaxHeight
         },
         aoNotifications: {
           aoNotifications,
-          lastStoredBlockHeight: nextAoMaxHeight
+          lastStoredBlockHeight: newAoMaxHeight
         }
       })
     );
@@ -101,27 +127,18 @@ const arNotificationsHandler = async (
   address: string,
   lastStoredHeight: number,
   notificationSetting: boolean,
-  isAo?: boolean
+  queriesConfig: { query: string; variables: Record<string, any> }[],
+  isAo?: boolean,
+  isAllAo?: boolean
 ) => {
   try {
     let transactionDiff = [];
-    const [receiversResponse, ownersResponse] = await Promise.all([
-      gql(
-        isAo ? AO_RECEIVER_QUERY : AR_RECEIVER_QUERY,
-        { address },
-        suggestedGateways[1]
-      ),
-      gql(
-        isAo ? AO_SENT_QUERY : AR_SENT_QUERY,
-        { address },
-        suggestedGateways[1]
-      )
-    ]);
 
-    const combinedTransactions = combineAndSortTransactions(
-      receiversResponse,
-      ownersResponse
+    const queries = queriesConfig.map((config) =>
+      gql(config.query, config.variables, suggestedGateways[1])
     );
+    const responses = await Promise.all(queries);
+    const combinedTransactions = combineAndSortTransactions(responses);
 
     const enrichedTransactions = enrichTransactions(
       combinedTransactions,
