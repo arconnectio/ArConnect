@@ -173,6 +173,9 @@ export const processTransactions = (
       const dataProtocolTag = transaction.node.tags.find(
         (tag) => tag.name === "Data-Protocol" && tag.value === "ao"
       );
+      const aoMessageTag = transaction.node.tags.find(
+        (tag) => tag.name === "Type" && tag.value === "Message"
+      );
       if (dataProtocolTag) {
         isAo = true;
         const typeTag = transaction.node.tags.find(
@@ -194,6 +197,12 @@ export const processTransactions = (
           } else {
             transactionType = "Message";
           }
+        }
+        if (
+          transactionType === "Transaction" &&
+          aoMessageTag.value === "Message"
+        ) {
+          transactionType = "Message";
         }
       } else {
         // Process non-Ao transactions or Warp contracts
