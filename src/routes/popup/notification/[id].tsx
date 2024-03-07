@@ -1,4 +1,5 @@
 import HeadV2 from "~components/popup/HeadV2";
+import { formatAddress } from "~utils/format";
 import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -13,7 +14,6 @@ export default function MessageNotification({ id, message }: Props) {
     }
   }, [message]);
 
-  // Function to filter tags based on specified names
   const filterTagsByName = (tags) => {
     return tags.filter((tag) =>
       ["Quantity", "Action", "Data-Protocol", "Type"].includes(tag.name)
@@ -24,9 +24,13 @@ export default function MessageNotification({ id, message }: Props) {
     <>
       <HeadV2 title={browser.i18n.getMessage("signature_message")} />
       <Wrapper key={id}>
+        <Message>
+          {aoMessage &&
+            `Sent from: ${formatAddress(aoMessage.node.owner.address, 4)}`}
+        </Message>
         {aoMessage &&
-          filterTagsByName(aoMessage.node.tags).map((tag, index) => (
-            <Message key={index}>
+          filterTagsByName(aoMessage.node.tags).map((tag) => (
+            <Message>
               {tag.name}: {tag.value}
             </Message>
           ))}

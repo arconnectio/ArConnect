@@ -65,17 +65,17 @@ export default function Notifications() {
           2
         )} ${ticker} to ${
           notification.ao
-            ? formatAddress(notification.node.tags[1].value, 8)
-            : formatAddress(notification.node.recipient, 8)
+            ? formatAddress(notification.node.tags[1].value, 4)
+            : formatAddress(notification.node.recipient, 4)
         }`;
       } else if (notification.transactionType === "Received") {
         formattedMessage = `Received ${Number(notification.quantity).toFixed(
           2
-        )} ${ticker} from ${formatAddress(notification.node.owner.address, 8)}`;
+        )} ${ticker} from ${formatAddress(notification.node.owner.address, 4)}`;
       } else if (notification.transactionType === "Message") {
         formattedMessage = `New message from ${formatAddress(
           notification.node.owner.address,
-          8
+          4
         )}`;
       }
       formattedTxMsgs.push(formattedMessage);
