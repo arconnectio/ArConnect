@@ -17,18 +17,42 @@ export default function Notifications() {
   const ao = useAo();
   const [push] = useHistory();
 
-  // Function to merge and sort AR and AO notifications by timestamp
   const mergeAndSortNotifications = (arNotifications, aoNotifications) => {
     const mergedNotifications = [
-      ...arNotifications.map((notification) => ({ ...notification, ar: true })),
-      ...aoNotifications.map((notification) => ({ ...notification, ao: true }))
+      ...arNotifications.map((notification) => ({
+        ...notification,
+        ar: true
+      })),
+      ...aoNotifications.map((notification) => ({
+        ...notification,
+        ao: true
+      }))
     ];
 
-    console.log(mergedNotifications);
+    // filter notifications without timestamps
+    const pendingNotifications = mergedNotifications.filter(
+      (notification) => !notification.node.block?.timestamp
+    );
 
-    return mergedNotifications.sort(
+    // set status to "pending" for notifications without timestamps
+    pendingNotifications.forEach((notification) => {
+      notification.node.block = { timestamp: "pending" };
+    });
+
+    // remove pending notifications from the merged array
+    const sortedNotifications = mergedNotifications.filter(
+      (notification) => notification.node.block.timestamp !== "pending"
+    );
+
+    // sort notifications with timestamps
+    sortedNotifications.sort(
       (a, b) => b.node.block.timestamp - a.node.block.timestamp
     );
+
+    // place pending notifications at the most recent index
+    sortedNotifications.unshift(...pendingNotifications);
+
+    return sortedNotifications;
   };
 
   useEffect(() => {
@@ -97,6 +121,9 @@ export default function Notifications() {
   };
 
   const formatDate = (timestamp) => {
+    if (timestamp === "pending") {
+      return "Pending";
+    }
     const date = new Date(timestamp * 1000);
     return date.toLocaleDateString(undefined, {
       month: "short",
