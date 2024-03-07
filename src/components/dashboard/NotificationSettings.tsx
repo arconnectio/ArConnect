@@ -62,7 +62,7 @@ export default function NotificationSettings() {
                   <RadioInner />
                 )}
             </Radio>
-            <Text noMargin>Enable Transaction Notifications</Text>
+            <Text noMargin>Enable Arweave Notifications</Text>
           </RadioItem>
           <RadioItem onClick={() => handleRadioChange("allTxns")}>
             <Radio>
@@ -71,7 +71,7 @@ export default function NotificationSettings() {
                   <RadioInner />
                 )}
             </Radio>
-            <Text noMargin>Enable All Transactions Notifications</Text>
+            <Text noMargin>Enable Arweave & ao Notifications</Text>
           </RadioItem>
           <RadioItem onClick={() => handleRadioChange("allAo")}>
             <Radio>
@@ -80,7 +80,7 @@ export default function NotificationSettings() {
                   <RadioInner />
                 )}
             </Radio>
-            <Text noMargin>Enable All ao Notifications</Text>
+            <Text noMargin>Enable ao Message Notifications</Text>
           </RadioItem>
         </RadioWrapper>
       </Wrapper>
