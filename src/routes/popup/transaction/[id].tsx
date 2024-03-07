@@ -5,7 +5,12 @@ import type { GQLNodeInterface } from "ar-gql/dist/faces";
 import { useEffect, useMemo, useState } from "react";
 import { useGateway } from "~gateways/wayfinder";
 import { useHistory } from "~utils/hash_router";
-import { ShareIcon, ChevronDownIcon, ChevronUpIcon } from "@iconicicons/react";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  DownloadIcon,
+  ShareIcon
+} from "@iconicicons/react";
 import { formatAddress } from "~utils/format";
 import { getArPrice } from "~lib/coingecko";
 import { concatGatewayURL, urlToGateway } from "~gateways/utils";
@@ -438,7 +443,9 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <ShareIcon />
+                        <DownloadIcon
+                          style={{ width: "18px", height: "18px" }}
+                        />
                       </a>
                     </PropertyName>
                     {(!isImage && (
