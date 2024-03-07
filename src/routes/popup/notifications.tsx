@@ -143,12 +143,8 @@ export default function Notifications() {
   };
 
   const handleLink = (n) => {
-    const notificationString = JSON.stringify(n);
-
     n.transactionType === "Message"
-      ? push(
-          `/notification/${n.node.id}/${encodeURIComponent(notificationString)}`
-        )
+      ? push(`/notification/${n.node.id}`)
       : push(`/transaction/${n.node.id}`);
   };
 

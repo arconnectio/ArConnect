@@ -72,12 +72,9 @@ export default function Popup() {
                 <Route path="/explore" component={Explore} />
                 <Route path="/unlock" component={Unlock} />
                 <Route path="/notifications" component={Notifications} />
-                <Route path="/notification/:id/:message">
-                  {(params: { id: string; message: string }) => (
-                    <MessageNotification
-                      id={params?.id}
-                      message={params?.message}
-                    />
+                <Route path="/notification/:id">
+                  {(params: { id: string }) => (
+                    <MessageNotification id={params?.id} />
                   )}
                 </Route>
                 <Route path="/tokens" component={Tokens} />

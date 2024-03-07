@@ -1,62 +1,13 @@
-import HeadV2 from "~components/popup/HeadV2";
-import { formatAddress } from "~utils/format";
-import { useEffect, useState } from "react";
-import browser from "webextension-polyfill";
-import styled from "styled-components";
+import Transaction from "../transaction/[id]";
 
-export default function MessageNotification({ id, message }: Props) {
-  const [aoMessage, setAoMessage] = useState(null);
-
-  useEffect(() => {
-    if (message) {
-      const parsedMessage = JSON.parse(decodeURIComponent(message));
-      setAoMessage(parsedMessage);
-    }
-  }, [message]);
-
-  const filterTagsByName = (tags) => {
-    return tags.filter((tag) =>
-      ["Quantity", "Action", "Data-Protocol", "Type"].includes(tag.name)
-    );
-  };
-
+export default function MessageNotification({ id }: Props) {
   return (
     <>
-      <HeadV2 title={browser.i18n.getMessage("signature_message")} />
-      <Wrapper key={id}>
-        <Message>
-          {aoMessage &&
-            `Sent from: ${formatAddress(aoMessage.node.owner.address, 4)}`}
-        </Message>
-        {aoMessage &&
-          filterTagsByName(aoMessage.node.tags).map((tag) => (
-            <Message>
-              {tag.name}: {tag.value}
-            </Message>
-          ))}
-      </Wrapper>
+      <Transaction id={id} message={true} />
     </>
   );
 }
 
 interface Props {
   id: string;
-  message: string;
 }
-
-const Wrapper = styled.div`
-  width: 100%;
-  margin-top: 3px;
-  padding: 0px 15px 15px 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`;
-
-const Message = styled.div`
-  width: calc(100% - 30px);
-  height: calc(100% - 64.59px);
-  font-size: 14px;
-  color: ${(props) => props.theme.primaryTextv2};
-  gap: 12px;
-`;
