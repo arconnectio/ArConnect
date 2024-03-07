@@ -52,6 +52,14 @@ export default function Notifications() {
     })();
   }, []);
 
+  const findRecipient = (n) => {
+    const recipientTag = n.node.tags.find((t) => t.name === "Recipient");
+    if (recipientTag) {
+      return formatAddress(recipientTag.value, 4);
+    }
+    return "Recipient not found";
+  };
+
   const formatTxMessage = async (notifications) => {
     const formattedTxMsgs = [];
     for (const notification of notifications) {
@@ -65,7 +73,7 @@ export default function Notifications() {
           2
         )} ${ticker} to ${
           notification.ao
-            ? formatAddress(notification.node.tags[1].value, 4)
+            ? findRecipient(notification)
             : formatAddress(notification.node.recipient, 4)
         }`;
       } else if (notification.transactionType === "Received") {
