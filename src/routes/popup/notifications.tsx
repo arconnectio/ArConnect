@@ -1,5 +1,6 @@
 import { fetchNotifications } from "~utils/notifications";
 import { getTokenInfo } from "~tokens/aoTokens/router";
+import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { useHistory } from "~utils/hash_router";
 import { Loading } from "@arconnect/components";
 import { formatAddress } from "~utils/format";
@@ -18,16 +19,7 @@ export default function Notifications() {
   const [push] = useHistory();
 
   const mergeAndSortNotifications = (arNotifications, aoNotifications) => {
-    const mergedNotifications = [
-      ...arNotifications.map((notification) => ({
-        ...notification,
-        ar: true
-      })),
-      ...aoNotifications.map((notification) => ({
-        ...notification,
-        ao: true
-      }))
-    ];
+    const mergedNotifications = [...arNotifications, ...aoNotifications];
 
     // filter notifications without timestamps
     const pendingNotifications = mergedNotifications.filter(
@@ -88,7 +80,7 @@ export default function Notifications() {
     const formattedTxMsgs = [];
     for (const notification of notifications) {
       const ticker =
-        notification.ao && notification.transactionType !== "Message"
+        notification.isAo && notification.transactionType !== "Message"
           ? await getTicker(notification.tokenId)
           : notification.tokenId;
       let formattedMessage: string;
@@ -131,17 +123,6 @@ export default function Notifications() {
     });
   };
 
-  const createMessage = (message) => {
-    let action: string;
-    message.node.tags.find((t) => {
-      if (t.name === "Action") {
-        action = t.value;
-      }
-    });
-    const aoMessage = `${action.replace("-", " ")} from ao`;
-    return aoMessage;
-  };
-
   const handleLink = (n) => {
     n.transactionType === "Message"
       ? push(`/notification/${n.node.id}`)
@@ -162,16 +143,24 @@ export default function Notifications() {
             <NotificationItem key={notification.node.id}>
               <Description>
                 <div>
-                  {notification.transactionType === "Message"
-                    ? "Message"
-                    : "Transaction"}
+                  {notification.transactionType === "Message" ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px"
+                      }}
+                    >
+                      <div>Message</div>
+                      <Image src={aoLogo} alt="ao logo" />
+                    </div>
+                  ) : (
+                    "Transaction"
+                  )}
                 </div>
                 <div>{formatDate(notification.node.block.timestamp)}</div>
               </Description>
               <TitleMessage>{formattedTxMsgs[index]}</TitleMessage>
-              {notification.transactionType === "Message" && (
-                <Description>{createMessage(notification)}</Description>
-              )}
               <Link onClick={() => handleLink(notification)}>
                 {notification.transactionType === "Message"
                   ? "See message"
@@ -183,6 +172,13 @@ export default function Notifications() {
     </>
   );
 }
+
+const Image = styled.img`
+  width: 16px;
+  padding: 0 8px;
+  border: 1px solid rgb(${(props) => props.theme.cardBorder});
+  border-radius: 2px;
+`;
 
 const LoadingWrapper = styled.div`
   position: absolute;
