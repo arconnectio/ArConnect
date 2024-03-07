@@ -61,14 +61,6 @@ const settings: Setting[] = [
     defaultValue: "system"
   }),
   new Setting({
-    name: "notifications",
-    displayName: "setting_notifications",
-    description: "setting_notifications_description",
-    icon: InformationIcon,
-    type: "boolean",
-    defaultValue: false
-  }),
-  new Setting({
     name: "arconfetti",
     displayName: "setting_arconfetti",
     icon: StarIcon,
