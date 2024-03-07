@@ -5,8 +5,6 @@ import browser from "webextension-polyfill";
 import { gql } from "~gateways/api";
 import { suggestedGateways } from "~gateways/gateway";
 import {
-  AO_ALL_RECEIVER_QUERY,
-  AO_ALL_SENT_QUERY,
   AO_RECEIVER_QUERY,
   AO_SENT_QUERY,
   AR_RECEIVER_QUERY,
@@ -14,8 +12,10 @@ import {
   ALL_AR_RECEIVER_QUERY,
   ALL_AR_SENT_QUERY,
   combineAndSortTransactions,
-  enrichTransactions
+  processTransactions
 } from "./utils";
+
+type ArNotificationsHandlerReturnType = [any[], number, any[]];
 
 export async function notificationsHandler() {
   const notificationSetting: boolean = await ExtensionStorage.get(
@@ -53,50 +53,45 @@ export async function notificationsHandler() {
         notificationSetting,
         [
           {
-            query: aoNotificationSetting.includes("allTxns")
-              ? ALL_AR_RECEIVER_QUERY
-              : AR_RECEIVER_QUERY,
+            query: !aoNotificationSetting.includes("allTxns")
+              ? AR_RECEIVER_QUERY
+              : ALL_AR_RECEIVER_QUERY,
             variables: { address }
           },
           {
-            query: aoNotificationSetting.includes("allTxns")
-              ? ALL_AR_SENT_QUERY
-              : AR_SENT_QUERY,
+            query: !aoNotificationSetting.includes("allTxns")
+              ? AR_SENT_QUERY
+              : ALL_AR_SENT_QUERY,
             variables: { address }
           }
-        ],
-        false
+        ]
       );
-    const [aoNotifications, newAoMaxHeight, newAoTransactions] =
-      await arNotificationsHandler(
-        address,
-        aoBlockHeight,
-        notificationSetting,
 
-        [
-          {
-            query: aoNotificationSetting.includes("allAo")
-              ? AO_ALL_RECEIVER_QUERY
-              : AO_RECEIVER_QUERY,
-            variables: { address }
-          },
-          {
-            query: aoNotificationSetting.includes("allAo")
-              ? AO_ALL_SENT_QUERY
-              : AO_SENT_QUERY,
-            variables: {
-              address
+    let aoNotifications = [];
+    let newAoMaxHeight = 0;
+    let newAoTransactions = [];
+    if (aoNotificationSetting.includes("default")) {
+      [aoNotifications, newAoMaxHeight, newAoTransactions] =
+        await arNotificationsHandler(
+          address,
+          aoBlockHeight,
+          notificationSetting,
+
+          [
+            {
+              query: AO_RECEIVER_QUERY,
+              variables: { address }
+            },
+            {
+              query: AO_SENT_QUERY,
+              variables: {
+                address
+              }
             }
-          }
-        ],
-        true,
-        aoNotificationSetting.includes("allAo")
-      );
-
-    const newTransactions = [
-      ...(Array.isArray(newAoTransactions) ? newAoTransactions : []),
-      ...(Array.isArray(newArTransactions) ? newArTransactions : [])
-    ];
+          ]
+        );
+    }
+    const newTransactions = [...newAoTransactions, ...newArTransactions];
     if (newTransactions.length > 0) {
       if (newTransactions.length > 1) {
         // Case for multiple new transactions
@@ -155,10 +150,8 @@ const arNotificationsHandler = async (
   address: string,
   lastStoredHeight: number,
   notificationSetting: boolean,
-  queriesConfig: { query: string; variables: Record<string, any> }[],
-  isAo?: boolean,
-  isAllAo?: boolean
-) => {
+  queriesConfig: { query: string; variables: Record<string, any> }[]
+): Promise<ArNotificationsHandlerReturnType> => {
   try {
     let transactionDiff = [];
 
@@ -168,10 +161,9 @@ const arNotificationsHandler = async (
     const responses = await Promise.all(queries);
     const combinedTransactions = combineAndSortTransactions(responses);
 
-    const enrichedTransactions = enrichTransactions(
+    const enrichedTransactions = processTransactions(
       combinedTransactions,
-      address,
-      isAo
+      address
     );
 
     const newMaxHeight = Math.max(

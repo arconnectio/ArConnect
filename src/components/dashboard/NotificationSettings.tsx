@@ -5,7 +5,6 @@ import { ExtensionStorage } from "~utils/storage";
 import { Input, Spacer, Text } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import { Radio, RadioInner, RadioItem, RadioWrapper } from "./Setting";
-import { useEffect } from "react";
 
 export default function NotificationSettings() {
   const [notificationSettings, setNotificationSettings] = useStorage(
@@ -29,15 +28,9 @@ export default function NotificationSettings() {
   };
 
   const handleRadioChange = (setting) => {
-    setNotificationCustomizeSettings((currentSettings) => {
-      const isSettingIncluded = currentSettings.includes(setting);
-      if (isSettingIncluded) {
-        return currentSettings.filter((s) => s !== setting);
-      } else {
-        return [...currentSettings, setting];
-      }
-    });
+    setNotificationCustomizeSettings([setting]);
   };
+
   return (
     <>
       <Wrapper>
@@ -55,6 +48,7 @@ export default function NotificationSettings() {
         </PermissionCheckbox>
         <Spacer y={1.7} />
         <RadioWrapper>
+          {/* AR AND AO TRANSFER NOTIFICATIONS  */}
           <RadioItem onClick={() => handleRadioChange("default")}>
             <Radio>
               {notificationCustomizeSettings &&
@@ -62,8 +56,23 @@ export default function NotificationSettings() {
                   <RadioInner />
                 )}
             </Radio>
-            <Text noMargin>Enable Arweave Notifications</Text>
+            <Text noMargin>
+              Enable Arweave and ao Transaction Notifications
+            </Text>
           </RadioItem>
+          {/* JUST AR TRANSFER NOTIFICATIONS  */}
+          <RadioItem
+            onClick={() => handleRadioChange("arTransferNotifications")}
+          >
+            <Radio>
+              {notificationCustomizeSettings &&
+                notificationCustomizeSettings.includes(
+                  "arTransferNotifications"
+                ) && <RadioInner />}
+            </Radio>
+            <Text noMargin>Enable Arweave Transaction Notifications</Text>
+          </RadioItem>
+          {/* ALL NOTIFICATIONS */}
           <RadioItem onClick={() => handleRadioChange("allTxns")}>
             <Radio>
               {notificationCustomizeSettings &&
@@ -71,16 +80,7 @@ export default function NotificationSettings() {
                   <RadioInner />
                 )}
             </Radio>
-            <Text noMargin>Enable Arweave & ao Notifications</Text>
-          </RadioItem>
-          <RadioItem onClick={() => handleRadioChange("allAo")}>
-            <Radio>
-              {notificationCustomizeSettings &&
-                notificationCustomizeSettings.includes("allAo") && (
-                  <RadioInner />
-                )}
-            </Radio>
-            <Text noMargin>Enable ao Message Notifications</Text>
+            <Text noMargin>Enable all Arweave and ao Notifications</Text>
           </RadioItem>
         </RadioWrapper>
       </Wrapper>
