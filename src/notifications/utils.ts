@@ -1,126 +1,9 @@
-export const AO_RECEIVER_QUERY = `
-query($address: String!) {
-  transactions(
-    first: 10, 
-    tags: [
-      {name: "Data-Protocol", values: ["ao"]}, 
-      {name: "Action", values: ["Transfer"]},
-      {name: "Recipient", values: [$address]}
-    ]
-  ) {
-    edges {
-      node {
-        recipient
-        id
-        owner { address }
-        block { timestamp, height }
-        tags {
-          name
-          value
-        }
-      }
-    }
-  }
-}
-`;
-export const AO_ALL_RECEIVER_QUERY = `
-query($address: String!) {
-  transactions(
-    first: 10, 
-    tags: [
-      {name: "Data-Protocol", values: ["ao"]}, 
-      {name: "Recipient", values: [$address]}
-    ]
-  ) {
-    edges {
-      node {
-        recipient
-        id
-        owner { address }
-        block { timestamp, height }
-        tags {
-          name
-          value
-        }
-      }
-    }
-  }
-}
-`;
-
-export const AO_ALL_SENT_QUERY = `
-query($address: String!) {
-  transactions(
-    first: 10, 
-    owners: [$address], 
-    tags: [
-      {name: "Data-Protocol", values: ["ao"]}, 
-    ]
-  ) {
-    edges {
-      node {
-        id
-        recipient
-        owner { address }
-        block { timestamp, height }
-        tags {
-          name
-          value
-        }
-      }
-    }
-  }
-}`;
-
-export const AO_SENT_QUERY = `
-query($address: String!) {
-  transactions(
-    first: 10, 
-    owners: [$address], 
-    tags: [
-      {name: "Data-Protocol", values: ["ao"]}, 
-      {name: "Action", values: ["Transfer"]}
-    ]
-  ) {
-    edges {
-      node {
-        id
-        recipient
-        owner { address }
-        block { timestamp, height }
-        tags {
-          name
-          value
-        }
-      }
-    }
-  }
-}`;
+// JUST AR TRANSFER NOTIFICATIONS
 
 export const AR_RECEIVER_QUERY = `
 query ($address: String!) {
   transactions(first: 10, recipients: [$address], tags: [{ name: "Type", values: ["Transfer"] }]) {
 
-    edges {
-      node {
-        id
-        recipient
-        owner { address }
-        quantity { ar }
-        block { timestamp, height }
-        tags {
-          name, 
-          value
-        }
-      }
-    }
-  }
-}
-`;
-
-export const ALL_AR_RECEIVER_QUERY = `
-query ($address: String!) {
-  transactions(first: 10, recipients: [$address]) {
     edges {
       node {
         id
@@ -156,8 +39,81 @@ export const AR_SENT_QUERY = `query ($address: String!) {
   }
 }`;
 
+// JUST AR AND AO TRANSFER NOTIFSA
+
+export const AO_RECEIVER_QUERY = `
+query($address: String!) {
+  transactions(
+    first: 10, 
+    tags: [
+      {name: "Data-Protocol", values: ["ao"]}, 
+      {name: "Action", values: ["Transfer"]},
+      {name: "Recipient", values: [$address]}
+    ]
+  ) {
+    edges {
+      node {
+        recipient
+        id
+        owner { address }
+        block { timestamp, height }
+        tags {
+          name
+          value
+        }
+      }
+    }
+  }
+}
+`;
+
+export const AO_SENT_QUERY = `
+query($address: String!) {
+  transactions(
+    first: 10, 
+    owners: [$address], 
+    tags: [
+      {name: "Data-Protocol", values: ["ao"]}, 
+      {name: "Action", values: ["Transfer"]}
+    ]
+  ) {
+    edges {
+      node {
+        id
+        recipient
+        owner { address }
+        block { timestamp, height }
+        tags {
+          name
+          value
+        }
+      }
+    }
+  }
+}`;
+
+export const ALL_AR_RECEIVER_QUERY = `
+query ($address: String!) {
+  transactions(first: 20, recipients: [$address]) {
+    edges {
+      node {
+        id
+        recipient
+        owner { address }
+        quantity { ar }
+        block { timestamp, height }
+        tags {
+          name, 
+          value
+        }
+      }
+    }
+  }
+}
+`;
+
 export const ALL_AR_SENT_QUERY = `query ($address: String!) {
-  transactions(first: 10, owners: [$address]) {
+  transactions(first: 20, owners: [$address]) {
     edges {
       node {
         id
@@ -196,85 +152,73 @@ export const combineAndSortTransactions = (responses: any[]) => {
   return combinedTransactions;
 };
 
-export const enrichTransactions = (combinedTransactions, address, isAo) => {
-  if (isAo) {
-    return allAoTransactions(combinedTransactions, address);
-  } else {
-    return allArTransactions(combinedTransactions, address);
-  }
-};
-
-export const allArTransactions = (
+export const processTransactions = (
   combinedTransactions: any[],
   address: string
 ) => {
   return combinedTransactions.map((transaction) => {
     let quantity = "0";
-    let warpContract = false;
     let tokenId = "";
-    let transactionType = "";
-    if (transaction.node.quantity.ar > 0) {
+    let transactionType = "Transaction";
+    let warpContract = false;
+    let isAo = false;
+
+    if (transaction.node.quantity && transaction.node.quantity.ar > 0) {
       tokenId = "AR";
       quantity = transaction.node.quantity.ar;
+      transactionType =
+        transaction.node.owner.address === address ? "Sent" : "Received";
     } else {
-      const contract = transaction.node.tags.find(
-        (tag) => tag.name === "Contract"
+      // Check for Ao protocol transactions
+      const dataProtocolTag = transaction.node.tags.find(
+        (tag) => tag.name === "Data-Protocol" && tag.value === "ao"
       );
-      if (contract) {
-        tokenId = contract.value;
-        warpContract = true;
+      if (dataProtocolTag) {
+        isAo = true;
+        const typeTag = transaction.node.tags.find(
+          (tag) => tag.name === "Action"
+        );
+        if (typeTag) {
+          if (typeTag.value === "Transfer") {
+            transactionType =
+              transaction.node.owner.address === address ? "Sent" : "Received";
+            const recipientTag = transaction.node.tags.find(
+              (tag) => tag.name === "Recipient"
+            );
+            const quantityTag = transaction.node.tags.find(
+              (tag) => tag.name === "Quantity"
+            );
+            if (recipientTag && transaction.node.recipient)
+              tokenId = transaction.node.recipient;
+            if (quantityTag) quantity = quantityTag.value;
+          } else {
+            transactionType = "Message";
+          }
+        }
+      } else {
+        // Process non-Ao transactions or Warp contracts
+        const contractTag = transaction.node.tags.find(
+          (tag) => tag.name === "Contract"
+        );
+        if (contractTag) {
+          tokenId = contractTag.value;
+          warpContract = true;
+          transactionType =
+            transaction.node.owner.address === address ? "Sent" : "Received";
+        }
       }
     }
-    transactionType =
-      transaction.node.owner.address === address ? "Sent" : "Received";
-    return {
+    const modifiedTransaction = {
       ...transaction,
       transactionType,
       quantity,
-      ...(warpContract && { warpContract }),
-      tokenId
-    };
-  });
-};
-
-export const allAoTransactions = (
-  combinedTransactions: any[],
-  address: string
-) => {
-  return combinedTransactions.map((transaction) => {
-    const typeTag = transaction.node.tags.find((tag) => tag.name === "Action");
-    let transactionType: string = "Message";
-
-    if (typeTag) {
-      if (typeTag.value === "Transfer") {
-        transactionType =
-          transaction.node.owner.address === address ? "Sent" : "Received";
-      }
-    }
-
-    const modifiedTransaction = {
-      ...transaction,
-      transactionType
+      ...(isAo && { isAo }),
+      ...(tokenId && { tokenId })
     };
 
-    if (transactionType !== "Message") {
-      const recipientTag = transaction.node.tags.find(
-        (tag) => tag.name === "Recipient"
-      );
-      const quantityTag = transaction.node.tags.find(
-        (tag) => tag.name === "Quantity"
-      );
-
-      if (recipientTag) {
-        if (typeTag.value === "Transfer") {
-          modifiedTransaction["tokenId"] = transaction.node.recipient;
-        }
-      }
-      if (quantityTag) {
-        modifiedTransaction["quantity"] = quantityTag.value;
-      }
+    if (warpContract) {
+      modifiedTransaction["warpContract"] = warpContract;
     }
-
     return modifiedTransaction;
   });
 };
