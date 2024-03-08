@@ -5,7 +5,11 @@ export const fetchNotifications = async () => {
   const address = await getActiveAddress();
   const n = await ExtensionStorage.get(`notifications_${address}`);
   const notifications = JSON.parse(n);
-  console.log("AR:", notifications.arBalanceNotifications.arNotifications);
-  console.log("AO:", notifications.aoNotifications.aoNotifications);
+  if (
+    !notifications.arBalanceNotifications.arNotifications.length &&
+    !notifications.aoNotifications.aoNotifications.length
+  ) {
+    return false;
+  }
   return notifications;
 };

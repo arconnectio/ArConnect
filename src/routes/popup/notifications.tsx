@@ -14,6 +14,7 @@ export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const [formattedTxMsgs, setFormattedTxMsgs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [empty, setEmpty] = useState(false);
 
   const ao = useAo();
   const [push] = useHistory();
@@ -52,6 +53,9 @@ export default function Notifications() {
       try {
         setLoading(true);
         const n = await fetchNotifications();
+        if (!n) {
+          setEmpty(true);
+        }
         const sortedNotifications = mergeAndSortNotifications(
           n.arBalanceNotifications.arNotifications,
           n.aoNotifications.aoNotifications
@@ -146,7 +150,14 @@ export default function Notifications() {
             <Loading style={{ width: "20px", height: "20px" }} />
           </LoadingWrapper>
         )}
+        {empty && (
+          <Empty>
+            <TitleMessage>No notifications at this time.</TitleMessage>
+            <TitleMessage>Send transactions to get started.</TitleMessage>
+          </Empty>
+        )}
         {!loading &&
+          !empty &&
           notifications.map((notification, index) => (
             <NotificationItem key={notification.node.id}>
               <Description>
@@ -180,6 +191,16 @@ export default function Notifications() {
     </>
   );
 }
+
+const Empty = styled.div`
+  width: calc(100% - 30px);
+  height: calc(100% - 64.59px);
+  margin-top: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
 
 const Image = styled.img`
   width: 16px;
