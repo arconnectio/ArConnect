@@ -29,7 +29,7 @@ export default function Home() {
     key: "show_announcement",
     instance: ExtensionStorage
   });
-  const [notifications, setNotifications] = useStorage<string>({
+  const [notifications, setNotifications] = useStorage<string[]>({
     key: "setting_notifications_customize",
     instance: ExtensionStorage
   });
@@ -81,7 +81,7 @@ export default function Home() {
         "setting_notifications_customize"
       );
       if (notifications === undefined) {
-        setNotifications("default");
+        setNotifications(["default"]);
       }
     })();
   }, []);
