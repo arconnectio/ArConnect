@@ -93,7 +93,6 @@ export async function notificationsHandler() {
     }
     const newTransactions = [...newAoTransactions, ...newArTransactions];
     if (newTransactions.length > 0) {
-      await ExtensionStorage.set("new_notifications", true);
       if (newTransactions.length > 1) {
         // Case for multiple new transactions
         const notificationMessage = `You have ${newTransactions.length} new transactions.`;
@@ -182,6 +181,7 @@ const arNotificationsHandler = async (
 
       // if it's the first time loading notifications, don't send a message && notifications are enabled
       if (lastStoredHeight !== 0 && notificationSetting) {
+        await ExtensionStorage.set("new_notifications", true);
         transactionDiff = newTransactions;
       }
     }
