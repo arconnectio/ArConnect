@@ -267,7 +267,11 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
         <HeadV2
           title={message ? "Message" : "Transaction Complete"}
           back={() => {
-            push("/");
+            if (backPath === "/notifications") {
+              back();
+            } else {
+              push("/");
+            }
           }}
         />
         {(transaction && (

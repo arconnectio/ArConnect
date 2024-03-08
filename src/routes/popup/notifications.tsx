@@ -125,8 +125,16 @@ export default function Notifications() {
 
   const handleLink = (n) => {
     n.transactionType === "Message"
-      ? push(`/notification/${n.node.id}`)
-      : push(`/transaction/${n.node.id}`);
+      ? push(
+          `/notification/${n.node.id}?back=${encodeURIComponent(
+            "/notifications"
+          )}`
+        )
+      : push(
+          `/transaction/${n.node.id}?back=${encodeURIComponent(
+            "/notifications"
+          )}`
+        );
   };
 
   return (

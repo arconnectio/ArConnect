@@ -130,7 +130,15 @@ export default function WalletHeader() {
   // router push
   const [push] = useHistory();
 
-  // scroll position
+  // has notifications
+  const [newNotifications, setNewNotifications] = useStorage<boolean>(
+    {
+      key: "new_notifications",
+      instance: ExtensionStorage
+    },
+    false
+  );
+
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
@@ -225,8 +233,14 @@ export default function WalletHeader() {
       </AddressContainer>
       <WalletActions>
         <Tooltip content="Notifications" position="bottom">
-          <Action as={Bell03} onClick={() => push("/notifications")} />
-          <Notifier />
+          <Action
+            as={Bell03}
+            onClick={() => {
+              setNewNotifications(false);
+              push("/notifications");
+            }}
+          />
+          {newNotifications && <Notifier />}
         </Tooltip>
         <Tooltip content="Viewblock" position="bottom">
           <Action
