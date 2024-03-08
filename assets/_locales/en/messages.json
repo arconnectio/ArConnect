@@ -407,6 +407,14 @@
     "message": "Wayfinder",
     "description": "Wayfinder settings title"
   },
+  "setting_notifications": {
+    "message": "Notifications",
+    "description": "Notifications settings title"
+  },
+  "setting_notifications_description": {
+    "message": "Toggle to receive alerts for new transactions in your wallet.",
+    "description": "Notifications settings description"
+  },
   "setting_apps_description": {
     "message": "View all connected apps & settings",
     "description": "App settings description"

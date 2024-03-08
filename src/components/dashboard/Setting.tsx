@@ -140,13 +140,13 @@ interface Props {
   setting: SettingType;
 }
 
-const RadioWrapper = styled.div`
+export const RadioWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.05rem;
 `;
 
-const Radio = styled(Squircle).attrs((props) => ({
+export const Radio = styled(Squircle).attrs((props) => ({
   outline: `rgba(${props.theme.theme}, .7)`
 }))`
   position: relative;
@@ -155,7 +155,7 @@ const Radio = styled(Squircle).attrs((props) => ({
   height: 1rem;
 `;
 
-const RadioInner = styled(Squircle)`
+export const RadioInner = styled(Squircle)`
   position: absolute;
   top: 50%;
   left: 50%;
@@ -166,7 +166,7 @@ const RadioInner = styled(Squircle)`
   transition: all 0.23s ease-in-out;
 `;
 
-const RadioItem = styled.div`
+export const RadioItem = styled.div`
   display: flex;
   align-items: center;
   gap: 0.7rem;
