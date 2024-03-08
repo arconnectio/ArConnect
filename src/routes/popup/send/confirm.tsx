@@ -488,6 +488,8 @@ export default function Confirm({ tokenID, qty }: Props) {
 
   useEffect(() => {
     (async () => {
+      if (!recipient?.address) return;
+
       // get the tx from storage
       const prepared = await prepare(recipient.address);
 
@@ -525,7 +527,7 @@ export default function Confirm({ tokenID, qty }: Props) {
         push("/send/transfer");
       }
     })();
-  }, [wallet]);
+  }, [wallet, recipient]);
 
   // current hardware wallet operation
   const [hardwareStatus, setHardwareStatus] = useState<"play" | "scan">();
@@ -641,7 +643,12 @@ export default function Confirm({ tokenID, qty }: Props) {
               </>
             )}
             {hardwareStatus === "play" && transactionUR && (
-              <AnimatedQRPlayer data={transactionUR} />
+              <>
+                <Description>
+                  {browser.i18n.getMessage("sign_scan_qr")}
+                </Description>
+                <AnimatedQRPlayer data={transactionUR} />
+              </>
             )}
             {hardwareStatus === "scan" && (
               <>
@@ -686,13 +693,20 @@ export default function Confirm({ tokenID, qty }: Props) {
         </BodyWrapper>
         <SendButton
           fullWidth
-          disabled={(needsSign && !passwordInput.state) || isLoading}
+          disabled={
+            (needsSign && !passwordInput.state) ||
+            isLoading ||
+            hardwareStatus === "scan"
+          }
           onClick={async () => {
             if (wallet.type === "local") await sendLocal();
-            else setHardwareStatus("play");
+            else if (!hardwareStatus || hardwareStatus === "play") {
+              setHardwareStatus((val) => (val === "play" ? "scan" : "play"));
+            }
           }}
         >
-          Confirm {">"}
+          {(hardwareStatus === "play" && "Scan response") || "Confirm"}
+          {" >"}
         </SendButton>
       </ConfirmWrapper>
     </Wrapper>
