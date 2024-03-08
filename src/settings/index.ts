@@ -5,6 +5,7 @@ import {
   ChartIcon,
   CloudIcon,
   DollarIcon,
+  InformationIcon,
   LayersIcon,
   PercentageIcon,
   StarIcon,
