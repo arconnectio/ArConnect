@@ -29,6 +29,10 @@ export default function Home() {
     key: "show_announcement",
     instance: ExtensionStorage
   });
+  const [notifications, setNotifications] = useStorage<string>({
+    key: "setting_notifications_customize",
+    instance: ExtensionStorage
+  });
 
   useEffect(() => {
     (async () => {
@@ -69,6 +73,15 @@ export default function Home() {
         setOpen(true);
       } else {
         setOpen(false);
+      }
+    })();
+
+    (async () => {
+      const notifications = await ExtensionStorage.get(
+        "setting_notifications_customize"
+      );
+      if (notifications === undefined) {
+        setNotifications("default");
       }
     })();
   }, []);
