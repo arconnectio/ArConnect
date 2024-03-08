@@ -232,16 +232,6 @@ export default function WalletHeader() {
         </Tooltip>
       </AddressContainer>
       <WalletActions>
-        <Tooltip content="Notifications" position="bottom">
-          <Action
-            as={Bell03}
-            onClick={() => {
-              setNewNotifications(false);
-              push("/notifications");
-            }}
-          />
-          {newNotifications && <Notifier />}
-        </Tooltip>
         <Tooltip content="Viewblock" position="bottom">
           <Action
             as={BoxIcon}
@@ -265,6 +255,25 @@ export default function WalletHeader() {
             }
           />
         </Tooltip>
+        {!isExpanded && (
+          <Tooltip
+            content={browser.i18n.getMessage("expand_view")}
+            position="bottomEnd"
+          >
+            <Action as={MaximizeIcon} onClick={expandView} />
+          </Tooltip>
+        )}
+        <Tooltip content="Notifications" position="bottom">
+          <Action
+            as={Bell03}
+            onClick={() => {
+              setNewNotifications(false);
+              push("/notifications");
+            }}
+            style={{ width: "17px", height: "17px" }}
+          />
+          {newNotifications && <Notifier />}
+        </Tooltip>
         <AppAction
           onClick={(e) => {
             e.stopPropagation();
@@ -274,14 +283,6 @@ export default function WalletHeader() {
           <Action as={GlobeIcon} />
           <AppOnline online={!!activeAppData} />
         </AppAction>
-        {!isExpanded && (
-          <Tooltip
-            content={browser.i18n.getMessage("expand_view")}
-            position="bottomEnd"
-          >
-            <Action as={MaximizeIcon} onClick={expandView} />
-          </Tooltip>
-        )}
         <AnimatePresence>
           {appDataOpen && (
             <AppInfoWrapper
@@ -490,7 +491,7 @@ const ExpandArrow = styled(ChevronDownIcon)<{ open: boolean }>`
 
 const Notifier = styled.div`
   position: absolute;
-  right: -0.7px;
+  right: -1.5px;
   top: 0;
   width: 8px;
   height: 8px;
