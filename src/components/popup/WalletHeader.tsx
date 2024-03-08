@@ -41,8 +41,9 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { type Gateway } from "~gateways/gateway";
-import { Settings01 } from "@untitled-ui/icons-react";
+import { Bell03 } from "@untitled-ui/icons-react";
 import { svgie } from "~utils/svgies";
+import { useHistory } from "~utils/hash_router";
 
 export default function WalletHeader() {
   // current address
@@ -126,7 +127,18 @@ export default function WalletHeader() {
   // ui theme
   const theme = useTheme();
 
-  // scroll position
+  // router push
+  const [push] = useHistory();
+
+  // has notifications
+  const [newNotifications, setNewNotifications] = useStorage<boolean>(
+    {
+      key: "new_notifications",
+      instance: ExtensionStorage
+    },
+    false
+  );
+
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
@@ -220,6 +232,16 @@ export default function WalletHeader() {
         </Tooltip>
       </AddressContainer>
       <WalletActions>
+        <Tooltip content="Notifications" position="bottom">
+          <Action
+            as={Bell03}
+            onClick={() => {
+              setNewNotifications(false);
+              push("/notifications");
+            }}
+          />
+          {newNotifications && <Notifier />}
+        </Tooltip>
         <Tooltip content="Viewblock" position="bottom">
           <Action
             as={BoxIcon}
@@ -464,6 +486,17 @@ const ExpandArrow = styled(ChevronDownIcon)<{ open: boolean }>`
   transition: all 0.23s ease-in-out;
 
   transform: ${(props) => (props.open ? "rotate(180deg)" : "rotate(0)")};
+`;
+
+const Notifier = styled.div`
+  position: absolute;
+  right: -0.7px;
+  top: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 100%;
+  background-color: ${(props) => props.theme.fail};
+  border: 1px solid rgb(${(props) => props.theme.background});
 `;
 
 const AppAction = styled.div`
