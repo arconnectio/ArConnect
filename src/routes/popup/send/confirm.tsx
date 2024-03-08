@@ -1,4 +1,4 @@
-import { Input, Text, useInput, useToasts } from "@arconnect/components";
+import { InputV2, Text, useInput, useToasts } from "@arconnect/components";
 import { ArrowRightIcon, ChevronRightIcon } from "@iconicicons/react";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
@@ -522,14 +522,13 @@ export default function Confirm({ tokenID, qty }: Props) {
               <Description>
                 {browser.i18n.getMessage("sign_enter_password")}
               </Description>
-              <Input
+              <InputV2
                 placeholder="Enter your password"
                 small
                 {...passwordInput.bindings}
                 label={"Password"}
                 type="password"
                 fullWidth
-                alternative
               />
             </PasswordWrapper>
           )}
