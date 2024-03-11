@@ -17,6 +17,7 @@ import { findGateway } from "~gateways/wayfinder";
 import styled from "styled-components";
 import { useTokens } from "~tokens";
 import { useAoTokens } from "~tokens/aoTokens/ao";
+import { useBalance } from "~wallets/hooks";
 
 export default function Home() {
   // get if the user has no balance
@@ -31,6 +32,8 @@ export default function Home() {
     key: "show_announcement",
     instance: ExtensionStorage
   });
+
+  const balance = useBalance();
 
   // all tokens
   const tokens = useTokens();
@@ -53,14 +56,9 @@ export default function Home() {
       if (tokens) {
         setNoBalance(false);
         return;
-      }
-      const gateway = await findGateway({});
-      const arweave = new Arweave(gateway);
-      const balance = await arweave.wallets.getBalance(activeAddress);
-
-      // TODO: should only be sent once and once the wallet is funded, but how would we track this?
-      if (tokens || Number(balance) !== 0) {
+      } else if (balance) {
         setNoBalance(false);
+        return;
       } else {
         setNoBalance(true);
       }
