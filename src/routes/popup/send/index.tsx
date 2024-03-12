@@ -156,6 +156,7 @@ export default function Send({ id }: Props) {
     if (matchingTokenInAoTokens) {
       setIsAo(true);
       return {
+        decimals: matchingTokenInAoTokens.Denomination,
         id: matchingTokenInAoTokens.id,
         ticker: matchingTokenInAoTokens.Ticker,
         type: "asset",
@@ -222,20 +223,29 @@ export default function Send({ id }: Props) {
 
       // placeholder balance
       setBalance(token.balance);
+      if (!isAo) {
+        const dre = await getDreForToken(token.id);
+        const contract = new DREContract(tokenID || id, new DRENode(dre));
+        const result = await contract.query<[number]>(
+          `$.balances.${activeAddress}`
+        );
 
-      const dre = await getDreForToken(token.id);
-      const contract = new DREContract(id || tokenID, new DRENode(dre));
-      const result = await contract.query<[number]>(
-        `$.balances.${activeAddress}`
-      );
-
-      setBalance(
-        balanceToFractioned(result[0], {
-          id: token.id,
-          decimals: token.decimals,
-          divisibility: token.divisibility
-        })
-      );
+        setBalance(
+          balanceToFractioned(result[0], {
+            id: token.id,
+            decimals: token.decimals,
+            divisibility: token.divisibility
+          })
+        );
+      } else {
+        setBalance(
+          balanceToFractioned(token.balance, {
+            id: tokenID,
+            decimals: token.decimals,
+            divisibility: token.divisibility
+          })
+        );
+      }
     })();
   }, [token, activeAddress, arBalance, id]);
 
@@ -252,6 +262,10 @@ export default function Send({ id }: Props) {
       }
 
       // get price from redstone
+
+      if (isAo) {
+        return setPrice(0);
+      }
       const res = await redstone.getPrice(token.ticker);
 
       if (!res.value) {
@@ -443,7 +457,11 @@ export default function Send({ id }: Props) {
               icon={
                 <InputIcons>
                   {!!price && (
-                    <CurrencyButton small onClick={switchQtyMode}>
+                    <CurrencyButton
+                      small
+                      onClick={switchQtyMode}
+                      disabled={isAo}
+                    >
                       <Currency active={qtyMode === "fiat"}>USD</Currency>/
                       <Currency active={qtyMode === "token"}>
                         {token.ticker.toUpperCase()}
@@ -550,6 +568,7 @@ export default function Send({ id }: Props) {
                     defaultLogo={token?.Logo}
                     id={token.id}
                     ticker={token.Ticker}
+                    divisibility={token.Denomination}
                     balance={Number(token.balance)}
                     onClick={() => updateSelectedToken(token.id)}
                   />
