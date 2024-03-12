@@ -60,7 +60,14 @@ export default function Home() {
         setNoBalance(false);
         return;
       } else {
-        setNoBalance(true);
+        const history = await ExtensionStorage.get("historical_balance");
+        // @ts-ignore
+        if (history[0] !== 0) {
+          setNoBalance(false);
+          return;
+        } else {
+          setNoBalance(true);
+        }
       }
     };
 
