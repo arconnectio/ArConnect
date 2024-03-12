@@ -1,6 +1,6 @@
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Collectibles from "~components/popup/home/Collectibles";
 import AnalyticsConsent from "~components/popup/home/AnalyticsConsent";
 import WalletHeader from "~components/popup/WalletHeader";
@@ -10,39 +10,74 @@ import BuyButton from "~components/popup/home/BuyButton";
 import Tokens from "~components/popup/home/Tokens";
 import { AnnouncementPopup } from "./announcement";
 import Arweave from "arweave";
-import { isExpired } from "~wallets/auth";
+import { getDecryptionKey, isExpired } from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
 import { trackEvent, EventType, trackPage, PageType } from "~utils/analytics";
 import { findGateway } from "~gateways/wayfinder";
 import styled from "styled-components";
+import { useTokens } from "~tokens";
+import { useAoTokens } from "~tokens/aoTokens/ao";
+import { useBalance } from "~wallets/hooks";
 
 export default function Home() {
   // get if the user has no balance
   const [noBalance, setNoBalance] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
   const [isOpen, setOpen] = useState(false);
   const [push] = useHistory();
   const [activeAddress] = useStorage<string>({
     key: "active_address",
     instance: ExtensionStorage
   });
-  const [showAnnouncement, setShowAnnouncement] = useStorage<boolean>({
+  const [, setShowAnnouncement] = useStorage<boolean>({
     key: "show_announcement",
     instance: ExtensionStorage
   });
 
-  useEffect(() => {
-    (async () => {
-      if (!activeAddress) return;
+  const balance = useBalance();
 
-      const gateway = await findGateway({});
-      const arweave = new Arweave(gateway);
-      const balance = await arweave.wallets.getBalance(activeAddress);
-      // TODO: should only be sent once and once the wallet is funded, but how would we track this?
-      Number(balance) !== 0 &&
-        (await trackEvent(EventType.FUNDED, { funded: true }));
-      setNoBalance(Number(balance) === 0);
-    })();
-  }, [activeAddress]);
+  // all tokens
+  const tokens = useTokens();
+
+  // ao Tokens
+  const [aoTokens] = useAoTokens();
+
+  // assets
+  const assets = useMemo(
+    () => tokens.filter((token) => token.type === "asset"),
+    [tokens]
+  );
+
+  useEffect(() => {
+    if (!activeAddress) return;
+
+    const findBalances = async (assets, aoTokens) => {
+      const t = [...assets, ...aoTokens];
+      const tokens = t.find((token) => token.balance !== 0);
+      if (tokens) {
+        setNoBalance(false);
+        return;
+      } else if (balance) {
+        setNoBalance(false);
+        return;
+      } else {
+        const history = await ExtensionStorage.get("historical_balance");
+        // @ts-ignore
+        if (history[0] !== 0) {
+          setNoBalance(false);
+          return;
+        } else {
+          setNoBalance(true);
+        }
+      }
+    };
+
+    try {
+      findBalances(assets, aoTokens);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [activeAddress, assets, aoTokens]);
 
   useEffect(() => {
     // check if password is expired here
@@ -61,6 +96,12 @@ export default function Home() {
 
     // check whether to show announcement
     (async () => {
+      // reset announcements if setting_notifications is uninitialized
+      const decryptionKey = await getDecryptionKey();
+      if (decryptionKey) {
+        setLoggedIn(true);
+      }
+
       const announcement = await ExtensionStorage.get("show_announcement");
       if (announcement === undefined) {
         setShowAnnouncement(true);
@@ -75,7 +116,7 @@ export default function Home() {
 
   return (
     <HomeWrapper>
-      <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />
+      {loggedIn && <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />}
       <WalletHeader />
       <Balance />
       {(!noBalance && (

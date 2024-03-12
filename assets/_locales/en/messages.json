@@ -1401,6 +1401,22 @@
     "message": "Pin ArConnect to your browser so it's accessible and easy to connect to your favorite dApps.",
     "description": "Installation complete paragraph"
   },
+  "enable_notifications_title": {
+    "message": "Enable Notifications in ArConnect",
+    "description": "Enable Notification title"
+  },
+  "introducing_notifications": {
+    "message": "Introducing Notifications",
+    "description": "Alternative Enable Notification title"
+  },
+  "enable_notifications_paragraph": {
+    "message": "Stay updated with instant alerts for transactions and ao messages.",
+    "description": "Enable notifications paragraph"
+  },
+  "alternative_enable_notifications_paragraph": {
+    "message": "Receive notifications instantly when a transaction processes.",
+    "description": "Enable notifications paragraph"
+  },
   "get_started":{    
     "message": "Get Started",
     "description": "Get started title"
