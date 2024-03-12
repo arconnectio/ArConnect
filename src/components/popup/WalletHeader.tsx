@@ -41,7 +41,7 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { type Gateway } from "~gateways/gateway";
-import { Bell03 } from "@untitled-ui/icons-react";
+import { Bell03, DotsVertical } from "@untitled-ui/icons-react";
 import { svgie } from "~utils/svgies";
 import { useHistory } from "~utils/hash_router";
 
@@ -103,6 +103,9 @@ export default function WalletHeader() {
   // wallet nickname for copy
   const [displayName, setDisplayName] = useState("");
 
+  // wallet address for copy
+  const [address, setAddress] = useState("");
+
   // wallet name
   const walletName = useMemo(() => {
     if (!ansProfile?.label) {
@@ -110,6 +113,7 @@ export default function WalletHeader() {
       let name = wallet?.nickname || "Wallet";
 
       const address = wallet?.address && formatAddress(wallet?.address, 4);
+      setAddress(address);
       if (/^Account \d+$/.test(name)) {
         name = address;
       }
@@ -220,7 +224,14 @@ export default function WalletHeader() {
             </AnimatePresence>
           </Avatar>
           <WithArrow>
-            <Text noMargin>{displayName}</Text>
+            <WalletName>
+              <Text noMargin style={{ fontSize: "14px" }}>
+                {displayName}
+              </Text>
+              <Text noMargin style={{ fontSize: "10px" }}>
+                {address}
+              </Text>
+            </WalletName>
             <ExpandArrow open={isOpen} />
           </WithArrow>
         </Wallet>
@@ -282,6 +293,13 @@ export default function WalletHeader() {
         >
           <Action as={GlobeIcon} />
           <AppOnline online={!!activeAppData} />
+        </AppAction>
+        <AppAction
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          <Action as={DotsVertical} style={{ width: "17px", height: "17px" }} />
         </AppAction>
         <AnimatePresence>
           {appDataOpen && (
@@ -407,6 +425,11 @@ const Wrapper = styled(Section)<{
         ")"
       : "transparent"};
   transition: all 0.23s ease-in-out;
+`;
+
+const WalletName = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
 
 const avatarSize = "1.425rem";
