@@ -10,7 +10,7 @@ import BuyButton from "~components/popup/home/BuyButton";
 import Tokens from "~components/popup/home/Tokens";
 import { AnnouncementPopup } from "./announcement";
 import Arweave from "arweave";
-import { isExpired } from "~wallets/auth";
+import { getDecryptionKey, isExpired } from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
 import { trackEvent, EventType, trackPage, PageType } from "~utils/analytics";
 import { findGateway } from "~gateways/wayfinder";
@@ -22,13 +22,14 @@ import { useBalance } from "~wallets/hooks";
 export default function Home() {
   // get if the user has no balance
   const [noBalance, setNoBalance] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
   const [isOpen, setOpen] = useState(false);
   const [push] = useHistory();
   const [activeAddress] = useStorage<string>({
     key: "active_address",
     instance: ExtensionStorage
   });
-  const [showAnnouncement, setShowAnnouncement] = useStorage<boolean>({
+  const [, setShowAnnouncement] = useStorage<boolean>({
     key: "show_announcement",
     instance: ExtensionStorage
   });
@@ -92,7 +93,15 @@ export default function Home() {
       }
     };
     checkExpiration();
-    const checkAnnouncement = async () => {
+
+    // check whether to show announcement
+    (async () => {
+      // reset announcements if setting_notifications is uninitialized
+      const decryptionKey = await getDecryptionKey();
+      if (decryptionKey) {
+        setLoggedIn(true);
+      }
+
       const announcement = await ExtensionStorage.get("show_announcement");
       if (announcement === undefined) {
         setShowAnnouncement(true);
@@ -102,13 +111,12 @@ export default function Home() {
       } else {
         setOpen(false);
       }
-    };
-    checkAnnouncement();
+    })();
   }, []);
 
   return (
     <HomeWrapper>
-      <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />
+      {loggedIn && <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />}
       <WalletHeader />
       <Balance />
       {(!noBalance && (
