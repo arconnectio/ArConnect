@@ -12,6 +12,7 @@ import browser from "webextension-polyfill";
 import { useTheme } from "~utils/theme";
 import styled from "styled-components";
 import { useStorage } from "@plasmohq/storage/hook";
+import { Bell03 } from "@untitled-ui/icons-react";
 
 export const AnnouncementPopup = ({ isOpen, setOpen }) => {
   const [notifications, setNotifications] = useStorage<boolean>(
@@ -62,7 +63,7 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
               style={{ width: "100px", height: "auto" }}
             />
             <HeaderText noMargin heading>
-              {browser.i18n.getMessage("stay_updated")}
+              {browser.i18n.getMessage("introducing_notifications")}
             </HeaderText>
             <Spacer y={1} />
             <CenterText>
@@ -113,7 +114,7 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
             setNotifications(checked);
             ExtensionStorage.set("show_announcement", false);
           }}
-          style={{ marginTop: "28px", fontWeight: "400" }}
+          style={{ marginTop: "43px", fontWeight: "400" }}
         >
           {browser.i18n.getMessage("got_it")}
         </ButtonV2>
@@ -163,7 +164,7 @@ const CheckContainer = styled.div`
   width: 245px;
   display: flex;
   flex-direction: row;
-  padding-left: 48px;
+  padding-left: 72px;
   align-items: center;
   isolation: isolate;
   font-weight: 500;
@@ -175,7 +176,7 @@ const CheckContainer = styled.div`
 
 const CheckedSvg = styled.svg`
   position: absolute;
-  left: calc(50% - 18px / 2 - 113px);
+  left: calc(50% + 4px / 2 - 113px);
   width: 18px;
   height: 18px;
   cursor: pointer;
@@ -187,7 +188,7 @@ const CheckedSvg = styled.svg`
 
 const UncheckedSvg = styled.svg`
   position: absolute;
-  left: calc(50% - 18px / 2 - 113px);
+  left: calc(50% + 4px / 2 - 113px);
   width: 18px;
   height: 18px;
   cursor: pointer;
