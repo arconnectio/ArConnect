@@ -44,6 +44,7 @@ import { type Gateway } from "~gateways/gateway";
 import { Bell03, DotsVertical } from "@untitled-ui/icons-react";
 import { svgie } from "~utils/svgies";
 import { useHistory } from "~utils/hash_router";
+import WalletMenu, { type MenuItem } from "./WalletMenu";
 
 export default function WalletHeader() {
   // current address
@@ -63,6 +64,9 @@ export default function WalletHeader() {
 
   // is the wallet selector open
   const [isOpen, setOpen] = useState(false);
+
+  // is the wallet menu open
+  const [menuOpen, setMenuOpen] = useState(true);
 
   // toasts
   const { setToast } = useToasts();
@@ -297,6 +301,7 @@ export default function WalletHeader() {
         <AppAction
           onClick={(e) => {
             e.stopPropagation();
+            setMenuOpen(!menuOpen);
           }}
         >
           <Action as={DotsVertical} style={{ width: "17px", height: "17px" }} />
@@ -398,6 +403,29 @@ export default function WalletHeader() {
         />
       )}
       <WalletSwitcher open={isOpen} close={() => setOpen(false)} />
+      {/* @ts-ignore */}
+      <WalletMenu
+        open={menuOpen}
+        close={() => setMenuOpen(false)}
+        menuItems={[
+          {
+            icon: <SettingsIcon />,
+            title: "Settings",
+            route: () =>
+              browser.tabs.create({
+                url: browser.runtime.getURL("tabs/dashboard.html")
+              })
+          },
+          {
+            icon: <UserIcon />,
+            title: "Contacts",
+            route: () =>
+              browser.tabs.create({
+                url: browser.runtime.getURL("tabs/dashboard.html")
+              })
+          }
+        ]}
+      />
     </Wrapper>
   );
 }
