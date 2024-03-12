@@ -2,14 +2,8 @@ import { formatTokenBalance, formatFiatBalance } from "~tokens/currency";
 import Application, { type AppInfo } from "~applications/application";
 import { gql } from "~gateways/api";
 import Graph, { GraphText } from "~components/popup/Graph";
-import { Spacer, Tooltip } from "@arconnect/components";
-import {
-  useEffect,
-  useMemo,
-  useState,
-  type SVGProps,
-  type HTMLProps
-} from "react";
+import { Loading, Tooltip } from "@arconnect/components";
+import { useEffect, useMemo, useState, type HTMLProps } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useHistory } from "~utils/hash_router";
@@ -18,11 +12,9 @@ import { getArPrice } from "~lib/coingecko";
 import { getAppURL } from "~utils/format";
 import { useTheme } from "~utils/theme";
 import {
-  ArrowDownLeftIcon,
   ArrowUpRightIcon,
   EyeIcon,
   EyeOffIcon,
-  SettingsIcon,
   LockIcon
 } from "@iconicicons/react";
 import useActiveTab from "~applications/useActiveTab";
@@ -36,6 +28,7 @@ import { findGateway } from "~gateways/wayfinder";
 import type { Gateway } from "~gateways/gateway";
 
 export default function Balance() {
+  const [loading, setLoading] = useState(false);
   // grab address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
@@ -108,11 +101,12 @@ export default function Balance() {
   useEffect(() => {
     (async () => {
       if (!activeAddress) return;
-
+      setLoading(true);
       const gateway = await findGateway({ graphql: true });
       const history = await balanceHistory(activeAddress, gateway);
 
       setHistoricalBalance(history);
+      setLoading(false);
     })();
   }, [activeAddress]);
 
@@ -128,36 +122,49 @@ export default function Balance() {
     push("/unlock");
   }
 
+  useEffect(() => {
+    if (balance !== historicalBalance[0]) {
+      setLoading(true);
+    } else {
+      setLoading(false);
+    }
+  }, [balance, historicalBalance]);
+
   return (
     <Graph data={historicalBalance}>
       <BalanceHead>
-        <div>
-          <BalanceText title noMargin>
-            {(!hideBalance && formatTokenBalance(balance)) ||
-              "*".repeat(balance.toFixed(2).length)}
-            <Ticker>AR</Ticker>
-          </BalanceText>
-          <FiatBalanceText noMargin>
-            {(!hideBalance &&
-              formatFiatBalance(fiat, currency.toLowerCase())) ||
-              "*".repeat(fiat.toFixed(2).length) + " " + currency.toUpperCase()}
-            <IconButtons>
-              <Tooltip
-                content={browser.i18n.getMessage(
-                  hideBalance ? "balance_show" : "balance_hide"
-                )}
-              >
-                <BalanceIconButton
-                  onClick={() => setHideBalance((val) => !val)}
-                  as={hideBalance ? EyeOffIcon : EyeIcon}
-                />
-              </Tooltip>
-              <Tooltip content={browser.i18n.getMessage("lock_wallet")}>
-                <BalanceIconButton onClick={lockWallet} as={LockIcon} />
-              </Tooltip>
-            </IconButtons>
-          </FiatBalanceText>
-        </div>
+        {loading && <Loading style={{ width: "20px", height: "20px" }} />}
+        {!loading && (
+          <div>
+            <BalanceText title noMargin>
+              {(!hideBalance && formatTokenBalance(balance)) ||
+                "*".repeat(balance.toFixed(2).length)}
+              <Ticker>AR</Ticker>
+            </BalanceText>
+            <FiatBalanceText noMargin>
+              {(!hideBalance &&
+                formatFiatBalance(fiat, currency.toLowerCase())) ||
+                "*".repeat(fiat.toFixed(2).length) +
+                  " " +
+                  currency.toUpperCase()}
+              <IconButtons>
+                <Tooltip
+                  content={browser.i18n.getMessage(
+                    hideBalance ? "balance_show" : "balance_hide"
+                  )}
+                >
+                  <BalanceIconButton
+                    onClick={() => setHideBalance((val) => !val)}
+                    as={hideBalance ? EyeOffIcon : EyeIcon}
+                  />
+                </Tooltip>
+                <Tooltip content={browser.i18n.getMessage("lock_wallet")}>
+                  <BalanceIconButton onClick={lockWallet} as={LockIcon} />
+                </Tooltip>
+              </IconButtons>
+            </FiatBalanceText>
+          </div>
+        )}
         {activeAppData && (
           <ActiveAppIcon
             outline={theme === "light" ? "#000" : "#232323"}

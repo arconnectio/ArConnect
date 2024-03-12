@@ -59,6 +59,7 @@ export default function Tokens() {
         {aoTokens.map((token) => (
           <Token
             key={token.id}
+            divisibility={token.Denomination}
             ao={true}
             type={"asset"}
             defaultLogo={token?.Logo}
