@@ -67,10 +67,7 @@ export default function Home() {
       if (decryptionKey) {
         setLoggedIn(true);
       }
-      const notifications = await ExtensionStorage.get("setting_notifications");
-      if (notifications === undefined) {
-        setShowAnnouncement(true);
-      }
+
       const announcement = await ExtensionStorage.get("show_announcement");
       if (announcement === undefined) {
         setShowAnnouncement(true);

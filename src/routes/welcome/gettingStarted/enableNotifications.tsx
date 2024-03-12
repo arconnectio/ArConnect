@@ -4,14 +4,16 @@ import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { useEffect } from "react";
-import { PageType, trackPage } from "~utils/analytics";
-import useSetting from "~settings/hook";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 
 export default function Enable() {
   const [notifications, setNotifications] = useStorage<boolean>({
     key: "setting_notifications",
+    instance: ExtensionStorage
+  });
+  const [, setShowAnnouncement] = useStorage<boolean>({
+    key: "show_announcement",
     instance: ExtensionStorage
   });
 
@@ -35,9 +37,12 @@ export default function Enable() {
           checked={!!notifications}
           onChange={(checked) => {
             setNotifications(checked);
+            setShowAnnouncement(false);
           }}
         >
-          {browser.i18n.getMessage("enabled")}
+          {notifications
+            ? browser.i18n.getMessage("enabled")
+            : browser.i18n.getMessage("disabled")}
         </Checkbox>
       </div>
       <Container>

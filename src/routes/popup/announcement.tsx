@@ -9,43 +9,27 @@ import notificationGraphic from "url:/assets/ecosystem/notifications-promo.svg";
 import { ExtensionStorage } from "~utils/storage";
 import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
-import { useTheme } from "~utils/theme";
 import styled from "styled-components";
 import { useStorage } from "@plasmohq/storage/hook";
-import { Bell03 } from "@untitled-ui/icons-react";
 
 export const AnnouncementPopup = ({ isOpen, setOpen }) => {
-  const [notifications, setNotifications] = useStorage<boolean>(
-    {
-      key: "setting_notifications",
-      instance: ExtensionStorage
-    },
-    true
-  );
+  const [notifications, setNotifications] = useStorage<boolean>({
+    key: "setting_notifications",
+    instance: ExtensionStorage
+  });
+
+  const [checked, setChecked] = useState(!!notifications);
 
   useEffect(() => {
-    // initializes and saves
-    // setNotifications(checked);
-  }, []);
-
-  const [checked, setChecked] = useState(notifications);
-
-  const theme = useTheme();
+    if (notifications !== undefined) {
+      setChecked(notifications);
+    }
+  }, [notifications]);
 
   const handleCheckbox = async () => {
-    const newState = !checked;
-    setChecked(newState);
-    setNotifications(newState);
+    setChecked((prev) => !prev);
+    setNotifications((prev) => !prev);
   };
-
-  // useEffect(() => {
-  //   (async () => {
-  //     const aoSupport = await ExtensionStorage.get("setting_ao_support");
-  //     if (aoSupport === undefined) {
-  //       await ExtensionStorage.set("setting_ao_support", true);
-  //     }
-  //   })();
-  // }, []);
 
   return (
     <ModalV2
