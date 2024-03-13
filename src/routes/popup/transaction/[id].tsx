@@ -280,7 +280,9 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
               <>
                 <Section style={{ paddingTop: 9, paddingBottom: 8 }}>
                   <AmountTitle>
-                    {formatTokenBalance(Number(transaction.quantity.ar))}
+                    {!ao.isAo
+                      ? formatTokenBalance(Number(transaction.quantity.ar))
+                      : 0}
                     {/* NEEDS TO BE DYNAMIC */}
                     {!ao.isAo && <span>AR</span>}
                   </AmountTitle>

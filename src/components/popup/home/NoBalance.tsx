@@ -1,4 +1,4 @@
-import { ButtonV2, Section, Text } from "@arconnect/components";
+import { Button, ButtonV2, Section, Text } from "@arconnect/components";
 import { ArrowRightIcon } from "@iconicicons/react";
 import { useHistory } from "~utils/hash_router";
 import noBalanceArt from "url:/assets/ar/no_funds.png";
@@ -17,17 +17,15 @@ export default function NoBalance() {
       </NoBalanceText>
       <ButtonWrapper>
         {/* <BuyButton route={"/purchase"} logo={true} /> */}
-        <Container>
-          <ButtonV2
-            onClick={() => push("/receive")}
-            secondary
-            fullWidth
-            className="normal-font-weight"
-          >
-            {browser.i18n.getMessage("receive_AR_button")}
-            <ArrowRight />
-          </ButtonV2>
-        </Container>
+        <ButtonV2
+          onClick={() => push("/receive")}
+          secondary
+          fullWidth
+          className="normal-font-weight"
+        >
+          {browser.i18n.getMessage("receive_AR_button")}
+          <ArrowRight style={{ marginLeft: "5px" }} />
+        </ButtonV2>
       </ButtonWrapper>
     </Wrapper>
   );
@@ -58,10 +56,6 @@ const Art = styled.img.attrs({
 const ButtonWrapper = styled.div`
   width: 100%;
   margin-top: -2px;
-`;
-
-const Container = styled.div`
-  height: 54px;
 `;
 
 const ArrowRight = styled(ArrowRightIcon)`

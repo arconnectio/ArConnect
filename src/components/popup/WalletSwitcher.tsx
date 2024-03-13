@@ -272,7 +272,7 @@ const SwitcherPopover = styled(motion.div).attrs({
 })<{ exactTop?: boolean }>`
   position: absolute;
   top: ${(props) => (props.exactTop ? "100%" : "calc(100% - 1.05rem)")};
-  left: 0;
+  left: -5px;
   right: 0;
   z-index: 110;
   cursor: default;
@@ -375,8 +375,6 @@ const Balance = styled(Text).attrs({ noMargin: true })`
 
 const Avatar = styled(Squircle)`
   position: relative;
-  width: 1.92rem;
-  height: 1.92rem;
   cursor: pointer;
 
   ${HardwareWalletIcon} {
