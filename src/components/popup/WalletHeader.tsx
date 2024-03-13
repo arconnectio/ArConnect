@@ -41,7 +41,14 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { type Gateway } from "~gateways/gateway";
-import { Bell03, DotsVertical } from "@untitled-ui/icons-react";
+import {
+  Bell03,
+  Container,
+  DotsVertical,
+  Expand01,
+  Settings01,
+  Users01
+} from "@untitled-ui/icons-react";
 import { svgie } from "~utils/svgies";
 import { useHistory } from "~utils/hash_router";
 import WalletMenu, { type MenuItem } from "./WalletMenu";
@@ -409,7 +416,23 @@ export default function WalletHeader() {
         close={() => setMenuOpen(false)}
         menuItems={[
           {
-            icon: <SettingsIcon />,
+            icon: <Users01 style={{ width: "18px", height: "18px" }} />,
+            title: "Contacts",
+            route: () =>
+              browser.tabs.create({
+                url: browser.runtime.getURL("tabs/dashboard.html#/contacts")
+              })
+          },
+          {
+            icon: <Container style={{ width: "18px", height: "17px" }} />,
+            title: "Viewblock",
+            route: () =>
+              browser.tabs.create({
+                url: `https://viewblock.io/arweave/address/${activeAddress}`
+              })
+          },
+          {
+            icon: <Settings01 style={{ width: "18px", height: "18px" }} />,
             title: "Settings",
             route: () =>
               browser.tabs.create({
@@ -417,12 +440,9 @@ export default function WalletHeader() {
               })
           },
           {
-            icon: <UserIcon />,
-            title: "Contacts",
-            route: () =>
-              browser.tabs.create({
-                url: browser.runtime.getURL("tabs/dashboard.html")
-              })
+            icon: <Expand01 style={{ width: "18px", height: "17px" }} />,
+            title: "Expand view",
+            route: () => expandView
           }
         ]}
       />

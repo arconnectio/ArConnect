@@ -29,7 +29,7 @@ export default function WalletMenu({
                 }}
               >
                 {item.icon}
-                {item.title}
+                <MenuTitle>{item.title}</MenuTitle>
               </MenuItem>
             ))}
           </MenuCard>
@@ -91,26 +91,13 @@ const walletAnimation = {
   }
 };
 
-const MenuCard = styled.div`
-  width: 139px;
-  min-width: 139px;
-  display: flex;
-  padding: 4px 0px;
-  flex-direction: column;
-  align-items: flex-start;
-  background-color: ${(props) => props.theme.backgroundv2};
-  border-radius: 10px;
-  border: 1.5px solid ${(props) => props.theme.primary};
-  box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.4);
-`;
-
 const MenuItem = styled(motion.div).attrs<{ open: boolean }>((props) => ({
   variants: walletAnimation,
   animate: props.open ? "open" : "closed"
 }))<{ open: boolean }>`
   display: flex;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 8px 12px;
   gap: 10px;
   align-self: stretch;
@@ -128,6 +115,25 @@ const MenuItem = styled(motion.div).attrs<{ open: boolean }>((props) => ({
   &:active {
     transform: scale(0.975) !important;
   }
+`;
+
+const MenuCard = styled.div`
+  width: 139px;
+  min-width: 139px;
+  display: flex;
+  padding: 4px 0px;
+  flex-direction: column;
+  align-items: flex-start;
+  background-color: ${(props) => props.theme.backgroundv2};
+  border-radius: 10px;
+  border: 1.5px solid ${(props) => props.theme.primary};
+  box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.4);
+`;
+
+const MenuTitle = styled.div`
+  display: flex;
+  height: 100%;
+  margin: auto 0;
 `;
 
 interface Props {
