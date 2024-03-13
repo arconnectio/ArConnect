@@ -9,6 +9,7 @@ import browser from "webextension-polyfill";
 import { useEffect, useState } from "react";
 import { useAo } from "~tokens/aoTokens/ao";
 import styled from "styled-components";
+import { balanceToFractioned } from "~tokens/currency";
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
@@ -83,22 +84,29 @@ export default function Notifications() {
   const formatTxMessage = async (notifications) => {
     const formattedTxMsgs = [];
     for (const notification of notifications) {
-      const ticker =
-        notification.isAo && notification.transactionType !== "Message"
-          ? await getTicker(notification.tokenId)
-          : notification.tokenId;
       let formattedMessage: string;
+      let ticker, denomination;
+      if (notification.isAo && notification.transactionType !== "Message") {
+        [ticker, denomination] = await getTicker(notification.tokenId);
+      } else {
+        ticker = notification.tokenId;
+        denomination = 1;
+      }
+      const balance = balanceToFractioned(Number(notification.quantity), {
+        id: notification.tokenId,
+        decimals: denomination,
+        divisibility: denomination
+      });
+
       if (notification.transactionType === "Sent") {
-        formattedMessage = `Sent ${Number(notification.quantity).toFixed(
-          2
-        )} ${ticker} to ${
+        formattedMessage = `Sent ${balance.toFixed(4)} ${ticker} to ${
           notification.ao
             ? findRecipient(notification)
             : formatAddress(notification.node.recipient, 4)
         }`;
       } else if (notification.transactionType === "Received") {
-        formattedMessage = `Received ${Number(notification.quantity).toFixed(
-          2
+        formattedMessage = `Received ${balance.toFixed(
+          4
         )} ${ticker} from ${formatAddress(notification.node.owner.address, 4)}`;
       } else if (notification.transactionType === "Message") {
         formattedMessage = `New message from ${formatAddress(
@@ -113,7 +121,7 @@ export default function Notifications() {
 
   const getTicker = async (tokenId: string) => {
     const result = await getTokenInfo(tokenId, ao);
-    return result.Ticker;
+    return [result.Ticker, result.Denomination];
   };
 
   const formatDate = (timestamp) => {
