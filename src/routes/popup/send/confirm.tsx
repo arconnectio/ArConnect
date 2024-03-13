@@ -547,6 +547,9 @@ export default function Confirm({ tokenID, qty }: Props) {
           preparedTx.transaction
         );
 
+        // reset the prepared tx so we don't send it again
+        setPreparedTx(undefined);
+
         if (!transaction) {
           throw new Error("Transaction undefined");
         }
@@ -572,6 +575,15 @@ export default function Confirm({ tokenID, qty }: Props) {
           type: "success",
           content: browser.i18n.getMessage("sent_tx"),
           duration: 2000
+        });
+
+        const latestTxQty = Number(
+          (await ExtensionStorage.get("last_send_qty")) || "0"
+        );
+        trackEvent(EventType.TX_SENT, {
+          contact: contact ? true : false,
+          amount: tokenID === "AR" ? latestTxQty : 0,
+          fee: networkFee
         });
         uToken
           ? push("/")
