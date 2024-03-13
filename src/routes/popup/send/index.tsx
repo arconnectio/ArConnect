@@ -70,7 +70,7 @@ import { useAoTokens } from "~tokens/aoTokens/ao";
 
 // default size for the qty text
 const defaulQtytSize = 3.7;
-const arPlaceholder: TokenInterface = {
+export const arPlaceholder: TokenInterface = {
   id: "AR",
   name: "Arweave",
   ticker: "AR",
