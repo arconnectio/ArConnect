@@ -375,6 +375,8 @@ const Balance = styled(Text).attrs({ noMargin: true })`
 
 const Avatar = styled(Squircle)`
   position: relative;
+  width: 1.92rem;
+  height: 1.92rem;
   cursor: pointer;
 
   ${HardwareWalletIcon} {

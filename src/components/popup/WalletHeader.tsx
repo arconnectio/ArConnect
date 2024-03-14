@@ -533,10 +533,12 @@ const Address = styled.div`
   line-height: 10px;
 `;
 
+const avatarSize = "1.425rem";
+
 export const Avatar = styled(Squircle)`
   position: relative;
-  width: 24px;
-  height: 24px;
+  width: ${avatarSize};
+  height: ${avatarSize};
   transition: all 0.07s ease-in-out;
 
   ${HardwareWalletIcon} {
