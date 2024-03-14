@@ -15,7 +15,33 @@ import {
   processTransactions
 } from "./utils";
 
-type ArNotificationsHandlerReturnType = [any[], number, any[]];
+export type Transaction = {
+  node: {
+    id: string;
+    recipient: string;
+    owner: {
+      address: string;
+    };
+    quantity: {
+      ar: string;
+    };
+    block: {
+      timestamp: number;
+      height: number;
+    };
+    tags: Array<{
+      name: string;
+      value: string;
+    }>;
+  };
+  transactionType: string;
+  quantity: string;
+  isAo?: boolean;
+  tokenId?: string;
+  warpContract?: boolean;
+};
+
+type ArNotificationsHandlerReturnType = [Transaction[], number, any[]];
 
 export async function notificationsHandler() {
   const notificationSetting: boolean = await ExtensionStorage.get(
