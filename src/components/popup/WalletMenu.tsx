@@ -1,5 +1,4 @@
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import type { MouseEventHandler } from "react";
 import styled from "styled-components";
 
 export default function WalletMenu({ open, close, menuItems }: Props) {

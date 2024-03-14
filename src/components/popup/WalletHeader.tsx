@@ -44,7 +44,6 @@ import {
   Container,
   DotsVertical,
   Expand01,
-  Globe01,
   Settings01,
   Users01
 } from "@untitled-ui/icons-react";
@@ -91,11 +90,6 @@ export default function WalletHeader() {
         formatAddress(activeAddress, 3)
       ])
     });
-  };
-
-  // expand view
-  const expandView: MouseEventHandler = (e) => {
-    window.open(window.location.href.split("#")[0] + "?expanded=true");
   };
 
   // is the popup open in a tab
@@ -479,8 +473,6 @@ const WalletName = styled.div`
   display: flex;
   flex-direction: column;
 `;
-
-const avatarSize = "1.425rem";
 
 const AddressContainer = styled.div`
   display: flex;

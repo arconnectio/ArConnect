@@ -2,7 +2,7 @@ import { formatTokenBalance, formatFiatBalance } from "~tokens/currency";
 import Application, { type AppInfo } from "~applications/application";
 import { gql } from "~gateways/api";
 import Graph, { GraphText } from "~components/popup/Graph";
-import { Loading, Tooltip } from "@arconnect/components";
+import { Loading, TooltipV2 } from "@arconnect/components";
 import { useEffect, useMemo, useState, type HTMLProps } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -133,37 +133,42 @@ export default function Balance() {
   return (
     <Graph data={historicalBalance}>
       <BalanceHead>
-        <div>
-          <BalanceText title noMargin>
-            {(!hideBalance && formatTokenBalance(balance)) ||
-              "*".repeat(balance.toFixed(2).length)}
-            <Ticker>AR</Ticker>
-          </BalanceText>
-          <FiatBalanceText noMargin>
-            {(!hideBalance &&
-              formatFiatBalance(fiat, currency.toLowerCase())) ||
-              "*".repeat(fiat.toFixed(2).length) + " " + currency.toUpperCase()}
-            <IconButtons>
-              <TooltipV2
-                content={browser.i18n.getMessage(
-                  hideBalance ? "balance_show" : "balance_hide"
-                )}
-                position="top"
-              >
-                <BalanceIconButton
-                  onClick={() => setHideBalance((val) => !val)}
-                  as={hideBalance ? EyeOffIcon : EyeIcon}
-                />
-              </TooltipV2>
-              <TooltipV2
-                content={browser.i18n.getMessage("lock_wallet")}
-                position="top"
-              >
-                <BalanceIconButton onClick={lockWallet} as={LockIcon} />
-              </TooltipV2>
-            </IconButtons>
-          </FiatBalanceText>
-        </div>
+        {loading && <Loading style={{ width: "20px", height: "20px" }} />}
+        {!loading && (
+          <div>
+            <BalanceText title noMargin>
+              {(!hideBalance && formatTokenBalance(balance)) ||
+                "*".repeat(balance.toFixed(2).length)}
+              <Ticker>AR</Ticker>
+            </BalanceText>
+            <FiatBalanceText noMargin>
+              {(!hideBalance &&
+                formatFiatBalance(fiat, currency.toLowerCase())) ||
+                "*".repeat(fiat.toFixed(2).length) +
+                  " " +
+                  currency.toUpperCase()}
+              <IconButtons>
+                <TooltipV2
+                  content={browser.i18n.getMessage(
+                    hideBalance ? "balance_show" : "balance_hide"
+                  )}
+                  position="top"
+                >
+                  <BalanceIconButton
+                    onClick={() => setHideBalance((val) => !val)}
+                    as={hideBalance ? EyeOffIcon : EyeIcon}
+                  />
+                </TooltipV2>
+                <TooltipV2
+                  content={browser.i18n.getMessage("lock_wallet")}
+                  position="top"
+                >
+                  <BalanceIconButton onClick={lockWallet} as={LockIcon} />
+                </TooltipV2>
+              </IconButtons>
+            </FiatBalanceText>
+          </div>
+        )}
         {activeAppData && (
           <ActiveAppIcon
             outline={theme === "light" ? "#000" : "#232323"}
