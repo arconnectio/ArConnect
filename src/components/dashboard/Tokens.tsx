@@ -8,7 +8,7 @@ import TokenListItem from "./list/TokenListItem";
 import styled from "styled-components";
 import PermissionCheckbox from "~components/auth/PermissionCheckbox";
 import browser from "webextension-polyfill";
-import { Button, Label, Spacer, Text } from "@arconnect/components";
+import { ButtonV2, Label, Spacer, Text } from "@arconnect/components";
 import { useAoTokens } from "~tokens/aoTokens/ao";
 
 export default function Tokens() {
@@ -131,9 +131,9 @@ export default function Tokens() {
           )}
         </Reorder.Group>
       </div>
-      <Button fullWidth onClick={addToken} disabled={!aoSettingsState}>
+      <ButtonV2 fullWidth onClick={addToken} disabled={!aoSettingsState}>
         {browser.i18n.getMessage("import_token")}
-      </Button>
+      </ButtonV2>
     </Wrapper>
   );
 }

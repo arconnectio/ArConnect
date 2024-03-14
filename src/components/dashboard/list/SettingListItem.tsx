@@ -1,7 +1,7 @@
+import { ListItem, ListItemIcon } from "@arconnect/components";
 import type { Icon } from "~settings/setting";
-import type { HTMLProps } from "react";
-import BaseElement, { SettingIcon } from "./BaseElement";
 import browser from "webextension-polyfill";
+import type { HTMLProps } from "react";
 
 export default function SettingListItem({
   displayName,
@@ -11,14 +11,14 @@ export default function SettingListItem({
   ...props
 }: Props & HTMLProps<HTMLDivElement>) {
   return (
-    <BaseElement
+    <ListItem
       title={browser.i18n.getMessage(displayName)}
       description={browser.i18n.getMessage(description)}
       active={active}
       {...props}
     >
-      <SettingIcon as={icon} />
-    </BaseElement>
+      <ListItemIcon as={icon} />
+    </ListItem>
   );
 }
 

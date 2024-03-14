@@ -9,8 +9,8 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { useLocation, useRoute } from "wouter";
 import { PasswordContext } from "../setup";
 import {
-  Button,
-  Modal,
+  ButtonV2,
+  ModalV2,
   Spacer,
   Text,
   useModal,
@@ -191,13 +191,51 @@ export default function Wallets() {
       <Spacer y={1.25} />
       <KeystoneButton onSuccess={keystoneDone} />
       <Spacer y={1} />
-      <Button fullWidth onClick={done} loading={loading}>
+      <ButtonV2 fullWidth onClick={done}>
         {browser.i18n.getMessage("next")}
-        <ArrowRightIcon />
-      </Button>
-      <Modal
+        <ArrowRightIcon style={{ marginLeft: "5px" }} />
+      </ButtonV2>
+      <ModalV2
         {...migrationModal.bindings}
         root={document.getElementById("__plasmo")}
+        actions={
+          <>
+            <ButtonV2
+              fullWidth
+              onClick={async () => {
+                try {
+                  // add migrated wallets
+                  await addWallet(walletsToMigrate, password);
+
+                  // confirmation toast
+                  setToast({
+                    type: "info",
+                    content: browser.i18n.getMessage("migration_confirmation"),
+                    duration: 2200
+                  });
+                  migrationModal.setOpen(false);
+
+                  // TODO:
+                  // remove old storage
+                  // await ExtensionStorage.remove(OLD_STORAGE_NAME);
+                } catch {}
+              }}
+            >
+              {browser.i18n.getMessage("migrate")}
+            </ButtonV2>
+            <Spacer y={0.75} />
+            <ButtonV2
+              fullWidth
+              secondary
+              onClick={() => {
+                migrationModal.setOpen(false);
+                setMigrationCancelled(true);
+              }}
+            >
+              {browser.i18n.getMessage("cancel")}
+            </ButtonV2>
+          </>
+        }
       >
         <ModalText heading>
           {browser.i18n.getMessage("migration_available")}
@@ -205,42 +243,8 @@ export default function Wallets() {
         <ModalText>
           {browser.i18n.getMessage("migration_available_paragraph")}
         </ModalText>
-        <Spacer y={1.75} />
-        <Button
-          fullWidth
-          onClick={async () => {
-            try {
-              // add migrated wallets
-              await addWallet(walletsToMigrate, password);
-
-              // confirmation toast
-              setToast({
-                type: "info",
-                content: browser.i18n.getMessage("migration_confirmation"),
-                duration: 2200
-              });
-              migrationModal.setOpen(false);
-
-              // TODO:
-              // remove old storage
-              // await ExtensionStorage.remove(OLD_STORAGE_NAME);
-            } catch {}
-          }}
-        >
-          {browser.i18n.getMessage("migrate")}
-        </Button>
         <Spacer y={0.75} />
-        <Button
-          fullWidth
-          secondary
-          onClick={() => {
-            migrationModal.setOpen(false);
-            setMigrationCancelled(true);
-          }}
-        >
-          {browser.i18n.getMessage("cancel")}
-        </Button>
-      </Modal>
+      </ModalV2>
     </>
   );
 }

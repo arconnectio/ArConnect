@@ -1,4 +1,4 @@
-import { Input, Spacer, Text, useInput } from "@arconnect/components";
+import { InputV2, Spacer, Text, useInput } from "@arconnect/components";
 import { setting_element_padding } from "./list/BaseElement";
 import PermissionCheckbox from "~components/auth/PermissionCheckbox";
 import type SettingType from "~settings/setting";
@@ -78,7 +78,7 @@ export default function Setting({ setting }: Props) {
     case "number":
     case "string":
       return (
-        <Input
+        <InputV2
           label={browser.i18n.getMessage(setting.displayName)}
           type={setting.type === "string" ? "text" : "number"}
           value={settingState}
@@ -102,11 +102,12 @@ export default function Setting({ setting }: Props) {
           {/** search for "pick" settings with more than 6 options */}
           {setting?.options && setting.options.length > 6 && (
             <>
-              <SearchInput
-                placeholder={browser.i18n.getMessage("search_pick_option")}
-                {...searchInput.bindings}
-                sticky
-              />
+              <SearchWrapper>
+                <SearchInput
+                  placeholder={browser.i18n.getMessage("search_pick_option")}
+                  {...searchInput.bindings}
+                />
+              </SearchWrapper>
               <Spacer y={1} />
             </>
           )}
@@ -181,4 +182,13 @@ export const RadioItem = styled.div`
       ${(props) => (props.theme.displayTheme === "light" ? "0.14" : "0.04")}
     );
   }
+`;
+
+const SearchWrapper = styled.div`
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background-color: rgb(${(props) => props.theme.cardBackground});
 `;

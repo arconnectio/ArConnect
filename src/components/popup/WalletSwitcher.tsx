@@ -1,10 +1,10 @@
 import { EditIcon, PlusIcon, WalletIcon } from "@iconicicons/react";
 import {
-  Button,
+  ButtonV2,
   Card,
   Section,
   Text,
-  Tooltip,
+  TooltipV2,
   useToasts
 } from "@arconnect/components";
 import { concatGatewayURL } from "~gateways/utils";
@@ -217,10 +217,13 @@ export default function WalletSwitcher({
                       })
                     }
                   >
-                    <PlusIcon />
+                    <PlusIcon style={{ marginRight: "5px" }} />
                     {browser.i18n.getMessage("add_wallet")}
                   </AddWalletButton>
-                  <Tooltip content={browser.i18n.getMessage("edit")}>
+                  <TooltipV2
+                    content={browser.i18n.getMessage("edit")}
+                    position="topEnd"
+                  >
                     <EditButton
                       onClick={() =>
                         browser.tabs.create({
@@ -230,7 +233,7 @@ export default function WalletSwitcher({
                         })
                       }
                     />
-                  </Tooltip>
+                  </TooltipV2>
                 </ActionBar>
               )}
             </WalletsCard>
@@ -269,7 +272,7 @@ const SwitcherPopover = styled(motion.div).attrs({
 })<{ exactTop?: boolean }>`
   position: absolute;
   top: ${(props) => (props.exactTop ? "100%" : "calc(100% - 1.05rem)")};
-  left: 0;
+  left: -5px;
   right: 0;
   z-index: 110;
   cursor: default;
@@ -406,12 +409,9 @@ const ActionBar = styled.div`
   background-color: rgb(${(props) => props.theme.cardBackground});
 `;
 
-const AddWalletButton = styled(Button).attrs({
-  fullWidth: true,
-  small: true
-})`
-  padding: 0.72rem 0;
-`;
+const AddWalletButton = styled(ButtonV2).attrs({
+  fullWidth: true
+})``;
 
 const EditButton = styled(EditIcon)`
   font-size: 1.5rem;

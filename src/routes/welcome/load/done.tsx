@@ -1,4 +1,4 @@
-import { Button, Checkbox, Spacer, Text } from "@arconnect/components";
+import { ButtonV2, Checkbox, Spacer, Text } from "@arconnect/components";
 import { PageType, trackPage } from "~utils/analytics";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -55,9 +55,9 @@ export default function Done() {
         {browser.i18n.getMessage("analytics_title")}
       </Checkbox>
       <Spacer y={1.5} />
-      <Button fullWidth onClick={done}>
+      <ButtonV2 fullWidth onClick={done}>
         {browser.i18n.getMessage("done")}
-      </Button>
+      </ButtonV2>
     </>
   );
 }

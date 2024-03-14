@@ -324,7 +324,7 @@
     "description": "Remove app button"
   },
   "removeAppNote": {
-    "message": "This will remove all permissions from the app and disconnect it from ArConnect.",
+    "message": "Remove all permissions and disconnect the app from ArConnect.",
     "description": "Remove app note paragraph"
   },
   "remove": {
@@ -517,6 +517,10 @@
       }
     }
   },
+  "copied_address_2": {
+    "message": "address copied",
+    "description": "Address copy notification 2"
+  },
   "cannot_edit_with_ans": {
     "message": "Cannot edit nickname. Wallet already has an ANS label.",
     "description": "Explainer for disabled edits for wallets with ANS profiles"
@@ -542,7 +546,7 @@
     "description": "Password input placeholder"
   },
   "enter_password_again": {
-    "message": "Re-enter your passwor...",
+    "message": "Re-enter your password...",
     "description": "Re-enter password input placeholder"
   },
   "passwords_match": {

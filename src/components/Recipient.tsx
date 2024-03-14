@@ -1,4 +1,10 @@
-import { useInput, Text, Button, Input } from "@arconnect/components";
+import {
+  useInput,
+  Text,
+  ButtonV2,
+  ListItem,
+  InputV2
+} from "@arconnect/components";
 import { ChevronDownIcon, ChevronUpIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { useMemo, useState } from "react";
@@ -125,9 +131,8 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
   return (
     <>
       <SearchBarWrapper>
-        <Input
+        <InputV2
           small
-          alternative={true}
           {...targetInput.bindings}
           type="text"
           placeholder={browser.i18n.getMessage(
@@ -140,15 +145,14 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
               return;
           }}
         />
-        <Button
-          small
+        <ButtonV2
           style={{ borderRadius: "10px", width: "56px", padding: 0 }}
           onClick={() => {
             submit();
           }}
         >
           {browser.i18n.getMessage("add")}
-        </Button>
+        </ButtonV2>
       </SearchBarWrapper>
       <AddressesList>
         <Recents onClick={() => setShow(!show)}>
@@ -175,28 +179,21 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
             <ContactAddress style={{ color: "white" }}>{letter}</ContactAddress>
 
             {filteredAndGroupedContacts[letter].map((contact) => (
-              <ContactItem
+              <ListItem
+                small
+                title={contact?.name}
+                description={formatAddress(contact.address)}
+                img={
+                  contact.profileIcon
+                    ? contact.profileIcon
+                    : generateProfileIcon(contact?.name || contact.address)
+                }
                 key={contact.address}
                 onClick={() => {
                   onClick({ contact, address: contact.address });
                   onClose();
                 }}
-              >
-                {contact.profileIcon ? (
-                  <ProfilePicture src={contact.profileIcon} alt="Profile" />
-                ) : (
-                  <AutoContactPic>
-                    {generateProfileIcon(contact?.name || contact.address)}
-                  </AutoContactPic>
-                )}
-
-                <div>
-                  <Name>{contact?.name}</Name>
-                  <ContactAddress>
-                    {formatAddress(contact.address)}
-                  </ContactAddress>
-                </div>
-              </ContactItem>
+              />
             ))}
           </ContactList>
         ))}

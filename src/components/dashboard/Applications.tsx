@@ -82,11 +82,12 @@ export default function Applications() {
 
   return (
     <Wrapper>
-      <SearchInput
-        placeholder={browser.i18n.getMessage("search_apps")}
-        {...searchInput.bindings}
-        sticky
-      />
+      <SearchWrapper>
+        <SearchInput
+          placeholder={browser.i18n.getMessage("search_apps")}
+          {...searchInput.bindings}
+        />
+      </SearchWrapper>
       <Spacer y={1} />
       <SettingsList>
         {apps.filter(filterSearchResults).map((app, i) => (
@@ -115,6 +116,15 @@ interface SettingsAppData {
 
 const Wrapper = styled.div`
   position: relative;
+`;
+
+const SearchWrapper = styled.div`
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background-color: rgb(${(props) => props.theme.cardBackground});
 `;
 
 const NoAppsText = styled(Text)`

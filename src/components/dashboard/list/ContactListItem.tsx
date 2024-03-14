@@ -1,7 +1,7 @@
-import type { HTMLProps } from "react";
-import BaseElement, { SettingIcon } from "./BaseElement";
-import styled from "styled-components";
+import { ListItem, ListItemIcon } from "@arconnect/components";
 import { User01 } from "@untitled-ui/icons-react";
+import type { HTMLProps } from "react";
+import styled from "styled-components";
 
 export default function ContactListItem({
   name,
@@ -14,7 +14,7 @@ export default function ContactListItem({
     <ContactWrapper active={active}>
       {/* @ts-ignore */}
       <Contact title={name} description={address} img={profileIcon} {...props}>
-        {!profileIcon && <SettingIcon as={User01} />}
+        {!profileIcon && <ListItemIcon as={User01} />}
       </Contact>
     </ContactWrapper>
   );
@@ -56,7 +56,7 @@ const ContactWrapper = styled.div<{ active: boolean }>`
   }
 `;
 
-const Contact = styled(BaseElement)`
+const Contact = styled(ListItem)`
   &:hover {
     background-color: transparent;
   }

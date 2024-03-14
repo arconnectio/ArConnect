@@ -1,5 +1,11 @@
-import { Input, Label, useInput, useToasts } from "@arconnect/components";
-import { Button, Select, Spacer, Text } from "@arconnect/components";
+import {
+  ButtonV2,
+  InputV2,
+  Spacer,
+  Text,
+  useInput,
+  useToasts
+} from "@arconnect/components";
 import browser from "webextension-polyfill";
 import { useEffect, useState } from "react";
 import { useAo, type TokenInfo, useAoTokens } from "~tokens/aoTokens/ao";
@@ -61,7 +67,7 @@ export default function AddToken() {
         <Spacer y={0.45} />
         <Title>{browser.i18n.getMessage("import_token")}</Title>
         <Spacer y={0.5} />
-        <Input
+        <InputV2
           {...targetInput.bindings}
           type="string"
           fullWidth
@@ -77,9 +83,9 @@ export default function AddToken() {
           </TokenWrapper>
         )}
       </div>
-      <Button disabled={!token} onClick={onImportToken}>
+      <ButtonV2 fullWidth disabled={!token} onClick={onImportToken}>
         Add Token
-      </Button>
+      </ButtonV2>
     </Wrapper>
   );
 }

@@ -1,4 +1,4 @@
-import { Button, Spacer, Text, useToasts } from "@arconnect/components";
+import { ButtonV2, Spacer, Text, useToasts } from "@arconnect/components";
 import { ArrowRightIcon } from "@iconicicons/react";
 import { useLocation, useRoute } from "wouter";
 import { useContext, useEffect, useState } from "react";
@@ -89,10 +89,10 @@ export default function Confirm() {
         preFill={preFill}
       />
       <Spacer y={1.5} />
-      <Button fullWidth onClick={validateSeedphrase}>
+      <ButtonV2 fullWidth onClick={validateSeedphrase}>
         {browser.i18n.getMessage("next")}
-        <ArrowRightIcon />
-      </Button>
+        <ArrowRightIcon style={{ marginLeft: "5px" }} />
+      </ButtonV2>
     </>
   );
 }

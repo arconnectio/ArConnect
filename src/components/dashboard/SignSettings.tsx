@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import PermissionCheckbox from "~components/auth/PermissionCheckbox";
-import { Input, Spacer, Text } from "@arconnect/components";
+import { InputV2, Spacer, Text } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { ExtensionStorage } from "~utils/storage";
@@ -77,7 +77,7 @@ export default function SignSettings() {
           </Text>
         </PermissionCheckbox>
         <Spacer y={1.7} />
-        <Input
+        <InputV2
           label={browser.i18n.getMessage("password_allowance")}
           type="number"
           value={editingValue}

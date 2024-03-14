@@ -1,4 +1,4 @@
-import { Button, Select, Spacer, Text } from "@arconnect/components";
+import { ButtonV2, SelectV2, Spacer, Text } from "@arconnect/components";
 import type { Token, TokenType } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -43,7 +43,7 @@ export default function TokenSettings({ id }: Props) {
         <Spacer y={0.45} />
         <TokenName>{token.name}</TokenName>
         <Spacer y={0.5} />
-        <Select
+        <SelectV2
           label={browser.i18n.getMessage("token_type")}
           onChange={(e) => {
             // @ts-expect-error
@@ -57,15 +57,15 @@ export default function TokenSettings({ id }: Props) {
           <option value="collectible" selected={token.type === "collectible"}>
             {browser.i18n.getMessage("token_type_collectible")}
           </option>
-        </Select>
+        </SelectV2>
         <AnimatePresence>
           {token.gateway && <CustomGatewayWarning />}
         </AnimatePresence>
       </div>
-      <Button onClick={() => removeToken(id)}>
-        <TrashIcon />
+      <ButtonV2 fullWidth onClick={() => removeToken(id)}>
+        <TrashIcon style={{ marginRight: "5px" }} />
         {browser.i18n.getMessage("remove_token")}
-      </Button>
+      </ButtonV2>
     </Wrapper>
   );
 }
