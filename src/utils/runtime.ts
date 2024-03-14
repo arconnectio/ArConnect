@@ -25,7 +25,7 @@ export async function onInstalled(details: Runtime.OnInstalledDetailsType) {
   browser.alarms.create("notifications", { periodInMinutes: 1 });
 
   // reset notifications
-  await ExtensionStorage.set("show_announcement", true);
+  // await ExtensionStorage.set("show_announcement", true);
 
   // wayfinder
   await scheduleGatewayUpdate();
