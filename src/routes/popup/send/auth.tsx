@@ -40,7 +40,6 @@ import {
   type Gateway
 } from "~gateways/gateway";
 import { isUToken, sendRequest } from "~utils/send";
-import { isLocalWallet } from "~utils/assertions";
 import { EventType, trackEvent } from "~utils/analytics";
 interface Props {
   tokenID?: string;
@@ -196,7 +195,10 @@ export default function SendAuth({ tokenID }: Props) {
     const arweave = new Arweave(gateway);
 
     const decryptedWallet = await getActiveKeyfile();
-    isLocalWallet(decryptedWallet);
+
+    if (decryptedWallet.type === "hardware") {
+      return setLoading(false);
+    }
 
     console.log(
       "transaction amount:",
