@@ -7,11 +7,17 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 
 import Completed from "./gettingStarted/completed";
+import Enabled from "./gettingStarted/enableNotifications";
 import Connect from "./gettingStarted/connect";
 import { useLocation } from "wouter";
 import Explore from "./gettingStarted/explore";
 
-const gettingStartedPages = [<Completed />, <Explore />, <Connect />];
+const gettingStartedPages = [
+  <Completed />,
+  <Enabled />,
+  <Explore />,
+  <Connect />
+];
 
 export default function GettingStarted({ page }) {
   // animate content sice
@@ -29,7 +35,7 @@ export default function GettingStarted({ page }) {
   }, []);
 
   const navigate = (pageNum: number) => {
-    if (pageNum < 4) {
+    if (pageNum < 5) {
       setLocation(`/getting-started/${pageNum}`);
     } else {
       window.top.close();
@@ -66,7 +72,7 @@ export default function GettingStarted({ page }) {
             ))}
           </PageIndicatorContainer>
           <Button fullWidth onClick={() => navigate(page + 1)}>
-            {browser.i18n.getMessage(page + 1 < 4 ? "next" : "done")}
+            {browser.i18n.getMessage(page + 1 < 5 ? "next" : "done")}
           </Button>
         </Footer>
       </SetupCard>

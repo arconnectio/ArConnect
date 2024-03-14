@@ -325,7 +325,7 @@ export default function Confirm({ tokenID, qty }: Props) {
           ao,
           tokenID,
           recipient.address,
-          amount
+          fractionedToBalance(Number(amount), token).toString()
         );
         if (res) {
           setToast({

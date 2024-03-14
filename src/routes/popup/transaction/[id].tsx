@@ -5,7 +5,12 @@ import type { GQLNodeInterface } from "ar-gql/dist/faces";
 import { useEffect, useMemo, useState } from "react";
 import { useGateway } from "~gateways/wayfinder";
 import { useHistory } from "~utils/hash_router";
-import { ShareIcon } from "@iconicicons/react";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  DownloadIcon,
+  ShareIcon
+} from "@iconicicons/react";
 import { formatAddress } from "~utils/format";
 import { getArPrice } from "~lib/coingecko";
 import { concatGatewayURL, urlToGateway } from "~gateways/utils";
@@ -38,7 +43,7 @@ interface ao {
   tokenId?: string | null;
 }
 
-export default function Transaction({ id: rawId, gw }: Props) {
+export default function Transaction({ id: rawId, gw, message }: Props) {
   // fixup id
   const id = useMemo(() => rawId.split("?")[0], [rawId]);
 
@@ -50,6 +55,8 @@ export default function Transaction({ id: rawId, gw }: Props) {
   const contact = useContact(transaction?.recipient);
 
   const [ao, setAo] = useState<ao>({ isAo: false });
+
+  const [showTags, setShowTags] = useState<boolean>(false);
 
   // arweave gateway
   const defaultGateway = useGateway({
@@ -243,7 +250,7 @@ export default function Transaction({ id: rawId, gw }: Props) {
   }, []);
 
   // router push
-  const [push] = useHistory();
+  const [push, back] = useHistory();
 
   // interaction input
   const input = useMemo(() => {
@@ -258,26 +265,36 @@ export default function Transaction({ id: rawId, gw }: Props) {
     <Wrapper>
       <div>
         <HeadV2
-          title="Transaction Complete"
+          title={message ? "Message" : "Transaction Complete"}
           back={() => {
-            push("/");
+            if (backPath === "/notifications") {
+              back();
+            } else {
+              push("/");
+            }
           }}
         />
         {(transaction && (
           <>
-            <Section style={{ paddingTop: 9, paddingBottom: 8 }}>
-              <AmountTitle>
-                {formatTokenBalance(Number(transaction.quantity.ar))}
-                {/* NEEDS TO BE DYNAMIC */}
-                {!ao.isAo && <span>AR</span>}
-              </AmountTitle>
-              <FiatAmount>
-                {ao.isAo ? "$-.--" : formatFiatBalance(fiatPrice, currency)}
-              </FiatAmount>
-            </Section>
-            <AnimatePresence>
-              {gw && <CustomGatewayWarning simple />}
-            </AnimatePresence>
+            {!message && (
+              <>
+                <Section style={{ paddingTop: 9, paddingBottom: 8 }}>
+                  <AmountTitle>
+                    {!ao.isAo
+                      ? formatTokenBalance(Number(transaction.quantity.ar))
+                      : 0}
+                    {/* NEEDS TO BE DYNAMIC */}
+                    {!ao.isAo && <span>AR</span>}
+                  </AmountTitle>
+                  <FiatAmount>
+                    {ao.isAo ? "$-.--" : formatFiatBalance(fiatPrice, currency)}
+                  </FiatAmount>
+                </Section>
+                <AnimatePresence>
+                  {gw && <CustomGatewayWarning simple />}
+                </AnimatePresence>
+              </>
+            )}
             <Section>
               <Properties>
                 <TransactionProperty>
@@ -343,14 +360,16 @@ export default function Transaction({ id: rawId, gw }: Props) {
                     </div>
                   </PropertyValue>
                 </TransactionProperty>
-                <TransactionProperty>
-                  <PropertyName>
-                    {browser.i18n.getMessage("transaction_size")}
-                  </PropertyName>
-                  <PropertyValue>
-                    {prettyBytes(Number(transaction.data.size))}
-                  </PropertyValue>
-                </TransactionProperty>
+                {!message && (
+                  <TransactionProperty>
+                    <PropertyName>
+                      {browser.i18n.getMessage("transaction_size")}
+                    </PropertyName>
+                    <PropertyValue>
+                      {prettyBytes(Number(transaction.data.size))}
+                    </PropertyValue>
+                  </TransactionProperty>
+                )}
                 {transaction.block && (
                   <>
                     <TransactionProperty>
@@ -382,18 +401,27 @@ export default function Transaction({ id: rawId, gw }: Props) {
                     {confirmations.toLocaleString()}
                   </PropertyValue>
                 </TransactionProperty>
-                <PropertyName>
+                <PropertyName
+                  style={{
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center"
+                  }}
+                  onClick={() => setShowTags(!showTags)}
+                >
                   {browser.i18n.getMessage("transaction_tags")}
+                  {showTags ? <ChevronUpIcon /> : <ChevronDownIcon />}
                 </PropertyName>
-                {transaction.tags.map(
-                  (tag, i) =>
-                    tag.name !== "Input" && (
-                      <TransactionProperty key={i}>
-                        <PropertyName>{tag.name}</PropertyName>
-                        <TagValue>{tag.value}</TagValue>
-                      </TransactionProperty>
-                    )
-                )}
+                {showTags &&
+                  transaction.tags.map(
+                    (tag, i) =>
+                      tag.name !== "Input" && (
+                        <TransactionProperty key={i}>
+                          <PropertyName>{tag.name}</PropertyName>
+                          <TagValue>{tag.value}</TagValue>
+                        </TransactionProperty>
+                      )
+                  )}
                 {input && (
                   <>
                     <Spacer y={0.1} />
@@ -406,14 +434,24 @@ export default function Transaction({ id: rawId, gw }: Props) {
                 {(data || isBinary) && (
                   <>
                     <Spacer y={0.1} />
-                    <PropertyName>
-                      {browser.i18n.getMessage("transaction_data")}
+                    <PropertyName
+                      style={{
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center"
+                      }}
+                    >
+                      {!message
+                        ? browser.i18n.getMessage("transaction_data")
+                        : browser.i18n.getMessage("signature_message")}
                       <a
                         href={`${concatGatewayURL(gateway)}/${id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <ShareIcon />
+                        <DownloadIcon
+                          style={{ width: "18px", height: "18px" }}
+                        />
                       </a>
                     </PropertyName>
                     {(!isImage && (
@@ -628,4 +666,5 @@ interface Props {
   id: string;
   // encodeURIComponent transformed gateway url
   gw?: string;
+  message?: boolean;
 }
