@@ -1,4 +1,10 @@
-import { Input, Text, useInput, useToasts } from "@arconnect/components";
+import {
+  Input,
+  Spacer,
+  Text,
+  useInput,
+  useToasts
+} from "@arconnect/components";
 import { ArrowRightIcon } from "@iconicicons/react";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
@@ -23,6 +29,8 @@ import {
   fallbackGateway,
   type Gateway
 } from "~gateways/gateway";
+import AnimatedQRScanner from "~components/hardware/AnimatedQRScanner";
+import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
 import { getActiveKeyfile, getActiveWallet, type StoredWallet } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
@@ -40,6 +48,11 @@ import { fractionedToBalance } from "~tokens/currency";
 import { type Token } from "~tokens/token";
 import { useContact } from "~contacts/hooks";
 import { sendAoTransfer, useAo } from "~tokens/aoTokens/ao";
+import { useActiveWallet } from "~wallets/hooks";
+import { UR } from "@ngraveio/bc-ur";
+import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
+import { useScanner } from "@arconnect/keystone-sdk";
+import Progress from "~components/Progress";
 
 interface Props {
   tokenID: string;
@@ -462,6 +475,132 @@ export default function Confirm({ tokenID, qty }: Props) {
     }
   }
 
+  /**
+   * Hardware wallet functionalities
+   */
+
+  // current wallet
+  const wallet = useActiveWallet();
+
+  // load tx UR
+  const [transactionUR, setTransactionUR] = useState<UR>();
+  const [preparedTx, setPreparedTx] = useState<Partial<RawStoredTransfer>>();
+
+  useEffect(() => {
+    (async () => {
+      if (!recipient?.address) return;
+
+      // get the tx from storage
+      const prepared = await prepare(recipient.address);
+
+      // redirect to transfer if the
+      // transaction was not found
+      if (!prepared || !prepared.transaction) {
+        return push("/send/transfer");
+      }
+
+      // check if the current wallet
+      // is a hardware wallet
+      if (wallet?.type !== "hardware") return;
+
+      const arweave = new Arweave(prepared.gateway);
+      const convertedTransaction = arweave.transactions.fromRaw(
+        prepared.transaction
+      );
+
+      // get tx UR
+      try {
+        setTransactionUR(
+          await transactionToUR(
+            convertedTransaction,
+            wallet.xfp,
+            wallet.publicKey
+          )
+        );
+        setPreparedTx(prepared);
+      } catch {
+        setToast({
+          type: "error",
+          duration: 2300,
+          content: browser.i18n.getMessage("transaction_auth_ur_fail")
+        });
+        push("/send/transfer");
+      }
+    })();
+  }, [wallet, recipient]);
+
+  // current hardware wallet operation
+  const [hardwareStatus, setHardwareStatus] = useState<"play" | "scan">();
+
+  // qr-tx scanner
+  const scanner = useScanner(
+    // handle scanner success,
+    // post transfer
+    async (res) => {
+      try {
+        if (!preparedTx) return;
+
+        // get tx
+        const { gateway, type } = preparedTx;
+        const arweave = new Arweave(gateway);
+        const transaction = arweave.transactions.fromRaw(
+          preparedTx.transaction
+        );
+
+        // reset the prepared tx so we don't send it again
+        setPreparedTx(undefined);
+
+        if (!transaction) {
+          throw new Error("Transaction undefined");
+        }
+
+        if (wallet?.type !== "hardware") {
+          throw new Error("Wallet switched while signing");
+        }
+
+        // decode signature
+        const { id, signature } = await decodeSignature(res);
+
+        // set signature
+        transaction.setSignature({
+          id,
+          signature,
+          owner: wallet.publicKey
+        });
+
+        // post tx
+        await submitTx(transaction, arweave, type);
+
+        setToast({
+          type: "success",
+          content: browser.i18n.getMessage("sent_tx"),
+          duration: 2000
+        });
+
+        const latestTxQty = Number(
+          (await ExtensionStorage.get("last_send_qty")) || "0"
+        );
+        trackEvent(EventType.TX_SENT, {
+          contact: contact ? true : false,
+          amount: tokenID === "AR" ? latestTxQty : 0,
+          fee: networkFee
+        });
+        uToken
+          ? push("/")
+          : push(
+              `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
+            );
+      } catch (e) {
+        console.log(e);
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("failed_tx"),
+          duration: 2000
+        });
+      }
+    }
+  );
+
   return (
     <Wrapper>
       <HeadV2 title={"Confirm Transaction"} />
@@ -491,7 +630,7 @@ export default function Confirm({ tokenID, qty }: Props) {
             </Address>
           </AddressWrapper>
           <div style={{ marginTop: "16px" }}>
-            {token && (
+            {token && !hardwareStatus && (
               <>
                 <BodySection
                   ticker={token?.ticker}
@@ -515,6 +654,36 @@ export default function Confirm({ tokenID, qty }: Props) {
                 />
               </>
             )}
+            {hardwareStatus === "play" && transactionUR && (
+              <>
+                <Description>
+                  {browser.i18n.getMessage("sign_scan_qr")}
+                </Description>
+                <AnimatedQRPlayer data={transactionUR} />
+              </>
+            )}
+            {hardwareStatus === "scan" && (
+              <>
+                <AnimatedQRScanner
+                  {...scanner.bindings}
+                  onError={(error) =>
+                    setToast({
+                      type: "error",
+                      duration: 2300,
+                      content: browser.i18n.getMessage(`keystone_${error}`)
+                    })
+                  }
+                />
+                <Spacer y={1} />
+                <Text>
+                  {browser.i18n.getMessage(
+                    "keystone_scan_progress",
+                    `${scanner.progress.toFixed(0)}%`
+                  )}
+                </Text>
+                <Progress percentage={scanner.progress} />
+              </>
+            )}
           </div>
           {/* Password if Necessary */}
           {needsSign && (
@@ -536,12 +705,20 @@ export default function Confirm({ tokenID, qty }: Props) {
         </BodyWrapper>
         <SendButton
           fullWidth
-          disabled={(needsSign && !passwordInput.state) || isLoading}
+          disabled={
+            (needsSign && !passwordInput.state) ||
+            isLoading ||
+            hardwareStatus === "scan"
+          }
           onClick={async () => {
-            await sendLocal();
+            if (wallet.type === "local") await sendLocal();
+            else if (!hardwareStatus || hardwareStatus === "play") {
+              setHardwareStatus((val) => (val === "play" ? "scan" : "play"));
+            }
           }}
         >
-          Confirm {">"}
+          {(hardwareStatus === "play" && "Scan response") || "Confirm"}
+          {" >"}
         </SendButton>
       </ConfirmWrapper>
     </Wrapper>
