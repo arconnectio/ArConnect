@@ -1,4 +1,10 @@
-import { fetchNotifications } from "~utils/notifications";
+import {
+  extractQuantityTransferred,
+  fetchNotifications,
+  fetchTokenById,
+  fetchTokenByProcessId,
+  mergeAndSortNotifications
+} from "~utils/notifications";
 import { getTokenInfo } from "~tokens/aoTokens/router";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { useHistory } from "~utils/hash_router";
@@ -9,44 +15,17 @@ import browser from "webextension-polyfill";
 import { useEffect, useState } from "react";
 import { useAo } from "~tokens/aoTokens/ao";
 import styled from "styled-components";
+import { balanceToFractioned, formatTokenBalance } from "~tokens/currency";
+import type { Transaction } from "~notifications/api";
 
 export default function Notifications() {
-  const [notifications, setNotifications] = useState([]);
-  const [formattedTxMsgs, setFormattedTxMsgs] = useState([]);
+  const [notifications, setNotifications] = useState<Transaction[]>([]);
+  const [formattedTxMsgs, setFormattedTxMsgs] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [empty, setEmpty] = useState(false);
 
   const ao = useAo();
   const [push] = useHistory();
-
-  const mergeAndSortNotifications = (arNotifications, aoNotifications) => {
-    const mergedNotifications = [...arNotifications, ...aoNotifications];
-
-    // filter notifications without timestamps
-    const pendingNotifications = mergedNotifications.filter(
-      (notification) => !notification.node.block?.timestamp
-    );
-
-    // set status to "pending" for notifications without timestamps
-    pendingNotifications.forEach((notification) => {
-      notification.node.block = { timestamp: "pending" };
-    });
-
-    // remove pending notifications from the merged array
-    const sortedNotifications = mergedNotifications.filter(
-      (notification) => notification.node.block.timestamp !== "pending"
-    );
-
-    // sort notifications with timestamps
-    sortedNotifications.sort(
-      (a, b) => b.node.block.timestamp - a.node.block.timestamp
-    );
-
-    // place pending notifications at the most recent index
-    sortedNotifications.unshift(...pendingNotifications);
-
-    return sortedNotifications;
-  };
 
   useEffect(() => {
     (async () => {
@@ -80,27 +59,71 @@ export default function Notifications() {
     return "Recipient not found";
   };
 
-  const formatTxMessage = async (notifications) => {
+  const formatTxMessage = async (
+    notifications: Transaction[]
+  ): Promise<string[]> => {
     const formattedTxMsgs = [];
     for (const notification of notifications) {
-      const ticker =
-        notification.isAo && notification.transactionType !== "Message"
-          ? await getTicker(notification.tokenId)
-          : notification.tokenId;
-      let formattedMessage: string;
-      if (notification.transactionType === "Sent") {
-        formattedMessage = `Sent ${Number(notification.quantity).toFixed(
-          2
-        )} ${ticker} to ${
-          notification.ao
-            ? findRecipient(notification)
-            : formatAddress(notification.node.recipient, 4)
-        }`;
-      } else if (notification.transactionType === "Received") {
-        formattedMessage = `Received ${Number(notification.quantity).toFixed(
-          2
-        )} ${ticker} from ${formatAddress(notification.node.owner.address, 4)}`;
-      } else if (notification.transactionType === "Message") {
+      let formattedMessage: string = "";
+      if (notification.transactionType !== "Message") {
+        let ticker;
+        let quantityTransfered;
+        if (notification.isAo) {
+          // handle ao messages/sents/receives
+          let token = await fetchTokenByProcessId(notification.tokenId);
+          if (!token) {
+            ticker = formatAddress(notification.tokenId, 4);
+            quantityTransfered = notification.quantity;
+          } else {
+            ticker = token.Ticker;
+            quantityTransfered = balanceToFractioned(
+              Number(notification.quantity),
+              {
+                id: notification.tokenId,
+                decimals: token.Denomination,
+                divisibility: token.Denomination
+              }
+            );
+          }
+        } else if (notification.transactionType !== "Transaction") {
+          let token = await fetchTokenById(notification.tokenId);
+          if (!token) {
+            ticker = formatAddress(notification.tokenId, 5);
+            quantityTransfered = extractQuantityTransferred(
+              notification.node.tags
+            );
+          } else if (token.ticker !== "AR") {
+            ticker = token.ticker;
+            quantityTransfered = extractQuantityTransferred(
+              notification.node.tags
+            );
+            quantityTransfered = formatTokenBalance(
+              balanceToFractioned(Number(quantityTransfered), {
+                id: notification.tokenId,
+                decimals: token.decimals,
+                divisibility: token.divisibility
+              })
+            );
+          } else {
+            ticker = token.ticker;
+            quantityTransfered = formatTokenBalance(
+              Number(notification.quantity)
+            );
+          }
+        }
+        if (notification.transactionType === "Sent") {
+          formattedMessage = `Sent ${quantityTransfered} ${ticker} to ${
+            notification.isAo
+              ? findRecipient(notification)
+              : formatAddress(notification.node.recipient, 4)
+          }`;
+        } else if (notification.transactionType === "Received") {
+          formattedMessage = `Received ${quantityTransfered} ${ticker} from ${formatAddress(
+            notification.node.owner.address,
+            4
+          )}`;
+        }
+      } else {
         formattedMessage = `New message from ${formatAddress(
           notification.node.owner.address,
           4
@@ -109,11 +132,6 @@ export default function Notifications() {
       formattedTxMsgs.push(formattedMessage);
     }
     return formattedTxMsgs;
-  };
-
-  const getTicker = async (tokenId: string) => {
-    const result = await getTokenInfo(tokenId, ao);
-    return result.Ticker;
   };
 
   const formatDate = (timestamp) => {
