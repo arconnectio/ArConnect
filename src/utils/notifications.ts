@@ -1,6 +1,9 @@
 import { arPlaceholder } from "~routes/popup/send";
 import { ExtensionStorage } from "./storage";
 import { getActiveAddress } from "~wallets";
+import type { Transaction } from "~notifications/api";
+import type { Token } from "~tokens/token";
+import type { TokenInfo } from "~tokens/aoTokens/ao";
 
 export const fetchNotifications = async () => {
   const address = await getActiveAddress();
@@ -16,20 +19,56 @@ export const fetchNotifications = async () => {
   return notifications;
 };
 
-export const fetchTokenByProcessId = async (processId: string) => {
-  const tokens = await ExtensionStorage.get<any[]>("ao_tokens");
-  if (!tokens || !processId) return processId;
+export const mergeAndSortNotifications = (
+  arNotifications,
+  aoNotifications
+): Transaction[] => {
+  const mergedNotifications = [...arNotifications, ...aoNotifications];
+
+  // filter notifications without timestamps
+  const pendingNotifications = mergedNotifications.filter(
+    (notification) => !notification.node.block?.timestamp
+  );
+
+  // set status to "pending" for notifications without timestamps
+  pendingNotifications.forEach((notification) => {
+    notification.node.block = { timestamp: "pending" };
+  });
+
+  // remove pending notifications from the merged array
+  const sortedNotifications = mergedNotifications.filter(
+    (notification) => notification.node.block.timestamp !== "pending"
+  );
+
+  // sort notifications with timestamps
+  sortedNotifications.sort(
+    (a, b) => b.node.block.timestamp - a.node.block.timestamp
+  );
+
+  // place pending notifications at the most recent index
+  sortedNotifications.unshift(...pendingNotifications);
+
+  return sortedNotifications;
+};
+
+export const fetchTokenByProcessId = async (
+  processId: string
+): Promise<TokenInfo> => {
+  const tokens = await ExtensionStorage.get<
+    (TokenInfo & { processId: string })[]
+  >("ao_tokens");
+  if (!tokens || !processId) return null;
 
   return tokens.find((token) => token.processId === processId);
 };
 
-export const fetchTokenById = async (tokenId: string) => {
+export const fetchTokenById = async (tokenId: string): Promise<Token> => {
   if (tokenId === "AR") {
     return arPlaceholder;
   }
-  const tokens = await ExtensionStorage.get<any[]>("tokens");
+  const tokens = await ExtensionStorage.get<Token[]>("tokens");
 
-  if (!tokens || !tokenId) return tokenId;
+  if (!tokens || !tokenId) return null;
   return tokens.find((token) => token.id === tokenId);
 };
 
