@@ -41,7 +41,7 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { type Gateway } from "~gateways/gateway";
-import { Bell03 } from "@untitled-ui/icons-react";
+import { Bell03, CreditCard01 } from "@untitled-ui/icons-react";
 import { svgie } from "~utils/svgies";
 import { useHistory } from "~utils/hash_router";
 
@@ -232,6 +232,9 @@ export default function WalletHeader() {
         </Tooltip>
       </AddressContainer>
       <WalletActions>
+        <Tooltip content="Subscriptions" position="bottom">
+          <Action as={CreditCard01} onClick={() => push("/subscriptions")} />
+        </Tooltip>
         <Tooltip content="Viewblock" position="bottom">
           <Action
             as={BoxIcon}
