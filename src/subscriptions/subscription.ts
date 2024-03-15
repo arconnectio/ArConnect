@@ -23,6 +23,14 @@ export default class Subscription {
     return subscriptionData;
   }
 
+  // get subscription auto withdrawal allowance
+  async getAutoAllowance(): Promise<Number> {
+    const subscriptionAllowance = await this.#storage.get<Number>(
+      "setting_subscription_allowance"
+    );
+    return subscriptionAllowance;
+  }
+
   // handle subscription signup
   async signUpSubscription(subscriptionData: SubscriptionData): Promise<void> {
     // validate subscription data
