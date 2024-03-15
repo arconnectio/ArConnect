@@ -109,18 +109,4 @@ window.addEventListener(
   }
 );
 
-/** Handle app subscriptions */
-window.addEventListener(
-  "message",
-  (
-    e: MessageEvent<{
-      type: "subscription";
-      event: Event;
-    }>
-  ) => {
-    if (e.data.type !== "subscription") return;
-    events.emit(e.data.event.subsciption, e.data.event.value);
-  }
-);
-
 export {};

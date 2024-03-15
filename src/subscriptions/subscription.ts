@@ -66,24 +66,24 @@ export default class Subscription {
   }
 
   // fetch / add subscription data from app
-  async fetchAppSubscriptionData(): Promise<InitAppParams | null> {
-    // check if app is connected
-    const hasConnection: boolean = await this.application.isConnected();
-    if (!hasConnection) {
-      throw new Error("Not connected to an Arweave Application");
-    }
+  //   async fetchAppSubscriptionData(): Promise<InitAppParams | null> {
+  //     // check if app is connected
+  //     const hasConnection: boolean = await this.application.isConnected();
+  //     if (!hasConnection) {
+  //       throw new Error("Not connected to an Arweave Application");
+  //     }
 
-    // call application hook() to get app data
-    const [appData] = this.application.hook();
+  //     // call application hook() to get app data
+  //     const [appData] = this.application.hook();
 
-    // TODO check
-    if (appData && appData.subscriptionData) {
-      return appData.subscriptionData;
-    } else {
-      console.error("Error fetching subscription data");
-      return null;
-    }
-  }
+  //     // TODO check
+  //     if (appData && appData.subscriptionData) {
+  //       return appData.subscriptionData;
+  //     } else {
+  //       console.error("Error fetching subscription data");
+  //       return null;
+  //     }
+  //   }
 }
 
 /**
@@ -100,7 +100,7 @@ export interface SubscriptionData {
   subscriptionStatus: SubscriptionStatus;
   recurringPaymentFrequency: RecurringPaymentFrequency;
   nextPaymentDue: Date;
-  subscriptionStartData: Date;
+  subscriptionStartDate: Date;
   subscriptionEndDate: Date;
 }
 
