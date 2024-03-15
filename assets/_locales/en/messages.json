@@ -1705,5 +1705,13 @@
   "token_imported": {
     "message": "Token Succesfully Added",
     "description": "token added"
+  },
+  "subscription_allowance": {
+    "message": "Subscription Allowance",
+    "description": "subscription settings title"
+  },
+  "subscription_description": {
+    "message": "Manage auto withdrawal allowance",
+    "description": "subscription setting description"
   }
 }

@@ -12,11 +12,20 @@ import {
   SunIcon
 } from "@iconicicons/react";
 import Setting from "./setting";
+import { CreditCard02 } from "@untitled-ui/icons-react";
 
 export const PREFIX = "setting_";
 
 /** All settings */
 const settings: Setting[] = [
+  new Setting({
+    name: "subscription_allowance",
+    displayName: "subscription_allowance",
+    icon: CreditCard02,
+    description: "subscription_description",
+    type: "number",
+    defaultValue: 0
+  }),
   new Setting({
     name: "fee_multiplier",
     displayName: "setting_fee_multiplier",
