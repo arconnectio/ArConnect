@@ -1,6 +1,7 @@
 import Application, { type InitAppParams } from "~applications/application";
 import { ExtensionStorage } from "~utils/storage";
 import type { Storage } from "@plasmohq/storage";
+import { getSubscriptionData } from "~subscriptions";
 
 export default class Subscription {
   activeAddress: string;
@@ -15,22 +16,6 @@ export default class Subscription {
     this.#storage = ExtensionStorage;
   }
 
-  // get subscription data from storage
-  async getSubscriptionData(): Promise<SubscriptionData[]> {
-    const subscriptionData = await this.#storage.get<SubscriptionData[]>(
-      `subscriptions_${this.activeAddress}`
-    );
-    return subscriptionData;
-  }
-
-  // get subscription auto withdrawal allowance
-  async getAutoAllowance(): Promise<Number> {
-    const subscriptionAllowance = await this.#storage.get<Number>(
-      "setting_subscription_allowance"
-    );
-    return subscriptionAllowance;
-  }
-
   // handle subscription signup
   async signUpSubscription(subscriptionData: SubscriptionData): Promise<void> {
     // validate subscription data
@@ -42,7 +27,7 @@ export default class Subscription {
       "subscriptionStatus",
       "recurringPaymentFrequency",
       "nextPaymentDue",
-      "subscriptionStartData",
+      "subscriptionStartDate",
       "subscriptionEndDate"
     ];
     for (const field of requiredFields) {
@@ -52,8 +37,7 @@ export default class Subscription {
     }
 
     // retrieve existing subscriptions
-    let existingSubscriptions: SubscriptionData[] =
-      await this.getSubscriptionData();
+    let existingSubscriptions: SubscriptionData[] = await getSubscriptionData();
 
     // append the new subsciption
     existingSubscriptions.push(subscriptionData);
@@ -99,9 +83,9 @@ export interface SubscriptionData {
   subscriptionFeeAmount: number;
   subscriptionStatus: SubscriptionStatus;
   recurringPaymentFrequency: RecurringPaymentFrequency;
-  nextPaymentDue: Date;
-  subscriptionStartDate: Date;
-  subscriptionEndDate: Date;
+  nextPaymentDue: Date | string;
+  subscriptionStartDate: Date | string;
+  subscriptionEndDate: Date | string;
 }
 
 /**

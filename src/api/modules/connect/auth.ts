@@ -10,7 +10,8 @@ export type AuthType =
   | "unlock"
   | "token"
   | "sign"
-  | "signature";
+  | "signature"
+  | "subscription";
 
 export interface AuthData {
   // type of auth to request from the user

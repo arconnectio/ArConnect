@@ -1,0 +1,51 @@
+import {
+  isAddress,
+  isPermission,
+  isAppInfo,
+  isSubscriptionType
+} from "~utils/assertions";
+import type { ModuleFunction } from "~api/background";
+import authenticate from "../connect/auth";
+import { getSubscriptionData } from "~subscriptions";
+import {
+  RecurringPaymentFrequency,
+  type SubscriptionData
+} from "~subscriptions/subscription";
+
+const background: ModuleFunction<void> = async (
+  appData,
+  subscriptionData: SubscriptionData,
+  type?: unknown
+) => {
+  // validate input
+  isAddress(subscriptionData.arweaveAccountAddress);
+
+  if (type) isSubscriptionType(type);
+
+  // check if subsciption exists
+  const subscriptions = await getSubscriptionData();
+
+  if (
+    subscriptions.find(
+      (subscription) =>
+        subscription.arweaveAccountAddress ===
+        subscriptionData.arweaveAccountAddress
+    )
+  ) {
+    throw new Error("Token already added");
+  }
+
+  await authenticate({
+    type: "subscription",
+    url: appData.appURL,
+    arweaveAccountAddress: subscriptionData.arweaveAccountAddress,
+    applicationName: subscriptionData.applicationName,
+    subscriptionName: subscriptionData.subscriptionName,
+    subscriptionFeeAmount: subscriptionData.subscriptionFeeAmount,
+    subsciptionStatus: subscriptionData.subscriptionStatus,
+    recurringPaymentFrequency: subscriptionData.recurringPaymentFrequency,
+    nextPaymentDue: subscriptionData.nextPaymentDue,
+    subscriptionStartDate: subscriptionData.subscriptionStartDate,
+    subscriptionEndDate: subscriptionData.subscriptionEndDate
+  });
+};

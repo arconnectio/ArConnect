@@ -4,7 +4,6 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import type { Storage } from "@plasmohq/storage";
 import { defaultGateway, Gateway } from "~gateways/gateway";
-import type { SubscriptionData } from "~subscriptions/subscription";
 
 export const PREFIX = "app_";
 export const defaultBundler = "https://turbo.ardrive.io";
@@ -193,5 +192,4 @@ export interface InitAppParams extends AppInfo {
   allowance?: Allowance;
   blocked?: boolean;
   bundler?: string;
-  subscriptionData?: SubscriptionData;
 }

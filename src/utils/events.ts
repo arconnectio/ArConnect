@@ -2,7 +2,6 @@ import type { PermissionType } from "~applications/permissions";
 import { ExtensionStorage } from "./storage";
 import { Gateway } from "~gateways/gateway";
 import type { EventType } from "mitt";
-import type { SubscriptionData } from "~subscriptions/subscription";
 
 interface SecurityEvent {
   type: string;
@@ -33,5 +32,4 @@ export interface InjectedEvents extends Record<EventType, unknown> {
   addresses: string[];
   permissions: PermissionType[];
   gateway: Gateway;
-  subscription: SubscriptionData[];
 }
