@@ -49,6 +49,9 @@ export default class Subscription {
     );
   }
 
+  // TODO loadTokenLogo ?
+
+  // TODO check for subscriptionData from application
   // fetch / add subscription data from app
   //   async fetchAppSubscriptionData(): Promise<InitAppParams | null> {
   //     // check if app is connected
