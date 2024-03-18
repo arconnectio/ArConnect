@@ -9,7 +9,7 @@ export const NoAppIcon = styled(GlobeIcon)`
   color: #fff;
 `;
 
-const AppIcon = styled(Squircle)<{ color?: string }>`
+export const AppIcon = styled(Squircle)<{ color?: string }>`
   color: ${(props) =>
     props.color ? props.color : "rgb(" + props.theme.theme + ")"};
   width: 3rem;
