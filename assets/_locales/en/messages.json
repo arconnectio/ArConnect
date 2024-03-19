@@ -1710,6 +1710,14 @@
     "message": "Subscription Allowance",
     "description": "subscription settings title"
   },
+  "subscription_title": {
+    "message": "Subscription",
+    "description": "subscription title"
+  },
+  "subscribe_description": {
+    "message": "APPNAME wants to set up a Period subscription",
+    "description": "subscribe description"
+  },
   "subscription_description": {
     "message": "Manage auto withdrawal allowance",
     "description": "subscription setting description"

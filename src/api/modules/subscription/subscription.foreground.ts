@@ -33,16 +33,18 @@ const foreground: ModuleFunction<SubscriptionData[]> = (
   }
 
   return [
-    arweaveAccountAddress,
-    applicationName,
-    subscriptionName,
-    subscriptionFeeAmount,
-    subscriptionStatus,
-    recurringPaymentFrequency,
-    nextPaymentDue,
-    subscriptionStartDate,
-    subscriptionEndDate,
-    applicationIcon
+    {
+      arweaveAccountAddress,
+      applicationName,
+      subscriptionName,
+      subscriptionFeeAmount,
+      subscriptionStatus,
+      recurringPaymentFrequency,
+      nextPaymentDue,
+      subscriptionStartDate,
+      subscriptionEndDate,
+      applicationIcon
+    }
   ];
 };
 

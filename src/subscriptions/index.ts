@@ -2,9 +2,11 @@ import type { SubscriptionData } from "./subscription";
 import { ExtensionStorage } from "~utils/storage";
 
 // get subscription data from storage
-export async function getSubscriptionData(): Promise<SubscriptionData[]> {
+export async function getSubscriptionData(
+  activeAddress: string
+): Promise<SubscriptionData[]> {
   const subscriptionData = await ExtensionStorage.get<SubscriptionData[]>(
-    `subscriptions_${this.activeAddress}`
+    `subscriptions_${activeAddress}`
   );
   return subscriptionData;
 }
