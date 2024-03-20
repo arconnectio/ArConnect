@@ -128,7 +128,10 @@ export default function SubscriptionDetails({ id }: Props) {
   );
 }
 
-const SubscriptionText = styled.div<{ fontSize?: string; color?: string }>`
+export const SubscriptionText = styled.div<{
+  fontSize?: string;
+  color?: string;
+}>`
   font-size: ${(props) => props.fontSize || "16px"};
   font-weight: 500;
   color: ${(props) => props.color || "#a3a3a3"};
@@ -138,19 +141,19 @@ const SubscriptionText = styled.div<{ fontSize?: string; color?: string }>`
   }
 `;
 
-const Threshold = styled.div`
+export const Threshold = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
 `;
 
-const Body = styled.div`
+export const Body = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
 `;
 
-const PaymentDetails = styled.div`
+export const PaymentDetails = styled.div`
   h3 {
     margin: 0;
     font-size: 32px;
@@ -163,7 +166,7 @@ const PaymentDetails = styled.div`
   }
 `;
 
-const Main = styled.div`
+export const Main = styled.div`
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -181,7 +184,7 @@ export const SubscriptionListItem = styled.div`
   display: flex;
 `;
 
-const ToggleSwitch = () => {
+export const ToggleSwitch = () => {
   const [checked, setChecked] = useState(false);
 
   const handleChange = () => {
@@ -241,7 +244,7 @@ const Checkbox = styled.input`
   }
 `;
 
-const InfoCircle = () => (
+export const InfoCircle = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="16"

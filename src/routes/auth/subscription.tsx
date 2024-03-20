@@ -1,25 +1,31 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
-import {
-  Button,
-  Card,
-  ListItem,
-  Section,
-  Spacer,
-  Text
-} from "@arconnect/components";
-import { useEffect, useMemo, useState } from "react";
-import Wrapper from "~components/auth/Wrapper";
-import browser from "webextension-polyfill";
-import Head from "~components/popup/Head";
+import { ButtonV2, InputV2, Text } from "@arconnect/components";
+
 import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
+import {
+  Body,
+  InfoCircle,
+  Main,
+  PaymentDetails,
+  SubscriptionListItem,
+  SubscriptionText,
+  Threshold,
+  ToggleSwitch
+} from "~routes/popup/subscriptions/subscriptionDetails";
+import {
+  AppIcon,
+  Content,
+  Title
+} from "~routes/popup/subscriptions/subscriptions";
+import dayjs from "dayjs";
 
 export default function Subscription() {
   //   connect params
   const params = useAuthParams();
 
   // get auth utils
-  const { closeWindow, cancel } = useAuthUtils("signature", params?.authID);
+  const { closeWindow, cancel } = useAuthUtils("subscription", params?.authID);
 
   // listen for enter to reset
   //   useEffect(() => {
@@ -45,40 +51,103 @@ export default function Subscription() {
   // message decode type
 
   return (
-    <Wrapper>
-      <div>
-        <HeadV2
-          title={browser.i18n.getMessage("subscription_title")}
-          showOptions={false}
-          back={cancel}
-        />
-        <Spacer y={0.75} />
-        <Section>
-          <Text noMargin>
-            {browser.i18n.getMessage("subscribe_description")}
-          </Text>
-        </Section>
-        <ListItem title="Turbo Subscription" description="Pending" />
-        <Text style={{ padding: "14px" }}>
-          Application address: YSykB4NhJHA7jk4
-        </Text>
-      </div>
-      <Section>
-        <Spacer y={0.3} />
-
-        <Spacer y={1.25} />
-        <Button fullWidth>
-          {/* {browser.i18n.getMessage("subscribe")} */}
-          Subscribe
-        </Button>
-        <Spacer y={0.75} />
-        <Button fullWidth secondary onClick={cancel}>
-          {browser.i18n.getMessage("cancel")}
-        </Button>
-      </Section>
-    </Wrapper>
+    <>
+      <HeadV2 title="Subscriptions" back={cancel} />
+      {console.log("params", params)}
+      {params && (
+        <Wrapper>
+          <Main>
+            <SubscriptionListItem>
+              <Content>
+                <AppIcon color="white" customSize="2.625rem" />
+                <Title>
+                  <h2>{params.applicationName}</h2>
+                  <h3 style={{ fontSize: "12px" }}>
+                    Status:{" "}
+                    <span style={{ color: "greenyellow" }}>Pending</span>
+                  </h3>
+                </Title>
+              </Content>
+            </SubscriptionListItem>
+            <SubscriptionText>
+              Application address: <span>{params.arweaveAccountAddress}</span>
+            </SubscriptionText>
+            <PaymentDetails>
+              <h6>Recurring payment amount</h6>
+              <Body>
+                <h3>{params.subscriptionFeeAmount} AR</h3>
+                <SubscriptionText fontSize="14px" color="#ffffff">
+                  Subscription: {params.recurringPaymentFrequency}
+                </SubscriptionText>
+              </Body>
+              <Body>
+                <SubscriptionText fontSize="14px">$625.00 USD</SubscriptionText>
+                <SubscriptionText fontSize="14px" color="#ffffff">
+                  Next payment:{" "}
+                  {dayjs(params.nextPaymentDue).format("MMM DD, YYYY")}
+                </SubscriptionText>
+              </Body>
+            </PaymentDetails>
+            <div />
+            <div>
+              <Body>
+                <SubscriptionText fontSize="14px" color="#ffffff">
+                  Start
+                </SubscriptionText>
+                <SubscriptionText fontSize="14px" color="#ffffff">
+                  End
+                </SubscriptionText>
+              </Body>
+              <Body>
+                <SubscriptionText>Mar 8, 2024</SubscriptionText>
+                <SubscriptionText>Mar 8, 2025</SubscriptionText>
+              </Body>
+            </div>
+            {/* Toggle */}
+            <Body>
+              <SubscriptionText color="#ffffff">Auto-renewal</SubscriptionText>
+              <ToggleSwitch />
+            </Body>
+            <Threshold>
+              <Body>
+                <SubscriptionText color="#ffffff">
+                  Automatic Payment Threshold <InfoCircle />
+                </SubscriptionText>
+              </Body>
+              <InputV2 fullWidth />
+            </Threshold>
+          </Main>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px"
+            }}
+          >
+            <ButtonV2 fullWidth style={{ fontWeight: "500" }}>
+              Confirm Subscription
+            </ButtonV2>
+            <ButtonV2
+              fullWidth
+              style={{ fontWeight: "500", backgroundColor: "#8C1A1A" }}
+              onClick={cancel}
+            >
+              Cancel
+            </ButtonV2>
+          </div>
+        </Wrapper>
+      )}
+    </>
   );
 }
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px);
+  justify-content: space-between;
+  padding: 15px;
+`;
 
 const MessageHeader = styled.div`
   display: flex;
