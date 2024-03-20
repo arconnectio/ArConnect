@@ -9,6 +9,7 @@ import styled from "styled-components";
 import Squircle from "~components/Squircle";
 import { getSubscriptionData } from "~subscriptions";
 import dayjs from "dayjs";
+import { useHistory } from "~utils/hash_router";
 
 export default function Subscriptions() {
   const [subData, setSubData] = useState<SubscriptionData[] | null>(null);
@@ -95,6 +96,7 @@ export default function Subscriptions() {
                 status={sub.subscriptionStatus}
                 frequency={sub.recurringPaymentFrequency}
                 amount={sub.subscriptionFeeAmount}
+                id={sub.arweaveAccountAddress}
               />
             );
           })}
@@ -112,6 +114,8 @@ const SubscriptionListItem = ({
   status,
   frequency,
   amount,
+  id,
+
   icon
 }) => {
   let period: string = "";
@@ -146,8 +150,10 @@ const SubscriptionListItem = ({
     default:
       period = "";
   }
+
+  const [push] = useHistory();
   return (
-    <ListItem>
+    <ListItem onClick={() => push(`/subscriptions/${id}`)}>
       <Content>
         <AppIcon color="white"></AppIcon>
         <ListDetails>
@@ -188,7 +194,7 @@ const StatusCircle = ({ color }: { color: string }) => (
   </svg>
 );
 
-const Title = styled.div`
+export const Title = styled.div`
   h3 {
     color: #a3a3a3;
 
@@ -215,7 +221,7 @@ const ListItem = styled.div`
   }
 `;
 
-const Content = styled.div`
+export const Content = styled.div`
   cursor: pointer;
   display: flex;
   gap: 0.75rem;
@@ -262,10 +268,14 @@ const Image = styled.img`
   border-radius: 2px;
 `;
 
-const AppIcon = styled(Squircle)<{ color?: string }>`
-  color: ${(props) =>
-    props.color ? props.color : "rgb(" + props.theme.theme + ")"};
-  width: 2rem;
-  height: 2rem;
+type SquircleProps = {
+  color?: string;
+  customSize?: string;
+};
+
+export const AppIcon = styled(Squircle)<SquircleProps>`
+  color: ${(props) => props.color || `rgb(${props.theme.theme})`};
+  width: ${(props) => props.customSize || "2rem"};
+  height: ${(props) => props.customSize || "2rem"};
   cursor: pointer;
 `;
