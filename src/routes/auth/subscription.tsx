@@ -1,6 +1,6 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
-import { ButtonV2, InputV2, Text } from "@arconnect/components";
-
+import { ButtonV2, InputV2, Text, useToasts } from "@arconnect/components";
+import browser from "webextension-polyfill";
 import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
 import {
@@ -19,47 +19,79 @@ import {
   Title
 } from "~routes/popup/subscriptions/subscriptions";
 import dayjs from "dayjs";
+import { addSubscription } from "~subscriptions";
+import { getActiveAddress } from "~wallets";
+import type {
+  RecurringPaymentFrequency,
+  SubscriptionData,
+  SubscriptionStatus
+} from "~subscriptions/subscription";
+import Squircle from "~components/Squircle";
+import {
+  SettingIconWrapper,
+  SettingImage
+} from "~components/dashboard/list/BaseElement";
 
 export default function Subscription() {
   //   connect params
   const params = useAuthParams();
+  const { setToast } = useToasts();
 
   // get auth utils
   const { closeWindow, cancel } = useAuthUtils("subscription", params?.authID);
 
-  // listen for enter to reset
-  //   useEffect(() => {
-  //     const listener = async (e: KeyboardEvent) => {
-  //       if (e.key !== "Enter") return;
-  //       await sign();
-  //     };
+  async function done() {
+    // add subscription to storage
+    try {
+      const { authID, ...subscriptionParams } = params;
+      const activeAddress = await getActiveAddress();
+      const subscriptionData: SubscriptionData = {
+        arweaveAccountAddress: subscriptionParams.arweaveAccountAddress,
+        applicationName: subscriptionParams.applicationName,
+        subscriptionName: subscriptionParams.subscriptionName,
+        subscriptionFeeAmount: subscriptionParams.subscriptionFeeAmount,
+        subscriptionStatus:
+          subscriptionParams.subsciptionStatus as SubscriptionStatus,
+        recurringPaymentFrequency:
+          subscriptionParams.recurringPaymentFrequency as RecurringPaymentFrequency,
+        nextPaymentDue: new Date(subscriptionParams.nextPaymentDue),
+        subscriptionStartDate: new Date(
+          subscriptionParams.subscriptionStartDate
+        ),
+        subscriptionEndDate: new Date(subscriptionParams.subscriptionEndDate),
+        applicationIcon: subscriptionParams.applicationIcon
+      };
 
-  //     window.addEventListener("keydown", listener);
+      await addSubscription(activeAddress, subscriptionData);
 
-  //     return () => window.removeEventListener("keydown", listener);
-  //   }, [params?.authID]);
+      // reply to request
+      await replyToAuthRequest("subscription", params.authID);
 
-  // sign message
-  //   async function sign() {
-  //     // send response
-  //     await replyToAuthRequest("signature", params?.authID);
-
-  //     // close the window
-  //     closeWindow();
-  //   }
-
-  // message decode type
+      closeWindow();
+    } catch (e) {
+      console.log("Failed to subscribe");
+      setToast({
+        type: "error",
+        //todo update message
+        content: browser.i18n.getMessage("token_add_failure"),
+        duration: 2200
+      });
+    }
+  }
 
   return (
     <>
       <HeadV2 title="Subscriptions" back={cancel} />
-      {console.log("params", params)}
       {params && (
         <Wrapper>
           <Main>
             <SubscriptionListItem>
               <Content>
-                <AppIcon color="white" customSize="2.625rem" />
+                <SettingIconWrapper bg="255, 255, 255" customSize="2.625rem">
+                  {params.applicationIcon && (
+                    <SettingImage src={params.applicationIcon} />
+                  )}
+                </SettingIconWrapper>
                 <Title>
                   <h2>{params.applicationName}</h2>
                   <h3 style={{ fontSize: "12px" }}>
@@ -124,7 +156,7 @@ export default function Subscription() {
               gap: "8px"
             }}
           >
-            <ButtonV2 fullWidth style={{ fontWeight: "500" }}>
+            <ButtonV2 fullWidth style={{ fontWeight: "500" }} onClick={done}>
               Confirm Subscription
             </ButtonV2>
             <ButtonV2
@@ -147,31 +179,4 @@ const Wrapper = styled.div`
   height: calc(100vh - 100px);
   justify-content: space-between;
   padding: 15px;
-`;
-
-const MessageHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  p,
-  select {
-    font-size: 0.95rem;
-  }
-`;
-
-const EncodingSelect = styled.select`
-  font-weight: 500;
-  color: rgb(${(props) => props.theme.secondaryText});
-  outline: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  background-color: transparent;
-`;
-
-const MessageText = styled(Text).attrs({
-  noMargin: true
-})`
-  font-size: 0.9rem;
 `;

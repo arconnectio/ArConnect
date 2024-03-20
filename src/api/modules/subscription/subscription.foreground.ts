@@ -1,18 +1,7 @@
 import type { SubscriptionData } from "~subscriptions/subscription";
 import type { ModuleFunction } from "~api/module";
 
-const foreground: ModuleFunction<SubscriptionData[]> = (
-  arweaveAccountAddress,
-  applicationName,
-  subscriptionName,
-  subscriptionFeeAmount,
-  subscriptionStatus,
-  recurringPaymentFrequency,
-  nextPaymentDue,
-  subscriptionStartDate,
-  subscriptionEndDate,
-  applicationIcon?
-) => {
+const foreground: ModuleFunction<SubscriptionData[]> = (data) => {
   // Validate required fields
   const requiredFields: (keyof SubscriptionData)[] = [
     "arweaveAccountAddress",
@@ -27,23 +16,15 @@ const foreground: ModuleFunction<SubscriptionData[]> = (
   ];
 
   for (const field of requiredFields) {
-    if (typeof eval(field) === "undefined") {
+    if (data[field] === undefined) {
       throw new Error(`Missing required field: ${field}`);
     }
   }
 
   return [
     {
-      arweaveAccountAddress,
-      applicationName,
-      subscriptionName,
-      subscriptionFeeAmount,
-      subscriptionStatus,
-      recurringPaymentFrequency,
-      nextPaymentDue,
-      subscriptionStartDate,
-      subscriptionEndDate,
-      applicationIcon
+      ...data,
+      applicationIcon: data.applicationIcon
     }
   ];
 };

@@ -47,7 +47,8 @@ const background: ModuleFunction<void> = async (
     recurringPaymentFrequency: subscriptionData.recurringPaymentFrequency,
     nextPaymentDue: subscriptionData.nextPaymentDue,
     subscriptionStartDate: subscriptionData.subscriptionStartDate,
-    subscriptionEndDate: subscriptionData.subscriptionEndDate
+    subscriptionEndDate: subscriptionData.subscriptionEndDate,
+    applicationIcon: subscriptionData?.applicationIcon
   });
 };
 

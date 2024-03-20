@@ -10,6 +10,10 @@ import Squircle from "~components/Squircle";
 import { getSubscriptionData } from "~subscriptions";
 import dayjs from "dayjs";
 import { useHistory } from "~utils/hash_router";
+import {
+  SettingIconWrapper,
+  SettingImage
+} from "~components/dashboard/list/BaseElement";
 
 export default function Subscriptions() {
   const [subData, setSubData] = useState<SubscriptionData[] | null>(null);
@@ -17,57 +21,6 @@ export default function Subscriptions() {
   useEffect(() => {
     async function getSubData() {
       const address = await getActiveAddress();
-
-      await ExtensionStorage.set(`subscriptions_${address}`, [
-        {
-          applicationName: "ArDrive",
-          applicationIcon: "tN4vheZxrAIjqCfbs3MDdWTXg8a_57JUNyoqA4uwr1k",
-          arweaveAccountAddress: "JNC6vBhjHY1EPwV3pEeNmrsgFMxH5d38_LHsZ7jful8",
-          nextPaymentDue: "03-08-2025",
-          recurringPaymentFrequency: "Annually",
-          subscriptionEndDate: "03-08-2025",
-          subscriptionFeeAmount: 25,
-          subscriptionName: "Turbo Subscription",
-          subscriptionStartData: "03-08-2024",
-          subscriptionStatus: "Awaiting payment"
-        },
-        {
-          applicationName: "PermaSwap Pro",
-          applicationIcon: "tN4vheZxrAIjqCfbs3MDdWTXg8a_57JUNyoqA4uwr1k",
-          arweaveAccountAddress: "JNC6vBhjHY1EPwV3pEeNmrsgFMxH5d38_LHsZ7jful8",
-          nextPaymentDue: "",
-          recurringPaymentFrequency: "Quarterly",
-          subscriptionEndDate: "03-08-2025",
-          subscriptionFeeAmount: 25,
-          subscriptionName: "PermaSwap Pro Subscription",
-          subscriptionStartData: "03-08-2024",
-          subscriptionStatus: "Cancelled"
-        },
-        {
-          applicationName: "BARK Pro",
-          applicationIcon: "tN4vheZxrAIjqCfbs3MDdWTXg8a_57JUNyoqA4uwr1k",
-          arweaveAccountAddress: "JNC6vBhjHY1EPwV3pEeNmrsgFMxH5d38_LHsZ7jful8",
-          nextPaymentDue: "03-08-2025",
-          recurringPaymentFrequency: "Weekly",
-          subscriptionEndDate: "03-08-2025",
-          subscriptionFeeAmount: 25,
-          subscriptionName: "Turbo Subscription",
-          subscriptionStartData: "03-08-2024",
-          subscriptionStatus: "Active"
-        },
-        {
-          applicationName: "Coinbase One",
-          applicationIcon: "tN4vheZxrAIjqCfbs3MDdWTXg8a_57JUNyoqA4uwr1k",
-          arweaveAccountAddress: "JNC6vBhjHY1EPwV3pEeNmrsgFMxH5d38_LHsZ7jful8",
-          nextPaymentDue: "",
-          recurringPaymentFrequency: "Monthly",
-          subscriptionEndDate: "03-08-2025",
-          subscriptionFeeAmount: 25,
-          subscriptionName: "Turbo Subscription",
-          subscriptionStartData: "03-08-2024",
-          subscriptionStatus: "Expired"
-        }
-      ]);
 
       try {
         const sub = new Subscription(address);
@@ -155,7 +108,9 @@ const SubscriptionListItem = ({
   return (
     <ListItem onClick={() => push(`/subscriptions/${id}`)}>
       <Content>
-        <AppIcon color="white"></AppIcon>
+        <SettingIconWrapper bg="255, 255, 255" customSize="2rem">
+          {icon && <SettingImage src={icon} />}
+        </SettingIconWrapper>
         <ListDetails>
           <Title>
             <h2>{title}</h2>

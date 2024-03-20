@@ -11,6 +11,11 @@ import { getSubscriptionData } from "~subscriptions";
 import dayjs from "dayjs";
 import { ButtonV2, Input, InputV2, ListItem } from "@arconnect/components";
 import { AppIcon, Content, Title } from "./subscriptions";
+import {
+  SettingIconWrapper,
+  SettingImage
+} from "~components/dashboard/list/BaseElement";
+import { formatAddress } from "~utils/format";
 
 interface Props {
   id?: string;
@@ -24,7 +29,6 @@ export default function SubscriptionDetails({ id }: Props) {
       const address = await getActiveAddress();
 
       try {
-        const sub = new Subscription(address);
         const data = await getSubscriptionData(address);
         // finding like this for now
         const subscription = data.find(
@@ -46,7 +50,11 @@ export default function SubscriptionDetails({ id }: Props) {
           <Main>
             <SubscriptionListItem>
               <Content>
-                <AppIcon color="white" customSize="2.625rem" />
+                <SettingIconWrapper bg="255, 255, 255" customSize="2.625rem">
+                  {subData.applicationIcon && (
+                    <SettingImage src={subData.applicationIcon} />
+                  )}
+                </SettingIconWrapper>
                 <Title>
                   <h2>{subData.applicationName}</h2>
                   <h3 style={{ fontSize: "12px" }}>
@@ -59,7 +67,8 @@ export default function SubscriptionDetails({ id }: Props) {
               </Content>
             </SubscriptionListItem>
             <SubscriptionText>
-              Application address: <span>YSykB4NhJHA7jk4</span>
+              Application address:{" "}
+              <span>{formatAddress(subData.arweaveAccountAddress, 8)}</span>
             </SubscriptionText>
             <PaymentDetails>
               <h6>Recurring payment amount</h6>
