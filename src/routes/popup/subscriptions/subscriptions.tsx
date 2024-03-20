@@ -14,6 +14,8 @@ import {
   SettingIconWrapper,
   SettingImage
 } from "~components/dashboard/list/BaseElement";
+import { useTheme } from "~utils/theme";
+import type { DisplayTheme } from "@arconnect/components";
 
 export default function Subscriptions() {
   const [subData, setSubData] = useState<SubscriptionData[] | null>(null);
@@ -103,16 +105,19 @@ const SubscriptionListItem = ({
     default:
       period = "";
   }
-
+  const theme = useTheme();
   const [push] = useHistory();
   return (
     <ListItem onClick={() => push(`/subscriptions/${id}`)}>
       <Content>
-        <SettingIconWrapper bg="255, 255, 255" customSize="2rem">
+        <SettingIconWrapper
+          bg={theme === "light" ? "235,235,235" : "255, 255, 255"}
+          customSize="2rem"
+        >
           {icon && <SettingImage src={icon} />}
         </SettingIconWrapper>
         <ListDetails>
-          <Title>
+          <Title displayTheme={theme}>
             <h2>{title}</h2>
             <h3>
               Next payment date:{" "}
@@ -149,12 +154,15 @@ const StatusCircle = ({ color }: { color: string }) => (
   </svg>
 );
 
-export const Title = styled.div`
+export const Title = styled.div<{ displayTheme?: DisplayTheme }>`
   h3 {
-    color: #a3a3a3;
+    color: ${(props) =>
+      props.displayTheme === "dark" ? "#a3a3a3" : "#757575"};
 
     span {
       color: white;
+      color: ${(props) =>
+        props.displayTheme === "dark" ? "white" : "#191919"};
     }
   }
 `;

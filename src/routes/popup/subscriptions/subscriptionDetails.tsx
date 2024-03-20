@@ -9,19 +9,27 @@ import styled from "styled-components";
 import Squircle from "~components/Squircle";
 import { getSubscriptionData } from "~subscriptions";
 import dayjs from "dayjs";
-import { ButtonV2, Input, InputV2, ListItem } from "@arconnect/components";
+import {
+  ButtonV2,
+  Input,
+  InputV2,
+  ListItem,
+  type DisplayTheme
+} from "@arconnect/components";
 import { AppIcon, Content, Title } from "./subscriptions";
 import {
   SettingIconWrapper,
   SettingImage
 } from "~components/dashboard/list/BaseElement";
 import { formatAddress } from "~utils/format";
+import { useTheme } from "~utils/theme";
 
 interface Props {
   id?: string;
 }
 
 export default function SubscriptionDetails({ id }: Props) {
+  const theme = useTheme();
   const [subData, setSubData] = useState<SubscriptionData | null>(null);
 
   useEffect(() => {
@@ -50,7 +58,10 @@ export default function SubscriptionDetails({ id }: Props) {
           <Main>
             <SubscriptionListItem>
               <Content>
-                <SettingIconWrapper bg="255, 255, 255" customSize="2.625rem">
+                <SettingIconWrapper
+                  bg={theme === "light" ? "235,235,235" : "255, 255, 255"}
+                  customSize="2.625rem"
+                >
                   {subData.applicationIcon && (
                     <SettingImage src={subData.applicationIcon} />
                   )}
@@ -66,7 +77,7 @@ export default function SubscriptionDetails({ id }: Props) {
                 </Title>
               </Content>
             </SubscriptionListItem>
-            <SubscriptionText>
+            <SubscriptionText displayTheme={theme}>
               Application address:{" "}
               <span>{formatAddress(subData.arweaveAccountAddress, 8)}</span>
             </SubscriptionText>
@@ -74,13 +85,19 @@ export default function SubscriptionDetails({ id }: Props) {
               <h6>Recurring payment amount</h6>
               <Body>
                 <h3>25 AR</h3>
-                <SubscriptionText fontSize="14px" color="#ffffff">
+                <SubscriptionText
+                  fontSize="14px"
+                  color={theme === "light" ? "#191919" : "#ffffff"}
+                >
                   Subscription: Yearly
                 </SubscriptionText>
               </Body>
               <Body>
                 <SubscriptionText fontSize="14px">$625.00 USD</SubscriptionText>
-                <SubscriptionText fontSize="14px" color="#ffffff">
+                <SubscriptionText
+                  fontSize="14px"
+                  color={theme === "light" ? "#191919" : "#ffffff"}
+                >
                   Next payment: Mar 8, 2025
                 </SubscriptionText>
               </Body>
@@ -88,10 +105,16 @@ export default function SubscriptionDetails({ id }: Props) {
             <div />
             <div>
               <Body>
-                <SubscriptionText fontSize="14px" color="#ffffff">
+                <SubscriptionText
+                  fontSize="14px"
+                  color={theme === "light" ? "#191919" : "#ffffff"}
+                >
                   Start
                 </SubscriptionText>
-                <SubscriptionText fontSize="14px" color="#ffffff">
+                <SubscriptionText
+                  fontSize="14px"
+                  color={theme === "light" ? "#191919" : "#ffffff"}
+                >
                   End
                 </SubscriptionText>
               </Body>
@@ -107,11 +130,13 @@ export default function SubscriptionDetails({ id }: Props) {
             </Body>
             <Threshold>
               <Body>
-                <SubscriptionText color="#ffffff">
+                <SubscriptionText
+                  color={theme === "light" ? "#191919" : "#ffffff"}
+                >
                   Automatic Payment Threshold <InfoCircle />
                 </SubscriptionText>
               </Body>
-              {/* <InputV2 fullWidth /> */}
+              <InputV2 fullWidth />
             </Threshold>
           </Main>
           <div
@@ -138,15 +163,21 @@ export default function SubscriptionDetails({ id }: Props) {
 }
 
 export const SubscriptionText = styled.div<{
+  displayTheme?: DisplayTheme;
   fontSize?: string;
   color?: string;
 }>`
   font-size: ${(props) => props.fontSize || "16px"};
   font-weight: 500;
-  color: ${(props) => props.color || "#a3a3a3"};
+  color: ${(props) =>
+    props.color
+      ? props.color
+      : props.displayTheme === "dark"
+      ? "#a3a3a3"
+      : "#757575"};
 
   span {
-    color: #ffffff;
+    color: ${(props) => props.color || "#ffffff"};
   }
 `;
 

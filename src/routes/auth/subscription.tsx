@@ -31,6 +31,8 @@ import {
   SettingIconWrapper,
   SettingImage
 } from "~components/dashboard/list/BaseElement";
+import { useTheme } from "~utils/theme";
+import { formatAddress } from "~utils/format";
 
 export default function Subscription() {
   //   connect params
@@ -39,7 +41,7 @@ export default function Subscription() {
 
   // get auth utils
   const { closeWindow, cancel } = useAuthUtils("subscription", params?.authID);
-
+  const theme = useTheme();
   async function done() {
     // add subscription to storage
     try {
@@ -87,7 +89,10 @@ export default function Subscription() {
           <Main>
             <SubscriptionListItem>
               <Content>
-                <SettingIconWrapper bg="255, 255, 255" customSize="2.625rem">
+                <SettingIconWrapper
+                  bg={theme === "light" ? "235,235,235" : "255, 255, 255"}
+                  customSize="2.625rem"
+                >
                   {params.applicationIcon && (
                     <SettingImage src={params.applicationIcon} />
                   )}
@@ -101,20 +106,27 @@ export default function Subscription() {
                 </Title>
               </Content>
             </SubscriptionListItem>
-            <SubscriptionText>
-              Application address: <span>{params.arweaveAccountAddress}</span>
+            <SubscriptionText color={theme === "light" ? "#191919" : "#ffffff"}>
+              Application address:{" "}
+              <span>{formatAddress(params.arweaveAccountAddress, 8)}</span>
             </SubscriptionText>
             <PaymentDetails>
               <h6>Recurring payment amount</h6>
               <Body>
                 <h3>{params.subscriptionFeeAmount} AR</h3>
-                <SubscriptionText fontSize="14px" color="#ffffff">
+                <SubscriptionText
+                  fontSize="14px"
+                  color={theme === "light" ? "#191919" : "#ffffff"}
+                >
                   Subscription: {params.recurringPaymentFrequency}
                 </SubscriptionText>
               </Body>
               <Body>
                 <SubscriptionText fontSize="14px">$625.00 USD</SubscriptionText>
-                <SubscriptionText fontSize="14px" color="#ffffff">
+                <SubscriptionText
+                  fontSize="14px"
+                  color={theme === "light" ? "#191919" : "#ffffff"}
+                >
                   Next payment:{" "}
                   {dayjs(params.nextPaymentDue).format("MMM DD, YYYY")}
                 </SubscriptionText>
@@ -123,10 +135,16 @@ export default function Subscription() {
             <div />
             <div>
               <Body>
-                <SubscriptionText fontSize="14px" color="#ffffff">
+                <SubscriptionText
+                  fontSize="14px"
+                  color={theme === "light" ? "#191919" : "#ffffff"}
+                >
                   Start
                 </SubscriptionText>
-                <SubscriptionText fontSize="14px" color="#ffffff">
+                <SubscriptionText
+                  fontSize="14px"
+                  color={theme === "light" ? "#191919" : "#ffffff"}
+                >
                   End
                 </SubscriptionText>
               </Body>
@@ -137,12 +155,18 @@ export default function Subscription() {
             </div>
             {/* Toggle */}
             <Body>
-              <SubscriptionText color="#ffffff">Auto-renewal</SubscriptionText>
+              <SubscriptionText
+                color={theme === "light" ? "#191919" : "#ffffff"}
+              >
+                Auto-renewal
+              </SubscriptionText>
               <ToggleSwitch />
             </Body>
             <Threshold>
               <Body>
-                <SubscriptionText color="#ffffff">
+                <SubscriptionText
+                  color={theme === "light" ? "#191919" : "#ffffff"}
+                >
                   Automatic Payment Threshold <InfoCircle />
                 </SubscriptionText>
               </Body>
