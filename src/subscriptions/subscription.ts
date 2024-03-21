@@ -15,62 +15,6 @@ export default class Subscription {
     this.applicationUrl = applicationUrl;
     this.#storage = ExtensionStorage;
   }
-
-  // handle subscription signup
-  async signUpSubscription(subscriptionData: SubscriptionData): Promise<void> {
-    // validate subscription data
-    const requiredFields: (keyof SubscriptionData)[] = [
-      "arweaveAccountAddress",
-      "applicationName",
-      "subscriptionName",
-      "subscriptionFeeAmount",
-      "subscriptionStatus",
-      "recurringPaymentFrequency",
-      "nextPaymentDue",
-      "subscriptionStartDate",
-      "subscriptionEndDate"
-    ];
-    for (const field of requiredFields) {
-      if (!subscriptionData[field]) {
-        throw new Error(`Missing required field: ${field}`);
-      }
-    }
-
-    // retrieve existing subscriptions
-    let existingSubscriptions: SubscriptionData[] = await getSubscriptionData();
-
-    // append the new subsciption
-    existingSubscriptions.push(subscriptionData);
-
-    // store subscription data
-    await this.#storage.set(
-      `subscriptions_${this.activeAddress}`,
-      existingSubscriptions
-    );
-  }
-
-  // TODO loadTokenLogo ?
-
-  // TODO check for subscriptionData from application
-  // fetch / add subscription data from app
-  //   async fetchAppSubscriptionData(): Promise<InitAppParams | null> {
-  //     // check if app is connected
-  //     const hasConnection: boolean = await this.application.isConnected();
-  //     if (!hasConnection) {
-  //       throw new Error("Not connected to an Arweave Application");
-  //     }
-
-  //     // call application hook() to get app data
-  //     const [appData] = this.application.hook();
-
-  //     // TODO check
-  //     if (appData && appData.subscriptionData) {
-  //       return appData.subscriptionData;
-  //     } else {
-  //       console.error("Error fetching subscription data");
-  //       return null;
-  //     }
-  //   }
 }
 
 /**

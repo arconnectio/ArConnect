@@ -33,7 +33,7 @@ const background: ModuleFunction<void> = async (
   //       subscriptionData.arweaveAccountAddress
   //   )
   // ) {
-  //   throw new Error("Token already added");
+  //   throw new Error("Subscription already added");
   // }
 
   await authenticate({
