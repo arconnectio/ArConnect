@@ -4,6 +4,7 @@ import {
   isAppInfo,
   isSubscriptionType
 } from "~utils/assertions";
+import { getActiveAddress } from "~wallets";
 import type { ModuleFunction } from "~api/background";
 import authenticate from "../connect/auth";
 import { getSubscriptionData } from "~subscriptions";
@@ -21,19 +22,19 @@ const background: ModuleFunction<void> = async (
   isAddress(subscriptionData.arweaveAccountAddress);
 
   if (type) isSubscriptionType(type);
-
+  const address = await getActiveAddress();
   // check if subsciption exists
-  const subscriptions = await getSubscriptionData();
+  const subscriptions = await getSubscriptionData(address);
 
-  if (
-    subscriptions.find(
-      (subscription) =>
-        subscription.arweaveAccountAddress ===
-        subscriptionData.arweaveAccountAddress
-    )
-  ) {
-    throw new Error("Token already added");
-  }
+  // if (
+  //   subscriptions.find(
+  //     (subscription) =>
+  //       subscription.arweaveAccountAddress ===
+  //       subscriptionData.arweaveAccountAddress
+  //   )
+  // ) {
+  //   throw new Error("Token already added");
+  // }
 
   await authenticate({
     type: "subscription",
@@ -46,6 +47,9 @@ const background: ModuleFunction<void> = async (
     recurringPaymentFrequency: subscriptionData.recurringPaymentFrequency,
     nextPaymentDue: subscriptionData.nextPaymentDue,
     subscriptionStartDate: subscriptionData.subscriptionStartDate,
-    subscriptionEndDate: subscriptionData.subscriptionEndDate
+    subscriptionEndDate: subscriptionData.subscriptionEndDate,
+    applicationIcon: subscriptionData?.applicationIcon
   });
 };
+
+export default background;

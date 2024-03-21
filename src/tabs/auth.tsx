@@ -14,6 +14,7 @@ import Connect from "~routes/auth/connect";
 import Unlock from "~routes/auth/unlock";
 import Token from "~routes/auth/token";
 import Sign from "~routes/auth/sign";
+import Subscription from "~routes/auth/subscription";
 
 export default function Auth() {
   const theme = useTheme();
@@ -34,6 +35,7 @@ export default function Auth() {
             <Route path="/token" component={Token} />
             <Route path="/sign" component={Sign} />
             <Route path="/signature" component={Signature} />
+            <Route path="/subscription" component={Subscription} />
           </Router>
         </Wrapper>
       </HardwareWalletTheme>
