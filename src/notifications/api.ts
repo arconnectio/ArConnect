@@ -1,7 +1,7 @@
 import { ExtensionStorage } from "~utils/storage";
 import { getActiveAddress } from "~wallets";
 import iconUrl from "url:/assets/icon512.png";
-import browser from "webextension-polyfill";
+import browser, { type Alarms } from "webextension-polyfill";
 import { gql } from "~gateways/api";
 import { suggestedGateways } from "~gateways/gateway";
 import {
@@ -43,7 +43,9 @@ export type Transaction = {
 
 type ArNotificationsHandlerReturnType = [Transaction[], number, any[]];
 
-export async function notificationsHandler() {
+export async function notificationsHandler(alarmInfo?: Alarms.Alarm) {
+  if (alarmInfo && !alarmInfo.name.startsWith("notifications")) return;
+
   const notificationSetting: boolean = await ExtensionStorage.get(
     "setting_notifications"
   );
