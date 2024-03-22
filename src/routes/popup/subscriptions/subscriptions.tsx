@@ -20,6 +20,7 @@ import type { DisplayTheme } from "@arconnect/components";
 
 export default function Subscriptions() {
   const [subData, setSubData] = useState<SubscriptionData[] | null>(null);
+  const theme = useTheme();
 
   useEffect(() => {
     async function getSubData() {
@@ -67,7 +68,10 @@ export default function Subscriptions() {
           })}
         </SubscriptionList>
       ) : (
-        <div>No notifications found</div>
+        <NoSubscriptionWrapper displayTheme={theme}>
+          <div>No subscriptions yet</div>
+          <span>Your future subscriptions will be available here</span>
+        </NoSubscriptionWrapper>
       )}
     </div>
   );
@@ -183,6 +187,28 @@ const SubscriptionList = styled.div`
   border: 1px solid #333333;
   border-radius: 10px;
   margin: 0 15px;
+`;
+
+const NoSubscriptionWrapper = styled.div<{ displayTheme?: DisplayTheme }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 65px);
+  text-align: center;
+  gap: 10px;
+  padding: 0 85px;
+
+  div {
+    font-size: 20px;
+    font-weight: 500;
+  }
+  span {
+    font-size: 16px;
+    font-weight: 400;
+    color: ${(props) =>
+      props.displayTheme === "dark" ? "#a3a3a3" : "#757575"};
+  }
 `;
 
 const ListItem = styled.div`
