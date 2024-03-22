@@ -27,6 +27,7 @@ const background: ModuleFunction<void> = async (
   const subscriptions = await getSubscriptionData(address);
 
   if (
+    subscriptions &&
     subscriptions.find(
       (subscription) =>
         subscription.arweaveAccountAddress ===
