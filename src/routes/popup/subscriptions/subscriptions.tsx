@@ -1,4 +1,5 @@
 import Subscription, {
+  SubscriptionStatus,
   type SubscriptionData
 } from "~subscriptions/subscription";
 import HeadV2 from "~components/popup/HeadV2";
@@ -7,7 +8,7 @@ import { getActiveAddress } from "~wallets";
 import { ExtensionStorage } from "~utils/storage";
 import styled from "styled-components";
 import Squircle from "~components/Squircle";
-import { getSubscriptionData } from "~subscriptions";
+import { getSubscriptionData, updateSubscription } from "~subscriptions";
 import dayjs from "dayjs";
 import { useHistory } from "~utils/hash_router";
 import {
@@ -25,10 +26,19 @@ export default function Subscriptions() {
       const address = await getActiveAddress();
 
       try {
-        const sub = new Subscription(address);
         const data = await getSubscriptionData(address);
-
-        console.log("data: ", data);
+        // updates status if it's past due
+        data.forEach(async (subscription) => {
+          const nextPaymentDue = new Date(subscription.nextPaymentDue);
+          const now = new Date();
+          if (nextPaymentDue < now) {
+            await updateSubscription(
+              address,
+              subscription.arweaveAccountAddress,
+              SubscriptionStatus.AWAITING_PAYMENT
+            );
+          }
+        });
         setSubData(data);
       } catch (error) {
         console.error("Error fetching subscription data:", error);
@@ -74,20 +84,7 @@ const SubscriptionListItem = ({
   icon
 }) => {
   let period: string = "";
-  let color: string = "";
-  switch (status) {
-    case "Active":
-      color = "#14D110";
-      break;
-    case "Cancelled":
-      color = "#FF1A1A";
-      break;
-    case "Awaiting payment":
-      color = "#CFB111";
-      break;
-    default:
-      color = "#A3A3A3";
-  }
+  const color: string = getColorByStatus(status as SubscriptionStatus);
 
   switch (frequency) {
     case "Weekly":
@@ -140,6 +137,19 @@ const SubscriptionListItem = ({
       </Content>
     </ListItem>
   );
+};
+
+export const getColorByStatus = (status: SubscriptionStatus): string => {
+  switch (status) {
+    case SubscriptionStatus.ACTIVE:
+      return "#14D110";
+    case SubscriptionStatus.CANCELED:
+      return "#FF1A1A";
+    case SubscriptionStatus.AWAITING_PAYMENT:
+      return "#CFB111";
+    default:
+      return "#A3A3A3";
+  }
 };
 
 const StatusCircle = ({ color }: { color: string }) => (

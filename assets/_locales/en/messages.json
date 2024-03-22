@@ -1721,5 +1721,21 @@
   "subscription_description": {
     "message": "Manage auto withdrawal allowance",
     "description": "subscription setting description"
+  },
+  "subscription_cancelled": {
+    "message": "Subscription Cancelled",
+    "description": "The subscription has been successfully cancelled."
+  },
+  "subscription_cancelled_error": {
+    "message": "Subscription Cancellation Error",
+    "description": "There was an error cancelling the subscription. Please try again."
+  },
+  "subscription_deleted": {
+    "message": "Subscription Deleted",
+    "description": "The subscription has been successfully deleted."
+  },
+  "subscription_delete_error": {
+    "message": "Subscription Deletion Error",
+    "description": "There was an error deleting the subscription. Please try again."
   }
 }

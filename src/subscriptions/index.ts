@@ -1,4 +1,4 @@
-import type { SubscriptionData } from "./subscription";
+import type { SubscriptionData, SubscriptionStatus } from "./subscription";
 import { ExtensionStorage } from "~utils/storage";
 
 // get subscription data from storage
@@ -9,6 +9,56 @@ export async function getSubscriptionData(
     `subscriptions_${activeAddress}`
   );
   return subscriptionData;
+}
+
+export async function deleteSubscription(
+  activeAddress: string,
+  deleteId: string
+) {
+  try {
+    const subscriptions = await getSubscriptionData(activeAddress);
+    const subscriptionIndex = subscriptions.findIndex(
+      (subscription) => subscription.arweaveAccountAddress === deleteId
+    );
+
+    if (subscriptionIndex !== -1) {
+      subscriptions.splice(subscriptionIndex, 1);
+
+      await ExtensionStorage.set(
+        `subscriptions_${activeAddress}`,
+        subscriptions
+      );
+    } else {
+      console.log("No subscription found with the given ID");
+    }
+  } catch (err) {
+    console.log("Error deleting subscription:", err);
+  }
+}
+
+export async function updateSubscription(
+  activeAddress: string,
+  updateId: string,
+  newStatus: SubscriptionStatus
+) {
+  try {
+    const subscriptions = await getSubscriptionData(activeAddress);
+    const subscriptionIndex = subscriptions.findIndex(
+      (subscription) => subscription.arweaveAccountAddress === updateId
+    );
+    if (subscriptionIndex !== -1) {
+      subscriptions[subscriptionIndex].subscriptionStatus = newStatus;
+
+      await ExtensionStorage.set(
+        `subscriptions_${activeAddress}`,
+        subscriptions
+      );
+    } else {
+      console.log("No subscription found with the given ID");
+    }
+  } catch (err) {
+    console.log("err", err);
+  }
 }
 
 export async function addSubscription(

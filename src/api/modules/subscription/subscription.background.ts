@@ -26,15 +26,15 @@ const background: ModuleFunction<void> = async (
   // check if subsciption exists
   const subscriptions = await getSubscriptionData(address);
 
-  // if (
-  //   subscriptions.find(
-  //     (subscription) =>
-  //       subscription.arweaveAccountAddress ===
-  //       subscriptionData.arweaveAccountAddress
-  //   )
-  // ) {
-  //   throw new Error("Token already added");
-  // }
+  if (
+    subscriptions.find(
+      (subscription) =>
+        subscription.arweaveAccountAddress ===
+        subscriptionData.arweaveAccountAddress
+    )
+  ) {
+    throw new Error("Account is already subscribed");
+  }
 
   await authenticate({
     type: "subscription",
@@ -42,8 +42,8 @@ const background: ModuleFunction<void> = async (
     arweaveAccountAddress: subscriptionData.arweaveAccountAddress,
     applicationName: subscriptionData.applicationName,
     subscriptionName: subscriptionData.subscriptionName,
+    subscriptionManagementUrl: subscriptionData.subscriptionManagementUrl,
     subscriptionFeeAmount: subscriptionData.subscriptionFeeAmount,
-    subsciptionStatus: subscriptionData.subscriptionStatus,
     recurringPaymentFrequency: subscriptionData.recurringPaymentFrequency,
     nextPaymentDue: subscriptionData.nextPaymentDue,
     subscriptionStartDate: subscriptionData.subscriptionStartDate,
