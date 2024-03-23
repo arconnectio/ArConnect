@@ -1,6 +1,15 @@
+import {
+  ExtensionStorage,
+  TRANSFER_TX_STORAGE,
+  type RawStoredTransfer,
+  TempTransactionStorage
+} from "~utils/storage";
 import type { SubscriptionData } from "./subscription";
-import { ExtensionStorage } from "~utils/storage";
+import { findGateway } from "~gateways/wayfinder";
+import SendAuth from "~routes/popup/send/auth";
 import { getActiveAddress } from "~wallets";
+import browser from "webextension-polyfill";
+import Arweave from "arweave";
 
 export async function handleSubscriptionPayment(data: SubscriptionData[]) {
   const address = await getActiveAddress();
@@ -12,6 +21,7 @@ export async function handleSubscriptionPayment(data: SubscriptionData[]) {
   const subscriptionFee = data.subscriptionFeeAmount;
 
   if (subscriptionFee >= autoAllowance) {
+    // Subscription fee exceeds allowance, handle notification logic
     const currentDate = new Date();
     // @ts-ignore
     const paymentDueDate = new Date(data.nextPaymentDue);
@@ -74,6 +84,47 @@ export async function handleSubscriptionPayment(data: SubscriptionData[]) {
       );
     }
   } else {
+    // Subscription fee is less than allowance amount
     // Initiate automatic subscription payment
+    async function send(target: string) {
+      try {
+        // create tx
+        const gateway = await findGateway({});
+        const arweave = new Arweave(gateway);
+
+        // save tx json into session
+        // to be signed and submitted
+        const storedTx: Partial<RawStoredTransfer> = {
+          type: "native",
+          gateway: gateway
+        };
+
+        // @ts-ignore
+        const paymentQuantity = data.subscriptionFeeAmount;
+
+        const tx = await arweave.createTransaction({
+          target,
+          quantity: paymentQuantity.toString(),
+          data: "ArConnect Subscription Payment"
+        });
+
+        tx.addTag("Content-Type", "text/plain");
+        tx.addTag("Type", "Transfer");
+        tx.addTag("Client", "ArConnect");
+        tx.addTag("Client-Version", browser.runtime.getManifest().version);
+
+        storedTx.transaction = tx.toJSON();
+
+        await TempTransactionStorage.set(TRANSFER_TX_STORAGE, storedTx);
+      } catch (error) {
+        console.log("Error sending automated transaction");
+      }
+    }
+
+    try {
+      // @ts-ignore
+      const recipientAddress = data.arweaveAccountAddress;
+      send(recipientAddress);
+    } catch (error) {}
   }
 }
