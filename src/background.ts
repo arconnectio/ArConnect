@@ -14,6 +14,7 @@ import { onInstalled } from "~utils/runtime";
 import browser from "webextension-polyfill";
 import { syncLabels } from "~wallets";
 import { trackBalance } from "~utils/analytics";
+import { subscriptionsHandler } from "~subscriptions/api";
 
 // watch for API calls
 onMessage("api_call", handleApiCalls);
@@ -28,8 +29,11 @@ browser.tabs.onActivated.addListener(({ tabId }) => handleTabUpdate(tabId));
 // handle fee alarm (send fees asyncronously)
 browser.alarms.onAlarm.addListener(handleFeeAlarm);
 
-// handle norifications
+// handle notifications
 browser.alarms.onAlarm.addListener(notificationsHandler);
+
+// handle subscriptions
+// browser.alarms.onAlarm.addListener(subscriptionsHandler)
 
 browser.alarms.onAlarm.addListener(trackBalance);
 
