@@ -4,12 +4,19 @@ import {
   type RawStoredTransfer,
   TempTransactionStorage
 } from "~utils/storage";
+import {
+  defaultGateway,
+  fallbackGateway,
+  type Gateway
+} from "~gateways/gateway";
+import type Transaction from "arweave/web/lib/transaction";
+import { EventType, trackEvent } from "~utils/analytics";
 import type { SubscriptionData } from "./subscription";
 import { findGateway } from "~gateways/wayfinder";
-import SendAuth from "~routes/popup/send/auth";
-import { getActiveAddress } from "~wallets";
+import { getActiveAddress, getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
+import { freeDecryptedWallet } from "~wallets/encryption";
 
 export async function handleSubscriptionPayment(data: SubscriptionData[]) {
   const address = await getActiveAddress();
@@ -125,6 +132,119 @@ export async function handleSubscriptionPayment(data: SubscriptionData[]) {
       // @ts-ignore
       const recipientAddress = data.arweaveAccountAddress;
       send(recipientAddress);
-    } catch (error) {}
+
+      // get transaction from session storage
+      async function getTransaction() {
+        // get raw tx
+        const raw = await TempTransactionStorage.get<RawStoredTransfer>(
+          TRANSFER_TX_STORAGE
+        );
+        const gateway = raw?.gateway || defaultGateway;
+
+        if (!raw) return undefined;
+
+        // gateway from raw tx
+        const arweave = new Arweave(gateway);
+
+        return {
+          type: raw.type,
+          gateway,
+          transaction: arweave.transactions.fromRaw(raw.transaction)
+        };
+      }
+
+      async function submitTx(
+        transaction: Transaction,
+        arweave: Arweave,
+        type: "native"
+      ) {
+        // cache tx
+        localStorage.setItem(
+          "latest_tx",
+          JSON.stringify({
+            quantity: { ar: arweave.ar.winstonToAr(transaction.quantity) },
+            owner: {
+              address: await arweave.wallets.ownerToAddress(transaction.owner)
+            },
+            recipient: transaction.target,
+            fee: { ar: transaction.reward },
+            data: { size: transaction.data_size },
+            // @ts-expect-error
+            tags: (transaction.get("tags") as Tag[]).map((tag) => ({
+              name: tag.get("name", { string: true, decode: true }),
+              value: tag.get("value", { string: true, decode: true })
+            }))
+          })
+        );
+
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => {
+            reject(
+              new Error("Timeout: Posting to Arweave took more than 10 seconds")
+            );
+          }, 10000);
+        });
+
+        try {
+          await Promise.race([
+            arweave.transactions.post(transaction),
+            timeoutPromise
+          ]);
+        } catch (err) {
+          // SEGMENT
+          await trackEvent(EventType.TRANSACTION_INCOMPLETE, {});
+          throw new Error("Error posting subscription tx to Arweave");
+        }
+      }
+
+      async function sendLocal() {
+        // Retrieve latest tx amount details from localStorage
+        const latestTxQty = await ExtensionStorage.get("last_send_qty");
+        if (!latestTxQty) {
+          throw new Error("Error: no send quantity found");
+        }
+
+        const transactionAmount = Number(latestTxQty);
+
+        // get tx and gateway
+        let { type, gateway, transaction } = await getTransaction();
+        const arweave = new Arweave(gateway);
+
+        //! SEE HERE
+        const decryptedWallet = await getActiveKeyfile();
+
+        // Process transaction without user signing
+        try {
+          // Decrypt wallet without user signing
+          const keyfile = decryptedWallet.keyfile;
+
+          // Set owner
+          transaction.setOwner(keyfile.n);
+
+          // Sign the transaction
+          await arweave.transactions.sign(transaction, keyfile);
+
+          try {
+            // Post the transaction
+            await submitTx(transaction, arweave, type);
+          } catch (e) {
+            // FALLBACK IF ISP BLOCKS ARWEAVE.NET OR IF WAYFINDER FAILS
+            gateway = fallbackGateway;
+            const fallbackArweave = new Arweave(gateway);
+            await fallbackArweave.transactions.sign(transaction, keyfile);
+            await submitTx(transaction, fallbackArweave, type);
+            await trackEvent(EventType.FALLBACK, {});
+          }
+
+          // remove wallet from memory
+          freeDecryptedWallet(keyfile);
+        } catch (e) {
+          console.log(e, "failed subscription tx");
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      throw new Error("Error making auto subscription payment");
+    }
   }
 }
