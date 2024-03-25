@@ -30,14 +30,33 @@ export default function Subscriptions() {
         const data = await getSubscriptionData(address);
         // updates status if it's past due
         data.forEach(async (subscription) => {
-          const nextPaymentDue = new Date(subscription.nextPaymentDue);
-          const now = new Date();
-          if (nextPaymentDue < now) {
-            await updateSubscription(
-              address,
-              subscription.arweaveAccountAddress,
+          if (
+            subscription.subscriptionStatus === SubscriptionStatus.ACTIVE ||
+            subscription.subscriptionStatus ===
               SubscriptionStatus.AWAITING_PAYMENT
-            );
+          ) {
+            const nextPaymentDue = new Date(subscription.nextPaymentDue);
+            const now = new Date();
+            if (nextPaymentDue < now) {
+              const daysPastDue = Math.floor(
+                (now.getTime() - nextPaymentDue.getTime()) /
+                  (1000 * 60 * 60 * 24)
+              );
+
+              if (daysPastDue >= 2) {
+                await updateSubscription(
+                  address,
+                  subscription.arweaveAccountAddress,
+                  SubscriptionStatus.EXPIRED
+                );
+              } else {
+                await updateSubscription(
+                  address,
+                  subscription.arweaveAccountAddress,
+                  SubscriptionStatus.AWAITING_PAYMENT
+                );
+              }
+            }
           }
         });
         setSubData(data);
@@ -51,7 +70,7 @@ export default function Subscriptions() {
   return (
     <div>
       <HeadV2 title="Subscriptions" />
-      {subData ? (
+      {subData && subData.length > 0 ? (
         <SubscriptionList>
           {subData.map((sub) => {
             return (
