@@ -6,13 +6,17 @@ import { useAo, type TokenInfo, useAoTokens } from "~tokens/aoTokens/ao";
 import { getTokenInfo } from "~tokens/aoTokens/router";
 import styled from "styled-components";
 import { isAddress } from "~utils/assertions";
-import { getAoTokens } from "~tokens";
+import { getAoTokens, getDreForToken } from "~tokens";
 import { ExtensionStorage } from "~utils/storage";
 import { SubTitle } from "./ContactSettings";
+import { DREContract, DRENode } from "@arconnect/warp-dre";
+import type { TokenState } from "~tokens/token";
 
 export default function AddToken() {
   const targetInput = useInput();
+  const warpInput = useInput();
   const [token, setToken] = useState<TokenInfo>();
+  const [type, setType] = useState<string>("ao");
   const ao = useAo();
   const { setToast } = useToasts();
 
@@ -46,8 +50,16 @@ export default function AddToken() {
       try {
         //TODO double check
         isAddress(targetInput.state);
-        const tokenInfo = await getTokenInfo(targetInput.state, ao);
-        setToken(tokenInfo);
+        if (type === "ao") {
+          const tokenInfo = await getTokenInfo(targetInput.state, ao);
+          setToken(tokenInfo);
+        } else {
+          let dre = await getDreForToken(warpInput.state);
+          console.log("dres", dre);
+          const contract = new DREContract(warpInput.state, new DRENode(dre));
+          const { state } = await contract.getState<TokenState>();
+          console.log("state", state);
+        }
       } catch (err) {
         console.log("herr", err);
       }
@@ -55,19 +67,66 @@ export default function AddToken() {
     fetchTokenInfo();
   }, [targetInput.state]);
 
+  useEffect(() => {
+    const fetchTokenInfo = async () => {
+      try {
+        //TODO double check
+        isAddress(warpInput.state);
+        console.log("add", warpInput.state);
+
+        let dre = await getDreForToken(warpInput.state);
+        console.log("dres", dre);
+        const contract = new DREContract(warpInput.state, new DRENode(dre));
+        const { state } = await contract.getState<TokenState>();
+        console.log("state", state);
+        // setToken(tokenInfo);
+      } catch (err) {
+        console.log("herer", err);
+      }
+    };
+    fetchTokenInfo();
+  }, [warpInput.state]);
+
   return (
     <Wrapper>
       <div>
         <Spacer y={0.45} />
         <Title>{browser.i18n.getMessage("import_token")}</Title>
+        <Select
+          label={browser.i18n.getMessage("token_type")}
+          onChange={(e) => {
+            // @ts-expect-error
+            setType(e.target.value);
+          }}
+          fullWidth
+        >
+          <option value="ao" selected={type === "ao"}>
+            ao Token
+          </option>
+          <option value="warp" selected={type === "warp"}>
+            Warp Token
+          </option>
+        </Select>
+        {type === "warp" && (
+          <Select
+            label={browser.i18n.getMessage("token_type")}
+            onChange={(e) => {}}
+            fullWidth
+          >
+            <option>{browser.i18n.getMessage("token_type_asset")}</option>
+            <option>{browser.i18n.getMessage("token_type_collectible")}</option>
+          </Select>
+        )}
+
         <Spacer y={0.5} />
         <Input
           {...targetInput.bindings}
           type="string"
           fullWidth
           placeholder="HineOJKYihQiIcZEWxFtgTyxD_dhDNqGvoBlWj55yDs"
-          label="ao process id"
+          label={type === "ao" ? "ao process id" : "Warp Address"}
         />
+
         {token && (
           <TokenWrapper>
             <SubTitle>TICKER:</SubTitle>
