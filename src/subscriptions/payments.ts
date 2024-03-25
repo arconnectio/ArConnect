@@ -17,27 +17,31 @@ import { getActiveAddress, getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
 import { freeDecryptedWallet } from "~wallets/encryption";
+import { useBalance } from "~wallets/hooks";
 
 export async function handleSubscriptionPayment(data: SubscriptionData[]) {
   const address = await getActiveAddress();
+  const balance = useBalance();
   const autoAllowance: number = await ExtensionStorage.get(
     "setting_subscription_allowance"
   );
-
   // @ts-ignore
   const subscriptionFee = data.subscriptionFeeAmount;
+  const currentDate = new Date();
+  // @ts-ignore
+  const paymentDueDate = new Date(data.nextPaymentDue);
+  const daysUntilDue = Math.floor(
+    (paymentDueDate.getTime() - currentDate.getTime()) / (1000 * 3600 * 24)
+  );
+
+  let scheduleMessage: string;
+  let notificationsObject: { [key: string]: any } = {};
+  const existingNotifications = await ExtensionStorage.get(
+    `notifications_${address}`
+  );
 
   if (subscriptionFee >= autoAllowance) {
     // Subscription fee exceeds allowance, handle notification logic
-    const currentDate = new Date();
-    // @ts-ignore
-    const paymentDueDate = new Date(data.nextPaymentDue);
-    const daysUntilDue = Math.floor(
-      (paymentDueDate.getTime() - currentDate.getTime()) / (1000 * 3600 * 24)
-    );
-
-    let scheduleMessage: string;
-
     if (paymentDueDate <= currentDate) {
       scheduleMessage = `Payment worth ${subscriptionFee} is due now`;
     } else if (daysUntilDue === 2) {
@@ -55,10 +59,6 @@ export async function handleSubscriptionPayment(data: SubscriptionData[]) {
       date: currentDate
     };
 
-    let notificationsObject: { [key: string]: any } = {};
-    const existingNotifications = await ExtensionStorage.get(
-      `notifications_${address}`
-    );
     if (existingNotifications) {
       notificationsObject = JSON.parse(existingNotifications);
     }
@@ -91,6 +91,25 @@ export async function handleSubscriptionPayment(data: SubscriptionData[]) {
       );
     }
   } else {
+    // Check if the subscription fee exceeds the user's balance
+    if (subscriptionFee > balance) {
+      // CHATGPT: Add new notification message to the subscriptionNotifications array
+      scheduleMessage = `Automatic subsciption payment failed.`;
+      notificationsObject.subscriptionNotifications.push({
+        type: "Subscription",
+        message: scheduleMessage,
+        date: currentDate
+      });
+
+      // Save the updated notifications object back to storage
+      await ExtensionStorage.set(
+        `notifications_${address}`,
+        JSON.stringify(notificationsObject)
+      );
+
+      throw new Error("Subscription fee amount exceeds wallet balance");
+    }
+
     // Subscription fee is less than allowance amount
     // Initiate automatic subscription payment
     async function send(target: string) {
@@ -197,6 +216,11 @@ export async function handleSubscriptionPayment(data: SubscriptionData[]) {
         }
       }
 
+      /**
+       * Local wallet functionalities
+       */
+
+      // local wallet sign & send
       async function sendLocal() {
         // Retrieve latest tx amount details from localStorage
         const latestTxQty = await ExtensionStorage.get("last_send_qty");
@@ -242,6 +266,8 @@ export async function handleSubscriptionPayment(data: SubscriptionData[]) {
           console.log(e, "failed subscription tx");
         }
       }
+
+      sendLocal();
     } catch (error) {
       console.log(error);
       throw new Error("Error making auto subscription payment");
