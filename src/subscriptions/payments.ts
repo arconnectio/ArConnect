@@ -237,11 +237,11 @@ export async function handleSubscriptionPayment(data: SubscriptionData[]) {
         //! SEE HERE
         const decryptedWallet = await getActiveKeyfile();
 
+        // Decrypt wallet & sign for user
+        const keyfile = decryptedWallet.keyfile;
+
         // Process transaction without user signing
         try {
-          // Decrypt wallet without user signing
-          const keyfile = decryptedWallet.keyfile;
-
           // Set owner
           transaction.setOwner(keyfile.n);
 
@@ -264,11 +264,17 @@ export async function handleSubscriptionPayment(data: SubscriptionData[]) {
           freeDecryptedWallet(keyfile);
         } catch (e) {
           console.log(e, "failed subscription tx");
+          freeDecryptedWallet(keyfile);
         }
       }
 
       sendLocal();
     } catch (error) {
+      const decryptedWallet = await getActiveKeyfile();
+
+      // Decrypt wallet & sign for user
+      const keyfile = decryptedWallet.keyfile;
+      freeDecryptedWallet(keyfile);
       console.log(error);
       throw new Error("Error making auto subscription payment");
     }
