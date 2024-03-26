@@ -32,6 +32,7 @@ import { useTheme } from "~utils/theme";
 import { useHistory } from "~utils/hash_router";
 import { getPrice } from "~lib/coingecko";
 import useSetting from "~settings/hook";
+import { PageType, trackPage } from "~utils/analytics";
 
 interface Props {
   id?: string;
@@ -107,6 +108,10 @@ export default function SubscriptionDetails({ id }: Props) {
         console.error("Error fetching subscription data:", error);
       }
     }
+
+    // segment
+    trackPage(PageType.SUBSCRIPTIONS_MANAGEMENT);
+
     getSubData();
   }, []);
 
@@ -161,7 +166,8 @@ export default function SubscriptionDetails({ id }: Props) {
                   fontSize="14px"
                   color={theme === "light" ? "#191919" : "#ffffff"}
                 >
-                  Next payment: Mar 8, 2025
+                  Next payment:{" "}
+                  {dayjs(subData.nextPaymentDue).format("MMM DD, YYYY")}
                 </SubscriptionText>
               </Body>
             </PaymentDetails>
