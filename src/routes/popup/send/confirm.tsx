@@ -56,8 +56,9 @@ import Progress from "~components/Progress";
 
 interface Props {
   tokenID: string;
-  qty: number;
+  qty?: number;
   recipient?: string;
+  subscription?: boolean;
 }
 
 function formatNumber(amount: number, decimalPlaces: number = 2): string {
@@ -69,7 +70,7 @@ function formatNumber(amount: number, decimalPlaces: number = 2): string {
   return rounded;
 }
 
-export default function Confirm({ tokenID, qty }: Props) {
+export default function Confirm({ tokenID, qty, subscription }: Props) {
   // TODO: Need to get Token information
   const [token, setToken] = useState<Token | undefined>();
   const [amount, setAmount] = useState<string>("");
@@ -603,7 +604,9 @@ export default function Confirm({ tokenID, qty }: Props) {
 
   return (
     <Wrapper>
-      <HeadV2 title={"Confirm Transaction"} />
+      <HeadV2
+        title={!subscription ? "Confirm Transaction" : "Subscription Payment"}
+      />
       <ConfirmWrapper>
         <BodyWrapper>
           <AddressWrapper>
