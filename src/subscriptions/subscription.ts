@@ -31,8 +31,10 @@ export interface SubscriptionData {
   subscriptionStatus: SubscriptionStatus;
   recurringPaymentFrequency: RecurringPaymentFrequency;
   nextPaymentDue: Date | string;
+  subscriptionManagementUrl: string;
   subscriptionStartDate: Date | string;
   subscriptionEndDate: Date | string;
+  paymentHistory?: string[];
 }
 
 /**

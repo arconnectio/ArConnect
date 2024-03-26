@@ -1,28 +1,37 @@
-import Subscription, {
+import {
+  SubscriptionStatus,
   type SubscriptionData
 } from "~subscriptions/subscription";
 import HeadV2 from "~components/popup/HeadV2";
 import { useEffect, useState } from "react";
 import { getActiveAddress } from "~wallets";
-import { ExtensionStorage } from "~utils/storage";
+import browser from "webextension-polyfill";
 import styled from "styled-components";
-import Squircle from "~components/Squircle";
-import { getSubscriptionData } from "~subscriptions";
+import {
+  deleteSubscription,
+  getSubscriptionData,
+  updateSubscription
+} from "~subscriptions";
 import dayjs from "dayjs";
 import {
   ButtonV2,
   Input,
   InputV2,
   ListItem,
-  type DisplayTheme
+  type DisplayTheme,
+  TooltipV2,
+  useToasts
 } from "@arconnect/components";
-import { AppIcon, Content, Title } from "./subscriptions";
+import { AppIcon, Content, Title, getColorByStatus } from "./subscriptions";
 import {
   SettingIconWrapper,
   SettingImage
 } from "~components/dashboard/list/BaseElement";
 import { formatAddress } from "~utils/format";
 import { useTheme } from "~utils/theme";
+import { useHistory } from "~utils/hash_router";
+import { getPrice } from "~lib/coingecko";
+import useSetting from "~settings/hook";
 
 interface Props {
   id?: string;
@@ -31,6 +40,52 @@ interface Props {
 export default function SubscriptionDetails({ id }: Props) {
   const theme = useTheme();
   const [subData, setSubData] = useState<SubscriptionData | null>(null);
+  const [, goBack] = useHistory();
+  const { setToast } = useToasts();
+  const [price, setPrice] = useState<number | null>();
+  const [currency] = useSetting<string>("currency");
+  const [color, setColor] = useState<string>("");
+
+  const cancel = async () => {
+    const address = await getActiveAddress();
+    if (subData.subscriptionStatus !== SubscriptionStatus.CANCELED) {
+      try {
+        await updateSubscription(
+          address,
+          subData.arweaveAccountAddress,
+          SubscriptionStatus.CANCELED
+        );
+        setToast({
+          type: "success",
+          content: browser.i18n.getMessage("subscription_cancelled"),
+          duration: 5000
+        });
+      } catch {
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("subscription_cancelled_error"),
+          duration: 5000
+        });
+      }
+    } else {
+      try {
+        await deleteSubscription(address, subData.arweaveAccountAddress);
+        setToast({
+          type: "success",
+          content: browser.i18n.getMessage("subscription_deleted"),
+          duration: 5000
+        });
+      } catch (err) {
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("subcription_delete_error"),
+          duration: 5000
+        });
+      }
+    }
+    goBack();
+    // redirect to subscription page
+  };
 
   useEffect(() => {
     async function getSubData() {
@@ -43,6 +98,11 @@ export default function SubscriptionDetails({ id }: Props) {
           (subscription) => subscription.arweaveAccountAddress === id
         );
         setSubData(subscription);
+        setColor(getColorByStatus(subscription.subscriptionStatus));
+        const arPrice = await getPrice("arweave", currency);
+        if (arPrice) {
+          setPrice(arPrice * subscription.subscriptionFeeAmount);
+        }
       } catch (error) {
         console.error("Error fetching subscription data:", error);
       }
@@ -52,12 +112,12 @@ export default function SubscriptionDetails({ id }: Props) {
 
   return (
     <>
-      <HeadV2 title="Subscriptions" />
+      <HeadV2 title={subData?.applicationName} />
       {subData && (
         <Wrapper>
           <Main>
             <SubscriptionListItem>
-              <Content>
+              <Content style={{ cursor: "default" }}>
                 <SettingIconWrapper
                   bg={theme === "light" ? "235,235,235" : "255, 255, 255"}
                   customSize="2.625rem"
@@ -70,30 +130,33 @@ export default function SubscriptionDetails({ id }: Props) {
                   <h2>{subData.applicationName}</h2>
                   <h3 style={{ fontSize: "12px" }}>
                     Status:{" "}
-                    <span style={{ color: "greenyellow" }}>
-                      {subData.subscriptionStatus}
-                    </span>
+                    <span style={{ color }}>{subData.subscriptionStatus}</span>
                   </h3>
                 </Title>
               </Content>
             </SubscriptionListItem>
-            <SubscriptionText displayTheme={theme}>
+            <SubscriptionText
+              displayTheme={theme}
+              color={theme === "light" ? "#191919" : "#ffffff"}
+            >
               Application address:{" "}
               <span>{formatAddress(subData.arweaveAccountAddress, 8)}</span>
             </SubscriptionText>
             <PaymentDetails>
               <h6>Recurring payment amount</h6>
               <Body>
-                <h3>25 AR</h3>
+                <h3>{subData.subscriptionFeeAmount} AR</h3>
                 <SubscriptionText
                   fontSize="14px"
                   color={theme === "light" ? "#191919" : "#ffffff"}
                 >
-                  Subscription: Yearly
+                  Subscription: {subData.recurringPaymentFrequency}
                 </SubscriptionText>
               </Body>
               <Body>
-                <SubscriptionText fontSize="14px">$625.00 USD</SubscriptionText>
+                <SubscriptionText fontSize="14px">
+                  ${price ? price.toFixed(2) : "--.--"} {currency}
+                </SubscriptionText>
                 <SubscriptionText
                   fontSize="14px"
                   color={theme === "light" ? "#191919" : "#ffffff"}
@@ -119,13 +182,21 @@ export default function SubscriptionDetails({ id }: Props) {
                 </SubscriptionText>
               </Body>
               <Body>
-                <SubscriptionText>Mar 8, 2024</SubscriptionText>
-                <SubscriptionText>Mar 8, 2025</SubscriptionText>
+                <SubscriptionText>
+                  {dayjs(subData.subscriptionStartDate).format("MMM DD, YYYY")}
+                </SubscriptionText>
+                <SubscriptionText>
+                  {dayjs(subData.subscriptionEndDate).format("MMM DD, YYYY")}
+                </SubscriptionText>
               </Body>
             </div>
             {/* Toggle */}
             <Body>
-              <SubscriptionText color="#ffffff">Auto-renewal</SubscriptionText>
+              <SubscriptionText
+                color={theme === "light" ? "#191919" : "#ffffff"}
+              >
+                Auto-renewal
+              </SubscriptionText>
               <ToggleSwitch />
             </Body>
             <Threshold>
@@ -133,7 +204,12 @@ export default function SubscriptionDetails({ id }: Props) {
                 <SubscriptionText
                   color={theme === "light" ? "#191919" : "#ffffff"}
                 >
-                  Automatic Payment Threshold <InfoCircle />
+                  Automatic Payment Threshold{" "}
+                  <TooltipV2
+                    content={"Set amount to auto-pay for missed payments"}
+                  >
+                    <InfoCircle />
+                  </TooltipV2>
                 </SubscriptionText>
               </Body>
               <InputV2 fullWidth />
@@ -146,14 +222,23 @@ export default function SubscriptionDetails({ id }: Props) {
               gap: "8px"
             }}
           >
-            <ButtonV2 fullWidth style={{ fontWeight: "500" }}>
+            <ButtonV2
+              fullWidth
+              style={{ fontWeight: "500" }}
+              onClick={() =>
+                browser.tabs.create({ url: subData.subscriptionManagementUrl })
+              }
+            >
               Manage Subscription
             </ButtonV2>
             <ButtonV2
               fullWidth
               style={{ fontWeight: "500", backgroundColor: "#8C1A1A" }}
+              onClick={async () => await cancel()}
             >
-              Cancel Subscription
+              {subData.subscriptionStatus !== SubscriptionStatus.CANCELED
+                ? "Cancel Subscription"
+                : "Remove Subscription"}
             </ButtonV2>
           </div>
         </Wrapper>

@@ -13,47 +13,64 @@ import {
   Threshold,
   ToggleSwitch
 } from "~routes/popup/subscriptions/subscriptionDetails";
-import {
-  AppIcon,
-  Content,
-  Title
-} from "~routes/popup/subscriptions/subscriptions";
+import { Content, Title } from "~routes/popup/subscriptions/subscriptions";
 import dayjs from "dayjs";
 import { addSubscription } from "~subscriptions";
 import { getActiveAddress } from "~wallets";
-import type {
-  RecurringPaymentFrequency,
-  SubscriptionData,
+import {
+  type RecurringPaymentFrequency,
+  type SubscriptionData,
   SubscriptionStatus
 } from "~subscriptions/subscription";
-import Squircle from "~components/Squircle";
 import {
   SettingIconWrapper,
   SettingImage
 } from "~components/dashboard/list/BaseElement";
 import { useTheme } from "~utils/theme";
 import { formatAddress } from "~utils/format";
+import { useEffect, useState } from "react";
+import { getPrice } from "~lib/coingecko";
+import useSetting from "~settings/hook";
 
 export default function Subscription() {
   //   connect params
   const params = useAuthParams();
   const { setToast } = useToasts();
+  const [currency] = useSetting<string>("currency");
 
   // get auth utils
   const { closeWindow, cancel } = useAuthUtils("subscription", params?.authID);
   const theme = useTheme();
+  const [price, setPrice] = useState<number | null>();
+
+  useEffect(() => {
+    async function fetchArPrice() {
+      const arPrice = await getPrice("arweave", currency);
+      if (arPrice) {
+        setPrice(arPrice * params.subscriptionFeeAmount);
+      }
+    }
+
+    fetchArPrice();
+  }, [currency, params]);
+
   async function done() {
     // add subscription to storage
     try {
       const { authID, ...subscriptionParams } = params;
       const activeAddress = await getActiveAddress();
+      const paymentHistory = ["testtxn"];
+
+      // process payment
+      // append txid to payment history array
       const subscriptionData: SubscriptionData = {
         arweaveAccountAddress: subscriptionParams.arweaveAccountAddress,
         applicationName: subscriptionParams.applicationName,
         subscriptionName: subscriptionParams.subscriptionName,
         subscriptionFeeAmount: subscriptionParams.subscriptionFeeAmount,
-        subscriptionStatus:
-          subscriptionParams.subsciptionStatus as SubscriptionStatus,
+        subscriptionManagementUrl: subscriptionParams.subscriptionManagementUrl,
+        subscriptionStatus: SubscriptionStatus.ACTIVE,
+        paymentHistory: paymentHistory,
         recurringPaymentFrequency:
           subscriptionParams.recurringPaymentFrequency as RecurringPaymentFrequency,
         nextPaymentDue: new Date(subscriptionParams.nextPaymentDue),
@@ -100,8 +117,7 @@ export default function Subscription() {
                 <Title>
                   <h2>{params.applicationName}</h2>
                   <h3 style={{ fontSize: "12px" }}>
-                    Status:{" "}
-                    <span style={{ color: "greenyellow" }}>Pending</span>
+                    Status: <span style={{ color: "#CFB111" }}>Pending</span>
                   </h3>
                 </Title>
               </Content>
@@ -122,7 +138,9 @@ export default function Subscription() {
                 </SubscriptionText>
               </Body>
               <Body>
-                <SubscriptionText fontSize="14px">$625.00 USD</SubscriptionText>
+                <SubscriptionText fontSize="14px">
+                  ${price ? price.toFixed(2) : "--.--"} {currency}
+                </SubscriptionText>
                 <SubscriptionText
                   fontSize="14px"
                   color={theme === "light" ? "#191919" : "#ffffff"}
