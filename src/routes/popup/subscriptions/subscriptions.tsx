@@ -1,4 +1,5 @@
 import Subscription, {
+  SubscriptionStatus,
   type SubscriptionData
 } from "~subscriptions/subscription";
 import HeadV2 from "~components/popup/HeadV2";
@@ -7,7 +8,7 @@ import { getActiveAddress } from "~wallets";
 import { ExtensionStorage } from "~utils/storage";
 import styled from "styled-components";
 import Squircle from "~components/Squircle";
-import { getSubscriptionData } from "~subscriptions";
+import { getSubscriptionData, updateSubscription } from "~subscriptions";
 import dayjs from "dayjs";
 import { useHistory } from "~utils/hash_router";
 import {
@@ -19,16 +20,45 @@ import type { DisplayTheme } from "@arconnect/components";
 
 export default function Subscriptions() {
   const [subData, setSubData] = useState<SubscriptionData[] | null>(null);
+  const theme = useTheme();
 
   useEffect(() => {
     async function getSubData() {
       const address = await getActiveAddress();
 
       try {
-        const sub = new Subscription(address);
         const data = await getSubscriptionData(address);
+        // updates status if it's past due
+        data.forEach(async (subscription) => {
+          if (
+            subscription.subscriptionStatus === SubscriptionStatus.ACTIVE ||
+            subscription.subscriptionStatus ===
+              SubscriptionStatus.AWAITING_PAYMENT
+          ) {
+            const nextPaymentDue = new Date(subscription.nextPaymentDue);
+            const now = new Date();
+            if (nextPaymentDue < now) {
+              const daysPastDue = Math.floor(
+                (now.getTime() - nextPaymentDue.getTime()) /
+                  (1000 * 60 * 60 * 24)
+              );
 
-        console.log("data: ", data);
+              if (daysPastDue >= 2) {
+                await updateSubscription(
+                  address,
+                  subscription.arweaveAccountAddress,
+                  SubscriptionStatus.EXPIRED
+                );
+              } else {
+                await updateSubscription(
+                  address,
+                  subscription.arweaveAccountAddress,
+                  SubscriptionStatus.AWAITING_PAYMENT
+                );
+              }
+            }
+          }
+        });
         setSubData(data);
       } catch (error) {
         console.error("Error fetching subscription data:", error);
@@ -40,7 +70,7 @@ export default function Subscriptions() {
   return (
     <div>
       <HeadV2 title="Subscriptions" />
-      {subData ? (
+      {subData && subData.length > 0 ? (
         <SubscriptionList>
           {subData.map((sub) => {
             return (
@@ -57,7 +87,10 @@ export default function Subscriptions() {
           })}
         </SubscriptionList>
       ) : (
-        <div>No notifications found</div>
+        <NoSubscriptionWrapper displayTheme={theme}>
+          <div>No subscriptions yet</div>
+          <span>Your future subscriptions will be available here</span>
+        </NoSubscriptionWrapper>
       )}
     </div>
   );
@@ -74,20 +107,7 @@ const SubscriptionListItem = ({
   icon
 }) => {
   let period: string = "";
-  let color: string = "";
-  switch (status) {
-    case "Active":
-      color = "#14D110";
-      break;
-    case "Cancelled":
-      color = "#FF1A1A";
-      break;
-    case "Awaiting payment":
-      color = "#CFB111";
-      break;
-    default:
-      color = "#A3A3A3";
-  }
+  const color: string = getColorByStatus(status as SubscriptionStatus);
 
   switch (frequency) {
     case "Weekly":
@@ -142,6 +162,19 @@ const SubscriptionListItem = ({
   );
 };
 
+export const getColorByStatus = (status: SubscriptionStatus): string => {
+  switch (status) {
+    case SubscriptionStatus.ACTIVE:
+      return "#14D110";
+    case SubscriptionStatus.CANCELED:
+      return "#FF1A1A";
+    case SubscriptionStatus.AWAITING_PAYMENT:
+      return "#CFB111";
+    default:
+      return "#A3A3A3";
+  }
+};
+
 const StatusCircle = ({ color }: { color: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -173,6 +206,28 @@ const SubscriptionList = styled.div`
   border: 1px solid #333333;
   border-radius: 10px;
   margin: 0 15px;
+`;
+
+const NoSubscriptionWrapper = styled.div<{ displayTheme?: DisplayTheme }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 65px);
+  text-align: center;
+  gap: 10px;
+  padding: 0 85px;
+
+  div {
+    font-size: 20px;
+    font-weight: 500;
+  }
+  span {
+    font-size: 16px;
+    font-weight: 400;
+    color: ${(props) =>
+      props.displayTheme === "dark" ? "#a3a3a3" : "#757575"};
+  }
 `;
 
 const ListItem = styled.div`

@@ -8,9 +8,9 @@ const foreground: ModuleFunction<SubscriptionData[]> = (data) => {
     "applicationName",
     "subscriptionName",
     "subscriptionFeeAmount",
-    "subscriptionStatus",
     "recurringPaymentFrequency",
     "nextPaymentDue",
+    "subscriptionManagementUrl",
     "subscriptionStartDate",
     "subscriptionEndDate"
   ];
