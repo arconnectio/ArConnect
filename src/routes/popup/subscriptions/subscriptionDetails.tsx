@@ -91,6 +91,8 @@ export default function SubscriptionDetails({ id }: Props) {
         });
       }
     }
+
+    browser.alarms.clear(`subscription-alarm-${subData.arweaveAccountAddress}`);
     goBack();
     // redirect to subscription page
   };

@@ -7,7 +7,7 @@ import {
 import { defaultGateway, fallbackGateway } from "~gateways/gateway";
 import type Transaction from "arweave/web/lib/transaction";
 import { EventType, trackEvent } from "~utils/analytics";
-import type { SubscriptionData } from "./subscription";
+import { SubscriptionStatus, type SubscriptionData } from "./subscription";
 import { findGateway } from "~gateways/wayfinder";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
@@ -15,15 +15,29 @@ import Arweave from "arweave";
 import { freeDecryptedWallet } from "~wallets/encryption";
 import { fractionedToBalance } from "~tokens/currency";
 import { arPlaceholder } from "~routes/popup/send";
+import {
+  calculateNextPaymentDate,
+  updateSubscription as statusUpdateSubscription
+} from "~subscriptions";
 
-export async function handleSubscriptionPayment(data: SubscriptionData) {
+export async function handleSubscriptionPayment(
+  data: SubscriptionData
+): Promise<any | null> {
   const autoAllowance: number = await ExtensionStorage.get(
     "setting_subscription_allowance"
   );
+  const activeAddress = await ExtensionStorage.get("active_address");
+
   const subscriptionFee = data.subscriptionFeeAmount;
 
   if (subscriptionFee >= autoAllowance) {
     // TODO update status here
+
+    await statusUpdateSubscription(
+      activeAddress,
+      data.arweaveAccountAddress,
+      SubscriptionStatus.AWAITING_PAYMENT
+    );
     throw new Error("Subscription fee exceeds or is equal to user allowance");
   } else {
     // Subscription fee is less than allowance amount
@@ -31,7 +45,6 @@ export async function handleSubscriptionPayment(data: SubscriptionData) {
     async function send(target: string) {
       try {
         // grab address
-        const activeAddress = await ExtensionStorage.get("active_address");
 
         // create tx
         const gateway = await findGateway({});
@@ -138,6 +151,8 @@ export async function handleSubscriptionPayment(data: SubscriptionData) {
             arweave.transactions.post(transaction),
             timeoutPromise
           ]);
+          const updatedSub = updateSubscription(data, transaction.id);
+          return updatedSub;
         } catch (err) {
           // SEGMENT
           await trackEvent(EventType.TRANSACTION_INCOMPLETE, {});
@@ -199,3 +214,72 @@ export async function handleSubscriptionPayment(data: SubscriptionData) {
     }
   }
 }
+
+// export async function handleSubscriptionPayment(data: SubscriptionData) {
+//   const prepared = await prepare(
+//     data.arweaveAccountAddress,
+//     data.subscriptionFeeAmount
+//   );
+//   if (prepared) {
+//     let { gateway, transaction, type } = prepared;
+//     const arweave = new Arweave(gateway);
+//     const convertedTransaction = arweave.transactions.fromRaw(transaction);
+//     const decryptedWallet = await getActiveKeyfile();
+//     isLocalWallet(decryptedWallet);
+//     const keyfile = decryptedWallet.keyfile;
+//     convertedTransaction.setOwner(keyfile.n);
+//     await arweave.transactions.sign(convertedTransaction, keyfile);
+//     try {
+//       await arweave.transactions.post(convertedTransaction);
+//       const updatedSub = updateSubscription(data, convertedTransaction.id);
+//       return updatedSub;
+//     } catch (err) {
+//       console.log("err", err);
+//     }
+//   }
+// }
+
+export function updateSubscription(
+  data: SubscriptionData,
+  updatedTxnId: string
+) {
+  const nextPaymentDue = calculateNextPaymentDate(
+    data.nextPaymentDue,
+    data.recurringPaymentFrequency
+  );
+
+  if (new Date(data.subscriptionEndDate) <= nextPaymentDue) {
+    browser.alarms.clear(`subscription-alarm-${data.arweaveAccountAddress}`);
+  } else {
+    browser.alarms.create(`subscription-alarm-${data.arweaveAccountAddress}`, {
+      when: nextPaymentDue.getTime()
+    });
+  }
+
+  if (!data.paymentHistory) {
+    data.paymentHistory = [];
+  }
+  data.paymentHistory.push(updatedTxnId);
+  data.nextPaymentDue = nextPaymentDue;
+
+  return data;
+}
+
+// const prepare = async (target: string, amount: Number) => {
+//   let gateway = await findGateway({});
+//   let arweave = new Arweave(gateway);
+
+//   const storedTx: Partial<RawStoredTransfer> = {
+//     type: "native",
+//     gateway: gateway
+//   };
+//   const tx = await arweave.createTransaction({
+//     target,
+//     quantity: fractionedToBalance(Number(amount), arPlaceholder).toString()
+//   });
+//   tx.addTag("Type", "Transfer");
+//   tx.addTag("Client", "ArConnect");
+//   tx.addTag("Client-Version", browser.runtime.getManifest().version);
+//   storedTx.transaction = tx.toJSON();
+//   return storedTx;
+// };

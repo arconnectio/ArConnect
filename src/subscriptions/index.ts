@@ -114,20 +114,20 @@ export async function addSubscription(
 ) {
   // get existing subs
   try {
-    const subscriptions = await getSubscriptionData(activeAddress);
-    if (subscriptions) {
-      subscriptions.push(newSubscription);
-      await ExtensionStorage.set(
-        `subscriptions_${activeAddress}`,
-        subscriptions
-      );
+    const subscriptions = (await getSubscriptionData(activeAddress)) || [];
+    const existingIndex = subscriptions.findIndex(
+      (sub) =>
+        sub.arweaveAccountAddress === newSubscription.arweaveAccountAddress
+    );
+
+    if (existingIndex !== -1) {
+      subscriptions[existingIndex] = newSubscription;
     } else {
-      await ExtensionStorage.set(`subscriptions_${activeAddress}`, [
-        newSubscription
-      ]);
+      subscriptions.push(newSubscription);
     }
+    await ExtensionStorage.set(`subscriptions_${activeAddress}`, subscriptions);
   } catch (err) {
-    console.error("error saving subscription");
+    console.error("error saving subscription", err);
   }
 }
 

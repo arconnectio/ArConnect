@@ -1,8 +1,9 @@
 import type { SubscriptionData } from "./subscription";
-import { handleSubscriptionPayment } from "./payments";
-import { getSubscriptionData } from "~subscriptions";
+import { addSubscription, getSubscriptionData } from "~subscriptions";
 import { ExtensionStorage } from "~utils/storage";
 import { getActiveAddress } from "~wallets";
+import { handleSubscriptionPayment } from "./payments";
+import type { Alarms } from "webextension-polyfill";
 
 /**
  * + fetch subscription auto withdrawal allowance
@@ -11,16 +12,25 @@ import { getActiveAddress } from "~wallets";
  * + activate payments under withdrawal allowance limit
  * + notify user of manual payments
  */
-export async function subscriptionsHandler() {
+
+export async function subscriptionsHandler(alarmInfo?: Alarms.Alarm) {
+  if (alarmInfo && !alarmInfo.name.startsWith("subscription-alarm-")) return;
+
+  const prefixLength = "subscription-alarm-".length;
+  const subAddress = alarmInfo.name.substring(prefixLength);
+
   const activeAddress = await getActiveAddress();
+
   const subscriptionData: SubscriptionData[] = await getSubscriptionData(
     activeAddress
   );
 
-  // TODO: Find nextPaymentDue here
+  const matchingSubscription = subscriptionData.find(
+    (sub) => sub.arweaveAccountAddress === subAddress
+  );
 
-  // Iterate through subscription data to find payments due
-  for (const subsciption of subscriptionData) {
-    await handleSubscriptionPayment(subsciption);
+  if (matchingSubscription) {
+    const updated = await handleSubscriptionPayment(matchingSubscription);
+    await addSubscription(activeAddress, updated);
   }
 }

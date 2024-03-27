@@ -33,7 +33,7 @@ browser.tabs.onActivated.addListener(({ tabId }) => handleTabUpdate(tabId));
 browser.alarms.onAlarm.addListener(notificationsHandler);
 
 // handle subscriptions
-// browser.alarms.onAlarm.addListener(subscriptionsHandler);
+browser.alarms.onAlarm.addListener(subscriptionsHandler);
 
 browser.alarms.onAlarm.addListener(trackBalance);
 
