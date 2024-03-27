@@ -53,6 +53,8 @@ import { UR } from "@ngraveio/bc-ur";
 import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
 import { useScanner } from "@arconnect/keystone-sdk";
 import Progress from "~components/Progress";
+import { updateSubscription } from "~subscriptions";
+import { SubscriptionStatus } from "~subscriptions/subscription";
 
 interface Props {
   tokenID: string;
@@ -363,6 +365,12 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
 
           try {
             await submitTx(convertedTransaction, arweave, type);
+            subscription &&
+              (await updateSubscription(
+                activeAddress,
+                recipient.address,
+                SubscriptionStatus.ACTIVE
+              ));
           } catch (e) {
             if (!uToken) {
               gateway = fallbackGateway;
