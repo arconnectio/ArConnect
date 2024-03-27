@@ -5,7 +5,7 @@ import { ExtensionStorage } from "~utils/storage";
 import { getActiveAddress } from "~wallets";
 
 /**
- * + fetch subscription auto withdrawal allowance <
+ * + fetch subscription auto withdrawal allowance
  * + process dates of subscriptions
  * + map through subsciptions
  * + activate payments under withdrawal allowance limit

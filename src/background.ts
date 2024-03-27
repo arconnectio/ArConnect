@@ -27,7 +27,7 @@ browser.tabs.onUpdated.addListener((tabId) => handleTabUpdate(tabId));
 browser.tabs.onActivated.addListener(({ tabId }) => handleTabUpdate(tabId));
 
 // handle fee alarm (send fees asyncronously)
-browser.alarms.onAlarm.addListener(handleFeeAlarm);
+// browser.alarms.onAlarm.addListener(handleFeeAlarm);
 
 // handle notifications
 browser.alarms.onAlarm.addListener(notificationsHandler);
