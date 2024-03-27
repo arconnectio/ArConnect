@@ -35,7 +35,7 @@ import { getPrice } from "~lib/coingecko";
 import useSetting from "~settings/hook";
 import { formatTokenBalance, fractionedToBalance } from "~tokens/currency";
 import { arPlaceholder } from "../send";
-import { TempTransactionStorage } from "~utils/storage";
+import { ExtensionStorage, TempTransactionStorage } from "~utils/storage";
 import { findGateway } from "~gateways/wayfinder";
 import Arweave from "arweave";
 
@@ -129,6 +129,11 @@ export default function SubscriptionDetails({ id }: Props) {
     const txPrice = await arweave.transactions.getPrice(byte, "dummyTarget");
 
     const networkFee = arweave.ar.winstonToAr(txPrice);
+
+    await ExtensionStorage.set(
+      "last_send_qty",
+      formatTokenBalance(subData.subscriptionFeeAmount)
+    );
 
     await TempTransactionStorage.set("send", {
       networkFee,
