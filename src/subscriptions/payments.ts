@@ -4,119 +4,47 @@ import {
   type RawStoredTransfer,
   TempTransactionStorage
 } from "~utils/storage";
-import {
-  defaultGateway,
-  fallbackGateway,
-  type Gateway
-} from "~gateways/gateway";
+import { defaultGateway, fallbackGateway } from "~gateways/gateway";
 import type Transaction from "arweave/web/lib/transaction";
 import { EventType, trackEvent } from "~utils/analytics";
 import type { SubscriptionData } from "./subscription";
 import { findGateway } from "~gateways/wayfinder";
-import { getActiveAddress, getActiveKeyfile } from "~wallets";
+import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
 import { freeDecryptedWallet } from "~wallets/encryption";
-import { useBalance } from "~wallets/hooks";
+import { fractionedToBalance } from "~tokens/currency";
+import { arPlaceholder } from "~routes/popup/send";
 
-export async function handleSubscriptionPayment(data: SubscriptionData[]) {
-  const address = await getActiveAddress();
-  const balance = useBalance();
+export async function handleSubscriptionPayment(data: SubscriptionData) {
   const autoAllowance: number = await ExtensionStorage.get(
     "setting_subscription_allowance"
   );
-  // @ts-ignore
   const subscriptionFee = data.subscriptionFeeAmount;
-  const currentDate = new Date();
-  // @ts-ignore
-  const paymentDueDate = new Date(data.nextPaymentDue);
-  const daysUntilDue = Math.floor(
-    (paymentDueDate.getTime() - currentDate.getTime()) / (1000 * 3600 * 24)
-  );
-
-  let scheduleMessage: string;
-  let notificationsObject: { [key: string]: any } = {};
-  const existingNotifications = await ExtensionStorage.get(
-    `notifications_${address}`
-  );
 
   if (subscriptionFee >= autoAllowance) {
-    // Subscription fee exceeds allowance, handle notification logic
-    if (paymentDueDate <= currentDate) {
-      scheduleMessage = `Payment worth ${subscriptionFee} is due now`;
-    } else if (daysUntilDue === 2) {
-      scheduleMessage = `Payment worth ${subscriptionFee} is due in 2 days`;
-    } else if (daysUntilDue === 1) {
-      scheduleMessage = `Payment worth ${subscriptionFee} is due in 1 day`;
-    } else {
-      return false;
-    }
-
-    const subscriptionNotification = {
-      type: "Subscription",
-      // @ts-ignore
-      message: scheduleMessage,
-      date: currentDate
-    };
-
-    if (existingNotifications) {
-      notificationsObject = JSON.parse(existingNotifications);
-    }
-
-    // Ensure that subscriptionNotifications type exists
-    if (!notificationsObject.subscriptionNotifications) {
-      notificationsObject.subscriptionNotifications = [];
-    }
-
-    // Check if the subscriptionNotification already exists in the array
-    const exists = notificationsObject.subscriptionNotifications.some(
-      (notification: any) => {
-        return (
-          JSON.stringify(notification) ===
-          JSON.stringify(subscriptionNotification)
-        );
-      }
-    );
-
-    if (!exists) {
-      // Append the new notification to the existing array
-      notificationsObject.subscriptionNotifications.push(
-        subscriptionNotification
-      );
-
-      // Save the updated notifications object back to storage
-      await ExtensionStorage.set(
-        `notifications_${address}`,
-        JSON.stringify(notificationsObject)
-      );
-    }
+    // TODO update status here
+    throw new Error("Subscription fee exceeds or is equal to user allowance");
   } else {
-    // Check if the subscription fee exceeds the user's balance
-    if (subscriptionFee > balance) {
-      // CHATGPT: Add new notification message to the subscriptionNotifications array
-      scheduleMessage = `Automatic subsciption payment failed.`;
-      notificationsObject.subscriptionNotifications.push({
-        type: "Subscription",
-        message: scheduleMessage,
-        date: currentDate
-      });
-
-      // Save the updated notifications object back to storage
-      await ExtensionStorage.set(
-        `notifications_${address}`,
-        JSON.stringify(notificationsObject)
-      );
-
-      throw new Error("Subscription fee amount exceeds wallet balance");
-    }
-
     // Subscription fee is less than allowance amount
     // Initiate automatic subscription payment
     async function send(target: string) {
       try {
+        // grab address
+        const activeAddress = await ExtensionStorage.get("active_address");
+
         // create tx
         const gateway = await findGateway({});
         const arweave = new Arweave(gateway);
+
+        const winstonBalance = await arweave.wallets.getBalance(activeAddress);
+
+        const balance = Number(arweave.ar.winstonToAr(winstonBalance));
+
+        // Check if the subscription fee exceeds the user's balance
+        if (subscriptionFee > balance) {
+          throw new Error("Subscription fee amount exceeds wallet balance");
+        }
 
         // save tx json into session
         // to be signed and submitted
@@ -125,32 +53,33 @@ export async function handleSubscriptionPayment(data: SubscriptionData[]) {
           gateway: gateway
         };
 
-        // @ts-ignore
-        const paymentQuantity = data.subscriptionFeeAmount;
+        // convert to winston
+        const paymentQuantity = fractionedToBalance(
+          Number(data.subscriptionFeeAmount),
+          arPlaceholder
+        ).toString();
 
         const tx = await arweave.createTransaction({
           target,
-          quantity: paymentQuantity.toString(),
-          data: "ArConnect Subscription Payment"
+          quantity: paymentQuantity,
+          data: undefined
         });
 
-        tx.addTag("Content-Type", "text/plain");
+        tx.addTag("Subscription-Name", data.subscriptionName);
+        tx.addTag("App-Name", data.applicationName);
         tx.addTag("Type", "Transfer");
         tx.addTag("Client", "ArConnect");
         tx.addTag("Client-Version", browser.runtime.getManifest().version);
 
         storedTx.transaction = tx.toJSON();
-
-        await TempTransactionStorage.set(TRANSFER_TX_STORAGE, storedTx);
       } catch (error) {
         console.log("Error sending automated transaction");
       }
     }
 
     try {
-      // @ts-ignore
       const recipientAddress = data.arweaveAccountAddress;
-      send(recipientAddress);
+      await send(recipientAddress);
 
       // get transaction from session storage
       async function getTransaction() {
@@ -222,19 +151,10 @@ export async function handleSubscriptionPayment(data: SubscriptionData[]) {
 
       // local wallet sign & send
       async function sendLocal() {
-        // Retrieve latest tx amount details from localStorage
-        const latestTxQty = await ExtensionStorage.get("last_send_qty");
-        if (!latestTxQty) {
-          throw new Error("Error: no send quantity found");
-        }
-
-        const transactionAmount = Number(latestTxQty);
-
         // get tx and gateway
         let { type, gateway, transaction } = await getTransaction();
         const arweave = new Arweave(gateway);
 
-        //! SEE HERE
         const decryptedWallet = await getActiveKeyfile();
 
         // Decrypt wallet & sign for user
@@ -259,7 +179,6 @@ export async function handleSubscriptionPayment(data: SubscriptionData[]) {
             await submitTx(transaction, fallbackArweave, type);
             await trackEvent(EventType.FALLBACK, {});
           }
-
           // remove wallet from memory
           freeDecryptedWallet(keyfile);
         } catch (e) {

@@ -7,7 +7,3 @@ export default function SubscriptionPayment() {
     </>
   );
 }
-
-interface Props {
-  recipient: string;
-}

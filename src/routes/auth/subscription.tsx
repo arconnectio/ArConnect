@@ -55,6 +55,8 @@ export default function Subscription() {
     fetchArPrice();
   }, [currency, params]);
 
+  // TODO TRIGGER PAYMENT WHEN ADDING NEW SUBSCRIPTION
+
   async function done() {
     // add subscription to storage
     try {
