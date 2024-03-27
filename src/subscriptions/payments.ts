@@ -65,6 +65,8 @@ export async function handleSubscriptionPayment(data: SubscriptionData) {
           data: undefined
         });
 
+        console.log("created tx:", tx);
+
         tx.addTag("Subscription-Name", data.subscriptionName);
         tx.addTag("App-Name", data.applicationName);
         tx.addTag("Type", "Transfer");
@@ -133,6 +135,7 @@ export async function handleSubscriptionPayment(data: SubscriptionData) {
           }, 10000);
         });
 
+        console.log("Enter Promise.race");
         try {
           await Promise.race([
             arweave.transactions.post(transaction),
@@ -171,6 +174,7 @@ export async function handleSubscriptionPayment(data: SubscriptionData) {
           try {
             // Post the transaction
             await submitTx(transaction, arweave, type);
+            console.log("Transaction successfully posted");
           } catch (e) {
             // FALLBACK IF ISP BLOCKS ARWEAVE.NET OR IF WAYFINDER FAILS
             gateway = fallbackGateway;

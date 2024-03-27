@@ -17,6 +17,7 @@ import {
 } from "~components/dashboard/list/BaseElement";
 import { useTheme } from "~utils/theme";
 import type { DisplayTheme } from "@arconnect/components";
+import { TestSubscription } from "~subscriptions/testPayment";
 
 export default function Subscriptions() {
   const [subData, setSubData] = useState<SubscriptionData[] | null>(null);
@@ -65,6 +66,14 @@ export default function Subscriptions() {
       }
     }
     getSubData();
+  }, []);
+
+  async function testSubscriptionPayment() {
+    await TestSubscription();
+  }
+
+  useEffect(() => {
+    testSubscriptionPayment();
   }, []);
 
   return (
