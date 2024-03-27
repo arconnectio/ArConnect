@@ -17,6 +17,8 @@ export async function subscriptionsHandler() {
     activeAddress
   );
 
+  // TODO: Find nextPaymentDue here
+
   // Iterate through subscription data to find payments due
   for (const subsciption of subscriptionData) {
     await handleSubscriptionPayment(subsciption);
