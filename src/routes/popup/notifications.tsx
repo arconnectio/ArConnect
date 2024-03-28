@@ -5,7 +5,6 @@ import {
   fetchTokenByProcessId,
   mergeAndSortNotifications
 } from "~utils/notifications";
-import { getTokenInfo } from "~tokens/aoTokens/router";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { useHistory } from "~utils/hash_router";
 import { Loading } from "@arconnect/components";
@@ -17,10 +16,18 @@ import { useAo } from "~tokens/aoTokens/ao";
 import styled from "styled-components";
 import { balanceToFractioned, formatTokenBalance } from "~tokens/currency";
 import type { Transaction } from "~notifications/api";
+import { ExtensionStorage } from "~utils/storage";
+import { getActiveAddress } from "~wallets";
+import {
+  SubscriptionStatus,
+  type SubscriptionData
+} from "~subscriptions/subscription";
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState<Transaction[]>([]);
   const [formattedTxMsgs, setFormattedTxMsgs] = useState<string[]>([]);
+  const [subscriptions, setSubscriptions] = useState<SubscriptionData[]>([]);
+
   const [loading, setLoading] = useState(false);
   const [empty, setEmpty] = useState(false);
 
@@ -31,8 +38,20 @@ export default function Notifications() {
     (async () => {
       try {
         setLoading(true);
-        const n = await fetchNotifications();
-        if (!n) {
+        const address = await getActiveAddress();
+        const n = await fetchNotifications(address);
+        const subs = (
+          (await ExtensionStorage.get<SubscriptionData[]>(
+            `subscriptions_${address}`
+          )) || []
+        ).filter(
+          (subscription) =>
+            subscription.subscriptionStatus ===
+            SubscriptionStatus.AWAITING_PAYMENT
+        );
+
+        setSubscriptions(subs);
+        if (!n && subs.length === 0) {
           setEmpty(true);
         }
         const sortedNotifications = mergeAndSortNotifications(
@@ -174,6 +193,19 @@ export default function Notifications() {
             <TitleMessage>Send transactions to get started.</TitleMessage>
           </Empty>
         )}
+        {subscriptions.map((subscription) => (
+          <NotificationItem>
+            <Description>{"Subscription"}</Description>
+            <TitleMessage>{`${subscription.applicationName} Awaiting Payment`}</TitleMessage>
+            <Link
+              onClick={() =>
+                push(`/subscriptions/${subscription.arweaveAccountAddress}`)
+              }
+            >
+              Pay Subscription
+            </Link>
+          </NotificationItem>
+        ))}
         {!loading &&
           !empty &&
           notifications.map((notification, index) => (

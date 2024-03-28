@@ -17,6 +17,7 @@ import {
 } from "~components/dashboard/list/BaseElement";
 import { useTheme } from "~utils/theme";
 import type { DisplayTheme } from "@arconnect/components";
+import { PageType, trackPage } from "~utils/analytics";
 
 export default function Subscriptions() {
   const [subData, setSubData] = useState<SubscriptionData[] | null>(null);
@@ -64,6 +65,10 @@ export default function Subscriptions() {
         console.error("Error fetching subscription data:", error);
       }
     }
+
+    // Segment
+    trackPage(PageType.SUBSCRIPTIONS);
+
     getSubData();
   }, []);
 

@@ -31,6 +31,7 @@ import { formatAddress } from "~utils/format";
 import { useEffect, useState } from "react";
 import { getPrice } from "~lib/coingecko";
 import useSetting from "~settings/hook";
+import { EventType, trackEvent } from "~utils/analytics";
 
 export default function Subscription() {
   //   connect params
@@ -82,6 +83,14 @@ export default function Subscription() {
       };
 
       await addSubscription(activeAddress, subscriptionData);
+
+      // segment
+      await trackEvent(EventType.SUBSCRIBED, {
+        applicationName: subscriptionData.applicationName,
+        arweaveAccountAddress: subscriptionData.arweaveAccountAddress,
+        recurringPaymentFrequency: subscriptionData.recurringPaymentFrequency,
+        subscriptionFeeAmount: subscriptionData.subscriptionFeeAmount
+      });
 
       // reply to request
       await replyToAuthRequest("subscription", params.authID);
