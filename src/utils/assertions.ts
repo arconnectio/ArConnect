@@ -33,6 +33,7 @@ import {
   isExactly
 } from "typed-assert";
 import { Gateway } from "~gateways/gateway";
+import type { SubscriptionData } from "~subscriptions/subscription";
 
 export function isGateway(input: unknown): asserts input is Gateway {
   isRecordWithKeys(
@@ -47,6 +48,69 @@ export function isGateway(input: unknown): asserts input is Gateway {
     ["http", "https"],
     "Gateway protocol should be https/http."
   );
+}
+
+export function isSubscriptionType(
+  input: unknown
+): asserts input is SubscriptionData[] {
+  isArray(input, "Input should be an array");
+
+  for (const item of input) {
+    isInstanceOf(item, Object, "Each item in the array should be an object.");
+
+    const {
+      arweaveAccountAddress,
+      applicationName,
+      subscriptionName,
+      subscriptionFeeAmount,
+      subscriptionStatus,
+      recurringPaymentFrequency,
+      nextPaymentDue,
+      subscriptionStartDate,
+      subscriptionEndDate,
+      applicationIcon
+    } = item as SubscriptionData;
+
+    isString(
+      arweaveAccountAddress,
+      "arweaveAccountAddress should be a string."
+    );
+    isString(applicationName, "applicationName should be a string.");
+    isString(subscriptionName, "subscriptionName should be a string.");
+    isNumber(
+      subscriptionFeeAmount,
+      "subscriptionFeeAmount should be a number."
+    );
+    isOneOf(
+      subscriptionStatus,
+      Object.values(subscriptionStatus),
+      "Invalid subscriptionStatus."
+    );
+    isOneOf(
+      recurringPaymentFrequency,
+      Object.values(recurringPaymentFrequency),
+      "Invalid recurringPaymentFrequency."
+    );
+    isOneOf(
+      nextPaymentDue,
+      Object.values(nextPaymentDue),
+      "Invalid nextPaymentDue."
+    );
+    isOneOf(
+      subscriptionStartDate,
+      Object.values(subscriptionStartDate),
+      "Invalid subscriptionStartDate."
+    );
+    isOneOf(
+      subscriptionEndDate,
+      Object.values(subscriptionEndDate),
+      "Invalid subscriptionEndDate"
+    );
+
+    if (applicationIcon !== undefined) {
+      isString(applicationIcon, "applicationIcon should be a string.");
+    }
+  }
 }
 
 export function isTokenType(input: unknown): asserts input is TokenType {

@@ -73,12 +73,16 @@ const ContentWrapper = styled.div`
   gap: ${setting_element_padding};
 `;
 
-const SettingIconWrapper = styled(Squircle)`
+export const SettingIconWrapper = styled(Squircle)<{
+  bg?: string;
+  customSize?: string;
+}>`
   position: relative;
   flex-shrink: 0;
-  width: 2.6rem;
-  height: 2.6rem;
-  color: rgb(${(props) => props.theme.theme});
+  width: ${(props) => props.customSize || "2.6rem"};
+  height: ${(props) => props.customSize || "2.6rem"};
+
+  color: rgb(${(props) => props.bg || props.theme.theme});
 `;
 
 export const SettingIcon = styled(SettingsIcon)`

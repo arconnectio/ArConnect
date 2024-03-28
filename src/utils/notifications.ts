@@ -5,8 +5,7 @@ import type { Transaction } from "~notifications/api";
 import type { Token } from "~tokens/token";
 import type { TokenInfo } from "~tokens/aoTokens/ao";
 
-export const fetchNotifications = async () => {
-  const address = await getActiveAddress();
+export const fetchNotifications = async (address: string) => {
   const n = await ExtensionStorage.get(`notifications_${address}`);
   if (!n) return false;
   const notifications = JSON.parse(n);

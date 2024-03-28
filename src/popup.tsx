@@ -20,6 +20,7 @@ import SendAuth from "~routes/popup/send/auth";
 import Explore from "~routes/popup/explore";
 import Unlock from "~routes/popup/unlock";
 import Notifications from "~routes/popup/notifications";
+import Subscriptions from "~routes/popup/subscriptions/subscriptions";
 import Tokens from "~routes/popup/tokens";
 import Asset from "~routes/popup/token/[id]";
 import Collectibles from "~routes/popup/collectibles";
@@ -29,6 +30,8 @@ import Recipient from "~routes/popup/send/recipient";
 import Confirm from "~routes/popup/send/confirm";
 import { NavigationBar } from "~components/popup/Navigation";
 import MessageNotification from "~routes/popup/notification/[id]";
+import SubscriptionDetails from "~routes/popup/subscriptions/subscriptionDetails";
+import SubscriptionPayment from "~routes/popup/subscriptions/subscriptionPayment";
 
 export default function Popup() {
   const theme = useTheme();
@@ -71,6 +74,16 @@ export default function Popup() {
                 </Route>
                 <Route path="/explore" component={Explore} />
                 <Route path="/unlock" component={Unlock} />
+                <Route path="/subscriptions" component={Subscriptions} />
+                <Route path="/subscriptions/:id">
+                  {(params: { id: string }) => (
+                    <SubscriptionDetails id={params?.id} />
+                  )}
+                </Route>
+                <Route
+                  path="/subscriptions/payment"
+                  component={SubscriptionPayment}
+                />
                 <Route path="/notifications" component={Notifications} />
                 <Route path="/notification/:id">
                   {(params: { id: string }) => (

@@ -53,11 +53,14 @@ import { UR } from "@ngraveio/bc-ur";
 import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
 import { useScanner } from "@arconnect/keystone-sdk";
 import Progress from "~components/Progress";
+import { updateSubscription } from "~subscriptions";
+import { SubscriptionStatus } from "~subscriptions/subscription";
 
 interface Props {
   tokenID: string;
-  qty: number;
+  qty?: number;
   recipient?: string;
+  subscription?: boolean;
 }
 
 function formatNumber(amount: number, decimalPlaces: number = 2): string {
@@ -69,7 +72,7 @@ function formatNumber(amount: number, decimalPlaces: number = 2): string {
   return rounded;
 }
 
-export default function Confirm({ tokenID, qty }: Props) {
+export default function Confirm({ tokenID, qty, subscription }: Props) {
   // TODO: Need to get Token information
   const [token, setToken] = useState<Token | undefined>();
   const [amount, setAmount] = useState<string>("");
@@ -362,6 +365,12 @@ export default function Confirm({ tokenID, qty }: Props) {
 
           try {
             await submitTx(convertedTransaction, arweave, type);
+            subscription &&
+              (await updateSubscription(
+                activeAddress,
+                recipient.address,
+                SubscriptionStatus.ACTIVE
+              ));
           } catch (e) {
             if (!uToken) {
               gateway = fallbackGateway;
@@ -603,7 +612,9 @@ export default function Confirm({ tokenID, qty }: Props) {
 
   return (
     <Wrapper>
-      <HeadV2 title={"Confirm Transaction"} />
+      <HeadV2
+        title={!subscription ? "Confirm Transaction" : "Subscription Payment"}
+      />
       <ConfirmWrapper>
         <BodyWrapper>
           <AddressWrapper>

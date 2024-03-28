@@ -47,6 +47,8 @@ import signMessageModule from "./modules/sign_message";
 import signMessage, {
   finalizer as signMessageFinalizer
 } from "./modules/sign_message/sign_message.foreground";
+import subscriptionModule from "./modules/subscription";
+import subscription from "./modules/subscription/subscription.foreground";
 import privateHashModule from "./modules/private_hash";
 import privateHash, {
   finalizer as privateHashFinalizer
@@ -90,7 +92,8 @@ const modules: ForegroundModule[] = [
     ...signDataItemModule,
     function: signDataItem,
     finalizer: signDataItemFinalizer
-  }
+  },
+  { ...subscriptionModule, function: subscription }
 ];
 
 export default modules;
