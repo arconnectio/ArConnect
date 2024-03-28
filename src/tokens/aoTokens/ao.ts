@@ -253,6 +253,7 @@ export interface TokenInfo {
   Ticker?: string;
   Logo?: string;
   Denomination: number;
+  processId?: string;
 }
 export interface TokenInfoWithBalance extends TokenInfo {
   id: string;

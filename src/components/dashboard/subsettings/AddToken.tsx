@@ -6,40 +6,53 @@ import { useAo, type TokenInfo, useAoTokens } from "~tokens/aoTokens/ao";
 import { getTokenInfo } from "~tokens/aoTokens/router";
 import styled from "styled-components";
 import { isAddress } from "~utils/assertions";
-import { getAoTokens, getDreForToken } from "~tokens";
+import { addToken, getAoTokens, getDreForToken } from "~tokens";
 import { ExtensionStorage } from "~utils/storage";
 import { SubTitle } from "./ContactSettings";
 import { DREContract, DRENode } from "@arconnect/warp-dre";
-import type { TokenState } from "~tokens/token";
+import type { TokenState, TokenType } from "~tokens/token";
+import { concatGatewayURL } from "~gateways/utils";
+import { useGateway } from "~gateways/wayfinder";
 
 export default function AddToken() {
   const targetInput = useInput();
-  const warpInput = useInput();
+  const gateway = useGateway({ startBlock: 0 });
+  const [tokenType, setTokenType] = useState<TokenType>("asset");
   const [token, setToken] = useState<TokenInfo>();
   const [type, setType] = useState<string>("ao");
+  const [warp, setWarp] = useState<string | null>(null);
   const ao = useAo();
   const { setToast } = useToasts();
 
   const onImportToken = async () => {
     try {
-      const tokens = await getAoTokens();
+      if (type === "ao") {
+        const tokens = await getAoTokens();
 
-      if (tokens.find((token) => token.processId === targetInput.state)) {
+        if (tokens.find((token) => token.processId === targetInput.state)) {
+          setToast({
+            type: "error",
+            content: browser.i18n.getMessage("token_already_added"),
+            duration: 3000
+          });
+          throw new Error("Token already added");
+        }
+
+        tokens.push({ ...token, processId: targetInput.state });
+        await ExtensionStorage.set("ao_tokens", tokens);
         setToast({
-          type: "error",
-          content: browser.i18n.getMessage("token_already_added"),
+          type: "success",
+          content: browser.i18n.getMessage("token_imported"),
           duration: 3000
         });
-        throw new Error("Token already added");
+      } else if (warp && type === "warp") {
+        await addToken(targetInput.state, tokenType, warp);
+        setToast({
+          type: "success",
+          content: browser.i18n.getMessage("token_imported"),
+          duration: 3000
+        });
       }
-
-      tokens.push({ ...token, processId: targetInput.state });
-      await ExtensionStorage.set("ao_tokens", tokens);
-      setToast({
-        type: "success",
-        content: browser.i18n.getMessage("token_imported"),
-        duration: 3000
-      });
     } catch (err) {
       console.log("err", err);
     }
@@ -54,38 +67,23 @@ export default function AddToken() {
           const tokenInfo = await getTokenInfo(targetInput.state, ao);
           setToken(tokenInfo);
         } else {
-          let dre = await getDreForToken(warpInput.state);
-          console.log("dres", dre);
-          const contract = new DREContract(warpInput.state, new DRENode(dre));
+          let dre = await getDreForToken(targetInput.state);
+          const contract = new DREContract(targetInput.state, new DRENode(dre));
           const { state } = await contract.getState<TokenState>();
-          console.log("state", state);
+          const values: TokenInfo = {
+            Name: state.name,
+            Ticker: state.ticker,
+            Denomination: 0
+          };
+          setWarp(dre);
+          setToken(values);
         }
       } catch (err) {
         console.log("herr", err);
       }
     };
     fetchTokenInfo();
-  }, [targetInput.state]);
-
-  useEffect(() => {
-    const fetchTokenInfo = async () => {
-      try {
-        //TODO double check
-        isAddress(warpInput.state);
-        console.log("add", warpInput.state);
-
-        let dre = await getDreForToken(warpInput.state);
-        console.log("dres", dre);
-        const contract = new DREContract(warpInput.state, new DRENode(dre));
-        const { state } = await contract.getState<TokenState>();
-        console.log("state", state);
-        // setToken(tokenInfo);
-      } catch (err) {
-        console.log("herer", err);
-      }
-    };
-    fetchTokenInfo();
-  }, [warpInput.state]);
+  }, [targetInput.state, tokenType, token]);
 
   return (
     <Wrapper>
@@ -97,6 +95,7 @@ export default function AddToken() {
           onChange={(e) => {
             // @ts-expect-error
             setType(e.target.value);
+            setTokenType("asset");
           }}
           fullWidth
         >
@@ -108,14 +107,27 @@ export default function AddToken() {
           </option>
         </Select>
         {type === "warp" && (
-          <Select
-            label={browser.i18n.getMessage("token_type")}
-            onChange={(e) => {}}
-            fullWidth
-          >
-            <option>{browser.i18n.getMessage("token_type_asset")}</option>
-            <option>{browser.i18n.getMessage("token_type_collectible")}</option>
-          </Select>
+          <>
+            <Spacer y={0.5} />
+            <Select
+              label="asset/collectible"
+              onChange={(e) => {
+                // @ts-expect-error
+                setTokenType(e.target.value);
+              }}
+              fullWidth
+            >
+              <option selected={tokenType === "asset"} value="asset">
+                {browser.i18n.getMessage("token_type_asset")}
+              </option>
+              <option
+                selected={tokenType === "collectible"}
+                value="collectible"
+              >
+                {browser.i18n.getMessage("token_type_collectible")}
+              </option>
+            </Select>
+          </>
         )}
 
         <Spacer y={0.5} />
@@ -133,6 +145,11 @@ export default function AddToken() {
             <Title>{token.Ticker}</Title>
             <SubTitle>NAME:</SubTitle>
             <Title>{token.Name}</Title>
+            {tokenType === "collectible" && (
+              <Image
+                src={concatGatewayURL(gateway) + `/${targetInput.state}`}
+              />
+            )}
           </TokenWrapper>
         )}
       </div>
@@ -142,6 +159,15 @@ export default function AddToken() {
     </Wrapper>
   );
 }
+
+const Image = styled.div<{ src: string }>`
+  position: relative;
+  background-image: url(${(props) => props.src});
+  background-size: cover;
+  background-position: center;
+  padding-top: 100%;
+  border-radius: 12px;
+`;
 
 const Title = styled(Text).attrs({
   title: true,
