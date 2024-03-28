@@ -32,6 +32,7 @@ import { useEffect, useState } from "react";
 import { getPrice } from "~lib/coingecko";
 import useSetting from "~settings/hook";
 import { EventType, trackEvent } from "~utils/analytics";
+import { handleSubscriptionPayment } from "~subscriptions/payments";
 
 export default function Subscription() {
   //   connect params
@@ -55,12 +56,13 @@ export default function Subscription() {
     fetchArPrice();
   }, [currency, params]);
 
+  // TODO TRIGGER PAYMENT WHEN ADDING NEW SUBSCRIPTION
+
   async function done() {
     // add subscription to storage
     try {
       const { authID, ...subscriptionParams } = params;
       const activeAddress = await getActiveAddress();
-      const paymentHistory = ["testtxn"];
 
       // process payment
       // append txid to payment history array
@@ -71,10 +73,13 @@ export default function Subscription() {
         subscriptionFeeAmount: subscriptionParams.subscriptionFeeAmount,
         subscriptionManagementUrl: subscriptionParams.subscriptionManagementUrl,
         subscriptionStatus: SubscriptionStatus.ACTIVE,
-        paymentHistory: paymentHistory,
         recurringPaymentFrequency:
           subscriptionParams.recurringPaymentFrequency as RecurringPaymentFrequency,
+
+        // TODO: this should be default set to now, and let `handleSubPayment` update to the following period
         nextPaymentDue: new Date(subscriptionParams.nextPaymentDue),
+
+        // TODO:  this should be default started to now
         subscriptionStartDate: new Date(
           subscriptionParams.subscriptionStartDate
         ),
@@ -82,7 +87,12 @@ export default function Subscription() {
         applicationIcon: subscriptionParams.applicationIcon
       };
 
-      await addSubscription(activeAddress, subscriptionData);
+      const updated = await handleSubscriptionPayment(subscriptionData);
+      if (updated) {
+        await addSubscription(activeAddress, updated);
+      } else {
+        throw new Error();
+      }
 
       // segment
       await trackEvent(EventType.SUBSCRIBED, {
@@ -100,7 +110,7 @@ export default function Subscription() {
       console.log("Failed to subscribe");
       setToast({
         type: "error",
-        //todo update message
+        //TODO: update message
         content: browser.i18n.getMessage("token_add_failure"),
         duration: 2200
       });

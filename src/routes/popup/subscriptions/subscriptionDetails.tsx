@@ -23,6 +23,7 @@ import {
   useToasts
 } from "@arconnect/components";
 import { AppIcon, Content, Title, getColorByStatus } from "./subscriptions";
+import { CreditCardUpload } from "@untitled-ui/icons-react";
 import {
   SettingIconWrapper,
   SettingImage
@@ -33,6 +34,11 @@ import { useHistory } from "~utils/hash_router";
 import { getPrice } from "~lib/coingecko";
 import useSetting from "~settings/hook";
 import { PageType, trackPage } from "~utils/analytics";
+import { formatTokenBalance, fractionedToBalance } from "~tokens/currency";
+import { arPlaceholder } from "../send";
+import { ExtensionStorage, TempTransactionStorage } from "~utils/storage";
+import { findGateway } from "~gateways/wayfinder";
+import Arweave from "arweave";
 
 interface Props {
   id?: string;
@@ -41,11 +47,12 @@ interface Props {
 export default function SubscriptionDetails({ id }: Props) {
   const theme = useTheme();
   const [subData, setSubData] = useState<SubscriptionData | null>(null);
-  const [, goBack] = useHistory();
+  const [push, goBack] = useHistory();
   const { setToast } = useToasts();
   const [price, setPrice] = useState<number | null>();
   const [currency] = useSetting<string>("currency");
   const [color, setColor] = useState<string>("");
+  // network fee
 
   const cancel = async () => {
     const address = await getActiveAddress();
@@ -84,6 +91,8 @@ export default function SubscriptionDetails({ id }: Props) {
         });
       }
     }
+
+    browser.alarms.clear(`subscription-alarm-${subData.arweaveAccountAddress}`);
     goBack();
     // redirect to subscription page
   };
@@ -115,6 +124,40 @@ export default function SubscriptionDetails({ id }: Props) {
     getSubData();
   }, []);
 
+  // prepare tx to send
+  async function send() {
+    const byte = new TextEncoder().encode(
+      `Subscription payment to ${subData.applicationName}`
+    ).length;
+
+    // get network fee
+    const gateway = await findGateway({});
+    const arweave = new Arweave(gateway);
+    const txPrice = await arweave.transactions.getPrice(byte, "dummyTarget");
+
+    const networkFee = arweave.ar.winstonToAr(txPrice);
+
+    await ExtensionStorage.set(
+      "last_send_qty",
+      formatTokenBalance(subData.subscriptionFeeAmount)
+    );
+
+    await TempTransactionStorage.set("send", {
+      networkFee,
+      qty: formatTokenBalance(subData.subscriptionFeeAmount),
+      token: arPlaceholder,
+      recipient: { address: subData.arweaveAccountAddress },
+      estimatedFiat: price, //! HERE
+      estimatedNetworkFee: formatTokenBalance(networkFee),
+      message: `Subscription payment to ${subData.applicationName}`,
+      qtyMode: "token",
+      isAo: false
+    });
+
+    // continue to confirmation page
+    push("/subscriptions/payment");
+  }
+
   return (
     <>
       <HeadV2 title={subData?.applicationName} />
@@ -131,12 +174,22 @@ export default function SubscriptionDetails({ id }: Props) {
                     <SettingImage src={subData.applicationIcon} />
                   )}
                 </SettingIconWrapper>
-                <Title>
-                  <h2>{subData.applicationName}</h2>
-                  <h3 style={{ fontSize: "12px" }}>
-                    Status:{" "}
-                    <span style={{ color }}>{subData.subscriptionStatus}</span>
-                  </h3>
+                <Title style={{ display: "flex", alignItems: "flex-end" }}>
+                  <div>
+                    <h2>{subData.applicationName}</h2>
+                    <h3 style={{ fontSize: "12px", display: "flex" }}>
+                      Status:{" "}
+                      <span style={{ color }}>
+                        {subData.subscriptionStatus}
+                      </span>
+                      <PayNowButton onClick={() => send()}>
+                        Pay now <PaymentIcon />
+                      </PayNowButton>
+                    </h3>
+                  </div>
+                  {/* {subData.subscriptionStatus === SubscriptionStatus.AWAITING_PAYMENT && (
+                    
+                  )} */}
                 </Title>
               </Content>
             </SubscriptionListItem>
@@ -295,6 +348,23 @@ export const PaymentDetails = styled.div`
     font-weight: 500;
     font-size: 10px;
   }
+`;
+
+export const PayNowButton = styled.div`
+  display: flex;
+  align-items: flex-end;
+  line-height: 16px;
+  font-size: 12px;
+  color: ${(props) => props.theme.primary};
+  margin-left: 12px;
+  gap: 4px;
+  cursor: pointer;
+`;
+
+export const PaymentIcon = styled(CreditCardUpload)`
+  width: 16px;
+  height: 16px;
+  color: ${(props) => props.theme.primary};
 `;
 
 export const Main = styled.div`
