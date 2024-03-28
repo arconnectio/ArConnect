@@ -59,26 +59,12 @@ export default function TokenListItem({ token, active, ao }: Props) {
         setImage(viewblock.getTokenLogo(token.id));
       }
     })();
-  }, [token, theme, gateway]);
+  }, [token, theme, gateway, ao]);
 
   // router
   const [, setLocation] = useLocation();
 
-  return ao ? (
-    <BaseElement
-      ao={true}
-      title={`${token.name} (${token.ticker})`}
-      description={
-        <div style={{ display: "flex", gap: "8px" }}>
-          {formattedAddress}
-          <Image src={aoLogo} alt="ao logo" />
-        </div>
-      }
-      active={active}
-    >
-      <TokenLogo src={image} />
-    </BaseElement>
-  ) : (
+  return (
     <Reorder.Item
       as="div"
       value={token}
@@ -90,10 +76,11 @@ export default function TokenListItem({ token, active, ao }: Props) {
       <BaseElement
         title={`${token.name} (${token.ticker})`}
         description={
-          <>
+          <DescriptionWrapper>
             {formattedAddress}
-            <TokenType>{token.type}</TokenType>
-          </>
+            {ao && <Image src={aoLogo} alt="ao logo" />}
+            {!ao && <TokenType>{token.type}</TokenType>}
+          </DescriptionWrapper>
         }
         active={active}
         dragControls={dragControls}
@@ -102,6 +89,45 @@ export default function TokenListItem({ token, active, ao }: Props) {
       </BaseElement>
     </Reorder.Item>
   );
+
+  // return ao ? (
+  //   <BaseElement
+  //     ao={true}
+  //     title={`${token.name} (${token.ticker})`}
+  //     description={
+  //       <div style={{ display: "flex", gap: "8px" }}>
+  //         {formattedAddress}
+  //         <Image src={aoLogo} alt="ao logo" />
+  //       </div>
+  //     }
+  //     active={active}
+  //   >
+  //     <TokenLogo src={image} />
+  //   </BaseElement>
+  // ) : (
+  //   <Reorder.Item
+  //     as="div"
+  //     value={token}
+  //     id={token.id}
+  //     dragListener={false}
+  //     dragControls={dragControls}
+  //     onClick={() => setLocation(`/tokens/${token.id}`)}
+  //   >
+  //     <BaseElement
+  //       title={`${token.name} (${token.ticker})`}
+  //       description={
+  //         <>
+  //           {formattedAddress}
+  //           <TokenType>{token.type}</TokenType>
+  //         </>
+  //       }
+  //       active={active}
+  //       dragControls={dragControls}
+  //     >
+  //       <TokenLogo src={image} />
+  //     </BaseElement>
+  //   </Reorder.Item>
+  // );
 }
 
 const Image = styled.img`
@@ -109,6 +135,11 @@ const Image = styled.img`
   padding: 0 8px;
   border: 1px solid rgb(${(props) => props.theme.cardBorder});
   border-radius: 2px;
+`;
+
+const DescriptionWrapper = styled.div`
+  display: flex;
+  gap: 8px;
 `;
 
 const TokenLogo = styled.img.attrs({
