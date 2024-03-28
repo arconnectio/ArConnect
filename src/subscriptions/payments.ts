@@ -1,14 +1,5 @@
-import {
-  ExtensionStorage,
-  TRANSFER_TX_STORAGE,
-  type RawStoredTransfer,
-  TempTransactionStorage
-} from "~utils/storage";
-import {
-  defaultGateway,
-  fallbackGateway,
-  type Gateway
-} from "~gateways/gateway";
+import { ExtensionStorage, type RawStoredTransfer } from "~utils/storage";
+import { fallbackGateway } from "~gateways/gateway";
 import type Transaction from "arweave/web/lib/transaction";
 import { EventType, trackEvent } from "~utils/analytics";
 import { SubscriptionStatus, type SubscriptionData } from "./subscription";
@@ -23,7 +14,7 @@ import {
   calculateNextPaymentDate,
   updateSubscription as statusUpdateSubscription
 } from "~subscriptions";
-import type { Tag } from "arweave/web/lib/transaction";
+import { isLocalWallet } from "~utils/assertions";
 
 export async function handleSubscriptionPayment(
   data: SubscriptionData
@@ -45,222 +36,151 @@ export async function handleSubscriptionPayment(
     );
     throw new Error("Subscription fee exceeds or is equal to user allowance");
   } else {
-    // Subscription fee is less than allowance amount
-    // Initiate automatic subscription payment
-    async function send(target: string): Promise<void> {
-      try {
-        // grab address
-
-        // create tx
-        const gateway = await findGateway({});
-        const arweave = new Arweave(gateway);
-
-        const winstonBalance = await arweave.wallets.getBalance(activeAddress);
-
-        const balance = Number(arweave.ar.winstonToAr(winstonBalance));
-
-        // Check if the subscription fee exceeds the user's balance
-        if (subscriptionFee > balance) {
-          throw new Error("Subscription fee amount exceeds wallet balance");
-        }
-
-        // save tx json into session
-        // to be signed and submitted
-        const storedTx: Partial<RawStoredTransfer> = {
-          type: "native",
-          gateway: gateway
-        };
-
-        // convert to winston
-        const paymentQuantity = fractionedToBalance(
-          Number(data.subscriptionFeeAmount),
-          arPlaceholder
-        ).toString();
-
-        const tx = await arweave.createTransaction({
-          target,
-          quantity: paymentQuantity,
-          data: undefined
-        });
-
-        console.log("created tx:", tx);
-
-        tx.addTag("Subscription-Name", data.subscriptionName);
-        tx.addTag("App-Name", data.applicationName);
-        tx.addTag("Type", "Transfer");
-        tx.addTag("Client", "ArConnect");
-        tx.addTag("Client-Version", browser.runtime.getManifest().version);
-
-        storedTx.transaction = tx.toJSON();
-
-        await TempTransactionStorage.set(TRANSFER_TX_STORAGE, storedTx);
-      } catch (error) {
-        console.log("Error sending automated transaction");
-      }
-    }
-
     try {
       const recipientAddress = data.arweaveAccountAddress;
-      await send(recipientAddress);
-
-      // get transaction from session storage
-      async function getTransaction(): Promise<
-        | {
-            transaction: Transaction;
-            gateway: Gateway;
-            type: string;
-          }
-        | undefined
-      > {
-        // get raw tx
-        const raw = await TempTransactionStorage.get<RawStoredTransfer>(
-          TRANSFER_TX_STORAGE
-        );
-        const gateway = raw?.gateway || defaultGateway;
-
-        if (!raw) return undefined;
-
-        // gateway from raw tx
-        const arweave = new Arweave(gateway);
-
-        return {
-          type: raw.type,
-          gateway,
-          transaction: arweave.transactions.fromRaw(raw.transaction)
-        };
-      }
-
-      async function submitTx(
-        transaction: Transaction,
-        arweave: Arweave,
-        type: "native"
-      ): Promise<SubscriptionData | undefined> {
-        // cache tx
-        localStorage.setItem(
-          "latest_tx",
-          JSON.stringify({
-            quantity: { ar: arweave.ar.winstonToAr(transaction.quantity) },
-            owner: {
-              address: await arweave.wallets.ownerToAddress(transaction.owner)
-            },
-            recipient: transaction.target,
-            fee: { ar: transaction.reward },
-            data: { size: transaction.data_size },
-            // @ts-expect-error
-            tags: (transaction.get("tags") as Tag[]).map((tag) => ({
-              name: tag.get("name", { string: true, decode: true }),
-              value: tag.get("value", { string: true, decode: true })
-            }))
-          })
-        );
-
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => {
-            reject(
-              new Error("Timeout: Posting to Arweave took more than 10 seconds")
-            );
-          }, 10000);
-        });
-
-        try {
-          await Promise.race([
-            arweave.transactions.post(transaction),
-            timeoutPromise
-          ]);
-          const updatedSub = updateSubscription(data, transaction.id);
-          return updatedSub;
-        } catch (err) {
-          // SEGMENT
-          await trackEvent(EventType.TRANSACTION_INCOMPLETE, {});
-          throw new Error("Error posting subscription tx to Arweave");
-        }
-      }
-
-      /**
-       * Local wallet functionalities
-       */
-
-      // local wallet sign & send
-      async function sendLocal(): Promise<SubscriptionData | undefined> {
-        // get tx and gateway
-        let { type, gateway, transaction } = await getTransaction();
-        const arweave = new Arweave(gateway);
-
-        const decryptedWallet = await getActiveKeyfile();
-
-        // Decrypt wallet & sign for user
-        const keyfile = decryptedWallet.keyfile;
-
-        // Process transaction without user signing
-        try {
-          // Set owner
-          transaction.setOwner(keyfile.n);
-
-          // Sign the transaction
-          await arweave.transactions.sign(transaction, keyfile);
-
-          try {
-            // Post the transaction
-            const submitted = await submitTx(transaction, arweave, type);
-            console.log(
-              "After submitTx: Transaction successfully posted",
-              submitted
-            );
-            return submitted;
-          } catch (e) {
-            console.log("entered fallback gateway");
-            // FALLBACK IF ISP BLOCKS ARWEAVE.NET OR IF WAYFINDER FAILS
-            gateway = fallbackGateway;
-            const fallbackArweave = new Arweave(gateway);
-            await fallbackArweave.transactions.sign(transaction, keyfile);
-            await submitTx(transaction, fallbackArweave, type);
-            await trackEvent(EventType.FALLBACK, {});
-          }
-          console.log("free from memory");
-          // remove wallet from memory
-          freeDecryptedWallet(keyfile);
-        } catch (e) {
-          console.log(e, "failed subscription tx");
-          freeDecryptedWallet(keyfile);
-        }
-      }
-
-      return sendLocal();
+      const prepared = await prepare(recipientAddress, data, activeAddress);
+      return send(prepared, data);
     } catch (error) {
-      const decryptedWallet = await getActiveKeyfile();
-
-      // Decrypt wallet & sign for user
-      const keyfile = decryptedWallet.keyfile;
-      freeDecryptedWallet(keyfile);
       console.log(error);
       throw new Error("Error making auto subscription payment");
     }
   }
 }
 
-// export async function handleSubscriptionPayment(data: SubscriptionData) {
-//   const prepared = await prepare(
-//     data.arweaveAccountAddress,
-//     data.subscriptionFeeAmount
-//   );
-//   if (prepared) {
-//     let { gateway, transaction, type } = prepared;
-//     const arweave = new Arweave(gateway);
-//     const convertedTransaction = arweave.transactions.fromRaw(transaction);
-//     const decryptedWallet = await getActiveKeyfile();
-//     isLocalWallet(decryptedWallet);
-//     const keyfile = decryptedWallet.keyfile;
-//     convertedTransaction.setOwner(keyfile.n);
-//     await arweave.transactions.sign(convertedTransaction, keyfile);
-//     try {
-//       await arweave.transactions.post(convertedTransaction);
-//       const updatedSub = updateSubscription(data, convertedTransaction.id);
-//       return updatedSub;
-//     } catch (err) {
-//       console.log("err", err);
-//     }
-//   }
-// }
+const prepare = async (
+  target: string,
+  data: SubscriptionData,
+  activeAddress: string
+): Promise<RawStoredTransfer> => {
+  try {
+    // grab address
+
+    // create tx
+    const gateway = await findGateway({});
+    const arweave = new Arweave(gateway);
+
+    const winstonBalance = await arweave.wallets.getBalance(activeAddress);
+
+    const balance = Number(arweave.ar.winstonToAr(winstonBalance));
+
+    // Check if the subscription fee exceeds the user's balance
+    if (data.subscriptionFeeAmount > balance) {
+      throw new Error("Subscription fee amount exceeds wallet balance");
+    }
+
+    // save tx json into session
+    // to be signed and submitted
+    const formattedTxn: RawStoredTransfer = {
+      type: "native",
+      gateway: gateway,
+      transaction: {} as ReturnType<Transaction["toJSON"]>
+    };
+
+    // convert to winston
+    const paymentQuantity = fractionedToBalance(
+      Number(data.subscriptionFeeAmount),
+      arPlaceholder
+    ).toString();
+
+    const tx = await arweave.createTransaction({
+      target,
+      quantity: paymentQuantity,
+      data: undefined
+    });
+
+    console.log("created tx:", tx);
+
+    tx.addTag("Subscription-Name", data.subscriptionName);
+    tx.addTag("App-Name", data.applicationName);
+    tx.addTag("Type", "Transfer");
+    tx.addTag("Client", "ArConnect");
+    tx.addTag("Client-Version", browser.runtime.getManifest().version);
+
+    formattedTxn.transaction = tx.toJSON();
+
+    return formattedTxn;
+  } catch (error) {
+    console.log("Error sending automated transaction");
+  }
+};
+
+const send = async (
+  formattedTxn: RawStoredTransfer,
+  subscriptionData: SubscriptionData
+): Promise<SubscriptionData | undefined> => {
+  // get tx and gateway
+  let { type, gateway, transaction } = formattedTxn;
+  const arweave = new Arweave(gateway);
+  const unRaw = arweave.transactions.fromRaw(transaction);
+
+  const decryptedWallet = await getActiveKeyfile();
+
+  isLocalWallet(decryptedWallet);
+  // Decrypt wallet & sign for user
+  const keyfile = decryptedWallet.keyfile;
+
+  // Process transaction without user signing
+  try {
+    // Set owner
+    unRaw.setOwner(keyfile.n);
+
+    // Sign the transaction
+    await arweave.transactions.sign(unRaw, keyfile);
+
+    try {
+      // Post the transaction
+      const submitted = await submitTx(unRaw, arweave, subscriptionData);
+      console.log("After submitTx: Transaction successfully posted", submitted);
+      console.log("free from memory");
+      freeDecryptedWallet(keyfile);
+      return submitted;
+    } catch (e) {
+      console.log("entered fallback gateway");
+      // FALLBACK IF ISP BLOCKS ARWEAVE.NET OR IF WAYFINDER FAILS
+      gateway = fallbackGateway;
+      const fallbackArweave = new Arweave(gateway);
+      await fallbackArweave.transactions.sign(unRaw, keyfile);
+      const submitted = await submitTx(
+        unRaw,
+        fallbackArweave,
+        subscriptionData
+      );
+      freeDecryptedWallet(keyfile);
+      await trackEvent(EventType.FALLBACK, {});
+      return submitted;
+    }
+  } catch (e) {
+    console.log(e, "failed subscription tx");
+    freeDecryptedWallet(keyfile);
+  }
+};
+
+const submitTx = async (
+  transaction: Transaction,
+  arweave: Arweave,
+  data: SubscriptionData
+): Promise<SubscriptionData | undefined> => {
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => {
+      reject(
+        new Error("Timeout: Posting to Arweave took more than 10 seconds")
+      );
+    }, 10000);
+  });
+
+  try {
+    await Promise.race([
+      arweave.transactions.post(transaction),
+      timeoutPromise
+    ]);
+    const updatedSub = updateSubscription(data, transaction.id);
+    return updatedSub;
+  } catch (err) {
+    // SEGMENT
+    await trackEvent(EventType.TRANSACTION_INCOMPLETE, {});
+    throw new Error("Error posting subscription tx to Arweave");
+  }
+};
 
 export function updateSubscription(
   data: SubscriptionData,
@@ -287,22 +207,3 @@ export function updateSubscription(
 
   return data;
 }
-
-// const prepare = async (target: string, amount: Number) => {
-//   let gateway = await findGateway({});
-//   let arweave = new Arweave(gateway);
-
-//   const storedTx: Partial<RawStoredTransfer> = {
-//     type: "native",
-//     gateway: gateway
-//   };
-//   const tx = await arweave.createTransaction({
-//     target,
-//     quantity: fractionedToBalance(Number(amount), arPlaceholder).toString()
-//   });
-//   tx.addTag("Type", "Transfer");
-//   tx.addTag("Client", "ArConnect");
-//   tx.addTag("Client-Version", browser.runtime.getManifest().version);
-//   storedTx.transaction = tx.toJSON();
-//   return storedTx;
-// };
