@@ -4,7 +4,11 @@ import {
   type RawStoredTransfer,
   TempTransactionStorage
 } from "~utils/storage";
-import { defaultGateway, fallbackGateway } from "~gateways/gateway";
+import {
+  defaultGateway,
+  fallbackGateway,
+  type Gateway
+} from "~gateways/gateway";
 import type Transaction from "arweave/web/lib/transaction";
 import { EventType, trackEvent } from "~utils/analytics";
 import { SubscriptionStatus, type SubscriptionData } from "./subscription";
@@ -19,16 +23,17 @@ import {
   calculateNextPaymentDate,
   updateSubscription as statusUpdateSubscription
 } from "~subscriptions";
+import type { Tag } from "arweave/web/lib/transaction";
 
 export async function handleSubscriptionPayment(
   data: SubscriptionData
-): Promise<any | null> {
+): Promise<SubscriptionData | null> {
   const autoAllowance: number = await ExtensionStorage.get(
     "setting_subscription_allowance"
   );
-  const activeAddress = await ExtensionStorage.get("active_address");
+  const activeAddress: string = await ExtensionStorage.get("active_address");
 
-  const subscriptionFee = data.subscriptionFeeAmount;
+  const subscriptionFee: number = data.subscriptionFeeAmount;
 
   if (subscriptionFee >= autoAllowance) {
     // TODO update status here
@@ -42,7 +47,7 @@ export async function handleSubscriptionPayment(
   } else {
     // Subscription fee is less than allowance amount
     // Initiate automatic subscription payment
-    async function send(target: string) {
+    async function send(target: string): Promise<void> {
       try {
         // grab address
 
@@ -99,7 +104,14 @@ export async function handleSubscriptionPayment(
       await send(recipientAddress);
 
       // get transaction from session storage
-      async function getTransaction() {
+      async function getTransaction(): Promise<
+        | {
+            transaction: Transaction;
+            gateway: Gateway;
+            type: string;
+          }
+        | undefined
+      > {
         // get raw tx
         const raw = await TempTransactionStorage.get<RawStoredTransfer>(
           TRANSFER_TX_STORAGE
@@ -122,7 +134,7 @@ export async function handleSubscriptionPayment(
         transaction: Transaction,
         arweave: Arweave,
         type: "native"
-      ) {
+      ): Promise<SubscriptionData | undefined> {
         // cache tx
         localStorage.setItem(
           "latest_tx",
@@ -151,13 +163,11 @@ export async function handleSubscriptionPayment(
         });
 
         try {
-          console.log("Enter Promise.race");
           await Promise.race([
             arweave.transactions.post(transaction),
             timeoutPromise
           ]);
           const updatedSub = updateSubscription(data, transaction.id);
-          console.log("updated sub:", updatedSub);
           return updatedSub;
         } catch (err) {
           // SEGMENT
@@ -171,7 +181,7 @@ export async function handleSubscriptionPayment(
        */
 
       // local wallet sign & send
-      async function sendLocal() {
+      async function sendLocal(): Promise<SubscriptionData | undefined> {
         // get tx and gateway
         let { type, gateway, transaction } = await getTransaction();
         const arweave = new Arweave(gateway);
@@ -255,7 +265,7 @@ export async function handleSubscriptionPayment(
 export function updateSubscription(
   data: SubscriptionData,
   updatedTxnId: string
-) {
+): SubscriptionData {
   const nextPaymentDue = calculateNextPaymentDate(
     data.nextPaymentDue,
     data.recurringPaymentFrequency
