@@ -1,28 +1,13 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
-import {
-  decodeSignature,
-  messageToUR,
-  transactionToUR
-} from "~wallets/hardware/keystone";
-import { constructTransaction } from "~api/modules/sign/transaction_builder";
-import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
-import { onMessage, sendMessage } from "@arconnect/webext-bridge";
-import type { DecodedTag } from "~api/modules/sign/tags";
-import type { Tag } from "arweave/web/lib/transaction";
-import type { Chunk } from "~api/modules/sign/chunks";
-import { useEffect, useMemo, useState } from "react";
+import { decodeSignature, messageToUR } from "~wallets/hardware/keystone";
+import { useEffect, useState } from "react";
 import { useScanner } from "@arconnect/keystone-sdk";
 import { useActiveWallet } from "~wallets/hooks";
-import { formatAddress } from "~utils/format";
-import { getArPrice } from "~lib/coingecko";
 import type { UR } from "@ngraveio/bc-ur";
 import {
-  AmountTitle,
-  FiatAmount,
   Properties,
   PropertyName,
   PropertyValue,
-  TagValue,
   TransactionProperty
 } from "~routes/popup/transaction/[id]";
 import {
@@ -34,11 +19,11 @@ import {
 } from "@arconnect/components";
 import AnimatedQRScanner from "~components/hardware/AnimatedQRScanner";
 import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
-import type Transaction from "arweave/web/lib/transaction";
 import Wrapper from "~components/auth/Wrapper";
 import Progress from "~components/Progress";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
+import Message from "~components/auth/Message";
 
 export default function SignMessage() {
   // sign params
@@ -150,14 +135,7 @@ export default function SignMessage() {
         <Spacer y={0.75} />
         {(!page && dataToSign && (
           <Section>
-            <Properties>
-              <TransactionProperty>
-                <PropertyName>Message</PropertyName>
-                <PropertyValue>
-                  {Buffer.from(dataToSign).toString("hex")}
-                </PropertyValue>
-              </TransactionProperty>
-            </Properties>
+            <Message message={[...dataToSign]} />
           </Section>
         )) || (
           <Section>
