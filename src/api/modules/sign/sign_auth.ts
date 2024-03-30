@@ -72,3 +72,16 @@ export const signAuth = (
       });
     }
   );
+
+export const signAuthMessage = (dataToSign: Uint8Array) =>
+  new Promise<AuthResult<{ id: string; signature: string } | undefined>>(
+    (resolve, reject) => {
+      // start auth
+      authenticate({
+        type: "signMessage",
+        data: Buffer.from(dataToSign).toString("base64")
+      })
+        .then((res) => resolve(res))
+        .catch((err) => reject(err));
+    }
+  );
