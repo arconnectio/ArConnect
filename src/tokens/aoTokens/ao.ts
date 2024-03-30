@@ -8,6 +8,7 @@ import { getTokenInfo, useTokenIDs } from "./router";
 import { ArweaveSigner, createData } from "arbundles";
 import { getActiveKeyfile } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
+import { getAoTokens } from "~tokens";
 
 export type AoInstance = ReturnType<typeof connect>;
 
@@ -112,6 +113,11 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
     instance: ExtensionStorage
   });
 
+  const [aoTokens] = useStorage<any[]>({
+    key: "ao_tokens",
+    instance: ExtensionStorage
+  });
+
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     if (!loadingIDs) return;
@@ -128,13 +134,14 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
           return setTokens([]);
         }
         setTokens(
-          await Promise.all(
-            ids.map(async (id) => ({
-              id,
-              balance: 0,
-              ...(await getTokenInfo(id, ao))
-            }))
-          )
+          aoTokens.map((aoToken) => ({
+            id: aoToken.processId,
+            balance: 0,
+            Ticker: aoToken.Ticker,
+            Name: aoToken.Name,
+            Denomination: parseFloat(aoToken.Denomination || "1"),
+            Logo: aoToken?.Logo
+          }))
         );
       } catch {}
 
@@ -232,20 +239,33 @@ export async function getBalance(
   address: string,
   ao: AoInstance
 ): Promise<number> {
-  const res = await ao.dryrun({
-    Id: "0000000000000000000000000000000000000000001",
-    Owner: address,
-    process: id,
-    tags: [{ name: "Action", value: "Balance" }]
-  });
+  const timeoutPromise = new Promise<number>((_, reject) =>
+    setTimeout(() => reject(new Error("Timeout after 3 seconds")), 3000)
+  );
 
-  for (const msg of res.Messages as Message[]) {
-    const balance = getTagValue("Balance", msg.Tags);
+  const fetchBalance = async () => {
+    const res = await ao.dryrun({
+      Id: "0000000000000000000000000000000000000000001",
+      Owner: address,
+      process: id,
+      tags: [{ name: "Action", value: "Balance" }]
+    });
 
-    if (balance) return parseInt(balance);
+    for (const msg of res.Messages as Message[]) {
+      const balance = getTagValue("Balance", msg.Tags);
+
+      if (balance) return parseInt(balance);
+    }
+
+    return 0;
+  };
+
+  try {
+    return await Promise.race([fetchBalance(), timeoutPromise]);
+  } catch (error) {
+    console.error(error);
+    return 0;
   }
-
-  return 0;
 }
 
 export interface TokenInfo {
@@ -253,6 +273,7 @@ export interface TokenInfo {
   Ticker?: string;
   Logo?: string;
   Denomination: number;
+  processId?: string;
 }
 export interface TokenInfoWithBalance extends TokenInfo {
   id: string;

@@ -9,7 +9,7 @@ import styled from "styled-components";
 import PermissionCheckbox from "~components/auth/PermissionCheckbox";
 import browser from "webextension-polyfill";
 import { Button, Label, Spacer, Text } from "@arconnect/components";
-import { useAoTokens } from "~tokens/aoTokens/ao";
+import { type TokenInfoWithBalance } from "~tokens/aoTokens/ao";
 
 export default function Tokens() {
   // tokens
@@ -20,14 +20,19 @@ export default function Tokens() {
     },
     []
   );
-
-  const [aoTokens] = useAoTokens();
+  const [aoTokens] = useStorage<TokenInfoWithBalance[]>(
+    {
+      key: "ao_tokens",
+      instance: ExtensionStorage
+    },
+    []
+  );
 
   const enhancedAoTokens = useMemo(() => {
     return aoTokens.map((token) => ({
-      id: token.id,
+      id: token.processId,
       defaultLogo: token.Logo,
-      balance: token.balance,
+      balance: 0,
       ticker: token.Ticker,
       type: "asset" as TokenType,
       name: token.Name
@@ -114,7 +119,7 @@ export default function Tokens() {
             />
           ))}
           <Spacer y={2} />
-          {enhancedAoTokens.length > 0 && (
+          {enhancedAoTokens.length > 0 && aoSettingsState && (
             <>
               <Label style={{ paddingLeft: "4px", margin: "0" }}>
                 ao tokens
@@ -131,7 +136,7 @@ export default function Tokens() {
           )}
         </Reorder.Group>
       </div>
-      <Button fullWidth onClick={addToken} disabled={!aoSettingsState}>
+      <Button fullWidth onClick={addToken}>
         {browser.i18n.getMessage("import_token")}
       </Button>
     </Wrapper>
