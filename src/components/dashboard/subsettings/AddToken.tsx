@@ -40,7 +40,7 @@ export default function AddToken() {
         }
 
         aoTokens.push({ ...token, processId: targetInput.state });
-        await ExtensionStorage.set("ao_tokens", tokens);
+        await ExtensionStorage.set("ao_tokens", aoTokens);
         setToast({
           type: "success",
           content: browser.i18n.getMessage("token_imported"),
