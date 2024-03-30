@@ -10,6 +10,7 @@ export type AuthType =
   | "unlock"
   | "token"
   | "sign"
+  | "signMessage"
   | "signature";
 
 export interface AuthData {
