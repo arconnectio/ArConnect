@@ -8,7 +8,6 @@ import { getTokenInfo, useTokenIDs } from "./router";
 import { ArweaveSigner, createData } from "arbundles";
 import { getActiveKeyfile } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
-import { getAoTokens } from "~tokens";
 
 export type AoInstance = ReturnType<typeof connect>;
 

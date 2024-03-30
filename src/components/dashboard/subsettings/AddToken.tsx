@@ -6,7 +6,7 @@ import { useAo, type TokenInfo, useAoTokens } from "~tokens/aoTokens/ao";
 import { getTokenInfo } from "~tokens/aoTokens/router";
 import styled from "styled-components";
 import { isAddress } from "~utils/assertions";
-import { addToken, getAoTokens, getDreForToken } from "~tokens";
+import { addToken, getAoTokens, getDreForToken, useTokens } from "~tokens";
 import { ExtensionStorage } from "~utils/storage";
 import { SubTitle } from "./ContactSettings";
 import { DREContract, DRENode } from "@arconnect/warp-dre";
@@ -21,15 +21,16 @@ export default function AddToken() {
   const [token, setToken] = useState<TokenInfo>();
   const [type, setType] = useState<string>("ao");
   const [warp, setWarp] = useState<string | null>(null);
+  const tokens = useTokens();
   const ao = useAo();
   const { setToast } = useToasts();
 
   const onImportToken = async () => {
     try {
       if (type === "ao") {
-        const tokens = await getAoTokens();
+        const aoTokens = await getAoTokens();
 
-        if (tokens.find((token) => token.processId === targetInput.state)) {
+        if (aoTokens.find((token) => token.processId === targetInput.state)) {
           setToast({
             type: "error",
             content: browser.i18n.getMessage("token_already_added"),
@@ -38,7 +39,7 @@ export default function AddToken() {
           throw new Error("Token already added");
         }
 
-        tokens.push({ ...token, processId: targetInput.state });
+        aoTokens.push({ ...token, processId: targetInput.state });
         await ExtensionStorage.set("ao_tokens", tokens);
         setToast({
           type: "success",
@@ -46,6 +47,15 @@ export default function AddToken() {
           duration: 3000
         });
       } else if (warp && type === "warp") {
+        const existingToken = tokens.find((t) => t.id === targetInput.state);
+        if (existingToken) {
+          setToast({
+            type: "error",
+            content: browser.i18n.getMessage("token_already_added"),
+            duration: 3000
+          });
+          throw new Error("Token already added");
+        }
         await addToken(targetInput.state, tokenType, warp);
         setToast({
           type: "success",
@@ -79,11 +89,12 @@ export default function AddToken() {
           setToken(values);
         }
       } catch (err) {
+        setToken(null);
         console.log("herr", err);
       }
     };
     fetchTokenInfo();
-  }, [targetInput.state, tokenType, token]);
+  }, [targetInput.state, tokenType, token, type]);
 
   return (
     <Wrapper>
