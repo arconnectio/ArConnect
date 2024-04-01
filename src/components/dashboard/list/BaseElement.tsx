@@ -5,6 +5,7 @@ import type { HTMLProps, ReactNode } from "react";
 import Squircle from "~components/Squircle";
 import ReorderIcon from "../ReorderIcon";
 import styled from "styled-components";
+import { X } from "@untitled-ui/icons-react";
 
 export default function BaseElement({
   children,
@@ -13,6 +14,7 @@ export default function BaseElement({
   active,
   img,
   dragControls,
+  onDelete,
   ao = false,
   ...props
 }: Props & HTMLProps<HTMLDivElement>) {
@@ -26,6 +28,7 @@ export default function BaseElement({
         </div>
       </ContentWrapper>
       {dragControls && <ReorderIcon dragControls={dragControls} />}
+      {ao && onDelete && <X onClick={onDelete} style={{ cursor: "pointer" }} />}
     </SettingWrapper>
   );
 }
@@ -128,6 +131,7 @@ interface Props {
   active?: boolean;
   img?: string;
   ao?: boolean;
+  onDelete?: () => void;
   dragControls?: DragControls;
 }
 

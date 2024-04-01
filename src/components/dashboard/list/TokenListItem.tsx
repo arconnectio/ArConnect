@@ -3,7 +3,7 @@ import { loadTokenLogo, type Token } from "~tokens/token";
 import { Reorder, useDragControls } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { formatAddress } from "~utils/format";
-import { getDreForToken } from "~tokens";
+import { getDreForToken, removeAoToken } from "~tokens";
 import { useTheme } from "~utils/theme";
 import { useLocation } from "wouter";
 import * as viewblock from "~lib/viewblock";
@@ -74,6 +74,7 @@ export default function TokenListItem({ token, active, ao }: Props) {
           <Image src={aoLogo} alt="ao logo" />
         </div>
       }
+      onDelete={async () => await removeAoToken(token.id)}
       active={active}
     >
       <TokenLogo src={image} />
