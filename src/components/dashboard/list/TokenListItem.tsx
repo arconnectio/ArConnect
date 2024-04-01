@@ -91,7 +91,7 @@ export default function TokenListItem({ token, active, ao, onClick }: Props) {
           </DescriptionWrapper>
         }
         active={active}
-        dragControls={dragControls}
+        dragControls={!ao ? dragControls : null}
       >
         <TokenLogo src={image} />
       </BaseElement>
