@@ -8,17 +8,14 @@ import {
   Section,
   Spacer,
   Text,
-  Tooltip,
   useInput
 } from "@arconnect/components";
 import browser from "webextension-polyfill";
-import Head from "~components/popup/Head";
 import * as viewblock from "~lib/viewblock";
 import {
   ArrowUpRightIcon,
   ChevronDownIcon,
-  ChevronRightIcon,
-  RefreshIcon
+  ChevronRightIcon
 } from "@iconicicons/react";
 import Token, {
   ArToken,
@@ -528,7 +525,7 @@ export default function Send({ id }: Props) {
             </TokenSelectorRightSide>
           </TokenSelector>
 
-          <SendButton
+          <ButtonV2
             disabled={
               invalidQty ||
               parseFloat(qty) === 0 ||
@@ -539,8 +536,8 @@ export default function Send({ id }: Props) {
             onClick={send}
           >
             {browser.i18n.getMessage("next")}
-            <ArrowUpRightIcon />
-          </SendButton>
+            <ArrowUpRightIcon style={{ marginLeft: "5px" }} />
+          </ButtonV2>
         </BottomActions>
         <AnimatePresence>
           {showTokenSelector && (

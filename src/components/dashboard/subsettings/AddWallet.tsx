@@ -6,8 +6,6 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { addWallet } from "~wallets";
 import {
-  Button,
-  Input,
   Text,
   useInput,
   Spacer,

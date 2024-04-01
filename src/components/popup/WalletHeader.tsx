@@ -400,7 +400,6 @@ export default function WalletHeader() {
         />
       )}
       <WalletSwitcher open={isOpen} close={() => setOpen(false)} />
-      {/* @ts-ignore */}
       <WalletMenu
         open={menuOpen}
         close={() => setMenuOpen(false)}

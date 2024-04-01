@@ -10,11 +10,7 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
-import {
-  getMissingPermissions,
-  permissionData,
-  type PermissionType
-} from "~applications/permissions";
+import { permissionData, type PermissionType } from "~applications/permissions";
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { CloseLayer } from "~components/popup/WalletHeader";
 import type { AppInfo } from "~applications/application";
@@ -300,9 +296,9 @@ const WalletSelectWrapper = styled.div`
 `;
 
 const SelectIcon = styled(ChevronDownIcon)`
-  font-size: 16px;
-  width: 22px;
-  height: 22px;
+  font-size: 1rem;
+  width: 1.375rem;
+  height: 1.375 rem;
   color: ${(props) => props.theme.primaryTextv2};
   transition: all 0.23s ease-in-out;
 `;
@@ -314,7 +310,7 @@ const WalletSelect = styled(Card)<{ open: boolean }>`
   justify-content: space-between;
   cursor: pointer;
   background-color: transparent;
-  padding: 13.5px 15px;
+  padding: 0.844rem 0.9375rem;
   border: 1.5px solid ${(props) => props.theme.inputField};
   border-radius: 10px;
   transition: all 0.23s ease-in-out;

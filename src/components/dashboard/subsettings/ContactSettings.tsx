@@ -528,10 +528,10 @@ const EditIcon = styled(Edit02)`
 `;
 
 export const RemoveContact = styled(ButtonV2)<{ displayTheme: DisplayTheme }>`
+  // props.theme.delete
   background-color: ${(props) =>
     props.displayTheme === "light" ? "#F58080" : "#8C1A1A"};
-  border: 1.5px solid
-    ${(props) => (props.displayTheme === "light" ? "#EB0000" : "#FF1A1A")};
+  border: 1.5px solid ${(props) => props.theme.fail};
   color: #ffffff;
 
   &:hover {
