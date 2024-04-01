@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import {
   Button,
   ButtonV2,
-  Input,
+  InputV2,
   Section,
   Spacer,
   Text,
@@ -409,6 +409,7 @@ export default function Send({ id }: Props) {
           <RecipientAmountWrapper>
             <SendButton
               fullWidth
+              secondary
               alternate
               onClick={() => {
                 setShowSlider(!showSlider);
@@ -433,7 +434,6 @@ export default function Send({ id }: Props) {
               <ChevronDownIcon />
             </SendButton>
             <SendInput
-              alternative
               type="number"
               placeholder={"Amount"}
               value={qty}
@@ -498,7 +498,6 @@ export default function Send({ id }: Props) {
           {!uToken && (
             <MessageWrapper>
               <SendInput
-                alternative
                 {...message.bindings}
                 type="text"
                 placeholder={browser.i18n.getMessage("send_message_optional")}
@@ -639,6 +638,7 @@ const RecipientAmountWrapper = styled.div`
 `;
 
 const MaxButton = styled(Button)<{ altColor?: string }>`
+  z-index: 1000;
   border-radius: 3px;
   padding: 5px;
   color: ${(props) => (props.altColor ? "#b9b9b9" : props.theme.theme)};
@@ -690,25 +690,8 @@ interface Props {
 
 type QtyMode = "fiat" | "token";
 
-const QuantitySection = styled.div<{ qtyMode: QtyMode; invalidValue: boolean }>`
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: ${(props) => (props.qtyMode === "token" ? "0.65rem" : "0")};
-  height: ${defaulQtytSize + "rem"};
-
-  input,
-  p {
-    color: rgb(
-      ${(props) => (props.invalidValue ? "255, 0, 0" : props.theme.theme)}
-    );
-    transition: color 0.23s ease-in-out;
-  }
-`;
-
 // Make this dynamic
-export const SendButton = styled(Button)<{ alternate?: boolean }>`
+export const SendButton = styled(ButtonV2)<{ alternate?: boolean }>`
   background-color: ${(props) => props.alternate && "rgb(171, 154, 255, 0.15)"};
   border: 1px solid rgba(171, 154, 255, 0.15);
   border-radius: 10px;
@@ -722,10 +705,11 @@ export const SendButton = styled(Button)<{ alternate?: boolean }>`
 
   &:hover:not(:active):not(:disabled) {
     box-shadow: 0 0 0 0.075rem rgba(${(props) => props.theme.theme}, 0.5);
+    background-color: none;
   }
 `;
 
-export const SendInput = styled(Input)<{ error?: boolean }>`
+export const SendInput = styled(InputV2)<{ error?: boolean }>`
   color: ${(props) => (props.error ? "red" : "#b9b9b9")};
   background-color: rgba(171, 154, 255, 0.15);
   font-weight: 400;
