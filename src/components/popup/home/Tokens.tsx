@@ -45,7 +45,7 @@ export default function Tokens() {
         </ViewAll>
       </Heading>
       <Spacer y={0.8} />
-      {assets.length === 0 && (
+      {assets.length === 0 && aoTokens.length === 0 && (
         <NoTokens>{browser.i18n.getMessage("no_assets")}</NoTokens>
       )}
       <TokensList>
