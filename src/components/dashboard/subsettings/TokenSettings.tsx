@@ -20,22 +20,42 @@ export default function TokenSettings({ id }: Props) {
     []
   );
 
-  // token
-  const token = useMemo(() => tokens.find((t) => t.id === id), [tokens, id]);
+  // ao tokens
+  const [aoTokens] = useStorage<any[]>(
+    {
+      key: "ao_tokens",
+      instance: ExtensionStorage
+    },
+    []
+  );
+
+  // Combine regular and AO tokens to find the current token
+  const token = useMemo(() => {
+    const allTokens = [
+      ...tokens,
+      ...aoTokens.map((aoToken) => ({
+        ...aoToken,
+        id: aoToken.processId,
+        name: aoToken.Name,
+        ticker: aoToken.Ticker
+      }))
+    ];
+
+    return allTokens.find((t) => t.id === id);
+  }, [tokens, aoTokens, id]);
 
   // update token type
   function updateType(type: TokenType) {
     setTokens((allTokens) => {
-      for (const t of tokens) {
-        if (t.id !== id) continue;
-        t.type = type;
+      const tokenIndex = allTokens.findIndex((t) => t.id === id);
+      if (tokenIndex !== -1) {
+        allTokens[tokenIndex].type = type;
       }
-
-      return allTokens;
+      return [...allTokens];
     });
   }
 
-  if (!token) return;
+  if (!token) return null;
 
   return (
     <Wrapper>
@@ -47,7 +67,7 @@ export default function TokenSettings({ id }: Props) {
           label={browser.i18n.getMessage("token_type")}
           onChange={(e) => {
             // @ts-expect-error
-            updateType(e.target.value);
+            updateType(e.target.value as TokenType);
           }}
           fullWidth
         >

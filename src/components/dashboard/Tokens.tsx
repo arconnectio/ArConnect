@@ -67,26 +67,33 @@ export default function Tokens() {
   );
 
   useEffect(() => {
-    if (activeTokenSetting === "new") {
+    if (activeTokenSetting === "new" || !matches) {
       return;
     }
-    if (!matches) return;
 
     const firstToken = tokens?.[0];
 
+    const allTokens = [...tokens, ...enhancedAoTokens];
+
     // return if there is a wallet present in params
     if (
-      !firstToken ||
-      (!!activeTokenSetting && !!tokens.find((w) => w.id == activeTokenSetting))
+      activeTokenSetting &&
+      allTokens.some((t) => t.id === activeTokenSetting)
     ) {
       return;
     }
 
-    setLocation("/tokens/" + firstToken.id);
-  }, [tokens, activeTokenSetting]);
+    if (allTokens.length > 0) {
+      setLocation("/tokens/" + allTokens[0].id);
+    }
+  }, [tokens, enhancedAoTokens, activeTokenSetting, matches]);
 
   const addToken = () => {
     setLocation("/tokens/new");
+  };
+
+  const handleTokenClick = (token) => {
+    setLocation(`/tokens/${token.id}`);
   };
 
   return (
@@ -125,12 +132,14 @@ export default function Tokens() {
                 ao tokens
               </Label>
               {enhancedAoTokens.map((token) => (
-                <TokenListItem
-                  token={token}
-                  ao={true}
-                  active={activeTokenSetting === token.id}
-                  key={token.id}
-                />
+                <div onClick={() => handleTokenClick(token)} key={token.id}>
+                  <TokenListItem
+                    token={token}
+                    ao={true}
+                    active={activeTokenSetting === token.id}
+                    key={token.id}
+                  />
+                </div>
               ))}
             </>
           )}

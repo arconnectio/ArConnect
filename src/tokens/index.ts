@@ -112,6 +112,19 @@ export async function addToken(id: string, type: TokenType, dre?: string) {
  */
 export async function removeToken(id: string) {
   const tokens = await getTokens();
+  const aoTokens = await getAoTokens();
+
+  if (tokens.some((token) => token.id === id)) {
+    await ExtensionStorage.set(
+      "tokens",
+      tokens.filter((token) => token.id !== id)
+    );
+  } else if (aoTokens.some((token) => token.processId === id)) {
+    await ExtensionStorage.set(
+      "ao_tokens",
+      aoTokens.filter((token) => token.processId !== id)
+    );
+  }
 
   await ExtensionStorage.set(
     "tokens",
