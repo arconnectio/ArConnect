@@ -9,7 +9,7 @@ import styled from "styled-components";
 import PermissionCheckbox from "~components/auth/PermissionCheckbox";
 import browser from "webextension-polyfill";
 import { Button, Label, Spacer, Text } from "@arconnect/components";
-import { useAoTokens } from "~tokens/aoTokens/ao";
+import { type TokenInfoWithBalance } from "~tokens/aoTokens/ao";
 
 export default function Tokens() {
   // tokens
@@ -20,14 +20,19 @@ export default function Tokens() {
     },
     []
   );
-
-  const [aoTokens] = useAoTokens();
+  const [aoTokens] = useStorage<TokenInfoWithBalance[]>(
+    {
+      key: "ao_tokens",
+      instance: ExtensionStorage
+    },
+    []
+  );
 
   const enhancedAoTokens = useMemo(() => {
     return aoTokens.map((token) => ({
-      id: token.id,
+      id: token.processId,
       defaultLogo: token.Logo,
-      balance: token.balance,
+      balance: 0,
       ticker: token.Ticker,
       type: "asset" as TokenType,
       name: token.Name
@@ -62,26 +67,33 @@ export default function Tokens() {
   );
 
   useEffect(() => {
-    if (activeTokenSetting === "new") {
+    if (activeTokenSetting === "new" || !matches) {
       return;
     }
-    if (!matches) return;
 
     const firstToken = tokens?.[0];
 
+    const allTokens = [...tokens, ...enhancedAoTokens];
+
     // return if there is a wallet present in params
     if (
-      !firstToken ||
-      (!!activeTokenSetting && !!tokens.find((w) => w.id == activeTokenSetting))
+      activeTokenSetting &&
+      allTokens.some((t) => t.id === activeTokenSetting)
     ) {
       return;
     }
 
-    setLocation("/tokens/" + firstToken.id);
-  }, [tokens, activeTokenSetting]);
+    if (allTokens.length > 0) {
+      setLocation("/tokens/" + allTokens[0].id);
+    }
+  }, [tokens, enhancedAoTokens, activeTokenSetting, matches]);
 
   const addToken = () => {
     setLocation("/tokens/new");
+  };
+
+  const handleTokenClick = (token) => {
+    setLocation(`/tokens/${token.id}`);
   };
 
   return (
@@ -114,24 +126,26 @@ export default function Tokens() {
             />
           ))}
           <Spacer y={2} />
-          {enhancedAoTokens.length > 0 && (
+          {enhancedAoTokens.length > 0 && aoSettingsState && (
             <>
               <Label style={{ paddingLeft: "4px", margin: "0" }}>
                 ao tokens
               </Label>
               {enhancedAoTokens.map((token) => (
-                <TokenListItem
-                  token={token}
-                  ao={true}
-                  active={activeTokenSetting === token.id}
-                  key={token.id}
-                />
+                <div onClick={() => handleTokenClick(token)} key={token.id}>
+                  <TokenListItem
+                    token={token}
+                    ao={true}
+                    active={activeTokenSetting === token.id}
+                    key={token.id}
+                  />
+                </div>
               ))}
             </>
           )}
         </Reorder.Group>
       </div>
-      <Button fullWidth onClick={addToken} disabled={!aoSettingsState}>
+      <Button fullWidth onClick={addToken}>
         {browser.i18n.getMessage("import_token")}
       </Button>
     </Wrapper>
