@@ -348,7 +348,7 @@ const WalletAddress = styled(Text)`
   gap: 0.37rem;
 `;
 
-const CopyButton = styled(CopyIcon)`
+export const CopyButton = styled(CopyIcon)`
   font-size: 1em;
   width: 1em;
   height: 1em;
