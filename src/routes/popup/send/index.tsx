@@ -455,11 +455,7 @@ export default function Send({ id }: Props) {
               icon={
                 <InputIcons>
                   {!!price && (
-                    <CurrencyButton
-                      small
-                      onClick={switchQtyMode}
-                      disabled={isAo}
-                    >
+                    <CurrencyButton onClick={switchQtyMode} disabled={isAo}>
                       <Currency active={qtyMode === "fiat"}>USD</Currency>/
                       <Currency active={qtyMode === "token"}>
                         {token.ticker.toUpperCase()}
@@ -468,7 +464,6 @@ export default function Send({ id }: Props) {
                   )}
                   <MaxButton
                     altColor={theme === "dark" && "#423D59"}
-                    small
                     onClick={() => setQty(max.toString())}
                   >
                     Max
@@ -637,30 +632,46 @@ const RecipientAmountWrapper = styled.div`
   gap: 7px;
 `;
 
-const MaxButton = styled(ButtonV2)<{ altColor?: string }>`
+const MaxButton = styled.button<{ altColor?: string }>`
   position: absolute;
-  right: 5px;
+  right: 8px;
   top: -3px;
-  z-index: 1000;
+  display: flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  font-size: 13.28px;
+  gap: 0.3rem;
   width: 37px !important;
   height: 28px !important;
   border-radius: 3px;
   padding: 5px;
+  border: 0px;
+  cursor: pointer;
   color: ${(props) => (props.altColor ? "#b9b9b9" : props.theme.theme)};
   background-color: ${(props) =>
     props.altColor ? props.altColor : props.theme.theme};
   font-weight: 400;
+  box-shadow: 0 0 0 0 rgba(${(props) => props.theme.theme});
 `;
 
-const CurrencyButton = styled(Button)`
+const CurrencyButton = styled.button`
   position: absolute;
-  right: 59px;
+  right: 56px;
   font-weight: 400;
   background-color: transparent;
   border-radius: 4px;
   gap: 0;
   display: flex;
   padding: 2px;
+  font-size: 13.28px;
+  cursor: pointer;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  border: 0px;
 `;
 
 const Wrapper = styled.div<{ showOverlay: boolean }>`
