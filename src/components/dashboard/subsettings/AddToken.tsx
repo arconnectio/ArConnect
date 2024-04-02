@@ -20,6 +20,7 @@ export default function AddToken() {
   const [tokenType, setTokenType] = useState<TokenType>("asset");
   const [token, setToken] = useState<TokenInfo>();
   const [type, setType] = useState<string>("ao");
+  const [loading, setLoading] = useState<boolean>(false);
   const [warp, setWarp] = useState<string | null>(null);
   const tokens = useTokens();
   const ao = useAo();
@@ -71,11 +72,13 @@ export default function AddToken() {
   useEffect(() => {
     const fetchTokenInfo = async () => {
       try {
+        setLoading(true);
         //TODO double check
         isAddress(targetInput.state);
         if (type === "ao") {
           const tokenInfo = await getTokenInfo(targetInput.state, ao);
           setToken(tokenInfo);
+          setLoading(false);
         } else {
           let dre = await getDreForToken(targetInput.state);
           const contract = new DREContract(targetInput.state, new DRENode(dre));
@@ -87,14 +90,17 @@ export default function AddToken() {
           };
           setWarp(dre);
           setToken(values);
+          setLoading(false);
         }
       } catch (err) {
         setToken(null);
-        console.log("herr", err);
+        setLoading(false);
+        console.log("err", err);
       }
+      setLoading(false);
     };
     fetchTokenInfo();
-  }, [targetInput.state, tokenType, token, type]);
+  }, [targetInput.state, tokenType, type]);
 
   return (
     <Wrapper>
@@ -164,7 +170,7 @@ export default function AddToken() {
           </TokenWrapper>
         )}
       </div>
-      <Button disabled={!token} onClick={onImportToken}>
+      <Button disabled={!token || loading} onClick={onImportToken}>
         Add Token
       </Button>
     </Wrapper>
