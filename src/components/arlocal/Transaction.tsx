@@ -9,8 +9,8 @@ import { readFileBinary } from "~utils/file";
 import { useRef, useState } from "react";
 import { unlock } from "~wallets/auth";
 import {
-  Button,
-  Input,
+  ButtonV2 as Button,
+  InputV2 as Input,
   Spacer,
   useInput,
   Text,
@@ -320,7 +320,7 @@ export default function Transaction({ arweave }: Props) {
         </>
       )}
       <Spacer y={1.35} />
-      <Button fullWidth loading={sendingTx} onClick={sendTransaction}>
+      <Button fullWidth onClick={sendTransaction}>
         {browser.i18n.getMessage("sendTransaction")}
       </Button>
     </>

@@ -8,8 +8,8 @@ import { ExtensionStorage } from "~utils/storage";
 import { RefreshIcon } from "@iconicicons/react";
 import { useNoWallets } from "~wallets";
 import {
-  Button,
-  Input,
+  ButtonV2 as Button,
+  InputV2 as Input,
   Provider,
   Spacer,
   useInput,
@@ -194,7 +194,7 @@ function ArLocal() {
             <Spacer y={1} />
             <Transaction arweave={arweave} />
             <Spacer y={1} />
-            <Button fullWidth secondary loading={mining} onClick={mine}>
+            <Button fullWidth secondary onClick={mine}>
               {browser.i18n.getMessage("mine")}
             </Button>
           </>
