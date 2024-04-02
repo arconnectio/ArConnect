@@ -9,12 +9,7 @@ import {
   useModal,
   useToasts
 } from "@arconnect/components";
-import {
-  CheckIcon,
-  CopyIcon,
-  DownloadIcon,
-  TrashIcon
-} from "@iconicicons/react";
+import { CopyIcon, DownloadIcon, TrashIcon } from "@iconicicons/react";
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { removeWallet, type StoredWallet } from "~wallets";
 import { useEffect, useMemo, useState } from "react";
