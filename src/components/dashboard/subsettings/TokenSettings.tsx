@@ -124,8 +124,8 @@ export default function TokenSettings({ id }: Props) {
           </AnimatePresence>
         </div>
       )}
-      <ButtonV2 onClick={() => removeToken(id)}>
-        <TrashIcon />
+      <ButtonV2 fullWidth onClick={() => removeToken(id)}>
+        <TrashIcon style={{ marginRight: "5px" }} />
         {browser.i18n.getMessage("remove_token")}
       </ButtonV2>
     </Wrapper>

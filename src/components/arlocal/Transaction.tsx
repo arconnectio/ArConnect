@@ -289,7 +289,7 @@ export default function Transaction({ arweave }: Props) {
               secondary
               onClick={() => setTags((val) => val.filter((_, j) => j !== i))}
             >
-              <TrashIcon />
+              <TrashIcon /> Trash
             </IconButton>
           </InputWithBtn>
           <Spacer y={1} />

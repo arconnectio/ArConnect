@@ -637,8 +637,13 @@ const RecipientAmountWrapper = styled.div`
   gap: 7px;
 `;
 
-const MaxButton = styled(Button)<{ altColor?: string }>`
+const MaxButton = styled(ButtonV2)<{ altColor?: string }>`
+  position: absolute;
+  right: 5px;
+  top: -3px;
   z-index: 1000;
+  width: 37px !important;
+  height: 28px !important;
   border-radius: 3px;
   padding: 5px;
   color: ${(props) => (props.altColor ? "#b9b9b9" : props.theme.theme)};
@@ -648,6 +653,8 @@ const MaxButton = styled(Button)<{ altColor?: string }>`
 `;
 
 const CurrencyButton = styled(Button)`
+  position: absolute;
+  right: 59px;
   font-weight: 400;
   background-color: transparent;
   border-radius: 4px;
@@ -715,6 +722,13 @@ export const SendInput = styled(InputV2)<{ error?: boolean }>`
   font-weight: 400;
   font-size: 1rem;
   padding: 10px;
+
+  // remove counter
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 `;
 
 const InputIcons = styled.div`

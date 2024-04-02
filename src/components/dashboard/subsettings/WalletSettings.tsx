@@ -219,7 +219,7 @@ export default function WalletSettings({ address }: Props) {
             />
           </InputWrapper>
           <IconButton secondary onClick={updateNickname} disabled={!!ansLabel}>
-            <CheckIcon />
+            Save
           </IconButton>
         </InputWithBtn>
       </div>
