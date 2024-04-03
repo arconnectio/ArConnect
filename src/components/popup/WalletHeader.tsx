@@ -580,7 +580,7 @@ const ExpandArrow = styled(ChevronDownIcon)<{ open: boolean }>`
 
 const Notifier = styled.div`
   position: absolute;
-  right: -0.7px;
+  right: 1.3px;
   top: 0.7px;
   width: 8px;
   height: 8px;
