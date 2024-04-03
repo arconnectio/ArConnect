@@ -96,15 +96,12 @@ const ResetButton = styled(ButtonV2).attrs({
   secondary: true,
   fullWidth: true
 })<{ displayTheme: DisplayTheme }>`
-  background-color: ${(props) =>
-    props.displayTheme === "light" ? "#F58080" : "#8C1A1A"};
-  border: 1.5px solid
-    ${(props) => (props.displayTheme === "light" ? "#EB0000" : "#FF1A1A")};
+  background-color: ${(props) => props.theme.delete};
+  border: 1.5px solid ${(props) => props.theme.fail};
   color: #ffffff;
 
   &:hover {
-    background-color: ${(props) =>
-      props.displayTheme === "light" ? "#F58080" : "#C51A1A"};
+    background-color: ${(props) => props.theme.secondaryDelete};
   }
 `;
 

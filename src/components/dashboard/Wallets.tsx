@@ -1,7 +1,6 @@
 import { concatGatewayURL } from "~gateways/utils";
 import { ButtonV2, Spacer, useInput } from "@arconnect/components";
 import { useEffect, useMemo, useState } from "react";
-import { IconButton } from "~components/IconButton";
 import { useStorage } from "@plasmohq/storage/hook";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";

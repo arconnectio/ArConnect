@@ -9,12 +9,7 @@ import {
   useModal,
   useToasts
 } from "@arconnect/components";
-import {
-  CheckIcon,
-  CopyIcon,
-  DownloadIcon,
-  TrashIcon
-} from "@iconicicons/react";
+import { CopyIcon, DownloadIcon, TrashIcon } from "@iconicicons/react";
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { removeWallet, type StoredWallet } from "~wallets";
 import { useEffect, useMemo, useState } from "react";
@@ -219,7 +214,7 @@ export default function WalletSettings({ address }: Props) {
             />
           </InputWrapper>
           <IconButton secondary onClick={updateNickname} disabled={!!ansLabel}>
-            <CheckIcon />
+            Save
           </IconButton>
         </InputWithBtn>
       </div>
@@ -348,7 +343,7 @@ const WalletAddress = styled(Text)`
   gap: 0.37rem;
 `;
 
-const CopyButton = styled(CopyIcon)`
+export const CopyButton = styled(CopyIcon)`
   font-size: 1em;
   width: 1em;
   height: 1em;

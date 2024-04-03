@@ -276,7 +276,7 @@ export default function AppSettings({ app, showTitle = false }: Props) {
                 });
               }}
             >
-              <CheckIcon />
+              Save
             </IconButton>
           </InputWithBtn>
         </>

@@ -113,7 +113,7 @@ export default function Home() {
 
   return (
     <HomeWrapper>
-      {loggedIn && <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />}
+      {/* {loggedIn && <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />} */}
       <WalletHeader />
       <Balance />
       {(!noBalance && (

@@ -8,7 +8,6 @@ import { useLocation, useRoute } from "wouter";
 import browser from "webextension-polyfill";
 import SearchInput from "./SearchInput";
 import styled from "styled-components";
-import { IconButton } from "~components/IconButton";
 import { formatAddress } from "~utils/format";
 import { multiSort } from "~utils/multi_sort";
 import { enrichContact } from "~contacts/hooks";

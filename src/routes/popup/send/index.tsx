@@ -4,21 +4,18 @@ import styled, { css } from "styled-components";
 import {
   Button,
   ButtonV2,
-  Input,
+  InputV2,
   Section,
   Spacer,
   Text,
-  Tooltip,
   useInput
 } from "@arconnect/components";
 import browser from "webextension-polyfill";
-import Head from "~components/popup/Head";
 import * as viewblock from "~lib/viewblock";
 import {
   ArrowUpRightIcon,
   ChevronDownIcon,
-  ChevronRightIcon,
-  RefreshIcon
+  ChevronRightIcon
 } from "@iconicicons/react";
 import Token, {
   ArToken,
@@ -412,6 +409,7 @@ export default function Send({ id }: Props) {
           <RecipientAmountWrapper>
             <SendButton
               fullWidth
+              secondary
               alternate
               onClick={() => {
                 setShowSlider(!showSlider);
@@ -436,7 +434,6 @@ export default function Send({ id }: Props) {
               <ChevronDownIcon />
             </SendButton>
             <SendInput
-              alternative
               type="number"
               placeholder={"Amount"}
               value={qty}
@@ -458,11 +455,7 @@ export default function Send({ id }: Props) {
               icon={
                 <InputIcons>
                   {!!price && (
-                    <CurrencyButton
-                      small
-                      onClick={switchQtyMode}
-                      disabled={isAo}
-                    >
+                    <CurrencyButton onClick={switchQtyMode} disabled={isAo}>
                       <Currency active={qtyMode === "fiat"}>USD</Currency>/
                       <Currency active={qtyMode === "token"}>
                         {token.ticker.toUpperCase()}
@@ -471,7 +464,6 @@ export default function Send({ id }: Props) {
                   )}
                   <MaxButton
                     altColor={theme === "dark" && "#423D59"}
-                    small
                     onClick={() => setQty(max.toString())}
                   >
                     Max
@@ -501,7 +493,6 @@ export default function Send({ id }: Props) {
           {!uToken && (
             <MessageWrapper>
               <SendInput
-                alternative
                 {...message.bindings}
                 type="text"
                 placeholder={browser.i18n.getMessage("send_message_optional")}
@@ -528,7 +519,7 @@ export default function Send({ id }: Props) {
             </TokenSelectorRightSide>
           </TokenSelector>
 
-          <SendButton
+          <ButtonV2
             disabled={
               invalidQty ||
               parseFloat(qty) === 0 ||
@@ -539,8 +530,8 @@ export default function Send({ id }: Props) {
             onClick={send}
           >
             {browser.i18n.getMessage("next")}
-            <ArrowUpRightIcon />
-          </SendButton>
+            <ArrowUpRightIcon style={{ marginLeft: "5px" }} />
+          </ButtonV2>
         </BottomActions>
         <AnimatePresence>
           {showTokenSelector && (
@@ -641,22 +632,46 @@ const RecipientAmountWrapper = styled.div`
   gap: 7px;
 `;
 
-const MaxButton = styled(Button)<{ altColor?: string }>`
+const MaxButton = styled.button<{ altColor?: string }>`
+  position: absolute;
+  right: 8px;
+  top: -3px;
+  display: flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  font-size: 13.28px;
+  gap: 0.3rem;
+  width: 37px !important;
+  height: 28px !important;
   border-radius: 3px;
   padding: 5px;
+  border: 0px;
+  cursor: pointer;
   color: ${(props) => (props.altColor ? "#b9b9b9" : props.theme.theme)};
   background-color: ${(props) =>
     props.altColor ? props.altColor : props.theme.theme};
   font-weight: 400;
+  box-shadow: 0 0 0 0 rgba(${(props) => props.theme.theme});
 `;
 
-const CurrencyButton = styled(Button)`
+const CurrencyButton = styled.button`
+  position: absolute;
+  right: 56px;
   font-weight: 400;
   background-color: transparent;
   border-radius: 4px;
   gap: 0;
   display: flex;
   padding: 2px;
+  font-size: 13.28px;
+  cursor: pointer;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  border: 0px;
 `;
 
 const Wrapper = styled.div<{ showOverlay: boolean }>`
@@ -693,25 +708,8 @@ interface Props {
 
 type QtyMode = "fiat" | "token";
 
-const QuantitySection = styled.div<{ qtyMode: QtyMode; invalidValue: boolean }>`
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: ${(props) => (props.qtyMode === "token" ? "0.65rem" : "0")};
-  height: ${defaulQtytSize + "rem"};
-
-  input,
-  p {
-    color: rgb(
-      ${(props) => (props.invalidValue ? "255, 0, 0" : props.theme.theme)}
-    );
-    transition: color 0.23s ease-in-out;
-  }
-`;
-
 // Make this dynamic
-export const SendButton = styled(Button)<{ alternate?: boolean }>`
+export const SendButton = styled(ButtonV2)<{ alternate?: boolean }>`
   background-color: ${(props) => props.alternate && "rgb(171, 154, 255, 0.15)"};
   border: 1px solid rgba(171, 154, 255, 0.15);
   border-radius: 10px;
@@ -725,15 +723,23 @@ export const SendButton = styled(Button)<{ alternate?: boolean }>`
 
   &:hover:not(:active):not(:disabled) {
     box-shadow: 0 0 0 0.075rem rgba(${(props) => props.theme.theme}, 0.5);
+    background-color: none;
   }
 `;
 
-export const SendInput = styled(Input)<{ error?: boolean }>`
+export const SendInput = styled(InputV2)<{ error?: boolean }>`
   color: ${(props) => (props.error ? "red" : "#b9b9b9")};
   background-color: rgba(171, 154, 255, 0.15);
   font-weight: 400;
   font-size: 1rem;
   padding: 10px;
+
+  // remove counter
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 `;
 
 const InputIcons = styled.div`
