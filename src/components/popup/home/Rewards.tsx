@@ -44,8 +44,12 @@ export default function Rewards() {
           </BalanceText>
           <DetailContainer>
             <RewardDetail style={{ paddingBottom: "20px" }}>
-              Status: Active <br />
-              Streak: 2 days
+              <div>
+                Status: <Status status="Active">Active</Status>
+              </div>
+              <div>
+                Streak: <Status status="Inactive">2 days</Status>
+              </div>
             </RewardDetail>
           </DetailContainer>
         </DetailWrapper>
@@ -58,6 +62,15 @@ export default function Rewards() {
 // i icon with tooltipv2
 // linear gradient
 // linear gradient
+
+interface Props {
+  status: "Active" | "Inactive";
+}
+
+const Status = styled.span<Props>`
+  color: ${(props) =>
+    props.status === "Active" ? props.theme.success : "inherit"};
+`;
 
 const BalanceText = styled(GraphText)`
   position: relative;
@@ -95,6 +108,7 @@ const RewardDetail = styled(Text).attrs({
   line-height: 19.12px;
   text-align: center;
   padding: 0px;
+  flex-direction: column;
 `;
 
 const InfoText: React.ReactNode = (
