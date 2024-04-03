@@ -14,6 +14,7 @@ import {
   InformationIcon,
   TrashIcon,
   WalletIcon,
+  LockIcon,
   BellIcon
 } from "@iconicicons/react";
 import { Users01 } from "@untitled-ui/icons-react";
@@ -39,6 +40,7 @@ import { formatSettingName } from "~utils/format";
 import SignSettings from "~components/dashboard/SignSettings";
 import AddToken from "~components/dashboard/subsettings/AddToken";
 import NotificationSettings from "~components/dashboard/NotificationSettings";
+import Vaults from "~components/dashboard/Vaults";
 
 export default function Settings({ params }: Props) {
   // router location
@@ -149,6 +151,19 @@ export default function Settings({ params }: Props) {
           )}
         {activeSetting === "wallets" && activeSubSetting === "new" && (
           <AddWallet key="new-wallet" />
+        )}
+
+        {activeSetting === "vaults" &&
+          !!activeSubSetting &&
+          activeSubSetting !== "new" && (
+            <WalletSettings
+              address={activeSubSetting}
+              key={activeSubSetting}
+              vault
+            />
+          )}
+        {activeSetting === "vaults" && activeSubSetting === "new" && (
+          <AddWallet key="new-vault" vault />
         )}
         {activeSetting === "tokens" && activeSubSetting !== "new" && (
           <TokenSettings id={activeSubSetting} />
@@ -275,6 +290,13 @@ const allSettings: Omit<Setting, "active">[] = [
     description: "setting_wallets_description",
     icon: WalletIcon,
     component: Wallets
+  },
+  {
+    name: "vaults",
+    displayName: "setting_vaults",
+    description: "setting_vaults_description",
+    icon: LockIcon,
+    component: Vaults
   },
   {
     name: "tokens",

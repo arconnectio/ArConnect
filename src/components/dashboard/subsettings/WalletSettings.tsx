@@ -25,11 +25,11 @@ import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { formatAddress } from "~utils/format";
 
-export default function WalletSettings({ address }: Props) {
+export default function WalletSettings({ address, vault = false }: Props) {
   // wallets
   const [wallets, setWallets] = useStorage<StoredWallet[]>(
     {
-      key: "wallets",
+      key: vault ? "vaults" : "wallets",
       instance: ExtensionStorage
     },
     []
@@ -230,7 +230,7 @@ export default function WalletSettings({ address }: Props) {
         <Spacer y={1} />
         <ButtonV2 fullWidth secondary onClick={() => removeModal.setOpen(true)}>
           <TrashIcon style={{ marginRight: "5px" }} />
-          {browser.i18n.getMessage("remove_wallet")}
+          {browser.i18n.getMessage(vault ? "remove_vault" : "remove_wallet")}
         </ButtonV2>
       </div>
       <ModalV2
@@ -249,7 +249,7 @@ export default function WalletSettings({ address }: Props) {
               fullWidth
               onClick={async () => {
                 try {
-                  await removeWallet(address);
+                  await removeWallet(address, vault);
                   setToast({
                     type: "success",
                     content: browser.i18n.getMessage(
@@ -378,4 +378,5 @@ const ButtonWrapper = styled.div`
 
 interface Props {
   address: string;
+  vault?: boolean;
 }

@@ -22,7 +22,11 @@ import Arweave from "arweave/web/common";
 import styled from "styled-components";
 import { defaultGateway } from "~gateways/gateway";
 
-export default function AddWallet() {
+interface AddWalletProps {
+  vault?: boolean;
+}
+
+export default function AddWallet({ vault = false }: AddWalletProps) {
   // password input
   const passwordInput = useInput();
 
@@ -77,7 +81,7 @@ export default function AddWallet() {
           ? await jwkFromMnemonic(providedWallet)
           : providedWallet;
 
-      await addWallet(jwk, passwordInput.state);
+      await addWallet(jwk, passwordInput.state, vault);
 
       // send success toast
       setToast({
@@ -89,7 +93,11 @@ export default function AddWallet() {
       // redirect to the wallet in settings
       const arweave = new Arweave(defaultGateway);
 
-      setLocation(`/wallets/${await arweave.wallets.jwkToAddress(jwk)}`);
+      setLocation(
+        `/${vault ? "vaults" : "wallets"}/${await arweave.wallets.jwkToAddress(
+          jwk
+        )}`
+      );
     } catch (e) {
       console.log("Failed to load wallet", e);
       setToast({
@@ -177,7 +185,7 @@ export default function AddWallet() {
 
     try {
       // add the wallet
-      await addWallet(generatedWallet.jwk, passwordInput.state);
+      await addWallet(generatedWallet.jwk, passwordInput.state, vault);
 
       // indicate success
       setToast({
@@ -219,10 +227,23 @@ export default function AddWallet() {
           )) || (
           <>
             <Spacer y={0.45} />
-            <Title>{browser.i18n.getMessage("add_wallet")}</Title>
-            <Text>
-              {browser.i18n.getMessage("provide_seedphrase_paragraph")}
-            </Text>
+            <Title>
+              {browser.i18n.getMessage(vault ? "add_vault" : "add_wallet")}
+            </Title>
+            {vault ? (
+              <>
+                <Text>
+                  {browser.i18n.getMessage("vault_description_paragraph")}
+                </Text>
+                <Text>
+                  {browser.i18n.getMessage("provide_seedphrase_paragraph")}
+                </Text>
+              </>
+            ) : (
+              <Text>
+                {browser.i18n.getMessage("provide_seedphrase_paragraph")}
+              </Text>
+            )}
             <SeedInput onChange={(val) => setProvidedWallet(val)} />
           </>
         )}
@@ -266,7 +287,6 @@ export default function AddWallet() {
             window.onbeforeunload = () =>
               browser.i18n.getMessage("close_tab_generate_wallet_message");
           }}
-          loading={generating && isAddGeneratedWallet}
           disabled={!generating && isAddGeneratedWallet}
         >
           <SettingsIcon />

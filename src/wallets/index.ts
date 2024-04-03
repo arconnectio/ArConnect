@@ -51,6 +51,12 @@ export async function getWallets() {
   return wallets || [];
 }
 
+export async function getVaults() {
+  let wallets: StoredWallet[] = await ExtensionStorage.get("vaults");
+
+  return wallets || [];
+}
+
 /**
  * Hook that opens a new tab if ArConnect has not been set up yet
  */
@@ -219,7 +225,8 @@ export async function addWallet(
     | WalletWithNickname
     | JWKInterface[]
     | WalletWithNickname[],
-  password: string
+  password: string,
+  vault?: boolean
 ) {
   // check password
   if (!(await checkPassword(password))) {
@@ -234,7 +241,13 @@ export async function addWallet(
   const walletsToAdd = Array.isArray(wallet) ? wallet : [{ wallet }];
 
   // wallets
-  const wallets = await getWallets();
+  let wallets: StoredWallet[];
+  if (!vault) {
+    wallets = await getWallets();
+  } else {
+    wallets = await getVaults();
+  }
+
   const freshInstall = wallets.length === 0;
 
   for (const item of walletsToAdd) {
@@ -252,18 +265,23 @@ export async function addWallet(
     // push wallet
     wallets.push({
       type: "local",
-      // @ts-expect-error
-      nickname: item.nickname || `Account ${wallets.length + 1}`,
+      nickname:
+        // @ts-expect-error
+        item.nickname || `${vault ? "Vault" : "Account"} ${wallets.length + 1}`,
       address,
       keyfile: encrypted
     });
   }
-
+  console.log("vault", vault);
   // save data
-  await ExtensionStorage.set("wallets", wallets);
+  if (!vault) {
+    await ExtensionStorage.set("wallets", wallets);
+  } else {
+    await ExtensionStorage.set("vaults", wallets);
+  }
 
   // set active address if this was the first wallet added
-  if (freshInstall) {
+  if (freshInstall && !vault) {
     await ExtensionStorage.set("active_address", wallets[0].address);
   }
 
@@ -312,15 +330,24 @@ export async function updatePassword(
  *
  * @param address Address of the wallet to remove
  */
-export async function removeWallet(address: string) {
+export async function removeWallet(address: string, vault: boolean = false) {
   // fetch wallets
-  let wallets = await getWallets();
+  let wallets: StoredWallet[];
+  if (!vault) {
+    wallets = await getWallets();
+  } else {
+    wallets = await getVaults();
+  }
 
   // remove the wallet
   wallets = wallets.filter((wallet) => wallet.address !== address);
 
   // save updated wallets array
-  await ExtensionStorage.set("wallets", wallets);
+  if (!vault) {
+    await ExtensionStorage.set("wallets", wallets);
+  } else {
+    await ExtensionStorage.set("vaults", wallets);
+  }
 
   // handle active address change
   const activeAddress = await getActiveAddress();
