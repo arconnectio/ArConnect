@@ -33,6 +33,10 @@
     "message": "Add wallet",
     "description": "Add a wallet text"
   },
+  "add_vault": {
+    "message": "Add vault",
+    "description": "Add a vault text"
+  },
   "analytics_description" : {
     "message" : "We now use analytics.",
     "description" : "Opting into Analytics text"
@@ -355,6 +359,10 @@
     "message": "Wallets",
     "description": "Wallets settings title"
   },
+  "setting_vaults": {
+    "message": "Vaults",
+    "description": "Vaults settings title"
+  },
   "setting_config": {
     "message": "Download config",
     "description": "Config settings title"
@@ -423,6 +431,10 @@
     "message": "Manage your wallets",
     "description": "Wallet settings description"
   },
+  "setting_vaults_description": {
+    "message": "Manage your vaults",
+    "description": "Vaults settings description"
+  },
   "setting_config_description": {
     "message": "Download ArConnect config",
     "description": "Config settings description"
@@ -490,6 +502,10 @@
   "remove_wallet": {
     "message": "Remove wallet",
     "description": "Remove wallet button"
+  },
+  "remove_vault": {
+    "message": "Remove vault",
+    "description": "Remove vault button"
   },
   "edit_wallet_name": {
     "message": "Edit name",
@@ -845,6 +861,10 @@
   },
   "provide_seedphrase_paragraph": {
     "message": "Drag and drop your keyfile or enter the 12 word seedphrase you saved when you generated your wallet. Make sure it is in the right order.",
+    "description": "Explainer about the seedphrase loading"
+  },
+  "vault_description_paragraph": {
+    "message": "Earn rewards by holding your AR Tokens in ArConnect",
     "description": "Explainer about the seedphrase loading"
   },
   "sign_in": {
