@@ -3,6 +3,9 @@ import { useBalance } from "~wallets/hooks";
 import styled from "styled-components";
 import { InfoCircle } from "@untitled-ui/icons-react";
 import { Text } from "@arconnect/components";
+import { GraphText } from "../Graph";
+import { Ticker } from "./Balance";
+import AO from "url:/assets/ecosystem/ao.svg";
 
 // fetch ar balance
 // fetch ao vault balance
@@ -25,6 +28,25 @@ export default function Rewards() {
           </RewardsTitle>
           <Rate>1 ao/day</Rate>
         </TopRowInfo>
+        <DetailWrapper>
+          <BalanceText>
+            2.00
+            <img
+              src={AO}
+              alt="ao logo"
+              style={{
+                width: "2rem",
+                height: "1rem",
+                paddingTop: "0.44rem",
+                paddingLeft: "0.17rem"
+              }}
+            />
+          </BalanceText>
+        </DetailWrapper>
+        <RewardDetail>
+          Status: Active <br />
+          Streak: 2 days
+        </RewardDetail>
       </RewardsCard>
     </Wrapper>
   );
@@ -34,6 +56,32 @@ export default function Rewards() {
 // i icon with tooltipv2
 // linear gradient
 // linear gradient
+
+const BalanceText = styled(GraphText)`
+  font-size: 2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+`;
+
+const DetailWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+`;
+
+const RewardDetail = styled(Text).attrs({
+  heading: true
+})`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 19.12px;
+  text-align: center;
+`;
 
 const InfoText: React.ReactNode = (
   <div style={{ fontSize: "10px", lineHeight: "13.66px" }}>
