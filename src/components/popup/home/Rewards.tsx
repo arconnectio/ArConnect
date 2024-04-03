@@ -19,7 +19,7 @@ export default function Rewards() {
         <TopRowInfo>
           <RewardsTitle>
             Rewards
-            <TooltipV2 content={"Info"} position={"top"}>
+            <TooltipV2 content={InfoText} position={"right"}>
               <InfoIcon />
             </TooltipV2>
           </RewardsTitle>
@@ -34,6 +34,15 @@ export default function Rewards() {
 // i icon with tooltipv2
 // linear gradient
 // linear gradient
+
+const InfoText: React.ReactNode = (
+  <div style={{ fontSize: "10px", lineHeight: "13.66px" }}>
+    Rewards totals are estimates <br />
+    only. The rewards are provided <br />
+    by a third party service provider <br />
+    and not ArConnect.
+  </div>
+);
 
 const Rate = styled(Text).attrs({
   heading: true
@@ -56,6 +65,7 @@ const InfoIcon = styled(InfoCircle)`
   margin-top: 1px;
   cursor: pointer;
   color: ${(props) => props.theme.secondaryTextv2};
+  margin-right: 1.85px;
 `;
 
 const RewardsTitle = styled(Text).attrs({
@@ -78,7 +88,6 @@ const TopRowInfo = styled.div`
 `;
 
 const RewardsCard = styled.div`
-  width: 100%;
   height: 70px;
   padding: 15px;
   gap: 4px;
@@ -88,13 +97,12 @@ const RewardsCard = styled.div`
     #ad00ff 150deg,
     #2489ff 360deg
   );
+  border-radius: 10px;
 `;
 
 const Wrapper = styled.div`
   position: relative;
-  overflow: hidden;
-  z-index: 1;
   height: 100px;
-  margin: 0px 12px;
-  border-radius: 10px;
+  margin: 0.5rem 12px 0px 12px;
+  z-index: 150;
 `;
