@@ -42,11 +42,13 @@ export default function Rewards() {
               }}
             />
           </BalanceText>
+          <DetailContainer>
+            <RewardDetail style={{ paddingBottom: "20px" }}>
+              Status: Active <br />
+              Streak: 2 days
+            </RewardDetail>
+          </DetailContainer>
         </DetailWrapper>
-        <RewardDetail>
-          Status: Active <br />
-          Streak: 2 days
-        </RewardDetail>
       </RewardsCard>
     </Wrapper>
   );
@@ -58,6 +60,8 @@ export default function Rewards() {
 // linear gradient
 
 const BalanceText = styled(GraphText)`
+  position: relative;
+  top: -0.555rem;
   font-size: 2rem;
   font-weight: 600;
   display: flex;
@@ -68,19 +72,29 @@ const BalanceText = styled(GraphText)`
 const DetailWrapper = styled.div`
   display: flex;
   justify-content: space-between;
+  width: 100%;
+  margin-bottom: 1rem;
+`;
+
+const DetailContainer = styled.div`
+  display: flex;
   flex-direction: column;
 `;
 
 const RewardDetail = styled(Text).attrs({
-  heading: true
+  heading: true,
+  margin: false
 })`
+  position: relative;
+  top: -0.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 19.12px;
   text-align: center;
+  padding: 0px;
 `;
 
 const InfoText: React.ReactNode = (
@@ -140,7 +154,7 @@ const RewardsCard = styled.div`
   padding: 15px;
   gap: 4px;
   background: conic-gradient(
-    from 177.82deg at 47.07% 100.5%,
+    from 177.7deg at 49.99% 100.5%,
     #fe79b9 0deg,
     #ad00ff 150deg,
     #2489ff 360deg
