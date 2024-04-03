@@ -1,4 +1,4 @@
-import { Button, Checkbox, Spacer, Text } from "@arconnect/components";
+import { ButtonV2, Checkbox, Spacer, Text } from "@arconnect/components";
 import { PasswordContext, WalletContext } from "../setup";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { formatAddress } from "~utils/format";
@@ -89,9 +89,9 @@ export default function Done() {
         {browser.i18n.getMessage("analytics_title")}
       </Checkbox>
       <Spacer y={3} />
-      <Button fullWidth onClick={done}>
+      <ButtonV2 fullWidth onClick={done}>
         {browser.i18n.getMessage("done")}
-      </Button>
+      </ButtonV2>
     </>
   );
 }

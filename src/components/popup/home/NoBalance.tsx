@@ -1,10 +1,10 @@
-import { Button, ButtonV2, Section, Text } from "@arconnect/components";
+import { ButtonV2, Section, Text } from "@arconnect/components";
 import { ArrowRightIcon } from "@iconicicons/react";
 import { useHistory } from "~utils/hash_router";
 import noBalanceArt from "url:/assets/ar/no_funds.png";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import BuyButton from "./BuyButton";
+// import BuyButton from "./BuyButton";
 
 export default function NoBalance() {
   const [push] = useHistory();

@@ -1,4 +1,4 @@
-import { Button, Spacer, Text } from "@arconnect/components";
+import { ButtonV2, Spacer, Text } from "@arconnect/components";
 import { ArrowRightIcon } from "@iconicicons/react";
 import { useLocation, useRoute } from "wouter";
 import { motion } from "framer-motion";
@@ -34,9 +34,9 @@ export default function Start() {
   return (
     <Wrapper>
       <Skip>
-        <Button secondary small onClick={() => setLocation("/generate/1")}>
+        <ButtonV2 secondary onClick={() => setLocation("/generate/1")}>
           {browser.i18n.getMessage("skip")}
-        </Button>
+        </ButtonV2>
       </Skip>
       <ExplainerSection>
         <ExplainTitle>{browser.i18n.getMessage(activePage.title)}</ExplainTitle>
@@ -59,15 +59,15 @@ export default function Start() {
           )}
         </ExplainerContent>
         <Spacer y={1.25} />
-        <Button
+        <ButtonV2
           fullWidth
           onClick={() =>
             setLocation(page === 3 ? "/generate/1" : `/start/${page + 1}`)
           }
         >
           {browser.i18n.getMessage("next")}
-          <ArrowRightIcon />
-        </Button>
+          <ArrowRightIcon style={{ marginLeft: "5px" }} />
+        </ButtonV2>
       </ExplainerSection>
       <Pagination>
         {Array(3)

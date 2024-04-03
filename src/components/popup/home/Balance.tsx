@@ -2,7 +2,7 @@ import { formatTokenBalance, formatFiatBalance } from "~tokens/currency";
 import Application, { type AppInfo } from "~applications/application";
 import { gql } from "~gateways/api";
 import Graph, { GraphText } from "~components/popup/Graph";
-import { Loading, Tooltip } from "@arconnect/components";
+import { Loading, TooltipV2 } from "@arconnect/components";
 import { useEffect, useMemo, useState, type HTMLProps } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -148,19 +148,23 @@ export default function Balance() {
                   " " +
                   currency.toUpperCase()}
               <IconButtons>
-                <Tooltip
+                <TooltipV2
                   content={browser.i18n.getMessage(
                     hideBalance ? "balance_show" : "balance_hide"
                   )}
+                  position="top"
                 >
                   <BalanceIconButton
                     onClick={() => setHideBalance((val) => !val)}
                     as={hideBalance ? EyeOffIcon : EyeIcon}
                   />
-                </Tooltip>
-                <Tooltip content={browser.i18n.getMessage("lock_wallet")}>
+                </TooltipV2>
+                <TooltipV2
+                  content={browser.i18n.getMessage("lock_wallet")}
+                  position="top"
+                >
                   <BalanceIconButton onClick={lockWallet} as={LockIcon} />
-                </Tooltip>
+                </TooltipV2>
               </IconButtons>
             </FiatBalanceText>
           </div>

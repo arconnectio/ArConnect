@@ -9,13 +9,13 @@ import PermissionCheckbox, {
 } from "~components/auth/PermissionCheckbox";
 import { removeApp } from "~applications";
 import {
-  Button,
-  Input,
-  Modal,
-  Select,
+  ButtonV2,
+  InputV2,
+  ModalV2,
+  SelectV2,
   Spacer,
   Text,
-  Tooltip,
+  TooltipV2,
   useInput,
   useModal,
   useToasts
@@ -168,7 +168,10 @@ export default function AppSettings({ app, showTitle = false }: Props) {
         {": "}
         {arweave.ar.winstonToAr(spent)}
         {" AR "}
-        <Tooltip content={browser.i18n.getMessage("resetSpentQty")}>
+        <TooltipV2
+          content={browser.i18n.getMessage("resetSpentQty")}
+          position="top"
+        >
           <ResetButton
             onClick={() =>
               updateSettings((val) => ({
@@ -183,7 +186,7 @@ export default function AppSettings({ app, showTitle = false }: Props) {
           >
             {browser.i18n.getMessage("reset")}
           </ResetButton>
-        </Tooltip>
+        </TooltipV2>
       </Text>
       <Spacer y={0.55} />
       <Text noMargin>
@@ -206,16 +209,19 @@ export default function AppSettings({ app, showTitle = false }: Props) {
         )) ||
           arweave.ar.winstonToAr(limit)}
         {" AR "}
-        <Tooltip content={browser.i18n.getMessage("allowance_edit")}>
+        <TooltipV2
+          content={browser.i18n.getMessage("allowance_edit")}
+          position="top"
+        >
           <EditLimitButton
             as={editingLimit ? CheckIcon : EditIcon}
             onClick={() => setEditingLimit((val) => !val)}
           />
-        </Tooltip>
+        </TooltipV2>
       </Text>
       <Spacer y={1} />
       <Title>{browser.i18n.getMessage("gateway")}</Title>
-      <Select
+      <SelectV2
         onChange={(e) => {
           // @ts-expect-error
           if (e.target.value === "custom") {
@@ -243,13 +249,13 @@ export default function AppSettings({ app, showTitle = false }: Props) {
         <option value="custom" selected={isCustom}>
           Custom
         </option>
-      </Select>
+      </SelectV2>
       {editingCustom && (
         <>
           <Spacer y={0.8} />
           <InputWithBtn>
             <InputWrapper>
-              <Input
+              <InputV2
                 {...customGatewayInput.bindings}
                 type="text"
                 placeholder="https://arweave.net:443"
@@ -270,14 +276,14 @@ export default function AppSettings({ app, showTitle = false }: Props) {
                 });
               }}
             >
-              <CheckIcon />
+              Save
             </IconButton>
           </InputWithBtn>
         </>
       )}
       <Spacer y={1} />
       <Title>{browser.i18n.getMessage("bundlrNode")}</Title>
-      <Input
+      <InputV2
         value={settings.bundler}
         onChange={(e) =>
           updateSettings((val) => ({
@@ -290,14 +296,13 @@ export default function AppSettings({ app, showTitle = false }: Props) {
         placeholder="https://node2.bundlr.network"
       />
       <Spacer y={1.65} />
-      <Button fullWidth small onClick={() => removeModal.setOpen(true)}>
+      <ButtonV2 fullWidth onClick={() => removeModal.setOpen(true)}>
         {browser.i18n.getMessage("removeApp")}
-      </Button>
+      </ButtonV2>
       <Spacer y={0.7} />
-      <Button
+      <ButtonV2
         fullWidth
         secondary
-        small
         onClick={() =>
           updateSettings((val) => ({
             ...val,
@@ -306,25 +311,28 @@ export default function AppSettings({ app, showTitle = false }: Props) {
         }
       >
         {browser.i18n.getMessage(settings.blocked ? "unblock" : "block")}
-      </Button>
-      <Modal
+      </ButtonV2>
+      <ModalV2
         {...removeModal.bindings}
         root={document.getElementById("__plasmo")}
+        actions={
+          <>
+            <ButtonV2 secondary onClick={() => removeModal.setOpen(false)}>
+              {browser.i18n.getMessage("cancel")}
+            </ButtonV2>
+            <ButtonV2 onClick={() => removeApp(app.url)}>
+              {browser.i18n.getMessage("remove")}
+            </ButtonV2>
+          </>
+        }
       >
         <CenterText heading>{browser.i18n.getMessage("removeApp")}</CenterText>
         <Spacer y={0.55} />
         <CenterText noMargin>
           {browser.i18n.getMessage("removeAppNote")}
         </CenterText>
-        <Spacer y={1.75} />
-        <Button fullWidth onClick={() => removeApp(app.url)}>
-          {browser.i18n.getMessage("remove")}
-        </Button>
         <Spacer y={0.75} />
-        <Button fullWidth secondary onClick={() => removeModal.setOpen(false)}>
-          {browser.i18n.getMessage("cancel")}
-        </Button>
-      </Modal>
+      </ModalV2>
     </>
   );
 }

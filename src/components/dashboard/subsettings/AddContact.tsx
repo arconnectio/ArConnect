@@ -16,8 +16,8 @@ import {
   Title
 } from "./ContactSettings";
 import {
-  Button,
-  Modal,
+  ButtonV2,
+  ModalV2,
   Spacer,
   useModal,
   useToasts
@@ -33,6 +33,7 @@ import styled from "styled-components";
 import { useLocation } from "wouter";
 import copy from "copy-to-clipboard";
 import { gql } from "~gateways/api";
+import { useTheme } from "~utils/theme";
 
 export default function AddContact() {
   // contacts
@@ -50,6 +51,7 @@ export default function AddContact() {
     instance: ExtensionStorage
   });
 
+  const theme = useTheme();
   const { setToast } = useToasts();
   const [location] = useLocation();
   const address = location.split("=")[1];
@@ -342,26 +344,39 @@ export default function AddContact() {
       </div>
       <>
         <Footer>
-          <Button
-            small
+          <ButtonV2
             fullWidth
             onClick={saveNewContact}
             disabled={areFieldsEmpty()}
           >
             {browser.i18n.getMessage("save_new_contact")}
-          </Button>
+          </ButtonV2>
           <RemoveContact
-            small
             fullWidth
             secondary
             onClick={() => removeContactModal.setOpen(true)}
+            displayTheme={theme}
           >
             {browser.i18n.getMessage("remove_contact")}
           </RemoveContact>
         </Footer>
-        <Modal
+        <ModalV2
           {...removeContactModal.bindings}
           root={document.getElementById("__plasmo")}
+          actions={
+            <>
+              <ButtonV2
+                fullWidth
+                secondary
+                onClick={() => removeContactModal.setOpen(false)}
+              >
+                {browser.i18n.getMessage("no")}
+              </ButtonV2>
+              <ButtonV2 fullWidth onClick={confirmRemoveContact}>
+                {browser.i18n.getMessage("yes")}
+              </ButtonV2>
+            </>
+          }
         >
           <CenterText heading>
             {browser.i18n.getMessage("remove_contact")}
@@ -370,19 +385,8 @@ export default function AddContact() {
           <CenterText noMargin>
             {browser.i18n.getMessage("remove_contact_question")}
           </CenterText>
-          <Spacer y={1.75} />
-          <Button fullWidth onClick={confirmRemoveContact}>
-            {browser.i18n.getMessage("yes")}
-          </Button>
-          <Spacer y={0.75} />
-          <Button
-            fullWidth
-            secondary
-            onClick={() => removeContactModal.setOpen(false)}
-          >
-            {browser.i18n.getMessage("no")}
-          </Button>
-        </Modal>
+          <Spacer y={1} />
+        </ModalV2>
       </>
     </Wrapper>
   );

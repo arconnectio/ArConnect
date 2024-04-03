@@ -6,12 +6,12 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { addWallet } from "~wallets";
 import {
-  Button,
-  Input,
   Text,
   useInput,
   Spacer,
-  useToasts
+  useToasts,
+  ButtonV2,
+  InputV2
 } from "@arconnect/components";
 import BackupWalletPage from "~components/welcome/generate/BackupWalletPage";
 import KeystoneButton from "~components/hardware/KeystoneButton";
@@ -227,7 +227,7 @@ export default function AddWallet() {
           </>
         )}
         <Spacer y={1} />
-        <Input
+        <InputV2
           type="password"
           {...passwordInput.bindings}
           placeholder={browser.i18n.getMessage("enter_password")}
@@ -239,21 +239,20 @@ export default function AddWallet() {
           }}
         />
         <Spacer y={1} />
-        <Button
+        <ButtonV2
           fullWidth
           onClick={handleAddButton}
-          loading={loading}
           disabled={generating && isAddGeneratedWallet}
         >
           <PlusIcon />
           {browser.i18n.getMessage("add_wallet")}
-        </Button>
+        </ButtonV2>
         <Spacer y={1.3} />
         <Or>{browser.i18n.getMessage("or").toUpperCase()}</Or>
         <Spacer y={1.3} />
         <KeystoneButton />
         <Spacer y={1} />
-        <Button
+        <ButtonV2
           fullWidth
           secondary
           onClick={() => {
@@ -271,7 +270,7 @@ export default function AddWallet() {
         >
           <SettingsIcon />
           {browser.i18n.getMessage("generate_wallet")}
-        </Button>
+        </ButtonV2>
       </div>
     </Wrapper>
   );
