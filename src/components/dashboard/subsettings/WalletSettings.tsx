@@ -24,12 +24,17 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { formatAddress } from "~utils/format";
+import VaultSettings from "./VaultSettings";
 
-export default function WalletSettings({ address }: Props) {
+export default function WalletSettings({
+  address,
+  vault = false,
+  initial = false
+}: Props) {
   // wallets
   const [wallets, setWallets] = useStorage<StoredWallet[]>(
     {
-      key: "wallets",
+      key: vault ? "vaults" : "wallets",
       instance: ExtensionStorage
     },
     []
@@ -217,22 +222,30 @@ export default function WalletSettings({ address }: Props) {
             Save
           </IconButton>
         </InputWithBtn>
+        <Spacer y={0.45} />
+        {vault && <VaultSettings vaultName={wallet.nickname} />}
       </div>
-      <div>
-        <ButtonV2
-          fullWidth
-          onClick={() => exportModal.setOpen(true)}
-          disabled={wallet.type === "hardware"}
-        >
-          <DownloadIcon style={{ marginRight: "5px" }} />
-          {browser.i18n.getMessage("export_keyfile")}
-        </ButtonV2>
-        <Spacer y={1} />
-        <ButtonV2 fullWidth secondary onClick={() => removeModal.setOpen(true)}>
-          <TrashIcon style={{ marginRight: "5px" }} />
-          {browser.i18n.getMessage("remove_wallet")}
-        </ButtonV2>
-      </div>
+      {!vault && (
+        <div>
+          <ButtonV2
+            fullWidth
+            onClick={() => exportModal.setOpen(true)}
+            disabled={wallet.type === "hardware"}
+          >
+            <DownloadIcon style={{ marginRight: "5px" }} />
+            {browser.i18n.getMessage("export_keyfile")}
+          </ButtonV2>
+          <Spacer y={1} />
+          <ButtonV2
+            fullWidth
+            secondary
+            onClick={() => removeModal.setOpen(true)}
+          >
+            <TrashIcon style={{ marginRight: "5px" }} />
+            {browser.i18n.getMessage(vault ? "remove_vault" : "remove_wallet")}
+          </ButtonV2>
+        </div>
+      )}
       <ModalV2
         {...removeModal.bindings}
         root={document.getElementById("__plasmo")}
@@ -249,7 +262,7 @@ export default function WalletSettings({ address }: Props) {
               fullWidth
               onClick={async () => {
                 try {
-                  await removeWallet(address);
+                  await removeWallet(address, vault);
                   setToast({
                     type: "success",
                     content: browser.i18n.getMessage(
@@ -378,4 +391,6 @@ const ButtonWrapper = styled.div`
 
 interface Props {
   address: string;
+  vault?: boolean;
+  initial?: boolean;
 }

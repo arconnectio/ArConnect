@@ -33,6 +33,10 @@
     "message": "Add wallet",
     "description": "Add a wallet text"
   },
+  "add_vault": {
+    "message": "Add vault",
+    "description": "Add a vault text"
+  },
   "analytics_description" : {
     "message" : "We now use analytics.",
     "description" : "Opting into Analytics text"
@@ -355,6 +359,10 @@
     "message": "Wallets",
     "description": "Wallets settings title"
   },
+  "setting_vaults": {
+    "message": "Vaults",
+    "description": "Vaults settings title"
+  },
   "setting_config": {
     "message": "Download config",
     "description": "Config settings title"
@@ -422,6 +430,10 @@
   "setting_wallets_description": {
     "message": "Manage your wallets",
     "description": "Wallet settings description"
+  },
+  "setting_vaults_description": {
+    "message": "Manage your vaults",
+    "description": "Vaults settings description"
   },
   "setting_config_description": {
     "message": "Download ArConnect config",
@@ -491,9 +503,55 @@
     "message": "Remove wallet",
     "description": "Remove wallet button"
   },
+  "remove_vault": {
+    "message": "Remove vault",
+    "description": "Remove vault button"
+  },
   "edit_wallet_name": {
     "message": "Edit name",
     "description": "Edit wallet name title in settings"
+  },
+  "initial_vault_transfer_note": {
+    "message": "You can only transfer AR to your vault once, the vault will be locked after the transfer.",
+    "description": "Vault transfer note"
+  },
+  "vault_created_successfully": {
+    "message": "Vault created successfully",
+    "description": "Vault Created note"
+  },
+  "vault_description": {
+    "message": "Earn rewards by holding your AR Tokens in ArConnect. Begin by transferring AR to your vault.",
+    "description": "Vault description"
+  },
+  "vault_remove": {
+    "message": "Remove Vault",
+    "description": "Remove Vault description"
+  },
+  "other_wallet": {
+    "message": "Other Wallet",
+    "description": "Other Wallet for Vault description"
+  },
+  "vault_home": {
+    "message": "Vault Home",
+    "description": "Vault Home description"
+  },
+  "vault_view": {
+    "message": "View Vault",
+    "description": "Vault View description"
+  },
+  "vault_onboard_message": {
+    "message": "Transfer AR to $ADDRESS$ from",
+    "description": "Transfer AR to vault message",
+    "placeholders": {
+      "address": {
+        "content": "$1",
+        "example": "ljvCPN31...-CS-6Iho8U"
+      }
+    }
+  },
+  "learn_more": {
+    "message": "Learn more",
+    "description": "Learn more"
   },
   "updated_wallet_name": {
     "message": "Updated wallet name",
@@ -845,6 +903,10 @@
   },
   "provide_seedphrase_paragraph": {
     "message": "Drag and drop your keyfile or enter the 12 word seedphrase you saved when you generated your wallet. Make sure it is in the right order.",
+    "description": "Explainer about the seedphrase loading"
+  },
+  "vault_description_paragraph": {
+    "message": "Earn rewards by holding your AR Tokens in ArConnect",
     "description": "Explainer about the seedphrase loading"
   },
   "sign_in": {
