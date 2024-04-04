@@ -6,7 +6,7 @@ import {
   setting_element_padding,
   SettingsList
 } from "~components/dashboard/list/BaseElement";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import {
   TicketIcon,
@@ -14,6 +14,7 @@ import {
   InformationIcon,
   TrashIcon,
   WalletIcon,
+  LockIcon,
   BellIcon
 } from "@iconicicons/react";
 import { Users01 } from "@untitled-ui/icons-react";
@@ -39,6 +40,7 @@ import { formatSettingName } from "~utils/format";
 import SignSettings from "~components/dashboard/SignSettings";
 import AddToken from "~components/dashboard/subsettings/AddToken";
 import NotificationSettings from "~components/dashboard/NotificationSettings";
+import Vaults from "~components/dashboard/Vaults";
 
 export default function Settings({ params }: Props) {
   // router location
@@ -59,6 +61,9 @@ export default function Settings({ params }: Props) {
     () => params.subsetting,
     [params.subsetting]
   );
+
+  // new vault param
+  const [newVault, setNewVault] = useState<boolean | null>(null);
 
   // active app setting
   const activeAppSetting = useMemo(() => {
@@ -149,6 +154,20 @@ export default function Settings({ params }: Props) {
           )}
         {activeSetting === "wallets" && activeSubSetting === "new" && (
           <AddWallet key="new-wallet" />
+        )}
+
+        {activeSetting === "vaults" &&
+          !!activeSubSetting &&
+          activeSubSetting !== "new" && (
+            <WalletSettings
+              initial={newVault}
+              address={activeSubSetting}
+              key={activeSubSetting}
+              vault
+            />
+          )}
+        {activeSetting === "vaults" && activeSubSetting === "new" && (
+          <AddWallet key="new-vault" vault />
         )}
         {activeSetting === "tokens" && activeSubSetting !== "new" && (
           <TokenSettings id={activeSubSetting} />
@@ -275,6 +294,13 @@ const allSettings: Omit<Setting, "active">[] = [
     description: "setting_wallets_description",
     icon: WalletIcon,
     component: Wallets
+  },
+  {
+    name: "vaults",
+    displayName: "setting_vaults",
+    description: "setting_vaults_description",
+    icon: LockIcon,
+    component: Vaults
   },
   {
     name: "tokens",
