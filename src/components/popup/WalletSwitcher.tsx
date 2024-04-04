@@ -25,6 +25,7 @@ import Squircle from "~components/Squircle";
 import styled from "styled-components";
 import Arweave from "arweave";
 import { svgie } from "~utils/svgies";
+import { SafeIcon } from "./WalletHeader";
 
 export default function WalletSwitcher({
   open,
@@ -67,14 +68,16 @@ export default function WalletSwitcher({
         address: wallet.address,
         balance: 0,
         hasAns: false,
-        api: wallet.type === "hardware" ? wallet.api : undefined
+        api: wallet.type === "hardware" ? wallet.api : undefined,
+        isVault: false
       })),
       ...storedVaults.map((vault) => ({
         name: vault.nickname,
         address: vault.address,
         balance: 0,
         hasAns: false,
-        api: vault.type === "hardware" ? vault.api : undefined
+        api: vault.type === "hardware" ? vault.api : undefined,
+        isVault: true
       }))
     ];
 
@@ -209,15 +212,21 @@ export default function WalletSwitcher({
                         <span>AR</span>
                       </Balance>
                     </WalletData>
-                    <Avatar img={wallet.avatar}>
-                      {!wallet.avatar && <NoAvatarIcon />}
-                      {wallet.api === "keystone" && (
-                        <HardwareWalletIcon
-                          icon={keystoneLogo}
-                          color="#2161FF"
-                        />
-                      )}
-                    </Avatar>
+                    {wallet.isVault ? (
+                      <Avatar>
+                        <SafeIcon />
+                      </Avatar>
+                    ) : (
+                      <Avatar img={wallet.avatar}>
+                        {!wallet.avatar && <NoAvatarIcon />}
+                        {wallet.api === "keystone" && (
+                          <HardwareWalletIcon
+                            icon={keystoneLogo}
+                            color="#2161FF"
+                          />
+                        )}
+                      </Avatar>
+                    )}
                   </Wallet>
                 ))}
               </Wallets>
@@ -457,4 +466,5 @@ interface DisplayedWallet {
   balance: number;
   avatar?: string;
   hasAns: boolean;
+  isVault?: boolean;
 }
