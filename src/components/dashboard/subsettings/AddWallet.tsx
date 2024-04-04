@@ -196,10 +196,11 @@ export default function AddWallet({ vault = false }: AddWalletProps) {
 
       // redirect to the wallet in settings
       const arweave = new Arweave(defaultGateway);
+      const location = vault
+        ? `/vaults/S${await arweave.wallets.jwkToAddress(generatedWallet.jwk)}`
+        : `/wallets/${await arweave.wallets.jwkToAddress(generatedWallet.jwk)}`;
 
-      setLocation(
-        `/wallets/${await arweave.wallets.jwkToAddress(generatedWallet.jwk)}`
-      );
+      setLocation(location);
     } catch {
       setToast({
         type: "error",

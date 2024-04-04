@@ -15,9 +15,14 @@ import AO from "url:/assets/ecosystem/ao.svg";
 
 // Any movement of funds disqualifies from using a vault
 
-export default function Rewards() {
+interface RewardProps {
+  //temporary solution for margins
+  alt?: boolean;
+}
+
+export default function Rewards({ alt = false }: RewardProps) {
   return (
-    <Wrapper>
+    <Wrapper alt={alt}>
       <RewardsCard>
         <TopRowInfo>
           <RewardsTitle>
@@ -158,7 +163,7 @@ const RewardsTitle = styled(Text).attrs({
 `;
 
 const TopRowInfo = styled.div`
-  width: 317.5px;
+  width: 100%;
   display: flex;
   justify-content: space-between;
 `;
@@ -176,9 +181,9 @@ const RewardsCard = styled.div`
   border-radius: 10px;
 `;
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ alt: boolean }>`
   position: relative;
   height: 100px;
-  margin: 0.5rem 12px 0px 12px;
+  margin: ${(props) => (props.alt ? "0" : "0.5rem 12px 0px 12px")};
   z-index: 150;
 `;
