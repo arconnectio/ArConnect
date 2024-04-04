@@ -81,21 +81,6 @@ export default function WalletSwitcher({
     setWallets(combined);
   }, [storedWallets, storedVaults]);
 
-  // load default wallets array
-  // useEffect(
-  //   () =>
-  //     setWallets(
-  //       storedWallets.map((wallet) => ({
-  //         name: wallet.nickname,
-  //         address: wallet.address,
-  //         balance: 0,
-  //         hasAns: false,
-  //         api: wallet.type === "hardware" ? wallet.api : undefined
-  //       }))
-  //     ),
-  //   [storedWallets]
-  // );
-
   // load ANS data for wallet
   const [loadedAns, setLoadedAns] = useState(false);
 
@@ -300,7 +285,7 @@ const SwitcherPopover = styled(motion.div).attrs({
   top: ${(props) => (props.exactTop ? "100%" : "calc(100% - 1.05rem)")};
   left: -5px;
   right: 0;
-  z-index: 100000;
+  z-index: 100;
   cursor: default;
 `;
 
