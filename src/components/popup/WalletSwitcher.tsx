@@ -247,23 +247,19 @@ export default function WalletSwitcher({
                       })
                     }
                   >
-                    <PlusIcon style={{ marginRight: "5px" }} />
                     {browser.i18n.getMessage("add_wallet")}
                   </AddWalletButton>
-                  <TooltipV2
-                    content={browser.i18n.getMessage("edit")}
-                    position="topEnd"
+                  <AddVaultButton
+                    onClick={() =>
+                      browser.tabs.create({
+                        url: browser.runtime.getURL(
+                          "tabs/dashboard.html#/vaults/new"
+                        )
+                      })
+                    }
                   >
-                    <EditButton
-                      onClick={() =>
-                        browser.tabs.create({
-                          url: browser.runtime.getURL(
-                            `tabs/dashboard.html#/wallets/${activeAddress}`
-                          )
-                        })
-                      }
-                    />
-                  </TooltipV2>
+                    {browser.i18n.getMessage("add_vault")}
+                  </AddVaultButton>
                 </ActionBar>
               )}
             </WalletsCard>
@@ -439,8 +435,9 @@ const ActionBar = styled.div`
   background-color: rgb(${(props) => props.theme.cardBackground});
 `;
 
-const AddWalletButton = styled(ButtonV2).attrs({
-  fullWidth: true
+const AddWalletButton = styled(ButtonV2)``;
+const AddVaultButton = styled(ButtonV2).attrs({
+  secondary: true
 })``;
 
 const EditButton = styled(EditIcon)`
