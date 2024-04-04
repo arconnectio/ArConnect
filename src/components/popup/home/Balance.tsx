@@ -296,7 +296,7 @@ const BalanceText = styled(GraphText)`
   font-weight: 600;
 `;
 
-const Ticker = styled.span`
+export const Ticker = styled.span`
   margin-left: 0.33rem;
 `;
 
