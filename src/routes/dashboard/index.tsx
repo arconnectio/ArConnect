@@ -6,7 +6,7 @@ import {
   setting_element_padding,
   SettingsList
 } from "~components/dashboard/list/BaseElement";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import {
   TicketIcon,
@@ -61,6 +61,9 @@ export default function Settings({ params }: Props) {
     () => params.subsetting,
     [params.subsetting]
   );
+
+  // new vault param
+  const [newVault, setNewVault] = useState<boolean | null>(null);
 
   // active app setting
   const activeAppSetting = useMemo(() => {
@@ -157,6 +160,7 @@ export default function Settings({ params }: Props) {
           !!activeSubSetting &&
           activeSubSetting !== "new" && (
             <WalletSettings
+              initial={newVault}
               address={activeSubSetting}
               key={activeSubSetting}
               vault
