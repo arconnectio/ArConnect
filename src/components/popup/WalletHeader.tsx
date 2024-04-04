@@ -6,7 +6,7 @@ import HardwareWalletIcon, {
   hwIconAnimateProps
 } from "~components/hardware/HardwareWalletIcon";
 import { useHardwareApi } from "~wallets/hooks";
-import type { StoredWallet } from "~wallets";
+import { StoredVault, type StoredWallet } from "~wallets";
 import { formatAddress, getAppURL } from "~utils/format";
 import { removeApp } from "~applications";
 import { useAnsProfile } from "~lib/ans";
@@ -67,6 +67,12 @@ export default function WalletHeader() {
     []
   );
 
+  // all vaults added
+  const [vaults] = useStorage<StoredVault[]>({
+    key: "vaults",
+    instance: ExtensionStorage
+  });
+
   // is the wallet selector open
   const [isOpen, setOpen] = useState(false);
 
@@ -113,17 +119,28 @@ export default function WalletHeader() {
   // wallet name
   const walletName = useMemo(() => {
     if (!ansProfile?.label) {
-      const wallet = wallets.find(({ address }) => address === activeAddress);
-      let name = wallet?.nickname || "Wallet";
+      const wallet = wallets
+        ? wallets.find(({ address }) => address === activeAddress)
+        : undefined;
+      const vault =
+        !wallet && vaults
+          ? vaults.find(({ address }) => address === activeAddress)
+          : undefined;
 
-      const address = wallet?.address && formatAddress(wallet?.address, 4);
-      setAddress(address);
+      let name = wallet?.nickname || vault?.nickname || "Wallet";
+      const displayAddress = wallet?.address || vault?.address;
+      const formattedAddress =
+        displayAddress && formatAddress(displayAddress, 4);
+
+      setAddress(formattedAddress);
+
       if (/^Account \d+$/.test(name)) {
         name = address;
       }
+
       setDisplayName(name);
 
-      return wallet?.nickname || "Wallet";
+      return name;
     }
 
     return ansProfile.label;
