@@ -185,5 +185,5 @@ const Wrapper = styled.div<{ alt: boolean }>`
   position: relative;
   height: 100px;
   margin: ${(props) => (props.alt ? "0" : "0.5rem 12px 0px 12px")};
-  z-index: 150;
+  z-index: 10;
 `;
