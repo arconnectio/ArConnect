@@ -15,7 +15,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";
-import type { StoredWallet } from "~wallets";
+import type { StoredWallet, StoredVault } from "~wallets";
 import { useEffect, useState } from "react";
 import HardwareWalletIcon from "~components/hardware/HardwareWalletIcon";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
@@ -48,23 +48,53 @@ export default function WalletSwitcher({
     []
   );
 
+  const [storedVaults] = useStorage<StoredVault[]>(
+    {
+      key: "vaults",
+      instance: ExtensionStorage
+    },
+    []
+  );
+
   // load wallet datas
   const [wallets, setWallets] = useState<DisplayedWallet[]>([]);
 
+  // load default wallets & ar vaults
+  useEffect(() => {
+    const combined = [
+      ...storedWallets.map((wallet) => ({
+        name: wallet.nickname,
+        address: wallet.address,
+        balance: 0,
+        hasAns: false,
+        api: wallet.type === "hardware" ? wallet.api : undefined
+      })),
+      ...storedVaults.map((vault) => ({
+        name: vault.nickname,
+        address: vault.address,
+        balance: 0,
+        hasAns: false,
+        api: vault.type === "hardware" ? vault.api : undefined
+      }))
+    ];
+
+    setWallets(combined);
+  }, [storedWallets, storedVaults]);
+
   // load default wallets array
-  useEffect(
-    () =>
-      setWallets(
-        storedWallets.map((wallet) => ({
-          name: wallet.nickname,
-          address: wallet.address,
-          balance: 0,
-          hasAns: false,
-          api: wallet.type === "hardware" ? wallet.api : undefined
-        }))
-      ),
-    [storedWallets]
-  );
+  // useEffect(
+  //   () =>
+  //     setWallets(
+  //       storedWallets.map((wallet) => ({
+  //         name: wallet.nickname,
+  //         address: wallet.address,
+  //         balance: 0,
+  //         hasAns: false,
+  //         api: wallet.type === "hardware" ? wallet.api : undefined
+  //       }))
+  //     ),
+  //   [storedWallets]
+  // );
 
   // load ANS data for wallet
   const [loadedAns, setLoadedAns] = useState(false);
@@ -274,7 +304,7 @@ const SwitcherPopover = styled(motion.div).attrs({
   top: ${(props) => (props.exactTop ? "100%" : "calc(100% - 1.05rem)")};
   left: -5px;
   right: 0;
-  z-index: 110;
+  z-index: 100000;
   cursor: default;
 `;
 
