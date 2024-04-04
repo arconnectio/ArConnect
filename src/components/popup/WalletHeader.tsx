@@ -6,7 +6,7 @@ import HardwareWalletIcon, {
   hwIconAnimateProps
 } from "~components/hardware/HardwareWalletIcon";
 import { useHardwareApi } from "~wallets/hooks";
-import { StoredVault, type StoredWallet } from "~wallets";
+import type { StoredVault, StoredWallet } from "~wallets";
 import { formatAddress, getAppURL } from "~utils/format";
 import { removeApp } from "~applications";
 import { useAnsProfile } from "~lib/ans";
@@ -44,6 +44,7 @@ import {
   Container,
   DotsVertical,
   Expand01,
+  Safe,
   Settings01,
   Users01
 } from "@untitled-ui/icons-react";
@@ -68,10 +69,13 @@ export default function WalletHeader() {
   );
 
   // all vaults added
-  const [vaults] = useStorage<StoredVault[]>({
-    key: "vaults",
-    instance: ExtensionStorage
-  });
+  const [vaults] = useStorage<StoredVault[]>(
+    {
+      key: "vaults",
+      instance: ExtensionStorage
+    },
+    []
+  );
 
   // is the wallet selector open
   const [isOpen, setOpen] = useState(false);
@@ -104,11 +108,18 @@ export default function WalletHeader() {
   // profile picture
   const ansProfile = useAnsProfile(activeAddress);
 
+  const isVault = useMemo(() => {
+    return vaults.some((vault) => vault.address === activeAddress);
+  }, [vaults, activeAddress]);
+
   // fallback svgie for profile picture
-  const svgieAvatar = useMemo(
-    () => svgie(activeAddress, { asDataURI: true }),
-    [activeAddress]
-  );
+  const svgieAvatar = useMemo(() => {
+    if (isVault) {
+      return null;
+    }
+
+    return svgie(activeAddress, { asDataURI: true });
+  }, [activeAddress]);
 
   // wallet nickname for copy
   const [displayName, setDisplayName] = useState("");
@@ -233,7 +244,10 @@ export default function WalletHeader() {
           }}
         >
           <Avatar img={ansProfile?.avatar || svgieAvatar}>
-            {!ansProfile?.avatar && !svgieAvatar && <NoAvatarIcon />}
+            {!ansProfile?.avatar && !svgieAvatar && isVault && <SafeIcon />}
+            {!ansProfile?.avatar && !svgieAvatar && !isVault && (
+              <NoAvatarIcon />
+            )}
             <AnimatePresence initial={false}>
               {hardwareApi === "keystone" && (
                 <HardwareWalletIcon
@@ -569,6 +583,17 @@ export const Avatar = styled(Squircle)`
 `;
 
 export const NoAvatarIcon = styled(UserIcon)`
+  position: absolute;
+  font-size: 1rem;
+  width: 1em;
+  height: 1em;
+  color: #fff;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`;
+
+export const SafeIcon = styled(Safe)`
   position: absolute;
   font-size: 1rem;
   width: 1em;
