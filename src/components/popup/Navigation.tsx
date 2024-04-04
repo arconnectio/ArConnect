@@ -1,15 +1,17 @@
-import type { DisplayTheme } from "@arconnect/components";
+import { type DisplayTheme, useModal, ModalV2 } from "@arconnect/components";
 import {
   ArrowDownLeft,
   ArrowUpRight,
   Compass03,
-  Home01,
   Home02
 } from "@untitled-ui/icons-react";
+import { ExtensionStorage } from "~utils/storage";
+import { useHistory } from "~utils/hash_router";
+import { useState, useEffect } from "react";
+import { getActiveAddress } from "~wallets";
+import { useTheme } from "~utils/theme";
 import styled from "styled-components";
 import { useLocation } from "wouter";
-import { useHistory } from "~utils/hash_router";
-import { useTheme } from "~utils/theme";
 
 const buttons = [
   {
@@ -43,6 +45,11 @@ export const NavigationBar = () => {
   const theme = useTheme();
   const [push] = useHistory();
   const [location] = useLocation();
+  const [isVault, setIsVault] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
+
+  const activeAddress = getActiveAddress();
+
   const shouldShowNavigationBar = buttons.some((button) => {
     if (button.title === "Send") {
       return location.startsWith(button.route);
@@ -50,6 +57,27 @@ export const NavigationBar = () => {
       return location === button.route;
     }
   });
+
+  useEffect(() => {
+    (async () => {
+      const vaultStorage = await ExtensionStorage.get("vaults");
+      if (vaultStorage) {
+        const vaults = JSON.parse(vaultStorage);
+        const activeVault = vaults.find(
+          (vault) => vault.address === activeAddress
+        );
+        setIsVault(!!activeVault);
+        console.log("active vault:", activeVault);
+      }
+    })();
+  }, [activeAddress]);
+
+  const handleRoute = async (route: string) => {
+    if (isVault || isVault === true) {
+      setShowWarning(true);
+    }
+    push(route);
+  };
 
   return (
     <>
@@ -64,7 +92,7 @@ export const NavigationBar = () => {
                     displayTheme={theme}
                     active={active}
                     key={index}
-                    onClick={() => push(button.route)}
+                    onClick={() => handleRoute(button.route)}
                   >
                     <IconWrapper displayTheme={theme} size={button.size}>
                       {button.icon}
