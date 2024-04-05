@@ -1,28 +1,30 @@
 import {
   Text,
-  Button,
-  Input,
+  ButtonV2,
+  InputV2,
   Loading,
-  Modal,
-  Select,
+  ModalV2,
+  SelectV2,
   Spacer,
-  Tooltip,
+  TooltipV2,
   useModal,
-  useToasts
+  useToasts,
+  type DisplayTheme
 } from "@arconnect/components";
-import { CheckIcon, CopyIcon } from "@iconicicons/react";
 import { useState, useEffect, type MouseEventHandler, useMemo } from "react";
+import { Edit02, Share04, Upload01 } from "@untitled-ui/icons-react";
+import { uploadUserAvatar, getUserAvatar } from "~lib/avatar";
+import { CheckIcon, CopyIcon } from "@iconicicons/react";
+import { EventType, trackEvent } from "~utils/analytics";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import styled from "styled-components";
 import browser from "webextension-polyfill";
-import { Edit02, Share04, Upload01 } from "@untitled-ui/icons-react";
-import { useLocation } from "wouter";
-import { uploadUserAvatar, getUserAvatar } from "~lib/avatar";
 import { getAllArNSNames } from "~lib/arns";
-import copy from "copy-to-clipboard";
-import { EventType, trackEvent } from "~utils/analytics";
+import { useTheme } from "~utils/theme";
+import styled from "styled-components";
 import { svgie } from "~utils/svgies";
+import { useLocation } from "wouter";
+import copy from "copy-to-clipboard";
 
 export default function ContactSettings({ address }: Props) {
   // contacts
@@ -35,6 +37,7 @@ export default function ContactSettings({ address }: Props) {
   );
 
   const { setToast } = useToasts();
+  const theme = useTheme();
 
   const [editable, setEditable] = useState(false);
   const [contact, setContact] = useState({
@@ -328,9 +331,8 @@ export default function ContactSettings({ address }: Props) {
         {contact.name && <SubTitle>{browser.i18n.getMessage("name")}</SubTitle>}
         {editable ? (
           <InputWrapper>
-            <ContactInput
+            <InputV2
               fullWidth
-              small
               name="name"
               placeholder={
                 contact.name
@@ -350,7 +352,7 @@ export default function ContactSettings({ address }: Props) {
             {editable && "*"}
           </SubTitle>
           {!editable && (
-            <Tooltip
+            <TooltipV2
               content={browser.i18n.getMessage("copy_address")}
               position="top"
             >
@@ -358,14 +360,13 @@ export default function ContactSettings({ address }: Props) {
                 as={copied ? CheckIcon : CopyIcon}
                 onClick={copyAddress}
               />
-            </Tooltip>
+            </TooltipV2>
           )}
         </AddressWrapper>
         {editable ? (
           <InputWrapper>
-            <ContactInput
+            <InputV2
               fullWidth
-              small
               name="address"
               placeholder={
                 contact.address
@@ -391,26 +392,38 @@ export default function ContactSettings({ address }: Props) {
       {editable && (
         <>
           <Footer>
-            <Button
-              small
+            <ButtonV2
               fullWidth
               onClick={saveContact}
               disabled={areFieldsEmpty()}
             >
               {browser.i18n.getMessage("save_changes")}
-            </Button>
+            </ButtonV2>
             <RemoveContact
-              small
               fullWidth
               secondary
               onClick={() => removeContactModal.setOpen(true)}
+              displayTheme={theme}
             >
               {browser.i18n.getMessage("remove_contact")}
             </RemoveContact>
           </Footer>
-          <Modal
+          <ModalV2
             {...removeContactModal.bindings}
             root={document.getElementById("__plasmo")}
+            actions={
+              <>
+                <ButtonV2
+                  secondary
+                  onClick={() => removeContactModal.setOpen(false)}
+                >
+                  {browser.i18n.getMessage("no")}
+                </ButtonV2>
+                <ButtonV2 onClick={confirmRemoveContact}>
+                  {browser.i18n.getMessage("yes")}
+                </ButtonV2>
+              </>
+            }
           >
             <CenterText heading>
               {browser.i18n.getMessage("remove_contact")}
@@ -419,19 +432,8 @@ export default function ContactSettings({ address }: Props) {
             <CenterText noMargin>
               {browser.i18n.getMessage("remove_contact_question")}
             </CenterText>
-            <Spacer y={1.75} />
-            <Button fullWidth onClick={confirmRemoveContact}>
-              {browser.i18n.getMessage("yes")}
-            </Button>
-            <Spacer y={0.75} />
-            <Button
-              fullWidth
-              secondary
-              onClick={() => removeContactModal.setOpen(false)}
-            >
-              {browser.i18n.getMessage("no")}
-            </Button>
-          </Modal>
+            <Spacer y={1} />
+          </ModalV2>
         </>
       )}
     </Wrapper>
@@ -482,7 +484,7 @@ export const Footer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding-top: 10px;
+  padding: 10px 0px;
 `;
 
 export const CenterText = styled(Text)`
@@ -525,15 +527,16 @@ const EditIcon = styled(Edit02)`
   cursor: pointer;
 `;
 
-export const RemoveContact = styled(Button)`
-  background-color: #ea433580;
-  color: #ea4335;
-  border: 2px solid #ea433580;
-  transition: all 0.29s ease-in-out;
-  height: 46.79px;
+export const RemoveContact = styled(ButtonV2)<{ displayTheme: DisplayTheme }>`
+  // props.theme.delete
+  background-color: ${(props) =>
+    props.displayTheme === "light" ? "#F58080" : "#8C1A1A"};
+  border: 1.5px solid ${(props) => props.theme.fail};
+  color: #ffffff;
 
   &:hover {
-    transform: scale(1.02);
+    background-color: ${(props) =>
+      props.displayTheme === "light" ? "#F58080" : "#C51A1A"};
   }
 `;
 
@@ -561,7 +564,7 @@ export const InputWrapper = styled.div`
   margin-bottom: 10px;
 `;
 
-export const SelectInput = styled(Select)`
+export const SelectInput = styled(SelectV2)`
   height: 53px;
   padding: 10px 20px 10px 20px;
   color: #b9b9b9;
@@ -572,7 +575,7 @@ export const SelectInput = styled(Select)`
   }
 `;
 
-export const ContactInput = styled(Input)`
+export const ContactInput = styled(InputV2)`
   height: 33px;
   padding: 10px 20px 10px 20px;
   color: #b9b9b9;

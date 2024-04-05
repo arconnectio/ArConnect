@@ -1,6 +1,6 @@
 import {
-  Button,
-  Input,
+  ButtonV2 as Button,
+  InputV2 as Input,
   Text,
   useInput,
   useToasts
@@ -70,7 +70,7 @@ export default function Mint({ arweave }: Props) {
             fullWidth
           />
         </InputWrapper>
-        <Button secondary onClick={mint}>
+        <Button secondary onClick={mint} style={{ height: "52px" }}>
           {browser.i18n.getMessage("mint")}
         </Button>
       </InputWithBtn>

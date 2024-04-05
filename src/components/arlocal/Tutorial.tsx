@@ -1,4 +1,9 @@
-import { Input, type InputStatus, Spacer, Text } from "@arconnect/components";
+import {
+  InputV2 as Input,
+  type InputStatus,
+  Spacer,
+  Text
+} from "@arconnect/components";
 import { InputWithBtn, InputWrapper } from "./InputWrapper";
 import { IconButton } from "~components/IconButton";
 import { CopyIcon } from "@iconicicons/react";

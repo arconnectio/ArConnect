@@ -1,4 +1,4 @@
-import { Button, Spacer, Text } from "@arconnect/components";
+import { ButtonV2, Spacer, Text } from "@arconnect/components";
 import { useLocation, useRoute } from "wouter";
 import {
   ArrowRightIcon,
@@ -47,15 +47,15 @@ export default function Theme() {
         {browser.i18n.getMessage("system_theme")}
       </ThemeOption>
       <Spacer y={2.5} />
-      <Button
+      <ButtonV2
         fullWidth
         onClick={() =>
           setLocation(`/${params.setup}/${Number(params.page) + 1}`)
         }
       >
         {browser.i18n.getMessage("next")}
-        <ArrowRightIcon />
-      </Button>
+        <ArrowRightIcon style={{ marginLeft: "5px" }} />
+      </ButtonV2>
     </>
   );
 }

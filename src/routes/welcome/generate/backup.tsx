@@ -1,4 +1,4 @@
-import { Button, Spacer, Text } from "@arconnect/components";
+import { ButtonV2, Spacer, Text } from "@arconnect/components";
 import { useLocation, useRoute } from "wouter";
 import { useContext, useEffect, useState } from "react";
 import { WalletContext } from "../setup";
@@ -55,7 +55,7 @@ export default function Backup() {
         {browser.i18n.getMessage("copySeed")}
       </CopySeed>
       <Spacer y={1} />
-      <Button
+      <ButtonV2
         fullWidth
         onClick={() =>
           setLocation(`/${params.setup}/${Number(params.page) + 1}`)
@@ -63,7 +63,7 @@ export default function Backup() {
       >
         {browser.i18n.getMessage("next")}
         <ArrowRightIcon />
-      </Button>
+      </ButtonV2>
     </>
   );
 }

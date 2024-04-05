@@ -1,4 +1,4 @@
-import { Spacer, useInput } from "@arconnect/components";
+import { ButtonV2, Spacer, useInput } from "@arconnect/components";
 import React, { useState, useEffect, useMemo } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -8,7 +8,6 @@ import { useLocation, useRoute } from "wouter";
 import browser from "webextension-polyfill";
 import SearchInput from "./SearchInput";
 import styled from "styled-components";
-import { IconButton } from "~components/IconButton";
 import { formatAddress } from "~utils/format";
 import { multiSort } from "~utils/multi_sort";
 import { enrichContact } from "~contacts/hooks";
@@ -200,21 +199,18 @@ const LetterHeader = styled.div`
 const SearchWrapper = styled.div`
   position: sticky;
   display: grid;
-  gap: 5px;
+  gap: 8px;
   top: 0;
   left: 0;
   right: 0;
   z-index: 20;
   grid-template-columns: auto auto;
+  background-color: rgb(${(props) => props.theme.cardBackground});
 `;
 
-const AddContactButton = styled(IconButton).attrs({
+const AddContactButton = styled(ButtonV2).attrs({
   secondary: true
 })`
-  background: linear-gradient(
-      0deg,
-      rgba(${(props) => props.theme.theme}, 0.2),
-      rgba(${(props) => props.theme.theme}, 0.2)
-    ),
-    rgb(${(props) => props.theme.background});
+  width: 100%;
+  height: 100%;
 `;
