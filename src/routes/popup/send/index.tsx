@@ -64,6 +64,7 @@ import { formatAddress } from "~utils/format";
 import { useContact } from "~contacts/hooks";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { useAoTokens } from "~tokens/aoTokens/ao";
+import { getVault, type StoredWallet } from "~wallets";
 
 // default size for the qty text
 const defaulQtytSize = 3.7;
@@ -93,7 +94,7 @@ export interface TransactionData {
   isAo?: boolean;
 }
 
-export default function Send({ id }: Props) {
+export default function Send({ id, address }: Props) {
   // Segment
   useEffect(() => {
     trackPage(PageType.SEND);
@@ -122,6 +123,9 @@ export default function Send({ id }: Props) {
 
   // set ao for following page
   const [isAo, setIsAo] = useState<boolean>(false);
+
+  // set vault transfer
+  const [vault, setVault] = useState<StoredWallet | null>(null);
 
   // qty mode (fiat/token)
   const [qtyMode, setQtyMode] = useStorage<QtyMode>(
@@ -182,6 +186,15 @@ export default function Send({ id }: Props) {
       if (existingTxn.recipient) {
         setRecipient(existingTxn.recipient);
         setQtyMode(existingTxn.qtyMode as QtyMode);
+      }
+    })();
+
+    (async () => {
+      if (address) {
+        setRecipient({ address });
+        const vault = await getVault(address);
+
+        setVault(vault);
       }
     })();
   }, []);
@@ -404,6 +417,7 @@ export default function Send({ id }: Props) {
               fullWidth
               secondary
               alternate
+              disabled={!!vault}
               onClick={() => {
                 setShowSlider(!showSlider);
               }}
@@ -418,7 +432,9 @@ export default function Send({ id }: Props) {
                     </AutoContactPic>
                   )
                 )}
-                {!recipient.address
+                {vault
+                  ? `${vault.nickname} (${formatAddress(recipient.address, 4)})`
+                  : !recipient.address
                   ? browser.i18n.getMessage("select_recipient")
                   : contact && contact.name
                   ? contact.name
@@ -697,6 +713,7 @@ const SendForm = styled.div`
 
 interface Props {
   id?: string;
+  address?: string;
 }
 
 type QtyMode = "fiat" | "token";
