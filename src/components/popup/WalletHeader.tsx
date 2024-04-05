@@ -6,7 +6,7 @@ import HardwareWalletIcon, {
   hwIconAnimateProps
 } from "~components/hardware/HardwareWalletIcon";
 import { useHardwareApi } from "~wallets/hooks";
-import type { StoredWallet } from "~wallets";
+import type { StoredVault, StoredWallet } from "~wallets";
 import { formatAddress, getAppURL } from "~utils/format";
 import { removeApp } from "~applications";
 import { useAnsProfile } from "~lib/ans";
@@ -44,6 +44,7 @@ import {
   Container,
   DotsVertical,
   Expand01,
+  Safe,
   Settings01,
   Users01
 } from "@untitled-ui/icons-react";
@@ -62,6 +63,15 @@ export default function WalletHeader() {
   const [wallets] = useStorage<StoredWallet[]>(
     {
       key: "wallets",
+      instance: ExtensionStorage
+    },
+    []
+  );
+
+  // all vaults added
+  const [vaults] = useStorage<StoredVault[]>(
+    {
+      key: "vaults",
       instance: ExtensionStorage
     },
     []
@@ -98,11 +108,18 @@ export default function WalletHeader() {
   // profile picture
   const ansProfile = useAnsProfile(activeAddress);
 
+  const isVault = useMemo(() => {
+    return vaults.some((vault) => vault.address === activeAddress);
+  }, [vaults, activeAddress]);
+
   // fallback svgie for profile picture
-  const svgieAvatar = useMemo(
-    () => svgie(activeAddress, { asDataURI: true }),
-    [activeAddress]
-  );
+  const svgieAvatar = useMemo(() => {
+    if (isVault) {
+      return null;
+    }
+
+    return svgie(activeAddress, { asDataURI: true });
+  }, [activeAddress]);
 
   // wallet nickname for copy
   const [displayName, setDisplayName] = useState("");
@@ -113,17 +130,23 @@ export default function WalletHeader() {
   // wallet name
   const walletName = useMemo(() => {
     if (!ansProfile?.label) {
-      const wallet = wallets.find(({ address }) => address === activeAddress);
-      let name = wallet?.nickname || "Wallet";
+      const wallet = wallets
+        ? wallets.find(({ address }) => address === activeAddress)
+        : undefined;
+      const vault =
+        !wallet && vaults
+          ? vaults.find(({ address }) => address === activeAddress)
+          : undefined;
 
-      const address = wallet?.address && formatAddress(wallet?.address, 4);
+      let name = wallet?.nickname || vault?.nickname || "Wallet";
+
+      const address =
+        (wallet?.address && formatAddress(wallet?.address, 4)) ||
+        (vault?.address && formatAddress(vault?.address, 4));
       setAddress(address);
-      if (/^Account \d+$/.test(name)) {
-        name = address;
-      }
       setDisplayName(name);
 
-      return wallet?.nickname || "Wallet";
+      return name;
     }
 
     return ansProfile.label;
@@ -216,7 +239,10 @@ export default function WalletHeader() {
           }}
         >
           <Avatar img={ansProfile?.avatar || svgieAvatar}>
-            {!ansProfile?.avatar && !svgieAvatar && <NoAvatarIcon />}
+            {!ansProfile?.avatar && !svgieAvatar && isVault && <SafeIcon />}
+            {!ansProfile?.avatar && !svgieAvatar && !isVault && (
+              <NoAvatarIcon />
+            )}
             <AnimatePresence initial={false}>
               {hardwareApi === "keystone" && (
                 <HardwareWalletIcon
@@ -552,6 +578,17 @@ export const Avatar = styled(Squircle)`
 `;
 
 export const NoAvatarIcon = styled(UserIcon)`
+  position: absolute;
+  font-size: 1rem;
+  width: 1em;
+  height: 1em;
+  color: #fff;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`;
+
+export const SafeIcon = styled(Safe)`
   position: absolute;
   font-size: 1rem;
   width: 1em;

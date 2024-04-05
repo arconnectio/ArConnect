@@ -15,7 +15,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";
-import type { StoredWallet } from "~wallets";
+import type { StoredWallet, StoredVault } from "~wallets";
 import { useEffect, useState } from "react";
 import HardwareWalletIcon from "~components/hardware/HardwareWalletIcon";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
@@ -25,6 +25,7 @@ import Squircle from "~components/Squircle";
 import styled from "styled-components";
 import Arweave from "arweave";
 import { svgie } from "~utils/svgies";
+import { SafeIcon } from "./WalletHeader";
 
 export default function WalletSwitcher({
   open,
@@ -48,23 +49,40 @@ export default function WalletSwitcher({
     []
   );
 
+  const [storedVaults] = useStorage<StoredVault[]>(
+    {
+      key: "vaults",
+      instance: ExtensionStorage
+    },
+    []
+  );
+
   // load wallet datas
   const [wallets, setWallets] = useState<DisplayedWallet[]>([]);
 
-  // load default wallets array
-  useEffect(
-    () =>
-      setWallets(
-        storedWallets.map((wallet) => ({
-          name: wallet.nickname,
-          address: wallet.address,
-          balance: 0,
-          hasAns: false,
-          api: wallet.type === "hardware" ? wallet.api : undefined
-        }))
-      ),
-    [storedWallets]
-  );
+  // load default wallets & ar vaults
+  useEffect(() => {
+    const combined = [
+      ...storedWallets.map((wallet) => ({
+        name: wallet.nickname,
+        address: wallet.address,
+        balance: 0,
+        hasAns: false,
+        api: wallet.type === "hardware" ? wallet.api : undefined,
+        isVault: false
+      })),
+      ...storedVaults.map((vault) => ({
+        name: vault.nickname,
+        address: vault.address,
+        balance: 0,
+        hasAns: false,
+        api: vault.type === "hardware" ? vault.api : undefined,
+        isVault: true
+      }))
+    ];
+
+    setWallets(combined);
+  }, [storedWallets, storedVaults]);
 
   // load ANS data for wallet
   const [loadedAns, setLoadedAns] = useState(false);
@@ -194,15 +212,21 @@ export default function WalletSwitcher({
                         <span>AR</span>
                       </Balance>
                     </WalletData>
-                    <Avatar img={wallet.avatar}>
-                      {!wallet.avatar && <NoAvatarIcon />}
-                      {wallet.api === "keystone" && (
-                        <HardwareWalletIcon
-                          icon={keystoneLogo}
-                          color="#2161FF"
-                        />
-                      )}
-                    </Avatar>
+                    {wallet.isVault ? (
+                      <Avatar>
+                        <SafeIcon />
+                      </Avatar>
+                    ) : (
+                      <Avatar img={wallet.avatar}>
+                        {!wallet.avatar && <NoAvatarIcon />}
+                        {wallet.api === "keystone" && (
+                          <HardwareWalletIcon
+                            icon={keystoneLogo}
+                            color="#2161FF"
+                          />
+                        )}
+                      </Avatar>
+                    )}
                   </Wallet>
                 ))}
               </Wallets>
@@ -217,23 +241,19 @@ export default function WalletSwitcher({
                       })
                     }
                   >
-                    <PlusIcon style={{ marginRight: "5px" }} />
                     {browser.i18n.getMessage("add_wallet")}
                   </AddWalletButton>
-                  <TooltipV2
-                    content={browser.i18n.getMessage("edit")}
-                    position="topEnd"
+                  <AddVaultButton
+                    onClick={() =>
+                      browser.tabs.create({
+                        url: browser.runtime.getURL(
+                          "tabs/dashboard.html#/vaults/new"
+                        )
+                      })
+                    }
                   >
-                    <EditButton
-                      onClick={() =>
-                        browser.tabs.create({
-                          url: browser.runtime.getURL(
-                            `tabs/dashboard.html#/wallets/${activeAddress}`
-                          )
-                        })
-                      }
-                    />
-                  </TooltipV2>
+                    {browser.i18n.getMessage("add_vault")}
+                  </AddVaultButton>
                 </ActionBar>
               )}
             </WalletsCard>
@@ -274,7 +294,7 @@ const SwitcherPopover = styled(motion.div).attrs({
   top: ${(props) => (props.exactTop ? "100%" : "calc(100% - 1.05rem)")};
   left: -5px;
   right: 0;
-  z-index: 110;
+  z-index: 100;
   cursor: default;
 `;
 
@@ -409,8 +429,9 @@ const ActionBar = styled.div`
   background-color: rgb(${(props) => props.theme.cardBackground});
 `;
 
-const AddWalletButton = styled(ButtonV2).attrs({
-  fullWidth: true
+const AddWalletButton = styled(ButtonV2)``;
+const AddVaultButton = styled(ButtonV2).attrs({
+  secondary: true
 })``;
 
 const EditButton = styled(EditIcon)`
@@ -445,4 +466,5 @@ interface DisplayedWallet {
   balance: number;
   avatar?: string;
   hasAns: boolean;
+  isVault?: boolean;
 }

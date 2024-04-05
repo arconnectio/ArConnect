@@ -34,7 +34,14 @@ export interface LocalWallet<KeyfileFormat = string> {
 }
 
 /**
- * KeyfileFormat - string(encrypted) / JWKInterface(decrypted)
+ * KeyfileFormat (Vault) - string(encrypted) / JWKInterface(decrypted)
+ */
+export type StoredVault<KeyfileFormat = string> =
+  | LocalWallet<KeyfileFormat>
+  | HardwareWallet;
+
+/**
+ * KeyfileFormat (Wallet) - string(encrypted) / JWKInterface(decrypted)
  */
 export type StoredWallet<KeyfileFormat = string> =
   | LocalWallet<KeyfileFormat>
