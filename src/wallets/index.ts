@@ -34,7 +34,14 @@ export interface LocalWallet<KeyfileFormat = string> {
 }
 
 /**
- * KeyfileFormat - string(encrypted) / JWKInterface(decrypted)
+ * KeyfileFormat (Vault) - string(encrypted) / JWKInterface(decrypted)
+ */
+export type StoredVault<KeyfileFormat = string> =
+  | LocalWallet<KeyfileFormat>
+  | HardwareWallet;
+
+/**
+ * KeyfileFormat (Wallet) - string(encrypted) / JWKInterface(decrypted)
  */
 export type StoredWallet<KeyfileFormat = string> =
   | LocalWallet<KeyfileFormat>
@@ -57,6 +64,12 @@ export async function getVaults() {
   return wallets || [];
 }
 
+export async function getVault(address: string): Promise<StoredWallet | null> {
+  const wallets = await getVaults();
+  const wallet = wallets.find((w) => w.address === address);
+
+  return wallet ?? null;
+}
 /**
  * Hook that opens a new tab if ArConnect has not been set up yet
  */
