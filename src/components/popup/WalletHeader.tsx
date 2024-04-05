@@ -139,16 +139,11 @@ export default function WalletHeader() {
           : undefined;
 
       let name = wallet?.nickname || vault?.nickname || "Wallet";
-      const displayAddress = wallet?.address || vault?.address;
-      const formattedAddress =
-        displayAddress && formatAddress(displayAddress, 4);
 
-      setAddress(formattedAddress);
-
-      if (/^Account \d+$/.test(name)) {
-        name = address;
-      }
-
+      const address =
+        (wallet?.address && formatAddress(wallet?.address, 4)) ||
+        (vault?.address && formatAddress(vault?.address, 4));
+      setAddress(address);
       setDisplayName(name);
 
       return name;
