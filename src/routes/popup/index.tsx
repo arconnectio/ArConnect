@@ -16,6 +16,8 @@ import styled from "styled-components";
 import { useTokens } from "~tokens";
 import { useAoTokens } from "~tokens/aoTokens/ao";
 import { useBalance } from "~wallets/hooks";
+import type { StoredWallet } from "~wallets";
+import { ButtonV2 } from "@arconnect/components";
 
 export default function Home() {
   // get if the user has no balance
@@ -23,6 +25,14 @@ export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [isOpen, setOpen] = useState(false);
   const [push] = useHistory();
+  const [vaults] = useStorage<StoredWallet[]>(
+    {
+      key: "vaults",
+      instance: ExtensionStorage
+    },
+    []
+  );
+
   const [activeAddress] = useStorage<string>({
     key: "active_address",
     instance: ExtensionStorage
@@ -45,6 +55,10 @@ export default function Home() {
     () => tokens.filter((token) => token.type === "asset"),
     [tokens]
   );
+
+  const isVault = useMemo(() => {
+    return vaults.some((vault) => vault.address === activeAddress);
+  }, [vaults, activeAddress]);
 
   useEffect(() => {
     if (!activeAddress) return;
@@ -119,7 +133,9 @@ export default function Home() {
       <Balance />
       {(!noBalance && (
         <>
-          <Rewards />
+          {/* only display rewards if active wallet is a vault */}
+          {/* <CreateVaultButton fullWidth /> */}
+          <Rewards isVault={isVault} />
           {/* <BuyButton padding={true} route={"/purchase"} logo={true} /> */}
           <Tokens />
           <Collectibles />
