@@ -12,13 +12,23 @@ import { svgie } from "~utils/svgies";
 import { formatAddress } from "~utils/format";
 import { findGateway } from "~gateways/wayfinder";
 import { formatTokenBalance } from "~tokens/currency";
+import { LockIcon } from "@iconicicons/react";
 
 interface Props {
   vaultName: string;
+  vaultAddress: string;
   initial?: boolean;
 }
 
-export default function VaultSettings({ initial = false, vaultName }: Props) {
+export default function VaultSettings({
+  initial = false,
+  vaultName,
+  vaultAddress
+}: Props) {
+  const [activeAddress, setActiveAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
   const [wallets] = useStorage<StoredWallet[]>(
     {
       key: "wallets",
@@ -28,26 +38,35 @@ export default function VaultSettings({ initial = false, vaultName }: Props) {
   );
 
   const [walletItems, setWalletItems] = useState<React.ReactNode[]>([]);
+  const [vaultBalance, setVaultBalance] = useState<number>(0);
 
   useEffect(() => {
     const loadWallets = async () => {
       if (!wallets) return;
 
       const walletPromises = wallets.map(async (wallet) => {
-        const svgieAvatar = svgie(wallet.address, { asDataURI: true });
         const gateway = await findGateway({});
         const arweave = new Arweave(gateway);
         const balance =
           arweave.ar.winstonToAr(
             await arweave.wallets.getBalance(wallet.address)
           ) || 0;
+        const svgieAvatar = svgie(wallet.address, { asDataURI: true });
         return (
           <ListItem
-            // TODO: Add click handler here
             key={wallet.address}
             title={`${wallet.nickname} (${formatAddress(wallet.address, 3)})`}
             description={`${formatTokenBalance(balance)} AR`}
             active={false}
+            onClick={() => {
+              // Switch active accounts
+              setActiveAddress(wallet.address);
+              browser.tabs.create({
+                url: browser.runtime.getURL(
+                  `popup.html?expanded=true#/send/transfer/AR/${vaultAddress}`
+                )
+              });
+            }}
             RightContent={null}
             img={svgieAvatar}
           />
@@ -60,53 +79,85 @@ export default function VaultSettings({ initial = false, vaultName }: Props) {
 
     loadWallets();
   }, [wallets]);
+  //
+  useEffect(() => {
+    // load balance here
+    const loadBalance = async () => {
+      const gateway = await findGateway({});
+      const arweave = new Arweave(gateway);
+      const balance =
+        arweave.ar.winstonToAr(
+          await arweave.wallets.getBalance(vaultAddress)
+        ) || 0;
+      setVaultBalance(Number(balance));
+      try {
+      } catch (err) {}
+    };
+    loadBalance();
+  }, []);
 
   return (
     <Wrapper>
       <Rewards alt />
-      <Text style={{ margin: "0" }}>
-        {browser.i18n.getMessage("vault_onboard_message", [vaultName])}
-      </Text>
-      <WarningWrapper>
-        <AlertCircle />
-        {browser.i18n.getMessage("initial_vault_transfer_note")}
-      </WarningWrapper>
-      <WalletWrapper>{walletItems}</WalletWrapper>
-      <ButtonV2 secondary fullWidth>
-        {browser.i18n.getMessage("other_wallet")}
-      </ButtonV2>
+      {vaultBalance <= 0 ? (
+        <>
+          <Text style={{ margin: "0" }}>
+            {browser.i18n.getMessage("vault_onboard_message", [vaultName])}
+          </Text>
+          <WarningWrapper>
+            <AlertCircle />
+            {browser.i18n.getMessage("initial_vault_transfer_note")}
+          </WarningWrapper>
+          <WalletWrapper>{walletItems}</WalletWrapper>
+          <ButtonV2 secondary fullWidth>
+            {browser.i18n.getMessage("other_wallet")}
+          </ButtonV2>
+        </>
+      ) : (
+        <HasBalance />
+      )}
       <Text style={{ margin: "0" }}>
         {browser.i18n.getMessage("vault_view")}
       </Text>
       <ButtonV2 style={{ marginBottom: "32px" }} fullWidth>
         {browser.i18n.getMessage("vault_home")}
       </ButtonV2>
-      {/* TODO: need to determine how to know if it's intial or not */}
-      {/* {!initial ? (
+      {vaultBalance <= 0 && (
         <WarningWrapper>
           <VaultInfo>
             <h3>{browser.i18n.getMessage("vault_created_successfully")}</h3>
             <p>{browser.i18n.getMessage("vault_description")}</p>
+            {/* TODO: Redirect to blog here */}
             <a href="">{browser.i18n.getMessage("learn_more")}</a>
           </VaultInfo>
         </WarningWrapper>
-        ) : (
-          <DeleteVaultButton fullWidth>Remove Vault</DeleteVaultButton>
-        )} */}
-      <WarningWrapper>
-        <VaultInfo>
-          <h3>{browser.i18n.getMessage("vault_created_successfully")}</h3>
-          <p>{browser.i18n.getMessage("vault_description")}</p>
-          {/* TODO: Redirect to blog here */}
-          <a href="">{browser.i18n.getMessage("learn_more")}</a>
-        </VaultInfo>
-      </WarningWrapper>
-      <DeleteVaultButton fullWidth>
-        {browser.i18n.getMessage("vault_remove")}
-      </DeleteVaultButton>
+      )}
     </Wrapper>
   );
 }
+
+const HasBalance = () => {
+  return (
+    <WarningWrapper>
+      <VaultInfo>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center"
+          }}
+        >
+          <LockIcon />
+          <h3>Vault Locked</h3>
+        </div>
+        <p>You cannot add additional tokens to your vault.</p>
+        <p style={{ paddingBottom: "11px" }}>
+          Create a new vault to add more tokens.
+        </p>
+        <ButtonV2 fullWidth>Create new vault</ButtonV2>
+      </VaultInfo>
+    </WarningWrapper>
+  );
+};
 
 const WalletWrapper = styled.div`
   overflow-y: auto;

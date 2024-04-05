@@ -223,29 +223,29 @@ export default function WalletSettings({
           </IconButton>
         </InputWithBtn>
         <Spacer y={0.45} />
-        {vault && <VaultSettings vaultName={wallet.nickname} />}
+        {vault && (
+          <VaultSettings
+            vaultName={wallet.nickname}
+            vaultAddress={wallet.address}
+          />
+        )}
       </div>
-      {!vault && (
-        <div>
-          <ButtonV2
-            fullWidth
-            onClick={() => exportModal.setOpen(true)}
-            disabled={wallet.type === "hardware"}
-          >
-            <DownloadIcon style={{ marginRight: "5px" }} />
-            {browser.i18n.getMessage("export_keyfile")}
-          </ButtonV2>
-          <Spacer y={1} />
-          <ButtonV2
-            fullWidth
-            secondary
-            onClick={() => removeModal.setOpen(true)}
-          >
-            <TrashIcon style={{ marginRight: "5px" }} />
-            {browser.i18n.getMessage(vault ? "remove_vault" : "remove_wallet")}
-          </ButtonV2>
-        </div>
-      )}
+
+      <div>
+        <ButtonV2
+          fullWidth
+          onClick={() => exportModal.setOpen(true)}
+          disabled={wallet.type === "hardware"}
+        >
+          <DownloadIcon style={{ marginRight: "5px" }} />
+          {browser.i18n.getMessage("export_keyfile")}
+        </ButtonV2>
+        <Spacer y={1} />
+        <ButtonV2 fullWidth secondary onClick={() => removeModal.setOpen(true)}>
+          <TrashIcon style={{ marginRight: "5px" }} />
+          {browser.i18n.getMessage(vault ? "remove_vault" : "remove_wallet")}
+        </ButtonV2>
+      </div>
       <ModalV2
         {...removeModal.bindings}
         root={document.getElementById("__plasmo")}
