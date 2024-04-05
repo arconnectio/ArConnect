@@ -1,6 +1,7 @@
 import {
   ButtonV2,
   InputV2,
+  SelectV2 as Select,
   Spacer,
   Text,
   useInput,
