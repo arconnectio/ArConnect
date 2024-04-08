@@ -13,12 +13,13 @@ import { QRCodeSVG } from "qrcode.react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
-import { useEffect, type MouseEventHandler, useState } from "react";
+import { useEffect, type MouseEventHandler, useState, useMemo } from "react";
+import { AlertTriangle } from "@untitled-ui/icons-react";
 import { PageType, trackPage } from "~utils/analytics";
 import HeadV2 from "~components/popup/HeadV2";
-import { useTheme } from "~utils/theme";
 import { VaultWarning } from "./send/confirm";
-import { AlertTriangle } from "@untitled-ui/icons-react";
+import type { StoredVault } from "~wallets";
+import { useTheme } from "~utils/theme";
 import { useLocation } from "wouter";
 
 export default function Receive() {
@@ -27,6 +28,16 @@ export default function Receive() {
     key: "active_address",
     instance: ExtensionStorage
   });
+
+  // all vaults added
+  const [vaults] = useStorage<StoredVault[]>(
+    {
+      key: "vaults",
+      instance: ExtensionStorage
+    },
+    []
+  );
+
   const [copied, setCopied] = useState(false);
 
   //segment
@@ -37,6 +48,10 @@ export default function Receive() {
   const theme = useTheme();
   const { setToast } = useToasts();
   const [, setLocation] = useLocation();
+
+  const isVault = useMemo(() => {
+    return vaults.some((vault) => vault.address === activeAddress);
+  }, [vaults, activeAddress]);
 
   const copyAddress: MouseEventHandler = (e) => {
     e.stopPropagation();
@@ -59,17 +74,20 @@ export default function Receive() {
       </div>
       <ContentWrapper>
         <Section style={{ paddingBottom: "8px" }}>
-          <VaultWarning receive>
-            <div>
-              <WarningSymbol />
-            </div>
-            <div>
-              {browser.i18n.getMessage("vault_warning_receive")}{" "}
-              <Link onClick={() => setLocation("/vaults/new")}>
-                Create a new vault.
-              </Link>
-            </div>
-          </VaultWarning>
+          {isVault && (
+            <VaultWarning receive>
+              <div>
+                <WarningSymbol />
+              </div>
+              <div>
+                {browser.i18n.getMessage("vault_warning_receive")}{" "}
+                <Link onClick={() => setLocation("/vaults/new")}>
+                  Create a new vault.
+                </Link>
+              </div>
+            </VaultWarning>
+          )}
+
           <QRCodeWrapper displayTheme={theme}>
             <QRCodeSVG
               fgColor="#fff"
@@ -84,7 +102,7 @@ export default function Receive() {
             {formatAddress(activeAddress ?? "", 6)}
             <TooltipV2
               content={browser.i18n.getMessage("copy_address")}
-              position="bottom"
+              position="top"
             >
               <CopyAction as={copied ? CheckIcon : CopyIcon} />
             </TooltipV2>
@@ -109,9 +127,10 @@ const ContentWrapper = styled.div`
   justify-content: center;
 `;
 
-const WarningSymbol = styled(AlertTriangle)`
+export const WarningSymbol = styled(AlertTriangle)`
   width: 1.68rem;
   height: 1.68rem;
+  margin-top: 4px;
 `;
 
 const AddressField = styled(ButtonV2)`
