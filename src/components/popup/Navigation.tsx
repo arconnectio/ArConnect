@@ -1,4 +1,11 @@
-import { type DisplayTheme, useModal, ModalV2 } from "@arconnect/components";
+import {
+  type DisplayTheme,
+  useModal,
+  ModalV2,
+  ButtonV2,
+  Spacer,
+  Text
+} from "@arconnect/components";
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -9,6 +16,7 @@ import { ExtensionStorage } from "~utils/storage";
 import { useHistory } from "~utils/hash_router";
 import { useState, useEffect } from "react";
 import { getActiveAddress } from "~wallets";
+import browser from "webextension-polyfill";
 import { useTheme } from "~utils/theme";
 import styled from "styled-components";
 import { useLocation } from "wouter";
@@ -47,8 +55,10 @@ export const NavigationBar = () => {
   const [location] = useLocation();
   const [isVault, setIsVault] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
+  const [pendingRoute, setPendingRoute] = useState(null);
 
   const activeAddress = getActiveAddress();
+  const warningModal = useModal();
 
   const shouldShowNavigationBar = buttons.some((button) => {
     if (button.title === "Send") {
@@ -73,10 +83,20 @@ export const NavigationBar = () => {
   }, [activeAddress]);
 
   const handleRoute = async (route: string) => {
-    if (isVault || isVault === true) {
-      setShowWarning(true);
+    if ((route === "/send/transfer" || route === "/receive") && isVault) {
+      setPendingRoute(route);
+      warningModal.setOpen(true);
+    } else {
+      push(route);
     }
-    push(route);
+  };
+
+  const confirmRouteChange = () => {
+    if (pendingRoute) {
+      push(pendingRoute);
+      setPendingRoute(null);
+    }
+    warningModal.setOpen(false);
   };
 
   return (
@@ -105,9 +125,43 @@ export const NavigationBar = () => {
           </>
         </NavigationBarWrapper>
       )}
+      {warningModal.isOpen && (
+        <ModalV2
+          {...warningModal.bindings}
+          root={document.getElementById("__plasmo")}
+          actions={
+            <>
+              <ButtonV2 secondary onClick={() => warningModal.setOpen(false)}>
+                {browser.i18n.getMessage("no")}
+              </ButtonV2>
+              <ButtonV2>{browser.i18n.getMessage("yes")}</ButtonV2>
+            </>
+          }
+        >
+          <CenterText heading>Warning</CenterText>
+          <Spacer y={0.55} />
+          <CenterText noMargin>
+            Transferring AR out of your vault will lead to disqualification from
+            rewards.
+            <br />
+            Do you wish to continue?
+          </CenterText>
+          <Spacer y={1} />
+        </ModalV2>
+      )}
     </>
   );
 };
+
+const CenterText = styled(Text)`
+  text-align: center;
+  max-width: 22vw;
+  margin: 0 auto;
+
+  @media screen and (max-width: 720px) {
+    max-width: 90vw;
+  }
+`;
 
 const NavigationBarWrapper = styled.div<{ displayTheme: DisplayTheme }>`
   z-index: 5;

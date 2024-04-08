@@ -17,6 +17,9 @@ import { useEffect, type MouseEventHandler, useState } from "react";
 import { PageType, trackPage } from "~utils/analytics";
 import HeadV2 from "~components/popup/HeadV2";
 import { useTheme } from "~utils/theme";
+import { VaultWarning } from "./send/confirm";
+import { AlertTriangle } from "@untitled-ui/icons-react";
+import { useLocation } from "wouter";
 
 export default function Receive() {
   // active address
@@ -33,6 +36,7 @@ export default function Receive() {
 
   const theme = useTheme();
   const { setToast } = useToasts();
+  const [, setLocation] = useLocation();
 
   const copyAddress: MouseEventHandler = (e) => {
     e.stopPropagation();
@@ -55,6 +59,17 @@ export default function Receive() {
       </div>
       <ContentWrapper>
         <Section style={{ paddingBottom: "8px" }}>
+          <VaultWarning receive>
+            <div>
+              <WarningSymbol />
+            </div>
+            <div>
+              {browser.i18n.getMessage("vault_warning_receive")}{" "}
+              <Link onClick={() => setLocation("/vaults/new")}>
+                Create a new vault.
+              </Link>
+            </div>
+          </VaultWarning>
           <QRCodeWrapper displayTheme={theme}>
             <QRCodeSVG
               fgColor="#fff"
@@ -94,11 +109,21 @@ const ContentWrapper = styled.div`
   justify-content: center;
 `;
 
+const WarningSymbol = styled(AlertTriangle)`
+  width: 1.68rem;
+  height: 1.68rem;
+`;
+
 const AddressField = styled(ButtonV2)`
   display: flex;
   align-items: center;
   gap: 5px;
   font-weight: 500;
+`;
+
+const Link = styled.a`
+  color: ${(props) => props.theme.primary};
+  cursor: pointer;
 `;
 
 const CopyAction = styled(CopyIcon)`
