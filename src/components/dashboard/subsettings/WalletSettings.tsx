@@ -25,6 +25,8 @@ import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { formatAddress } from "~utils/format";
 import VaultSettings from "./VaultSettings";
+import { RemoveContact } from "./ContactSettings";
+import { useTheme } from "~utils/theme";
 
 export default function WalletSettings({
   address,
@@ -46,6 +48,7 @@ export default function WalletSettings({
     [wallets, address]
   );
 
+  const theme = useTheme();
   // toasts
   const { setToast } = useToasts();
 
@@ -222,7 +225,6 @@ export default function WalletSettings({
             Save
           </IconButton>
         </InputWithBtn>
-        <Spacer y={0.45} />
         {vault && (
           <VaultSettings
             vaultName={wallet.nickname}
@@ -241,10 +243,15 @@ export default function WalletSettings({
           {browser.i18n.getMessage("export_keyfile")}
         </ButtonV2>
         <Spacer y={1} />
-        <ButtonV2 fullWidth secondary onClick={() => removeModal.setOpen(true)}>
+        <RemoveContact
+          displayTheme={theme}
+          fullWidth
+          secondary
+          onClick={() => removeModal.setOpen(true)}
+        >
           <TrashIcon style={{ marginRight: "5px" }} />
           {browser.i18n.getMessage(vault ? "remove_vault" : "remove_wallet")}
-        </ButtonV2>
+        </RemoveContact>
       </div>
       <ModalV2
         {...removeModal.bindings}
@@ -319,6 +326,8 @@ export default function WalletSettings({
     </Wrapper>
   );
 }
+
+const RemoveButton = styled(ButtonV2)``;
 
 const CenterText = styled(Text)`
   text-align: center;

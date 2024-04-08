@@ -268,11 +268,12 @@ export default function AddWallet({ vault = false }: AddWalletProps) {
           disabled={generating && isAddGeneratedWallet}
         >
           <PlusIcon />
-          {browser.i18n.getMessage("add_wallet")}
+          {browser.i18n.getMessage(vault ? "add_vault" : "add_wallet")}
         </ButtonV2>
         <Spacer y={1.3} />
         <Or>{browser.i18n.getMessage("or").toUpperCase()}</Or>
         <Spacer y={1.3} />
+        {/* TODO: Disable keystone for vault? */}
         <KeystoneButton />
         <Spacer y={1} />
         <ButtonV2

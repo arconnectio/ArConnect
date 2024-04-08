@@ -101,12 +101,23 @@ export default function VaultSettings({
       <Rewards alt />
       {vaultBalance <= 0 ? (
         <>
-          <Text style={{ margin: "0" }}>
+          <Title style={{ margin: "0" }}>
             {browser.i18n.getMessage("vault_onboard_message", [vaultName])}
-          </Text>
+          </Title>
           <WarningWrapper>
-            <AlertCircle />
-            {browser.i18n.getMessage("initial_vault_transfer_note")}
+            <VaultInfo>
+              <span
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px"
+                }}
+              >
+                <AlertCircle />
+                {browser.i18n.getMessage("initial_vault_transfer_note")}
+              </span>
+            </VaultInfo>
           </WarningWrapper>
           <WalletWrapper>{walletItems}</WalletWrapper>
           <ButtonV2 secondary fullWidth>
@@ -116,9 +127,9 @@ export default function VaultSettings({
       ) : (
         <HasBalance />
       )}
-      <Text style={{ margin: "0" }}>
+      <Title style={{ paddingTop: "14px" }}>
         {browser.i18n.getMessage("vault_view")}
-      </Text>
+      </Title>
       <ButtonV2 style={{ marginBottom: "32px" }} fullWidth>
         {browser.i18n.getMessage("vault_home")}
       </ButtonV2>
@@ -147,17 +158,31 @@ const HasBalance = () => {
           }}
         >
           <LockIcon />
-          <h3>Vault Locked</h3>
+          <h3>{browser.i18n.getMessage("vault_locked")}</h3>
         </div>
-        <p>You cannot add additional tokens to your vault.</p>
+        <p>{browser.i18n.getMessage("vault_locked_description")}</p>
         <p style={{ paddingBottom: "11px" }}>
-          Create a new vault to add more tokens.
+          {browser.i18n.getMessage("create_new_vault_description")}
         </p>
-        <ButtonV2 fullWidth>Create new vault</ButtonV2>
+        <ButtonV2
+          fullWidth
+          onClick={() =>
+            (window.location.href = browser.runtime.getURL(
+              "tabs/dashboard.html#/vaults/new"
+            ))
+          }
+        >
+          {browser.i18n.getMessage("create_new_vault")}
+        </ButtonV2>
       </VaultInfo>
     </WarningWrapper>
   );
 };
+
+const Title = styled(Text)`
+  margin: 0;
+  color: ${(props) => props.theme.primaryTextv2};
+`;
 
 const WalletWrapper = styled.div`
   overflow-y: auto;
@@ -206,7 +231,7 @@ const VaultInfo = styled.div`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 14px 0;
-  gap: 14px;
+  padding: 18px 0;
+  gap: 18px;
   justify-content: space-between;
 `;
