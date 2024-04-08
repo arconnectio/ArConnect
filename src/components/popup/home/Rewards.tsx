@@ -1,4 +1,5 @@
-import { Section, TooltipV2, type DisplayTheme } from "@arconnect/components";
+import { TooltipV2, ButtonV2 } from "@arconnect/components";
+import browser from "webextension-polyfill";
 import { useBalance } from "~wallets/hooks";
 import styled from "styled-components";
 import { InfoCircle } from "@untitled-ui/icons-react";
@@ -18,47 +19,61 @@ import AO from "url:/assets/ecosystem/ao.svg";
 interface RewardProps {
   //temporary solution for margins
   alt?: boolean;
+  isVault?: boolean;
 }
 
-export default function Rewards({ alt = false }: RewardProps) {
+export default function Rewards({ alt = false, isVault = false }: RewardProps) {
   return (
-    <Wrapper alt={alt}>
-      <RewardsCard>
-        <TopRowInfo>
-          <RewardsTitle>
-            Rewards
-            <TooltipV2 content={InfoText} position={"right"}>
-              <InfoIcon />
-            </TooltipV2>
-          </RewardsTitle>
-          <Rate>1 ao/day</Rate>
-        </TopRowInfo>
-        <DetailWrapper>
-          <BalanceText>
-            2.00
-            <img
-              src={AO}
-              alt="ao logo"
-              style={{
-                width: "2rem",
-                height: "1rem",
-                paddingTop: "0.44rem",
-                paddingLeft: "0.17rem"
-              }}
-            />
-          </BalanceText>
-          <DetailContainer>
-            <RewardDetail style={{ paddingBottom: "20px" }}>
-              <div>
-                Status: <Status status="Active">Active</Status>
-              </div>
-              <div>
-                Streak: <Status status="Inactive">2 days</Status>
-              </div>
-            </RewardDetail>
-          </DetailContainer>
-        </DetailWrapper>
-      </RewardsCard>
+    <Wrapper alt={alt} button={isVault}>
+      {isVault || alt ? (
+        <RewardsCard>
+          <TopRowInfo>
+            <RewardsTitle>
+              Rewards
+              <TooltipV2 content={InfoText} position={"right"}>
+                <InfoIcon />
+              </TooltipV2>
+            </RewardsTitle>
+            <Rate>1 ao/day</Rate>
+          </TopRowInfo>
+          <DetailWrapper>
+            <BalanceText>
+              2.00
+              <img
+                src={AO}
+                alt="ao logo"
+                style={{
+                  width: "2rem",
+                  height: "1rem",
+                  paddingTop: "0.44rem",
+                  paddingLeft: "0.17rem"
+                }}
+              />
+            </BalanceText>
+            <DetailContainer>
+              <RewardDetail style={{ paddingBottom: "20px" }}>
+                <div>
+                  Status: <Status status="Active">Active</Status>
+                </div>
+                <div>
+                  Streak: <Status status="Inactive">2 days</Status>
+                </div>
+              </RewardDetail>
+            </DetailContainer>
+          </DetailWrapper>
+        </RewardsCard>
+      ) : (
+        <CreateVaultButton
+          fullWidth
+          onClick={() =>
+            browser.tabs.create({
+              url: browser.runtime.getURL("tabs/dashboard.html#/vaults/new")
+            })
+          }
+        >
+          Create Vault
+        </CreateVaultButton>
+      )}
     </Wrapper>
   );
 }
@@ -71,6 +86,14 @@ export default function Rewards({ alt = false }: RewardProps) {
 interface Props {
   status: "Active" | "Inactive";
 }
+
+const CreateVaultButton = styled(ButtonV2)`
+  background: linear-gradient(
+    to top right,
+    rgba(254, 121, 185, 0.62),
+    rgba(173, 0, 255, 0.62)
+  );
+`;
 
 const Status = styled.span<Props>`
   color: ${(props) =>
@@ -181,9 +204,9 @@ const RewardsCard = styled.div`
   border-radius: 10px;
 `;
 
-const Wrapper = styled.div<{ alt: boolean }>`
+const Wrapper = styled.div<{ alt: boolean; button: boolean }>`
   position: relative;
-  height: 100px;
+  height: ${(props) => props.button && "100px"};
   margin: ${(props) => (props.alt ? "0" : "0.5rem 12px 0px 12px")};
   z-index: 10;
 `;
