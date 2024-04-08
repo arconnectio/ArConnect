@@ -1807,5 +1807,13 @@
   "vault_warning_receive": {
     "message": "Receiving additional AR will not increase this vault's rewards.",
     "description": "vault receive warning"
+  },
+  "transfering_ar_vault": {
+    "message": "Transfering AR into or from your vault will end rewards.",
+    "description": "vault send and receive message"
+  },
+  "continue_question": {
+    "message": "Do you wish to continue?",
+    "description": "ask whether to continue"
   }
 }
