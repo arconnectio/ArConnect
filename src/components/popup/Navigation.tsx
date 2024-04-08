@@ -7,6 +7,7 @@ import {
   Text
 } from "@arconnect/components";
 import {
+  AlertTriangle,
   ArrowDownLeft,
   ArrowUpRight,
   Compass03,
@@ -143,13 +144,20 @@ export const NavigationBar = () => {
             </>
           }
         >
-          <CenterText heading>Warning</CenterText>
-          <Spacer y={0.55} />
-          <CenterText noMargin>
-            {browser.i18n.getMessage("transfering_ar_vault")}
-            <br />
-            {browser.i18n.getMessage("continue_question")}
-          </CenterText>
+          <div style={{ marginTop: "-4px" }}>
+            <TitleText heading>
+              <AlertTriangle
+                style={{ width: "1.125rem", height: "1.125rem" }}
+              />
+              {browser.i18n.getMessage("warning")}
+            </TitleText>
+            <CenterText noMargin>
+              {browser.i18n.getMessage("transfering_ar_vault")}
+            </CenterText>
+            <CenterText noMargin>
+              {browser.i18n.getMessage("continue_question")}
+            </CenterText>
+          </div>
           <Spacer y={1} />
         </ModalV2>
       )}
@@ -157,10 +165,22 @@ export const NavigationBar = () => {
   );
 };
 
+const TitleText = styled(Text)`
+  font-size: 1.125rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+`;
+
 const CenterText = styled(Text)`
   text-align: center;
   max-width: 22vw;
   margin: 0 auto;
+  color: #fff;
+  font-size: 0.875rem;
 
   @media screen and (max-width: 720px) {
     max-width: 90vw;

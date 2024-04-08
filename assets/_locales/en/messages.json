@@ -1815,5 +1815,9 @@
   "continue_question": {
     "message": "Do you wish to continue?",
     "description": "ask whether to continue"
+  },
+  "warning": {
+    "message": "Warning",
+    "description": "warning statement"
   }
 }
