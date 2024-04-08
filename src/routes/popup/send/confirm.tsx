@@ -25,7 +25,12 @@ import { useHistory } from "~utils/hash_router";
 import { fallbackGateway, type Gateway } from "~gateways/gateway";
 import AnimatedQRScanner from "~components/hardware/AnimatedQRScanner";
 import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
-import { getActiveKeyfile, getActiveWallet, type StoredWallet } from "~wallets";
+import {
+  getActiveKeyfile,
+  getActiveWallet,
+  type StoredVault,
+  type StoredWallet
+} from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
 import { isUToken, sendRequest } from "~utils/send";
@@ -47,6 +52,7 @@ import { UR } from "@ngraveio/bc-ur";
 import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
 import { useScanner } from "@arconnect/keystone-sdk";
 import Progress from "~components/Progress";
+import { WarningSymbol } from "../receive";
 import { Token as TokenInstance } from "ao-tokens";
 
 interface Props {
@@ -158,6 +164,19 @@ export default function Confirm({ tokenID, qty }: Props) {
     },
     []
   );
+
+  // all vaults added
+  const [vaults] = useStorage<StoredVault[]>(
+    {
+      key: "vaults",
+      instance: ExtensionStorage
+    },
+    []
+  );
+
+  const isVault = useMemo(() => {
+    return vaults.some((vault) => vault.address === activeAddress);
+  }, [vaults, activeAddress]);
 
   const walletName = useMemo(() => {
     if (wallets && activeAddress) {
@@ -613,10 +632,14 @@ export default function Confirm({ tokenID, qty }: Props) {
       <HeadV2 title={"Confirm Transaction"} />
       <ConfirmWrapper>
         <BodyWrapper>
-          <VaultWarning>
-            <AlertTriangle style={{ width: "1.68rem", height: "1.68rem" }} />
-            {browser.i18n.getMessage("vault_warning_send")}
-          </VaultWarning>
+          {isVault && (
+            <VaultWarning>
+              <div>
+                <WarningSymbol />
+              </div>
+              {browser.i18n.getMessage("vault_warning_send")}
+            </VaultWarning>
+          )}
           <AddressWrapper>
             <Address>
               {walletName}{" "}

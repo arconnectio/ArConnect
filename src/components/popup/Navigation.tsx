@@ -14,12 +14,13 @@ import {
 } from "@untitled-ui/icons-react";
 import { ExtensionStorage } from "~utils/storage";
 import { useHistory } from "~utils/hash_router";
-import { useState, useEffect } from "react";
-import { getActiveAddress } from "~wallets";
+import { useState, useEffect, useMemo } from "react";
+import { getActiveAddress, type StoredVault } from "~wallets";
 import browser from "webextension-polyfill";
 import { useTheme } from "~utils/theme";
 import styled from "styled-components";
 import { useLocation } from "wouter";
+import { useStorage } from "@plasmohq/storage/hook";
 
 const buttons = [
   {
@@ -53,12 +54,28 @@ export const NavigationBar = () => {
   const theme = useTheme();
   const [push] = useHistory();
   const [location] = useLocation();
-  const [isVault, setIsVault] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const [pendingRoute, setPendingRoute] = useState(null);
-
-  const activeAddress = getActiveAddress();
   const warningModal = useModal();
+
+  // active address
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
+
+  // all vaults added
+  const [vaults] = useStorage<StoredVault[]>(
+    {
+      key: "vaults",
+      instance: ExtensionStorage
+    },
+    []
+  );
+
+  const isVault = useMemo(() => {
+    return vaults.some((vault) => vault.address === activeAddress);
+  }, [vaults, activeAddress]);
 
   const shouldShowNavigationBar = buttons.some((button) => {
     if (button.title === "Send") {
@@ -67,20 +84,6 @@ export const NavigationBar = () => {
       return location === button.route;
     }
   });
-
-  useEffect(() => {
-    (async () => {
-      const vaultStorage = await ExtensionStorage.get("vaults");
-      if (vaultStorage) {
-        const vaults = JSON.parse(vaultStorage);
-        const activeVault = vaults.find(
-          (vault) => vault.address === activeAddress
-        );
-        setIsVault(!!activeVault);
-        console.log("active vault:", activeVault);
-      }
-    })();
-  }, [activeAddress]);
 
   const handleRoute = async (route: string) => {
     if ((route === "/send/transfer" || route === "/receive") && isVault) {
@@ -134,15 +137,16 @@ export const NavigationBar = () => {
               <ButtonV2 secondary onClick={() => warningModal.setOpen(false)}>
                 {browser.i18n.getMessage("no")}
               </ButtonV2>
-              <ButtonV2>{browser.i18n.getMessage("yes")}</ButtonV2>
+              <ButtonV2 onClick={() => confirmRouteChange()}>
+                {browser.i18n.getMessage("yes")}
+              </ButtonV2>
             </>
           }
         >
           <CenterText heading>Warning</CenterText>
           <Spacer y={0.55} />
           <CenterText noMargin>
-            Transferring AR out of your vault will lead to disqualification from
-            rewards.
+            Transfering AR into or from your vault will end rewards.
             <br />
             Do you wish to continue?
           </CenterText>
