@@ -146,9 +146,9 @@ export const NavigationBar = () => {
           <CenterText heading>Warning</CenterText>
           <Spacer y={0.55} />
           <CenterText noMargin>
-            Transfering AR into or from your vault will end rewards.
+            {browser.i18n.getMessage("transfering_ar_vault")}
             <br />
-            Do you wish to continue?
+            {browser.i18n.getMessage("continue_question")}
           </CenterText>
           <Spacer y={1} />
         </ModalV2>
