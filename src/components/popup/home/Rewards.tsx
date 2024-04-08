@@ -67,7 +67,7 @@ export default function Rewards({ alt = false, isVault = false }: RewardProps) {
           fullWidth
           onClick={() =>
             browser.tabs.create({
-              url: browser.runtime.getURL("tabs/dashboard.html#/vaults")
+              url: browser.runtime.getURL("tabs/dashboard.html#/vaults/new")
             })
           }
         >
