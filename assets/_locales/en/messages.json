@@ -37,6 +37,22 @@
     "message": "Add vault",
     "description": "Add a vault text"
   },
+  "vault_locked": {
+    "message": "Vault Locked",
+    "description": "Vault locked text"
+  },
+  "vault_locked_description": {
+    "message": "You cannot add additional tokens to your vault.",
+    "description": "Vault locked description"
+  },
+  "create_new_vault": {
+    "message": "Create new vault",
+    "description": "Create a new vault text"
+  },
+  "create_new_vault_description": {
+    "message": "Create a new vault to add more tokens.",
+    "description": "Create a new vault subheading"
+  },
   "analytics_description" : {
     "message" : "We now use analytics.",
     "description" : "Opting into Analytics text"
