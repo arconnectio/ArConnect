@@ -81,7 +81,13 @@ export default function Receive() {
               </div>
               <div>
                 {browser.i18n.getMessage("vault_warning_receive")}{" "}
-                <Link onClick={() => setLocation("/vaults/new")}>
+                <Link
+                  onClick={() => {
+                    browser.tabs.create({
+                      url: browser.runtime.getURL("tabs/dashboard.html#/vaults")
+                    });
+                  }}
+                >
                   Create a new vault.
                 </Link>
               </div>
