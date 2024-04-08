@@ -17,7 +17,6 @@ import { useTokens } from "~tokens";
 import { useAoTokens } from "~tokens/aoTokens/ao";
 import { useBalance } from "~wallets/hooks";
 import type { StoredWallet } from "~wallets";
-import { ButtonV2 } from "@arconnect/components";
 
 export default function Home() {
   // get if the user has no balance
@@ -133,8 +132,6 @@ export default function Home() {
       <Balance />
       {(!noBalance && (
         <>
-          {/* only display rewards if active wallet is a vault */}
-          {/* <CreateVaultButton fullWidth /> */}
           <Rewards isVault={isVault} />
           {/* <BuyButton padding={true} route={"/purchase"} logo={true} /> */}
           <Tokens />
