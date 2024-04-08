@@ -38,6 +38,7 @@ import {
   generateProfileIcon,
   ProfilePicture
 } from "~components/Recipient";
+import { AlertTriangle } from "@untitled-ui/icons-react";
 import { fractionedToBalance } from "~tokens/currency";
 import { type Token } from "~tokens/token";
 import { useContact } from "~contacts/hooks";
@@ -599,6 +600,10 @@ export default function Confirm({ tokenID, qty }: Props) {
       <HeadV2 title={"Confirm Transaction"} />
       <ConfirmWrapper>
         <BodyWrapper>
+          <VaultWarning>
+            <AlertTriangle style={{ width: "1.68rem", height: "1.68rem" }} />
+            {browser.i18n.getMessage("vault_warning_send")}
+          </VaultWarning>
           <AddressWrapper>
             <Address>
               {walletName}{" "}
@@ -716,6 +721,22 @@ export default function Confirm({ tokenID, qty }: Props) {
     </Wrapper>
   );
 }
+
+export const VaultWarning = styled.div<{ receive?: boolean }>`
+  padding: 0.75rem;
+  border: 1.5px solid ${(props) => props.theme.fail};
+  border-radius: 10px;
+  margin-bottom: 11px;
+  margin-top: ${(props) => (props.receive ? "-15px" : "0px")};
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  background-color: ${(props) => props.theme.backgroundSecondary};
+  font-size: 0.75rem;
+  line-height: 1rem;
+`;
 
 const PasswordWrapper = styled.div`
   display: flex;
