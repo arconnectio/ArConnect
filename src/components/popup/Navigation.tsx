@@ -1,15 +1,27 @@
-import type { DisplayTheme } from "@arconnect/components";
 import {
+  type DisplayTheme,
+  useModal,
+  ModalV2,
+  ButtonV2,
+  Spacer,
+  Text
+} from "@arconnect/components";
+import {
+  AlertTriangle,
   ArrowDownLeft,
   ArrowUpRight,
   Compass03,
-  Home01,
   Home02
 } from "@untitled-ui/icons-react";
+import { ExtensionStorage } from "~utils/storage";
+import { useHistory } from "~utils/hash_router";
+import { useState, useEffect, useMemo } from "react";
+import { getActiveAddress, type StoredVault } from "~wallets";
+import browser from "webextension-polyfill";
+import { useTheme } from "~utils/theme";
 import styled from "styled-components";
 import { useLocation } from "wouter";
-import { useHistory } from "~utils/hash_router";
-import { useTheme } from "~utils/theme";
+import { useStorage } from "@plasmohq/storage/hook";
 
 const buttons = [
   {
@@ -43,6 +55,29 @@ export const NavigationBar = () => {
   const theme = useTheme();
   const [push] = useHistory();
   const [location] = useLocation();
+  const [showWarning, setShowWarning] = useState(false);
+  const [pendingRoute, setPendingRoute] = useState(null);
+  const warningModal = useModal();
+
+  // active address
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
+
+  // all vaults added
+  const [vaults] = useStorage<StoredVault[]>(
+    {
+      key: "vaults",
+      instance: ExtensionStorage
+    },
+    []
+  );
+
+  const isVault = useMemo(() => {
+    return vaults.some((vault) => vault.address === activeAddress);
+  }, [vaults, activeAddress]);
+
   const shouldShowNavigationBar = buttons.some((button) => {
     if (button.title === "Send") {
       return location.startsWith(button.route);
@@ -50,6 +85,23 @@ export const NavigationBar = () => {
       return location === button.route;
     }
   });
+
+  const handleRoute = async (route: string) => {
+    if ((route === "/send/transfer" || route === "/receive") && isVault) {
+      setPendingRoute(route);
+      warningModal.setOpen(true);
+    } else {
+      push(route);
+    }
+  };
+
+  const confirmRouteChange = () => {
+    if (pendingRoute) {
+      push(pendingRoute);
+      setPendingRoute(null);
+    }
+    warningModal.setOpen(false);
+  };
 
   return (
     <>
@@ -64,7 +116,7 @@ export const NavigationBar = () => {
                     displayTheme={theme}
                     active={active}
                     key={index}
-                    onClick={() => push(button.route)}
+                    onClick={() => handleRoute(button.route)}
                   >
                     <IconWrapper displayTheme={theme} size={button.size}>
                       {button.icon}
@@ -77,9 +129,63 @@ export const NavigationBar = () => {
           </>
         </NavigationBarWrapper>
       )}
+      {warningModal.isOpen && (
+        <ModalV2
+          {...warningModal.bindings}
+          root={document.getElementById("__plasmo")}
+          actions={
+            <>
+              <ButtonV2 secondary onClick={() => warningModal.setOpen(false)}>
+                {browser.i18n.getMessage("no")}
+              </ButtonV2>
+              <ButtonV2 onClick={() => confirmRouteChange()}>
+                {browser.i18n.getMessage("yes")}
+              </ButtonV2>
+            </>
+          }
+        >
+          <div style={{ marginTop: "-4px" }}>
+            <TitleText heading>
+              <AlertTriangle
+                style={{ width: "1.125rem", height: "1.125rem" }}
+              />
+              {browser.i18n.getMessage("warning")}
+            </TitleText>
+            <CenterText noMargin>
+              {browser.i18n.getMessage("transfering_ar_vault")}
+            </CenterText>
+            <CenterText noMargin>
+              {browser.i18n.getMessage("continue_question")}
+            </CenterText>
+          </div>
+          <Spacer y={1} />
+        </ModalV2>
+      )}
     </>
   );
 };
+
+const TitleText = styled(Text)`
+  font-size: 1.125rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+`;
+
+const CenterText = styled(Text)`
+  text-align: center;
+  max-width: 22vw;
+  margin: 0 auto;
+  color: #fff;
+  font-size: 0.875rem;
+
+  @media screen and (max-width: 720px) {
+    max-width: 90vw;
+  }
+`;
 
 const NavigationBarWrapper = styled.div<{ displayTheme: DisplayTheme }>`
   z-index: 5;

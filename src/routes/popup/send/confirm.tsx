@@ -26,7 +26,12 @@ import { useHistory } from "~utils/hash_router";
 import { fallbackGateway, type Gateway } from "~gateways/gateway";
 import AnimatedQRScanner from "~components/hardware/AnimatedQRScanner";
 import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
-import { getActiveKeyfile, getActiveWallet, type StoredWallet } from "~wallets";
+import {
+  getActiveKeyfile,
+  getActiveWallet,
+  type StoredVault,
+  type StoredWallet
+} from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
 import { isUToken, sendRequest } from "~utils/send";
@@ -38,6 +43,7 @@ import {
   generateProfileIcon,
   ProfilePicture
 } from "~components/Recipient";
+import { AlertTriangle } from "@untitled-ui/icons-react";
 import { fractionedToBalance } from "~tokens/currency";
 import { type Token } from "~tokens/token";
 import { useContact } from "~contacts/hooks";
@@ -47,6 +53,7 @@ import { UR } from "@ngraveio/bc-ur";
 import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
 import { useScanner } from "@arconnect/keystone-sdk";
 import Progress from "~components/Progress";
+import { WarningSymbol } from "../receive";
 
 interface Props {
   tokenID: string;
@@ -147,6 +154,19 @@ export default function Confirm({ tokenID, qty }: Props) {
     },
     []
   );
+
+  // all vaults added
+  const [vaults] = useStorage<StoredVault[]>(
+    {
+      key: "vaults",
+      instance: ExtensionStorage
+    },
+    []
+  );
+
+  const isVault = useMemo(() => {
+    return vaults.some((vault) => vault.address === activeAddress);
+  }, [vaults, activeAddress]);
 
   const walletName = useMemo(() => {
     if (wallets && activeAddress) {
@@ -599,6 +619,14 @@ export default function Confirm({ tokenID, qty }: Props) {
       <HeadV2 title={"Confirm Transaction"} />
       <ConfirmWrapper>
         <BodyWrapper>
+          {isVault && (
+            <VaultWarning>
+              <div>
+                <WarningSymbol />
+              </div>
+              {browser.i18n.getMessage("vault_warning_send")}
+            </VaultWarning>
+          )}
           <AddressWrapper>
             <Address>
               {walletName}{" "}
@@ -716,6 +744,22 @@ export default function Confirm({ tokenID, qty }: Props) {
     </Wrapper>
   );
 }
+
+export const VaultWarning = styled.div<{ receive?: boolean }>`
+  padding: 0.75rem;
+  border: 1.5px solid ${(props) => props.theme.fail};
+  border-radius: 10px;
+  margin-bottom: 11px;
+  margin-top: ${(props) => (props.receive ? "-15px" : "0px")};
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  background-color: ${(props) => props.theme.backgroundSecondary};
+  font-size: 0.75rem;
+  line-height: 1rem;
+`;
 
 const PasswordWrapper = styled.div`
   display: flex;
