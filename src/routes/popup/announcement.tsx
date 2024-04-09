@@ -7,10 +7,8 @@ import {
 } from "@arconnect/components";
 import vaultGraphic from "url:/assets/ecosystem/vault-graphic.svg";
 import { ExtensionStorage } from "~utils/storage";
-import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import { useStorage } from "@plasmohq/storage/hook";
 
 export const AnnouncementPopup = ({ isOpen, setOpen }) => {
   // const handleCheckbox = async () => {
