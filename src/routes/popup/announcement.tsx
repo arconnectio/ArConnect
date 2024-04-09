@@ -13,23 +13,9 @@ import styled from "styled-components";
 import { useStorage } from "@plasmohq/storage/hook";
 
 export const AnnouncementPopup = ({ isOpen, setOpen }) => {
-  const [notifications, setNotifications] = useStorage<boolean>({
-    key: "setting_notifications",
-    instance: ExtensionStorage
-  });
-
-  const [checked, setChecked] = useState(!!notifications);
-
-  useEffect(() => {
-    if (notifications !== undefined) {
-      setChecked(notifications);
-    }
-  }, [notifications]);
-
-  const handleCheckbox = async () => {
-    setChecked((prev) => !prev);
-    setNotifications((prev) => !prev);
-  };
+  // const handleCheckbox = async () => {
+  //   setChecked((prev) => !prev);
+  // };
 
   return (
     <ModalV2
@@ -94,7 +80,9 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
             fullWidth
             onClick={() => {
               setOpen(false);
-              setNotifications(checked);
+              browser.tabs.create({
+                url: browser.runtime.getURL("tabs/dashboard.html#/vaults/new")
+              });
               ExtensionStorage.set("show_announcement", false);
             }}
             style={{ marginTop: "1.5rem", fontWeight: "400" }}
@@ -106,7 +94,9 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
             secondary
             onClick={() => {
               setOpen(false);
-              setNotifications(checked);
+              browser.tabs.create({
+                url: "https://www.arconnect.io/"
+              });
               ExtensionStorage.set("show_announcement", false);
             }}
             style={{ fontWeight: "400" }}
