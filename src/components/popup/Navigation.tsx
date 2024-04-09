@@ -144,7 +144,13 @@ export const NavigationBar = () => {
             </>
           }
         >
-          <div style={{ marginTop: "-4px" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "16px"
+            }}
+          >
             <TitleText heading>
               <AlertTriangle
                 style={{ width: "1.125rem", height: "1.125rem" }}
@@ -172,7 +178,7 @@ const TitleText = styled(Text)`
   align-items: center;
   gap: 0.25rem;
   font-weight: 500;
-  margin-bottom: 4px;
+  margin-bottom: 0;
 `;
 
 const CenterText = styled(Text)`
@@ -181,6 +187,7 @@ const CenterText = styled(Text)`
   margin: 0 auto;
   color: #fff;
   font-size: 0.875rem;
+  line-height: normal;
 
   @media screen and (max-width: 720px) {
     max-width: 90vw;

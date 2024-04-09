@@ -278,6 +278,7 @@ export default function AddWallet({ vault = false }: AddWalletProps) {
         <Spacer y={1} />
         <ButtonV2
           fullWidth
+          loading={generating && isAddGeneratedWallet}
           secondary
           onClick={() => {
             if (!generating && isAddGeneratedWallet) return;
