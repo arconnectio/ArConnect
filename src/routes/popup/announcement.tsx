@@ -5,7 +5,7 @@ import {
   Text,
   type DisplayTheme
 } from "@arconnect/components";
-import notificationGraphic from "url:/assets/ecosystem/notifications-promo.svg";
+import vaultGraphic from "url:/assets/ecosystem/vault-graphic.svg";
 import { ExtensionStorage } from "~utils/storage";
 import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
@@ -42,20 +42,18 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
         <Content>
           <div>
             <img
-              src={notificationGraphic}
-              alt="notification graphic"
-              style={{ width: "100px", height: "auto" }}
+              src={vaultGraphic}
+              alt="vault graphic"
+              style={{ width: "75px", height: "auto", marginBottom: "1rem" }}
             />
             <HeaderText noMargin heading>
-              {browser.i18n.getMessage("introducing_notifications")}
+              Earn rewards by holding your AR Tokens!
             </HeaderText>
             <Spacer y={1} />
-            <CenterText>
-              {browser.i18n.getMessage("enable_notifications_paragraph")}
-            </CenterText>
+            <CenterText>Vaults in ArConnect are now available.</CenterText>
             <Spacer y={1} />
           </div>
-          <CheckContainer>
+          {/* <CheckContainer>
             {checked ? (
               <CheckedSvg
                 onClick={handleCheckbox}
@@ -89,23 +87,43 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
               </UncheckedSvg>
             )}
             {browser.i18n.getMessage("enable_notifications_title")}
-          </CheckContainer>
+          </CheckContainer> */}
         </Content>
-        <ButtonV2
-          fullWidth
-          onClick={() => {
-            setOpen(false);
-            setNotifications(checked);
-            ExtensionStorage.set("show_announcement", false);
-          }}
-          style={{ marginTop: "43px", fontWeight: "400" }}
-        >
-          {browser.i18n.getMessage("got_it")}
-        </ButtonV2>
+        <ButtonWrapper>
+          <ButtonV2
+            fullWidth
+            onClick={() => {
+              setOpen(false);
+              setNotifications(checked);
+              ExtensionStorage.set("show_announcement", false);
+            }}
+            style={{ marginTop: "1.5rem", fontWeight: "400" }}
+          >
+            Create a vault
+          </ButtonV2>
+          <ButtonV2
+            fullWidth
+            secondary
+            onClick={() => {
+              setOpen(false);
+              setNotifications(checked);
+              ExtensionStorage.set("show_announcement", false);
+            }}
+            style={{ fontWeight: "400" }}
+          >
+            Learn more
+          </ButtonV2>
+        </ButtonWrapper>
       </ContentWrapper>
     </ModalV2>
   );
 };
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
 
 const Content = styled.div`
   display: flex;
@@ -121,8 +139,6 @@ const ContentWrapper = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  align-items: space-between;
 `;
 
 const CenterText = styled(Text).attrs({
@@ -185,4 +201,5 @@ const HeaderText = styled(Text)<{ displayTheme?: DisplayTheme }>`
   font-weight: 500;
   color: ${(props) =>
     props.theme.displayTheme === "light" ? "#191919" : "#FFFFFF"};
+  margin-bottom: 0.75rem;
 `;
