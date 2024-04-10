@@ -2,18 +2,15 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useEffect, useMemo, useState } from "react";
 import Collectibles from "~components/popup/home/Collectibles";
-import AnalyticsConsent from "~components/popup/home/AnalyticsConsent";
 import WalletHeader from "~components/popup/WalletHeader";
 import NoBalance from "~components/popup/home/NoBalance";
 import Balance from "~components/popup/home/Balance";
-import BuyButton from "~components/popup/home/BuyButton";
+// import BuyButton from "~components/popup/home/BuyButton";
 import Tokens from "~components/popup/home/Tokens";
 import { AnnouncementPopup } from "./announcement";
-import Arweave from "arweave";
 import { getDecryptionKey, isExpired } from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
 import { trackEvent, EventType, trackPage, PageType } from "~utils/analytics";
-import { findGateway } from "~gateways/wayfinder";
 import styled from "styled-components";
 import { useTokens } from "~tokens";
 import { useAoTokens } from "~tokens/aoTokens/ao";
@@ -116,7 +113,7 @@ export default function Home() {
 
   return (
     <HomeWrapper>
-      {loggedIn && <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />}
+      {/* {loggedIn && <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />} */}
       <WalletHeader />
       <Balance />
       {(!noBalance && (

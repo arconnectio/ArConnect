@@ -10,7 +10,7 @@ import {
 } from "~components/auth/CustomGatewayWarning";
 import { useState } from "react";
 import {
-  Button,
+  ButtonV2,
   Modal,
   Spacer,
   Text,
@@ -84,10 +84,15 @@ export default function KeystoneButton({ onSuccess }: Props) {
 
   return (
     <>
-      <Button fullWidth secondary onClick={() => connectModal.setOpen(true)}>
+      <ButtonV2
+        fullWidth
+        secondary
+        onClick={() => connectModal.setOpen(true)}
+        style={{ gap: "5px" }}
+      >
         <KeystoneIcon />
         {browser.i18n.getMessage("keystone_connect_title")}
-      </Button>
+      </ButtonV2>
       <QRModal
         {...connectModal.bindings}
         root={document.getElementById("__plasmo")}
@@ -166,7 +171,7 @@ const FeatureAlert = styled(Alert)`
   }
 `;
 
-const CancelButton = styled(Button).attrs({
+const CancelButton = styled(ButtonV2).attrs({
   secondary: true,
   fullWidth: true
 })`

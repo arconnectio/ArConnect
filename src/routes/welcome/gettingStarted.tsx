@@ -1,6 +1,6 @@
 import { AnimatePresence, type Variants, motion } from "framer-motion";
 import { useCallback, useState } from "react";
-import { Button, Card } from "@arconnect/components";
+import { ButtonV2, Card } from "@arconnect/components";
 import { CheckIcon } from "@iconicicons/react";
 import browser from "webextension-polyfill";
 
@@ -71,9 +71,9 @@ export default function GettingStarted({ page }) {
               />
             ))}
           </PageIndicatorContainer>
-          <Button fullWidth onClick={() => navigate(page + 1)}>
-            {browser.i18n.getMessage(page + 1 < 5 ? "next" : "done")}
-          </Button>
+          <ButtonV2 fullWidth onClick={() => navigate(page + 1)}>
+            {browser.i18n.getMessage(page + 1 < 4 ? "next" : "done")}
+          </ButtonV2>
         </Footer>
       </SetupCard>
     </Wrapper>

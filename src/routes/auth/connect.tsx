@@ -1,19 +1,16 @@
 import {
-  Button,
+  ButtonV2,
   Card,
   Checkbox,
-  Input,
+  InputV2,
+  LabelV2,
   Section,
   Spacer,
   Text,
   useInput,
   useToasts
 } from "@arconnect/components";
-import {
-  getMissingPermissions,
-  permissionData,
-  type PermissionType
-} from "~applications/permissions";
+import { permissionData, type PermissionType } from "~applications/permissions";
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { CloseLayer } from "~components/popup/WalletHeader";
 import type { AppInfo } from "~applications/application";
@@ -194,7 +191,7 @@ export default function Connect() {
             {page === "unlock" && (
               <UnlockWrapper>
                 <Section>
-                  <Label>{browser.i18n.getMessage("wallet")}</Label>
+                  <LabelV2>{browser.i18n.getMessage("wallet")}</LabelV2>
                   <Spacer y={0.4} />
                   <WalletSelectWrapper>
                     <WalletSelect
@@ -218,7 +215,7 @@ export default function Connect() {
                     />
                   </WalletSelectWrapper>
                   <Spacer y={1} />
-                  <Input
+                  <InputV2
                     type="password"
                     placeholder={browser.i18n.getMessage("enter_your_password")}
                     label={browser.i18n.getMessage("password")}
@@ -273,7 +270,7 @@ export default function Connect() {
         </ContentWrapper>
       </div>
       <Section>
-        <Button
+        <ButtonV2
           fullWidth
           onClick={async () => {
             if (page === "unlock") {
@@ -284,11 +281,11 @@ export default function Connect() {
           }}
         >
           {browser.i18n.getMessage(page === "unlock" ? "sign_in" : "connect")}
-        </Button>
+        </ButtonV2>
         <Spacer y={0.75} />
-        <Button fullWidth secondary onClick={cancel}>
+        <ButtonV2 fullWidth secondary onClick={cancel}>
           {browser.i18n.getMessage("cancel")}
-        </Button>
+        </ButtonV2>
       </Section>
     </Wrapper>
   );
@@ -299,10 +296,10 @@ const WalletSelectWrapper = styled.div`
 `;
 
 const SelectIcon = styled(ChevronDownIcon)`
-  font-size: 1.25rem;
-  width: 1em;
-  height: 1em;
-  color: rgb(${(props) => props.theme.theme});
+  font-size: 1rem;
+  width: 1.375rem;
+  height: 1.375 rem;
+  color: ${(props) => props.theme.primaryTextv2};
   transition: all 0.23s ease-in-out;
 `;
 
@@ -313,25 +310,34 @@ const WalletSelect = styled(Card)<{ open: boolean }>`
   justify-content: space-between;
   cursor: pointer;
   background-color: transparent;
-  padding: 0.75rem 1.25rem;
-  border-radius: 18px;
+  padding: 0.844rem 0.9375rem;
+  border: 1.5px solid ${(props) => props.theme.inputField};
+  border-radius: 10px;
   transition: all 0.23s ease-in-out;
-
-  ${(props) =>
-    props.open
-      ? `border-color: rgba(${props.theme.theme}, .5); box-shadow: 0 0 0 1px rgba(${props.theme.theme}, .5);`
-      : ""}
 
   ${SelectIcon} {
     transform: ${(props) => (props.open ? "rotate(180deg)" : "rotate(0)")};
   }
+
+  &:focus-within,
+  &: hover {
+    ${(props) => "border: 1.5px solid " + props.theme.primaryTextv2};
+  }
+
+  &:active {
+    border-color: ${(props) => props.theme.inputField};
+    color: rgb(${(props) => props.theme.theme});
+  }
 `;
 
 const Address = styled(Text).attrs({
-  noMargin: true
+  noMargin: true,
+  title: false
 })`
-  font-size: 1.2rem;
-  color: rgb(${(props) => props.theme.theme});
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 500;
+  color: ${(props) => props.theme.primaryTextv2};
 `;
 
 const ContentWrapper = styled.div`

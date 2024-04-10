@@ -15,6 +15,7 @@ import Unlock from "~routes/auth/unlock";
 import Token from "~routes/auth/token";
 import Sign from "~routes/auth/sign";
 import Subscription from "~routes/auth/subscription";
+import SignMessage from "~routes/auth/signMessage";
 
 export default function Auth() {
   const theme = useTheme();
@@ -34,6 +35,7 @@ export default function Auth() {
             <Route path="/unlock" component={Unlock} />
             <Route path="/token" component={Token} />
             <Route path="/sign" component={Sign} />
+            <Route path="/signMessage" component={SignMessage} />
             <Route path="/signature" component={Signature} />
             <Route path="/subscription" component={Subscription} />
           </Router>

@@ -1,9 +1,11 @@
 import styled, { css, keyframes } from "styled-components";
-import { Button } from "@arconnect/components";
+import { ButtonV2 } from "@arconnect/components";
 
-export const IconButton = styled(Button)`
+export const IconButton = styled(ButtonV2)`
   padding: 1.2rem;
   transition: all 0.23s ease-in-out;
+  height: 52px;
+  width: 100px;
 `;
 
 export const RefreshButton = styled(IconButton)<{ refreshing: boolean }>`

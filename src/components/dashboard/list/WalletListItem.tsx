@@ -6,8 +6,8 @@ import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
 import HardwareWalletIcon from "~components/hardware/HardwareWalletIcon";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
-import BaseElement, { SettingIcon } from "./BaseElement";
 import { svgie } from "~utils/svgies";
+import { ListItem, ListItemIcon } from "@arconnect/components";
 
 export default function WalletListItem({
   wallet,
@@ -36,7 +36,7 @@ export default function WalletListItem({
       dragListener={false}
       dragControls={dragControls}
     >
-      <BaseElement
+      <ListItem
         title={name}
         description={formattedAddress}
         active={active}
@@ -44,11 +44,11 @@ export default function WalletListItem({
         dragControls={dragControls}
         {...props}
       >
-        {!avatar && !svgieAvatar && <SettingIcon as={WalletIcon} />}
+        {!avatar && !svgieAvatar && <ListItemIcon as={WalletIcon} />}
         {wallet.type === "hardware" && wallet.api === "keystone" && (
           <HardwareIcon icon={keystoneLogo} color="#2161FF" />
         )}
-      </BaseElement>
+      </ListItem>
     </Reorder.Item>
   );
 }

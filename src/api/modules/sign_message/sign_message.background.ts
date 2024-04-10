@@ -4,11 +4,12 @@ import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 import {
   isArrayBuffer,
-  isLocalWallet,
   isNotCancelError,
   isNumberArray,
   isSignMessageOptions
 } from "~utils/assertions";
+import { signAuthMessage } from "../sign/sign_auth";
+import Arweave from "arweave";
 
 const background: ModuleFunction<number[]> = async (
   _,
@@ -39,32 +40,36 @@ const background: ModuleFunction<number[]> = async (
 
   // ensure that the currently selected
   // wallet is not a local wallet
-  isLocalWallet(activeWallet);
+  if (activeWallet.type === "local") {
+    // get signing key using the jwk
+    const cryptoKey = await crypto.subtle.importKey(
+      "jwk",
+      activeWallet.keyfile,
+      {
+        name: "RSA-PSS",
+        hash: options.hashAlgorithm
+      },
+      false,
+      ["sign"]
+    );
 
-  // get signing key using the jwk
-  const cryptoKey = await crypto.subtle.importKey(
-    "jwk",
-    activeWallet.keyfile,
-    {
-      name: "RSA-PSS",
-      hash: options.hashAlgorithm
-    },
-    false,
-    ["sign"]
-  );
+    // hashing 2 times ensures that the app is not draining the user's wallet
+    // credits to Arweave.app
+    const signature = await crypto.subtle.sign(
+      { name: "RSA-PSS", saltLength: 32 },
+      cryptoKey,
+      hash
+    );
 
-  // hashing 2 times ensures that the app is not draining the user's wallet
-  // credits to Arweave.app
-  const signature = await crypto.subtle.sign(
-    { name: "RSA-PSS", saltLength: 32 },
-    cryptoKey,
-    hash
-  );
+    // remove wallet from memory
+    freeDecryptedWallet(activeWallet.keyfile);
 
-  // remove wallet from memory
-  freeDecryptedWallet(activeWallet.keyfile);
-
-  return Array.from(new Uint8Array(signature));
+    return Array.from(new Uint8Array(signature));
+  } else {
+    const res = await signAuthMessage(dataToSign);
+    const sig = Arweave.utils.b64UrlToBuffer(res.data.signature);
+    return Array.from(sig);
+  }
 };
 
 export default background;

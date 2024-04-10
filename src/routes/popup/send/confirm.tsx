@@ -1,5 +1,5 @@
 import {
-  Input,
+  InputV2,
   Spacer,
   Text,
   useInput,
@@ -16,7 +16,6 @@ import { useStorage } from "@plasmohq/storage/hook";
 import {
   ExtensionStorage,
   TempTransactionStorage,
-  TRANSFER_TX_STORAGE,
   type RawStoredTransfer
 } from "~utils/storage";
 import { useEffect, useMemo, useState } from "react";
@@ -24,11 +23,7 @@ import { useTokens } from "~tokens";
 import { findGateway } from "~gateways/wayfinder";
 import Arweave from "arweave";
 import { useHistory } from "~utils/hash_router";
-import {
-  defaultGateway,
-  fallbackGateway,
-  type Gateway
-} from "~gateways/gateway";
+import { fallbackGateway, type Gateway } from "~gateways/gateway";
 import AnimatedQRScanner from "~components/hardware/AnimatedQRScanner";
 import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
 import { getActiveKeyfile, getActiveWallet, type StoredWallet } from "~wallets";
@@ -41,7 +36,6 @@ import type { JWKInterface } from "arbundles";
 import {
   AutoContactPic,
   generateProfileIcon,
-  type Contact,
   ProfilePicture
 } from "~components/Recipient";
 import { fractionedToBalance } from "~tokens/currency";
@@ -98,7 +92,6 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
 
   const ao = useAo();
 
-  const tokens = useTokens();
   const [activeAddress] = useStorage<string>({
     key: "active_address",
     instance: ExtensionStorage
@@ -702,14 +695,13 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
               <Description>
                 {browser.i18n.getMessage("sign_enter_password")}
               </Description>
-              <Input
+              <InputV2
                 placeholder="Enter your password"
                 small
                 {...passwordInput.bindings}
                 label={"Password"}
                 type="password"
                 fullWidth
-                alternative
               />
             </PasswordWrapper>
           )}

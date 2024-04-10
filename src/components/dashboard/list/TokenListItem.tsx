@@ -2,19 +2,19 @@ import { DREContract, DRENode, NODES } from "@arconnect/warp-dre";
 import { loadTokenLogo, type Token } from "~tokens/token";
 import { Reorder, useDragControls } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
+import { ListItem } from "@arconnect/components";
 import { formatAddress } from "~utils/format";
 import { getDreForToken } from "~tokens";
 import { useTheme } from "~utils/theme";
 import { useLocation } from "wouter";
 import * as viewblock from "~lib/viewblock";
-import BaseElement from "./BaseElement";
 import styled from "styled-components";
 import { useGateway } from "~gateways/wayfinder";
 import { concatGatewayURL } from "~gateways/utils";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { getUserAvatar } from "~lib/avatar";
 
-export default function TokenListItem({ token, active, ao }: Props) {
+export default function TokenListItem({ token, active, ao, onClick }: Props) {
   // format address
   const formattedAddress = useMemo(
     () => formatAddress(token.id, 8),
@@ -59,47 +59,42 @@ export default function TokenListItem({ token, active, ao }: Props) {
         setImage(viewblock.getTokenLogo(token.id));
       }
     })();
-  }, [token, theme, gateway]);
+  }, [token, theme, gateway, ao]);
 
   // router
   const [, setLocation] = useLocation();
 
-  return ao ? (
-    <BaseElement
-      ao={true}
-      title={`${token.name} (${token.ticker})`}
-      description={
-        <div style={{ display: "flex", gap: "8px" }}>
-          {formattedAddress}
-          <Image src={aoLogo} alt="ao logo" />
-        </div>
-      }
-      active={active}
-    >
-      <TokenLogo src={image} />
-    </BaseElement>
-  ) : (
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      setLocation(`/tokens/${token.id}`);
+    }
+  };
+
+  return (
     <Reorder.Item
       as="div"
       value={token}
       id={token.id}
       dragListener={false}
       dragControls={dragControls}
-      onClick={() => setLocation(`/tokens/${token.id}`)}
+      onClick={handleClick}
     >
-      <BaseElement
+      <ListItem
         title={`${token.name} (${token.ticker})`}
         description={
-          <>
+          <DescriptionWrapper>
             {formattedAddress}
-            <TokenType>{token.type}</TokenType>
-          </>
+            {ao && <Image src={aoLogo} alt="ao logo" />}
+            {!ao && <TokenType>{token.type}</TokenType>}
+          </DescriptionWrapper>
         }
         active={active}
-        dragControls={dragControls}
+        dragControls={!ao ? dragControls : null}
       >
         <TokenLogo src={image} />
-      </BaseElement>
+      </ListItem>
     </Reorder.Item>
   );
 }
@@ -109,6 +104,11 @@ const Image = styled.img`
   padding: 0 8px;
   border: 1px solid rgb(${(props) => props.theme.cardBorder});
   border-radius: 2px;
+`;
+
+const DescriptionWrapper = styled.div`
+  display: flex;
+  gap: 8px;
 `;
 
 const TokenLogo = styled.img.attrs({
@@ -140,4 +140,5 @@ interface Props {
   token: Token;
   ao?: boolean;
   active: boolean;
+  onClick?: () => void;
 }

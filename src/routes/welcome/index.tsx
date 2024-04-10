@@ -1,5 +1,5 @@
 import { ExtensionStorage, OLD_STORAGE_NAME } from "~utils/storage";
-import { Button, Spacer, Text } from "@arconnect/components";
+import { ButtonV2, Spacer, Text } from "@arconnect/components";
 import { ArrowRightIcon, KeyIcon } from "@iconicicons/react";
 import Screenshots from "~components/welcome/Screenshots";
 import { AnimatePresence, motion } from "framer-motion";
@@ -86,7 +86,7 @@ export default function Home() {
               }}
             >
               {browser.i18n.getMessage("get_me_started")}
-              <ArrowRightIcon />
+              <ArrowRightIcon style={{ marginLeft: "5px" }} />
             </WelcomeButton>
             <WelcomeButton
               secondary
@@ -97,7 +97,7 @@ export default function Home() {
               }}
             >
               {browser.i18n.getMessage("have_wallet")}
-              <KeyIcon />
+              <KeyIcon style={{ marginLeft: "5px" }} />
             </WelcomeButton>
             <AnimatePresence>
               {migrationAvailable && (
@@ -212,7 +212,7 @@ const ButtonsWrapper = styled.div`
   gap: 0.75rem;
 `;
 
-const WelcomeButton = styled(Button)`
+const WelcomeButton = styled(ButtonV2)`
   padding-left: 0;
   padding-right: 0;
   width: calc(100% - 0.75rem * 1);

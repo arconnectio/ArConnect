@@ -1,20 +1,15 @@
 import {
-  Button,
-  Input,
-  Modal,
+  ButtonV2,
+  InputV2,
+  ModalV2,
   Spacer,
   Text,
-  Tooltip,
+  TooltipV2,
   useInput,
   useModal,
   useToasts
 } from "@arconnect/components";
-import {
-  CheckIcon,
-  CopyIcon,
-  DownloadIcon,
-  TrashIcon
-} from "@iconicicons/react";
+import { CopyIcon, DownloadIcon, TrashIcon } from "@iconicicons/react";
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { removeWallet, type StoredWallet } from "~wallets";
 import { useEffect, useMemo, useState } from "react";
@@ -171,7 +166,7 @@ export default function WalletSettings({ address }: Props) {
         <WalletName>
           {ansLabel || wallet.nickname}
           {wallet.type === "hardware" && (
-            <Tooltip
+            <TooltipV2
               content={
                 wallet.api.slice(0, 1).toUpperCase() + wallet.api.slice(1)
               }
@@ -180,12 +175,15 @@ export default function WalletSettings({ address }: Props) {
               <HardwareWalletIcon
                 src={wallet.api === "keystone" ? keystoneLogo : undefined}
               />
-            </Tooltip>
+            </TooltipV2>
           )}
         </WalletName>
         <WalletAddress>
           {wallet.address}
-          <Tooltip content={browser.i18n.getMessage("copy_address")}>
+          <TooltipV2
+            content={browser.i18n.getMessage("copy_address")}
+            position="bottom"
+          >
             <CopyButton
               onClick={() => {
                 copy(wallet.address);
@@ -199,7 +197,7 @@ export default function WalletSettings({ address }: Props) {
                 });
               }}
             />
-          </Tooltip>
+          </TooltipV2>
         </WalletAddress>
         <Title>{browser.i18n.getMessage("edit_wallet_name")}</Title>
         {!!ansLabel && (
@@ -207,7 +205,7 @@ export default function WalletSettings({ address }: Props) {
         )}
         <InputWithBtn>
           <InputWrapper>
-            <Input
+            <InputV2
               {...walletNameInput.bindings}
               type="text"
               placeholder={browser.i18n.getMessage("edit_wallet_name")}
@@ -216,89 +214,95 @@ export default function WalletSettings({ address }: Props) {
             />
           </InputWrapper>
           <IconButton secondary onClick={updateNickname} disabled={!!ansLabel}>
-            <CheckIcon />
+            Save
           </IconButton>
         </InputWithBtn>
       </div>
       <div>
-        <Button
+        <ButtonV2
           fullWidth
-          small
           onClick={() => exportModal.setOpen(true)}
           disabled={wallet.type === "hardware"}
         >
-          <DownloadIcon />
+          <DownloadIcon style={{ marginRight: "5px" }} />
           {browser.i18n.getMessage("export_keyfile")}
-        </Button>
+        </ButtonV2>
         <Spacer y={1} />
-        <Button
-          fullWidth
-          secondary
-          small
-          onClick={() => removeModal.setOpen(true)}
-        >
-          <TrashIcon />
+        <ButtonV2 fullWidth secondary onClick={() => removeModal.setOpen(true)}>
+          <TrashIcon style={{ marginRight: "5px" }} />
           {browser.i18n.getMessage("remove_wallet")}
-        </Button>
+        </ButtonV2>
       </div>
-      <Modal
+      <ModalV2
         {...removeModal.bindings}
         root={document.getElementById("__plasmo")}
+        actions={
+          <>
+            <ButtonV2
+              fullWidth
+              secondary
+              onClick={() => removeModal.setOpen(false)}
+            >
+              {browser.i18n.getMessage("cancel")}
+            </ButtonV2>
+            <ButtonV2
+              fullWidth
+              onClick={async () => {
+                try {
+                  await removeWallet(address);
+                  setToast({
+                    type: "success",
+                    content: browser.i18n.getMessage(
+                      "removed_wallet_notification"
+                    ),
+                    duration: 2000
+                  });
+                } catch (e) {
+                  console.log("Error removing wallet", e);
+                  setToast({
+                    type: "error",
+                    content: browser.i18n.getMessage(
+                      "remove_wallet_error_notification"
+                    ),
+                    duration: 2000
+                  });
+                }
+              }}
+            >
+              {browser.i18n.getMessage("confirm")}
+            </ButtonV2>
+          </>
+        }
       >
-        <CenterText heading>
+        <CenterText heading noMargin>
           {browser.i18n.getMessage("remove_wallet_modal_title")}
         </CenterText>
-        <CenterText>
+        <Spacer y={0.55} />
+        <CenterText noMargin>
           {browser.i18n.getMessage("remove_wallet_modal_content")}
         </CenterText>
-        <Spacer y={1.75} />
-        <Button
-          fullWidth
-          onClick={async () => {
-            try {
-              await removeWallet(address);
-              setToast({
-                type: "success",
-                content: browser.i18n.getMessage("removed_wallet_notification"),
-                duration: 2000
-              });
-            } catch (e) {
-              console.log("Error removing wallet", e);
-              setToast({
-                type: "error",
-                content: browser.i18n.getMessage(
-                  "remove_wallet_error_notification"
-                ),
-                duration: 2000
-              });
-            }
-          }}
-        >
-          {browser.i18n.getMessage("confirm")}
-        </Button>
         <Spacer y={0.75} />
-        <Button fullWidth secondary onClick={() => removeModal.setOpen(false)}>
-          {browser.i18n.getMessage("cancel")}
-        </Button>
-      </Modal>
-      <Modal
+      </ModalV2>
+      <ModalV2
         {...exportModal.bindings}
         root={document.getElementById("__plasmo")}
+        actions={
+          <ButtonV2 fullWidth onClick={exportWallet}>
+            {browser.i18n.getMessage("export")}
+          </ButtonV2>
+        }
       >
         <CenterText heading>
           {browser.i18n.getMessage("export_wallet_modal_title")}
         </CenterText>
-        <Input
+        <InputV2
           type="password"
           placeholder={browser.i18n.getMessage("password")}
           {...passwordInput.bindings}
           fullWidth
         />
-        <Spacer y={1.75} />
-        <Button fullWidth onClick={exportWallet}>
-          {browser.i18n.getMessage("export")}
-        </Button>
-      </Modal>
+        <Spacer y={1} />
+      </ModalV2>
     </Wrapper>
   );
 }
@@ -339,7 +343,7 @@ const WalletAddress = styled(Text)`
   gap: 0.37rem;
 `;
 
-const CopyButton = styled(CopyIcon)`
+export const CopyButton = styled(CopyIcon)`
   font-size: 1em;
   width: 1em;
   height: 1em;
@@ -364,6 +368,12 @@ const Title = styled(Text).attrs({
 
 const Warning = styled(Text)`
   color: rgb(255, 0, 0, 0.6);
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
 `;
 
 interface Props {
