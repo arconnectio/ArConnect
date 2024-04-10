@@ -22,6 +22,7 @@ import { defaultGateway } from "~gateways/gateway";
 import { useGateway } from "~gateways/wayfinder";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { getUserAvatar } from "~lib/avatar";
+import { abbreviateNumber } from "~utils/format";
 
 export default function Token({ onClick, ...props }: Props) {
   // display theme
@@ -38,17 +39,18 @@ export default function Token({ onClick, ...props }: Props) {
     [props]
   );
 
-  const balance = useMemo(
-    () => formatTokenBalance(fractBalance),
-    [fractBalance]
-  );
+  const balance = useMemo(() => {
+    const formattedBalance = formatTokenBalance(fractBalance);
+    const numBalance = parseFloat(formattedBalance.replace(/,/g, ""));
+    return abbreviateNumber(numBalance);
+  }, [fractBalance]);
 
   // token price
   const { price, currency } = usePrice(props.ticker);
 
   // fiat balance
   const fiatBalance = useMemo(() => {
-    if (!price) return "--";
+    if (!price) return <div />;
 
     const estimate = fractBalance * price;
 
@@ -70,6 +72,10 @@ export default function Token({ onClick, ...props }: Props) {
       }
     })();
   }, [props, theme, logo]);
+
+  useEffect(() => {
+    console.log("balance:", balance);
+  }, [balance]);
 
   return (
     <Wrapper onClick={onClick}>
