@@ -32,8 +32,11 @@ import {
   isNotNull,
   isExactly
 } from "typed-assert";
-import { Gateway } from "~gateways/gateway";
-import type { SubscriptionData } from "~subscriptions/subscription";
+import type { Gateway } from "~gateways/gateway";
+import {
+  RecurringPaymentFrequency,
+  type SubscriptionData
+} from "~subscriptions/subscription";
 
 export function isGateway(input: unknown): asserts input is Gateway {
   isRecordWithKeys(
@@ -52,64 +55,47 @@ export function isGateway(input: unknown): asserts input is Gateway {
 
 export function isSubscriptionType(
   input: unknown
-): asserts input is SubscriptionData[] {
-  isArray(input, "Input should be an array");
+): asserts input is SubscriptionData {
+  isInstanceOf(input, Object, "Input should be an object.");
 
-  for (const item of input) {
-    isInstanceOf(item, Object, "Each item in the array should be an object.");
+  const {
+    arweaveAccountAddress,
+    applicationName,
+    subscriptionName,
+    subscriptionFeeAmount,
+    recurringPaymentFrequency,
+    subscriptionEndDate,
+    applicationIcon
+  } = input as SubscriptionData;
 
-    const {
-      arweaveAccountAddress,
-      applicationName,
-      subscriptionName,
-      subscriptionFeeAmount,
-      subscriptionStatus,
-      recurringPaymentFrequency,
-      nextPaymentDue,
-      subscriptionStartDate,
-      subscriptionEndDate,
-      applicationIcon
-    } = item as SubscriptionData;
+  isString(arweaveAccountAddress, "arweaveAccountAddress should be a string.");
+  isString(applicationName, "applicationName should be a string.");
+  isString(subscriptionName, "subscriptionName should be a string.");
+  isNumber(subscriptionFeeAmount, "subscriptionFeeAmount should be a number.");
+  isOneOf(
+    recurringPaymentFrequency,
+    Object.values(RecurringPaymentFrequency),
+    "Invalid recurringPaymentFrequency."
+  );
 
-    isString(
-      arweaveAccountAddress,
-      "arweaveAccountAddress should be a string."
-    );
-    isString(applicationName, "applicationName should be a string.");
-    isString(subscriptionName, "subscriptionName should be a string.");
-    isNumber(
-      subscriptionFeeAmount,
-      "subscriptionFeeAmount should be a number."
-    );
-    isOneOf(
-      subscriptionStatus,
-      Object.values(subscriptionStatus),
-      "Invalid subscriptionStatus."
-    );
-    isOneOf(
-      recurringPaymentFrequency,
-      Object.values(recurringPaymentFrequency),
-      "Invalid recurringPaymentFrequency."
-    );
-    isOneOf(
-      nextPaymentDue,
-      Object.values(nextPaymentDue),
-      "Invalid nextPaymentDue."
-    );
-    isOneOf(
-      subscriptionStartDate,
-      Object.values(subscriptionStartDate),
-      "Invalid subscriptionStartDate."
-    );
-    isOneOf(
-      subscriptionEndDate,
-      Object.values(subscriptionEndDate),
-      "Invalid subscriptionEndDate"
-    );
+  validateDate(subscriptionEndDate, "Invalid subscriptionEndDate date.");
 
-    if (applicationIcon !== undefined) {
-      isString(applicationIcon, "applicationIcon should be a string.");
-    }
+  if (applicationIcon !== undefined) {
+    isString(applicationIcon, "applicationIcon should be a string.");
+  }
+}
+
+function validateDate(date: string | Date, errorMessage: string): void {
+  let dateString: string;
+
+  if (date instanceof Date) {
+    dateString = date.toISOString();
+  } else {
+    dateString = date;
+  }
+
+  if (!dateString || isNaN(Date.parse(dateString))) {
+    throw new Error(errorMessage);
   }
 }
 

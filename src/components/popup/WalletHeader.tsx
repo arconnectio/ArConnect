@@ -438,6 +438,13 @@ export default function WalletHeader() {
                 window.location.href.split("#")[0] + "?expanded=true"
               );
             }
+          },
+          {
+            icon: <CreditCard01 style={{ width: "18px", height: "17px" }} />,
+            title: "Subscriptions",
+            route: () => {
+              push("/subscriptions");
+            }
           }
         ]}
       />

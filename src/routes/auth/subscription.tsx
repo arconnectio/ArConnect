@@ -77,12 +77,10 @@ export default function Subscription() {
           subscriptionParams.recurringPaymentFrequency as RecurringPaymentFrequency,
 
         // TODO: this should be default set to now, and let `handleSubPayment` update to the following period
-        nextPaymentDue: new Date(subscriptionParams.nextPaymentDue),
+        nextPaymentDue: new Date(),
 
         // TODO:  this should be default started to now
-        subscriptionStartDate: new Date(
-          subscriptionParams.subscriptionStartDate
-        ),
+        subscriptionStartDate: new Date(),
         subscriptionEndDate: new Date(subscriptionParams.subscriptionEndDate),
         applicationIcon: subscriptionParams.applicationIcon
       };
