@@ -15,14 +15,14 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@arconnect/components@^0.3.6":
-  version "0.3.6"
-  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.3.6.tgz#19ac4c35386f212fbb8729146d073cafe0ecad51"
-  integrity sha512-3xLPkApb5wc8pXSv9v/W9J2NtukO9dXtF6p6IdKrR/0m4ozeY5CFbBjE/eylPGsCaBLUaKdJZ7k7fj94AdxZww==
+"@arconnect/components@^0.3.7":
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.3.7.tgz#1f4b077885304e3e438e0fe2dd1d51ba88cec212"
+  integrity sha512-vNrWcmk+MoAeRVfSRagq1txL5sRcx863Zlm+Li7sxwgwkw6xqCRvGl8pso+KVcEObBHcNdZQ6E44pE680ttGSQ==
   dependencies:
     "@iconicicons/react" "^1.5.1"
     axios "^1.6.7"
-    framer-motion "^10.5.0"
+    framer-motion "^7.5.3"
     nanoid "^4.0.1"
     uuid "^9.0.1"
 
@@ -6570,15 +6570,6 @@ formidable@^1.2.2:
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/formidable/-/formidable-1.2.6.tgz#d2a51d60162bbc9b4a055d8457a7c75315d1a168"
   integrity sha512-KcpbcpuLNOwrEjnbpMC0gS+X8ciDoZE1kkqzat4a8vrprf+s9pKNQ/QIwWfbfs4ltgmFl3MD177SNTkve3BwGQ==
-
-framer-motion@^10.5.0:
-  version "10.18.0"
-  resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-10.18.0.tgz#1f4fc51403996ea7170af885bd44a7079d255950"
-  integrity sha512-oGlDh1Q1XqYPksuTD/usb0I70hq95OUzmL9+6Zd+Hs4XV0oaISBa/UUMSjYiq6m8EUF32132mOJ8xVZS+I0S6w==
-  dependencies:
-    tslib "^2.4.0"
-  optionalDependencies:
-    "@emotion/is-prop-valid" "^0.8.2"
 
 framer-motion@^7.5.3:
   version "7.5.3"
