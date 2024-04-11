@@ -21,7 +21,7 @@ const background: ModuleFunction<void> = async (
   // validate input
   isAddress(subscriptionData.arweaveAccountAddress);
 
-  if (type) isSubscriptionType(type);
+  isSubscriptionType(subscriptionData);
   const address = await getActiveAddress();
   // check if subsciption exists
   const subscriptions = await getSubscriptionData(address);

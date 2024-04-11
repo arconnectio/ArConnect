@@ -9,9 +9,7 @@ const foreground: ModuleFunction<SubscriptionData[]> = (data) => {
     "subscriptionName",
     "subscriptionFeeAmount",
     "recurringPaymentFrequency",
-    "nextPaymentDue",
     "subscriptionManagementUrl",
-    "subscriptionStartDate",
     "subscriptionEndDate"
   ];
 
@@ -20,6 +18,15 @@ const foreground: ModuleFunction<SubscriptionData[]> = (data) => {
       throw new Error(`Missing required field: ${field}`);
     }
   }
+
+  // optional fields
+  const allFields = [...requiredFields, "applicationIcon"];
+
+  Object.keys(data).forEach((key) => {
+    if (!allFields.includes(key as keyof SubscriptionData)) {
+      throw new Error(`Unexpected extra field: ${key}`);
+    }
+  });
 
   return [
     {
