@@ -106,15 +106,25 @@ export default function Confirm({ tokenID, qty }: Props) {
       setSignAllowance(Number(allowance));
       try {
         const data: TransactionData = await TempTransactionStorage.get("send");
+
+        // TODO HERE data: TransactionData
+
+        console.log("Send data from temp tx storage:", data);
+
         if (data) {
           if (Number(data.qty) < Number(allowance)) {
             setNeedsSign(false);
           }
+
+          // TODO HERE estimatedNetworkFee & estimatedFiatTotal
+          console.log("estimated network fee:", data.estimatedNetworkFee);
+
           const estimatedFiatTotal = Number(
             (
               Number(data.estimatedFiat) + Number(data.estimatedNetworkFee)
             ).toFixed(2)
           );
+          console.log("estimated fiat total:", estimatedFiatTotal);
           setIsAo(data.isAo);
           setRecipient(data.recipient);
           setEstimatedTotal(estimatedFiatTotal.toString());
@@ -241,6 +251,10 @@ export default function Confirm({ tokenID, qty }: Props) {
       } catch {}
     }
 
+    // TODO HERE tx reward
+
+    console.log("transaction reward:", transaction.reward);
+
     // cache tx
     localStorage.setItem(
       "latest_tx",
@@ -335,8 +349,13 @@ export default function Confirm({ tokenID, qty }: Props) {
         throw err;
       }
     }
+
+    // TODO HERE transactionAmount
+
     // Prepare transaction
     const transactionAmount = Number(latestTxQty);
+
+    console.log("transaction amount:", transactionAmount);
     const prepared = await prepare(recipient.address);
     if (prepared) {
       let { gateway, transaction, type } = prepared;
