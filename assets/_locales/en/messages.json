@@ -1835,5 +1835,9 @@
   "warning": {
     "message": "Warning",
     "description": "warning statement"
+  },
+  "generate_vault": {
+    "message": "Generate vault",
+    "description": "Generate vault button text"
   }
 }
