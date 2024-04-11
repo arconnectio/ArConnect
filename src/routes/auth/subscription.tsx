@@ -1,11 +1,18 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
-import { ButtonV2, InputV2, Text, useToasts } from "@arconnect/components";
+import {
+  ButtonV2,
+  InputV2,
+  Text,
+  TooltipV2,
+  useToasts
+} from "@arconnect/components";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
 import {
   Body,
   InfoCircle,
+  InfoText,
   Main,
   PaymentDetails,
   SubscriptionListItem,
@@ -202,7 +209,10 @@ export default function Subscription() {
                 <SubscriptionText
                   color={theme === "light" ? "#191919" : "#ffffff"}
                 >
-                  Automatic Payment Threshold <InfoCircle />
+                  Allowance{" "}
+                  <TooltipV2 content={InfoText} position="bottom">
+                    <InfoCircle />
+                  </TooltipV2>
                 </SubscriptionText>
               </Body>
               <InputV2 fullWidth />

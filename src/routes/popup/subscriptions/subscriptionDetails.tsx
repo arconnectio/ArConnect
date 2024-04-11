@@ -304,7 +304,7 @@ export default function SubscriptionDetails({ id }: Props) {
   );
 }
 
-const InfoText: React.ReactNode = (
+export const InfoText: React.ReactNode = (
   <div style={{ fontSize: "10px", lineHeight: "14px", textAlign: "center" }}>
     Set the amount you <br />
     want ArConnect to <br />
