@@ -263,10 +263,8 @@ export default function SubscriptionDetails({ id }: Props) {
                 <SubscriptionText
                   color={theme === "light" ? "#191919" : "#ffffff"}
                 >
-                  Automatic Payment Threshold{" "}
-                  <TooltipV2
-                    content={"Set amount to auto-pay for missed payments"}
-                  >
+                  Allowance{" "}
+                  <TooltipV2 content={InfoText} position="bottom">
                     <InfoCircle />
                   </TooltipV2>
                 </SubscriptionText>
@@ -306,11 +304,23 @@ export default function SubscriptionDetails({ id }: Props) {
   );
 }
 
+const InfoText: React.ReactNode = (
+  <div style={{ fontSize: "10px", lineHeight: "14px", textAlign: "center" }}>
+    Set the amount you <br />
+    want ArConnect to <br />
+    automatically transfer <br />
+    to missed payments
+  </div>
+);
+
 export const SubscriptionText = styled.div<{
   displayTheme?: DisplayTheme;
   fontSize?: string;
   color?: string;
 }>`
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: ${(props) => props.fontSize || "16px"};
   font-weight: 500;
   color: ${(props) =>
