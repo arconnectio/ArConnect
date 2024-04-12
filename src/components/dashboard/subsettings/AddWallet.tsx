@@ -221,7 +221,7 @@ export default function AddWallet() {
             <Spacer y={0.45} />
             <Title>{browser.i18n.getMessage("add_wallet")}</Title>
             <Text>
-              {/* {browser.i18n.getMessage("provide_seedphrase_paragraph")} */}
+              {browser.i18n.getMessage("provide_seedphrase_paragraph")}
             </Text>
             <SeedInput onChange={(val) => setProvidedWallet(val)} />
           </>
