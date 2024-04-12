@@ -191,7 +191,7 @@ export default function Wallets() {
       <Spacer y={1.25} />
       <KeystoneButton onSuccess={keystoneDone} />
       <Spacer y={1} />
-      <ButtonV2 fullWidth onClick={done}>
+      <ButtonV2 fullWidth onClick={done} loading={loading}>
         {browser.i18n.getMessage("next")}
         <ArrowRightIcon style={{ marginLeft: "5px" }} />
       </ButtonV2>
