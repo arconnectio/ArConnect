@@ -8,8 +8,8 @@ import { ExtensionStorage } from "~utils/storage";
 import { RefreshIcon } from "@iconicicons/react";
 import { useNoWallets } from "~wallets";
 import {
-  Button,
-  Input,
+  ButtonV2 as Button,
+  InputV2 as Input,
   Provider,
   Spacer,
   useInput,

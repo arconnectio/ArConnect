@@ -8,8 +8,8 @@ import { useContext, useMemo, useEffect } from "react";
 import browser from "webextension-polyfill";
 import { PasswordContext } from "../setup";
 import {
-  Button,
-  Input,
+  ButtonV2,
+  InputV2,
   Spacer,
   Text,
   useInput,
@@ -83,7 +83,7 @@ export default function Password() {
       <Paragraph>
         {browser.i18n.getMessage("create_password_paragraph")}
       </Paragraph>
-      <Input
+      <InputV2
         type="password"
         {...passwordInput.bindings}
         placeholder={browser.i18n.getMessage("enter_password")}
@@ -95,7 +95,7 @@ export default function Password() {
         autoFocus
       />
       <Spacer y={1} />
-      <Input
+      <InputV2
         type="password"
         {...validPasswordInput.bindings}
         placeholder={browser.i18n.getMessage("enter_password_again")}
@@ -109,10 +109,10 @@ export default function Password() {
       <Spacer y={(matches && 1.15) || 1.55} />
       <PasswordStrength password={passwordInput.state} />
       <Spacer y={1} />
-      <Button fullWidth onClick={done}>
+      <ButtonV2 fullWidth onClick={done}>
         {browser.i18n.getMessage("next")}
-        <ArrowRightIcon />
-      </Button>
+        <ArrowRightIcon style={{ marginLeft: "5px" }} />
+      </ButtonV2>
     </>
   );
 }

@@ -1,6 +1,6 @@
+import { ListItem, ListItemIcon, ListItemImg } from "@arconnect/components";
 import { GridIcon } from "@iconicicons/react";
 import type { HTMLProps } from "react";
-import BaseElement, { SettingImage, SettingIcon } from "./BaseElement";
 
 export default function AppListItem({
   name,
@@ -10,9 +10,9 @@ export default function AppListItem({
   ...props
 }: Props & HTMLProps<HTMLDivElement>) {
   return (
-    <BaseElement title={name} description={url} active={active} {...props}>
-      {(icon && <SettingImage src={icon} />) || <SettingIcon as={GridIcon} />}
-    </BaseElement>
+    <ListItem title={name} description={url} active={active} {...props}>
+      {(icon && <ListItemImg src={icon} />) || <ListItemIcon as={GridIcon} />}
+    </ListItem>
   );
 }
 

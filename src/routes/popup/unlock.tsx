@@ -9,8 +9,8 @@ import browser from "webextension-polyfill";
 import { updatePassword } from "~wallets";
 import Head from "~components/popup/Head";
 import {
-  Button,
-  Input,
+  ButtonV2,
+  InputV2,
   Section,
   Spacer,
   Text,
@@ -140,7 +140,7 @@ export default function Unlock() {
             )}
           </Text>
           <Spacer y={1.5} />
-          <Input
+          <InputV2
             type="password"
             {...passwordInput.bindings}
             label={browser.i18n.getMessage("password")}
@@ -155,7 +155,7 @@ export default function Unlock() {
           {expired && (
             <>
               <Spacer y={0.75} />
-              <Input
+              <InputV2
                 type="password"
                 {...newPasswordInput.bindings}
                 label={browser.i18n.getMessage("new_password")}
@@ -163,7 +163,7 @@ export default function Unlock() {
                 fullWidth
               />
               <Spacer y={0.75} />
-              <Input
+              <InputV2
                 type="password"
                 {...confirmNewPasswordInput.bindings}
                 label={browser.i18n.getMessage("confirm_new_password")}
@@ -182,9 +182,9 @@ export default function Unlock() {
         </Section>
       </div>
       <Section>
-        <Button fullWidth onClick={expired ? changeAndUnlock : unlockWallet}>
+        <ButtonV2 fullWidth onClick={expired ? changeAndUnlock : unlockWallet}>
           {browser.i18n.getMessage("unlock")}
-        </Button>
+        </ButtonV2>
       </Section>
     </Wrapper>
   );
