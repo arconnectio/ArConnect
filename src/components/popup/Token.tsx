@@ -8,7 +8,7 @@ import { hoverEffect, useTheme } from "~utils/theme";
 import { loadTokenLogo, type Token } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { Text } from "@arconnect/components";
+import { Text, TooltipV2 } from "@arconnect/components";
 import { getArPrice } from "~lib/coingecko";
 import { usePrice } from "~lib/redstone";
 import arLogoLight from "url:/assets/ar/logo_light.png";
@@ -25,6 +25,7 @@ import { getUserAvatar } from "~lib/avatar";
 import { abbreviateNumber } from "~utils/format";
 
 export default function Token({ onClick, ...props }: Props) {
+  const [totalBalance, setTotalBalance] = useState("");
   // display theme
   const theme = useTheme();
 
@@ -41,6 +42,7 @@ export default function Token({ onClick, ...props }: Props) {
 
   const balance = useMemo(() => {
     const formattedBalance = formatTokenBalance(fractBalance);
+    setTotalBalance(formattedBalance);
     const numBalance = parseFloat(formattedBalance.replace(/,/g, ""));
     return abbreviateNumber(numBalance);
   }, [fractBalance]);
@@ -87,9 +89,11 @@ export default function Token({ onClick, ...props }: Props) {
         {props?.ao && <Image src={aoLogo} alt="ao logo" />}
       </LogoAndDetails>
       <BalanceSection>
-        <NativeBalance>
-          {balance} {props.ticker}
-        </NativeBalance>
+        <TooltipV2 content={`${totalBalance} ${props.ticker}`} position="left">
+          <NativeBalance>
+            {balance} {props.ticker}
+          </NativeBalance>
+        </TooltipV2>
         <FiatBalance>{fiatBalance}</FiatBalance>
       </BalanceSection>
     </Wrapper>
