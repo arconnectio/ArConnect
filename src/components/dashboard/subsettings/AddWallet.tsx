@@ -242,6 +242,7 @@ export default function AddWallet() {
         <ButtonV2
           fullWidth
           onClick={handleAddButton}
+          loading={loading}
           disabled={generating && isAddGeneratedWallet}
         >
           <PlusIcon />

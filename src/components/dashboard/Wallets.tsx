@@ -165,7 +165,7 @@ const SearchWrapper = styled.div`
 `;
 
 const AddWalletButton = styled(ButtonV2).attrs({
-  secondary: true
+  secondary: false
 })`
   width: 100%;
   height: 100%;
