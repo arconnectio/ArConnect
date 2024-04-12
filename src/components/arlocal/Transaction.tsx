@@ -320,7 +320,7 @@ export default function Transaction({ arweave }: Props) {
         </>
       )}
       <Spacer y={1.35} />
-      <Button fullWidth onClick={sendTransaction}>
+      <Button fullWidth loading={sendingTx} onClick={sendTransaction}>
         {browser.i18n.getMessage("sendTransaction")}
       </Button>
     </>

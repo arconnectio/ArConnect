@@ -208,9 +208,7 @@ const SearchWrapper = styled.div`
   background-color: rgb(${(props) => props.theme.cardBackground});
 `;
 
-const AddContactButton = styled(ButtonV2).attrs({
-  secondary: true
-})`
+const AddContactButton = styled(ButtonV2)`
   width: 100%;
   height: 100%;
 `;
