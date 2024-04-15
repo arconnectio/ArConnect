@@ -26,6 +26,7 @@ import { abbreviateNumber } from "~utils/format";
 
 export default function Token({ onClick, ...props }: Props) {
   const [totalBalance, setTotalBalance] = useState("");
+  const [isMillion, setIsMillion] = useState(false);
   // display theme
   const theme = useTheme();
 
@@ -44,6 +45,7 @@ export default function Token({ onClick, ...props }: Props) {
     const formattedBalance = formatTokenBalance(fractBalance);
     setTotalBalance(formattedBalance);
     const numBalance = parseFloat(formattedBalance.replace(/,/g, ""));
+    setIsMillion(numBalance >= 1_000_000);
     return abbreviateNumber(numBalance);
   }, [fractBalance]);
 
@@ -89,11 +91,18 @@ export default function Token({ onClick, ...props }: Props) {
         {props?.ao && <Image src={aoLogo} alt="ao logo" />}
       </LogoAndDetails>
       <BalanceSection>
-        <TooltipV2 content={`${totalBalance} ${props.ticker}`} position="left">
+        {isMillion ? (
+          <TooltipV2 content={totalBalance} position="left">
+            <NativeBalance>
+              {balance} {props.ticker}
+            </NativeBalance>
+          </TooltipV2>
+        ) : (
           <NativeBalance>
             {balance} {props.ticker}
           </NativeBalance>
-        </TooltipV2>
+        )}
+
         <FiatBalance>{fiatBalance}</FiatBalance>
       </BalanceSection>
     </Wrapper>
