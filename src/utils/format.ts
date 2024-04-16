@@ -73,3 +73,34 @@ export const formatSettingName = (name: string) => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
 };
+
+/**
+ * Abbreviates large numbers into a more readable format, using M, B, and T for millions, billions, and trillions respectively.
+ *
+ * @param value The numeric value to abbreviate, as a number or string.
+ * @returns The abbreviated string representation of the number.
+ */
+export function abbreviateNumber(value: number): string {
+  let suffix = "";
+  let abbreviatedValue = value;
+
+  if (value >= 1e12) {
+    // Trillions
+    suffix = "T";
+    abbreviatedValue = value / 1e12;
+  } else if (value >= 1e9) {
+    // Billions
+    suffix = "B";
+    abbreviatedValue = value / 1e9;
+  } else if (value >= 1e6) {
+    // Millions
+    suffix = "M";
+    abbreviatedValue = value / 1e6;
+  }
+
+  if (abbreviatedValue % 1 === 0) {
+    return `${abbreviatedValue}${suffix}`;
+  } else {
+    return `${abbreviatedValue.toFixed(1)}${suffix}`;
+  }
+}
