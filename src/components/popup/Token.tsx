@@ -92,11 +92,11 @@ export default function Token({ onClick, ...props }: Props) {
       </LogoAndDetails>
       <BalanceSection>
         {isMillion ? (
-          <TooltipV2 content={totalBalance} position="left">
-            <NativeBalance>
+          <BalanceTooltip content={totalBalance} position="topEnd">
+            <NativeBalance style={{}}>
               {balance} {props.ticker}
             </NativeBalance>
-          </TooltipV2>
+          </BalanceTooltip>
         ) : (
           <NativeBalance>
             {balance} {props.ticker}
@@ -128,6 +128,10 @@ const Wrapper = styled.div`
   &:active {
     transform: scale(0.98);
   }
+`;
+
+const BalanceTooltip = styled(TooltipV2)`
+  margin-right: 1rem;
 `;
 
 const Image = styled.img`
