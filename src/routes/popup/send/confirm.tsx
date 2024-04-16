@@ -98,17 +98,21 @@ export default function Confirm({ tokenID, qty }: Props) {
 
   useEffect(() => {
     const fetchData = async () => {
-      let allowance = await ExtensionStorage.get("signatureAllowance");
-      if (!allowance) {
+      let allowance: string | number = await ExtensionStorage.get(
+        "signatureAllowance"
+      );
+      if (!allowance && Number(allowance) !== 0) {
         await ExtensionStorage.set("signatureAllowance", 10);
-        allowance = await ExtensionStorage.get("signatureAllowance");
+        allowance = 10;
       }
       setSignAllowance(Number(allowance));
       try {
         const data: TransactionData = await TempTransactionStorage.get("send");
         if (data) {
-          if (Number(data.qty) < Number(allowance)) {
+          if (Number(allowance) !== 0 && Number(data.qty) < Number(allowance)) {
             setNeedsSign(false);
+          } else {
+            setNeedsSign(true);
           }
           const estimatedFiatTotal = Number(
             (
@@ -138,7 +142,7 @@ export default function Confirm({ tokenID, qty }: Props) {
 
     fetchData();
     trackPage(PageType.CONFIRM_SEND);
-  }, []);
+  }, [signAllowance, needsSign]);
 
   const [wallets] = useStorage<StoredWallet[]>(
     {
