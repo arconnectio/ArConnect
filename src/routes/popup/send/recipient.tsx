@@ -6,6 +6,7 @@ import {
 } from "~utils/storage";
 import {
   Input,
+  InputV2,
   Section,
   Spacer,
   Text,
@@ -168,7 +169,7 @@ export default function Recipient({ tokenID, qty, message }: Props) {
       <Head title={browser.i18n.getMessage("transaction_send_add_target")} />
       <Spacer y={0.75} />
       <Section>
-        <Input
+        <InputV2
           {...targetInput.bindings}
           type="text"
           label={browser.i18n.getMessage(
