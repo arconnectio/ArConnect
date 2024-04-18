@@ -6,7 +6,8 @@ import {
   Section,
   Spacer,
   Text,
-  useInput
+  useInput,
+  useToasts
 } from "@arconnect/components";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
@@ -17,6 +18,7 @@ import { svgie } from "~utils/svgies";
 import { formatAddress } from "~utils/format";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
+import { checkPassword } from "~wallets/auth";
 
 interface Tag {
   name: string;
@@ -36,6 +38,7 @@ export default function SignDataItem() {
   }>();
 
   const [password, setPassword] = useState<boolean>(false);
+  const { setToast } = useToasts();
 
   const recipient =
     params?.data?.tags.find((tag) => tag.name === "Recipient")?.value || "NA";
@@ -78,6 +81,18 @@ export default function SignDataItem() {
 
   // sign message
   async function sign() {
+    if (password) {
+      const checkPw = await checkPassword(passwordInput.state);
+      if (!checkPw) {
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("invalidPassword"),
+          duration: 2400
+        });
+        return;
+      }
+    }
+
     // send response
     await replyToAuthRequest("signDataItem", params?.authID);
 
@@ -144,7 +159,6 @@ export default function SignDataItem() {
         <ButtonV2
           fullWidth
           onClick={sign}
-          // TODO: Check pw
           disabled={password && !passwordInput.state}
         >
           {browser.i18n.getMessage("signature_authorize")}
