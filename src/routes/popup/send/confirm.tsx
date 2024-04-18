@@ -142,7 +142,7 @@ export default function Confirm({ tokenID, qty }: Props) {
 
     fetchData();
     trackPage(PageType.CONFIRM_SEND);
-  }, [signAllowance, needsSign]);
+  }, []);
 
   const [wallets] = useStorage<StoredWallet[]>(
     {
