@@ -12,6 +12,7 @@ import Allowance from "~routes/auth/allowance";
 import Signature from "~routes/auth/signature";
 import Connect from "~routes/auth/connect";
 import Unlock from "~routes/auth/unlock";
+import SignDataItem from "~routes/auth/signDataItem";
 import Token from "~routes/auth/token";
 import Sign from "~routes/auth/sign";
 import SignMessage from "~routes/auth/signMessage";
@@ -36,6 +37,7 @@ export default function Auth() {
             <Route path="/sign" component={Sign} />
             <Route path="/signMessage" component={SignMessage} />
             <Route path="/signature" component={Signature} />
+            <Route path="/signDataItem" component={SignDataItem} />
           </Router>
         </Wrapper>
       </HardwareWalletTheme>

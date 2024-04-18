@@ -47,6 +47,17 @@ export async function getAnsProfileByLabel(label: string): Promise<AnsUser> {
 }
 
 /**
+ * Checks if search has .ar appended to the end
+ * If so, it is an ANS address and can call getAnsProfileByLabel()
+ * @param label string to fetch profile for
+ */
+
+export const isANS = (label: string): boolean => {
+  const lastThreeLetters = label.slice(-3);
+  return lastThreeLetters === ".ar";
+};
+
+/**
  * React hook for a simple ANS profile
  *
  * @param query Address or label
