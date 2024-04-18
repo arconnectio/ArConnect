@@ -235,13 +235,7 @@ export default function Send({ id }: Props) {
           })
         );
       } else {
-        setBalance(
-          balanceToFractioned(token.balance, {
-            id: tokenID,
-            decimals: token.decimals,
-            divisibility: token.divisibility
-          })
-        );
+        setBalance(token.balance);
       }
     })();
   }, [token, activeAddress, arBalance, id]);

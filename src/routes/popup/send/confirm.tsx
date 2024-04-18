@@ -47,6 +47,7 @@ import { UR } from "@ngraveio/bc-ur";
 import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
 import { useScanner } from "@arconnect/keystone-sdk";
 import Progress from "~components/Progress";
+import { Token as TokenInstance } from "ao-tokens";
 
 interface Props {
   tokenID: string;
@@ -314,11 +315,14 @@ export default function Confirm({ tokenID, qty }: Props) {
     // 2/21/24: Checking first if it's an ao transfer and will handle in this block
     if (isAo) {
       try {
+        const tokenInstance = await TokenInstance(tokenID);
+        const tokenAmount =
+          tokenInstance.Quantity.fromString(amount).raw.toString();
         const res = await sendAoTransfer(
           ao,
           tokenID,
           recipient.address,
-          fractionedToBalance(Number(amount), token).toString()
+          tokenAmount
         );
         if (res) {
           setToast({
