@@ -3,6 +3,7 @@ import {
   ButtonV2,
   InputV2,
   ListItem,
+  Loading,
   Section,
   Spacer,
   Text,
@@ -19,6 +20,8 @@ import { formatAddress } from "~utils/format";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { checkPassword } from "~wallets/auth";
+import { Quantity, Token } from "ao-tokens";
+import { getUserAvatar } from "~lib/avatar";
 
 interface Tag {
   name: string;
@@ -27,6 +30,7 @@ interface Tag {
 
 interface DataStructure {
   data: number[];
+  process?: string;
   tags: Tag[];
 }
 
@@ -38,12 +42,17 @@ export default function SignDataItem() {
   }>();
 
   const [password, setPassword] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [tokenName, setTokenName] = useState<string>("");
+  const [logo, setLogo] = useState<string>("");
+  const [amount, setAmount] = useState<Quantity | null>(null);
   const { setToast } = useToasts();
 
   const recipient =
     params?.data?.tags.find((tag) => tag.name === "Recipient")?.value || "NA";
   const quantity =
     params?.data?.tags.find((tag) => tag.name === "Quantity")?.value || "NA";
+  const process = params?.data?.process;
 
   const [signatureAllowance] = useStorage(
     {
@@ -64,8 +73,38 @@ export default function SignDataItem() {
   );
 
   useEffect(() => {
-    if (signatureAllowance < Number(quantity)) setPassword(true);
-  }, [signatureAllowance, quantity]);
+    if (signatureAllowance < amount?.toNumber()) {
+      setPassword(true);
+    } else {
+      setPassword(false);
+    }
+  }, [signatureAllowance, amount]);
+
+  // get ao token info
+  useEffect(() => {
+    const fetchTokenInfo = async () => {
+      try {
+        if (params?.data) {
+          setLoading(true);
+          const token = await Token(params.data.process);
+          const logo = await getUserAvatar(token?.info?.Logo || "");
+
+          const tokenAmount = new Quantity(
+            BigInt(quantity),
+            token.info.Denomination
+          );
+          setTokenName(token.info.Name);
+          setLogo(logo);
+          setAmount(tokenAmount);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.log("err", err);
+        setLoading(false);
+      }
+    };
+    fetchTokenInfo();
+  }, [params]);
 
   // listen for enter to reset
   useEffect(() => {
@@ -118,7 +157,6 @@ export default function SignDataItem() {
           <div>
             <ListItem
               small
-              disabled
               description={formatAddress(recipient, 10)}
               title={"Recipient"}
               img={svgieAvatar}
@@ -128,13 +166,21 @@ export default function SignDataItem() {
                 })
               }
             />
-            {/* TODO: will we have access to process ID? if so would be great to get the token image and redirect to ao scanner */}
-            <ListItem
-              small
-              disabled
-              title={"Quantity"}
-              description={quantity}
-            />
+            {loading ? (
+              <Loading />
+            ) : (
+              <ListItem
+                img={logo}
+                small
+                title={tokenName}
+                description={amount?.toLocaleString()}
+                onClick={() =>
+                  browser.tabs.create({
+                    url: `https://ao_marton.g8way.io/#/process/${process}`
+                  })
+                }
+              />
+            )}
           </div>
         </Description>
         <Spacer y={0.75} />
@@ -159,7 +205,7 @@ export default function SignDataItem() {
         <ButtonV2
           fullWidth
           onClick={sign}
-          disabled={password && !passwordInput.state}
+          disabled={(password && !passwordInput.state) || loading}
         >
           {browser.i18n.getMessage("signature_authorize")}
         </ButtonV2>

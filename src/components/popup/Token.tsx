@@ -77,10 +77,6 @@ export default function Token({ onClick, ...props }: Props) {
     })();
   }, [props, theme, logo]);
 
-  useEffect(() => {
-    console.log("balance:", balance);
-  }, [balance]);
-
   return (
     <Wrapper onClick={onClick}>
       <LogoAndDetails>
