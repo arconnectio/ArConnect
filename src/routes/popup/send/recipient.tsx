@@ -5,7 +5,6 @@ import {
   TempTransactionStorage
 } from "~utils/storage";
 import {
-  Input,
   InputV2,
   Section,
   Spacer,

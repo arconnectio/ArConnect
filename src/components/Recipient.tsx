@@ -84,8 +84,20 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
         const ANS = isANS(search);
         if (ANS) {
           const result = await getAnsProfileByLabel(search.slice(0, -3));
+          if (!result) {
+            setToast({
+              type: "error",
+              content: browser.i18n.getMessage("incorrect_address"),
+              duration: 2400
+            });
+          }
           onClick({ address: result.user });
           onClose();
+          setToast({
+            type: "success",
+            content: browser.i18n.getMessage("ans_added", [search]),
+            duration: 2400
+          });
           return;
         }
         if (targetInput.state.startsWith("ar://"))
@@ -154,7 +166,7 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
           }}
         />
         <ButtonV2
-          style={{ borderRadius: "10px", width: "56px", padding: 0 }}
+          style={{ borderRadius: "10px", width: "30px", padding: 0 }}
           onClick={() => {
             submit();
           }}
