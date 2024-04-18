@@ -15,7 +15,10 @@ import { signAuth } from "../sign/sign_auth";
 import Arweave from "arweave";
 import authenticate from "../connect/auth";
 
-const background: ModuleFunction<any> = async (appData, dataItem: unknown) => {
+const background: ModuleFunction<number[]> = async (
+  appData,
+  dataItem: unknown
+) => {
   // validate
   try {
     isRawDataItem(dataItem);
