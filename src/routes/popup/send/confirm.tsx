@@ -19,7 +19,6 @@ import {
   type RawStoredTransfer
 } from "~utils/storage";
 import { useEffect, useMemo, useState } from "react";
-import { useTokens } from "~tokens";
 import { findGateway } from "~gateways/wayfinder";
 import Arweave from "arweave";
 import { useHistory } from "~utils/hash_router";
@@ -81,7 +80,6 @@ export default function Confirm({ tokenID, qty }: Props) {
     undefined
   );
   const contact = useContact(recipient?.address);
-  // TODO: Remove
   const [signAllowance, setSignAllowance] = useState<number>(10);
   const [needsSign, setNeedsSign] = useState<boolean>(true);
   const { setToast } = useToasts();
@@ -99,17 +97,25 @@ export default function Confirm({ tokenID, qty }: Props) {
 
   useEffect(() => {
     const fetchData = async () => {
-      let allowance = await ExtensionStorage.get("signatureAllowance");
-      if (!allowance) {
+      let fetchedSignAllowance = 0;
+      let fetchedNeedsSign = false;
+
+      let allowance: string | number = await ExtensionStorage.get(
+        "signatureAllowance"
+      );
+      if (!allowance && Number(allowance) !== 0) {
         await ExtensionStorage.set("signatureAllowance", 10);
-        allowance = await ExtensionStorage.get("signatureAllowance");
+        allowance = 10;
       }
-      setSignAllowance(Number(allowance));
+      fetchedSignAllowance = Number(allowance);
+
       try {
         const data: TransactionData = await TempTransactionStorage.get("send");
         if (data) {
-          if (Number(data.qty) < Number(allowance)) {
-            setNeedsSign(false);
+          if (Number(allowance) !== 0 && Number(data.qty) < Number(allowance)) {
+            fetchedNeedsSign = false;
+          } else {
+            fetchedNeedsSign = true;
           }
           const estimatedFiatTotal = Number(
             (
@@ -132,6 +138,9 @@ export default function Confirm({ tokenID, qty }: Props) {
         } else {
           push("/send/transfer");
         }
+
+        setSignAllowance(fetchedSignAllowance);
+        setNeedsSign(fetchedNeedsSign);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
