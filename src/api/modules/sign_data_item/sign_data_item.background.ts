@@ -29,6 +29,9 @@ const background: ModuleFunction<number[]> = async (
   if (
     dataItem.tags.some(
       (tag) => tag.name === "Action" && tag.value === "Transfer"
+    ) &&
+    dataItem.tags.some(
+      (tag) => tag.name === "Data-Protocol" && tag.value === "ao"
     )
   ) {
     try {
