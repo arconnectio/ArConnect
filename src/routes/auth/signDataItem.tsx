@@ -30,7 +30,7 @@ interface Tag {
 
 interface DataStructure {
   data: number[];
-  process?: string;
+  target?: string;
   tags: Tag[];
 }
 
@@ -52,7 +52,7 @@ export default function SignDataItem() {
     params?.data?.tags.find((tag) => tag.name === "Recipient")?.value || "NA";
   const quantity =
     params?.data?.tags.find((tag) => tag.name === "Quantity")?.value || "NA";
-  const process = params?.data?.process;
+  const process = params?.data?.target;
 
   const [signatureAllowance] = useStorage(
     {
@@ -84,9 +84,9 @@ export default function SignDataItem() {
   useEffect(() => {
     const fetchTokenInfo = async () => {
       try {
-        if (params?.data) {
+        if (process) {
           setLoading(true);
-          const token = await Token(params.data.process);
+          const token = await Token(params.data.target);
           const logo = await getUserAvatar(token?.info?.Logo || "");
 
           const tokenAmount = new Quantity(
