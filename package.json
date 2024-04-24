@@ -1,7 +1,7 @@
 {
   "name": "arconnect",
   "displayName": "ArConnect",
-  "version": "1.9.0",
+  "version": "1.10.2",
   "description": "__MSG_extensionDescription__",
   "author": "th8ta",
   "packageManager": "yarn@1.22.18",
@@ -59,6 +59,7 @@
     "@plasmohq/storage": "^1.7.2",
     "@segment/analytics-next": "^1.53.2",
     "@untitled-ui/icons-react": "^0.1.1",
+    "ao-tokens": "^0.0.3",
     "ar-gql": "^0.0.6",
     "arbundles": "^0.9.5",
     "arweave": "^1.13.0",

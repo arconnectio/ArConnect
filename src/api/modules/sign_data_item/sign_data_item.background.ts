@@ -13,6 +13,7 @@ import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 import { signAuth } from "../sign/sign_auth";
 import Arweave from "arweave";
+import authenticate from "../connect/auth";
 
 const background: ModuleFunction<number[]> = async (
   appData,
@@ -23,6 +24,25 @@ const background: ModuleFunction<number[]> = async (
     isRawDataItem(dataItem);
   } catch (err) {
     throw new Error(err);
+  }
+
+  if (
+    dataItem.tags.some(
+      (tag) => tag.name === "Action" && tag.value === "Transfer"
+    ) &&
+    dataItem.tags.some(
+      (tag) => tag.name === "Data-Protocol" && tag.value === "ao"
+    )
+  ) {
+    try {
+      await authenticate({
+        type: "signDataItem",
+        data: dataItem,
+        appData
+      });
+    } catch {
+      throw new Error("User rejected the sign data item request");
+    }
   }
 
   // grab the user's keyfile

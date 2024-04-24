@@ -10,7 +10,7 @@ import {
 import browser from "webextension-polyfill";
 import { useEffect, useState } from "react";
 import { useAo, type TokenInfo, useAoTokens } from "~tokens/aoTokens/ao";
-import { getTokenInfo } from "~tokens/aoTokens/router";
+import { Token } from "ao-tokens";
 import styled from "styled-components";
 import { isAddress } from "~utils/assertions";
 import { addToken, getAoTokens, getDreForToken, useTokens } from "~tokens";
@@ -83,7 +83,9 @@ export default function AddToken() {
         //TODO double check
         isAddress(targetInput.state);
         if (type === "ao") {
-          const tokenInfo = await getTokenInfo(targetInput.state, ao);
+          const token = (await Token(targetInput.state)).info;
+          const denomination = Number(token.Denomination.toString());
+          const tokenInfo: TokenInfo = { ...token, Denomination: denomination };
           setToken(tokenInfo);
           setLoading(false);
         } else {

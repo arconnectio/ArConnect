@@ -15,6 +15,7 @@ import { searchArNSName } from "~lib/arns";
 import { useToasts } from "@arconnect/components";
 import { formatAddress, isAddressFormat } from "~utils/format";
 import { ExtensionStorage } from "~utils/storage";
+import { getAnsProfileByLabel, isANS } from "~lib/ans";
 
 export type Contact = {
   name: string;
@@ -80,6 +81,25 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
         return;
       } else {
         let search = targetInput.state;
+        const ANS = isANS(search);
+        if (ANS) {
+          const result = await getAnsProfileByLabel(search.slice(0, -3));
+          if (!result) {
+            setToast({
+              type: "error",
+              content: browser.i18n.getMessage("incorrect_address"),
+              duration: 2400
+            });
+          }
+          onClick({ address: result.user });
+          onClose();
+          setToast({
+            type: "success",
+            content: browser.i18n.getMessage("ans_added", [search]),
+            duration: 2400
+          });
+          return;
+        }
         if (targetInput.state.startsWith("ar://"))
           search = targetInput.state.substring(5);
         const result = await searchArNSName(search);
@@ -146,7 +166,7 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
           }}
         />
         <ButtonV2
-          style={{ borderRadius: "10px", width: "56px", padding: 0 }}
+          style={{ borderRadius: "10px", width: "30px", padding: 0 }}
           onClick={() => {
             submit();
           }}
