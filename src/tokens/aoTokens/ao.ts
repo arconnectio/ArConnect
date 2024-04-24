@@ -117,9 +117,7 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
           await Promise.all(
             ids.map(async (id) => {
               const aoToken = await Token(id);
-              const balance = Number(
-                (await aoToken.getBalance(activeAddress)).toLocaleString()
-              );
+              const balance = Number(await aoToken.getBalance(activeAddress));
 
               return {
                 id,
