@@ -46,6 +46,7 @@ import { UR } from "@ngraveio/bc-ur";
 import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
 import { useScanner } from "@arconnect/keystone-sdk";
 import Progress from "~components/Progress";
+import { checkPassword } from "~wallets/auth";
 
 interface Props {
   tokenID: string;
@@ -310,6 +311,20 @@ export default function Confirm({ tokenID, qty }: Props) {
         content: "No send quantity found",
         duration: 2000
       });
+    }
+
+    // Check PW
+    if (needsSign) {
+      const checkPw = await checkPassword(passwordInput.state);
+      if (!checkPw) {
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("invalidPassword"),
+          duration: 2400
+        });
+        setIsLoading(false);
+        return;
+      }
     }
 
     // 2/21/24: Checking first if it's an ao transfer and will handle in this block
