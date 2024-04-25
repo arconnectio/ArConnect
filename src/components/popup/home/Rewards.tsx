@@ -7,17 +7,10 @@ import { Text } from "@arconnect/components";
 import { GraphText } from "../Graph";
 import { Ticker } from "./Balance";
 import AO from "url:/assets/ecosystem/ao.svg";
-
-// fetch ar balance
-// fetch ao vault balance
-// handle emissions rate
-// show status in ui
-// show streak in ui (days allocated)
-
-// Any movement of funds disqualifies from using a vault
+import AOAltLogo from "url:/assets/ecosystem/ao-token.svg";
+import AOLogo from "url:/assets/ecosystem/ao-logo.png";
 
 interface RewardProps {
-  //temporary solution for margins
   alt?: boolean;
   isVault?: boolean;
 }
@@ -40,13 +33,10 @@ export default function Rewards({ alt = false, isVault = false }: RewardProps) {
             <BalanceText>
               2.00
               <img
-                src={AO}
+                src={AOAltLogo}
                 alt="ao logo"
                 style={{
-                  width: "2rem",
-                  height: "1rem",
-                  paddingTop: "0.44rem",
-                  paddingLeft: "0.17rem"
+                  width: "1.75rem"
                 }}
               />
             </BalanceText>
@@ -106,6 +96,7 @@ const BalanceText = styled(GraphText)`
   font-size: 2rem;
   font-weight: 600;
   display: flex;
+  gap: 4px;
   align-items: center;
   align-self: stretch;
 `;
@@ -156,7 +147,8 @@ const Rate = styled(Text).attrs({
   align-items: center;
   font-size: 1rem;
   font-weight: 500;
-  line-height: 21.86px;
+  // line-height: 21.86px;
+  gap: 4px;
   text-align: center;
 `;
 
