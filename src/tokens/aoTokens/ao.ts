@@ -14,13 +14,6 @@ export type AoInstance = ReturnType<typeof connect>;
 
 export const defaultAoTokens: TokenInfo[] = [
   {
-    Name: "InfiniToken",
-    Ticker: "∞",
-    Denomination: 2,
-    Logo: "Bj5z4fvWdHZSIrXbK5YudiB9jIy_8T_SVyb2SMqu_dA",
-    processId: "4ctcQGCH8ekGw43d9Mdz2Mw6SX1LiAY54mGWdNAYqjM"
-  },
-  {
     Name: "TRUNK",
     Ticker: "TRUNK",
     Denomination: 3,
