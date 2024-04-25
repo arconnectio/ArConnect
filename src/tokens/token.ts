@@ -12,6 +12,9 @@ import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import { findGateway } from "~gateways/wayfinder";
 import { type Gateway } from "~gateways/gateway";
+import { ExtensionStorage } from "~utils/storage";
+import { defaultTokens } from "~tokens";
+import { defaultAoTokens, type TokenInfo } from "./aoTokens/ao";
 
 export interface Token {
   id: string;
@@ -330,3 +333,27 @@ export function getSettings(state: TokenState) {
 export const tokenTypeRegistry: Record<string, TokenType> = {
   "tfalT8Z-88riNtoXdF5ldaBtmsfcSmbMqWLh2DHJIbg": "asset"
 };
+
+export async function loadTokens() {
+  const tokens: Token[] | undefined = await ExtensionStorage.get("tokens");
+  const aoTokens: TokenInfo[] | undefined = await ExtensionStorage.get(
+    "ao_tokens"
+  );
+  const aoSupport: boolean | undefined = await ExtensionStorage.get(
+    "setting_ao_support"
+  );
+
+  // TODO: should this only be if it's undefined?
+  if (!tokens || tokens.length === 0) {
+    await ExtensionStorage.set("tokens", defaultTokens);
+  }
+
+  // TODO: should this only be if it's undefined?
+  if (!aoTokens || aoTokens.length === 0) {
+    await ExtensionStorage.set("ao_tokens", defaultAoTokens);
+  }
+
+  if (!aoSupport) {
+    await ExtensionStorage.set("setting_ao_support", true);
+  }
+}

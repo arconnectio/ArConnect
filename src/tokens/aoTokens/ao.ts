@@ -12,6 +12,44 @@ import { isLocalWallet } from "~utils/assertions";
 
 export type AoInstance = ReturnType<typeof connect>;
 
+export const defaultAoTokens: TokenInfo[] = [
+  {
+    Name: "InfiniToken",
+    Ticker: "∞",
+    Denomination: 2,
+    Logo: "Bj5z4fvWdHZSIrXbK5YudiB9jIy_8T_SVyb2SMqu_dA",
+    processId: "4ctcQGCH8ekGw43d9Mdz2Mw6SX1LiAY54mGWdNAYqjM"
+  },
+  {
+    Name: "TRUNK",
+    Ticker: "TRUNK",
+    Denomination: 3,
+    Logo: "4eTBOaxZSSyGbpKlHyilxNKhXbocuZdiMBYIORjS4f0",
+    processId: "OT9qTE2467gcozb2g8R6D6N3nQS94ENcaAIJfUzHCww"
+  },
+  {
+    Name: "Bark",
+    Ticker: "BRKTST",
+    Denomination: 3,
+    Logo: "AdFxCN1eEPboxNpCNL23WZRNhIhiamOeS-TUwx_Nr3Q",
+    processId: "8p7ApPZxC_37M06QHVejCQrKsHbcJEerd3jWNkDUWPQ"
+  },
+  {
+    Name: "AOCRED",
+    Ticker: "testnet-AOCRED",
+    Denomination: 3,
+    Logo: "eIOOJiqtJucxvB4k8a-sEKcKpKTh9qQgOV3Au7jlGYc",
+    processId: "Sa0iBLPNyJQrwpTTG-tWLQU-1QeUAJA73DdxGGiKoJc"
+  },
+  {
+    Name: "Astro USD (Test)",
+    Ticker: "USDA-TST",
+    Denomination: 12,
+    Logo: "",
+    processId: "GcFxqTQnKHcr304qnOcq00ZqbaYGDn4Wbb0DHAM-wvU"
+  }
+];
+
 export interface Message {
   Anchor: string;
   Tags: Tag[];
