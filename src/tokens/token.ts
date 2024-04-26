@@ -23,7 +23,7 @@ export interface Token {
   type: TokenType;
   gateway?: Gateway;
   dre?: string;
-  balance: number;
+  balance: number | null;
   divisibility?: number;
   decimals?: number;
   defaultLogo?: string;

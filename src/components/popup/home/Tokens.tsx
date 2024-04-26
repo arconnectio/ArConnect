@@ -14,7 +14,7 @@ export default function Tokens() {
   const ao = useAo();
 
   // all tokens
-  const [aoTokens] = useAoTokens();
+  const [aoTokens, loading] = useAoTokens();
 
   // assets
   const assets = useMemo(
@@ -58,7 +58,9 @@ export default function Tokens() {
         ))}
         {aoTokens.map((token) => (
           <Token
+            loading={loading}
             key={token.id}
+            error={token.balance === null}
             divisibility={token.Denomination}
             ao={true}
             type={"asset"}
