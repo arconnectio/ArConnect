@@ -4,8 +4,8 @@ import Application, { type AppInfo } from "~applications/application";
 import { checkPassword } from "~wallets/auth";
 import { useEffect, useState } from "react";
 import {
-  Button,
-  Input,
+  ButtonV2,
+  InputV2,
   Section,
   Spacer,
   useInput,
@@ -151,7 +151,7 @@ export default function Allowance() {
             fullWidth
           />
           <Spacer y={1} />
-          <Input
+          <InputV2
             type="password"
             {...passwordInput.bindings}
             label={browser.i18n.getMessage("password")}
@@ -166,19 +166,19 @@ export default function Allowance() {
         </Section>
       </div>
       <Section>
-        <Button fullWidth onClick={reset}>
+        <ButtonV2 fullWidth onClick={reset}>
           {browser.i18n.getMessage("reset_spent")}
-        </Button>
+        </ButtonV2>
         <Spacer y={0.75} />
-        <Button fullWidth secondary onClick={cancel}>
+        <ButtonV2 fullWidth secondary onClick={cancel}>
           {browser.i18n.getMessage("cancel")}
-        </Button>
+        </ButtonV2>
       </Section>
     </Wrapper>
   );
 }
 
-const NumberInput = styled(Input)`
+const NumberInput = styled(InputV2)`
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
     -webkit-appearance: none;
