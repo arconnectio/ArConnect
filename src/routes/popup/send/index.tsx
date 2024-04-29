@@ -2,7 +2,6 @@ import { PageType, trackPage } from "~utils/analytics";
 import { useState, useEffect, useMemo } from "react";
 import styled, { css } from "styled-components";
 import {
-  Button,
   ButtonV2,
   InputV2,
   Section,
@@ -249,13 +248,7 @@ export default function Send({ id, address }: Props) {
           })
         );
       } else {
-        setBalance(
-          balanceToFractioned(token.balance, {
-            id: tokenID,
-            decimals: token.decimals,
-            divisibility: token.divisibility
-          })
-        );
+        setBalance(token.balance);
       }
     })();
   }, [token, activeAddress, arBalance, id]);

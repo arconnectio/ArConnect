@@ -1255,9 +1255,23 @@
     "message": "Click to view your last signed transaction",
     "description": "View last tx prompt content"
   },
+  "sign_item": {
+    "message": "Sign Item",
+    "description": "Sign message popup title"
+  },
   "titles_signature": {
     "message": "Sign message",
     "description": "Sign message popup title"
+  },
+  "sign_data_description": {
+    "message": "$APPNAME$ wants to sign a transaction. Review the details below.",
+    "description": "Desription for signing an item containing a transfer",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "permafacts.arweave.dev"
+      }
+    }
   },
   "signature_description": {
     "message": "$APPNAME$ wants to sign a message. Review the message below.",
@@ -1390,7 +1404,7 @@
     "description": "Label for the address input"
   },
   "transaction_send_address_input_placeholder": {
-    "message": "Address or ArNS name...",
+    "message": "Address, ANS or ArNS...",
     "description": "Placeholder for the address input"
   },
   "transaction_send_scan_address": {
@@ -1734,13 +1748,27 @@
     "message": "Your Contacts",
     "desription": "Your Contacts title in Send Modal"
   },
-  "check_address" : {
+  "check_address": {
     "message": "Please check the recipient address",
     "description": "Error message for invalid address/ArNS"
+  },
+  "incorrect_address": {
+    "message": "Incorrect recipient address",
+    "description": "Error message for invalid ANS"
   },
   "arns_added": {
     "message": " ar://$ADDRESS$ added", 
     "description": "ArNS recipient added",
+    "placeholders": {
+      "address": {
+        "content": "$1",
+        "example": "Address"
+      }
+    } 
+  },
+  "ans_added": {
+    "message": "$ADDRESS$ added", 
+    "description": "ANS recipient added",
     "placeholders": {
       "address": {
         "content": "$1",

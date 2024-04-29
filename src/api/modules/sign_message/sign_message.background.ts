@@ -56,7 +56,7 @@ const background: ModuleFunction<number[]> = async (
     // hashing 2 times ensures that the app is not draining the user's wallet
     // credits to Arweave.app
     const signature = await crypto.subtle.sign(
-      { name: "RSA-RSS", saltLength: 32 },
+      { name: "RSA-PSS", saltLength: 32 },
       cryptoKey,
       hash
     );

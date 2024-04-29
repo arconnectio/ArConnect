@@ -1,5 +1,5 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
-import { Button, Section, Spacer, Text } from "@arconnect/components";
+import { ButtonV2, Section, Spacer, Text } from "@arconnect/components";
 import Message from "~components/auth/Message";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
@@ -55,13 +55,13 @@ export default function Signature() {
       <Section>
         <Message message={params?.message} />
         <Spacer y={1.25} />
-        <Button fullWidth onClick={sign}>
+        <ButtonV2 fullWidth onClick={sign}>
           {browser.i18n.getMessage("signature_authorize")}
-        </Button>
+        </ButtonV2>
         <Spacer y={0.75} />
-        <Button fullWidth secondary onClick={cancel}>
+        <ButtonV2 fullWidth secondary onClick={cancel}>
           {browser.i18n.getMessage("cancel")}
-        </Button>
+        </ButtonV2>
       </Section>
     </Wrapper>
   );

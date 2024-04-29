@@ -264,6 +264,7 @@ export default function AddWallet({ vault = false }: AddWalletProps) {
         <ButtonV2
           fullWidth
           onClick={handleAddButton}
+          loading={loading}
           disabled={generating && isAddGeneratedWallet}
         >
           <PlusIcon />

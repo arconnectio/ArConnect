@@ -8,7 +8,7 @@ import { hoverEffect, useTheme } from "~utils/theme";
 import { loadTokenLogo, type Token } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { Text } from "@arconnect/components";
+import { Text, TooltipV2 } from "@arconnect/components";
 import { getArPrice } from "~lib/coingecko";
 import { usePrice } from "~lib/redstone";
 import arLogoLight from "url:/assets/ar/logo_light.png";
@@ -22,8 +22,11 @@ import { defaultGateway } from "~gateways/gateway";
 import { useGateway } from "~gateways/wayfinder";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { getUserAvatar } from "~lib/avatar";
+import { abbreviateNumber } from "~utils/format";
 
 export default function Token({ onClick, ...props }: Props) {
+  const [totalBalance, setTotalBalance] = useState("");
+  const [isMillion, setIsMillion] = useState(false);
   // display theme
   const theme = useTheme();
 
@@ -38,17 +41,20 @@ export default function Token({ onClick, ...props }: Props) {
     [props]
   );
 
-  const balance = useMemo(
-    () => formatTokenBalance(fractBalance),
-    [fractBalance]
-  );
+  const balance = useMemo(() => {
+    const formattedBalance = formatTokenBalance(fractBalance);
+    setTotalBalance(formattedBalance);
+    const numBalance = parseFloat(formattedBalance.replace(/,/g, ""));
+    setIsMillion(numBalance >= 1_000_000);
+    return abbreviateNumber(numBalance);
+  }, [fractBalance]);
 
   // token price
   const { price, currency } = usePrice(props.ticker);
 
   // fiat balance
   const fiatBalance = useMemo(() => {
-    if (!price) return "--";
+    if (!price) return <div />;
 
     const estimate = fractBalance * price;
 
@@ -81,9 +87,18 @@ export default function Token({ onClick, ...props }: Props) {
         {props?.ao && <Image src={aoLogo} alt="ao logo" />}
       </LogoAndDetails>
       <BalanceSection>
-        <NativeBalance>
-          {balance} {props.ticker}
-        </NativeBalance>
+        {isMillion ? (
+          <BalanceTooltip content={totalBalance} position="topEnd">
+            <NativeBalance style={{}}>
+              {props.ao ? props.balance : balance} {props.ticker}
+            </NativeBalance>
+          </BalanceTooltip>
+        ) : (
+          <NativeBalance>
+            {props.ao ? props.balance : balance} {props.ticker}
+          </NativeBalance>
+        )}
+
         <FiatBalance>{fiatBalance}</FiatBalance>
       </BalanceSection>
     </Wrapper>
@@ -109,6 +124,10 @@ const Wrapper = styled.div`
   &:active {
     transform: scale(0.98);
   }
+`;
+
+const BalanceTooltip = styled(TooltipV2)`
+  margin-right: 1rem;
 `;
 
 const Image = styled.img`

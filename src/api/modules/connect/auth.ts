@@ -11,7 +11,8 @@ export type AuthType =
   | "token"
   | "sign"
   | "signMessage"
-  | "signature";
+  | "signature"
+  | "signDataItem";
 
 export interface AuthData {
   // type of auth to request from the user

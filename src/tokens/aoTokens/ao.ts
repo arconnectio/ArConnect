@@ -4,7 +4,8 @@ import { connect } from "@permaweb/aoconnect";
 import { type Tag } from "arweave/web/lib/transaction";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { getTokenInfo, useTokenIDs } from "./router";
+import { Token } from "ao-tokens";
+import { useTokenIDs } from "./router";
 import { ArweaveSigner, createData } from "arbundles";
 import { getActiveKeyfile } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
@@ -39,49 +40,6 @@ export function useAo() {
   const ao = useMemo(() => connect(defaultConfig), []);
 
   return ao;
-}
-
-/**
- * Token balance hook (integer balance)
- */
-export function useBalance(id: string): [number | undefined, boolean] {
-  // balance
-  const [balance, setBalance] = useState(0);
-
-  // active address
-  const [activeAddress] = useStorage<string>({
-    key: "active_address",
-    instance: ExtensionStorage
-  });
-
-  // loading
-  const [loading, setLoading] = useState(true);
-
-  // ao instance
-  const ao = useAo();
-
-  useEffect(() => {
-    (async () => {
-      if (!activeAddress || !id || id === "") return;
-      setLoading(true);
-
-      const retry = async (tries = 0) => {
-        try {
-          const bal = await getBalance(id, activeAddress, ao);
-
-          setBalance(bal);
-        } catch {
-          if (tries >= 5) return;
-          await retry(tries + 1);
-        }
-      };
-      await retry();
-
-      setLoading(false);
-    })();
-  }, [activeAddress, ao]);
-
-  return [balance, loading];
 }
 
 export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
@@ -157,10 +115,15 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
       try {
         setBalances(
           await Promise.all(
-            ids.map(async (id) => ({
-              id,
-              balance: await getBalance(id, activeAddress, ao)
-            }))
+            ids.map(async (id) => {
+              const aoToken = await Token(id);
+              const balance = Number(await aoToken.getBalance(activeAddress));
+
+              return {
+                id,
+                balance
+              };
+            })
           )
         );
       } catch {}
@@ -227,45 +190,6 @@ export const sendAoTransfer = async (
     console.log("err", err);
   }
 };
-
-/**
- * Get balance for address
- * @param id ID of the token
- * @param address Target address
- */
-export async function getBalance(
-  id: string,
-  address: string,
-  ao: AoInstance
-): Promise<number> {
-  const timeoutPromise = new Promise<number>((_, reject) =>
-    setTimeout(() => reject(new Error("Timeout after 3 seconds")), 3000)
-  );
-
-  const fetchBalance = async () => {
-    const res = await ao.dryrun({
-      Id: "0000000000000000000000000000000000000000001",
-      Owner: address,
-      process: id,
-      tags: [{ name: "Action", value: "Balance" }]
-    });
-
-    for (const msg of res.Messages as Message[]) {
-      const balance = getTagValue("Balance", msg.Tags);
-
-      if (balance) return parseInt(balance);
-    }
-
-    return 0;
-  };
-
-  try {
-    return await Promise.race([fetchBalance(), timeoutPromise]);
-  } catch (error) {
-    console.error(error);
-    return 0;
-  }
-}
 
 export interface TokenInfo {
   Name?: string;
