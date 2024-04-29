@@ -53,7 +53,8 @@ import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
 import { useScanner } from "@arconnect/keystone-sdk";
 import Progress from "~components/Progress";
 import { WarningSymbol } from "../receive";
-import { Token as TokenInstance } from "ao-tokens";
+import { checkPassword } from "~wallets/auth";
+import { WarningSymbol } from "../receive";
 
 interface Props {
   tokenID: string;
@@ -87,7 +88,6 @@ export default function Confirm({ tokenID, qty }: Props) {
     undefined
   );
   const contact = useContact(recipient?.address);
-  const [signAllowance, setSignAllowance] = useState<number>(10);
   const [needsSign, setNeedsSign] = useState<boolean>(true);
   const { setToast } = useToasts();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -100,29 +100,25 @@ export default function Confirm({ tokenID, qty }: Props) {
     instance: ExtensionStorage
   });
 
+  const [allowance] = useStorage<number>(
+    {
+      key: "signatureAllowance",
+      instance: ExtensionStorage
+    },
+    10
+  );
+
   const [push] = useHistory();
 
   useEffect(() => {
     const fetchData = async () => {
-      let fetchedSignAllowance = 0;
-      let fetchedNeedsSign = false;
-
-      let allowance: string | number = await ExtensionStorage.get(
-        "signatureAllowance"
-      );
-      if (!allowance && Number(allowance) !== 0) {
-        await ExtensionStorage.set("signatureAllowance", 10);
-        allowance = 10;
-      }
-      fetchedSignAllowance = Number(allowance);
-
       try {
         const data: TransactionData = await TempTransactionStorage.get("send");
         if (data) {
-          if (Number(allowance) !== 0 && Number(data.qty) < Number(allowance)) {
-            fetchedNeedsSign = false;
+          if (Number(data.qty) < Number(allowance)) {
+            setNeedsSign(false);
           } else {
-            fetchedNeedsSign = true;
+            setNeedsSign(true);
           }
           const estimatedFiatTotal = Number(
             (
@@ -145,9 +141,6 @@ export default function Confirm({ tokenID, qty }: Props) {
         } else {
           push("/send/transfer");
         }
-
-        setSignAllowance(fetchedSignAllowance);
-        setNeedsSign(fetchedNeedsSign);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -155,7 +148,7 @@ export default function Confirm({ tokenID, qty }: Props) {
 
     fetchData();
     trackPage(PageType.CONFIRM_SEND);
-  }, []);
+  }, [allowance]);
 
   const [wallets] = useStorage<StoredWallet[]>(
     {
@@ -341,17 +334,28 @@ export default function Confirm({ tokenID, qty }: Props) {
       });
     }
 
+    // Check PW
+    if (needsSign) {
+      const checkPw = await checkPassword(passwordInput.state);
+      if (!checkPw) {
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("invalidPassword"),
+          duration: 2400
+        });
+        setIsLoading(false);
+        return;
+      }
+    }
+
     // 2/21/24: Checking first if it's an ao transfer and will handle in this block
     if (isAo) {
       try {
-        const tokenInstance = await TokenInstance(tokenID);
-        const tokenAmount =
-          tokenInstance.Quantity.fromString(amount).raw.toString();
         const res = await sendAoTransfer(
           ao,
           tokenID,
           recipient.address,
-          tokenAmount
+          fractionedToBalance(Number(amount), token).toString()
         );
         if (res) {
           setToast({
@@ -380,7 +384,7 @@ export default function Confirm({ tokenID, qty }: Props) {
       isLocalWallet(decryptedWallet);
       const keyfile = decryptedWallet.keyfile;
 
-      if (transactionAmount <= signAllowance) {
+      if (transactionAmount <= allowance) {
         try {
           convertedTransaction.setOwner(keyfile.n);
 

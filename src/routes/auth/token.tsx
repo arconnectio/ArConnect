@@ -12,7 +12,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "~utils/theme";
 import { addToken, getDreForToken } from "~tokens";
 import {
-  Button,
+  ButtonV2,
   Section,
   Spacer,
   Text,
@@ -228,13 +228,13 @@ export default function Token() {
         </AnimatePresence>
       </div>
       <Section>
-        <Button fullWidth onClick={done} loading={loading}>
+        <ButtonV2 fullWidth onClick={done} loading={loading}>
           {browser.i18n.getMessage("addToken")}
-        </Button>
+        </ButtonV2>
         <Spacer y={0.75} />
-        <Button fullWidth secondary onClick={cancel}>
+        <ButtonV2 fullWidth secondary onClick={cancel}>
           {browser.i18n.getMessage("cancel")}
-        </Button>
+        </ButtonV2>
       </Section>
     </Wrapper>
   );
