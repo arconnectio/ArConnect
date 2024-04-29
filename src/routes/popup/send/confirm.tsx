@@ -52,6 +52,7 @@ import { UR } from "@ngraveio/bc-ur";
 import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
 import { useScanner } from "@arconnect/keystone-sdk";
 import Progress from "~components/Progress";
+import { WarningSymbol } from "../receive";
 import { checkPassword } from "~wallets/auth";
 import { WarningSymbol } from "../receive";
 
