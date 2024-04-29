@@ -15,7 +15,7 @@ import {
 import type { TokenInfo } from "./aoTokens/ao";
 
 /** Default tokens */
-const defaultTokens: Token[] = [
+export const defaultTokens: Token[] = [
   {
     id: "KTzTXT_ANmF84fWEKHzWURD1LWd9QaFR9yfYUwH2Lxw",
     name: "U",
@@ -163,7 +163,7 @@ export function useTokens() {
       key: "tokens",
       instance: ExtensionStorage
     },
-    defaultTokens
+    []
   );
 
   const [activeAddress] = useStorage<string>({

@@ -65,10 +65,24 @@ export async function uploadUserAvatar(avatar: File) {
 export const getUserAvatar = async (txId: string) => {
   try {
     const data = await arweave.transactions.getData(txId, { decode: true });
-    const blob = new Blob([data], { type: "image" });
-    const imageUrl = URL.createObjectURL(blob);
+    let mimeType = "image/png";
+
+    const buffer = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
+
+    if (buffer instanceof Uint8Array) {
+      const textDecoder = new TextDecoder("utf-8");
+      const snippet = textDecoder.decode(buffer.slice(0, 80));
+
+      if (snippet.includes("<svg")) {
+        mimeType = "image/svg+xml";
+      }
+    }
+
+    const blob = new Blob([buffer], { type: mimeType });
+    const imageUrl = blob ? URL.createObjectURL(blob) : null;
     return imageUrl;
   } catch (e) {
     console.error("Error fetching avatar:", e);
+    return null;
   }
 };

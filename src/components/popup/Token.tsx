@@ -30,6 +30,11 @@ export default function Token({ onClick, ...props }: Props) {
   // display theme
   const theme = useTheme();
 
+  const arweaveLogo = useMemo(
+    () => (theme === "dark" ? arLogoLight : arLogoDark),
+    [theme]
+  );
+
   // token balance
   const fractBalance = useMemo(
     () =>
@@ -71,11 +76,15 @@ export default function Token({ onClick, ...props }: Props) {
         setLogo(viewblock.getTokenLogo(props.id));
         setLogo(await loadTokenLogo(props.id, props.defaultLogo, theme));
       } else {
-        const logo = await getUserAvatar(props.defaultLogo);
-        setLogo(logo);
+        if (props.defaultLogo) {
+          const logo = await getUserAvatar(props.defaultLogo);
+          setLogo(logo);
+        } else {
+          setLogo(arweaveLogo);
+        }
       }
     })();
-  }, [props, theme, logo]);
+  }, [props, theme, logo, arweaveLogo]);
 
   return (
     <Wrapper onClick={onClick}>
