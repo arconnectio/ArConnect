@@ -21,7 +21,8 @@ import Token, {
   Logo,
   LogoAndDetails,
   LogoWrapper,
-  TokenName
+  TokenName,
+  WarningIcon
 } from "~components/popup/Token";
 import useSetting from "~settings/hook";
 import {
@@ -118,7 +119,7 @@ export default function Send({ id }: Props) {
   const [currency] = useSetting<string>("currency");
 
   // aoTokens
-  const [aoTokens] = useAoTokens();
+  const [aoTokens, loading] = useAoTokens();
 
   // set ao for following page
   const [isAo, setIsAo] = useState<boolean>(false);
@@ -165,6 +166,13 @@ export default function Send({ id }: Props) {
     setIsAo(false);
     return matchingTokenInTokens || arPlaceholder;
   }, [tokenID, tokens, aoTokens]);
+
+  const degraded = useMemo(() => {
+    if (loading) {
+      return false;
+    }
+    return token.balance === null;
+  }, [token, loading]);
 
   // if the ID is defined on mount, that means that
   // we need to reset the qty field
@@ -396,9 +404,24 @@ export default function Send({ id }: Props) {
         }}
         title={browser.i18n.getMessage("send")}
       />
-      <Wrapper showOverlay={showSlider}>
+      <Wrapper showOverlay={showSlider || degraded}>
         <SendForm>
           {/* TOP INPUT */}
+          {degraded && (
+            <Degraded>
+              <WarningWrapper>
+                <WarningIcon color="#fff" />
+              </WarningWrapper>
+              <div>
+                <h4>ao token process network degraded.</h4>
+                <span>
+                  ao token process will be available when the network issues are
+                  resolved.
+                </span>
+              </div>
+            </Degraded>
+          )}
+
           <RecipientAmountWrapper>
             <SendButton
               fullWidth
@@ -718,6 +741,37 @@ export const SendButton = styled(ButtonV2)<{ alternate?: boolean }>`
     box-shadow: 0 0 0 0.075rem rgba(${(props) => props.theme.theme}, 0.5);
     background-color: none;
   }
+`;
+
+const Degraded = styled.div`
+  background: ${(props) => props.theme.backgroundSecondary};
+  display: flex;
+  margin: 0 0.9375rem;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid ${(props) => props.theme.fail};
+  position: relative;
+  z-index: 11;
+  border-radius: 0.625rem;
+
+  h4 {
+    font-weight: 500;
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  span {
+    color: ${(props) => props.theme.secondaryTextv2};
+    font-size: 12px;
+  }
+`;
+
+const WarningWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export const SendInput = styled(InputV2)<{ error?: boolean }>`
