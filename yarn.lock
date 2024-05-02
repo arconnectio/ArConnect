@@ -4596,11 +4596,6 @@ anymatch@~3.1.2:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-ao-tokens@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/ao-tokens/-/ao-tokens-0.0.3.tgz#55f3e74a1931d842f59d9c6f947eab302434c0b4"
-  integrity sha512-M8Wzq9VIRYNVKhgcu+UaiKDe/jftmoPbZXGLZtoBKEv4XKdbBBcSapHwYk7Lx2k4Kyz2zTacfDv1SvGGO+PFyQ==
-
 aproba@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/aproba/-/aproba-2.0.0.tgz#52520b8ae5b569215b354efc0caa3fe1e45a8adc"
