@@ -21,7 +21,7 @@ export default function Thumbnail({ src }: Props) {
       <FullScreenButton
         href={src}
         target="_blank"
-        rel="noopener noreferer"
+        rel="noopener noreferrer"
         onClick={(e) => e.stopPropagation()}
       >
         <MaximizeIcon />
