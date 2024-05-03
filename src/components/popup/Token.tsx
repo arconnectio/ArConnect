@@ -23,6 +23,7 @@ import { useGateway } from "~gateways/wayfinder";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { getUserAvatar } from "~lib/avatar";
 import { abbreviateNumber } from "~utils/format";
+import Skeleton from "~components/Skeleton";
 
 export default function Token({ onClick, ...props }: Props) {
   const [totalBalance, setTotalBalance] = useState("");
@@ -96,16 +97,26 @@ export default function Token({ onClick, ...props }: Props) {
         {props?.ao && <Image src={aoLogo} alt="ao logo" />}
       </LogoAndDetails>
       <BalanceSection>
-        {isMillion ? (
-          <BalanceTooltip content={totalBalance} position="topEnd">
-            <NativeBalance style={{}}>
-              {props.ao ? props.balance : balance} {props.ticker}
-            </NativeBalance>
-          </BalanceTooltip>
+        {props?.loading ? (
+          <Skeleton width="80px" height="20px" />
+        ) : props?.error ? (
+          <TooltipV2 content={DegradedMessage} position="left">
+            <WarningIcon />
+          </TooltipV2>
         ) : (
-          <NativeBalance>
-            {props.ao ? props.balance : balance} {props.ticker}
-          </NativeBalance>
+          <>
+            {isMillion ? (
+              <BalanceTooltip content={totalBalance} position="topEnd">
+                <NativeBalance>
+                  {props.ao ? props.balance : balance} {props.ticker}
+                </NativeBalance>
+              </BalanceTooltip>
+            ) : (
+              <NativeBalance>
+                {props.ao ? props.balance : balance} {props.ticker}
+              </NativeBalance>
+            )}
+          </>
         )}
 
         <FiatBalance>{fiatBalance}</FiatBalance>
@@ -113,6 +124,36 @@ export default function Token({ onClick, ...props }: Props) {
     </Wrapper>
   );
 }
+
+const DegradedMessage: React.ReactNode = (
+  <div style={{ textAlign: "center" }}>
+    <div style={{ fontSize: "14px" }}>ao token process network degraded.</div>
+    <div style={{ fontSize: "12px", color: "#a3a3a3" }}>
+      ao token process will be available when <br />
+      the network issues are resolved.
+    </div>
+  </div>
+);
+
+export const WarningIcon = ({ color }) => {
+  return (
+    <svg
+      width="23"
+      height="22"
+      viewBox="0 0 23 22"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M11.5 7V11M11.5 15H11.51M21.5 11C21.5 16.5228 17.0228 21 11.5 21C5.97715 21 1.5 16.5228 1.5 11C1.5 5.47715 5.97715 1 11.5 1C17.0228 1 21.5 5.47715 21.5 11Z"
+        stroke={color || "#FF1A1A"}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
 
 const Wrapper = styled.div`
   position: relative;
@@ -179,6 +220,7 @@ export const TokenName = styled(Text).attrs({
   display: flex;
   align-items: center;
   gap: 0.34rem;
+  width: min-content;
   font-size: 1rem;
   color: rgb(${(props) => props.theme.primaryText});
 `;
@@ -211,6 +253,8 @@ const BalanceSection = styled.div`
 
 interface Props extends Token {
   ao?: boolean;
+  loading?: boolean;
+  error?: boolean;
   onClick?: MouseEventHandler<HTMLDivElement>;
 }
 

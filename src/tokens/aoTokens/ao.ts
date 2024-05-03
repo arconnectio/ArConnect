@@ -83,7 +83,7 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
     () =>
       tokens.map((token) => ({
         ...token,
-        balance: balances.find((bal) => bal.id === token.id)?.balance || 0
+        balance: balances.find((bal) => bal.id === token.id)?.balance ?? null
       })),
     [tokens, balances]
   );
@@ -115,7 +115,6 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
   useEffect(() => {
     (async () => {
       if (loadingIDs) return;
-      setLoading(true);
 
       try {
         if (!aoSetting) {
@@ -132,8 +131,6 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
           }))
         );
       } catch {}
-
-      setLoading(false);
     })();
   }, [ids, ao, loadingIDs, aoSetting]);
 
@@ -143,24 +140,45 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
         return setBalances([]);
       }
 
+      setLoading(true);
       try {
-        setBalances(
-          await Promise.all(
-            ids.map(async (id) => {
+        const balances = await Promise.all(
+          ids.map(async (id) => {
+            try {
               const aoToken = await Token(id);
-              const balance = Number(await aoToken.getBalance(activeAddress));
-
+              const balance = Number(
+                await timeoutPromise(aoToken.getBalance(activeAddress), 3000)
+              );
               return {
                 id,
                 balance
               };
-            })
-          )
+            } catch (error) {
+              return { id, balance: null };
+            }
+          })
         );
-      } catch {}
+        setBalances(balances);
+      } catch {
+      } finally {
+        setLoading(false);
+      }
     })();
-  }, [ids, loading, activeAddress, ao, aoSetting]);
+  }, [ids, activeAddress, ao, aoSetting]);
   return [tokensWithBalances, loading];
+}
+
+/**
+ * Timeout for resolving balances from ao
+ */
+async function timeoutPromise<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`Timeout after ${ms} ms`));
+    }, ms);
+
+    promise.then(resolve, reject).finally(() => clearTimeout(timer));
+  });
 }
 
 /**
