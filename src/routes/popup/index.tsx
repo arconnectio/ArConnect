@@ -15,6 +15,7 @@ import styled from "styled-components";
 import { useTokens } from "~tokens";
 import { useAoTokens } from "~tokens/aoTokens/ao";
 import { useBalance } from "~wallets/hooks";
+import BuyButton from "~components/popup/home/BuyButton";
 
 export default function Home() {
   // get if the user has no balance
@@ -118,7 +119,7 @@ export default function Home() {
       <Balance />
       {(!noBalance && (
         <>
-          {/* <BuyButton padding={true} route={"/purchase"} logo={true} /> */}
+          <BuyButton padding={true} route={"/purchase"} logo={true} />
           <Tokens />
           <Collectibles />
         </>

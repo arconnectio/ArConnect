@@ -856,7 +856,7 @@ const TokenSelectorRightSide = styled.div`
   }
 `;
 
-const SliderWrapper = styled(motion.div)<{ partial?: boolean }>`
+export const SliderWrapper = styled(motion.div)<{ partial?: boolean }>`
   position: fixed;
   top: ${(props) => (props.partial ? "50px" : 0)};
   left: 0;
@@ -867,12 +867,12 @@ const SliderWrapper = styled(motion.div)<{ partial?: boolean }>`
   z-index: 1000;
 `;
 
-const animation: Variants = {
+export const animation: Variants = {
   hidden: { opacity: 0 },
   shown: { opacity: 1 }
 };
 
-const animation2: Variants = {
+export const animation2: Variants = {
   hidden: {
     y: "100vh",
     transition: {

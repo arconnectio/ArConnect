@@ -58,7 +58,11 @@ export default function Popup() {
               <HistoryProvider>
                 <Route path="/" component={Home} />
                 <Route path="/purchase" component={Purchase} />
-                <Route path="/confirm-purchase" component={ConfirmPurchase} />
+                <Route path="/confirm-purchase/:quoteId?">
+                  {(params: { quoteId: string }) => (
+                    <ConfirmPurchase id={params?.quoteId} />
+                  )}
+                </Route>
                 <Route path="/purchase-pending" component={PendingPurchase} />
                 <Route path="/receive" component={Receive} />
                 <Route path="/send/transfer/:id?">

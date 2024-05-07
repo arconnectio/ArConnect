@@ -49,9 +49,11 @@ declare module "styled-components" {
     secondaryTextv2: string;
     background: string;
     backgroundSecondary: string;
+    primary: string;
     cardBorder: string;
     fail: string;
     cardBackground: string;
+    primaryTextv2: string;
   }
 }
 

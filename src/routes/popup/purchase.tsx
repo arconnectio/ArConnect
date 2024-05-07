@@ -1,443 +1,324 @@
-import { useState, useEffect, useRef } from "react";
-import { useHistory } from "~utils/hash_router";
-import browser from "webextension-polyfill";
+import {
+  InputV2,
+  useInput,
+  Text,
+  ListItem,
+  ButtonV2
+} from "@arconnect/components";
+import { ChevronRight } from "@untitled-ui/icons-react";
+import switchIcon from "url:/assets/ecosystem/switch-vertical.svg";
 import styled from "styled-components";
-import { useStorage } from "@plasmohq/storage/hook";
-import { ExtensionStorage } from "~utils/storage";
-import { useTheme, hoverEffect } from "~utils/theme";
-import { CloseIcon, ChevronDownIcon } from "@iconicicons/react";
-import { Section, Card, Spacer, Loading } from "@arconnect/components";
-import type { DisplayTheme } from "@arconnect/components";
-import BuyButton from "~components/popup/home/BuyButton";
-import { getQuote } from "~lib/onramper";
-import InputMenu from "~components/InputMenu";
+import HeadV2 from "~components/popup/HeadV2";
+import { AnimatePresence, type Variants } from "framer-motion";
+import { SliderWrapper } from "./send";
+import { useEffect, useState } from "react";
 import { PageType, trackPage } from "~utils/analytics";
+import type { PaymentType, Quote } from "~lib/onramper";
+import { useHistory } from "~utils/hash_router";
+import { ExtensionStorage } from "~utils/storage";
 
-interface SelectIconProps {
-  open: boolean;
-}
-
-export default function Purchase() {
+export default function PurchaseV2() {
   const [push] = useHistory();
+  const youPayInput = useInput();
+  const youReceiveInput = useInput();
+  const [currencies, setCurrencies] = useState<any[]>([]);
+  const [selectedCurrency, setSelectedCurrency] = useState<any | null>();
+  const [paymentMethod, setPaymentMethod] = useState<PaymentType | null>();
+  const [showPaymentSelector, setShowPaymentSelector] = useState(false);
+  const [showCurrencySelector, setShowCurrencySelector] = useState(false);
+  const [quote, setQuote] = useState<Quote | null>();
 
-  const theme = useTheme();
+  // need to grab all currencies
 
-  const [fiatSwitchOpen, setFiatSwitchOpen] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
-  const [selectedFiat, setSelectedFiat] = useState("eur");
-  const [fiatAmount, setFiatAmount] = useState(undefined);
-  const [rawInput, setRawInput] = useState("");
-  const [receivedAR, setReceivedAR] = useState(undefined);
-  const [isFetchingQuote, setIsFetchingQuote] = useState(false);
-  const [quoteError, setQuoteError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
-    string | null
-  >("creditcard");
+  const handlePaymentClose = () => {
+    setShowPaymentSelector(false);
+  };
 
-  const isInitialMount = useRef(true);
-
-  async function getActiveQuote() {
-    const activeQuote = await ExtensionStorage.get("quote");
-    return activeQuote;
-  }
-
-  async function checkIsBackFromConfirm() {
-    const isBack = await ExtensionStorage.get("isBackFromConfirm");
-
-    if (isBack === true) {
-      const quote = await getActiveQuote();
-
-      setSelectedFiat(quote.selectedFiat);
-      setRawInput(quote.fiatAmount);
-      setFiatAmount(quote.fiatAmount);
-      setReceivedAR(quote.payout);
-      handlePaymentMethodChange(quote.selectedPaymentMethod);
-
-      await ExtensionStorage.set("isBackFromConfirm", false);
-    } else {
-      return false;
-    }
-  }
+  const handleCurrencyClose = () => {
+    setShowCurrencySelector(false);
+  };
 
   useEffect(() => {
-    checkIsBackFromConfirm();
-  }, [isInitialMount]);
+    const fetchCurrencies = async () => {
+      const url =
+        "https://api-stg.transak.com/api/v2/currencies/fiat-currencies?apiKey=a2bae4d6-8e3d-4777-b123-3ff31f653aa0";
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-  //segment
-  useEffect(() => {
-    trackPage(PageType.ONRAMP_PURCHASE);
+        const data = await response.json();
+        const currencyInfo = data.response.map((currency) => ({
+          symbol: currency.symbol,
+          logo: `https://cdn.onramper.com/icons/tokens/${currency.symbol.toLowerCase()}.svg`,
+          name: currency.name,
+          paymentOptions: currency.paymentOptions
+        }));
+        setCurrencies(currencyInfo || []);
+        setSelectedCurrency(currencyInfo[0]);
+        setPaymentMethod(currencyInfo[0].paymentOptions[0]);
+      } catch (error) {
+        console.error("Failed to fetch currencies:", error);
+      }
+    };
+
+    fetchCurrencies();
   }, []);
 
-  const [quote, setQuote] = useStorage<Object>(
-    {
-      key: "quote",
-      instance: ExtensionStorage
-    },
-    null
-  );
-
-  const saveQuoteToStorage = async (quoteData: Object) => {
-    try {
-      // Set the quote data in the state
-      await setQuote(quoteData);
-    } catch (error) {
-      console.error("Error saving quote data:", error);
-    }
-  };
-
-  const handleFiat = (currency: string) => {
-    setSelectedFiat(currency); // Update the selected fiat currency
-    setFiatSwitchOpen(!fiatSwitchOpen); // Close the dropdown
-
-    if (currency === "usd") {
-      setQuoteError(true);
-      setErrorMessage("The U.S. dollar is not supported at this time.");
-    }
-  };
-
-  function handlePaymentMethodChange(methodId: string) {
-    setSelectedPaymentMethod(methodId);
-  }
-
   useEffect(() => {
-    setShowOptions(fiatSwitchOpen);
-  }, [fiatSwitchOpen]);
+    const fetchQuote = async () => {
+      setQuote(null);
+      if (
+        Number(youPayInput.state) <= 0 ||
+        !selectedCurrency ||
+        !paymentMethod
+      ) {
+        setQuote(null);
+        return;
+      }
+      const baseUrl =
+        "https://api-stg.transak.com/api/v1/pricing/public/quotes";
+      const params = new URLSearchParams({
+        partnerApiKey: process.env.PLASMO_PUBLIC_TRANSAK_API_KEY_STAGING,
+        fiatCurrency: selectedCurrency?.symbol,
+        cryptoCurrency: "AR",
+        isBuyOrSell: "BUY",
+        network: "mainnet",
+        paymentMethod: paymentMethod.id,
+        fiatAmount: youPayInput.state
+      });
 
-  useEffect(() => {
-    if (!isInitialMount.current) {
-      const fetchQuote = async () => {
-        if (typeof fiatAmount === "number") {
-          setIsFetchingQuote(true);
-          setTimeout(async () => {
-            try {
-              const quote = await getQuote(
-                selectedFiat,
-                selectedPaymentMethod,
-                fiatAmount
-              );
+      const url = `${baseUrl}?${params.toString()}`;
 
-              const quoteData = {
-                selectedFiat,
-                selectedPaymentMethod,
-                fiatAmount,
-                ...quote[0]
-              };
-
-              saveQuoteToStorage(quoteData);
-
-              const { payout } = quote[0];
-
-              setReceivedAR(payout);
-              setQuoteError(false);
-            } catch (error) {
-              setQuoteError(true);
-              setErrorMessage(error.message);
-              console.error(error);
-              setReceivedAR(undefined);
-            } finally {
-              setIsFetchingQuote(false);
-            }
-          }, 200);
-        } else {
-          setReceivedAR(undefined);
-          setQuoteError(true);
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
         }
-      };
+        const data = await response.json();
+        setQuote(data.response);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setQuote(null);
+      }
+    };
 
+    if (youPayInput.state) {
       fetchQuote();
-    } else {
-      isInitialMount.current = false;
     }
-  }, [selectedFiat, selectedPaymentMethod, fiatAmount, getQuote]);
-
-  useEffect(() => {
-    if (errorMessage.includes("does not support Payment Method")) {
-      setSelectedPaymentMethod("creditcard");
-    }
-  }, [errorMessage]);
+  }, [youPayInput.state, selectedCurrency, paymentMethod]);
 
   return (
-    <Wrapper>
-      <div>
-        <Header>
-          <Title>{browser.i18n.getMessage("buy_screen_title")}</Title>
-          <BackWrapper>
-            <ExitIcon onClick={() => push("/")}>
-              {browser.i18n.getMessage("exit_buy_screen")}
-            </ExitIcon>
-          </BackWrapper>
-        </Header>
-        <MainSwap>
-          <InputLabel>{browser.i18n.getMessage("buy_screen_pay")}</InputLabel>
-          <InputWrapper displayTheme={theme}>
-            <QuantityInput
-              displayTheme={theme}
-              type="text"
-              inputMode="decimal"
-              placeholder={browser.i18n.getMessage("buy_screen_enter")}
-              value={rawInput}
-              onKeyDown={(e) => {
-                if (
-                  [
-                    "Backspace",
-                    "0",
-                    "1",
-                    "2",
-                    "3",
-                    "4",
-                    "5",
-                    "6",
-                    "7",
-                    "8",
-                    "9",
-                    "."
-                  ].includes(e.key)
-                )
-                  return;
-                e.preventDefault();
-              }}
-              onChange={(e) => {
-                const inputValue = e.target.value;
-                setRawInput(inputValue); // Set the raw input as is
-
-                // Process the input value for internal use
-                let processedValue = inputValue.endsWith(".")
-                  ? inputValue + "0"
-                  : inputValue;
-
-                // Convert the processed value to a number
-                const numericValue = Number(processedValue);
-
-                // Update fiatAmount accordingly
-                setFiatAmount(isNaN(numericValue) ? undefined : numericValue);
-              }}
-            />
-            <FiatSelect
-              onClick={() => setFiatSwitchOpen(!fiatSwitchOpen)}
-              open={fiatSwitchOpen}
-              displayTheme={theme}
-            >
-              {selectedFiat.toLocaleUpperCase()}
-              <SelectIcon open={fiatSwitchOpen} />
-            </FiatSelect>
-            {showOptions && (
-              <InputMenu
-                onFiatCurrencyChange={handleFiat}
-                isPaymentMethod={false}
-                selectedFiatCurrency={selectedFiat}
+    <>
+      <Wrapper>
+        <Top>
+          <HeadV2 title="Buy AR" />
+          {/* TODO Only allow numbers */}
+          <InputV2
+            small
+            placeholder="0"
+            {...youPayInput.bindings}
+            label={"You Pay"}
+            fullWidth
+            icon={
+              <Tag
+                onClick={() => setShowCurrencySelector(true)}
+                currency={selectedCurrency?.symbol || ""}
               />
-            )}
-          </InputWrapper>
-          <Spacer y={0.7} />
-          <InputLabel>
-            {browser.i18n.getMessage("buy_screen_receive")}
-          </InputLabel>
-          <InputWrapper displayTheme={theme}>
-            {!isFetchingQuote && (
-              <QuantityInput
-                displayTheme={theme}
-                type="number"
-                placeholder={browser.i18n.getMessage("buy_screen_receive_x")}
-                value={receivedAR}
-                readOnly
-              />
-            )}
-            {isFetchingQuote && <LoadingSpin />}
-            <ReceiveToken>{browser.i18n.getMessage("AR_button")}</ReceiveToken>
-          </InputWrapper>
-          <Spacer y={0.3} />
-          {quoteError && !isInitialMount.current && (
-            <ConversionError>{errorMessage}</ConversionError>
-          )}
-          <Spacer y={0.7} />
-          <PaymentLabel>
-            {browser.i18n.getMessage("buy_screen_payment_method")}
-          </PaymentLabel>
-          <InputMenu
-            isPaymentMethod={true}
-            onPaymentMethodChange={handlePaymentMethodChange}
-            selectedFiatCurrency={selectedFiat}
-            selectedPaymentMethod={selectedPaymentMethod}
+            }
           />
-        </MainSwap>
-      </div>
-      <BuySection disabled={quoteError || receivedAR === undefined}>
-        <BuyButton route={"/confirm-purchase"} />
-      </BuySection>
-    </Wrapper>
+          <Switch>
+            <img src={switchIcon} />
+            <SwitchText noMargin>Switch</SwitchText>
+          </Switch>
+          <InputV2
+            small
+            placeholder={quote?.cryptoAmount.toString() ?? "0"}
+            disabled
+            {...youReceiveInput.bindings}
+            label={"You Receive"}
+            fullWidth
+            icon={<div>{"AR"}</div>}
+          />
+          <Line />
+          <InputV2
+            small
+            {...youReceiveInput.bindings}
+            label={"Payment Method"}
+            fullWidth
+            placeholder={paymentMethod?.name || ""}
+            icon={<ChevronRight onClick={() => setShowPaymentSelector(true)} />}
+          />
+          <AnimatePresence>
+            {showCurrencySelector && (
+              <SliderWrapper
+                variants={animation}
+                initial="hidden"
+                animate="shown"
+                exit="hidden"
+              >
+                <CurrencySelectorScreen
+                  onClose={handleCurrencyClose}
+                  updateCurrency={setSelectedCurrency}
+                  currencies={currencies}
+                />
+              </SliderWrapper>
+            )}
+            {showPaymentSelector && (
+              <SliderWrapper
+                variants={animation}
+                initial="hidden"
+                animate="shown"
+                exit="hidden"
+              >
+                <PaymentSelectorScreen
+                  payments={selectedCurrency.paymentOptions}
+                  updatePayment={setPaymentMethod}
+                  onClose={handlePaymentClose}
+                />
+              </SliderWrapper>
+            )}
+          </AnimatePresence>
+        </Top>
+        <ButtonV2
+          disabled={!quote}
+          fullWidth
+          onClick={async () => {
+            await ExtensionStorage.set("transak_quote", quote);
+            push(`/confirm-purchase/${quote.quoteId}`);
+          }}
+        >
+          Next
+        </ButtonV2>
+      </Wrapper>
+    </>
   );
 }
 
-const LoadingSpin = styled(Loading)`
-  height: 23px;
-  width: 23px;
-  margin-left: 5px;
-`;
+const Tag = ({
+  currency,
+  onClick
+}: {
+  currency: string;
+  onClick: () => void;
+}) => {
+  return (
+    // TODO: Fix USD getting cut off
+    <div style={{ display: "flex" }} onClick={onClick}>
+      <ChevronRight /> {currency}
+    </div>
+  );
+};
 
-const ConversionError = styled.div`
-  color: #ff6b6b;
-`;
+const PaymentSelectorScreen = ({
+  onClose,
+  updatePayment,
+  payments
+}: {
+  onClose: () => void;
+  updatePayment: (payment: any) => void;
+  payments: any[];
+}) => {
+  const searchInput = useInput();
 
-const BuySection = styled(Section)<{ disabled: boolean }>`
-  pointer-events: ${(props) => (props.disabled ? "none" : "auto")};
-`;
+  return (
+    <SelectorWrapper style={{ maxWidth: "377.5px" }}>
+      <HeadV2 back={onClose} title={"Choose a payment method"} />
+      {payments.map((payment) => {
+        return (
+          <ListItem
+            small
+            title={payment.name}
+            description={`processing time ${payment.processingTime}`}
+            img={payment.icon}
+            onClick={() => {
+              updatePayment(payment);
+              onClose();
+            }}
+          />
+        );
+      })}
+    </SelectorWrapper>
+  );
+};
 
-const ReceiveToken = styled(Card)`
-  display: flex;
-  height: 38px;
-  width: 100%;
-  max-width: 51px;
-  align-items: center;
-  justify-content: center;
-  background-color: #ab9aff;
-  cursor: pointer;
-  font-size: 16px;
-  border-radius: 12px;
-  padding: 2px 0px 2px 0px;
-  font-weight: 500;
-  color: #ffffff;
-`;
+const CurrencySelectorScreen = ({
+  onClose,
+  updateCurrency,
+  currencies
+}: {
+  onClose: () => void;
+  currencies: any[];
+  updateCurrency: (currency: any) => void;
+}) => {
+  const searchInput = useInput();
 
-const InputLabel = styled.div`
-  width: 100%
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  font-size: 16px;
-  font-weight: 500;
-  margin-bottom: 10px;
-`;
-
-const PaymentLabel = styled(InputLabel)`
-  font-size: 14px;
-  line-height: 19.12px;
-`;
-
-const InputWrapper = styled.div<{ displayTheme: DisplayTheme }>`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #ab9aff26;
-  padding: 10px;
-  border: ${(props) =>
-    props.displayTheme === "light"
-      ? "1px solid #AB9AFF"
-      : "1px solid #ab9aff26"};
-  border-radius: 12px;
-`;
-
-const QuantityInput = styled.input<{ displayTheme: DisplayTheme }>`
-  width: 100%;
-  background-color: transparent;
-  color: ${(props) =>
-    props.displayTheme === "light" ? "#AB9AFF" : "#ffffffb2"};
-  padding: 10px 10px 10px 3px;
-  outline: none;
-  border: none;
-  font-size: 1.2rem;
-  font-weight: 500;
-
-  &::placeholder {
-    color: ${(props) =>
-      props.displayTheme === "light" ? "#AB9AFF" : "#ffffffb2"};
-    font-size: 16px;
-    /* Add any other placeholder styles you need */
-  }
-
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  appearance: textfield;
-`;
-
-const SelectIcon = styled(ChevronDownIcon)<SelectIconProps>`
-  width: 37px;
-  height: 37px;
-  color: white;
-  transform: ${(props) => (props.open ? "rotate(180deg)" : "rotate(0)")};
-`;
-
-const FiatSelect = styled(Card)<{ open: boolean; displayTheme: DisplayTheme }>`
-  position: relative;
-  display: flex;
-  width: 84px;
-  height: 38px;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  background-color: #ab9aff;
-  transition: all 0.23s ease-in-out;
-  font-size: 16px;
-  border-radius: 12px;
-  padding: 2px 2px 2px 10px;
-  font-weight: 500;
-  color: ${(props) => (props.displayTheme === "light" ? "#ffffff" : "#ffffff")};
-
-  ${(props) =>
-    props.open
-      ? `border-color: rgba(${props.theme.theme}, .5); box-shadow: 0 0 0 1px rgba(${props.theme.theme}, .5);`
-      : ""}
-
-  ${SelectIcon} {
-    transform: ${(props) => (props.open ? "rotate(180deg)" : "rotate(0)")};
-  }
-`;
+  return (
+    <SelectorWrapper style={{ maxWidth: "377.5px" }}>
+      <HeadV2 back={onClose} title={"Choose Currency method"} />
+      <div style={{ paddingBottom: "18px" }}>
+        <InputV2
+          placeholder="Select Fiat Currency"
+          fullWidth
+          search
+          small
+          {...searchInput.bindings}
+        />
+      </div>
+      {currencies.map((currency) => {
+        return (
+          <ListItem
+            small
+            title={currency.symbol}
+            description={currency.name}
+            img={currency.logo}
+            onClick={() => {
+              updateCurrency(currency);
+              onClose();
+            }}
+          />
+        );
+      })}
+    </SelectorWrapper>
+  );
+};
 
 const Wrapper = styled.div`
+  padding: 15px;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: calc(100vh - 32px);
   justify-content: space-between;
 `;
 
-const Header = styled.div`
+const Top = styled.div``;
+
+const SelectorWrapper = styled.div`
+  max-width: 377.5px;
+  margin-left: auto;
+  margin-right: auto;
+`;
+
+const Switch = styled.div`
+  // TODO: TEMPORARY SOLUTION
+  padding-top: 16px;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: 23.6px 12px 12.4px 12px;
+  gap: 10px;
 `;
 
-const Title = styled.div`
-  color: #ab9aff;
-  display: inline-block;
-  font-size: 22px;
-  font-weight: 500;
+export const Line = styled.div<{ margin?: string }>`
+  margin: ${(props) => (props.margin ? props.margin : "18px")} 0;
+  height: 1px;
+  width: 100%;
+  background-color: ${(props) => props.theme.primary};
 `;
 
-const BackWrapper = styled.div`
-  position: relative;
-  display: flex;
-  width: max-content;
-  height: max-content;
-  cursor: pointer;
-
-  ${hoverEffect}
-
-  &::after {
-    width: 158%;
-    height: 158%;
-    border-radius: 100%;
-  }
-
-  &:active svg {
-    transform: scale(0.92);
-  }
+const SwitchText = styled(Text)`
+  color: ${(props) => props.theme.primaryTextv2};
 `;
 
-const ExitIcon = styled(CloseIcon)`
-  color: #ab9aff;
-  height: 30px;
-  width: 30px;
-`;
-
-const MainSwap = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 0px 12px 4.8px 12px;
-`;
+const animation: Variants = {
+  hidden: { x: "-100%", opacity: 0 },
+  shown: { x: "0%", opacity: 1 }
+};
