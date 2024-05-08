@@ -11,16 +11,18 @@ import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
 import { AnimatePresence, type Variants } from "framer-motion";
 import { SliderWrapper } from "./send";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PageType, trackPage } from "~utils/analytics";
 import type { PaymentType, Quote } from "~lib/onramper";
 import { useHistory } from "~utils/hash_router";
 import { ExtensionStorage } from "~utils/storage";
 
-export default function PurchaseV2() {
+export default function Purchase() {
   const [push] = useHistory();
   const youPayInput = useInput();
   const youReceiveInput = useInput();
+  const [arConversion, setArConversion] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [currencies, setCurrencies] = useState<any[]>([]);
   const [selectedCurrency, setSelectedCurrency] = useState<any | null>();
   const [paymentMethod, setPaymentMethod] = useState<PaymentType | null>();
@@ -68,12 +70,14 @@ export default function PurchaseV2() {
 
   useEffect(() => {
     const fetchQuote = async () => {
+      setLoading(true);
       setQuote(null);
       if (
         Number(youPayInput.state) <= 0 ||
         !selectedCurrency ||
         !paymentMethod
       ) {
+        setLoading(false);
         setQuote(null);
         return;
       }
@@ -85,70 +89,111 @@ export default function PurchaseV2() {
         cryptoCurrency: "AR",
         isBuyOrSell: "BUY",
         network: "mainnet",
-        paymentMethod: paymentMethod.id,
-        fiatAmount: youPayInput.state
+        paymentMethod: paymentMethod.id
       });
+      if (arConversion) {
+        params.append("cryptoAmount", youPayInput.state);
+      } else {
+        params.append("fiatAmount", youPayInput.state);
+      }
 
       const url = `${baseUrl}?${params.toString()}`;
 
       try {
         const response = await fetch(url);
         if (!response.ok) {
+          setQuote(null);
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
         setQuote(data.response);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
         setQuote(null);
+        setLoading(false);
       }
+      setLoading(false);
     };
 
     if (youPayInput.state) {
       fetchQuote();
+    } else {
+      setQuote(null);
     }
-  }, [youPayInput.state, selectedCurrency, paymentMethod]);
+  }, [youPayInput.state, selectedCurrency, paymentMethod, arConversion]);
 
   return (
     <>
+      <HeadV2 title="Buy AR" />
       <Wrapper>
         <Top>
-          <HeadV2 title="Buy AR" />
           {/* TODO Only allow numbers */}
           <InputV2
             small
             placeholder="0"
             {...youPayInput.bindings}
-            label={"You Pay"}
+            label={!arConversion ? "You Pay" : "You Receive"}
             fullWidth
             icon={
-              <Tag
-                onClick={() => setShowCurrencySelector(true)}
-                currency={selectedCurrency?.symbol || ""}
-              />
+              arConversion ? (
+                <AR />
+              ) : (
+                <Tag
+                  onClick={() => setShowCurrencySelector(true)}
+                  currency={selectedCurrency?.symbol || ""}
+                />
+              )
             }
           />
-          <Switch>
+          <Switch
+            onClick={() => {
+              setArConversion(!arConversion);
+            }}
+          >
             <img src={switchIcon} />
             <SwitchText noMargin>Switch</SwitchText>
           </Switch>
-          <InputV2
+          <ExchangeDisplay
             small
-            placeholder={quote?.cryptoAmount.toString() ?? "0"}
-            disabled
-            {...youReceiveInput.bindings}
-            label={"You Receive"}
+            placeholder={
+              arConversion
+                ? quote?.fiatAmount.toString() ?? "--"
+                : quote?.cryptoAmount.toString() ?? "--"
+            }
+            disabled={true}
+            label={arConversion ? "You Pay" : "You Receive"}
             fullWidth
-            icon={<div>{"AR"}</div>}
+            icon={
+              !arConversion ? (
+                <AR />
+              ) : (
+                <Tag
+                  onClick={() => setShowCurrencySelector(true)}
+                  currency={selectedCurrency?.symbol || ""}
+                />
+              )
+            }
           />
           <Line />
-          <InputV2
+          {/* TODO: make this work across the whole input box - maybe make this a button */}
+          <ExchangeDisplay
             small
-            {...youReceiveInput.bindings}
+            disabled
             label={"Payment Method"}
             fullWidth
             placeholder={paymentMethod?.name || ""}
-            icon={<ChevronRight onClick={() => setShowPaymentSelector(true)} />}
+            icon={
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
+              >
+                <ChevronRight onClick={() => setShowPaymentSelector(true)} />
+              </div>
+            }
           />
           <AnimatePresence>
             {showCurrencySelector && (
@@ -196,6 +241,10 @@ export default function PurchaseV2() {
   );
 }
 
+const AR = () => {
+  return <div style={{ cursor: "default" }}>{"AR"}</div>;
+};
+
 const Tag = ({
   currency,
   onClick
@@ -204,9 +253,8 @@ const Tag = ({
   onClick: () => void;
 }) => {
   return (
-    // TODO: Fix USD getting cut off
     <div style={{ display: "flex" }} onClick={onClick}>
-      <ChevronRight /> {currency}
+      {currency} <ChevronRight />
     </div>
   );
 };
@@ -223,11 +271,12 @@ const PaymentSelectorScreen = ({
   const searchInput = useInput();
 
   return (
-    <SelectorWrapper style={{ maxWidth: "377.5px" }}>
+    <SelectorWrapper>
       <HeadV2 back={onClose} title={"Choose a payment method"} />
-      {payments.map((payment) => {
+      {payments.map((payment, index) => {
         return (
           <ListItem
+            key={index}
             small
             title={payment.name}
             description={`processing time ${payment.processingTime}`}
@@ -254,21 +303,34 @@ const CurrencySelectorScreen = ({
 }) => {
   const searchInput = useInput();
 
+  const filteredCurrencies = useMemo(() => {
+    if (!searchInput.state) {
+      return currencies;
+    }
+    return currencies.filter((currency) => {
+      const name = currency.name?.toLowerCase() || "";
+      const symbol = currency.symbol?.toLowerCase() || "";
+      const searchLower = searchInput.state.toLowerCase();
+      return name.includes(searchLower) || symbol.includes(searchLower);
+    });
+  }, [currencies, searchInput.state]);
+
   return (
-    <SelectorWrapper style={{ maxWidth: "377.5px" }}>
-      <HeadV2 back={onClose} title={"Choose Currency method"} />
+    <SelectorWrapper>
+      <HeadV2 back={onClose} title={"Select Fiat Currency"} />
       <div style={{ paddingBottom: "18px" }}>
         <InputV2
-          placeholder="Select Fiat Currency"
+          placeholder="Enter currency name"
           fullWidth
           search
           small
           {...searchInput.bindings}
         />
       </div>
-      {currencies.map((currency) => {
+      {filteredCurrencies.map((currency, index) => {
         return (
           <ListItem
+            key={index}
             small
             title={currency.symbol}
             description={currency.name}
@@ -284,11 +346,25 @@ const CurrencySelectorScreen = ({
   );
 };
 
+const ExchangeDisplay = styled(InputV2)`
+  ::-webkit-input-placeholder {
+    color: ${(props) => props.theme.primaryTextv2};
+  }
+
+  :-ms-input-placeholder {
+    color: ${(props) => props.theme.primaryTextv2};
+  }
+
+  ::placeholder {
+    color: ${(props) => props.theme.primaryTextv2};
+  }
+`;
+
 const Wrapper = styled.div`
   padding: 15px;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 32px);
+  height: calc(100vh - 96px);
   justify-content: space-between;
 `;
 
@@ -296,17 +372,21 @@ const Top = styled.div``;
 
 const SelectorWrapper = styled.div`
   max-width: 377.5px;
+  padding: 15px;
   margin-left: auto;
   margin-right: auto;
 `;
 
-const Switch = styled.div`
-  // TODO: TEMPORARY SOLUTION
-  padding-top: 16px;
+const Switch = styled.button`
+  padding: 16px 0;
   display: flex;
   gap: 10px;
+  border: none;
+  background: none;
+  outline: none;
+  box-shadow: none;
+  cursor: pointer;
 `;
-
 export const Line = styled.div<{ margin?: string }>`
   margin: ${(props) => (props.margin ? props.margin : "18px")} 0;
   height: 1px;

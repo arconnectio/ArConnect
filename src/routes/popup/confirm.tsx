@@ -1,13 +1,10 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useHistory } from "~utils/hash_router";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { ExtensionStorage } from "~utils/storage";
 import { ButtonV2, Text } from "@arconnect/components";
-import { useTheme, hoverEffect } from "~utils/theme";
-
-import { getActiveWallet } from "~wallets";
-import { buyRequest, type Quote } from "~lib/onramper";
+import { type Quote } from "~lib/onramper";
 import { PageType, trackPage } from "~utils/analytics";
 import HeadV2 from "~components/popup/HeadV2";
 import { Line } from "./purchase";
@@ -38,7 +35,7 @@ export default function ConfirmPurchase({ id }: { id: string }) {
       const params = new URLSearchParams({
         apiKey: process.env.PLASMO_PUBLIC_TRANSAK_API_KEY_STAGING,
         defaultCryptoCurrency: "AR",
-        fiatAmount: quote.fiatAmount.toString(),
+        fiatAmount: (quote.fiatAmount + quote.totalFee).toString(),
         fiatCurrency: quote.fiatCurrency,
         walletAddress: activeAddress,
         paymentMethod: quote.paymentMethod
@@ -66,8 +63,7 @@ export default function ConfirmPurchase({ id }: { id: string }) {
           <Upper>
             <div>
               <CustomText noMargin>Wallet Address</CustomText>
-              <CustomText alt noMargin>
-                {/* TODO Add wallet name here */}
+              <CustomText alternate={true} noMargin>
                 {activeAddress && formatAddress(activeAddress, 10)}
               </CustomText>
             </div>
@@ -79,8 +75,8 @@ export default function ConfirmPurchase({ id }: { id: string }) {
                   Rate
                 </CustomText>
                 <CustomText noMargin fontSize="14px">
-                  {/* TODO: format this properly */}
-                  {quote.cryptoAmount} AR = ${quote.fiatAmount} USD
+                  {quote.cryptoAmount} AR = {quote.fiatAmount}{" "}
+                  {quote.fiatCurrency}
                 </CustomText>
               </Section>
               <Line margin="8px" />
@@ -89,11 +85,11 @@ export default function ConfirmPurchase({ id }: { id: string }) {
                   Network Fee
                 </CustomText>
                 <CustomText noMargin fontSize="14px">
-                  $
                   {
                     quote.feeBreakdown.find((fee) => fee.id === "network_fee")
                       .value
-                  }
+                  }{" "}
+                  {quote.fiatCurrency}
                 </CustomText>
               </Section>
               <Line margin="8px" />
@@ -102,18 +98,18 @@ export default function ConfirmPurchase({ id }: { id: string }) {
                   Vendor fee
                 </CustomText>
                 <CustomText noMargin fontSize="14px">
-                  $
                   {
                     quote.feeBreakdown.find((fee) => fee.id === "transak_fee")
                       .value
-                  }
+                  }{" "}
+                  {quote.fiatCurrency}
                 </CustomText>
               </Section>
               <Line margin="8px" />
               <Section>
                 <CustomText noMargin>Total</CustomText>
                 <CustomText noMargin>
-                  ${quote.fiatAmount + quote.totalFee} USD
+                  {quote.fiatAmount + quote.totalFee} {quote.fiatCurrency}
                 </CustomText>
               </Section>
             </div>
@@ -154,8 +150,8 @@ const Section = styled.div`
   justify-content: space-between;
 `;
 
-const CustomText = styled(Text)<{ alt?: boolean; fontSize?: string }>`
+const CustomText = styled(Text)<{ alternate?: boolean; fontSize?: string }>`
   color: ${(props) =>
-    props.alt ? props.theme.secondaryTextv2 : props.theme.primaryTextv2};
+    props.alternate ? props.theme.secondaryTextv2 : props.theme.primaryTextv2};
   font-size: ${(props) => props.fontSize && props.fontSize};
 `;
