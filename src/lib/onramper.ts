@@ -1,5 +1,53 @@
 import browser from "webextension-polyfill";
 
+export type PaymentType = {
+  name: string;
+  id: string;
+  isNftAllowed: boolean;
+  isNonCustodial: boolean;
+  processingTime: string;
+  displayText: boolean;
+  icon: string;
+  limitCurrency: string;
+  isActive: boolean;
+  provider: string;
+  maxAmount: number;
+  minAmount: number;
+  defaultAmount: number;
+  isConverted: boolean;
+  visaPayoutCountries: string[];
+  mastercardPayoutCountries: string[];
+  isPayOutAllowed: boolean;
+  minAmountForPayOut: number;
+  maxAmountForPayOut: number;
+  defaultAmountForPayOut: number;
+};
+
+export type Quote = {
+  quoteId: string;
+  conversionPrice: number;
+  marketConversionPrice: number;
+  slippage: number;
+  fiatCurrency: string;
+  cryptoCurrency: string;
+  paymentMethod: string;
+  fiatAmount: number;
+  cryptoAmount: number;
+  isBuyOrSell: "BUY" | "SELL";
+  network: string;
+  feeDecimal: number;
+  totalFee: number;
+  feeBreakdown: Array<{
+    name: string;
+    value: number;
+    id: string;
+    ids: Array<string>;
+  }>;
+  nonce: number;
+  cryptoLiquidityProvider: string;
+  notes: Array<string>;
+};
+
 /**
  * GET currency $AR price quote
  *
@@ -135,6 +183,7 @@ export async function getPaymentTypes(currency: string) {
         }
       }
     );
+    console.log("response", response, currency);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

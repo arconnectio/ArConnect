@@ -1480,12 +1480,16 @@
     "description": "Buy AR with Onramper button text"
   },
   "buy_screen_pay": {
-    "message": "You pay",
+    "message": "You Pay",
     "description": "Payment input label title"
   },
   "buy_screen_receive": {
-    "message": "You receive",
+    "message": "You Receive",
     "description": "Receive input label title"
+  },
+  "buy_screen_switch": {
+    "message": "Switch",
+    "description": "Switch button"
   },
   "buy_screen_payment_method": {
     "message": "Payment Method",
@@ -1548,7 +1552,7 @@
     "description": "Info message text on purchase in progress page"
   },
   "order_id_purchase_pending": {
-    "message":  "Order ID:",
+    "message":  "Quote ID:",
     "description": "Order ID text on purchase in progress page"
   },
   "choose_payment_method": {

@@ -4,7 +4,7 @@ import { useHistory } from "~utils/hash_router";
 import noBalanceArt from "url:/assets/ar/no_funds.png";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-// import BuyButton from "./BuyButton";
+import { PureBuyButton } from "./BuyButton";
 
 export default function NoBalance() {
   const [push] = useHistory();
@@ -16,7 +16,7 @@ export default function NoBalance() {
         {browser.i18n.getMessage("home_no_balance", "$AR")}
       </NoBalanceText>
       <ButtonWrapper>
-        {/* <BuyButton route={"/purchase"} logo={true} /> */}
+        <PureBuyButton />
         <ButtonV2
           onClick={() => push("/receive")}
           secondary
@@ -54,8 +54,10 @@ const Art = styled.img.attrs({
 `;
 
 const ButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   width: 100%;
-  margin-top: -2px;
 `;
 
 const ArrowRight = styled(ArrowRightIcon)`

@@ -26,6 +26,7 @@ export default function HeadV2({
   title,
   showOptions = true,
   back,
+  padding,
   showBack = true,
   allowOpen = true
 }: Props) {
@@ -97,6 +98,7 @@ export default function HeadV2({
       displayTheme={theme}
       collapse={scrollDirection === "down"}
       scrolled={scrolled}
+      padding={padding}
     >
       <BackWrapper
         onClick={async () => {
@@ -142,6 +144,7 @@ const HeadWrapper = styled(Section)<{
   collapse: boolean;
   scrolled: boolean;
   displayTheme: DisplayTheme;
+  padding: string;
 }>`
   position: sticky;
   top: 0;
@@ -151,7 +154,7 @@ const HeadWrapper = styled(Section)<{
   display: flex;
   flex-direction: row;
   width: full;
-  padding: 15px;
+  padding: ${(props) => (props.padding ? props.padding : "15px")};
   justify-content: space-between;
   align-items: center;
   background-color: rgba(${(props) => props.theme.background}, 0.75);
@@ -241,6 +244,7 @@ interface Props {
   showOptions?: boolean;
   // allow opening the wallet switcher
   showBack?: boolean;
+  padding?: string;
   allowOpen?: boolean;
   back?: (...args) => any;
 }
