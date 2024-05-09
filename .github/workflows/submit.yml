@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Create .env file
-        run: echo "PLASMO_PUBLIC_ONRAMPER_API_KEY=${{ secrets.ONRAMPER_API_KEY }}" >> .env
+        run: echo "PLASMO_PUBLIC_TRANSAK_API_KEY=${{ secrets.TRANSAK_API_KEY }}" >> .env
 
       - name: Modify package.json  and icons for BETA
         if: github.ref == 'refs/heads/staging'
