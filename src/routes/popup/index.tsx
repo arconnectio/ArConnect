@@ -5,7 +5,6 @@ import Collectibles from "~components/popup/home/Collectibles";
 import WalletHeader from "~components/popup/WalletHeader";
 import NoBalance from "~components/popup/home/NoBalance";
 import Balance from "~components/popup/home/Balance";
-// import BuyButton from "~components/popup/home/BuyButton";
 import Tokens from "~components/popup/home/Tokens";
 import { AnnouncementPopup } from "./announcement";
 import { getDecryptionKey, isExpired } from "~wallets/auth";
@@ -119,7 +118,7 @@ export default function Home() {
       <Balance />
       {(!noBalance && (
         <>
-          <BuyButton padding={true} route={"/purchase"} logo={true} />
+          <BuyButton />
           <Tokens />
           <Collectibles />
         </>

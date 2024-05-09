@@ -26,19 +26,19 @@ export default function ConfirmPurchase({ id }: { id: string }) {
 
   //segment
   useEffect(() => {
-    trackPage(PageType.ONRAMP_CONFIRM_PURCHASE);
+    trackPage(PageType.TRANSAK_CONFIRM_PURCHASE);
   }, []);
 
   const buyAR = async () => {
     try {
-      const baseUrl = "https://global-stg.transak.com/";
+      const baseUrl = "https://global.transak.com/";
       const params = new URLSearchParams({
-        apiKey: process.env.PLASMO_PUBLIC_TRANSAK_API_KEY_STAGING,
+        apiKey: process.env.PLASMO_PUBLIC_TRANSAK_API_KEY,
         defaultCryptoCurrency: "AR",
-        fiatAmount: (quote.fiatAmount + quote.totalFee).toString(),
-        fiatCurrency: quote.fiatCurrency,
+        defaultFiatAmount: (quote.fiatAmount + quote.totalFee).toString(),
+        defaultFiatCurrency: quote.fiatCurrency,
         walletAddress: activeAddress,
-        paymentMethod: quote.paymentMethod
+        defaultPaymentMethod: quote.paymentMethod
       });
       const url = `${baseUrl}?${params.toString()}`;
       browser.tabs.create({
@@ -48,11 +48,6 @@ export default function ConfirmPurchase({ id }: { id: string }) {
     } catch (error) {
       console.error("Error buying AR:", error);
     }
-  };
-
-  const handleBack = () => {
-    // setIsBackFromConfirm(true);
-    push("/purchase");
   };
 
   return (

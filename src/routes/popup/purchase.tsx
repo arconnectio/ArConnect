@@ -3,8 +3,10 @@ import {
   useInput,
   Text,
   ListItem,
-  ButtonV2
+  ButtonV2,
+  Loading
 } from "@arconnect/components";
+import browser from "webextension-polyfill";
 import { ChevronRight } from "@untitled-ui/icons-react";
 import switchIcon from "url:/assets/ecosystem/switch-vertical.svg";
 import styled from "styled-components";
@@ -20,7 +22,6 @@ import { ExtensionStorage } from "~utils/storage";
 export default function Purchase() {
   const [push] = useHistory();
   const youPayInput = useInput();
-  const youReceiveInput = useInput();
   const [arConversion, setArConversion] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [currencies, setCurrencies] = useState<any[]>([]);
@@ -30,8 +31,6 @@ export default function Purchase() {
   const [showCurrencySelector, setShowCurrencySelector] = useState(false);
   const [quote, setQuote] = useState<Quote | null>();
 
-  // need to grab all currencies
-
   const handlePaymentClose = () => {
     setShowPaymentSelector(false);
   };
@@ -39,6 +38,11 @@ export default function Purchase() {
   const handleCurrencyClose = () => {
     setShowCurrencySelector(false);
   };
+
+  //segment
+  useEffect(() => {
+    trackPage(PageType.TRANSAK_PURCHASE);
+  }, []);
 
   useEffect(() => {
     const fetchCurrencies = async () => {
@@ -81,10 +85,9 @@ export default function Purchase() {
         setQuote(null);
         return;
       }
-      const baseUrl =
-        "https://api-stg.transak.com/api/v1/pricing/public/quotes";
+      const baseUrl = "https://api.transak.com/api/v1/pricing/public/quotes";
       const params = new URLSearchParams({
-        partnerApiKey: process.env.PLASMO_PUBLIC_TRANSAK_API_KEY_STAGING,
+        partnerApiKey: process.env.PLASMO_PUBLIC_TRANSAK_API_KEY,
         fiatCurrency: selectedCurrency?.symbol,
         cryptoCurrency: "AR",
         isBuyOrSell: "BUY",
@@ -133,7 +136,11 @@ export default function Purchase() {
             small
             placeholder="0"
             {...youPayInput.bindings}
-            label={!arConversion ? "You Pay" : "You Receive"}
+            label={
+              !arConversion
+                ? browser.i18n.getMessage("buy_screen_pay")
+                : browser.i18n.getMessage("buy_screen_receive")
+            }
             fullWidth
             icon={
               arConversion ? (
@@ -152,37 +159,45 @@ export default function Purchase() {
             }}
           >
             <img src={switchIcon} />
-            <SwitchText noMargin>Switch</SwitchText>
+            <SwitchText noMargin>
+              {browser.i18n.getMessage("buy_screen_switch")}
+            </SwitchText>
           </Switch>
-          <ExchangeDisplay
-            small
-            placeholder={
+          <InputButton
+            disabled={arConversion}
+            label={
               arConversion
-                ? quote?.fiatAmount.toString() ?? "--"
-                : quote?.cryptoAmount.toString() ?? "--"
+                ? browser.i18n.getMessage("buy_screen_pay")
+                : browser.i18n.getMessage("buy_screen_receive")
             }
-            disabled={true}
-            label={arConversion ? "You Pay" : "You Receive"}
-            fullWidth
+            // label={arConversion ? "You Pay" : "You Receive"}
+            onClick={() => setShowCurrencySelector(true)}
+            body={
+              loading ? (
+                <Loading />
+              ) : arConversion ? (
+                quote?.fiatAmount.toString() ?? "--"
+              ) : (
+                quote?.cryptoAmount.toString() ?? "--"
+              )
+            }
             icon={
               !arConversion ? (
                 <AR />
               ) : (
                 <Tag
-                  onClick={() => setShowCurrencySelector(true)}
                   currency={selectedCurrency?.symbol || ""}
+                  onClick={() => setShowCurrencySelector(true)}
                 />
               )
             }
           />
           <Line />
-          {/* TODO: make this work across the whole input box - maybe make this a button */}
-          <ExchangeDisplay
-            small
-            disabled
-            label={"Payment Method"}
-            fullWidth
-            placeholder={paymentMethod?.name || ""}
+          <InputButton
+            label={browser.i18n.getMessage("buy_screen_payment_method")}
+            onClick={() => setShowPaymentSelector(true)}
+            disabled={false}
+            body={paymentMethod?.name || ""}
             icon={
               <div
                 style={{
@@ -272,7 +287,11 @@ const PaymentSelectorScreen = ({
 
   return (
     <SelectorWrapper>
-      <HeadV2 back={onClose} title={"Choose a payment method"} />
+      <HeadV2
+        back={onClose}
+        title={"Choose a payment method"}
+        padding={"0 0 15px 0;"}
+      />
       {payments.map((payment, index) => {
         return (
           <ListItem
@@ -317,7 +336,11 @@ const CurrencySelectorScreen = ({
 
   return (
     <SelectorWrapper>
-      <HeadV2 back={onClose} title={"Select Fiat Currency"} />
+      <HeadV2
+        back={onClose}
+        title={"Select Fiat Currency"}
+        padding={"0 0 15px 0;"}
+      />
       <div style={{ paddingBottom: "18px" }}>
         <InputV2
           placeholder="Enter currency name"
@@ -346,18 +369,52 @@ const CurrencySelectorScreen = ({
   );
 };
 
-const ExchangeDisplay = styled(InputV2)`
-  ::-webkit-input-placeholder {
-    color: ${(props) => props.theme.primaryTextv2};
-  }
+const InputButton = ({
+  label,
+  body,
+  icon,
+  onClick,
+  disabled
+}: {
+  label: string;
+  body: string | React.ReactNode;
+  icon: React.ReactNode;
+  onClick: () => void;
+  disabled: boolean;
+}) => {
+  return (
+    <div>
+      <Label>{label}</Label>
+      <InputButtonWrapper onClick={onClick} disabled={disabled}>
+        <div>{body}</div>
+        {icon}
+      </InputButtonWrapper>
+    </div>
+  );
+};
 
-  :-ms-input-placeholder {
-    color: ${(props) => props.theme.primaryTextv2};
-  }
+const InputButtonWrapper = styled.button`
+  background: none;
+  color: ${(props) => props.theme.primaryTextv2};
+  font-size: 16px;
+  display: flex;
+  height: 42px;
+  padding: 8.5px 15px;
+  border-radius: 10px;
+  width: 100%;
+  justify-content: space-between;
+  border: 1.5px solid ${(props) => props.theme.inputField};
+  cursor: ${(props) => (props.disabled ? "default" : "pointer")};
 
-  ::placeholder {
-    color: ${(props) => props.theme.primaryTextv2};
+  &:hover {
+    border-color: ${(props) => !props.disabled && props.theme.primaryTextv2};
   }
+`;
+
+const Label = styled.div`
+  padding-bottom: 8px;
+  font-size: 16px;
+  color: ${(props) => props.theme.primaryTextv2};
 `;
 
 const Wrapper = styled.div`

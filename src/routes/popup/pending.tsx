@@ -3,26 +3,26 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { ExtensionStorage } from "~utils/storage";
 import { useTheme } from "~utils/theme";
-import { Section } from "@arconnect/components";
+import { ButtonV2, Section } from "@arconnect/components";
 import type { DisplayTheme } from "@arconnect/components";
 import BuyButton from "~components/popup/home/BuyButton";
 import { PageType, trackPage } from "~utils/analytics";
+import { useStorage } from "@plasmohq/storage/hook";
+import type { Quote } from "~lib/onramper";
+import { useHistory } from "~utils/hash_router";
 
 export default function PendingPurchase() {
   const theme = useTheme();
+  const [push] = useHistory();
 
-  const [orderID, setOrderID] = useState("");
-
-  async function getActiveQuote() {
-    const activeQuote = await ExtensionStorage.get("quote");
-    setOrderID(activeQuote.quoteId);
-  }
-
-  getActiveQuote();
+  const [quote] = useStorage<Quote>({
+    key: "transak_quote",
+    instance: ExtensionStorage
+  });
 
   //segment
   useEffect(() => {
-    trackPage(PageType.ONRAMP_PURCHASE_PENDING);
+    trackPage(PageType.TRANSAK_PURCHASE_PENDING);
   }, []);
 
   return (
@@ -37,12 +37,17 @@ export default function PendingPurchase() {
         <PurchasePendingText displayTheme={theme}>
           {browser.i18n.getMessage("info_purchase_pending")}
         </PurchasePendingText>
-        <OrderID displayTheme={theme}>
-          {browser.i18n.getMessage("order_id_purchase_pending")} {orderID}
-        </OrderID>
+        {quote && (
+          <OrderID displayTheme={theme}>
+            {browser.i18n.getMessage("order_id_purchase_pending")}{" "}
+            {quote.quoteId}
+          </OrderID>
+        )}
       </MainContent>
       <Section>
-        <BuyButton closeBuyAR />
+        <ButtonV2 fullWidth onClick={() => push("/")}>
+          Home
+        </ButtonV2>
       </Section>
     </Wrapper>
   );

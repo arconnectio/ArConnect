@@ -649,9 +649,6 @@ const RecipientAmountWrapper = styled.div`
 `;
 
 const MaxButton = styled.button<{ altColor?: string }>`
-  position: absolute;
-  right: 8px;
-  top: -3px;
   display: flex;
   text-align: center;
   align-items: center;
@@ -659,8 +656,6 @@ const MaxButton = styled.button<{ altColor?: string }>`
   outline: none;
   font-size: 13.28px;
   gap: 0.3rem;
-  width: 37px !important;
-  height: 28px !important;
   border-radius: 3px;
   padding: 5px;
   border: 0px;
@@ -673,8 +668,6 @@ const MaxButton = styled.button<{ altColor?: string }>`
 `;
 
 const CurrencyButton = styled.button`
-  position: absolute;
-  right: 56px;
   font-weight: 400;
   background-color: transparent;
   border-radius: 4px;
