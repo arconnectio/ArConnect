@@ -12,6 +12,37 @@ import { isLocalWallet } from "~utils/assertions";
 
 export type AoInstance = ReturnType<typeof connect>;
 
+export const defaultAoTokens: TokenInfo[] = [
+  {
+    Name: "TRUNK",
+    Ticker: "TRUNK",
+    Denomination: 3,
+    Logo: "4eTBOaxZSSyGbpKlHyilxNKhXbocuZdiMBYIORjS4f0",
+    processId: "OT9qTE2467gcozb2g8R6D6N3nQS94ENcaAIJfUzHCww"
+  },
+  {
+    Name: "Bark",
+    Ticker: "BRKTST",
+    Denomination: 3,
+    Logo: "AdFxCN1eEPboxNpCNL23WZRNhIhiamOeS-TUwx_Nr3Q",
+    processId: "8p7ApPZxC_37M06QHVejCQrKsHbcJEerd3jWNkDUWPQ"
+  },
+  {
+    Name: "AOCRED",
+    Ticker: "testnet-AOCRED",
+    Denomination: 3,
+    Logo: "eIOOJiqtJucxvB4k8a-sEKcKpKTh9qQgOV3Au7jlGYc",
+    processId: "Sa0iBLPNyJQrwpTTG-tWLQU-1QeUAJA73DdxGGiKoJc"
+  },
+  {
+    Name: "Astro USD (Test)",
+    Ticker: "USDA-TST",
+    Denomination: 12,
+    Logo: "",
+    processId: "GcFxqTQnKHcr304qnOcq00ZqbaYGDn4Wbb0DHAM-wvU"
+  }
+];
+
 export interface Message {
   Anchor: string;
   Tags: Tag[];
@@ -52,7 +83,7 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
     () =>
       tokens.map((token) => ({
         ...token,
-        balance: balances.find((bal) => bal.id === token.id)?.balance || 0
+        balance: balances.find((bal) => bal.id === token.id)?.balance ?? null
       })),
     [tokens, balances]
   );
@@ -84,7 +115,6 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
   useEffect(() => {
     (async () => {
       if (loadingIDs) return;
-      setLoading(true);
 
       try {
         if (!aoSetting) {
@@ -101,8 +131,6 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
           }))
         );
       } catch {}
-
-      setLoading(false);
     })();
   }, [ids, ao, loadingIDs, aoSetting]);
 
@@ -112,24 +140,45 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
         return setBalances([]);
       }
 
+      setLoading(true);
       try {
-        setBalances(
-          await Promise.all(
-            ids.map(async (id) => {
+        const balances = await Promise.all(
+          ids.map(async (id) => {
+            try {
               const aoToken = await Token(id);
-              const balance = Number(await aoToken.getBalance(activeAddress));
-
+              const balance = Number(
+                await timeoutPromise(aoToken.getBalance(activeAddress), 3000)
+              );
               return {
                 id,
                 balance
               };
-            })
-          )
+            } catch (error) {
+              return { id, balance: null };
+            }
+          })
         );
-      } catch {}
+        setBalances(balances);
+      } catch {
+      } finally {
+        setLoading(false);
+      }
     })();
-  }, [ids, loading, activeAddress, ao, aoSetting]);
+  }, [ids, activeAddress, ao, aoSetting]);
   return [tokensWithBalances, loading];
+}
+
+/**
+ * Timeout for resolving balances from ao
+ */
+async function timeoutPromise<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`Timeout after ${ms} ms`));
+    }, ms);
+
+    promise.then(resolve, reject).finally(() => clearTimeout(timer));
+  });
 }
 
 /**
