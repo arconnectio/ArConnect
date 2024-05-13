@@ -12,7 +12,8 @@ export type AuthType =
   | "sign"
   | "subscription"
   | "signMessage"
-  | "signature";
+  | "signature"
+  | "signDataItem";
 
 export interface AuthData {
   // type of auth to request from the user

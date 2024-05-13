@@ -10,10 +10,10 @@
     "@jridgewell/gen-mapping" "^0.3.5"
     "@jridgewell/trace-mapping" "^0.3.24"
 
-"@arconnect/components@^0.3.7":
-  version "0.3.7"
-  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.3.7.tgz#1f4b077885304e3e438e0fe2dd1d51ba88cec212"
-  integrity sha512-vNrWcmk+MoAeRVfSRagq1txL5sRcx863Zlm+Li7sxwgwkw6xqCRvGl8pso+KVcEObBHcNdZQ6E44pE680ttGSQ==
+"@arconnect/components@^0.3.6":
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.3.6.tgz#19ac4c35386f212fbb8729146d073cafe0ecad51"
+  integrity sha512-3xLPkApb5wc8pXSv9v/W9J2NtukO9dXtF6p6IdKrR/0m4ozeY5CFbBjE/eylPGsCaBLUaKdJZ7k7fj94AdxZww==
   dependencies:
     "@iconicicons/react" "^1.5.1"
     axios "^1.6.7"
@@ -1461,7 +1461,6 @@
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/@octokit/core/-/core-5.2.0.tgz#ddbeaefc6b44a39834e1bb2e58a49a117672a7ea"
   integrity sha512-1LFfa/qnMQvEOAdzlQymH0ulepxbxnCYAKJZfMci/5XJyIHWgEYnDmgnKakbTh7CH2tFQ5O60oYDvns4i9RAIg==
-  dependencies:
     "@octokit/auth-token" "^4.0.0"
     "@octokit/graphql" "^7.1.0"
     "@octokit/request" "^8.3.1"
@@ -2870,7 +2869,6 @@
   version "1.69.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.69.0.tgz#7d66805d2cb9b09888846e6ec4cf22d3c90fd175"
   integrity sha512-Uk7l0umdRMtUJSW2WDSG9lUia4OaiFbCIQSFoIHge6sNrCENEDCr/cN8aW0pyRXZ62hFbezuXwTdeTgvFMrTBg==
-  dependencies:
     "@lukeed/uuid" "^2.0.0"
     "@segment/analytics-core" "1.6.0"
     "@segment/analytics-generic-utils" "1.2.0"
@@ -4596,7 +4594,7 @@ anymatch@~3.1.2:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-aproba@^2.0.0:
+"aproba@^1.0.3 || ^2.0.0", aproba@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/aproba/-/aproba-2.0.0.tgz#52520b8ae5b569215b354efc0caa3fe1e45a8adc"
   integrity sha512-lYe4Gx7QT+MKGbDsA+Z+he/Wtef0BiwDOlK/XkBrdfsh9J/jPPXbX0tE9x9cl27Tmu5gg3QUbUrQYa/y+KOHPQ==
@@ -5881,7 +5879,6 @@ css-to-react-native@^3.0.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/css-to-react-native/-/css-to-react-native-3.2.0.tgz#cdd8099f71024e149e4f6fe17a7d46ecd55f1e32"
   integrity sha512-e8RKaLXMOFii+02mOlqwjbD00KSEKqblnpO9e++1aXS1fPQOpS1YoqdVHBqPjHNoxeF2mimzVqawm2KCbEdtHQ==
-  dependencies:
     camelize "^1.0.0"
     css-color-keywords "^1.0.0"
     postcss-value-parser "^4.0.2"
@@ -6705,6 +6702,20 @@ form-data@^4.0.0:
     combined-stream "^1.0.8"
     mime-types "^2.1.12"
 
+formidable@^1.2.2:
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/formidable/-/formidable-1.2.6.tgz#d2a51d60162bbc9b4a055d8457a7c75315d1a168"
+  integrity sha512-KcpbcpuLNOwrEjnbpMC0gS+X8ciDoZE1kkqzat4a8vrprf+s9pKNQ/QIwWfbfs4ltgmFl3MD177SNTkve3BwGQ==
+
+framer-motion@^10.5.0:
+  version "10.18.0"
+  resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-10.18.0.tgz#1f4fc51403996ea7170af885bd44a7079d255950"
+  integrity sha512-oGlDh1Q1XqYPksuTD/usb0I70hq95OUzmL9+6Zd+Hs4XV0oaISBa/UUMSjYiq6m8EUF32132mOJ8xVZS+I0S6w==
+  dependencies:
+    tslib "^2.4.0"
+  optionalDependencies:
+    "@emotion/is-prop-valid" "^0.8.2"
+
 framer-motion@^7.5.3:
   version "7.10.3"
   resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-7.10.3.tgz#8b23f50bbc1ee8c830c869c5398e457d5272feb5"
@@ -6925,7 +6936,6 @@ globals@^13.2.0:
   version "13.24.0"
   resolved "https://registry.yarnpkg.com/globals/-/globals-13.24.0.tgz#8432a19d78ce0c1e833949c36adb345400bb1171"
   integrity sha512-AhO5QUcj8llrbG09iWhPU2B204J1xnPeL8kQmVorSsy+Sjj1sk8gIyh6cUocGmH4L0UuhAJy+hJMRA4mgA4mFQ==
-  dependencies:
     type-fest "^0.20.2"
 
 globalthis@^1.0.3:
@@ -8202,7 +8212,6 @@ lightningcss@1.21.8:
   version "1.21.8"
   resolved "https://registry.yarnpkg.com/lightningcss/-/lightningcss-1.21.8.tgz#a02e4a8979208ffb61d7c6deebb75c4abce0b5d6"
   integrity sha512-jEqaL7m/ZckZJjlMAfycr1Kpz7f93k6n7KGF5SJjuPSm6DWI6h3ayLZmgRHgy1OfrwoCed6h4C/gHYPOd1OFMA==
-  dependencies:
     detect-libc "^1.0.3"
   optionalDependencies:
     lightningcss-darwin-arm64 "1.21.8"
@@ -8658,7 +8667,6 @@ minimatch@^5.1.0:
   version "5.1.6"
   resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-5.1.6.tgz#1cfcb8cf5522ea69952cd2af95ae09477f122a96"
   integrity sha512-lKwV/1brpG6mBUFHtb7NUmtABCb2WZZmm2wNiOA5hAb8VdCS4B3dtMWyvcoViccwAW/COERjXLt0zP1zXUN26g==
-  dependencies:
     brace-expansion "^2.0.1"
 
 minimatch@^9.0.0, minimatch@^9.0.1, minimatch@^9.0.3, minimatch@^9.0.4:
@@ -9035,7 +9043,6 @@ normalize-url@^8.0.0:
   version "8.0.1"
   resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-8.0.1.tgz#9b7d96af9836577c58f5883e939365fa15623a4a"
   integrity sha512-IO9QvjUMWxPQQhs60oOu10CRkWCiZzSUkzbXGGV9pviYl1fXYcvkzQ5jV9z8Y6un8ARoVRl4EtC6v6jNqbaJ/w==
-
 npm-audit-report@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/npm-audit-report/-/npm-audit-report-5.0.0.tgz#83ac14aeff249484bde81eff53c3771d5048cf95"
@@ -10156,7 +10163,6 @@ readable-stream@^3.1.1, readable-stream@^3.4.0, readable-stream@^3.5.0, readable
   version "3.6.2"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.6.2.tgz#56a9b36ea965c00c5a93ef31eb111a0f11056967"
   integrity sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==
-  dependencies:
     inherits "^2.0.3"
     string_decoder "^1.1.1"
     util-deprecate "^1.0.1"

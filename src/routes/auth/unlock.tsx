@@ -1,8 +1,8 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import { unlock } from "~wallets/auth";
 import {
-  Button,
-  Input,
+  ButtonV2,
+  InputV2,
   Section,
   Spacer,
   Text,
@@ -61,7 +61,7 @@ export default function Unlock() {
             {browser.i18n.getMessage("unlock_wallet_to_use")}
           </Text>
           <Spacer y={1.5} />
-          <Input
+          <InputV2
             type="password"
             {...passwordInput.bindings}
             label={browser.i18n.getMessage("password")}
@@ -76,13 +76,13 @@ export default function Unlock() {
         </Section>
       </div>
       <Section>
-        <Button fullWidth onClick={unlockWallet}>
+        <ButtonV2 fullWidth onClick={unlockWallet}>
           {browser.i18n.getMessage("unlock")}
-        </Button>
+        </ButtonV2>
         <Spacer y={0.75} />
-        <Button fullWidth secondary onClick={cancel}>
+        <ButtonV2 fullWidth secondary onClick={cancel}>
           {browser.i18n.getMessage("cancel")}
-        </Button>
+        </ButtonV2>
       </Section>
     </Wrapper>
   );

@@ -33,11 +33,6 @@ export default function Start() {
 
   return (
     <Wrapper>
-      <Skip>
-        <ButtonV2 secondary onClick={() => setLocation("/generate/1")}>
-          {browser.i18n.getMessage("skip")}
-        </ButtonV2>
-      </Skip>
       <ExplainerSection>
         <ExplainTitle>{browser.i18n.getMessage(activePage.title)}</ExplainTitle>
         <Spacer y={0.5} />
@@ -59,15 +54,24 @@ export default function Start() {
           )}
         </ExplainerContent>
         <Spacer y={1.25} />
-        <ButtonV2
-          fullWidth
-          onClick={() =>
-            setLocation(page === 3 ? "/generate/1" : `/start/${page + 1}`)
-          }
-        >
-          {browser.i18n.getMessage("next")}
-          <ArrowRightIcon style={{ marginLeft: "5px" }} />
-        </ButtonV2>
+        <ButtonWrapper>
+          <ButtonV2
+            fullWidth
+            onClick={() =>
+              setLocation(page === 3 ? "/generate/1" : `/start/${page + 1}`)
+            }
+          >
+            {browser.i18n.getMessage("next")}
+            <ArrowRightIcon style={{ marginLeft: "5px" }} />
+          </ButtonV2>
+          <ButtonV2
+            secondary
+            fullWidth
+            onClick={() => setLocation("/generate/1")}
+          >
+            {browser.i18n.getMessage("skip")}
+          </ButtonV2>
+        </ButtonWrapper>
       </ExplainerSection>
       <Pagination>
         {Array(3)
@@ -158,10 +162,10 @@ const Page = styled.span<{ active?: boolean }>`
   transition: all 0.23s ease-in-out;
 `;
 
-const Skip = styled.div`
-  position: absolute;
-  top: 3rem;
-  right: 3rem;
+const ButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;
 
 interface PageInterface {

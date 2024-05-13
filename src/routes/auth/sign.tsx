@@ -22,7 +22,7 @@ import {
   TransactionProperty
 } from "~routes/popup/transaction/[id]";
 import {
-  Button,
+  ButtonV2,
   Section,
   Spacer,
   Text,
@@ -318,7 +318,7 @@ export default function Sign() {
       <Section>
         {page !== "scanner" && (
           <>
-            <Button
+            <ButtonV2
               fullWidth
               disabled={!transaction || loading}
               loading={!transaction || loading}
@@ -334,13 +334,13 @@ export default function Sign() {
               }}
             >
               {browser.i18n.getMessage("sign_authorize")}
-            </Button>
+            </ButtonV2>
             <Spacer y={0.75} />
           </>
         )}
-        <Button fullWidth secondary onClick={cancel}>
+        <ButtonV2 fullWidth secondary onClick={cancel}>
           {browser.i18n.getMessage("cancel")}
-        </Button>
+        </ButtonV2>
       </Section>
     </Wrapper>
   );

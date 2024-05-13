@@ -194,7 +194,7 @@ function ArLocal() {
             <Spacer y={1} />
             <Transaction arweave={arweave} />
             <Spacer y={1} />
-            <Button fullWidth secondary onClick={mine}>
+            <Button fullWidth secondary loading={mining} onClick={mine}>
               {browser.i18n.getMessage("mine")}
             </Button>
           </>

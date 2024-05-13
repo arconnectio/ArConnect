@@ -1,82 +1,33 @@
 import { useHistory } from "~utils/hash_router";
-import { Button } from "@arconnect/components";
+import { Button, ButtonV2 } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
-import { EventType, trackEvent } from "~utils/analytics";
-import { useLocation } from "wouter";
 
-interface ButtonWrapperProps {
-  id?: string;
-  padding?: boolean;
-  route?: string;
-  logo?: boolean;
-  onClick?: () => void;
-  useCustomClickHandler?: boolean;
-  closeBuyAR?: boolean;
-}
-
-interface RouteEventMap {
-  [route: string]: EventType;
-}
-
-export default function BuyButton({
-  padding,
-  route,
-  logo,
-  onClick,
-  useCustomClickHandler,
-  closeBuyAR
-}: ButtonWrapperProps) {
-  const [push] = useHistory();
-  const [location] = useLocation();
-
-  const eventMap: RouteEventMap = {
-    "/": EventType.BUY_AR_DASHBOARD,
-    "/purchase": EventType.BUY_AR_PURCHASE,
-    "/confirm-purchase": EventType.BUY_AR_CONFIRM_PURCHASE
-  };
-
-  const targetRoute = route === "/purchase" ? "/purchase" : "/confirm-purchase";
-
-  const handleClick = async () => {
-    await trackEvent(eventMap[location], {});
-
-    if (useCustomClickHandler) {
-      onClick();
-    } else if (closeBuyAR) {
-      push("/");
-    } else {
-      push(targetRoute);
-    }
-  };
-
+export default function BuyButton() {
   return (
-    <ButtonWrapper padding={padding} route={route} logo={logo}>
-      <CustomButton
-        className="normal-font-weight"
-        small
-        fullWidth
-        onClick={handleClick}
-      >
-        {closeBuyAR && browser.i18n.getMessage("close_purchase_pending")}
-        {!closeBuyAR && browser.i18n.getMessage("buy_ar_button")}
-        {logo && <ARLogo src={arLogoDark} alt={"AR"} draggable={false} />}
-      </CustomButton>
+    <ButtonWrapper>
+      <PureBuyButton />
     </ButtonWrapper>
   );
 }
 
-const ButtonWrapper = styled.div<ButtonWrapperProps>`
-  height: 55px;
-  padding: ${(props) => (props.padding ? "0px 12px" : "0")};
-`;
+export const PureBuyButton = () => {
+  const [push] = useHistory();
 
-const CustomButton = styled(Button)`
-  &.normal-font-weight {
-    font-weight: normal;
-  }
-  margin-top: 10px;
+  return (
+    <ButtonV2
+      fullWidth
+      onClick={() => push("/purchase")}
+      style={{ display: "flex", gap: "5px" }}
+    >
+      {browser.i18n.getMessage("buy_ar_button")}
+      <ARLogo src={arLogoDark} alt={"AR"} draggable={false} />
+    </ButtonV2>
+  );
+};
+const ButtonWrapper = styled.div`
+  padding: 16px 15px 0 15px;
 `;
 
 const ARLogo = styled.img`

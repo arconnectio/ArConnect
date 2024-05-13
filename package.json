@@ -1,7 +1,7 @@
 {
   "name": "arconnect",
   "displayName": "ArConnect",
-  "version": "1.8.0",
+  "version": "1.10.2",
   "description": "__MSG_extensionDescription__",
   "author": "th8ta",
   "packageManager": "yarn@1.22.18",
@@ -47,7 +47,7 @@
     ]
   },
   "dependencies": {
-    "@arconnect/components": "^0.3.7",
+    "@arconnect/components": "^0.3.8",
     "@arconnect/keystone-sdk": "^0.0.5",
     "@arconnect/warp-dre": "^0.0.1",
     "@arconnect/webext-bridge": "^5.0.6",
@@ -60,6 +60,7 @@
     "@segment/analytics-next": "^1.53.2",
     "@untitled-ui/icons-react": "^0.1.1",
     "ar-gql": "1.2.9",
+    "ao-tokens": "^0.0.3",
     "arbundles": "^0.9.5",
     "arweave": "^1.13.0",
     "axios": "^1.1.3",

@@ -213,7 +213,7 @@ export default function WalletSettings({ address }: Props) {
               disabled={!!ansLabel}
             />
           </InputWrapper>
-          <IconButton secondary onClick={updateNickname} disabled={!!ansLabel}>
+          <IconButton onClick={updateNickname} disabled={!!ansLabel}>
             Save
           </IconButton>
         </InputWithBtn>

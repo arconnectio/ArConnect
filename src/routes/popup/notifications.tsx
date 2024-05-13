@@ -211,21 +211,19 @@ export default function Notifications() {
           notifications.map((notification, index) => (
             <NotificationItem key={notification.node.id}>
               <Description>
-                <div>
-                  {notification.transactionType === "Message" ? (
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "4px"
-                      }}
-                    >
-                      <div>Message</div>
-                      <Image src={aoLogo} alt="ao logo" />
-                    </div>
-                  ) : (
-                    "Transaction"
-                  )}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px"
+                  }}
+                >
+                  <div>
+                    {notification.transactionType === "Message"
+                      ? "Message"
+                      : "Transaction"}
+                  </div>
+                  {!!notification.isAo && <Image src={aoLogo} alt="ao logo" />}
                 </div>
                 <div>{formatDate(notification.node.block.timestamp)}</div>
               </Description>

@@ -4,12 +4,44 @@ import { connect } from "@permaweb/aoconnect";
 import { type Tag } from "arweave/web/lib/transaction";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { getTokenInfo, useTokenIDs } from "./router";
+import { Token } from "ao-tokens";
+import { useTokenIDs } from "./router";
 import { ArweaveSigner, createData } from "arbundles";
 import { getActiveKeyfile } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
 
 export type AoInstance = ReturnType<typeof connect>;
+
+export const defaultAoTokens: TokenInfo[] = [
+  {
+    Name: "TRUNK",
+    Ticker: "TRUNK",
+    Denomination: 3,
+    Logo: "4eTBOaxZSSyGbpKlHyilxNKhXbocuZdiMBYIORjS4f0",
+    processId: "OT9qTE2467gcozb2g8R6D6N3nQS94ENcaAIJfUzHCww"
+  },
+  {
+    Name: "Bark",
+    Ticker: "BRKTST",
+    Denomination: 3,
+    Logo: "AdFxCN1eEPboxNpCNL23WZRNhIhiamOeS-TUwx_Nr3Q",
+    processId: "8p7ApPZxC_37M06QHVejCQrKsHbcJEerd3jWNkDUWPQ"
+  },
+  {
+    Name: "AOCRED",
+    Ticker: "testnet-AOCRED",
+    Denomination: 3,
+    Logo: "eIOOJiqtJucxvB4k8a-sEKcKpKTh9qQgOV3Au7jlGYc",
+    processId: "Sa0iBLPNyJQrwpTTG-tWLQU-1QeUAJA73DdxGGiKoJc"
+  },
+  {
+    Name: "Astro USD (Test)",
+    Ticker: "USDA-TST",
+    Denomination: 12,
+    Logo: "",
+    processId: "GcFxqTQnKHcr304qnOcq00ZqbaYGDn4Wbb0DHAM-wvU"
+  }
+];
 
 export interface Message {
   Anchor: string;
@@ -41,49 +73,6 @@ export function useAo() {
   return ao;
 }
 
-/**
- * Token balance hook (integer balance)
- */
-export function useBalance(id: string): [number | undefined, boolean] {
-  // balance
-  const [balance, setBalance] = useState(0);
-
-  // active address
-  const [activeAddress] = useStorage<string>({
-    key: "active_address",
-    instance: ExtensionStorage
-  });
-
-  // loading
-  const [loading, setLoading] = useState(true);
-
-  // ao instance
-  const ao = useAo();
-
-  useEffect(() => {
-    (async () => {
-      if (!activeAddress || !id || id === "") return;
-      setLoading(true);
-
-      const retry = async (tries = 0) => {
-        try {
-          const bal = await getBalance(id, activeAddress, ao);
-
-          setBalance(bal);
-        } catch {
-          if (tries >= 5) return;
-          await retry(tries + 1);
-        }
-      };
-      await retry();
-
-      setLoading(false);
-    })();
-  }, [activeAddress, ao]);
-
-  return [balance, loading];
-}
-
 export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
   const [tokens, setTokens] = useState<TokenInfoWithBalance[]>([]);
 
@@ -94,7 +83,7 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
     () =>
       tokens.map((token) => ({
         ...token,
-        balance: balances.find((bal) => bal.id === token.id)?.balance || 0
+        balance: balances.find((bal) => bal.id === token.id)?.balance ?? null
       })),
     [tokens, balances]
   );
@@ -126,7 +115,6 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
   useEffect(() => {
     (async () => {
       if (loadingIDs) return;
-      setLoading(true);
 
       try {
         if (!aoSetting) {
@@ -143,8 +131,6 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
           }))
         );
       } catch {}
-
-      setLoading(false);
     })();
   }, [ids, ao, loadingIDs, aoSetting]);
 
@@ -154,19 +140,45 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
         return setBalances([]);
       }
 
+      setLoading(true);
       try {
-        setBalances(
-          await Promise.all(
-            ids.map(async (id) => ({
-              id,
-              balance: await getBalance(id, activeAddress, ao)
-            }))
-          )
+        const balances = await Promise.all(
+          ids.map(async (id) => {
+            try {
+              const aoToken = await Token(id);
+              const balance = Number(
+                await timeoutPromise(aoToken.getBalance(activeAddress), 3000)
+              );
+              return {
+                id,
+                balance
+              };
+            } catch (error) {
+              return { id, balance: null };
+            }
+          })
         );
-      } catch {}
+        setBalances(balances);
+      } catch {
+      } finally {
+        setLoading(false);
+      }
     })();
-  }, [ids, loading, activeAddress, ao, aoSetting]);
+  }, [ids, activeAddress, ao, aoSetting]);
   return [tokensWithBalances, loading];
+}
+
+/**
+ * Timeout for resolving balances from ao
+ */
+async function timeoutPromise<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`Timeout after ${ms} ms`));
+    }, ms);
+
+    promise.then(resolve, reject).finally(() => clearTimeout(timer));
+  });
 }
 
 /**
@@ -227,45 +239,6 @@ export const sendAoTransfer = async (
     console.log("err", err);
   }
 };
-
-/**
- * Get balance for address
- * @param id ID of the token
- * @param address Target address
- */
-export async function getBalance(
-  id: string,
-  address: string,
-  ao: AoInstance
-): Promise<number> {
-  const timeoutPromise = new Promise<number>((_, reject) =>
-    setTimeout(() => reject(new Error("Timeout after 3 seconds")), 3000)
-  );
-
-  const fetchBalance = async () => {
-    const res = await ao.dryrun({
-      Id: "0000000000000000000000000000000000000000001",
-      Owner: address,
-      process: id,
-      tags: [{ name: "Action", value: "Balance" }]
-    });
-
-    for (const msg of res.Messages as Message[]) {
-      const balance = getTagValue("Balance", msg.Tags);
-
-      if (balance) return parseInt(balance);
-    }
-
-    return 0;
-  };
-
-  try {
-    return await Promise.race([fetchBalance(), timeoutPromise]);
-  } catch (error) {
-    console.error(error);
-    return 0;
-  }
-}
 
 export interface TokenInfo {
   Name?: string;
