@@ -47,6 +47,8 @@ export default function Subscription() {
   const { setToast } = useToasts();
   const [currency] = useSetting<string>("currency");
 
+  const [checked, setChecked] = useState<boolean>(false);
+
   // get auth utils
   const { closeWindow, cancel } = useAuthUtils("subscription", params?.authID);
   const theme = useTheme();
@@ -89,10 +91,11 @@ export default function Subscription() {
         // TODO:  this should be default started to now
         subscriptionStartDate: new Date(),
         subscriptionEndDate: new Date(subscriptionParams.subscriptionEndDate),
-        applicationIcon: subscriptionParams.applicationIcon
+        applicationIcon: subscriptionParams.applicationIcon,
+        applicationAutoRenewal: checked
       };
 
-      const updated = await handleSubscriptionPayment(subscriptionData);
+      const updated = await handleSubscriptionPayment(subscriptionData, true);
       if (updated) {
         await addSubscription(activeAddress, updated);
       } else {
@@ -112,7 +115,7 @@ export default function Subscription() {
 
       closeWindow();
     } catch (e) {
-      console.log("Failed to subscribe");
+      console.log(e, "Failed to subscribe");
       setToast({
         type: "error",
         //TODO: update message
@@ -202,7 +205,7 @@ export default function Subscription() {
               >
                 Auto-renewal
               </SubscriptionText>
-              <ToggleSwitch />
+              <ToggleSwitch checked={checked} setChecked={setChecked} />
             </Body>
             <Threshold>
               <Body>

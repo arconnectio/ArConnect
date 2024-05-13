@@ -3,13 +3,14 @@ import {
   type SubscriptionData
 } from "~subscriptions/subscription";
 import HeadV2 from "~components/popup/HeadV2";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { getActiveAddress } from "~wallets";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import {
   deleteSubscription,
   getSubscriptionData,
+  updateAutoRenewal,
   updateSubscription
 } from "~subscriptions";
 import dayjs from "dayjs";
@@ -47,6 +48,7 @@ interface Props {
 export default function SubscriptionDetails({ id }: Props) {
   const theme = useTheme();
   const [subData, setSubData] = useState<SubscriptionData | null>(null);
+  const [checked, setChecked] = useState(false);
   const [push, goBack] = useHistory();
   const { setToast } = useToasts();
   const [price, setPrice] = useState<number | null>();
@@ -108,6 +110,7 @@ export default function SubscriptionDetails({ id }: Props) {
           (subscription) => subscription.arweaveAccountAddress === id
         );
         setSubData(subscription);
+        setChecked(subscription.applicationAutoRenewal);
         setColor(getColorByStatus(subscription.subscriptionStatus));
         const arPrice = await getPrice("arweave", currency);
         if (arPrice) {
@@ -123,6 +126,24 @@ export default function SubscriptionDetails({ id }: Props) {
 
     getSubData();
   }, []);
+
+  // update auto renewal
+  useEffect(() => {
+    const update = async () => {
+      try {
+        const address = await getActiveAddress();
+
+        await updateAutoRenewal(
+          checked,
+          address,
+          subData.arweaveAccountAddress
+        );
+      } catch (err) {
+        console.log("err", err);
+      }
+    };
+    update();
+  }, [checked]);
 
   // prepare tx to send
   async function send() {
@@ -182,14 +203,12 @@ export default function SubscriptionDetails({ id }: Props) {
                       <span style={{ color }}>
                         {subData.subscriptionStatus}
                       </span>
-                      <PayNowButton onClick={() => send()}>
+                      {/* TODO: Needs Refactor */}
+                      {/* <PayNowButton onClick={() => send()}>
                         Pay now <PaymentIcon />
-                      </PayNowButton>
+                      </PayNowButton> */}
                     </h3>
                   </div>
-                  {/* {subData.subscriptionStatus === SubscriptionStatus.AWAITING_PAYMENT && (
-                    
-                  )} */}
                 </Title>
               </Content>
             </SubscriptionListItem>
@@ -256,7 +275,7 @@ export default function SubscriptionDetails({ id }: Props) {
               >
                 Auto-renewal
               </SubscriptionText>
-              <ToggleSwitch />
+              <ToggleSwitch checked={checked} setChecked={setChecked} />
             </Body>
             <Threshold>
               <Body>
@@ -395,8 +414,14 @@ export const SubscriptionListItem = styled.div`
   display: flex;
 `;
 
-export const ToggleSwitch = () => {
-  const [checked, setChecked] = useState(false);
+export const ToggleSwitch = ({
+  checked,
+  setChecked
+}: {
+  checked: boolean;
+  setChecked: Dispatch<SetStateAction<boolean>>;
+}) => {
+  // const [checked, setChecked] = useState(false);
 
   const handleChange = () => {
     setChecked(!checked);
@@ -409,6 +434,7 @@ export const ToggleSwitch = () => {
     </SwitchWrapper>
   );
 };
+
 const SwitchWrapper = styled.label`
   position: relative;
   display: inline-block;

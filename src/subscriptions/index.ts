@@ -74,6 +74,26 @@ export function calculateNextPaymentDate(
   return currentDate;
 }
 
+export async function updateAutoRenewal(
+  autoRenewal: boolean,
+  activeAddress: string,
+  updateId: string
+) {
+  try {
+    const subscriptions = await getSubscriptionData(activeAddress);
+    const subscriptionIndex = subscriptions.findIndex(
+      (subscription) => subscription.arweaveAccountAddress === updateId
+    );
+    if (subscriptionIndex !== -1) {
+      subscriptions[subscriptionIndex].applicationAutoRenewal = autoRenewal;
+      await ExtensionStorage.set(
+        `subscriptions_${activeAddress}`,
+        subscriptions
+      );
+    }
+  } catch (err) {}
+}
+
 export async function updateSubscription(
   activeAddress: string,
   updateId: string,

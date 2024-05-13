@@ -17,7 +17,8 @@ import {
 import { isLocalWallet } from "~utils/assertions";
 
 export async function handleSubscriptionPayment(
-  data: SubscriptionData
+  data: SubscriptionData,
+  initialPayment?: boolean
 ): Promise<SubscriptionData | null> {
   const autoAllowance: number = await ExtensionStorage.get(
     "setting_subscription_allowance"
@@ -25,6 +26,30 @@ export async function handleSubscriptionPayment(
   const activeAddress: string = await ExtensionStorage.get("active_address");
 
   const subscriptionFee: number = data.subscriptionFeeAmount;
+
+  // don't charge if auto-renewal is off
+  if (!data.applicationAutoRenewal && !initialPayment) {
+    await statusUpdateSubscription(
+      activeAddress,
+      data.arweaveAccountAddress,
+      SubscriptionStatus.AWAITING_PAYMENT
+    );
+    throw new Error("Auto-renewal not enabled.");
+  }
+
+  // disable if payment is past due by a week
+  const now = new Date();
+  const nextPaymentDue = new Date(data.nextPaymentDue);
+  const oneWeek = 7 * 24 * 60 * 60 * 1000;
+
+  if (now.getTime() > nextPaymentDue.getTime() + oneWeek) {
+    await statusUpdateSubscription(
+      activeAddress,
+      data.arweaveAccountAddress,
+      SubscriptionStatus.CANCELED
+    );
+    throw new Error("Payment is overdue by more than a week.");
+  }
 
   if (subscriptionFee >= autoAllowance) {
     // TODO update status here
