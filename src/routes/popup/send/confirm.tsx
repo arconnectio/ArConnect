@@ -775,7 +775,7 @@ type BodySectionProps = {
   alternate?: boolean;
 };
 
-function BodySection({
+export function BodySection({
   title,
   subtitle,
   value,
@@ -819,7 +819,7 @@ const Wrapper = styled.div`
   position: relative;
 `;
 
-const ConfirmWrapper = styled.div`
+export const ConfirmWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   height: 100%;
@@ -828,7 +828,7 @@ const ConfirmWrapper = styled.div`
   overflow: hidden;
 `;
 
-const Address = styled.div`
+export const Address = styled.div`
   display: flex;
   background-color: rgba(171, 154, 255, 0.15);
   border: 1px solid rgba(171, 154, 255, 0.17);
@@ -836,7 +836,7 @@ const Address = styled.div`
   border-radius: 10px;
 `;
 
-const AddressWrapper = styled.div`
+export const AddressWrapper = styled.div`
   display: flex;
   font-size: 16px;
   color: ${(props) => props.theme.theme};

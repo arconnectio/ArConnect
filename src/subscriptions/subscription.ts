@@ -52,6 +52,8 @@ export enum SubscriptionStatus {
  * Enum for recurring payment frequency
  */
 export enum RecurringPaymentFrequency {
+  HOURLY = "Hourly",
+  EVERY_5_MINUTES = "5 minutes",
   ANNUALLY = "Annually",
   QUARTERLY = "Quarterly",
   MONTHLY = "Monthly",

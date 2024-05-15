@@ -67,6 +67,9 @@ export function calculateNextPaymentDate(
     case RecurringPaymentFrequency.WEEKLY:
       currentDate.setDate(currentDate.getDate() + 7);
       break;
+    case RecurringPaymentFrequency.EVERY_5_MINUTES:
+      currentDate.setMinutes(currentDate.getMinutes() + 5);
+      break;
     default:
       console.error("Invalid recurring payment frequency");
   }
@@ -110,8 +113,7 @@ export async function updateSubscription(
         subscriptions[subscriptionIndex].recurringPaymentFrequency;
       if (nextPaymentDue !== undefined) {
         // update nextPaymentDue
-        subscriptions[subscriptionIndex].nextPaymentDue =
-          calculateNextPaymentDate(nextPaymentDue, recurringPaymentFrequency);
+        subscriptions[subscriptionIndex].nextPaymentDue = nextPaymentDue;
       }
       // update status
       subscriptions[subscriptionIndex].subscriptionStatus = newStatus;

@@ -176,7 +176,7 @@ export default function SubscriptionDetails({ id }: Props) {
     });
 
     // continue to confirmation page
-    push("/subscriptions/payment");
+    push(`/subscriptions/${subData.arweaveAccountAddress}/payment`);
   }
 
   return (
@@ -204,9 +204,12 @@ export default function SubscriptionDetails({ id }: Props) {
                         {subData.subscriptionStatus}
                       </span>
                       {/* TODO: Needs Refactor */}
-                      {/* <PayNowButton onClick={() => send()}>
-                        Pay now <PaymentIcon />
-                      </PayNowButton> */}
+                      {subData.subscriptionStatus ===
+                        SubscriptionStatus.AWAITING_PAYMENT && (
+                        <PayNowButton onClick={() => send()}>
+                          Pay now <PaymentIcon />
+                        </PayNowButton>
+                      )}
                     </h3>
                   </div>
                 </Title>
@@ -277,7 +280,8 @@ export default function SubscriptionDetails({ id }: Props) {
               </SubscriptionText>
               <ToggleSwitch checked={checked} setChecked={setChecked} />
             </Body>
-            <Threshold>
+            {/* TODO: temporarily disabling threshold */}
+            {/* <Threshold>
               <Body>
                 <SubscriptionText
                   color={theme === "light" ? "#191919" : "#ffffff"}
@@ -289,7 +293,7 @@ export default function SubscriptionDetails({ id }: Props) {
                 </SubscriptionText>
               </Body>
               <InputV2 fullWidth />
-            </Threshold>
+            </Threshold> */}
           </Main>
           <div
             style={{

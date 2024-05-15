@@ -84,10 +84,11 @@ export default function Popup() {
                     <SubscriptionDetails id={params?.id} />
                   )}
                 </Route>
-                <Route
-                  path="/subscriptions/payment"
-                  component={SubscriptionPayment}
-                />
+                <Route path="/subscriptions/:id/payment">
+                  {(params: { id: string }) => (
+                    <SubscriptionPayment id={params?.id} />
+                  )}
+                </Route>
                 <Route path="/notifications" component={Notifications} />
                 <Route path="/notification/:id">
                   {(params: { id: string }) => (

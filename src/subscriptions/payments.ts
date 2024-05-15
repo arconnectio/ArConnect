@@ -72,7 +72,7 @@ export async function handleSubscriptionPayment(
   }
 }
 
-const prepare = async (
+export const prepare = async (
   target: string,
   data: SubscriptionData,
   activeAddress: string
@@ -113,7 +113,7 @@ const prepare = async (
       data: undefined
     });
 
-    console.log("created tx:", tx);
+    // console.log("created tx:", tx);
 
     tx.addTag("Subscription-Name", data.subscriptionName);
     tx.addTag("App-Name", data.applicationName);
@@ -129,9 +129,10 @@ const prepare = async (
   }
 };
 
-const send = async (
+export const send = async (
   formattedTxn: RawStoredTransfer,
-  subscriptionData: SubscriptionData
+  subscriptionData: SubscriptionData,
+  manualPayment: boolean = false
 ): Promise<SubscriptionData | undefined> => {
   // get tx and gateway
   let { type, gateway, transaction } = formattedTxn;
@@ -154,7 +155,12 @@ const send = async (
 
     try {
       // Post the transaction
-      const submitted = await submitTx(unRaw, arweave, subscriptionData);
+      const submitted = await submitTx(
+        unRaw,
+        arweave,
+        subscriptionData,
+        manualPayment
+      );
       console.log("After submitTx: Transaction successfully posted", submitted);
       console.log("free from memory");
       freeDecryptedWallet(keyfile);
@@ -168,7 +174,8 @@ const send = async (
       const submitted = await submitTx(
         unRaw,
         fallbackArweave,
-        subscriptionData
+        subscriptionData,
+        manualPayment
       );
       freeDecryptedWallet(keyfile);
       await trackEvent(EventType.FALLBACK, {});
@@ -183,7 +190,8 @@ const send = async (
 const submitTx = async (
   transaction: Transaction,
   arweave: Arweave,
-  data: SubscriptionData
+  data: SubscriptionData,
+  manualPayment: boolean = false
 ): Promise<SubscriptionData | undefined> => {
   const timeoutPromise = new Promise((_, reject) => {
     setTimeout(() => {
@@ -198,7 +206,7 @@ const submitTx = async (
       arweave.transactions.post(transaction),
       timeoutPromise
     ]);
-    const updatedSub = updateSubscription(data, transaction.id);
+    const updatedSub = updateSubscription(data, transaction.id, manualPayment);
     return updatedSub;
   } catch (err) {
     // SEGMENT
@@ -209,12 +217,20 @@ const submitTx = async (
 
 export function updateSubscription(
   data: SubscriptionData,
-  updatedTxnId: string
+  updatedTxnId: string,
+  manualPayment: boolean = false
 ): SubscriptionData {
-  const nextPaymentDue = calculateNextPaymentDate(
-    data.nextPaymentDue,
-    data.recurringPaymentFrequency
-  );
+  let nextPaymentDue;
+  if (manualPayment) {
+    nextPaymentDue = calculateNextPaymentDate(
+      new Date(),
+      data.recurringPaymentFrequency
+    );
+  } else
+    nextPaymentDue = calculateNextPaymentDate(
+      data.nextPaymentDue,
+      data.recurringPaymentFrequency
+    );
 
   if (new Date(data.subscriptionEndDate) <= nextPaymentDue) {
     browser.alarms.clear(`subscription-alarm-${data.arweaveAccountAddress}`);
