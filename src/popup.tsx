@@ -32,6 +32,7 @@ import { NavigationBar } from "~components/popup/Navigation";
 import MessageNotification from "~routes/popup/notification/[id]";
 import SubscriptionDetails from "~routes/popup/subscriptions/subscriptionDetails";
 import SubscriptionPayment from "~routes/popup/subscriptions/subscriptionPayment";
+import SubscriptionManagement from "~routes/popup/subscriptions/subscriptionManagement";
 
 export default function Popup() {
   const theme = useTheme();
@@ -82,6 +83,11 @@ export default function Popup() {
                 <Route path="/subscriptions/:id">
                   {(params: { id: string }) => (
                     <SubscriptionDetails id={params?.id} />
+                  )}
+                </Route>
+                <Route path="/subscriptions/:id/manage">
+                  {(params: { id: string }) => (
+                    <SubscriptionManagement id={params?.id} />
                   )}
                 </Route>
                 <Route path="/subscriptions/:id/payment">

@@ -14,15 +14,7 @@ import {
   updateSubscription
 } from "~subscriptions";
 import dayjs from "dayjs";
-import {
-  ButtonV2,
-  Input,
-  InputV2,
-  ListItem,
-  type DisplayTheme,
-  TooltipV2,
-  useToasts
-} from "@arconnect/components";
+import { ButtonV2, type DisplayTheme, useToasts } from "@arconnect/components";
 import { AppIcon, Content, Title, getColorByStatus } from "./subscriptions";
 import { CreditCardUpload } from "@untitled-ui/icons-react";
 import {
@@ -35,11 +27,6 @@ import { useHistory } from "~utils/hash_router";
 import { getPrice } from "~lib/coingecko";
 import useSetting from "~settings/hook";
 import { PageType, trackPage } from "~utils/analytics";
-import { formatTokenBalance, fractionedToBalance } from "~tokens/currency";
-import { arPlaceholder } from "../send";
-import { ExtensionStorage, TempTransactionStorage } from "~utils/storage";
-import { findGateway } from "~gateways/wayfinder";
-import Arweave from "arweave";
 
 interface Props {
   id?: string;
@@ -132,12 +119,13 @@ export default function SubscriptionDetails({ id }: Props) {
     const update = async () => {
       try {
         const address = await getActiveAddress();
-
-        await updateAutoRenewal(
-          checked,
-          address,
-          subData.arweaveAccountAddress
-        );
+        if (subData) {
+          await updateAutoRenewal(
+            checked,
+            address,
+            subData.arweaveAccountAddress
+          );
+        }
       } catch (err) {
         console.log("err", err);
       }
@@ -277,9 +265,7 @@ export default function SubscriptionDetails({ id }: Props) {
             <ButtonV2
               fullWidth
               style={{ fontWeight: "500" }}
-              onClick={() =>
-                browser.tabs.create({ url: subData.subscriptionManagementUrl })
-              }
+              onClick={() => push(`/subscriptions/${id}/manage`)}
             >
               Manage Subscription
             </ButtonV2>

@@ -5,7 +5,11 @@ import { prepare, send } from "~subscriptions/payments";
 import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import { getActiveAddress } from "~wallets";
-import { getSubscriptionData, updateSubscription } from "~subscriptions";
+import {
+  addSubscription,
+  getSubscriptionData,
+  updateSubscription
+} from "~subscriptions";
 import { formatAddress } from "~utils/format";
 import {
   SubscriptionStatus,
@@ -63,14 +67,15 @@ export default function SubscriptionPayment({ id }: { id: string }) {
         activeAddress
       );
       try {
-        const submitted = await send(prepared, subscription, true);
-
-        await updateSubscription(
+        const submitted = await send(
           activeAddress,
-          submitted.arweaveAccountAddress,
-          SubscriptionStatus.ACTIVE,
-          submitted.nextPaymentDue
+          prepared,
+          subscription,
+          true
         );
+        submitted.subscriptionStatus = SubscriptionStatus.ACTIVE;
+        await addSubscription(activeAddress, submitted);
+
         setToast({
           type: "success",
           content: "Subscription paid",

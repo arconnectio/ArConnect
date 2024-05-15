@@ -1,7 +1,7 @@
 import {
   RecurringPaymentFrequency,
-  type SubscriptionData,
-  type SubscriptionStatus
+  SubscriptionStatus,
+  type SubscriptionData
 } from "./subscription";
 import { ExtensionStorage } from "~utils/storage";
 
@@ -48,7 +48,7 @@ export async function deleteSubscription(
 export function calculateNextPaymentDate(
   currentNextPaymentDue: Date | string,
   recurringPaymentFrequency: RecurringPaymentFrequency
-) {
+): { currentDate: Date; status: "success" | "fail" } {
   const currentDate =
     typeof currentNextPaymentDue === "string"
       ? new Date(currentNextPaymentDue)
@@ -70,11 +70,18 @@ export function calculateNextPaymentDate(
     case RecurringPaymentFrequency.EVERY_5_MINUTES:
       currentDate.setMinutes(currentDate.getMinutes() + 5);
       break;
+    case RecurringPaymentFrequency.HOURLY:
+      currentDate.setHours(currentDate.getHours() + 1);
+      break;
+    case RecurringPaymentFrequency.DAILY:
+      currentDate.setDate(currentDate.getDate() + 1);
+      break;
     default:
       console.error("Invalid recurring payment frequency");
+      return { currentDate, status: "fail" };
   }
 
-  return currentDate;
+  return { currentDate, status: "success" };
 }
 
 export async function updateAutoRenewal(
@@ -109,14 +116,21 @@ export async function updateSubscription(
       (subscription) => subscription.arweaveAccountAddress === updateId
     );
     if (subscriptionIndex !== -1) {
-      const recurringPaymentFrequency =
-        subscriptions[subscriptionIndex].recurringPaymentFrequency;
       if (nextPaymentDue !== undefined) {
         // update nextPaymentDue
         subscriptions[subscriptionIndex].nextPaymentDue = nextPaymentDue;
       }
-      // update status
-      subscriptions[subscriptionIndex].subscriptionStatus = newStatus;
+
+      // This is here to prevent transactions from going through if for some reason alarm wasn't deleted
+      if (
+        subscriptions[subscriptionIndex].subscriptionStatus ===
+        SubscriptionStatus.CANCELED
+      ) {
+        return;
+      } else {
+        // update status
+        subscriptions[subscriptionIndex].subscriptionStatus = newStatus;
+      }
 
       await ExtensionStorage.set(
         `subscriptions_${activeAddress}`,

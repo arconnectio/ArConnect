@@ -34,7 +34,12 @@ export interface SubscriptionData {
   subscriptionManagementUrl: string;
   subscriptionStartDate?: Date | string;
   subscriptionEndDate: Date | string;
-  paymentHistory?: string[];
+  paymentHistory?: PaymentHistoryEntry[];
+}
+
+interface PaymentHistoryEntry {
+  txId: string;
+  date: Date;
 }
 
 /**
@@ -56,5 +61,6 @@ export enum RecurringPaymentFrequency {
   ANNUALLY = "Annually",
   QUARTERLY = "Quarterly",
   MONTHLY = "Monthly",
-  WEEKLY = "Weekly"
+  WEEKLY = "Weekly",
+  DAILY = "Daily"
 }
