@@ -8,7 +8,7 @@ import { hoverEffect, useTheme } from "~utils/theme";
 import { loadTokenLogo, type Token } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { Text, TooltipV2 } from "@arconnect/components";
+import { ButtonV2, Text, TooltipV2 } from "@arconnect/components";
 import { getArPrice } from "~lib/coingecko";
 import { usePrice } from "~lib/redstone";
 import arLogoLight from "url:/assets/ar/logo_light.png";
@@ -18,12 +18,12 @@ import Squircle from "~components/Squircle";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
-import { defaultGateway } from "~gateways/gateway";
 import { useGateway } from "~gateways/wayfinder";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { getUserAvatar } from "~lib/avatar";
 import { abbreviateNumber } from "~utils/format";
 import Skeleton from "~components/Skeleton";
+import { TrashIcon, PlusIcon, SettingsIcon } from "@iconicicons/react";
 
 export default function Token({ onClick, ...props }: Props) {
   const [totalBalance, setTotalBalance] = useState("");
@@ -48,7 +48,9 @@ export default function Token({ onClick, ...props }: Props) {
   );
 
   const balance = useMemo(() => {
-    const formattedBalance = formatTokenBalance(fractBalance);
+    const formattedBalance = formatTokenBalance(
+      props.ao ? props.balance : fractBalance
+    );
     setTotalBalance(formattedBalance);
     const numBalance = parseFloat(formattedBalance.replace(/,/g, ""));
     setIsMillion(numBalance >= 1_000_000);
@@ -70,6 +72,13 @@ export default function Token({ onClick, ...props }: Props) {
   // token logo
   const [logo, setLogo] = useState<string>();
 
+  function formatTicker(ticker: string) {
+    if (ticker && ticker.length > 8) {
+      return `${ticker.slice(0, 3)}...${ticker.slice(-3)}`;
+    }
+    return ticker;
+  }
+
   useEffect(() => {
     (async () => {
       if (!props?.id || logo) return;
@@ -88,39 +97,84 @@ export default function Token({ onClick, ...props }: Props) {
   }, [props, theme, logo, arweaveLogo]);
 
   return (
-    <Wrapper onClick={onClick}>
-      <LogoAndDetails>
+    <Wrapper
+      onClick={(e) => {
+        if (props.onAdd || props.onRemove) return;
+        onClick(e);
+      }}
+    >
+      <LogoAndDetails onClick={onClick}>
         <LogoWrapper>
           <Logo src={logo || ""} alt="" key={props.id} />
         </LogoWrapper>
         <TokenName>{props.name || props.ticker || "???"}</TokenName>
         {props?.ao && <Image src={aoLogo} alt="ao logo" />}
       </LogoAndDetails>
-      <BalanceSection>
-        {props?.loading ? (
-          <Skeleton width="80px" height="20px" />
-        ) : props?.error ? (
-          <TooltipV2 content={DegradedMessage} position="left">
-            <WarningIcon />
-          </TooltipV2>
-        ) : (
-          <>
-            {isMillion ? (
-              <BalanceTooltip content={totalBalance} position="topEnd">
+      <div
+        style={{
+          display: "flex",
+          gap: "8px",
+          alignItems: "center",
+          justifyContent: "center"
+        }}
+      >
+        <BalanceSection>
+          {props?.loading ? (
+            <Skeleton width="80px" height="20px" />
+          ) : props?.error ? (
+            <TooltipV2 content={DegradedMessage} position="left">
+              <WarningIcon />
+            </TooltipV2>
+          ) : (
+            <>
+              {isMillion ? (
+                <BalanceTooltip content={totalBalance} position="topEnd">
+                  <NativeBalance>
+                    {balance} {formatTicker(props.ticker)}
+                  </NativeBalance>
+                </BalanceTooltip>
+              ) : (
                 <NativeBalance>
-                  {props.ao ? props.balance : balance} {props.ticker}
+                  {balance} {formatTicker(props.ticker)}
                 </NativeBalance>
-              </BalanceTooltip>
-            ) : (
-              <NativeBalance>
-                {props.ao ? props.balance : balance} {props.ticker}
-              </NativeBalance>
-            )}
-          </>
-        )}
+              )}
+            </>
+          )}
 
-        <FiatBalance>{fiatBalance}</FiatBalance>
-      </BalanceSection>
+          <FiatBalance>{fiatBalance}</FiatBalance>
+        </BalanceSection>
+        {(props.onAdd || props.onRemove || props.onSettings) && (
+          <div>
+            {props?.onAdd ? (
+              <ButtonV2
+                fullWidth
+                onClick={props.onAdd}
+                style={{ padding: 0, minWidth: 40, maxWidth: 40 }}
+              >
+                <PlusIcon />
+              </ButtonV2>
+            ) : props?.onSettings ? (
+              <ButtonV2
+                fullWidth
+                onClick={props.onSettings}
+                style={{ padding: 0, minWidth: 40, maxWidth: 40 }}
+              >
+                <SettingsIcon />
+              </ButtonV2>
+            ) : props?.onRemove ? (
+              <ButtonV2
+                fullWidth
+                onClick={props.onRemove}
+                style={{ padding: 0, minWidth: 40, maxWidth: 40 }}
+              >
+                <TrashIcon />
+              </ButtonV2>
+            ) : (
+              <></>
+            )}
+          </div>
+        )}
+      </div>
     </Wrapper>
   );
 }
@@ -135,7 +189,7 @@ const DegradedMessage: React.ReactNode = (
   </div>
 );
 
-export const WarningIcon = ({ color }) => {
+export const WarningIcon = ({ color }: { color?: string }) => {
   return (
     <svg
       width="23"
@@ -255,6 +309,9 @@ interface Props extends Token {
   ao?: boolean;
   loading?: boolean;
   error?: boolean;
+  onAdd?: MouseEventHandler<HTMLButtonElement>;
+  onRemove?: MouseEventHandler<HTMLButtonElement>;
+  onSettings?: MouseEventHandler<HTMLButtonElement>;
   onClick?: MouseEventHandler<HTMLDivElement>;
 }
 

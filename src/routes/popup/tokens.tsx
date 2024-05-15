@@ -1,13 +1,18 @@
 import { useHistory } from "~utils/hash_router";
-import { Section } from "@arconnect/components";
+import { Section, useToasts } from "@arconnect/components";
 import { EditIcon } from "@iconicicons/react";
-import { useTokens } from "~tokens";
+import { getAoTokens, useTokens } from "~tokens";
 import { useMemo } from "react";
 import browser from "webextension-polyfill";
 import Token from "~components/popup/Token";
 import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
-import { useAoTokens } from "~tokens/aoTokens/ao";
+import {
+  useAoTokens,
+  useAoTokensCache,
+  type TokenInfoWithBalance
+} from "~tokens/aoTokens/ao";
+import { ExtensionStorage } from "~utils/storage";
 
 export default function Tokens() {
   // all tokens
@@ -15,16 +20,81 @@ export default function Tokens() {
   // ao Tokens
   const [aoTokens] = useAoTokens();
 
+  // ao Tokens Cache
+  const [aoTokensCache] = useAoTokensCache();
+
+  const { setToast } = useToasts();
+
   // assets
   const assets = useMemo(
     () => tokens.filter((token) => token.type === "asset"),
     [tokens]
   );
-  function handleTokenClick(tokenId) {
+
+  function handleTokenClick(tokenId: string) {
     push(`/send/transfer/${tokenId}`);
   }
+
   // router push
   const [push] = useHistory();
+
+  const addAoToken = async (token: TokenInfoWithBalance) => {
+    try {
+      const aoTokens = await getAoTokens();
+
+      if (aoTokens.find(({ processId }) => processId === token.id)) {
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("token_already_added"),
+          duration: 3000
+        });
+        throw new Error("Token already added");
+      }
+
+      aoTokens.push({
+        Name: token.Name,
+        Ticker: token.Ticker,
+        Denomination: token.Denomination,
+        Logo: token.Logo,
+        processId: token.id
+      });
+      await ExtensionStorage.set("ao_tokens", aoTokens);
+      setToast({
+        type: "success",
+        content: browser.i18n.getMessage("token_imported"),
+        duration: 3000
+      });
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
+  const removeAoToken = async (token: TokenInfoWithBalance) => {
+    try {
+      const aoTokens = await getAoTokens();
+
+      if (!aoTokens.find(({ processId }) => processId === token.id)) {
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("token_already_removed"),
+          duration: 3000
+        });
+        throw new Error("Token already removed");
+      }
+
+      const updatedTokens = aoTokens.filter(
+        ({ processId }) => processId !== token.id
+      );
+      await ExtensionStorage.set("ao_tokens", updatedTokens);
+      setToast({
+        type: "success",
+        content: browser.i18n.getMessage("token_removed"),
+        duration: 3000
+      });
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
 
   return (
     <>
@@ -34,6 +104,12 @@ export default function Tokens() {
           <Token
             {...token}
             onClick={() => push(`/token/${token.id}`)}
+            onSettings={(e) => {
+              e.preventDefault();
+              window.open(
+                `${browser.runtime.getURL("tabs/dashboard.html")}#/tokens`
+              );
+            }}
             key={i}
           />
         ))}
@@ -44,9 +120,35 @@ export default function Tokens() {
             type={"asset"}
             defaultLogo={token?.Logo}
             id={token.id}
+            onRemove={(e) => {
+              e.preventDefault();
+              removeAoToken(token);
+            }}
             ticker={token.Ticker}
             balance={Number(token.balance)}
-            onClick={() => handleTokenClick(token.id)}
+            onClick={(e) => {
+              e.preventDefault();
+              handleTokenClick(token.id);
+            }}
+          />
+        ))}
+        {aoTokensCache.map((token) => (
+          <Token
+            key={token.id}
+            ao={true}
+            type={"asset"}
+            defaultLogo={token?.Logo}
+            id={token.id}
+            onAdd={(e) => {
+              e.preventDefault();
+              addAoToken(token);
+            }}
+            ticker={token.Ticker}
+            balance={Number(token.balance || null)}
+            onClick={(e) => {
+              e.preventDefault();
+              handleTokenClick(token.id);
+            }}
           />
         ))}
         <ManageButton

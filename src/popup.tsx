@@ -29,6 +29,7 @@ import Recipient from "~routes/popup/send/recipient";
 import Confirm from "~routes/popup/send/confirm";
 import { NavigationBar } from "~components/popup/Navigation";
 import MessageNotification from "~routes/popup/notification/[id]";
+import { scheduleSyncAoTokens } from "~tokens/aoTokens/token";
 
 export default function Popup() {
   const theme = useTheme();
@@ -40,6 +41,9 @@ export default function Popup() {
   useEffect(() => {
     // sync ans labels
     syncLabels();
+
+    // schedule sync ao tokens
+    scheduleSyncAoTokens();
 
     // check expanded view
     if (new URLSearchParams(window.location.search).get("expanded")) {
