@@ -1,7 +1,6 @@
 import Application, { type InitAppParams } from "~applications/application";
 import { ExtensionStorage } from "~utils/storage";
 import type { Storage } from "@plasmohq/storage";
-import { getSubscriptionData } from "~subscriptions";
 
 export default class Subscription {
   activeAddress: string;

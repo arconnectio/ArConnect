@@ -3,6 +3,7 @@ import { Address, AddressWrapper, BodySection } from "../send/confirm";
 import styled from "styled-components";
 import { prepare, send } from "~subscriptions/payments";
 import { useEffect, useState } from "react";
+import browser from "webextension-polyfill";
 import { getActiveAddress } from "~wallets";
 import { getSubscriptionData, updateSubscription } from "~subscriptions";
 import { formatAddress } from "~utils/format";
@@ -24,6 +25,28 @@ export default function SubscriptionPayment({ id }: { id: string }) {
     key: "active_address",
     instance: ExtensionStorage
   });
+
+  const cancel = async () => {
+    try {
+      await updateSubscription(
+        activeAddress,
+        subData.arweaveAccountAddress,
+        SubscriptionStatus.CANCELED
+      );
+      setToast({
+        type: "success",
+        content: browser.i18n.getMessage("subscription_cancelled"),
+        duration: 5000
+      });
+      goBack();
+    } catch {
+      setToast({
+        type: "error",
+        content: browser.i18n.getMessage("subscription_cancelled_error"),
+        duration: 5000
+      });
+    }
+  };
 
   const handlePayment = async (subscription: SubscriptionData) => {
     try {
@@ -128,6 +151,7 @@ export default function SubscriptionPayment({ id }: { id: string }) {
             <ButtonV2
               fullWidth
               style={{ fontWeight: "500", backgroundColor: "#8C1A1A" }}
+              onClick={async () => await cancel()}
             >
               Cancel Subscription
             </ButtonV2>

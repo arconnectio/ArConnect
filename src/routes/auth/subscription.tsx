@@ -207,7 +207,8 @@ export default function Subscription() {
               </SubscriptionText>
               <ToggleSwitch checked={checked} setChecked={setChecked} />
             </Body>
-            <Threshold>
+            {/* TODO: Temporarily Disabling */}
+            {/* <Threshold>
               <Body>
                 <SubscriptionText
                   color={theme === "light" ? "#191919" : "#ffffff"}
@@ -219,7 +220,7 @@ export default function Subscription() {
                 </SubscriptionText>
               </Body>
               <InputV2 fullWidth />
-            </Threshold>
+            </Threshold> */}
           </Main>
           <div
             style={{

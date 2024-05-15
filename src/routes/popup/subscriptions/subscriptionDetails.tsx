@@ -145,40 +145,6 @@ export default function SubscriptionDetails({ id }: Props) {
     update();
   }, [checked]);
 
-  // prepare tx to send
-  async function send() {
-    const byte = new TextEncoder().encode(
-      `Subscription payment to ${subData.applicationName}`
-    ).length;
-
-    // get network fee
-    const gateway = await findGateway({});
-    const arweave = new Arweave(gateway);
-    const txPrice = await arweave.transactions.getPrice(byte, "dummyTarget");
-
-    const networkFee = arweave.ar.winstonToAr(txPrice);
-
-    await ExtensionStorage.set(
-      "last_send_qty",
-      formatTokenBalance(subData.subscriptionFeeAmount)
-    );
-
-    await TempTransactionStorage.set("send", {
-      networkFee,
-      qty: formatTokenBalance(subData.subscriptionFeeAmount),
-      token: arPlaceholder,
-      recipient: { address: subData.arweaveAccountAddress },
-      estimatedFiat: price, //! HERE
-      estimatedNetworkFee: formatTokenBalance(networkFee),
-      message: `Subscription payment to ${subData.applicationName}`,
-      qtyMode: "token",
-      isAo: false
-    });
-
-    // continue to confirmation page
-    push(`/subscriptions/${subData.arweaveAccountAddress}/payment`);
-  }
-
   return (
     <>
       <HeadV2 title={subData?.applicationName} />
@@ -206,7 +172,13 @@ export default function SubscriptionDetails({ id }: Props) {
                       {/* TODO: Needs Refactor */}
                       {subData.subscriptionStatus ===
                         SubscriptionStatus.AWAITING_PAYMENT && (
-                        <PayNowButton onClick={() => send()}>
+                        <PayNowButton
+                          onClick={() =>
+                            push(
+                              `/subscriptions/${subData.arweaveAccountAddress}/payment`
+                            )
+                          }
+                        >
                           Pay now <PaymentIcon />
                         </PayNowButton>
                       )}

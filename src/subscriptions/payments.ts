@@ -50,25 +50,23 @@ export async function handleSubscriptionPayment(
     );
     throw new Error("Payment is overdue by more than a week.");
   }
-
-  if (subscriptionFee >= autoAllowance) {
-    // TODO update status here
-
-    await statusUpdateSubscription(
-      activeAddress,
-      data.arweaveAccountAddress,
-      SubscriptionStatus.AWAITING_PAYMENT
-    );
-    throw new Error("Subscription fee exceeds or is equal to user allowance");
-  } else {
-    try {
-      const recipientAddress = data.arweaveAccountAddress;
-      const prepared = await prepare(recipientAddress, data, activeAddress);
-      return send(prepared, data);
-    } catch (error) {
-      console.log(error);
-      throw new Error("Error making auto subscription payment");
-    }
+  //Disable allowance for now
+  // if (subscriptionFee >= autoAllowance) {
+  //   await statusUpdateSubscription(
+  //     activeAddress,
+  //     data.arweaveAccountAddress,
+  //     SubscriptionStatus.AWAITING_PAYMENT
+  //   );
+  //   throw new Error("Subscription fee exceeds or is equal to user allowance");
+  // } else {
+  // }
+  try {
+    const recipientAddress = data.arweaveAccountAddress;
+    const prepared = await prepare(recipientAddress, data, activeAddress);
+    return send(prepared, data);
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error making auto subscription payment");
   }
 }
 
