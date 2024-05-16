@@ -18,10 +18,12 @@ import { PageType, trackPage } from "~utils/analytics";
 import type { PaymentType, Quote } from "~lib/onramper";
 import { useHistory } from "~utils/hash_router";
 import { ExtensionStorage } from "~utils/storage";
+import { useDebounce } from "~wallets/hooks";
 
 export default function Purchase() {
   const [push] = useHistory();
   const youPayInput = useInput();
+  const debouncedYouPayInput = useDebounce(youPayInput.state, 300);
   const [arConversion, setArConversion] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [currencies, setCurrencies] = useState<any[]>([]);
@@ -77,7 +79,8 @@ export default function Purchase() {
       setLoading(true);
       setQuote(null);
       if (
-        Number(youPayInput.state) <= 0 ||
+        Number(debouncedYouPayInput) <= 0 ||
+        debouncedYouPayInput === "" ||
         !selectedCurrency ||
         !paymentMethod
       ) {
@@ -95,9 +98,9 @@ export default function Purchase() {
         paymentMethod: paymentMethod.id
       });
       if (arConversion) {
-        params.append("cryptoAmount", youPayInput.state);
+        params.append("cryptoAmount", debouncedYouPayInput);
       } else {
-        params.append("fiatAmount", youPayInput.state);
+        params.append("fiatAmount", debouncedYouPayInput);
       }
 
       const url = `${baseUrl}?${params.toString()}`;
@@ -119,12 +122,12 @@ export default function Purchase() {
       setLoading(false);
     };
 
-    if (youPayInput.state) {
+    if (debouncedYouPayInput) {
       fetchQuote();
     } else {
       setQuote(null);
     }
-  }, [youPayInput.state, selectedCurrency, paymentMethod, arConversion]);
+  }, [debouncedYouPayInput, selectedCurrency, paymentMethod, arConversion]);
 
   return (
     <>
@@ -164,7 +167,7 @@ export default function Purchase() {
             </SwitchText>
           </Switch>
           <InputButton
-            disabled={arConversion}
+            disabled={!arConversion}
             label={
               arConversion
                 ? browser.i18n.getMessage("buy_screen_pay")
