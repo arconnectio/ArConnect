@@ -30,10 +30,16 @@ import Confirm from "~routes/popup/send/confirm";
 import { NavigationBar } from "~components/popup/Navigation";
 import MessageNotification from "~routes/popup/notification/[id]";
 import { scheduleSyncAoTokens } from "~tokens/aoTokens/token";
+import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 
 export default function Popup() {
   const theme = useTheme();
   const [expanded, setExpanded] = useState(false);
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
 
   // init popup
   useSetUp();
@@ -42,14 +48,16 @@ export default function Popup() {
     // sync ans labels
     syncLabels();
 
-    // schedule sync ao tokens
-    scheduleSyncAoTokens();
-
     // check expanded view
     if (new URLSearchParams(window.location.search).get("expanded")) {
       setExpanded(true);
     }
   }, []);
+
+  useEffect(() => {
+    // schedule sync ao tokens
+    scheduleSyncAoTokens();
+  }, [activeAddress]);
 
   return (
     <Provider theme={theme}>
