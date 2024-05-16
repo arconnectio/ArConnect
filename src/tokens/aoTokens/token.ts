@@ -195,11 +195,10 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
       (await ExtensionStorage.get<{ [key: string]: string[] }>(
         AO_TOKENS_IDS
       )) || {};
-    const userTokenIds = aoTokensIds[activeAddress] || [];
+    const walletTokenIds = aoTokensIds[activeAddress] || [];
 
     processIds = Array.from(new Set(processIds)).filter(
-      (processId) =>
-        !aoTokensCache.some((token) => token.processId === processId)
+      (processId) => !walletTokenIds.includes(processId)
     );
 
     if (processIds.length === 0) {
@@ -208,23 +207,26 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
       return;
     }
 
-    const promises = processIds.map((processId) =>
-      withRetry(async () => {
-        const token = await getTokenInfo(processId);
-        if (!userTokenIds.includes(processId)) {
-          userTokenIds.push(processId);
-        }
-        return { ...token, processId };
-      })
-    );
+    const promises = processIds
+      .filter(
+        (processId) =>
+          !aoTokensCache.some((token) => token.processId === processId)
+      )
+      .map((processId) =>
+        withRetry(async () => {
+          const token = await getTokenInfo(processId);
+          return { ...token, processId };
+        })
+      );
     const results = await Promise.allSettled(promises);
     const tokens = results
       .filter((token) => token.status === "fulfilled")
       .map((token) => token.value)
       .filter((token) => !!token.Ticker);
 
+    walletTokenIds.push(...processIds);
     cursors[activeAddress] = cursor;
-    aoTokensIds[activeAddress] = userTokenIds;
+    aoTokensIds[activeAddress] = walletTokenIds;
 
     // Set all the tokens storage
     await ExtensionStorage.set(AO_TOKENS_CURSORS, cursors);
