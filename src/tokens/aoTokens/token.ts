@@ -4,6 +4,7 @@ import type { GQLTransactionsResultInterface } from "ar-gql/dist/faces";
 import { ExtensionStorage } from "~utils/storage";
 import { getActiveAddress } from "~wallets";
 import type { Alarms } from "webextension-polyfill";
+import browser from "webextension-polyfill";
 import { getTagValue, type Message, type TokenInfo } from "./ao";
 
 /** Tokens storage name */
@@ -127,7 +128,7 @@ async function getNoticeTransactions(
   cursor = ""
 ) {
   let hasNextPage = true;
-  let ids = new Set();
+  let ids = new Set<string>();
 
   while (hasNextPage) {
     try {
@@ -198,7 +199,7 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
 
     processIds = Array.from(new Set(processIds)).filter(
       (processId) =>
-        !aoTokensCache.find((token) => token.processId === processId)
+        !aoTokensCache.some((token) => token.processId === processId)
     );
 
     if (processIds.length === 0) {
@@ -240,12 +241,15 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
  * Schedule Sync AO Tokens
  */
 export async function scheduleSyncAoTokens() {
-  chrome.alarms.get("sync_ao_tokens", function (alarm) {
+  try {
+    const alarm = await browser.alarms.get("sync_ao_tokens");
     if (!alarm) {
-      chrome.alarms.create("sync_ao_tokens", {
+      browser.alarms.create("sync_ao_tokens", {
         delayInMinutes: 0.1,
         periodInMinutes: 5
       });
     }
-  });
+  } catch (error) {
+    console.error("Error scheduling AO Tokens sync: ", error);
+  }
 }

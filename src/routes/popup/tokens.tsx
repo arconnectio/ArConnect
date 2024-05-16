@@ -104,7 +104,7 @@ export default function Tokens() {
           <Token
             {...token}
             onClick={() => push(`/token/${token.id}`)}
-            onSettings={(e) => {
+            onSettingsClick={(e) => {
               e.preventDefault();
               window.open(
                 `${browser.runtime.getURL("tabs/dashboard.html")}#/tokens`
@@ -120,15 +120,15 @@ export default function Tokens() {
             type={"asset"}
             defaultLogo={token?.Logo}
             id={token.id}
-            onRemove={(e) => {
-              e.preventDefault();
-              removeAoToken(token);
-            }}
             ticker={token.Ticker}
-            balance={Number(token.balance)}
+            balance={Number(token.balance || null)}
             onClick={(e) => {
               e.preventDefault();
               handleTokenClick(token.id);
+            }}
+            onRemoveClick={(e) => {
+              e.preventDefault();
+              removeAoToken(token);
             }}
           />
         ))}
@@ -139,15 +139,15 @@ export default function Tokens() {
             type={"asset"}
             defaultLogo={token?.Logo}
             id={token.id}
-            onAdd={(e) => {
-              e.preventDefault();
-              addAoToken(token);
-            }}
             ticker={token.Ticker}
             balance={Number(token.balance || null)}
             onClick={(e) => {
               e.preventDefault();
               handleTokenClick(token.id);
+            }}
+            onAddClick={(e) => {
+              e.preventDefault();
+              addAoToken(token);
             }}
           />
         ))}

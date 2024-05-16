@@ -72,6 +72,9 @@ export default function Token({ onClick, ...props }: Props) {
   // token logo
   const [logo, setLogo] = useState<string>();
 
+  const hasActionButton =
+    props?.onAddClick || props?.onRemoveClick || props?.onSettingsClick;
+
   function formatTicker(ticker: string) {
     if (ticker && ticker.length > 8) {
       return `${ticker.slice(0, 3)}...${ticker.slice(-3)}`;
@@ -97,27 +100,16 @@ export default function Token({ onClick, ...props }: Props) {
   }, [props, theme, logo, arweaveLogo]);
 
   return (
-    <Wrapper
-      onClick={(e) => {
-        if (props.onAdd || props.onRemove) return;
-        onClick(e);
-      }}
-    >
-      <LogoAndDetails onClick={onClick}>
-        <LogoWrapper>
-          <Logo src={logo || ""} alt="" key={props.id} />
-        </LogoWrapper>
-        <TokenName>{props.name || props.ticker || "???"}</TokenName>
-        {props?.ao && <Image src={aoLogo} alt="ao logo" />}
-      </LogoAndDetails>
-      <div
-        style={{
-          display: "flex",
-          gap: "8px",
-          alignItems: "center",
-          justifyContent: "center"
-        }}
-      >
+    <Wrapper>
+      <InnerWrapper width={hasActionButton ? "86%" : "100%"} onClick={onClick}>
+        <LogoAndDetails>
+          <LogoWrapper>
+            <Logo src={logo || ""} alt="" key={props.id} />
+          </LogoWrapper>
+          <TokenName>{props.name || props.ticker || "???"}</TokenName>
+          {props?.ao && <Image src={aoLogo} alt="ao logo" />}
+        </LogoAndDetails>
+
         <BalanceSection>
           {props?.loading ? (
             <Skeleton width="80px" height="20px" />
@@ -143,38 +135,38 @@ export default function Token({ onClick, ...props }: Props) {
 
           <FiatBalance>{fiatBalance}</FiatBalance>
         </BalanceSection>
-        {(props.onAdd || props.onRemove || props.onSettings) && (
-          <div>
-            {props?.onAdd ? (
+      </InnerWrapper>
+      {hasActionButton && (
+        <div style={{ zIndex: 1 }}>
+          {props?.onAddClick ? (
+            <ButtonV2
+              fullWidth
+              onClick={props.onAddClick}
+              style={{ padding: 0, minWidth: 40, maxWidth: 40 }}
+            >
+              <PlusIcon />
+            </ButtonV2>
+          ) : props?.onSettingsClick ? (
+            <ButtonV2
+              fullWidth
+              onClick={props.onSettingsClick}
+              style={{ padding: 0, minWidth: 40, maxWidth: 40 }}
+            >
+              <SettingsIcon />
+            </ButtonV2>
+          ) : (
+            props?.onRemoveClick && (
               <ButtonV2
                 fullWidth
-                onClick={props.onAdd}
-                style={{ padding: 0, minWidth: 40, maxWidth: 40 }}
-              >
-                <PlusIcon />
-              </ButtonV2>
-            ) : props?.onSettings ? (
-              <ButtonV2
-                fullWidth
-                onClick={props.onSettings}
-                style={{ padding: 0, minWidth: 40, maxWidth: 40 }}
-              >
-                <SettingsIcon />
-              </ButtonV2>
-            ) : props?.onRemove ? (
-              <ButtonV2
-                fullWidth
-                onClick={props.onRemove}
+                onClick={props.onRemoveClick}
                 style={{ padding: 0, minWidth: 40, maxWidth: 40 }}
               >
                 <TrashIcon />
               </ButtonV2>
-            ) : (
-              <></>
-            )}
-          </div>
-        )}
-      </div>
+            )
+          )}
+        </div>
+      )}
     </Wrapper>
   );
 }
@@ -211,6 +203,7 @@ export const WarningIcon = ({ color }: { color?: string }) => {
 
 const Wrapper = styled.div`
   position: relative;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -228,6 +221,14 @@ const Wrapper = styled.div`
   &:active {
     transform: scale(0.98);
   }
+`;
+
+const InnerWrapper = styled.div<{ width: string }>`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: ${(props) => props.width};
 `;
 
 const BalanceTooltip = styled(TooltipV2)`
@@ -309,9 +310,9 @@ interface Props extends Token {
   ao?: boolean;
   loading?: boolean;
   error?: boolean;
-  onAdd?: MouseEventHandler<HTMLButtonElement>;
-  onRemove?: MouseEventHandler<HTMLButtonElement>;
-  onSettings?: MouseEventHandler<HTMLButtonElement>;
+  onAddClick?: MouseEventHandler<HTMLButtonElement>;
+  onRemoveClick?: MouseEventHandler<HTMLButtonElement>;
+  onSettingsClick?: MouseEventHandler<HTMLButtonElement>;
   onClick?: MouseEventHandler<HTMLDivElement>;
 }
 
