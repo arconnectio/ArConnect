@@ -6,12 +6,11 @@ import { useMemo } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Token from "../Token";
-import { useAo, useAoTokens } from "~tokens/aoTokens/ao";
+import { useAoTokens } from "~tokens/aoTokens/ao";
 
 export default function Tokens() {
   // all tokens
   const tokens = useTokens();
-  const ao = useAo();
 
   // all tokens
   const [aoTokens, loading] = useAoTokens();
@@ -34,12 +33,7 @@ export default function Tokens() {
     <Section>
       <Heading>
         <Title noMargin>{browser.i18n.getMessage("assets")}</Title>
-        <ViewAll
-          onClick={() => {
-            if (assets.length === 0) return;
-            push("/tokens");
-          }}
-        >
+        <ViewAll onClick={() => push("/tokens")}>
           {browser.i18n.getMessage("view_all")}
           <TokenCount>{assets.length + aoTokens.length}</TokenCount>
         </ViewAll>

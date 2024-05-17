@@ -77,7 +77,7 @@ export default function Token({ onClick, ...props }: Props) {
 
   function formatTicker(ticker: string) {
     if (ticker && ticker.length > 8) {
-      return `${ticker.slice(0, 3)}...${ticker.slice(-3)}`;
+      return `${ticker.slice(0, 3)}..${ticker.slice(-3)}`;
     }
     return ticker;
   }
@@ -125,8 +125,15 @@ export default function Token({ onClick, ...props }: Props) {
             </TooltipV2>
           ) : (
             <>
-              {isMillion ? (
-                <BalanceTooltip content={totalBalance} position="topEnd">
+              {isMillion || props.ticker.length > 8 ? (
+                <BalanceTooltip
+                  content={
+                    props.ticker.length > 8
+                      ? `${totalBalance} ${props.ticker}`
+                      : totalBalance
+                  }
+                  position="topEnd"
+                >
                   <NativeBalance>
                     {balance} {formatTicker(props.ticker)}
                   </NativeBalance>
