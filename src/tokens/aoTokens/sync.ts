@@ -13,6 +13,11 @@ const AO_TOKENS_IDS = "ao_tokens_ids";
 const AO_TOKENS_CURSORS = "ao_tokens_cursors";
 const AO_TOKENS_SYNC_TIMESTAMPS = "ao_tokens_sync_timestamps";
 
+// 5 minutes sync interval in milliseconds
+const SYNC_INTERVAL = 5 * 60 * 1000;
+
+const SYNC_ALARM_NAME = "sync_ao_tokens";
+
 /**
  * Generic retry function for any async operation.
  * @param fn - The async function to be retried.
@@ -169,7 +174,7 @@ async function getNoticeTransactions(
  * @param forceSync false @default false
  */
 export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
-  if (!alarmInfo || (alarmInfo?.name && alarmInfo?.name !== "sync_ao_tokens"))
+  if (!alarmInfo || (alarmInfo?.name && alarmInfo?.name !== SYNC_ALARM_NAME))
     return;
 
   try {
@@ -189,7 +194,7 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
     let timestamp = syncTimestamps[activeAddress];
 
     // Check if the last sync is greater than 5 minutes
-    if (timestamp && Date.now() - timestamp < 300000) return;
+    if (timestamp && Date.now() - timestamp < SYNC_INTERVAL) return;
 
     syncTimestamps[activeAddress] = Date.now();
     await ExtensionStorage.set(AO_TOKENS_SYNC_TIMESTAMPS, syncTimestamps);
@@ -269,13 +274,13 @@ export async function scheduleSyncAoTokens() {
     const timestamp = syncTimestamps[activeAddress];
 
     // Check if the last sync is greater than 5 minutes
-    if (timestamp && Date.now() - timestamp < 300000) return;
+    if (timestamp && Date.now() - timestamp < SYNC_INTERVAL) return;
 
     // Clear any existing alarm with the same name
-    await browser.alarms.clear("sync_ao_tokens");
+    await browser.alarms.clear(SYNC_ALARM_NAME);
 
     // Create a new alarm
-    browser.alarms.create("sync_ao_tokens", { delayInMinutes: 0.1 });
+    browser.alarms.create(SYNC_ALARM_NAME, { delayInMinutes: 0.1 });
   } catch (error) {
     console.error("Error scheduling AO Tokens sync: ", error);
   }

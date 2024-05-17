@@ -14,7 +14,7 @@ import { onInstalled } from "~utils/runtime";
 import browser from "webextension-polyfill";
 import { syncLabels } from "~wallets";
 import { trackBalance } from "~utils/analytics";
-import { syncAoTokens } from "~tokens/aoTokens/token";
+import { syncAoTokens } from "~tokens/aoTokens/sync";
 
 // watch for API calls
 onMessage("api_call", handleApiCalls);

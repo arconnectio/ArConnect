@@ -29,7 +29,7 @@ import Recipient from "~routes/popup/send/recipient";
 import Confirm from "~routes/popup/send/confirm";
 import { NavigationBar } from "~components/popup/Navigation";
 import MessageNotification from "~routes/popup/notification/[id]";
-import { scheduleSyncAoTokens } from "~tokens/aoTokens/token";
+import { scheduleSyncAoTokens } from "~tokens/aoTokens/sync";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 

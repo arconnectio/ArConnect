@@ -1,9 +1,8 @@
 import { handleGatewayUpdate, scheduleGatewayUpdate } from "~gateways/cache";
 import browser, { type Runtime, type Storage } from "webextension-polyfill";
 import { initializeARBalanceMonitor } from "./analytics";
-import { ExtensionStorage } from "./storage";
 import { loadTokens } from "~tokens/token";
-import { scheduleSyncAoTokens } from "~tokens/aoTokens/token";
+import { scheduleSyncAoTokens } from "~tokens/aoTokens/sync";
 
 export const isManifestv3 = () =>
   browser.runtime.getManifest().manifest_version === 3;
