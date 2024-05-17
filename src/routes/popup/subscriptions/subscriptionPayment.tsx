@@ -20,9 +20,13 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { ButtonV2, useToasts } from "@arconnect/components";
 import { useHistory } from "~utils/hash_router";
+import { getPrice } from "~lib/coingecko";
+import useSetting from "~settings/hook";
 
 export default function SubscriptionPayment({ id }: { id: string }) {
   const [subData, setSubData] = useState<SubscriptionData | null>(null);
+  const [price, setPrice] = useState<string>("--");
+  const [currency] = useSetting<string>("currency");
   const [push, goBack] = useHistory();
   const { setToast } = useToasts();
   const [activeAddress] = useStorage<string>({
@@ -115,6 +119,20 @@ export default function SubscriptionPayment({ id }: { id: string }) {
 
     getSubData();
   }, []);
+
+  useEffect(() => {
+    async function fetchArPrice() {
+      const arPrice = await getPrice("arweave", currency);
+      if (arPrice) {
+        setPrice(
+          (arPrice * subData.subscriptionFeeAmount).toFixed(2).toString()
+        );
+      }
+    }
+
+    fetchArPrice();
+  }, [subData, currency]);
+
   return (
     <Wrapper>
       <HeadV2 title="Renew Subscription" />
@@ -141,7 +159,7 @@ export default function SubscriptionPayment({ id }: { id: string }) {
                 ticker={"AR"}
                 value={subData.subscriptionFeeAmount.toString()}
                 title={`Sending AR`}
-                estimatedValue={""}
+                estimatedValue={price}
               />
             </div>
           </div>

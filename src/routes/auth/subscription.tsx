@@ -200,8 +200,12 @@ export default function Subscription() {
                 </SubscriptionText>
               </Body>
               <Body>
-                <SubscriptionText>Mar 8, 2024</SubscriptionText>
-                <SubscriptionText>Mar 8, 2025</SubscriptionText>
+                <SubscriptionText>
+                  {dayjs().format("MMM D, YYYY")}
+                </SubscriptionText>
+                <SubscriptionText>
+                  {dayjs(params.subscriptionEndDate).format("MMM D, YYYY")}
+                </SubscriptionText>
               </Body>
             </div>
             {/* Toggle */}
