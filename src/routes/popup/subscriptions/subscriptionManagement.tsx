@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { getActiveAddress } from "~wallets";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import { getSubscriptionData, updateAutoRenewal } from "~subscriptions";
-import { ButtonV2, useToasts } from "@arconnect/components";
+import { getSubscriptionData } from "~subscriptions";
+import { ButtonV2 } from "@arconnect/components";
 
 interface Props {
   id?: string;
@@ -13,24 +13,43 @@ interface Props {
 
 export default function SubscriptionManagement({ id }: Props) {
   const [subData, setSubData] = useState<SubscriptionData | null>(null);
+  const [nextPayment, setNextPayment] = useState<Date | null>(null);
 
   useEffect(() => {
     async function getSubData() {
       const address = await getActiveAddress();
 
       try {
-        const data = await getSubscriptionData(address);
-        // finding like this for now
-        const subscription = data.find(
-          (subscription) => subscription.arweaveAccountAddress === id
-        );
-        setSubData(subscription);
+        if (address) {
+          const data = await getSubscriptionData(address);
+          // finding like this for now
+          const subscription = data.find(
+            (subscription) => subscription.arweaveAccountAddress === id
+          );
+          setSubData(subscription);
+        }
       } catch (error) {
         console.error("Error fetching subscription data:", error);
       }
     }
 
     getSubData();
+  }, []);
+
+  useEffect(() => {
+    const getAlarms = async () => {
+      try {
+        const alarms = await browser.alarms.getAll();
+        const nextPaymentAlarm = alarms.find(
+          (alarm) => alarm.name === `subscription-alarm-${id}`
+        );
+        if (nextPaymentAlarm) {
+          setNextPayment(new Date(nextPaymentAlarm.scheduledTime));
+        }
+      } catch (error) {}
+    };
+
+    getAlarms();
   }, []);
 
   return (
@@ -40,6 +59,14 @@ export default function SubscriptionManagement({ id }: Props) {
         {subData && (
           <>
             <PaymentHistory>
+              <NextPaymentSection>
+                <h3>Next Payment</h3>
+                {nextPayment ? (
+                  <p>{nextPayment.toLocaleString()}</p>
+                ) : (
+                  <p>No upcoming payment scheduled.</p>
+                )}
+              </NextPaymentSection>
               <h3>Payment History</h3>
               {subData.paymentHistory.length > 0 ? (
                 <ul>
@@ -112,9 +139,16 @@ const PaymentHistory = styled.div`
       p {
         margin: 5px 0;
       }
-      p {
-        margin: 4px 0;
-      }
     }
+  }
+`;
+
+const NextPaymentSection = styled.div`
+  h3 {
+    font-size: 1.5em;
+    margin: 10px 0;
+  }
+  p {
+    font-size: 1.2em;
   }
 `;

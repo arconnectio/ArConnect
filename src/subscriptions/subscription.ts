@@ -28,6 +28,7 @@ export interface SubscriptionData {
   subscriptionName: string;
   subscriptionFeeAmount: number;
   applicationAutoRenewal: boolean;
+  applicationAllowance: number;
   subscriptionStatus?: SubscriptionStatus;
   recurringPaymentFrequency: RecurringPaymentFrequency;
   nextPaymentDue: Date | string;

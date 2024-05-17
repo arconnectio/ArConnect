@@ -2,8 +2,8 @@ import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import {
   ButtonV2,
   InputV2,
-  Text,
   TooltipV2,
+  useInput,
   useToasts
 } from "@arconnect/components";
 import browser from "webextension-polyfill";
@@ -45,6 +45,7 @@ export default function Subscription() {
   //   connect params
   const params = useAuthParams();
   const { setToast } = useToasts();
+  const allowanceInput = useInput();
   const [currency] = useSetting<string>("currency");
 
   const [checked, setChecked] = useState<boolean>(false);
@@ -84,6 +85,11 @@ export default function Subscription() {
         subscriptionStatus: SubscriptionStatus.ACTIVE,
         recurringPaymentFrequency:
           subscriptionParams.recurringPaymentFrequency as RecurringPaymentFrequency,
+
+        // If this is left blank, this will automatically be set to the subfee amount
+        applicationAllowance: !isNaN(Number(allowanceInput.state))
+          ? Number(allowanceInput.state)
+          : params.subscriptionFeeAmount,
 
         // TODO: this should be default set to now, and let `handleSubPayment` update to the following period
         nextPaymentDue: new Date(),
@@ -208,7 +214,7 @@ export default function Subscription() {
               <ToggleSwitch checked={checked} setChecked={setChecked} />
             </Body>
             {/* TODO: Temporarily Disabling */}
-            {/* <Threshold>
+            <Threshold>
               <Body>
                 <SubscriptionText
                   color={theme === "light" ? "#191919" : "#ffffff"}
@@ -219,8 +225,8 @@ export default function Subscription() {
                   </TooltipV2>
                 </SubscriptionText>
               </Body>
-              <InputV2 fullWidth />
-            </Threshold> */}
+              <InputV2 {...allowanceInput.bindings} fullWidth />
+            </Threshold>
           </Main>
           <div
             style={{

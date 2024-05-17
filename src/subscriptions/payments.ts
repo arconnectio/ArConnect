@@ -20,28 +20,22 @@ export async function handleSubscriptionPayment(
   data: SubscriptionData,
   initialPayment?: boolean
 ): Promise<SubscriptionData | null> {
-  const autoAllowance: number = await ExtensionStorage.get(
-    "setting_subscription_allowance"
-  );
   const activeAddress: string = await ExtensionStorage.get("active_address");
 
-  // don't charge if auto-renewal is off
-  if (!data.applicationAutoRenewal && !initialPayment) {
+  if (data.subscriptionStatus === SubscriptionStatus.CANCELED) {
+    throw new Error("Subscription canceled.");
+  }
+
+  if (
+    data.applicationAllowance < data.subscriptionFeeAmount &&
+    !initialPayment
+  ) {
     await statusUpdateSubscription(
       activeAddress,
       data.arweaveAccountAddress,
       SubscriptionStatus.AWAITING_PAYMENT
     );
-    throw new Error("Auto-renewal not enabled.");
-  }
-
-  if (data.subscriptionStatus === SubscriptionStatus.CANCELED) {
-    await statusUpdateSubscription(
-      activeAddress,
-      data.arweaveAccountAddress,
-      SubscriptionStatus.CANCELED
-    );
-    throw new Error("Subscription canceled.");
+    throw new Error("Subscription fee amount exceeds allowance.");
   }
 
   // disable if payment is past due by a week
@@ -159,8 +153,6 @@ export const send = async (
         subscriptionData,
         manualPayment
       );
-      console.log("After submitTx: Transaction successfully posted", submitted);
-      console.log("free from memory");
       freeDecryptedWallet(keyfile);
       return submitted;
     } catch (e) {
@@ -200,7 +192,6 @@ const submitTx = async (
       );
     }, 10000);
   });
-
   try {
     await Promise.race([
       arweave.transactions.post(transaction),
@@ -257,16 +248,32 @@ export async function updateSubscriptionAlarm(
     );
 
   if (
-    new Date(data.subscriptionEndDate) <= nextPaymentDue.currentDate ||
+    (new Date(data.subscriptionEndDate) <= nextPaymentDue.currentDate &&
+      !data.applicationAutoRenewal) ||
     nextPaymentDue.status === "fail"
   ) {
     browser.alarms.clear(`subscription-alarm-${data.arweaveAccountAddress}`);
-
     await statusUpdateSubscription(
       activeAddress,
       data.arweaveAccountAddress,
       SubscriptionStatus.CANCELED
     );
+  } else if (
+    new Date(data.subscriptionEndDate) <= nextPaymentDue.currentDate &&
+    data.applicationAutoRenewal
+  ) {
+    // Calculate the time frame between subscriptionStartDate and subscriptionEndDate
+    const startDate = new Date(data.subscriptionStartDate);
+    const endDate = new Date(data.subscriptionEndDate);
+    const timeFrame = endDate.getTime() - startDate.getTime();
+
+    // Calculate the new subscriptionEndDate
+    const newEndDate = new Date(endDate.getTime() + timeFrame);
+    data.subscriptionEndDate = newEndDate.toISOString();
+
+    browser.alarms.create(`subscription-alarm-${data.arweaveAccountAddress}`, {
+      when: nextPaymentDue.currentDate.getTime()
+    });
   } else {
     browser.alarms.create(`subscription-alarm-${data.arweaveAccountAddress}`, {
       when: nextPaymentDue.currentDate.getTime()

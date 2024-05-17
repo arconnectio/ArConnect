@@ -104,6 +104,28 @@ export async function updateAutoRenewal(
   } catch (err) {}
 }
 
+export async function updateAllowance(
+  newAllowance: number,
+  activeAddress: string,
+  updateId: string
+) {
+  try {
+    const subscriptions = await getSubscriptionData(activeAddress);
+    const subscriptionIndex = subscriptions.findIndex(
+      (subscription) => subscription.arweaveAccountAddress === updateId
+    );
+    if (subscriptionIndex !== -1) {
+      subscriptions[subscriptionIndex].applicationAllowance = newAllowance;
+      await ExtensionStorage.set(
+        `subscriptions_${activeAddress}`,
+        subscriptions
+      );
+    }
+  } catch (err) {
+    console.error("Error updating allowance:", err);
+  }
+}
+
 export async function updateSubscription(
   activeAddress: string,
   updateId: string,

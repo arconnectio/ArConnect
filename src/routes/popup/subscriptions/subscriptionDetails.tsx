@@ -10,11 +10,19 @@ import styled from "styled-components";
 import {
   deleteSubscription,
   getSubscriptionData,
+  updateAllowance,
   updateAutoRenewal,
   updateSubscription
 } from "~subscriptions";
 import dayjs from "dayjs";
-import { ButtonV2, type DisplayTheme, useToasts } from "@arconnect/components";
+import {
+  ButtonV2,
+  type DisplayTheme,
+  useToasts,
+  TooltipV2,
+  InputV2,
+  useInput
+} from "@arconnect/components";
 import { AppIcon, Content, Title, getColorByStatus } from "./subscriptions";
 import { CreditCardUpload } from "@untitled-ui/icons-react";
 import {
@@ -41,6 +49,9 @@ export default function SubscriptionDetails({ id }: Props) {
   const [price, setPrice] = useState<number | null>();
   const [currency] = useSetting<string>("currency");
   const [color, setColor] = useState<string>("");
+
+  const allowanceInput = useInput();
+
   // network fee
 
   const cancel = async () => {
@@ -87,6 +98,27 @@ export default function SubscriptionDetails({ id }: Props) {
   };
 
   useEffect(() => {
+    const update = async () => {
+      try {
+        const address = await getActiveAddress();
+        if (subData && allowanceInput.state !== "") {
+          const newAllowance = parseFloat(allowanceInput.state);
+          if (!isNaN(newAllowance)) {
+            updateAllowance(
+              newAllowance,
+              address,
+              subData.arweaveAccountAddress
+            );
+          }
+        }
+      } catch (err) {
+        console.log("err", err);
+      }
+    };
+    update();
+  }, [allowanceInput.state]);
+
+  useEffect(() => {
     async function getSubData() {
       const address = await getActiveAddress();
 
@@ -99,6 +131,7 @@ export default function SubscriptionDetails({ id }: Props) {
         setSubData(subscription);
         setChecked(subscription.applicationAutoRenewal);
         setColor(getColorByStatus(subscription.subscriptionStatus));
+        allowanceInput.setState(subscription.applicationAllowance.toString());
         const arPrice = await getPrice("arweave", currency);
         if (arPrice) {
           setPrice(arPrice * subscription.subscriptionFeeAmount);
@@ -180,7 +213,7 @@ export default function SubscriptionDetails({ id }: Props) {
               color={theme === "light" ? "#191919" : "#ffffff"}
             >
               Application address:{" "}
-              <span>{formatAddress(subData.arweaveAccountAddress, 8)}</span>
+              <span>{formatAddress(subData.arweaveAccountAddress, 5)}</span>
             </SubscriptionText>
             <PaymentDetails>
               <h6>Recurring payment amount</h6>
@@ -206,7 +239,7 @@ export default function SubscriptionDetails({ id }: Props) {
                 </SubscriptionText>
               </Body>
             </PaymentDetails>
-            <div />
+            <Divider />
             <div>
               <Body>
                 <SubscriptionText
@@ -241,7 +274,7 @@ export default function SubscriptionDetails({ id }: Props) {
               <ToggleSwitch checked={checked} setChecked={setChecked} />
             </Body>
             {/* TODO: temporarily disabling threshold */}
-            {/* <Threshold>
+            <Threshold>
               <Body>
                 <SubscriptionText
                   color={theme === "light" ? "#191919" : "#ffffff"}
@@ -252,8 +285,8 @@ export default function SubscriptionDetails({ id }: Props) {
                   </TooltipV2>
                 </SubscriptionText>
               </Body>
-              <InputV2 fullWidth />
-            </Threshold> */}
+              <InputV2 fullWidth {...allowanceInput.bindings} />{" "}
+            </Threshold>
           </Main>
           <div
             style={{
@@ -304,6 +337,7 @@ export const SubscriptionText = styled.div<{
   gap: 4px;
   font-size: ${(props) => props.fontSize || "16px"};
   font-weight: 500;
+  white-space: nowrap;
   color: ${(props) =>
     props.color
       ? props.color
@@ -320,6 +354,11 @@ export const Threshold = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+`;
+
+const Divider = styled.div`
+  width: 100%;
+  border-top: 1px solid ${(props) => props.theme.backgroundSecondary};
 `;
 
 export const Body = styled.div`
