@@ -103,9 +103,10 @@ function getNoticeTransactionsQuery(cursor: string, address: string): string {
       recipients: ["${address}"]
       first: 100
       tags: [
-          { name: "Data-Protocol", values: ["ao"] },
-          { name: "Action", values: ["Credit-Notice", "Debit-Notice"] }
+        { name: "Data-Protocol", values: ["ao"] },
+        { name: "Action", values: ["Credit-Notice", "Debit-Notice"] }
       ]
+      sort: HEIGHT_ASC
     ) {
       pageInfo {
         hasNextPage
@@ -132,7 +133,8 @@ async function getNoticeTransactions(
   let hasNextPage = true;
   let ids = new Set<string>();
 
-  while (hasNextPage && fetchCount <= 3) {
+  // Fetch atmost 500 transactions
+  while (hasNextPage && fetchCount <= 5) {
     try {
       const query = getNoticeTransactionsQuery(cursor, address);
       const transactions = await withRetry(async () => {
@@ -174,10 +176,10 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
     const aoSupport = await ExtensionStorage.get<boolean>("setting_ao_support");
     if (!aoSupport) return;
 
-    console.log("Synchronizing AO tokens...");
-
     const activeAddress = await getActiveAddress();
     if (!activeAddress) return;
+
+    console.log("Synchronizing AO tokens...");
 
     const cursors = (await ExtensionStorage.get(AO_TOKENS_CURSORS)) || {};
     let cursor = cursors[activeAddress] || "";
@@ -216,6 +218,7 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
     );
 
     if (processIds.length === 0) {
+      console.log("No new ao tokens found!");
       cursors[activeAddress] = cursor;
       await ExtensionStorage.set(AO_TOKENS_CURSORS, cursors);
       return;
@@ -247,7 +250,7 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
     await ExtensionStorage.set(AO_TOKENS_CACHE, [...aoTokensCache, ...tokens]);
     await ExtensionStorage.set(AO_TOKENS_IDS, aoTokensIds);
 
-    console.log("Synchronized ao tokens");
+    console.log("Synchronized ao tokens!");
   } catch (error: any) {
     console.log("Error syncing tokens: ", error?.message);
   }
