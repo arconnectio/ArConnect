@@ -118,7 +118,7 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
             balance: 0,
             Ticker: aoToken.Ticker,
             Name: aoToken.Name,
-            Denomination: parseFloat(aoToken.Denomination || "1"),
+            Denomination: Number(aoToken.Denomination || 0),
             Logo: aoToken?.Logo
           }))
         );
@@ -210,7 +210,7 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
       .map((token) => ({
         ...token,
         id: token.processId,
-        Denomination: token.Denomination || 1,
+        Denomination: Number(token.Denomination || 0),
         balance: 0
       }));
   }, [aoTokensCache, aoTokensIds, activeAddress, aoTokens]);
