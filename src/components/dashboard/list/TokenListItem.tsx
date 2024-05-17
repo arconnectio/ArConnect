@@ -12,6 +12,7 @@ import styled from "styled-components";
 import { useGateway } from "~gateways/wayfinder";
 import { concatGatewayURL } from "~gateways/utils";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
+import arLogoDark from "url:/assets/ar/logo_dark.png";
 import { getUserAvatar } from "~lib/avatar";
 
 export default function TokenListItem({ token, active, ao, onClick }: Props) {
@@ -43,8 +44,12 @@ export default function TokenListItem({ token, active, ao, onClick }: Props) {
           );
         }
         if (ao) {
-          const logo = await getUserAvatar(token.defaultLogo);
-          return setImage(logo);
+          if (token.defaultLogo) {
+            const logo = await getUserAvatar(token.defaultLogo);
+            return setImage(logo);
+          } else {
+            return setImage(arLogoDark);
+          }
         }
 
         // query community logo using Warp DRE

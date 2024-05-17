@@ -32,7 +32,7 @@ export default function Token({ onClick, ...props }: Props) {
   const theme = useTheme();
 
   const arweaveLogo = useMemo(
-    () => (theme === "dark" ? arLogoLight : arLogoDark),
+    () => (theme === "dark" ? arLogoDark : arLogoLight),
     [theme]
   );
 
@@ -98,6 +98,12 @@ export default function Token({ onClick, ...props }: Props) {
       }
     })();
   }, [props, theme, logo, arweaveLogo]);
+
+  useEffect(() => {
+    if (props?.ao && !props.defaultLogo) {
+      setLogo(arweaveLogo);
+    }
+  }, [arweaveLogo]);
 
   return (
     <Wrapper>
