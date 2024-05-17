@@ -138,9 +138,15 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
         const balances = await Promise.all(
           tokens.map(async ({ id }) => {
             try {
-              const aoToken = await Token(id);
               const balance = Number(
-                await timeoutPromise(aoToken.getBalance(activeAddress), 3000)
+                await timeoutPromise(
+                  (async () => {
+                    const aoToken = await Token(id);
+                    const balance = await aoToken.getBalance(activeAddress);
+                    return balance;
+                  })(),
+                  6000
+                )
               );
               return {
                 id,
@@ -235,9 +241,15 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
         const balances = await Promise.all(
           aoTokensToAdd.map(async (token) => {
             try {
-              const aoToken = await Token(token.id);
               const balance = Number(
-                await timeoutPromise(aoToken.getBalance(activeAddress), 3000)
+                await timeoutPromise(
+                  (async () => {
+                    const aoToken = await Token(token.id);
+                    const balance = await aoToken.getBalance(activeAddress);
+                    return balance;
+                  })(),
+                  6000
+                )
               );
               return {
                 id: token.id,
