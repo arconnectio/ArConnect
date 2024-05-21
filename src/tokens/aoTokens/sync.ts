@@ -185,10 +185,10 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
 
   try {
     const activeAddress = await getActiveAddress();
-    if (!activeAddress) return { hasNextPage: false };
+    if (!activeAddress) return { hasNextPage: false, syncCount: 0 };
 
     const aoSupport = await ExtensionStorage.get<boolean>("setting_ao_support");
-    if (!aoSupport) return { hasNextPage: false };
+    if (!aoSupport) return { hasNextPage: false, syncCount: 0 };
 
     const syncTimestamps =
       (await ExtensionStorage.get(AO_TOKENS_SYNC_TIMESTAMPS)) || {};
@@ -196,7 +196,7 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
 
     // Check if the last sync is greater than 5 minutes
     if (!forceSync && Date.now() - syncTimestamp < SYNC_INTERVAL) {
-      return { hasNextPage: true };
+      return { hasNextPage: true, syncCount: 0 };
     }
 
     console.log("Synchronizing AO tokens...");
@@ -235,11 +235,7 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
       console.log("No new ao tokens found!");
       cursors[activeAddress] = cursor;
       await ExtensionStorage.set(AO_TOKENS_CURSORS, cursors);
-      if (hasNextPage) {
-        const result = await syncAoTokens(alarmInfo);
-        return result;
-      }
-      return { hasNextPage };
+      return { hasNextPage, syncCount: 0 };
     }
 
     const promises = processIds
@@ -271,10 +267,10 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
     ]);
 
     console.log("Synchronized ao tokens!");
-    return { hasNextPage };
+    return { hasNextPage, syncCount: tokens.length };
   } catch (error: any) {
     console.log("Error syncing tokens: ", error?.message);
-    return { hasNextPage: false };
+    return { hasNextPage: false, syncCount: 0 };
   }
 }
 

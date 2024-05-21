@@ -102,11 +102,14 @@ export default function Tokens() {
   async function searchAoTokens() {
     try {
       setIsLoading(true);
-      const { hasNextPage } = await syncAoTokens({
-        name: SYNC_ALARM_FORCED_NAME,
-        scheduledTime: Date.now()
-      });
-      setHasNextPage(!!hasNextPage);
+      for (let i = 0; i < 3; i++) {
+        const { hasNextPage, syncCount } = await syncAoTokens({
+          name: SYNC_ALARM_FORCED_NAME,
+          scheduledTime: Date.now()
+        });
+        setHasNextPage(!!hasNextPage);
+        if (!hasNextPage || (hasNextPage && syncCount > 0)) break;
+      }
     } finally {
       setIsLoading(false);
     }
