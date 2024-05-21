@@ -15,7 +15,6 @@ import {
 /** Tokens storage name */
 const AO_TOKENS_CACHE = "ao_tokens_cache";
 const AO_TOKENS_IDS = "ao_tokens_ids";
-const AO_TOKENS_CURSORS = "ao_tokens_cursors";
 const AO_TOKENS_SYNC_TIMESTAMPS = "ao_tokens_sync_timestamps";
 
 const SYNC_ALARM_NAME = "sync_ao_tokens";
@@ -106,7 +105,11 @@ async function getTokenInfo(id: string): Promise<TokenInfo> {
   throw new Error("Could not load token info.");
 }
 
-function getNoticeTransactionsQuery(cursor: string, address: string): string {
+function getNoticeTransactionsQuery(
+  address: string,
+  cursor: string,
+  filterProcesses: string[]
+) {
   return `query {
     transactions(
       ${cursor ? `after: "${cursor}"` : ""}
@@ -114,6 +117,13 @@ function getNoticeTransactionsQuery(cursor: string, address: string): string {
       first: 100
       tags: [
         { name: "Data-Protocol", values: ["ao"] },
+        ${
+          filterProcesses.length > 0
+            ? `{ name: "From-Process", values: [${filterProcesses.map(
+                (process) => `"${process}"`
+              )}], op: NEQ }`
+            : ""
+        },
         { name: "Action", values: ["Credit-Notice", "Debit-Notice"] }
       ]
       sort: HEIGHT_ASC
@@ -137,8 +147,9 @@ function getNoticeTransactionsQuery(cursor: string, address: string): string {
 async function getNoticeTransactions(
   arweave: Arweave,
   address: string,
-  cursor = ""
+  filterProcesses: string[] = []
 ) {
+  let cursor = "";
   let fetchCount = 0;
   let hasNextPage = true;
   let ids = new Set<string>();
@@ -146,7 +157,11 @@ async function getNoticeTransactions(
   // Fetch atmost 500 transactions
   while (hasNextPage && fetchCount <= 5) {
     try {
-      const query = getNoticeTransactionsQuery(cursor, address);
+      const query = getNoticeTransactionsQuery(
+        address,
+        cursor,
+        filterProcesses
+      );
       const transactions = await withRetry(async () => {
         const response = await arweave.api.post("/graphql", { query });
         return response.data.data
@@ -171,7 +186,7 @@ async function getNoticeTransactions(
       fetchCount += 1;
     }
   }
-  return { processIds: Array.from(ids) as string[], cursor, hasNextPage };
+  return { processIds: Array.from(ids) as string[], hasNextPage };
 }
 
 /**
@@ -201,21 +216,8 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
 
     console.log("Synchronizing AO tokens...");
 
-    const cursors = (await ExtensionStorage.get(AO_TOKENS_CURSORS)) || {};
-    let cursor = cursors[activeAddress] || "";
-
     syncTimestamps[activeAddress] = Date.now();
     await ExtensionStorage.set(AO_TOKENS_SYNC_TIMESTAMPS, syncTimestamps);
-
-    const arweave = new Arweave(defaultGateway);
-    let processIds: string[] = [];
-    let hasNextPage = true;
-
-    ({ processIds, cursor, hasNextPage } = await getNoticeTransactions(
-      arweave,
-      activeAddress,
-      cursor
-    ));
 
     const aoTokensCache =
       (await ExtensionStorage.get<(TokenInfo & { processId: string })[]>(
@@ -227,14 +229,22 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
       )) || {};
     const walletTokenIds = aoTokensIds[activeAddress] || [];
 
+    const arweave = new Arweave(defaultGateway);
+    let processIds: string[] = [];
+    let hasNextPage = true;
+
+    ({ processIds, hasNextPage } = await getNoticeTransactions(
+      arweave,
+      activeAddress,
+      walletTokenIds
+    ));
+
     processIds = Array.from(new Set(processIds)).filter(
       (processId) => !walletTokenIds.includes(processId)
     );
 
     if (processIds.length === 0) {
       console.log("No new ao tokens found!");
-      cursors[activeAddress] = cursor;
-      await ExtensionStorage.set(AO_TOKENS_CURSORS, cursors);
       return { hasNextPage, syncCount: 0 };
     }
 
@@ -256,14 +266,12 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
       .filter((token) => !!token.Ticker);
 
     walletTokenIds.push(...processIds);
-    cursors[activeAddress] = cursor;
     aoTokensIds[activeAddress] = walletTokenIds;
 
     // Set all the tokens storage
     await Promise.all([
       ExtensionStorage.set(AO_TOKENS_CACHE, [...aoTokensCache, ...tokens]),
-      ExtensionStorage.set(AO_TOKENS_IDS, aoTokensIds),
-      ExtensionStorage.set(AO_TOKENS_CURSORS, cursors)
+      ExtensionStorage.set(AO_TOKENS_IDS, aoTokensIds)
     ]);
 
     console.log("Synchronized ao tokens!");
