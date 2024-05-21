@@ -274,7 +274,10 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
 /**
  * Timeout for resolving balances from ao
  */
-async function timeoutPromise<T>(promise: Promise<T>, ms: number): Promise<T> {
+export async function timeoutPromise<T>(
+  promise: Promise<T>,
+  ms: number
+): Promise<T> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       reject(new Error(`Timeout after ${ms} ms`));

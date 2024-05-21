@@ -5,7 +5,12 @@ import { ExtensionStorage } from "~utils/storage";
 import { getActiveAddress } from "~wallets";
 import type { Alarms } from "webextension-polyfill";
 import browser from "webextension-polyfill";
-import { getTagValue, type Message, type TokenInfo } from "./ao";
+import {
+  getTagValue,
+  timeoutPromise,
+  type Message,
+  type TokenInfo
+} from "./ao";
 
 /** Tokens storage name */
 const AO_TOKENS_CACHE = "ao_tokens_cache";
@@ -13,10 +18,10 @@ const AO_TOKENS_IDS = "ao_tokens_ids";
 const AO_TOKENS_CURSORS = "ao_tokens_cursors";
 const AO_TOKENS_SYNC_TIMESTAMPS = "ao_tokens_sync_timestamps";
 
-// 5 minutes sync interval in milliseconds
-const SYNC_INTERVAL = 5 * 60 * 1000;
-
 const SYNC_ALARM_NAME = "sync_ao_tokens";
+export const SYNC_ALARM_FORCED_NAME = "sync_ao_tokens_forced";
+const SYNC_ALARM_NAMES = [SYNC_ALARM_NAME, SYNC_ALARM_FORCED_NAME];
+const SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes sync interval in milliseconds
 
 /**
  * Generic retry function for any async operation.
@@ -146,7 +151,7 @@ async function getNoticeTransactions(
         const response = await arweave.api.post("/graphql", { query });
         return response.data.data
           .transactions as GQLTransactionsResultInterface;
-      });
+      }, 2);
       hasNextPage = transactions.pageInfo.hasNextPage;
 
       if (transactions.edges.length === 0) break;
@@ -166,43 +171,47 @@ async function getNoticeTransactions(
       fetchCount += 1;
     }
   }
-  return { processIds: Array.from(ids) as string[], cursor };
+  return { processIds: Array.from(ids) as string[], cursor, hasNextPage };
 }
 
 /**
  *  Sync AO Tokens
- * @param forceSync false @default false
  */
 export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
-  if (!alarmInfo || (alarmInfo?.name && alarmInfo?.name !== SYNC_ALARM_NAME))
-    return;
+  const alarmName = alarmInfo?.name;
+  if (alarmName && !SYNC_ALARM_NAMES.includes(alarmName)) return;
+
+  const forceSync = alarmName === SYNC_ALARM_FORCED_NAME;
 
   try {
-    const aoSupport = await ExtensionStorage.get<boolean>("setting_ao_support");
-    if (!aoSupport) return;
-
     const activeAddress = await getActiveAddress();
-    if (!activeAddress) return;
+    if (!activeAddress) return { hasNextPage: false };
+
+    const aoSupport = await ExtensionStorage.get<boolean>("setting_ao_support");
+    if (!aoSupport) return { hasNextPage: false };
+
+    const syncTimestamps =
+      (await ExtensionStorage.get(AO_TOKENS_SYNC_TIMESTAMPS)) || {};
+    let syncTimestamp = syncTimestamps[activeAddress] || 0;
+
+    // Check if the last sync is greater than 5 minutes
+    if (!forceSync && Date.now() - syncTimestamp < SYNC_INTERVAL) {
+      return { hasNextPage: true };
+    }
 
     console.log("Synchronizing AO tokens...");
 
     const cursors = (await ExtensionStorage.get(AO_TOKENS_CURSORS)) || {};
     let cursor = cursors[activeAddress] || "";
 
-    const syncTimestamps =
-      (await ExtensionStorage.get(AO_TOKENS_SYNC_TIMESTAMPS)) || {};
-    let timestamp = syncTimestamps[activeAddress];
-
-    // Check if the last sync is greater than 5 minutes
-    if (timestamp && Date.now() - timestamp < SYNC_INTERVAL) return;
-
     syncTimestamps[activeAddress] = Date.now();
     await ExtensionStorage.set(AO_TOKENS_SYNC_TIMESTAMPS, syncTimestamps);
 
     const arweave = new Arweave(defaultGateway);
     let processIds: string[] = [];
+    let hasNextPage = true;
 
-    ({ processIds, cursor } = await getNoticeTransactions(
+    ({ processIds, cursor, hasNextPage } = await getNoticeTransactions(
       arweave,
       activeAddress,
       cursor
@@ -226,7 +235,11 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
       console.log("No new ao tokens found!");
       cursors[activeAddress] = cursor;
       await ExtensionStorage.set(AO_TOKENS_CURSORS, cursors);
-      return;
+      if (hasNextPage) {
+        const result = await syncAoTokens(alarmInfo);
+        return result;
+      }
+      return { hasNextPage };
     }
 
     const promises = processIds
@@ -236,9 +249,9 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
       )
       .map((processId) =>
         withRetry(async () => {
-          const token = await getTokenInfo(processId);
+          const token = await timeoutPromise(getTokenInfo(processId), 3000);
           return { ...token, processId };
-        })
+        }, 2)
       );
     const results = await Promise.allSettled(promises);
     const tokens = results
@@ -251,13 +264,17 @@ export async function syncAoTokens(alarmInfo?: Alarms.Alarm) {
     aoTokensIds[activeAddress] = walletTokenIds;
 
     // Set all the tokens storage
-    await ExtensionStorage.set(AO_TOKENS_CURSORS, cursors);
-    await ExtensionStorage.set(AO_TOKENS_CACHE, [...aoTokensCache, ...tokens]);
-    await ExtensionStorage.set(AO_TOKENS_IDS, aoTokensIds);
+    await Promise.all([
+      ExtensionStorage.set(AO_TOKENS_CACHE, [...aoTokensCache, ...tokens]),
+      ExtensionStorage.set(AO_TOKENS_IDS, aoTokensIds),
+      ExtensionStorage.set(AO_TOKENS_CURSORS, cursors)
+    ]);
 
     console.log("Synchronized ao tokens!");
+    return { hasNextPage };
   } catch (error: any) {
     console.log("Error syncing tokens: ", error?.message);
+    return { hasNextPage: false };
   }
 }
 
@@ -269,12 +286,15 @@ export async function scheduleSyncAoTokens() {
     const activeAddress = await getActiveAddress();
     if (!activeAddress) return;
 
+    const aoSupport = await ExtensionStorage.get<boolean>("setting_ao_support");
+    if (!aoSupport) return;
+
     const syncTimestamps =
       (await ExtensionStorage.get(AO_TOKENS_SYNC_TIMESTAMPS)) || {};
-    const timestamp = syncTimestamps[activeAddress];
+    const syncTimestamp = syncTimestamps[activeAddress] || 0;
 
     // Check if the last sync is greater than 5 minutes
-    if (timestamp && Date.now() - timestamp < SYNC_INTERVAL) return;
+    if (Date.now() - syncTimestamp < SYNC_INTERVAL) return;
 
     // Clear any existing alarm with the same name
     await browser.alarms.clear(SYNC_ALARM_NAME);

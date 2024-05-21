@@ -1,8 +1,8 @@
 import { useHistory } from "~utils/hash_router";
-import { Section, useToasts } from "@arconnect/components";
+import { ButtonV2, Section, useToasts, Loading } from "@arconnect/components";
 import { EditIcon } from "@iconicicons/react";
 import { getAoTokens, useTokens } from "~tokens";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import browser from "webextension-polyfill";
 import Token from "~components/popup/Token";
 import styled from "styled-components";
@@ -13,8 +13,11 @@ import {
   type TokenInfoWithBalance
 } from "~tokens/aoTokens/ao";
 import { ExtensionStorage } from "~utils/storage";
+import { SYNC_ALARM_FORCED_NAME, syncAoTokens } from "~tokens/aoTokens/sync";
 
 export default function Tokens() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasNextPage, setHasNextPage] = useState(true);
   // all tokens
   const tokens = useTokens();
   // ao Tokens
@@ -96,6 +99,23 @@ export default function Tokens() {
     }
   };
 
+  async function searchAoTokens() {
+    try {
+      setIsLoading(true);
+      const { hasNextPage } = await syncAoTokens({
+        name: SYNC_ALARM_FORCED_NAME,
+        scheduledTime: Date.now()
+      });
+      setHasNextPage(!!hasNextPage);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    searchAoTokens();
+  }, []);
+
   return (
     <>
       <HeadV2 title={browser.i18n.getMessage("assets")} />
@@ -151,6 +171,21 @@ export default function Tokens() {
             }}
           />
         ))}
+        {hasNextPage && (
+          <ButtonV2
+            disabled={!hasNextPage || isLoading}
+            style={{ alignSelf: "center", marginTop: "5px" }}
+            onClick={searchAoTokens}
+          >
+            {isLoading ? (
+              <>
+                Searching <Loading style={{ margin: "0.18rem" }} />
+              </>
+            ) : (
+              "Search AO tokens"
+            )}
+          </ButtonV2>
+        )}
         <ManageButton
           href={`${browser.runtime.getURL("tabs/dashboard.html")}#/tokens`}
         >
