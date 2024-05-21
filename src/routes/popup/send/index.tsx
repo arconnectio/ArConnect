@@ -7,7 +7,8 @@ import {
   Section,
   Spacer,
   Text,
-  useInput
+  useInput,
+  useToasts
 } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import * as viewblock from "~lib/viewblock";
@@ -44,7 +45,7 @@ import { useTheme } from "~utils/theme";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import Arweave from "arweave";
-import { useBalance } from "~wallets/hooks";
+import { useActiveWallet, useBalance } from "~wallets/hooks";
 import { getPrice } from "~lib/coingecko";
 import redstone from "redstone-api";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
@@ -106,6 +107,11 @@ export default function Send({ id }: Props) {
     instance: ExtensionStorage
   });
 
+  const wallet = useActiveWallet();
+
+  const isHardwareWallet = useMemo(() => {
+    return wallet?.type === "hardware";
+  }, [wallet]);
   // quantity
   const [qty, setQty] = useStorage<string>(
     {
@@ -352,6 +358,8 @@ export default function Send({ id }: Props) {
 
   const uToken = isUToken(tokenID);
 
+  const { setToast } = useToasts();
+
   // qty text size
   const qtySize = useMemo(() => {
     const maxLengthDef = 7;
@@ -371,6 +379,15 @@ export default function Send({ id }: Props) {
   async function send() {
     // check qty
     if (invalidQty || qty === "" || Number(qty) === 0) return;
+
+    if (isHardwareWallet && isAo) {
+      setToast({
+        type: "error",
+        content: browser.i18n.getMessage("ao_token_disabled"),
+        duration: 2400
+      });
+      return;
+    }
 
     const finalQty = fractionedToBalance(Number(qty), {
       id: token.id,

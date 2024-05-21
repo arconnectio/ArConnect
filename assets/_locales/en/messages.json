@@ -295,6 +295,10 @@
     "message": "Transfering of U-Token is currently disabled",
     "description": "U-token Disabled label"
   },
+  "ao_token_disabled": {
+    "message": "Transfering of ao Tokens is under construction for hardware wallets",
+    "description": "ao token Disabled label"
+  },
   "spent": {
     "message": "Spent",
     "description": "Spent text"
