@@ -13,7 +13,8 @@ import {
   type TokenInfoWithBalance
 } from "~tokens/aoTokens/ao";
 import { ExtensionStorage } from "~utils/storage";
-import { SYNC_ALARM_FORCED_NAME, syncAoTokens } from "~tokens/aoTokens/sync";
+import { syncAoTokens } from "~tokens/aoTokens/sync";
+import { useStorage } from "@plasmohq/storage/hook";
 
 export default function Tokens() {
   const [isLoading, setIsLoading] = useState(false);
@@ -27,6 +28,14 @@ export default function Tokens() {
   const [aoTokensCache] = useAoTokensCache();
 
   const { setToast } = useToasts();
+
+  const [aoSupport] = useStorage<boolean>(
+    {
+      key: "setting_ao_support",
+      instance: ExtensionStorage
+    },
+    false
+  );
 
   // assets
   const assets = useMemo(
@@ -100,13 +109,11 @@ export default function Tokens() {
   };
 
   async function searchAoTokens() {
+    if (!aoSupport) return;
     try {
       setIsLoading(true);
       for (let i = 0; i < 3; i++) {
-        const { hasNextPage, syncCount } = await syncAoTokens({
-          name: SYNC_ALARM_FORCED_NAME,
-          scheduledTime: Date.now()
-        });
+        const { hasNextPage, syncCount } = await syncAoTokens();
         setHasNextPage(!!hasNextPage);
         if (!hasNextPage || (hasNextPage && syncCount > 0)) break;
       }
@@ -116,8 +123,10 @@ export default function Tokens() {
   }
 
   useEffect(() => {
-    searchAoTokens();
-  }, []);
+    if (aoSupport) {
+      searchAoTokens();
+    }
+  }, [aoSupport]);
 
   return (
     <>
@@ -174,7 +183,7 @@ export default function Tokens() {
             }}
           />
         ))}
-        {hasNextPage && (
+        {aoSupport && hasNextPage && (
           <ButtonV2
             disabled={!hasNextPage || isLoading}
             style={{ alignSelf: "center", marginTop: "5px" }}
