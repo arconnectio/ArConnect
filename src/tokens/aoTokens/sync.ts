@@ -99,12 +99,10 @@ async function getTokenInfo(id: string): Promise<TokenInfo> {
 
 function getNoticeTransactionsQuery(
   address: string,
-  cursor: string,
   filterProcesses: string[]
 ) {
   return `query {
     transactions(
-      ${cursor ? `after: "${cursor}"` : ""}
       recipients: ["${address}"]
       first: 100
       tags: [
@@ -124,7 +122,6 @@ function getNoticeTransactionsQuery(
         hasNextPage
       }
       edges {
-        cursor
         node {
           tags {
             name,
@@ -141,7 +138,6 @@ async function getNoticeTransactions(
   address: string,
   filterProcesses: string[] = []
 ) {
-  let cursor = "";
   let fetchCount = 0;
   let hasNextPage = true;
   let ids = new Set<string>();
@@ -149,11 +145,7 @@ async function getNoticeTransactions(
   // Fetch atmost 500 transactions
   while (hasNextPage && fetchCount <= 5) {
     try {
-      const query = getNoticeTransactionsQuery(
-        address,
-        cursor,
-        filterProcesses
-      );
+      const query = getNoticeTransactionsQuery(address, filterProcesses);
       const transactions = await withRetry(async () => {
         const response = await arweave.api.post("/graphql", { query });
         return response.data.data
@@ -163,7 +155,6 @@ async function getNoticeTransactions(
 
       if (transactions.edges.length === 0) break;
 
-      cursor = transactions.edges[transactions.edges.length - 1].cursor;
       const processIds = transactions.edges
         .map(
           (edge) =>
@@ -171,6 +162,9 @@ async function getNoticeTransactions(
         )
         .filter(Boolean);
       processIds.forEach((processId) => ids.add(processId));
+      filterProcesses = Array.from(
+        new Set([...filterProcesses, ...Array.from(ids)])
+      );
     } catch (error) {
       console.error(`Failed to get transactions, error:`, error);
       break;
@@ -205,25 +199,22 @@ export async function syncAoTokens() {
     const walletTokenIds = aoTokensIds[activeAddress] || [];
 
     const arweave = new Arweave(defaultGateway);
-    let processIds: string[] = [];
-    let hasNextPage = true;
-
-    ({ processIds, hasNextPage } = await getNoticeTransactions(
+    const { processIds, hasNextPage } = await getNoticeTransactions(
       arweave,
       activeAddress,
       walletTokenIds
-    ));
+    );
 
-    processIds = Array.from(new Set(processIds)).filter(
+    const newProcessIds = Array.from(new Set(processIds)).filter(
       (processId) => !walletTokenIds.includes(processId)
     );
 
-    if (processIds.length === 0) {
+    if (newProcessIds.length === 0) {
       console.log("No new ao tokens found!");
       return { hasNextPage, syncCount: 0 };
     }
 
-    const promises = processIds
+    const promises = newProcessIds
       .filter(
         (processId) =>
           !aoTokensCache.some((token) => token.processId === processId)
@@ -236,16 +227,21 @@ export async function syncAoTokens() {
       );
     const results = await Promise.allSettled(promises);
     const tokens = results
-      .filter((token) => token.status === "fulfilled")
-      .map((token) => token.value)
+      .filter((result) => result.status === "fulfilled")
+      .map((result) => result.value)
       .filter((token) => !!token.Ticker);
 
-    walletTokenIds.push(...processIds);
+    const updatedTokens = [...aoTokensCache, ...tokens];
+    const updatedProcessIds = newProcessIds.filter((processId) =>
+      updatedTokens.some((token) => token.processId === processId)
+    );
+
+    walletTokenIds.push(...updatedProcessIds);
     aoTokensIds[activeAddress] = walletTokenIds;
 
     // Set all the tokens storage
     await Promise.all([
-      ExtensionStorage.set(AO_TOKENS_CACHE, [...aoTokensCache, ...tokens]),
+      ExtensionStorage.set(AO_TOKENS_CACHE, updatedTokens),
       ExtensionStorage.set(AO_TOKENS_IDS, aoTokensIds)
     ]);
 

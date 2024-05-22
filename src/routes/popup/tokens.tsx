@@ -112,7 +112,7 @@ export default function Tokens() {
     if (!aoSupport) return;
     try {
       setIsLoading(true);
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 2; i++) {
         const { hasNextPage, syncCount } = await syncAoTokens();
         setHasNextPage(!!hasNextPage);
         if (!hasNextPage || (hasNextPage && syncCount > 0)) break;
