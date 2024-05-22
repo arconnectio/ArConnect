@@ -34,7 +34,6 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
 
   const handleClickOutside = (event) => {
     if (modalRef.current && !modalRef.current.contains(event.target)) {
-      setOpen(false);
       ExtensionStorage.set("show_announcement", false);
     }
   };
