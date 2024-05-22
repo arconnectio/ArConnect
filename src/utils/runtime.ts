@@ -3,6 +3,7 @@ import browser, { type Runtime, type Storage } from "webextension-polyfill";
 import { initializeARBalanceMonitor } from "./analytics";
 import { ExtensionStorage } from "./storage";
 import { loadTokens } from "~tokens/token";
+import { getActiveAddress, getWallets } from "~wallets";
 
 export const isManifestv3 = () =>
   browser.runtime.getManifest().manifest_version === 3;
@@ -26,7 +27,17 @@ export async function onInstalled(details: Runtime.OnInstalledDetailsType) {
   browser.alarms.create("notifications", { periodInMinutes: 1 });
 
   // reset notifications
-  // await ExtensionStorage.set("show_announcement", true);
+  const wallets = await getWallets();
+  const activeAddress = await getActiveAddress();
+  if (wallets && activeAddress) {
+    const activeWallet = wallets.find(
+      (wallet) => wallet.address === activeAddress
+    );
+
+    if (activeWallet && activeWallet.type === "hardware") {
+      await ExtensionStorage.set("show_announcement", true);
+    }
+  }
 
   // initialize tokens in wallet
   await loadTokens();
