@@ -45,7 +45,7 @@ import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import Arweave from "arweave";
 import { useActiveWallet, useBalance } from "~wallets/hooks";
-import { getPrice } from "~lib/coingecko";
+import { getArPrice, getPrice } from "~lib/coingecko";
 import redstone from "redstone-api";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import Collectible from "~components/popup/Collectible";
@@ -258,7 +258,7 @@ export default function Send({ id }: Props) {
   useEffect(() => {
     (async () => {
       if (token.id === "AR") {
-        const arPrice = await getPrice("arweave", currency);
+        const arPrice = await getArPrice(currency);
 
         return setPrice(arPrice);
       }
@@ -302,15 +302,18 @@ export default function Send({ id }: Props) {
 
       let byte = 0;
       if (message.state) {
-        byte = new TextEncoder().encode(message.state).length;
+        byte = new TextEncoder().encode(message.state).byteLength;
       }
       const gateway = await findGateway({});
       const arweave = new Arweave(gateway);
-      const txPrice = await arweave.transactions.getPrice(byte, "dummyTarget");
+      const txPrice = await arweave.transactions.getPrice(
+        byte,
+        recipient.address
+      );
 
       setNetworkFee(arweave.ar.winstonToAr(txPrice));
     })();
-  }, [token, message.state]);
+  }, [token, message.state, recipient.address]);
 
   // maximum possible send amount
   const max = useMemo(() => {
@@ -383,11 +386,11 @@ export default function Send({ id }: Props) {
 
     await TempTransactionStorage.set("send", {
       networkFee,
-      qty: qtyMode === "fiat" ? formatTokenBalance(secondaryQty) : qty,
+      qty: qtyMode === "fiat" ? secondaryQty : qty,
       token,
       recipient,
       estimatedFiat: qtyMode === "fiat" ? qty : secondaryQty,
-      estimatedNetworkFee: formatTokenBalance(networkFee),
+      estimatedNetworkFee: parseFloat(networkFee) * price,
       message: message.state,
       qtyMode,
       isAo

@@ -199,7 +199,9 @@ export default function Confirm({ tokenID, qty }: Props) {
       } else {
         const tx = await arweave.createTransaction({
           target,
-          quantity: fractionedToBalance(Number(amount), token).toString(),
+          quantity: Math.floor(
+            fractionedToBalance(Number(amount), token)
+          ).toString(),
           data: message ? decodeURIComponent(message) : undefined
         });
 
