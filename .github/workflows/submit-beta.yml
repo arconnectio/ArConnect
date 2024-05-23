@@ -1,8 +1,6 @@
 name: "BETA Submit to Web Store"
 on:
-  push:
-    branches:
-      - staging
+  workflow_dispatch:
 
 jobs:
   build:
