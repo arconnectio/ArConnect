@@ -71,6 +71,25 @@ export function deconstructTransaction(transaction: Transaction) {
 }
 
 /**
+ * Get Data size from transaction chunks
+ *
+ * @param chunks Chunks to reconstruct the transaction with
+ *
+ * @returns Data size
+ */
+export function getDataSize(chunks: Chunk[]): number {
+  let dataSize = 0;
+
+  for (const chunk of chunks) {
+    if (chunk.type === "data") {
+      dataSize += chunk.value?.length || 0;
+    }
+  }
+
+  return dataSize;
+}
+
+/**
  * Construct a transaction from a split transaction
  * and it's chunks
  *
@@ -93,9 +112,8 @@ export function constructTransaction(
   chunks.sort((a, b) => a.index - b.index);
 
   // create a Uint8Array to reconstruct the data to
-  const reconstructedData = new Uint8Array(
-    parseFloat(splitTransaction.data_size ?? "0")
-  );
+  const dataSize = getDataSize(chunks);
+  const reconstructedData = new Uint8Array(dataSize);
 
   // previous buffer length in bytes (gets updated
   // in the loop below)
