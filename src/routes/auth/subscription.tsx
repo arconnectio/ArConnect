@@ -2,8 +2,8 @@ import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
 import {
   ButtonV2,
   InputV2,
-  Text,
   TooltipV2,
+  useInput,
   useToasts
 } from "@arconnect/components";
 import browser from "webextension-polyfill";
@@ -45,7 +45,10 @@ export default function Subscription() {
   //   connect params
   const params = useAuthParams();
   const { setToast } = useToasts();
+  const allowanceInput = useInput();
   const [currency] = useSetting<string>("currency");
+
+  const [checked, setChecked] = useState<boolean>(false);
 
   // get auth utils
   const { closeWindow, cancel } = useAuthUtils("subscription", params?.authID);
@@ -83,16 +86,22 @@ export default function Subscription() {
         recurringPaymentFrequency:
           subscriptionParams.recurringPaymentFrequency as RecurringPaymentFrequency,
 
+        // If this is left blank, this will automatically be set to the subfee amount
+        applicationAllowance: !isNaN(Number(allowanceInput.state))
+          ? Number(allowanceInput.state)
+          : params.subscriptionFeeAmount,
+
         // TODO: this should be default set to now, and let `handleSubPayment` update to the following period
         nextPaymentDue: new Date(),
 
         // TODO:  this should be default started to now
         subscriptionStartDate: new Date(),
         subscriptionEndDate: new Date(subscriptionParams.subscriptionEndDate),
-        applicationIcon: subscriptionParams.applicationIcon
+        applicationIcon: subscriptionParams.applicationIcon,
+        applicationAutoRenewal: checked
       };
 
-      const updated = await handleSubscriptionPayment(subscriptionData);
+      const updated = await handleSubscriptionPayment(subscriptionData, true);
       if (updated) {
         await addSubscription(activeAddress, updated);
       } else {
@@ -112,7 +121,7 @@ export default function Subscription() {
 
       closeWindow();
     } catch (e) {
-      console.log("Failed to subscribe");
+      console.log(e, "Failed to subscribe");
       setToast({
         type: "error",
         //TODO: update message
@@ -191,8 +200,12 @@ export default function Subscription() {
                 </SubscriptionText>
               </Body>
               <Body>
-                <SubscriptionText>Mar 8, 2024</SubscriptionText>
-                <SubscriptionText>Mar 8, 2025</SubscriptionText>
+                <SubscriptionText>
+                  {dayjs().format("MMM D, YYYY")}
+                </SubscriptionText>
+                <SubscriptionText>
+                  {dayjs(params.subscriptionEndDate).format("MMM D, YYYY")}
+                </SubscriptionText>
               </Body>
             </div>
             {/* Toggle */}
@@ -202,8 +215,9 @@ export default function Subscription() {
               >
                 Auto-renewal
               </SubscriptionText>
-              <ToggleSwitch />
+              <ToggleSwitch checked={checked} setChecked={setChecked} />
             </Body>
+            {/* TODO: Temporarily Disabling */}
             <Threshold>
               <Body>
                 <SubscriptionText
@@ -215,7 +229,7 @@ export default function Subscription() {
                   </TooltipV2>
                 </SubscriptionText>
               </Body>
-              <InputV2 fullWidth />
+              <InputV2 {...allowanceInput.bindings} fullWidth />
             </Threshold>
           </Main>
           <div

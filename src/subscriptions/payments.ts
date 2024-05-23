@@ -17,37 +17,52 @@ import {
 import { isLocalWallet } from "~utils/assertions";
 
 export async function handleSubscriptionPayment(
-  data: SubscriptionData
+  data: SubscriptionData,
+  initialPayment?: boolean
 ): Promise<SubscriptionData | null> {
-  const autoAllowance: number = await ExtensionStorage.get(
-    "setting_subscription_allowance"
-  );
   const activeAddress: string = await ExtensionStorage.get("active_address");
 
-  const subscriptionFee: number = data.subscriptionFeeAmount;
+  if (data.subscriptionStatus === SubscriptionStatus.CANCELED) {
+    throw new Error("Subscription canceled.");
+  }
 
-  if (subscriptionFee >= autoAllowance) {
-    // TODO update status here
-
+  if (
+    data.applicationAllowance < data.subscriptionFeeAmount &&
+    !initialPayment
+  ) {
     await statusUpdateSubscription(
       activeAddress,
       data.arweaveAccountAddress,
       SubscriptionStatus.AWAITING_PAYMENT
     );
-    throw new Error("Subscription fee exceeds or is equal to user allowance");
-  } else {
-    try {
-      const recipientAddress = data.arweaveAccountAddress;
-      const prepared = await prepare(recipientAddress, data, activeAddress);
-      return send(prepared, data);
-    } catch (error) {
-      console.log(error);
-      throw new Error("Error making auto subscription payment");
-    }
+    throw new Error("Subscription fee amount exceeds allowance.");
+  }
+
+  // disable if payment is past due by a week
+  const now = new Date();
+  const nextPaymentDue = new Date(data.nextPaymentDue);
+  const oneWeek = 7 * 24 * 60 * 60 * 1000;
+
+  if (now.getTime() > nextPaymentDue.getTime() + oneWeek) {
+    await statusUpdateSubscription(
+      activeAddress,
+      data.arweaveAccountAddress,
+      SubscriptionStatus.CANCELED
+    );
+    throw new Error("Payment is overdue by more than a week.");
+  }
+
+  try {
+    const recipientAddress = data.arweaveAccountAddress;
+    const prepared = await prepare(recipientAddress, data, activeAddress);
+    return send(activeAddress, prepared, data);
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error making auto subscription payment");
   }
 }
 
-const prepare = async (
+export const prepare = async (
   target: string,
   data: SubscriptionData,
   activeAddress: string
@@ -88,7 +103,7 @@ const prepare = async (
       data: undefined
     });
 
-    console.log("created tx:", tx);
+    // console.log("created tx:", tx);
 
     tx.addTag("Subscription-Name", data.subscriptionName);
     tx.addTag("App-Name", data.applicationName);
@@ -104,12 +119,14 @@ const prepare = async (
   }
 };
 
-const send = async (
+export const send = async (
+  activeAddress: string,
   formattedTxn: RawStoredTransfer,
-  subscriptionData: SubscriptionData
+  subscriptionData: SubscriptionData,
+  manualPayment: boolean = false
 ): Promise<SubscriptionData | undefined> => {
   // get tx and gateway
-  let { type, gateway, transaction } = formattedTxn;
+  let { gateway, transaction } = formattedTxn;
   const arweave = new Arweave(gateway);
   const unRaw = arweave.transactions.fromRaw(transaction);
 
@@ -129,9 +146,13 @@ const send = async (
 
     try {
       // Post the transaction
-      const submitted = await submitTx(unRaw, arweave, subscriptionData);
-      console.log("After submitTx: Transaction successfully posted", submitted);
-      console.log("free from memory");
+      const submitted = await submitTx(
+        activeAddress,
+        unRaw,
+        arweave,
+        subscriptionData,
+        manualPayment
+      );
       freeDecryptedWallet(keyfile);
       return submitted;
     } catch (e) {
@@ -141,9 +162,11 @@ const send = async (
       const fallbackArweave = new Arweave(gateway);
       await fallbackArweave.transactions.sign(unRaw, keyfile);
       const submitted = await submitTx(
+        activeAddress,
         unRaw,
         fallbackArweave,
-        subscriptionData
+        subscriptionData,
+        manualPayment
       );
       freeDecryptedWallet(keyfile);
       await trackEvent(EventType.FALLBACK, {});
@@ -156,9 +179,11 @@ const send = async (
 };
 
 const submitTx = async (
+  activeAddress: string,
   transaction: Transaction,
   arweave: Arweave,
-  data: SubscriptionData
+  data: SubscriptionData,
+  manualPayment: boolean = false
 ): Promise<SubscriptionData | undefined> => {
   const timeoutPromise = new Promise((_, reject) => {
     setTimeout(() => {
@@ -167,13 +192,17 @@ const submitTx = async (
       );
     }, 10000);
   });
-
   try {
     await Promise.race([
       arweave.transactions.post(transaction),
       timeoutPromise
     ]);
-    const updatedSub = updateSubscription(data, transaction.id);
+    const updatedSub = updateSubscriptionAlarm(
+      activeAddress,
+      data,
+      transaction.id,
+      manualPayment
+    );
     return updatedSub;
   } catch (err) {
     // SEGMENT
@@ -182,28 +211,80 @@ const submitTx = async (
   }
 };
 
-export function updateSubscription(
-  data: SubscriptionData,
-  updatedTxnId: string
-): SubscriptionData {
-  const nextPaymentDue = calculateNextPaymentDate(
-    data.nextPaymentDue,
-    data.recurringPaymentFrequency
-  );
+/**
+ * Updates a subscription by clearing existing alarms and scheduling the next payment alarm.
+ *
+ * @param data - The current subscription data.
+ * @param updatedTxnId - The transaction ID of the latest payment.
+ * @param manualPayment - A flag indicating whether the payment is manual (default: false).
+ *
+ * @returns The updated subscription data.
+ *
+ * This function performs the following operations:
+ * 1. Calculates the next payment due date based on whether the payment is manual or automatic.
+ * 2. Clears the existing subscription alarm if the subscription end date is reached or if the calculation fails.
+ * 3. Creates a new alarm for the next payment due date if the subscription is still active.
+ * 4. Adds the latest payment transaction to the payment history.
+ * 5. Updates the next payment due date in the subscription data.
+ */
 
-  if (new Date(data.subscriptionEndDate) <= nextPaymentDue) {
+export async function updateSubscriptionAlarm(
+  activeAddress: string,
+  data: SubscriptionData,
+  updatedTxnId: string,
+  manualPayment: boolean = false
+): Promise<SubscriptionData> {
+  let nextPaymentDue: { currentDate: Date; status: "success" | "fail" };
+
+  if (manualPayment) {
+    nextPaymentDue = calculateNextPaymentDate(
+      new Date(),
+      data.recurringPaymentFrequency
+    );
+  } else
+    nextPaymentDue = calculateNextPaymentDate(
+      data.nextPaymentDue,
+      data.recurringPaymentFrequency
+    );
+
+  if (
+    (new Date(data.subscriptionEndDate) <= nextPaymentDue.currentDate &&
+      !data.applicationAutoRenewal) ||
+    nextPaymentDue.status === "fail"
+  ) {
     browser.alarms.clear(`subscription-alarm-${data.arweaveAccountAddress}`);
+    await statusUpdateSubscription(
+      activeAddress,
+      data.arweaveAccountAddress,
+      SubscriptionStatus.CANCELED
+    );
+  } else if (
+    new Date(data.subscriptionEndDate) <= nextPaymentDue.currentDate &&
+    data.applicationAutoRenewal
+  ) {
+    // Calculate the time frame between subscriptionStartDate and subscriptionEndDate
+    const startDate = new Date(data.subscriptionStartDate);
+    const endDate = new Date(data.subscriptionEndDate);
+    const timeFrame = endDate.getTime() - startDate.getTime();
+
+    // Calculate the new subscriptionEndDate
+    const newEndDate = new Date(endDate.getTime() + timeFrame);
+    data.subscriptionEndDate = newEndDate.toISOString();
+
+    browser.alarms.create(`subscription-alarm-${data.arweaveAccountAddress}`, {
+      when: nextPaymentDue.currentDate.getTime()
+    });
   } else {
     browser.alarms.create(`subscription-alarm-${data.arweaveAccountAddress}`, {
-      when: nextPaymentDue.getTime()
+      when: nextPaymentDue.currentDate.getTime()
     });
   }
 
   if (!data.paymentHistory) {
     data.paymentHistory = [];
   }
-  data.paymentHistory.push(updatedTxnId);
-  data.nextPaymentDue = nextPaymentDue;
+  data.paymentHistory.push({ txId: updatedTxnId, date: new Date() });
+  data.nextPaymentDue = nextPaymentDue.currentDate;
 
   return data;
 }

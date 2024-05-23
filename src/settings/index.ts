@@ -18,14 +18,14 @@ export const PREFIX = "setting_";
 
 /** All settings */
 const settings: Setting[] = [
-  new Setting({
-    name: "subscription_allowance",
-    displayName: "subscription_allowance",
-    icon: CreditCard02,
-    description: "subscription_description",
-    type: "number",
-    defaultValue: 0
-  }),
+  // new Setting({
+  //   name: "subscription_allowance",
+  //   displayName: "subscription_allowance",
+  //   icon: CreditCard02,
+  //   description: "subscription_description",
+  //   type: "number",
+  //   defaultValue: 0
+  // }),
   new Setting({
     name: "fee_multiplier",
     displayName: "setting_fee_multiplier",

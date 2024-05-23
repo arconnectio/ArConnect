@@ -1,7 +1,6 @@
 import Application, { type InitAppParams } from "~applications/application";
 import { ExtensionStorage } from "~utils/storage";
 import type { Storage } from "@plasmohq/storage";
-import { getSubscriptionData } from "~subscriptions";
 
 export default class Subscription {
   activeAddress: string;
@@ -28,13 +27,20 @@ export interface SubscriptionData {
   applicationName: string;
   subscriptionName: string;
   subscriptionFeeAmount: number;
+  applicationAutoRenewal: boolean;
+  applicationAllowance: number;
   subscriptionStatus?: SubscriptionStatus;
   recurringPaymentFrequency: RecurringPaymentFrequency;
   nextPaymentDue: Date | string;
   subscriptionManagementUrl: string;
   subscriptionStartDate?: Date | string;
   subscriptionEndDate: Date | string;
-  paymentHistory?: string[];
+  paymentHistory?: PaymentHistoryEntry[];
+}
+
+interface PaymentHistoryEntry {
+  txId: string;
+  date: Date;
 }
 
 /**
@@ -51,8 +57,11 @@ export enum SubscriptionStatus {
  * Enum for recurring payment frequency
  */
 export enum RecurringPaymentFrequency {
+  HOURLY = "Hourly",
+  EVERY_5_MINUTES = "5 minutes",
   ANNUALLY = "Annually",
   QUARTERLY = "Quarterly",
   MONTHLY = "Monthly",
-  WEEKLY = "Weekly"
+  WEEKLY = "Weekly",
+  DAILY = "Daily"
 }

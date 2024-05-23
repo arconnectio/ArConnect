@@ -3,24 +3,25 @@ import {
   type SubscriptionData
 } from "~subscriptions/subscription";
 import HeadV2 from "~components/popup/HeadV2";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { getActiveAddress } from "~wallets";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import {
   deleteSubscription,
   getSubscriptionData,
+  updateAllowance,
+  updateAutoRenewal,
   updateSubscription
 } from "~subscriptions";
 import dayjs from "dayjs";
 import {
   ButtonV2,
-  Input,
-  InputV2,
-  ListItem,
   type DisplayTheme,
+  useToasts,
   TooltipV2,
-  useToasts
+  InputV2,
+  useInput
 } from "@arconnect/components";
 import { AppIcon, Content, Title, getColorByStatus } from "./subscriptions";
 import { CreditCardUpload } from "@untitled-ui/icons-react";
@@ -34,11 +35,6 @@ import { useHistory } from "~utils/hash_router";
 import { getPrice } from "~lib/coingecko";
 import useSetting from "~settings/hook";
 import { PageType, trackPage } from "~utils/analytics";
-import { formatTokenBalance, fractionedToBalance } from "~tokens/currency";
-import { arPlaceholder } from "../send";
-import { ExtensionStorage, TempTransactionStorage } from "~utils/storage";
-import { findGateway } from "~gateways/wayfinder";
-import Arweave from "arweave";
 
 interface Props {
   id?: string;
@@ -47,11 +43,15 @@ interface Props {
 export default function SubscriptionDetails({ id }: Props) {
   const theme = useTheme();
   const [subData, setSubData] = useState<SubscriptionData | null>(null);
+  const [checked, setChecked] = useState(false);
   const [push, goBack] = useHistory();
   const { setToast } = useToasts();
   const [price, setPrice] = useState<number | null>();
   const [currency] = useSetting<string>("currency");
   const [color, setColor] = useState<string>("");
+
+  const allowanceInput = useInput();
+
   // network fee
 
   const cancel = async () => {
@@ -98,6 +98,27 @@ export default function SubscriptionDetails({ id }: Props) {
   };
 
   useEffect(() => {
+    const update = async () => {
+      try {
+        const address = await getActiveAddress();
+        if (subData && allowanceInput.state !== "") {
+          const newAllowance = parseFloat(allowanceInput.state);
+          if (!isNaN(newAllowance)) {
+            updateAllowance(
+              newAllowance,
+              address,
+              subData.arweaveAccountAddress
+            );
+          }
+        }
+      } catch (err) {
+        console.log("err", err);
+      }
+    };
+    update();
+  }, [allowanceInput.state]);
+
+  useEffect(() => {
     async function getSubData() {
       const address = await getActiveAddress();
 
@@ -108,7 +129,9 @@ export default function SubscriptionDetails({ id }: Props) {
           (subscription) => subscription.arweaveAccountAddress === id
         );
         setSubData(subscription);
+        setChecked(subscription.applicationAutoRenewal);
         setColor(getColorByStatus(subscription.subscriptionStatus));
+        allowanceInput.setState(subscription.applicationAllowance.toString());
         const arPrice = await getPrice("arweave", currency);
         if (arPrice) {
           setPrice(arPrice * subscription.subscriptionFeeAmount);
@@ -124,39 +147,24 @@ export default function SubscriptionDetails({ id }: Props) {
     getSubData();
   }, []);
 
-  // prepare tx to send
-  async function send() {
-    const byte = new TextEncoder().encode(
-      `Subscription payment to ${subData.applicationName}`
-    ).length;
-
-    // get network fee
-    const gateway = await findGateway({});
-    const arweave = new Arweave(gateway);
-    const txPrice = await arweave.transactions.getPrice(byte, "dummyTarget");
-
-    const networkFee = arweave.ar.winstonToAr(txPrice);
-
-    await ExtensionStorage.set(
-      "last_send_qty",
-      formatTokenBalance(subData.subscriptionFeeAmount)
-    );
-
-    await TempTransactionStorage.set("send", {
-      networkFee,
-      qty: formatTokenBalance(subData.subscriptionFeeAmount),
-      token: arPlaceholder,
-      recipient: { address: subData.arweaveAccountAddress },
-      estimatedFiat: price, //! HERE
-      estimatedNetworkFee: formatTokenBalance(networkFee),
-      message: `Subscription payment to ${subData.applicationName}`,
-      qtyMode: "token",
-      isAo: false
-    });
-
-    // continue to confirmation page
-    push("/subscriptions/payment");
-  }
+  // update auto renewal
+  useEffect(() => {
+    const update = async () => {
+      try {
+        const address = await getActiveAddress();
+        if (subData) {
+          await updateAutoRenewal(
+            checked,
+            address,
+            subData.arweaveAccountAddress
+          );
+        }
+      } catch (err) {
+        console.log("err", err);
+      }
+    };
+    update();
+  }, [checked]);
 
   return (
     <>
@@ -182,14 +190,21 @@ export default function SubscriptionDetails({ id }: Props) {
                       <span style={{ color }}>
                         {subData.subscriptionStatus}
                       </span>
-                      <PayNowButton onClick={() => send()}>
-                        Pay now <PaymentIcon />
-                      </PayNowButton>
+                      {/* TODO: Needs Refactor */}
+                      {subData.subscriptionStatus ===
+                        SubscriptionStatus.AWAITING_PAYMENT && (
+                        <PayNowButton
+                          onClick={() =>
+                            push(
+                              `/subscriptions/${subData.arweaveAccountAddress}/payment`
+                            )
+                          }
+                        >
+                          Pay now <PaymentIcon />
+                        </PayNowButton>
+                      )}
                     </h3>
                   </div>
-                  {/* {subData.subscriptionStatus === SubscriptionStatus.AWAITING_PAYMENT && (
-                    
-                  )} */}
                 </Title>
               </Content>
             </SubscriptionListItem>
@@ -198,7 +213,7 @@ export default function SubscriptionDetails({ id }: Props) {
               color={theme === "light" ? "#191919" : "#ffffff"}
             >
               Application address:{" "}
-              <span>{formatAddress(subData.arweaveAccountAddress, 8)}</span>
+              <span>{formatAddress(subData.arweaveAccountAddress, 5)}</span>
             </SubscriptionText>
             <PaymentDetails>
               <h6>Recurring payment amount</h6>
@@ -224,7 +239,7 @@ export default function SubscriptionDetails({ id }: Props) {
                 </SubscriptionText>
               </Body>
             </PaymentDetails>
-            <div />
+            <Divider />
             <div>
               <Body>
                 <SubscriptionText
@@ -256,8 +271,9 @@ export default function SubscriptionDetails({ id }: Props) {
               >
                 Auto-renewal
               </SubscriptionText>
-              <ToggleSwitch />
+              <ToggleSwitch checked={checked} setChecked={setChecked} />
             </Body>
+            {/* TODO: temporarily disabling threshold */}
             <Threshold>
               <Body>
                 <SubscriptionText
@@ -269,7 +285,7 @@ export default function SubscriptionDetails({ id }: Props) {
                   </TooltipV2>
                 </SubscriptionText>
               </Body>
-              <InputV2 fullWidth />
+              <InputV2 fullWidth {...allowanceInput.bindings} />{" "}
             </Threshold>
           </Main>
           <div
@@ -282,9 +298,7 @@ export default function SubscriptionDetails({ id }: Props) {
             <ButtonV2
               fullWidth
               style={{ fontWeight: "500" }}
-              onClick={() =>
-                browser.tabs.create({ url: subData.subscriptionManagementUrl })
-              }
+              onClick={() => push(`/subscriptions/${id}/manage`)}
             >
               Manage Subscription
             </ButtonV2>
@@ -323,6 +337,7 @@ export const SubscriptionText = styled.div<{
   gap: 4px;
   font-size: ${(props) => props.fontSize || "16px"};
   font-weight: 500;
+  white-space: nowrap;
   color: ${(props) =>
     props.color
       ? props.color
@@ -339,6 +354,11 @@ export const Threshold = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+`;
+
+const Divider = styled.div`
+  width: 100%;
+  border-top: 1px solid ${(props) => props.theme.backgroundSecondary};
 `;
 
 export const Body = styled.div`
@@ -395,8 +415,14 @@ export const SubscriptionListItem = styled.div`
   display: flex;
 `;
 
-export const ToggleSwitch = () => {
-  const [checked, setChecked] = useState(false);
+export const ToggleSwitch = ({
+  checked,
+  setChecked
+}: {
+  checked: boolean;
+  setChecked: Dispatch<SetStateAction<boolean>>;
+}) => {
+  // const [checked, setChecked] = useState(false);
 
   const handleChange = () => {
     setChecked(!checked);
@@ -409,6 +435,7 @@ export const ToggleSwitch = () => {
     </SwitchWrapper>
   );
 };
+
 const SwitchWrapper = styled.label`
   position: relative;
   display: inline-block;
