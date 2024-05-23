@@ -44,7 +44,7 @@ import { useTheme } from "~utils/theme";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import Arweave from "arweave";
-import { useBalance } from "~wallets/hooks";
+import { useActiveWallet, useBalance } from "~wallets/hooks";
 import { getPrice } from "~lib/coingecko";
 import redstone from "redstone-api";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
@@ -132,6 +132,9 @@ export default function Send({ id }: Props) {
     },
     "token"
   );
+
+  const wallet = useActiveWallet();
+  const keystoneError = wallet?.type === "hardware" && isAo;
 
   // tokens
   const tokens = useTokens();
@@ -404,20 +407,30 @@ export default function Send({ id }: Props) {
         }}
         title={browser.i18n.getMessage("send")}
       />
-      <Wrapper showOverlay={showSlider || degraded}>
+      <Wrapper showOverlay={showSlider || degraded || keystoneError}>
         <SendForm>
           {/* TOP INPUT */}
-          {degraded && (
+          {(keystoneError || degraded) && (
             <Degraded>
               <WarningWrapper>
                 <WarningIcon color="#fff" />
               </WarningWrapper>
               <div>
-                <h4>ao token process network degraded.</h4>
-                <span>
-                  ao token process will be available when the network issues are
-                  resolved.
-                </span>
+                {keystoneError ? (
+                  <>
+                    <h4>{browser.i18n.getMessage("keystone_ao_title")}</h4>
+                    <span>
+                      {browser.i18n.getMessage("keystone_ao_description")}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <h4>{browser.i18n.getMessage("ao_degraded")}</h4>
+                    <span>
+                      {browser.i18n.getMessage("ao_degraded_description")}
+                    </span>
+                  </>
+                )}
               </div>
             </Degraded>
           )}
@@ -736,7 +749,7 @@ export const SendButton = styled(ButtonV2)<{ alternate?: boolean }>`
   }
 `;
 
-const Degraded = styled.div`
+export const Degraded = styled.div`
   background: ${(props) => props.theme.backgroundSecondary};
   display: flex;
   margin: 0 0.9375rem;
@@ -761,7 +774,7 @@ const Degraded = styled.div`
   }
 `;
 
-const WarningWrapper = styled.div`
+export const WarningWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -821,6 +834,7 @@ const TokenSelector = styled.div`
   cursor: pointer;
   background-color: rgba(${(props) => props.theme.theme}, 0.15);
   transition: all 0.12s ease-;
+  z-index: 20;
 
   &:active {
     transform: scale(0.97);
