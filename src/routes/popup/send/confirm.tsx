@@ -735,7 +735,7 @@ export default function Confirm({ tokenID, qty }: Props) {
 
 const PasswordWrapper = styled.div`
   display: flex;
-  padding-top: 16px;
+  padding: 16px 0;
   flex-direction: column;
 
   p {
@@ -814,7 +814,6 @@ const ConfirmWrapper = styled.div`
   height: 100%;
   flex-direction: column;
   padding: 0 15px;
-  overflow: hidden;
 `;
 
 const Address = styled.div`

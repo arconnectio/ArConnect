@@ -5,10 +5,10 @@ import {
   Text,
   type DisplayTheme
 } from "@arconnect/components";
-import notificationGraphic from "url:/assets/ecosystem/notifications-promo.svg";
 import { ExtensionStorage } from "~utils/storage";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import browser from "webextension-polyfill";
+import aoLogo from "url:/assets/ecosystem/ao-token-logo.png";
 import styled from "styled-components";
 import { useStorage } from "@plasmohq/storage/hook";
 
@@ -19,6 +19,7 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
   });
 
   const [checked, setChecked] = useState(!!notifications);
+  const modalRef = useRef(null);
 
   useEffect(() => {
     if (notifications !== undefined) {
@@ -31,65 +32,46 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
     setNotifications((prev) => !prev);
   };
 
+  const handleClickOutside = (event) => {
+    if (modalRef.current && !modalRef.current.contains(event.target)) {
+      ExtensionStorage.set("show_announcement", false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
   return (
     <ModalV2
       root={document.getElementById("__plasmo")}
       open={isOpen}
       setOpen={setOpen}
-      announcement={true}
     >
-      <ContentWrapper>
+      <ContentWrapper ref={modalRef}>
         <Content>
           <div>
             <img
-              src={notificationGraphic}
-              alt="notification graphic"
+              src={aoLogo}
+              alt="ao logo"
               style={{ width: "100px", height: "auto" }}
             />
             <HeaderText noMargin heading>
-              {browser.i18n.getMessage("introducing_notifications")}
+              {browser.i18n.getMessage("keystone_ao_popup_title")}
             </HeaderText>
             <Spacer y={1} />
             <CenterText>
-              {browser.i18n.getMessage("enable_notifications_paragraph")}
+              {browser.i18n.getMessage("keystone_ao_popup")}
             </CenterText>
             <Spacer y={1} />
           </div>
-          <CheckContainer>
-            {checked ? (
-              <CheckedSvg
-                onClick={handleCheckbox}
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M10 16.4L6 12.4L7.4 11L10 13.6L16.6 7L18 8.4L10 16.4Z"
-                  fill="white"
-                />
-              </CheckedSvg>
-            ) : (
-              <UncheckedSvg
-                onClick={handleCheckbox}
-                width="19"
-                height="18"
-                viewBox="0 0 19 18"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect
-                  x="1.5"
-                  y="1"
-                  width="16"
-                  height="16"
-                  rx="1"
-                  stroke="#A3A3A3"
-                  stroke-width="2"
-                />
-              </UncheckedSvg>
-            )}
-            {browser.i18n.getMessage("enable_notifications_title")}
-          </CheckContainer>
         </Content>
         <ButtonV2
           fullWidth
@@ -98,7 +80,6 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
             setNotifications(checked);
             ExtensionStorage.set("show_announcement", false);
           }}
-          style={{ marginTop: "43px", fontWeight: "400" }}
         >
           {browser.i18n.getMessage("got_it")}
         </ButtonV2>
