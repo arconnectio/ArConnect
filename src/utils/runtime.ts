@@ -27,17 +27,7 @@ export async function onInstalled(details: Runtime.OnInstalledDetailsType) {
   browser.alarms.create("notifications", { periodInMinutes: 1 });
 
   // reset notifications
-  const wallets = await getWallets();
-  const activeAddress = await getActiveAddress();
-  if (wallets && activeAddress) {
-    const activeWallet = wallets.find(
-      (wallet) => wallet.address === activeAddress
-    );
-
-    if (activeWallet && activeWallet.type === "hardware") {
-      await ExtensionStorage.set("show_announcement", true);
-    }
-  }
+  await ExtensionStorage.set("show_announcement", true);
 
   // initialize tokens in wallet
   await loadTokens();
