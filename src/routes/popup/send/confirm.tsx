@@ -182,6 +182,8 @@ export default function Confirm({ tokenID, qty }: Props) {
           quantity: "0"
         });
 
+        const qty = fractionedToBalance(Number(amount), token);
+
         tx.addTag("App-Name", "SmartWeaveAction");
         tx.addTag("App-Version", "0.3.0");
         tx.addTag("Contract", tokenID);
@@ -190,7 +192,7 @@ export default function Confirm({ tokenID, qty }: Props) {
           JSON.stringify({
             function: "transfer",
             target: target,
-            qty: fractionedToBalance(Number(amount), token)
+            qty: uToken ? Math.floor(qty) : qty
           })
         );
         addTransferTags(tx);
@@ -336,7 +338,7 @@ export default function Confirm({ tokenID, qty }: Props) {
           ao,
           tokenID,
           recipient.address,
-          fractionedToBalance(Number(amount), token).toString()
+          Math.floor(fractionedToBalance(Number(amount), token)).toString()
         );
         if (res) {
           setToast({
