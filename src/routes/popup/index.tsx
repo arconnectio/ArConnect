@@ -13,7 +13,7 @@ import { trackEvent, EventType, trackPage, PageType } from "~utils/analytics";
 import styled from "styled-components";
 import { useTokens } from "~tokens";
 import { useAoTokens } from "~tokens/aoTokens/ao";
-import { useBalance } from "~wallets/hooks";
+import { useActiveWallet, useBalance } from "~wallets/hooks";
 import BuyButton from "~components/popup/home/BuyButton";
 
 export default function Home() {
@@ -26,7 +26,7 @@ export default function Home() {
     key: "active_address",
     instance: ExtensionStorage
   });
-  const [, setShowAnnouncement] = useStorage<boolean>({
+  const [announcement, setShowAnnouncement] = useStorage<boolean>({
     key: "show_announcement",
     instance: ExtensionStorage
   });
@@ -38,6 +38,9 @@ export default function Home() {
 
   // ao Tokens
   const [aoTokens] = useAoTokens();
+
+  // checking to see if it's a hardware wallet
+  const wallet = useActiveWallet();
 
   // assets
   const assets = useMemo(
@@ -90,7 +93,9 @@ export default function Home() {
       }
     };
     checkExpiration();
+  }, []);
 
+  useEffect(() => {
     // check whether to show announcement
     (async () => {
       // reset announcements if setting_notifications is uninitialized
@@ -99,21 +104,18 @@ export default function Home() {
         setLoggedIn(true);
       }
 
-      const announcement = await ExtensionStorage.get("show_announcement");
-      if (announcement === undefined) {
-        setShowAnnouncement(true);
-      }
-      if (announcement || announcement === "true") {
+      // WALLET.TYPE JUST FOR KEYSTONE POPUP
+      if (announcement && wallet?.type === "hardware") {
         setOpen(true);
       } else {
         setOpen(false);
       }
     })();
-  }, []);
+  }, [wallet, announcement]);
 
   return (
     <HomeWrapper>
-      {/* {loggedIn && <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />} */}
+      {loggedIn && <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />}
       <WalletHeader />
       <Balance />
       {(!noBalance && (

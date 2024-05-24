@@ -1267,6 +1267,22 @@
     "message": "Keystone support is in beta. Some API features might not be supported.",
     "description": "Warning about keystone support"
   },
+  "keystone_ao_description": {
+    "message": "Keystone does not support sending ao tokens. Keystone only supports receiving ao tokens. Sending support coming soon.",
+    "description": "Description about keystone ao issue"
+  },
+  "keystone_ao_title": {
+    "message": "Keystone Error Detected.",
+    "description": "Title about keystone ao issue"
+  },
+  "keystone_ao_popup": {
+    "message": "Keystone does not support sending ao tokens. Keystone only supports receiving ao tokens. Sending support coming soon. Send and receiving AR Tokens is supported",
+    "description": "Popup description about keystone ao issue"
+  },
+  "keystone_ao_popup_title": {
+    "message": "Keystone AO Token Support Notice",
+    "description": "Popup description about keystone ao issue"
+  },
   "token_price_estimate_warning": {
     "message": "Price estimate by",
     "description": "Price estimate warning text. Full text is displayed with a link to Redstone.finance"
@@ -1729,6 +1745,14 @@
   "ao_announcement_title": {
     "message": "AO testnet is now live!",
     "description": "ao announcement title text"
+  },
+  "ao_degraded": {
+    "message": "AO Token Process Network Degraded.",
+    "description": "ao degraded title text"
+  },
+  "ao_degraded_description": {
+    "message": "AO token process will be available when the network issues are resolved.",
+    "description": "ao degraded description text"
   },
   "import_token": {
     "message": "Import Token",
