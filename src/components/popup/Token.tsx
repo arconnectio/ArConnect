@@ -108,12 +108,12 @@ export default function Token({ onClick, ...props }: Props) {
             {isMillion ? (
               <BalanceTooltip content={totalBalance} position="topEnd">
                 <NativeBalance>
-                  {props.ao ? props.balance : balance} {props.ticker}
+                  {props.ao ? props.balance : balance}
                 </NativeBalance>
               </BalanceTooltip>
             ) : (
               <NativeBalance>
-                {props.ao ? props.balance : balance} {props.ticker}
+                {props.ao ? props.balance : balance}
               </NativeBalance>
             )}
           </>
