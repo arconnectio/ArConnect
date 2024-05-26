@@ -849,7 +849,7 @@ const SectionWrapper = styled.div<{ alternate?: boolean }>`
   }
 
   :not(:last-child) {
-    border-bottom: 1px solid #ab9aff;
+    border-bottom: 1px solid ${(props) => props.theme.primary};
   }
 `;
 

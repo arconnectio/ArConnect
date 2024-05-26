@@ -28,7 +28,9 @@ export default function HardwareWalletTheme({
 
     return {
       ...theme,
-      theme: hardwareApiTheme
+      theme: hardwareApiTheme,
+      primary: "#9AB8FF",
+      primaryBtnHover: "#6F93E1"
     };
   }
 
