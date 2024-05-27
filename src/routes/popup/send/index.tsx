@@ -378,11 +378,15 @@ export default function Send({ id }: Props) {
     // check qty
     if (invalidQty || qty === "" || Number(qty) === 0) return;
 
-    const finalQty = fractionedToBalance(Number(qty), {
-      id: token.id,
-      decimals: token.decimals,
-      divisibility: token.divisibility
-    });
+    const finalQty = fractionedToBalance(
+      qty,
+      {
+        id: token.id,
+        decimals: token.decimals,
+        divisibility: token.divisibility
+      },
+      token.id === "AR" ? "AR" : isAo ? "AO" : "WARP"
+    );
 
     await TempTransactionStorage.set("send", {
       networkFee,
