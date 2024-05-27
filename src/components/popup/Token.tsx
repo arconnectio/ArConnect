@@ -27,7 +27,7 @@ import { TrashIcon, PlusIcon, SettingsIcon } from "@iconicicons/react";
 
 export default function Token({ onClick, ...props }: Props) {
   const [totalBalance, setTotalBalance] = useState("");
-  const [isMillion, setIsMillion] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
   // display theme
   const theme = useTheme();
 
@@ -48,13 +48,25 @@ export default function Token({ onClick, ...props }: Props) {
   );
 
   const balance = useMemo(() => {
-    const formattedBalance = formatTokenBalance(
-      props.ao ? props.balance : fractBalance
+    const balanceToFormat = props.ao ? props.balance : fractBalance;
+    const isTinyBalance = balanceToFormat > 0 && balanceToFormat < 1e-6;
+    const isSmallBalance = balanceToFormat < 1 && balanceToFormat >= 1e-6;
+
+    const formattedBalance =
+      isTinyBalance || isSmallBalance
+        ? balanceToFormat.toString()
+        : formatTokenBalance(balanceToFormat);
+
+    setTotalBalance(
+      isTinyBalance
+        ? balanceToFormat.toFixed(20).replace(/(\.?)0+$/, "")
+        : formattedBalance
     );
-    setTotalBalance(formattedBalance);
+
     const numBalance = parseFloat(formattedBalance.replace(/,/g, ""));
-    setIsMillion(numBalance >= 1_000_000);
-    return abbreviateNumber(numBalance);
+    setShowTooltip(numBalance >= 1_000_000 || isTinyBalance);
+
+    return isSmallBalance ? numBalance : abbreviateNumber(numBalance);
   }, [fractBalance]);
 
   // token price
@@ -74,13 +86,6 @@ export default function Token({ onClick, ...props }: Props) {
 
   const hasActionButton =
     props?.onAddClick || props?.onRemoveClick || props?.onSettingsClick;
-
-  function formatTicker(ticker: string) {
-    if (ticker && ticker.length > 8) {
-      return `${ticker.slice(0, 3)}..${ticker.slice(-3)}`;
-    }
-    return ticker;
-  }
 
   useEffect(() => {
     (async () => {
@@ -125,23 +130,12 @@ export default function Token({ onClick, ...props }: Props) {
             </TooltipV2>
           ) : (
             <>
-              {isMillion || props.ticker.length > 8 ? (
-                <BalanceTooltip
-                  content={
-                    props.ticker.length > 8
-                      ? `${totalBalance} ${props.ticker}`
-                      : totalBalance
-                  }
-                  position="topEnd"
-                >
-                  <NativeBalance>
-                    {balance} {formatTicker(props.ticker)}
-                  </NativeBalance>
+              {showTooltip ? (
+                <BalanceTooltip content={totalBalance} position="topEnd">
+                  <NativeBalance>{balance}</NativeBalance>
                 </BalanceTooltip>
               ) : (
-                <NativeBalance>
-                  {balance} {formatTicker(props.ticker)}
-                </NativeBalance>
+                <NativeBalance>{balance}</NativeBalance>
               )}
             </>
           )}
