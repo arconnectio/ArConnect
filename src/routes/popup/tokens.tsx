@@ -67,7 +67,7 @@ const TokensList = styled(Section)`
 `;
 
 const ManageButton = styled.a.attrs({
-  rel: "noopener noreferer",
+  rel: "noopener noreferrer",
   target: "_blank"
 })`
   display: flex;
