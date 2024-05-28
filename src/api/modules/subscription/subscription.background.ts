@@ -1,10 +1,9 @@
 import {
   isAddress,
-  isPermission,
-  isAppInfo,
+  isLocalWallet,
   isSubscriptionType
 } from "~utils/assertions";
-import { getActiveAddress } from "~wallets";
+import { getActiveAddress, getActiveKeyfile, getWallets } from "~wallets";
 import type { ModuleFunction } from "~api/background";
 import authenticate from "../connect/auth";
 import { getSubscriptionData } from "~subscriptions";
@@ -15,14 +14,18 @@ import {
 
 const background: ModuleFunction<void> = async (
   appData,
-  subscriptionData: SubscriptionData,
-  type?: unknown
+  subscriptionData: SubscriptionData
 ) => {
   // validate input
   isAddress(subscriptionData.arweaveAccountAddress);
 
   isSubscriptionType(subscriptionData);
   const address = await getActiveAddress();
+
+  // if is hardware wallet
+  const decryptedWallet = await getActiveKeyfile();
+  isLocalWallet(decryptedWallet);
+
   // check if subsciption exists
   const subscriptions = await getSubscriptionData(address);
 
