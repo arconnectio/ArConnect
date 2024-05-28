@@ -27,7 +27,7 @@ const background: ModuleFunction<void> = async (
   isLocalWallet(decryptedWallet);
 
   // check if subsciption exists
-  const subscriptions = await getSubscriptionData(address);
+  let subscriptions = await getSubscriptionData(address);
 
   if (
     subscriptions &&
@@ -54,6 +54,15 @@ const background: ModuleFunction<void> = async (
     subscriptionEndDate: subscriptionData.subscriptionEndDate,
     applicationIcon: subscriptionData?.applicationIcon
   });
+
+  subscriptions = await getSubscriptionData(address);
+  const subscription = subscriptions.find(
+    (subscription) =>
+      subscription.arweaveAccountAddress ===
+      subscriptionData.arweaveAccountAddress
+  );
+
+  return subscription;
 };
 
 export default background;
