@@ -28,7 +28,12 @@ import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
 import { getActiveKeyfile, getActiveWallet, type StoredWallet } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
-import { isUToken, sendRequest } from "~utils/send";
+import {
+  getWarpGatewayUrl,
+  isUrlOnline,
+  isUToken,
+  sendRequest
+} from "~utils/send";
 import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
 import { concatGatewayURL } from "~gateways/utils";
 import type { JWKInterface } from "arbundles";
@@ -272,8 +277,9 @@ export default function Confirm({ tokenID, qty }: Props) {
 
     if (uToken) {
       try {
+        const isOnline = await isUrlOnline(getWarpGatewayUrl("gw"));
         const config = {
-          url: "https://gateway.warp.cc/gateway/sequencer/register",
+          url: getWarpGatewayUrl(isOnline ? "gw" : "gateway", "sequencer"),
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -39,7 +39,12 @@ import {
   fallbackGateway,
   type Gateway
 } from "~gateways/gateway";
-import { isUToken, sendRequest } from "~utils/send";
+import {
+  getWarpGatewayUrl,
+  isUrlOnline,
+  isUToken,
+  sendRequest
+} from "~utils/send";
 import { EventType, trackEvent } from "~utils/analytics";
 interface Props {
   tokenID?: string;
@@ -135,8 +140,9 @@ export default function SendAuth({ tokenID }: Props) {
 
     if (uToken) {
       try {
+        const isOnline = await isUrlOnline(getWarpGatewayUrl("gw"));
         const config = {
-          url: "https://gateway.warp.cc/gateway/sequencer/register",
+          url: getWarpGatewayUrl(isOnline ? "gw" : "gateway", "sequencer"),
           method: "POST",
           headers: {
             "Content-Type": "application/json",
