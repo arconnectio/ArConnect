@@ -171,11 +171,6 @@ export async function getFeeAmount(address: string, app: Application) {
   );
 
   const arweave = new Arweave(await findGateway({ graphql: true }));
-  // TODO: figure out a way to use redstone here
-  // problem: the redstone-api package uses the
-  // window object, which is undefined in the
-  // manifest v3 service workers
-
   /*let arPrice = 0;
 
   try {

@@ -84,7 +84,7 @@ const settings: Setting[] = [
     icon: CompassIcon,
     description: "setting_wayfinder_description",
     type: "boolean",
-    defaultValue: false
+    defaultValue: true
   }),
   new Setting({
     name: "analytics",

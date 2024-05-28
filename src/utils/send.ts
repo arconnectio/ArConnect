@@ -5,7 +5,7 @@
  * @returns {boolean} Returns `true` if the token ID is a U-Token, otherwise `false`.
  */
 
-export const isUToken = (tokenID: string) => {
+export const isUToken = (tokenID: string): boolean => {
   return (
     // Test U-TOKEN
     tokenID === "FYJOKdtNKl18QgblxgLEZUfJMFUv6tZTQqGTtY-D6jQ" ||
@@ -42,3 +42,26 @@ export const sendRequest = async (
     throw new Error("Unknown error occurred");
   }
 };
+
+export async function isUrlOnline(url: RequestInfo | URL, timeoutMs = 5000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+}
+
+export function getWarpGatewayUrl(
+  subdomain: string,
+  type: "gateway" | "sequencer" = "gateway"
+) {
+  const baseUrl = `https://${subdomain}.warp.cc`;
+  return type === "sequencer"
+    ? `${baseUrl}/gateway/sequencer/register`
+    : baseUrl;
+}

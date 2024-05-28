@@ -28,7 +28,12 @@ import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
 import { getActiveKeyfile, getActiveWallet, type StoredWallet } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
-import { isUToken, sendRequest } from "~utils/send";
+import {
+  getWarpGatewayUrl,
+  isUrlOnline,
+  isUToken,
+  sendRequest
+} from "~utils/send";
 import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
 import { concatGatewayURL } from "~gateways/utils";
 import type { JWKInterface } from "arbundles";
@@ -275,8 +280,9 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
 
     if (uToken) {
       try {
+        const isOnline = await isUrlOnline(getWarpGatewayUrl("gw"));
         const config = {
-          url: "https://gateway.warp.cc/gateway/sequencer/register",
+          url: getWarpGatewayUrl(isOnline ? "gw" : "gateway", "sequencer"),
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -718,6 +724,16 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
                 label={"Password"}
                 type="password"
                 fullWidth
+                onKeyDown={async (e) => {
+                  if (e.key !== "Enter") return;
+
+                  if (wallet.type === "local") await sendLocal();
+                  else if (!hardwareStatus || hardwareStatus === "play") {
+                    setHardwareStatus((val) =>
+                      val === "play" ? "scan" : "play"
+                    );
+                  }
+                }}
               />
             </PasswordWrapper>
           )}
@@ -746,7 +762,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
 
 const PasswordWrapper = styled.div`
   display: flex;
-  padding-top: 16px;
+  padding: 16px 0;
   flex-direction: column;
 
   p {
@@ -825,7 +841,6 @@ export const ConfirmWrapper = styled.div`
   height: 100%;
   flex-direction: column;
   padding: 0 15px;
-  overflow: hidden;
 `;
 
 export const Address = styled.div`
@@ -861,7 +876,7 @@ const SectionWrapper = styled.div<{ alternate?: boolean }>`
   }
 
   :not(:last-child) {
-    border-bottom: 1px solid #ab9aff;
+    border-bottom: 1px solid ${(props) => props.theme.primary};
   }
 `;
 

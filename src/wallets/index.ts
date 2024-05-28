@@ -266,9 +266,6 @@ export async function addWallet(
   if (freshInstall) {
     await ExtensionStorage.set("active_address", wallets[0].address);
   }
-
-  // add expiration date if needed
-  await addExpiration();
 }
 
 /**

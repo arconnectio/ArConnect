@@ -1,7 +1,7 @@
 import type { WalletInterface } from "~components/welcome/load/Migrate";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { defaultGateway } from "~gateways/gateway";
 import { ExtensionStorage } from "~utils/storage";
@@ -127,4 +127,23 @@ export function useBalance() {
   }, [activeAddress]);
 
   return balance;
+}
+
+export function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  const handler = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    handler.current = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      if (handler.current) {
+        clearTimeout(handler.current);
+      }
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
 }
