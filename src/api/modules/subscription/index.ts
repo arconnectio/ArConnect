@@ -3,9 +3,9 @@ import type { ModuleProperties } from "~api/module";
 
 const permissions: PermissionType[] = ["ACCESS_ADDRESS"];
 
-const subsciptionModule: ModuleProperties = {
+const subscriptionModule: ModuleProperties = {
   functionName: "subscription",
   permissions
 };
 
-export default subsciptionModule;
+export default subscriptionModule;

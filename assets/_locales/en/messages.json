@@ -1775,7 +1775,7 @@
     "description": "subscription title"
   },
   "subscribe_description": {
-    "message": "APPNAME wants to set up a Period subscription",
+    "message": "APPNAME requests to set up a subscription with recurring payments",
     "description": "subscribe description"
   },
   "subscription_description": {
