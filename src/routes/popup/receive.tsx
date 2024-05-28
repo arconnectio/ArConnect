@@ -16,7 +16,6 @@ import copy from "copy-to-clipboard";
 import { useEffect, type MouseEventHandler, useState } from "react";
 import { PageType, trackPage } from "~utils/analytics";
 import HeadV2 from "~components/popup/HeadV2";
-import { useTheme } from "~utils/theme";
 import { Degraded, WarningWrapper } from "./send";
 import { WarningIcon } from "~components/popup/Token";
 import { useActiveWallet } from "~wallets/hooks";
@@ -34,7 +33,6 @@ export default function Receive() {
     trackPage(PageType.RECEIVE);
   }, []);
 
-  const theme = useTheme();
   const { setToast } = useToasts();
 
   const wallet = useActiveWallet();
@@ -72,7 +70,7 @@ export default function Receive() {
         )}
         <ContentWrapper>
           <Section style={{ padding: "8px 15px 0 15px" }}>
-            <QRCodeWrapper displayTheme={theme}>
+            <QRCodeWrapper>
               <QRCodeSVG
                 fgColor="#fff"
                 bgColor="transparent"
@@ -134,12 +132,11 @@ const CopyAction = styled(CopyIcon)`
   }
 `;
 
-const QRCodeWrapper = styled.div<{ displayTheme: DisplayTheme }>`
+const QRCodeWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: ${(props) =>
-    props.theme.displayTheme === "light" ? "#7866D3" : "#8E7BEA"};
+  background-color: ${(props) => props.theme.primary};
   border-radius: 21.44px;
   padding: 25.83px 0px;
 `;

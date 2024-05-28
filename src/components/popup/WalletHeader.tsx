@@ -39,8 +39,10 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { type Gateway } from "~gateways/gateway";
+
 import {
   Bell03,
+  CreditCard01,
   Container,
   DotsVertical,
   Expand01,
@@ -435,6 +437,13 @@ export default function WalletHeader() {
               window.open(
                 window.location.href.split("#")[0] + "?expanded=true"
               );
+            }
+          },
+          {
+            icon: <CreditCard01 style={{ width: "18px", height: "17px" }} />,
+            title: "Subscriptions",
+            route: () => {
+              push("/subscriptions");
             }
           }
         ]}

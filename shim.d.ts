@@ -54,6 +54,7 @@ declare module "styled-components" {
     cardBorder: string;
     fail: string;
     cardBackground: string;
+    primaryBtnHover: string;
     primaryTextv2: string;
   }
 }

@@ -1765,5 +1765,37 @@
   "token_imported": {
     "message": "Token Succesfully Added",
     "description": "token added"
+  },
+  "subscription_allowance": {
+    "message": "Subscription Allowance",
+    "description": "subscription settings title"
+  },
+  "subscription_title": {
+    "message": "Subscription",
+    "description": "subscription title"
+  },
+  "subscribe_description": {
+    "message": "APPNAME requests to set up a subscription with recurring payments",
+    "description": "subscribe description"
+  },
+  "subscription_description": {
+    "message": "Manage auto withdrawal allowance",
+    "description": "subscription setting description"
+  },
+  "subscription_cancelled": {
+    "message": "Subscription Cancelled",
+    "description": "The subscription has been successfully cancelled."
+  },
+  "subscription_cancelled_error": {
+    "message": "Subscription Cancellation Error",
+    "description": "There was an error cancelling the subscription. Please try again."
+  },
+  "subscription_deleted": {
+    "message": "Subscription Deleted",
+    "description": "The subscription has been successfully deleted."
+  },
+  "subscription_delete_error": {
+    "message": "Subscription Deletion Error",
+    "description": "There was an error deleting the subscription. Please try again."
   }
 }
