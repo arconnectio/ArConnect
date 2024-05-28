@@ -109,6 +109,7 @@ export default function SignDataItem() {
   // listen for enter to reset
   useEffect(() => {
     const listener = async (e: KeyboardEvent) => {
+      if (password) return;
       if (e.key !== "Enter") return;
       await sign();
     };
@@ -116,7 +117,7 @@ export default function SignDataItem() {
     window.addEventListener("keydown", listener);
 
     return () => window.removeEventListener("keydown", listener);
-  }, [params?.authID]);
+  }, [params?.authID, password]);
 
   // sign message
   async function sign() {
@@ -196,6 +197,10 @@ export default function SignDataItem() {
                 {...passwordInput.bindings}
                 label={"Password"}
                 type="password"
+                onKeyDown={async (e) => {
+                  if (e.key !== "Enter") return;
+                  await sign();
+                }}
                 fullWidth
               />
             </PasswordWrapper>

@@ -707,6 +707,16 @@ export default function Confirm({ tokenID, qty }: Props) {
                 label={"Password"}
                 type="password"
                 fullWidth
+                onKeyDown={async (e) => {
+                  if (e.key !== "Enter") return;
+
+                  if (wallet.type === "local") await sendLocal();
+                  else if (!hardwareStatus || hardwareStatus === "play") {
+                    setHardwareStatus((val) =>
+                      val === "play" ? "scan" : "play"
+                    );
+                  }
+                }}
               />
             </PasswordWrapper>
           )}
