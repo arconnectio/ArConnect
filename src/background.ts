@@ -14,7 +14,6 @@ import { onInstalled } from "~utils/runtime";
 import browser from "webextension-polyfill";
 import { syncLabels } from "~wallets";
 import { trackBalance } from "~utils/analytics";
-import { syncAoTokens } from "~tokens/aoTokens/sync";
 
 // watch for API calls
 onMessage("api_call", handleApiCalls);
@@ -45,9 +44,6 @@ browser.alarms.onAlarm.addListener(keyRemoveAlarmListener);
 
 // handle window close
 browser.windows.onRemoved.addListener(onWindowClose);
-
-// handle sync ao tokens
-browser.alarms.onAlarm.addListener(syncAoTokens);
 
 // watch for active address changes / app
 // list changes
