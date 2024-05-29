@@ -190,6 +190,8 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
           quantity: "0"
         });
 
+        const qty = +fractionedToBalance(amount, token, "WARP");
+
         tx.addTag("App-Name", "SmartWeaveAction");
         tx.addTag("App-Version", "0.3.0");
         tx.addTag("Contract", tokenID);
@@ -198,7 +200,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
           JSON.stringify({
             function: "transfer",
             target: target,
-            qty: fractionedToBalance(Number(amount), token)
+            qty: uToken ? Math.floor(qty) : qty
           })
         );
         addTransferTags(tx);
@@ -207,7 +209,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
       } else {
         const tx = await arweave.createTransaction({
           target,
-          quantity: fractionedToBalance(Number(amount), token).toString(),
+          quantity: fractionedToBalance(amount, token, "AR"),
           data: message ? decodeURIComponent(message) : undefined
         });
 
@@ -343,7 +345,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
           ao,
           tokenID,
           recipient.address,
-          fractionedToBalance(Number(amount), token).toString()
+          fractionedToBalance(amount, token, "AO")
         );
         if (res) {
           setToast({

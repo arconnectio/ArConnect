@@ -6,11 +6,14 @@ import type { JWKInterface } from "warp-contracts";
 import { allowanceAuth } from "../sign/allowance";
 import { signAuth } from "../sign/sign_auth";
 import Arweave from "arweave";
+import type { DataItem } from "arbundles";
+import type Transaction from "arweave/web/lib/transaction";
 
 /**
  * Ensure allowance for dispatch
  */
 export async function ensureAllowanceDispatch(
+  dataEntry: DataItem | Transaction,
   appData: ModuleAppData,
   allowance: Allowance,
   keyfile: JWKInterface,

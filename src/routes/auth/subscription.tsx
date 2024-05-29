@@ -49,6 +49,7 @@ export default function Subscription() {
   const [currency] = useSetting<string>("currency");
 
   const [checked, setChecked] = useState<boolean>(false);
+  const [autopayChecked, setAutopayChecked] = useState<boolean>(false);
 
   // get auth utils
   const { closeWindow, cancel } = useAuthUtils("subscription", params?.authID);
@@ -87,11 +88,12 @@ export default function Subscription() {
           subscriptionParams.recurringPaymentFrequency as RecurringPaymentFrequency,
 
         // If this is left blank, this will automatically be set to the subfee amount
-        applicationAllowance: !isNaN(Number(allowanceInput.state))
-          ? Number(allowanceInput.state)
-          : params.subscriptionFeeAmount,
+        // applicationAllowance: !isNaN(Number(allowanceInput.state))
+        //   ? Number(allowanceInput.state)
+        //   : params.subscriptionFeeAmount,
 
-        // TODO: this should be default set to now, and let `handleSubPayment` update to the following period
+        applicationAllowance: autopayChecked ? params.subscriptionFeeAmount : 0,
+
         nextPaymentDue: new Date(),
 
         // TODO:  this should be default started to now
@@ -124,8 +126,7 @@ export default function Subscription() {
       console.log(e, "Failed to subscribe");
       setToast({
         type: "error",
-        //TODO: update message
-        content: browser.i18n.getMessage("token_add_failure"),
+        content: browser.i18n.getMessage("subscription_add_failure"),
         duration: 2200
       });
     }
@@ -217,8 +218,21 @@ export default function Subscription() {
               </SubscriptionText>
               <ToggleSwitch checked={checked} setChecked={setChecked} />
             </Body>
-            {/* TODO: Temporarily Disabling */}
-            <Threshold>
+            <Body>
+              <SubscriptionText
+                color={theme === "light" ? "#191919" : "#ffffff"}
+              >
+                Auto-Pay
+                <TooltipV2 content={InfoText} position="bottom">
+                  <InfoCircle />
+                </TooltipV2>
+              </SubscriptionText>
+              <ToggleSwitch
+                checked={autopayChecked}
+                setChecked={setAutopayChecked}
+              />
+            </Body>
+            {/* <Threshold>
               <Body>
                 <SubscriptionText
                   color={theme === "light" ? "#191919" : "#ffffff"}
@@ -230,7 +244,7 @@ export default function Subscription() {
                 </SubscriptionText>
               </Body>
               <InputV2 {...allowanceInput.bindings} fullWidth />
-            </Threshold>
+            </Threshold> */}
           </Main>
           <div
             style={{

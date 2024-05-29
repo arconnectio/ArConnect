@@ -5,7 +5,10 @@ import { getActiveAddress } from "~wallets";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { getSubscriptionData } from "~subscriptions";
-import { ButtonV2 } from "@arconnect/components";
+import { ButtonV2, ListItem } from "@arconnect/components";
+import { Degraded, WarningWrapper } from "../send";
+import { WarningIcon } from "~components/popup/Token";
+import Title from "~components/popup/Title";
 
 interface Props {
   id?: string;
@@ -60,35 +63,40 @@ export default function SubscriptionManagement({ id }: Props) {
           <>
             <PaymentHistory>
               <NextPaymentSection>
-                <h3>Next Payment</h3>
-                {nextPayment ? (
-                  <p>{nextPayment.toLocaleString()}</p>
-                ) : (
-                  <p>No upcoming payment scheduled.</p>
-                )}
+                <Degraded style={{ margin: 0 }}>
+                  <WarningWrapper>
+                    <WarningIcon color="#fff" />
+                  </WarningWrapper>
+                  <div>
+                    <span>
+                      <Title style={{ margin: 0 }}>Next Payment</Title>
+                      <p style={{ margin: 0 }}>
+                        {nextPayment
+                          ? nextPayment.toLocaleString()
+                          : "No upcoming payment scheduled."}
+                      </p>
+                    </span>
+                  </div>
+                </Degraded>
               </NextPaymentSection>
-              <h3>Payment History</h3>
-              {subData.paymentHistory.length > 0 ? (
-                <ul>
+              <Title style={{ margin: "12px 0" }}>Payment History</Title>
+              {subData.paymentHistory.length > 0 && (
+                <>
                   {subData.paymentHistory.map((payment, index) => (
-                    <li
+                    <ListItem
+                      small
+                      img={subData?.applicationIcon}
+                      title={new Date(payment.date).toLocaleString()}
+                      description={payment.txId}
                       key={index}
                       onClick={() =>
                         browser.tabs.create({
                           url: `https://viewblock.io/arweave/tx/${payment.txId}`
                         })
                       }
-                    >
-                      <p>
-                        {browser.i18n.getMessage("transaction_id")}:{" "}
-                        {payment.txId}
-                      </p>
-                      <p>Date: {new Date(payment.date).toLocaleString()}</p>
-                    </li>
+                    />
                   ))}
-                </ul>
-              ) : (
-                <p>No payment history available.</p>
+                </>
               )}
             </PaymentHistory>
           </>

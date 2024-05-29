@@ -55,9 +55,9 @@ export function calculateNextPaymentDate(
       : currentNextPaymentDue;
 
   switch (recurringPaymentFrequency) {
-    case RecurringPaymentFrequency.ANNUALLY:
-      currentDate.setFullYear(currentDate.getFullYear() + 1);
-      break;
+    // case RecurringPaymentFrequency.ANNUALLY:
+    //   currentDate.setFullYear(currentDate.getFullYear() + 1);
+    //   break;
     case RecurringPaymentFrequency.QUARTERLY:
       currentDate.setMonth(currentDate.getMonth() + 3);
       break;
@@ -67,12 +67,13 @@ export function calculateNextPaymentDate(
     case RecurringPaymentFrequency.WEEKLY:
       currentDate.setDate(currentDate.getDate() + 7);
       break;
-    case RecurringPaymentFrequency.EVERY_5_MINUTES:
-      currentDate.setMinutes(currentDate.getMinutes() + 5);
-      break;
-    case RecurringPaymentFrequency.HOURLY:
-      currentDate.setHours(currentDate.getHours() + 1);
-      break;
+    // case RecurringPaymentFrequency.EVERY_5_MINUTES:
+    //   currentDate.setMinutes(currentDate.getMinutes() + 5);
+    //   break;
+    // case RecurringPaymentFrequency.HOURLY:
+    //   currentDate.setHours(currentDate.getHours() + 1);
+    //   break;
+
     case RecurringPaymentFrequency.DAILY:
       currentDate.setDate(currentDate.getDate() + 1);
       break;
