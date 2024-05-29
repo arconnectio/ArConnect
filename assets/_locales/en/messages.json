@@ -1805,5 +1805,9 @@
   "subscription_delete_error": {
     "message": "Subscription Deletion Error",
     "description": "There was an error deleting the subscription. Please try again."
+  },
+  "subscription_add_failure": {
+    "message": "Failed to add subscription",
+    "description": "Failed to add subscription error message"
   }
 }
