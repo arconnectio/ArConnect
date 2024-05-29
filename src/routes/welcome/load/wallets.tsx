@@ -22,6 +22,7 @@ import SeedInput from "~components/SeedInput";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
+import { addExpiration } from "~wallets/auth";
 
 export default function Wallets() {
   // password context
@@ -132,6 +133,7 @@ export default function Wallets() {
 
         // add wallet
         await addWallet(jwk, password);
+        await addExpiration();
       } else if (existingWallets.length < 1) {
         // the user has not migrated, so they need to add a wallet
         return finishUp();
@@ -157,6 +159,7 @@ export default function Wallets() {
     // we need this because we don't
     // have any other wallets added yet
     await setActiveWallet(account.address);
+    await addExpiration();
 
     // redirect
     setLocation(`/${params.setup}/${Number(params.page) + 1}`);

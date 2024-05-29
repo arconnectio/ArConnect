@@ -3,6 +3,7 @@ import {
   type KeystoneAccount
 } from "~wallets/hardware/keystone";
 import { addHardwareWallet } from "~wallets/hardware";
+import { usePatchWorker } from "~wallets/hardware/hooks";
 import { useScanner } from "@arconnect/keystone-sdk";
 import {
   Alert,
@@ -81,6 +82,9 @@ export default function KeystoneButton({ onSuccess }: Props) {
 
     cancel();
   });
+
+  // Patch Worker
+  usePatchWorker();
 
   return (
     <>

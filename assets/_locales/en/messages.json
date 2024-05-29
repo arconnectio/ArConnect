@@ -1267,6 +1267,22 @@
     "message": "Keystone support is in beta. Some API features might not be supported.",
     "description": "Warning about keystone support"
   },
+  "keystone_ao_description": {
+    "message": "Keystone does not support sending ao tokens. Keystone only supports receiving ao tokens. Sending support coming soon.",
+    "description": "Description about keystone ao issue"
+  },
+  "keystone_ao_title": {
+    "message": "Keystone Error Detected.",
+    "description": "Title about keystone ao issue"
+  },
+  "keystone_ao_popup": {
+    "message": "Keystone does not support sending ao tokens. Keystone only supports receiving ao tokens. Sending support coming soon. Send and receiving AR Tokens is supported",
+    "description": "Popup description about keystone ao issue"
+  },
+  "keystone_ao_popup_title": {
+    "message": "Keystone AO Token Support Notice",
+    "description": "Popup description about keystone ao issue"
+  },
   "token_price_estimate_warning": {
     "message": "Price estimate by",
     "description": "Price estimate warning text. Full text is displayed with a link to Redstone.finance"
@@ -1730,6 +1746,14 @@
     "message": "AO testnet is now live!",
     "description": "ao announcement title text"
   },
+  "ao_degraded": {
+    "message": "AO Token Process Network Degraded.",
+    "description": "ao degraded title text"
+  },
+  "ao_degraded_description": {
+    "message": "AO token process will be available when the network issues are resolved.",
+    "description": "ao degraded description text"
+  },
   "import_token": {
     "message": "Import Token",
     "description": "import token button description"
@@ -1749,5 +1773,37 @@
   "token_removed": {
     "message": "Token Succesfully Removed",
     "description": "token removed"
+  },
+  "subscription_allowance": {
+    "message": "Subscription Allowance",
+    "description": "subscription settings title"
+  },
+  "subscription_title": {
+    "message": "Subscription",
+    "description": "subscription title"
+  },
+  "subscribe_description": {
+    "message": "APPNAME requests to set up a subscription with recurring payments",
+    "description": "subscribe description"
+  },
+  "subscription_description": {
+    "message": "Manage auto withdrawal allowance",
+    "description": "subscription setting description"
+  },
+  "subscription_cancelled": {
+    "message": "Subscription Cancelled",
+    "description": "The subscription has been successfully cancelled."
+  },
+  "subscription_cancelled_error": {
+    "message": "Subscription Cancellation Error",
+    "description": "There was an error cancelling the subscription. Please try again."
+  },
+  "subscription_deleted": {
+    "message": "Subscription Deleted",
+    "description": "The subscription has been successfully deleted."
+  },
+  "subscription_delete_error": {
+    "message": "Subscription Deletion Error",
+    "description": "There was an error deleting the subscription. Please try again."
   }
 }

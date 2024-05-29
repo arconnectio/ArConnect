@@ -28,7 +28,12 @@ import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
 import { getActiveKeyfile, getActiveWallet, type StoredWallet } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
-import { isUToken, sendRequest } from "~utils/send";
+import {
+  getWarpGatewayUrl,
+  isUrlOnline,
+  isUToken,
+  sendRequest
+} from "~utils/send";
 import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
 import { concatGatewayURL } from "~gateways/utils";
 import type { JWKInterface } from "arbundles";
@@ -46,12 +51,15 @@ import { UR } from "@ngraveio/bc-ur";
 import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
 import { useScanner } from "@arconnect/keystone-sdk";
 import Progress from "~components/Progress";
+import { updateSubscription } from "~subscriptions";
+import { SubscriptionStatus } from "~subscriptions/subscription";
 import { checkPassword } from "~wallets/auth";
 
 interface Props {
   tokenID: string;
-  qty: number;
+  qty?: number;
   recipient?: string;
+  subscription?: boolean;
 }
 
 function formatNumber(amount: number, decimalPlaces: number = 2): string {
@@ -63,7 +71,7 @@ function formatNumber(amount: number, decimalPlaces: number = 2): string {
   return rounded;
 }
 
-export default function Confirm({ tokenID, qty }: Props) {
+export default function Confirm({ tokenID, qty, subscription }: Props) {
   // TODO: Need to get Token information
   const [token, setToken] = useState<Token | undefined>();
   const [amount, setAmount] = useState<string>("");
@@ -182,6 +190,8 @@ export default function Confirm({ tokenID, qty }: Props) {
           quantity: "0"
         });
 
+        const qty = +fractionedToBalance(amount, token, "WARP");
+
         tx.addTag("App-Name", "SmartWeaveAction");
         tx.addTag("App-Version", "0.3.0");
         tx.addTag("Contract", tokenID);
@@ -190,7 +200,7 @@ export default function Confirm({ tokenID, qty }: Props) {
           JSON.stringify({
             function: "transfer",
             target: target,
-            qty: fractionedToBalance(Number(amount), token)
+            qty: uToken ? Math.floor(qty) : qty
           })
         );
         addTransferTags(tx);
@@ -199,7 +209,7 @@ export default function Confirm({ tokenID, qty }: Props) {
       } else {
         const tx = await arweave.createTransaction({
           target,
-          quantity: fractionedToBalance(Number(amount), token).toString(),
+          quantity: fractionedToBalance(amount, token, "AR"),
           data: message ? decodeURIComponent(message) : undefined
         });
 
@@ -272,8 +282,9 @@ export default function Confirm({ tokenID, qty }: Props) {
 
     if (uToken) {
       try {
+        const isOnline = await isUrlOnline(getWarpGatewayUrl("gw"));
         const config = {
-          url: "https://gateway.warp.cc/gateway/sequencer/register",
+          url: getWarpGatewayUrl(isOnline ? "gw" : "gateway", "sequencer"),
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -334,7 +345,7 @@ export default function Confirm({ tokenID, qty }: Props) {
           ao,
           tokenID,
           recipient.address,
-          fractionedToBalance(Number(amount), token).toString()
+          fractionedToBalance(amount, token, "AO")
         );
         if (res) {
           setToast({
@@ -371,6 +382,12 @@ export default function Confirm({ tokenID, qty }: Props) {
 
           try {
             await submitTx(convertedTransaction, arweave, type);
+            subscription &&
+              (await updateSubscription(
+                activeAddress,
+                recipient.address,
+                SubscriptionStatus.ACTIVE
+              ));
           } catch (e) {
             if (!uToken) {
               gateway = fallbackGateway;
@@ -612,7 +629,9 @@ export default function Confirm({ tokenID, qty }: Props) {
 
   return (
     <Wrapper>
-      <HeadV2 title={"Confirm Transaction"} />
+      <HeadV2
+        title={!subscription ? "Confirm Transaction" : "Subscription Payment"}
+      />
       <ConfirmWrapper>
         <BodyWrapper>
           <AddressWrapper>
@@ -707,6 +726,16 @@ export default function Confirm({ tokenID, qty }: Props) {
                 label={"Password"}
                 type="password"
                 fullWidth
+                onKeyDown={async (e) => {
+                  if (e.key !== "Enter") return;
+
+                  if (wallet.type === "local") await sendLocal();
+                  else if (!hardwareStatus || hardwareStatus === "play") {
+                    setHardwareStatus((val) =>
+                      val === "play" ? "scan" : "play"
+                    );
+                  }
+                }}
               />
             </PasswordWrapper>
           )}
@@ -735,7 +764,7 @@ export default function Confirm({ tokenID, qty }: Props) {
 
 const PasswordWrapper = styled.div`
   display: flex;
-  padding-top: 16px;
+  padding: 16px 0;
   flex-direction: column;
 
   p {
@@ -764,7 +793,7 @@ type BodySectionProps = {
   alternate?: boolean;
 };
 
-function BodySection({
+export function BodySection({
   title,
   subtitle,
   value,
@@ -808,16 +837,15 @@ const Wrapper = styled.div`
   position: relative;
 `;
 
-const ConfirmWrapper = styled.div`
+export const ConfirmWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   height: 100%;
   flex-direction: column;
   padding: 0 15px;
-  overflow: hidden;
 `;
 
-const Address = styled.div`
+export const Address = styled.div`
   display: flex;
   background-color: rgba(171, 154, 255, 0.15);
   border: 1px solid rgba(171, 154, 255, 0.17);
@@ -825,7 +853,7 @@ const Address = styled.div`
   border-radius: 10px;
 `;
 
-const AddressWrapper = styled.div`
+export const AddressWrapper = styled.div`
   display: flex;
   font-size: 16px;
   color: ${(props) => props.theme.theme};
@@ -850,7 +878,7 @@ const SectionWrapper = styled.div<{ alternate?: boolean }>`
   }
 
   :not(:last-child) {
-    border-bottom: 1px solid #ab9aff;
+    border-bottom: 1px solid ${(props) => props.theme.primary};
   }
 `;
 

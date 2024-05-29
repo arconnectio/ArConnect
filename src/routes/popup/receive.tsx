@@ -16,7 +16,9 @@ import copy from "copy-to-clipboard";
 import { useEffect, type MouseEventHandler, useState } from "react";
 import { PageType, trackPage } from "~utils/analytics";
 import HeadV2 from "~components/popup/HeadV2";
-import { useTheme } from "~utils/theme";
+import { Degraded, WarningWrapper } from "./send";
+import { WarningIcon } from "~components/popup/Token";
+import { useActiveWallet } from "~wallets/hooks";
 
 export default function Receive() {
   // active address
@@ -31,8 +33,10 @@ export default function Receive() {
     trackPage(PageType.RECEIVE);
   }, []);
 
-  const theme = useTheme();
   const { setToast } = useToasts();
+
+  const wallet = useActiveWallet();
+  const keystoneWarning = wallet?.type === "hardware";
 
   const copyAddress: MouseEventHandler = (e) => {
     e.stopPropagation();
@@ -53,29 +57,41 @@ export default function Receive() {
       <div>
         <HeadV2 title={browser.i18n.getMessage("receive")} />
       </div>
-      <ContentWrapper>
-        <Section style={{ paddingBottom: "8px" }}>
-          <QRCodeWrapper displayTheme={theme}>
-            <QRCodeSVG
-              fgColor="#fff"
-              bgColor="transparent"
-              size={285.84}
-              value={activeAddress ?? ""}
-            />
-          </QRCodeWrapper>
-        </Section>
-        <Section style={{ paddingTop: "8px" }}>
-          <AddressField fullWidth onClick={copyAddress}>
-            {formatAddress(activeAddress ?? "", 6)}
-            <TooltipV2
-              content={browser.i18n.getMessage("copy_address")}
-              position="bottom"
-            >
-              <CopyAction as={copied ? CheckIcon : CopyIcon} />
-            </TooltipV2>
-          </AddressField>
-        </Section>
-      </ContentWrapper>
+      <div>
+        {keystoneWarning && (
+          <Degraded>
+            <WarningWrapper>
+              <WarningIcon color="#fff" />
+            </WarningWrapper>
+            <div>
+              <span>{browser.i18n.getMessage("keystone_ao_description")}</span>
+            </div>
+          </Degraded>
+        )}
+        <ContentWrapper>
+          <Section style={{ padding: "8px 15px 0 15px" }}>
+            <QRCodeWrapper>
+              <QRCodeSVG
+                fgColor="#fff"
+                bgColor="transparent"
+                size={275}
+                value={activeAddress ?? ""}
+              />
+            </QRCodeWrapper>
+          </Section>
+          <Section style={{ padding: "8px 15px 0 15px" }}>
+            <AddressField fullWidth onClick={copyAddress}>
+              {formatAddress(activeAddress ?? "", 6)}
+              <TooltipV2
+                content={browser.i18n.getMessage("copy_address")}
+                position="bottom"
+              >
+                <CopyAction as={copied ? CheckIcon : CopyIcon} />
+              </TooltipV2>
+            </AddressField>
+          </Section>
+        </ContentWrapper>
+      </div>
     </Wrapper>
   );
 }
@@ -83,12 +99,10 @@ export default function Receive() {
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
   height: calc(100vh - 72px);
 `;
 
 const ContentWrapper = styled.div`
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -118,13 +132,11 @@ const CopyAction = styled(CopyIcon)`
   }
 `;
 
-const QRCodeWrapper = styled.div<{ displayTheme: DisplayTheme }>`
+const QRCodeWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: max-content%;
-  background-color: ${(props) =>
-    props.theme.displayTheme === "light" ? "#7866D3" : "#8E7BEA"};
+  background-color: ${(props) => props.theme.primary};
   border-radius: 21.44px;
   padding: 25.83px 0px;
 `;

@@ -44,8 +44,8 @@ import { useTheme } from "~utils/theme";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import Arweave from "arweave";
-import { useBalance } from "~wallets/hooks";
-import { getPrice } from "~lib/coingecko";
+import { useActiveWallet, useBalance } from "~wallets/hooks";
+import { getArPrice, getPrice } from "~lib/coingecko";
 import redstone from "redstone-api";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import Collectible from "~components/popup/Collectible";
@@ -132,6 +132,9 @@ export default function Send({ id }: Props) {
     },
     "token"
   );
+
+  const wallet = useActiveWallet();
+  const keystoneError = wallet?.type === "hardware" && isAo;
 
   // tokens
   const tokens = useTokens();
@@ -255,7 +258,7 @@ export default function Send({ id }: Props) {
   useEffect(() => {
     (async () => {
       if (token.id === "AR") {
-        const arPrice = await getPrice("arweave", currency);
+        const arPrice = await getArPrice(currency);
 
         return setPrice(arPrice);
       }
@@ -299,15 +302,18 @@ export default function Send({ id }: Props) {
 
       let byte = 0;
       if (message.state) {
-        byte = new TextEncoder().encode(message.state).length;
+        byte = new TextEncoder().encode(message.state).byteLength;
       }
       const gateway = await findGateway({});
       const arweave = new Arweave(gateway);
-      const txPrice = await arweave.transactions.getPrice(byte, "dummyTarget");
+      const txPrice = await arweave.transactions.getPrice(
+        byte,
+        recipient.address
+      );
 
       setNetworkFee(arweave.ar.winstonToAr(txPrice));
     })();
-  }, [token, message.state]);
+  }, [token, message.state, recipient.address]);
 
   // maximum possible send amount
   const max = useMemo(() => {
@@ -372,19 +378,23 @@ export default function Send({ id }: Props) {
     // check qty
     if (invalidQty || qty === "" || Number(qty) === 0) return;
 
-    const finalQty = fractionedToBalance(Number(qty), {
-      id: token.id,
-      decimals: token.decimals,
-      divisibility: token.divisibility
-    });
+    const finalQty = fractionedToBalance(
+      qty,
+      {
+        id: token.id,
+        decimals: token.decimals,
+        divisibility: token.divisibility
+      },
+      token.id === "AR" ? "AR" : isAo ? "AO" : "WARP"
+    );
 
     await TempTransactionStorage.set("send", {
       networkFee,
-      qty: qtyMode === "fiat" ? formatTokenBalance(secondaryQty) : qty,
+      qty: qtyMode === "fiat" ? secondaryQty : qty,
       token,
       recipient,
       estimatedFiat: qtyMode === "fiat" ? qty : secondaryQty,
-      estimatedNetworkFee: formatTokenBalance(networkFee),
+      estimatedNetworkFee: parseFloat(networkFee) * price,
       message: message.state,
       qtyMode,
       isAo
@@ -404,20 +414,30 @@ export default function Send({ id }: Props) {
         }}
         title={browser.i18n.getMessage("send")}
       />
-      <Wrapper showOverlay={showSlider || degraded}>
+      <Wrapper showOverlay={showSlider || degraded || keystoneError}>
         <SendForm>
           {/* TOP INPUT */}
-          {degraded && (
+          {(keystoneError || degraded) && (
             <Degraded>
               <WarningWrapper>
                 <WarningIcon color="#fff" />
               </WarningWrapper>
               <div>
-                <h4>ao token process network degraded.</h4>
-                <span>
-                  ao token process will be available when the network issues are
-                  resolved.
-                </span>
+                {keystoneError ? (
+                  <>
+                    <h4>{browser.i18n.getMessage("keystone_ao_title")}</h4>
+                    <span>
+                      {browser.i18n.getMessage("keystone_ao_description")}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <h4>{browser.i18n.getMessage("ao_degraded")}</h4>
+                    <span>
+                      {browser.i18n.getMessage("ao_degraded_description")}
+                    </span>
+                  </>
+                )}
               </div>
             </Degraded>
           )}
@@ -736,7 +756,7 @@ export const SendButton = styled(ButtonV2)<{ alternate?: boolean }>`
   }
 `;
 
-const Degraded = styled.div`
+export const Degraded = styled.div`
   background: ${(props) => props.theme.backgroundSecondary};
   display: flex;
   margin: 0 0.9375rem;
@@ -761,7 +781,7 @@ const Degraded = styled.div`
   }
 `;
 
-const WarningWrapper = styled.div`
+export const WarningWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -821,6 +841,7 @@ const TokenSelector = styled.div`
   cursor: pointer;
   background-color: rgba(${(props) => props.theme.theme}, 0.15);
   transition: all 0.12s ease-;
+  z-index: 20;
 
   &:active {
     transform: scale(0.97);

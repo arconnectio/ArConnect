@@ -90,6 +90,7 @@ const background: ModuleFunction<ReturnType> = async (
     const price = await getPrice(dataEntry, await app.getBundler());
 
     await ensureAllowanceDispatch(
+      dataEntry,
       appData,
       allowance,
       decryptedWallet.keyfile,
@@ -127,6 +128,7 @@ const background: ModuleFunction<ReturnType> = async (
 
     // ensure allowance
     await ensureAllowanceDispatch(
+      transaction,
       appData,
       allowance,
       decryptedWallet.keyfile,

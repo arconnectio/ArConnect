@@ -2,6 +2,7 @@ import { handleGatewayUpdate, scheduleGatewayUpdate } from "~gateways/cache";
 import browser, { type Runtime, type Storage } from "webextension-polyfill";
 import { initializeARBalanceMonitor } from "./analytics";
 import { loadTokens } from "~tokens/token";
+import { getActiveAddress, getWallets } from "~wallets";
 
 export const isManifestv3 = () =>
   browser.runtime.getManifest().manifest_version === 3;
@@ -25,7 +26,7 @@ export async function onInstalled(details: Runtime.OnInstalledDetailsType) {
   browser.alarms.create("notifications", { periodInMinutes: 1 });
 
   // reset notifications
-  // await ExtensionStorage.set("show_announcement", true);
+  await ExtensionStorage.set("show_announcement", true);
 
   // initialize tokens in wallet
   await loadTokens();

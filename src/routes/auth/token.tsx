@@ -162,6 +162,18 @@ export default function Token() {
     })();
   }, [params?.tokenID, state, theme]);
 
+  // listen for enter to add
+  useEffect(() => {
+    const listener = async (e: KeyboardEvent) => {
+      if (e.key !== "Enter") return;
+      await done();
+    };
+
+    window.addEventListener("keydown", listener);
+
+    return () => window.removeEventListener("keydown", listener);
+  }, [params, done]);
+
   const gateway = useGateway({ startBlock: 0 });
 
   return (

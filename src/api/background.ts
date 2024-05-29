@@ -39,6 +39,8 @@ import verifyMessageModule from "./modules/verify_message";
 import verifyMessage from "./modules/verify_message/verify_message.background";
 import signDataItemModule from "./modules/sign_data_item";
 import signDataItem from "./modules/sign_data_item/sign_data_item.background";
+import subscriptionModule from "./modules/subscription";
+import subscription from "./modules/subscription/subscription.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
@@ -60,7 +62,8 @@ const modules: BackgroundModule<any>[] = [
   { ...signMessageModule, function: signMessage },
   { ...privateHashModule, function: privateHash },
   { ...verifyMessageModule, function: verifyMessage },
-  { ...signDataItemModule, function: signDataItem }
+  { ...signDataItemModule, function: signDataItem },
+  { ...subscriptionModule, function: subscription }
 ];
 
 export default modules;
