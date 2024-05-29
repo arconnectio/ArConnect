@@ -12,7 +12,7 @@ import {
   type SubscriptionData
 } from "~subscriptions/subscription";
 
-const background: ModuleFunction<void> = async (
+const background: ModuleFunction<SubscriptionData> = async (
   appData,
   subscriptionData: SubscriptionData
 ) => {
@@ -21,6 +21,10 @@ const background: ModuleFunction<void> = async (
 
   isSubscriptionType(subscriptionData);
   const address = await getActiveAddress();
+
+  if (address === subscriptionData.arweaveAccountAddress) {
+    throw new Error("Wallet cannot subscribe to its own address");
+  }
 
   // if is hardware wallet
   const decryptedWallet = await getActiveKeyfile();

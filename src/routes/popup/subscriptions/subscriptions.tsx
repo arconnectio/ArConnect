@@ -1,11 +1,10 @@
-import Subscription, {
+import {
   SubscriptionStatus,
   type SubscriptionData
 } from "~subscriptions/subscription";
 import HeadV2 from "~components/popup/HeadV2";
 import { useEffect, useState } from "react";
 import { getActiveAddress } from "~wallets";
-import { ExtensionStorage } from "~utils/storage";
 import styled from "styled-components";
 import Squircle from "~components/Squircle";
 import { getSubscriptionData, updateSubscription } from "~subscriptions";
@@ -121,8 +120,8 @@ const SubscriptionListItem = ({
     case "Monthly":
       period = "month";
       break;
-    case "Annually":
-      period = "year";
+    case "Daily":
+      period = "day";
       break;
     case "Quarterly":
       period = "quarter";
