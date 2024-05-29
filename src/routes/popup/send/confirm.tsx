@@ -659,8 +659,9 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
             {token && !hardwareStatus && (
               <>
                 <BodySection
+                  alternate
                   ticker={token?.ticker}
-                  title={`Sending ${token?.ticker}`}
+                  title={`Sending`}
                   value={formatNumber(Number(amount))}
                   estimatedValue={isAo ? "-.--" : estimatedFiatAmount}
                 />
@@ -888,6 +889,9 @@ const Price = styled.div`
 
 const ArAmount = styled.div<{ alternate?: boolean }>`
   display: inline-flex;
+  flex-wrap: wrap;
+  margin-left: auto;
+  justify-content: flex-end;
   align-items: baseline;
   font-size: ${(props) => (props.alternate ? "16px" : "32px")};
   font-weight: 600;
