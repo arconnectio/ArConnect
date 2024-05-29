@@ -50,7 +50,7 @@ export default function AnimatedQRScanner({ className, ...props }: Props) {
   return (
     <Outline>
       <LoadingSection>
-        {((cameraAllowed || !isWebWorkerAvailable) && (
+        {(cameraAllowed && (
           <>
             <LoadingCamera />
             <Spacer y={0.85} />
