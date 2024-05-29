@@ -1762,9 +1762,17 @@
     "message": "Token Already Added",
     "description": "token already imported"
   },
+  "token_already_removed": {
+    "message": "Token Already Removed",
+    "description": "token already removed"
+  },
   "token_imported": {
     "message": "Token Succesfully Added",
     "description": "token added"
+  },
+  "token_removed": {
+    "message": "Token Succesfully Removed",
+    "description": "token removed"
   },
   "subscription_allowance": {
     "message": "Subscription Allowance",

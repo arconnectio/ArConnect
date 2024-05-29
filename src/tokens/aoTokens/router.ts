@@ -1,36 +1,15 @@
 import { useEffect, useState } from "react";
-import { useAo, type AoInstance, getTagValue, type TokenInfo } from "./ao";
-import { ROUTER_PROCESS, type Message } from "./config";
+import { type TokenInfo } from "./ao";
 import { getAoTokens } from "~tokens";
+import { Token } from "ao-tokens";
+import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 
-export async function getTokenInfo(
-  id: string,
-  ao: AoInstance
-): Promise<TokenInfo> {
-  const res = await ao.dryrun({
-    Id: "0000000000000000000000000000000000000000001",
-    Owner: "0000000000000000000000000000000000000000001",
-    process: id,
-    tags: [{ name: "Action", value: "Info" }]
-  });
-
-  for (const msg of res.Messages as Message[]) {
-    const Ticker = getTagValue("Ticker", msg.Tags);
-    const Name = getTagValue("Name", msg.Tags);
-    const Denomination = getTagValue("Denomination", msg.Tags);
-    const Logo = getTagValue("Logo", msg.Tags);
-
-    if (!Ticker && !Ticker) continue;
-
-    return {
-      Name,
-      Ticker,
-      Denomination: parseFloat(Denomination || "1"),
-      Logo
-    };
-  }
-
-  return { Denomination: 1 };
+export async function getTokenInfo(id: string): Promise<TokenInfo> {
+  const token = (await Token(id)).info;
+  const denomination = Number(token.Denomination.toString());
+  const tokenInfo: TokenInfo = { ...token, Denomination: denomination };
+  return tokenInfo;
 }
 
 export function useTokenIDs(): [string[], boolean] {
@@ -40,8 +19,10 @@ export function useTokenIDs(): [string[], boolean] {
   // loading
   const [loading, setLoading] = useState(true);
 
-  // ao instance
-  const ao = useAo();
+  const [aoTokens] = useStorage<any[]>({
+    key: "ao_tokens",
+    instance: ExtensionStorage
+  });
 
   useEffect(() => {
     (async () => {
@@ -55,7 +36,7 @@ export function useTokenIDs(): [string[], boolean] {
 
       setLoading(false);
     })();
-  }, [ao]);
+  }, [aoTokens]);
 
   return [tokenIDs, loading];
 }
