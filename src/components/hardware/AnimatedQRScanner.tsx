@@ -1,6 +1,6 @@
 import { Loading, Spacer, Text, useToasts } from "@arconnect/components";
 import { AnimatedQRScanner as Scanner } from "@arconnect/keystone-sdk";
-import { type ComponentProps, useEffect, useState } from "react";
+import { type ComponentProps, useEffect, useMemo, useState } from "react";
 import { CameraOffIcon } from "@iconicicons/react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -11,6 +11,11 @@ export default function AnimatedQRScanner({ className, ...props }: Props) {
 
   // camera allowed
   const [cameraAllowed, setCameraAllowed] = useState(true);
+
+  const isWebWorkerAvailable = useMemo(
+    () => typeof Worker !== "undefined",
+    [Worker]
+  );
 
   useEffect(() => {
     (async () => {
@@ -63,9 +68,7 @@ export default function AnimatedQRScanner({ className, ...props }: Props) {
           </>
         )}
       </LoadingSection>
-      <Wrapper>
-        <Scanner {...props} />
-      </Wrapper>
+      <Wrapper>{isWebWorkerAvailable && <Scanner {...props} />}</Wrapper>
     </Outline>
   );
 }
