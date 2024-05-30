@@ -92,7 +92,14 @@ export default function Tokens() {
     setLocation("/tokens/new");
   };
 
-  const handleTokenClick = (token) => {
+  const handleTokenClick = (token: {
+    id: any;
+    defaultLogo?: string;
+    balance?: number;
+    ticker?: string;
+    type?: TokenType;
+    name?: string;
+  }) => {
     setLocation(`/tokens/${token.id}`);
   };
 

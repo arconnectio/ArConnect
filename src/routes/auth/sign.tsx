@@ -134,12 +134,10 @@ export default function Sign() {
 
   // transaction size
   const size = useMemo(() => {
-    if (!params?.transaction?.size) {
-      return 0;
-    }
+    if (!transaction) return 0;
 
-    return Number(params.transaction.size);
-  }, [params]);
+    return transaction.data.length;
+  }, [transaction]);
 
   // authorize
   async function authorize(data?: any) {

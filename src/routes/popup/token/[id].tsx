@@ -520,7 +520,7 @@ const Description = styled(Text).attrs({
 
 export const Link = styled.a.attrs({
   target: "_blank",
-  rel: "noopen noreferer"
+  rel: "noopener noreferrer"
 })`
   display: flex;
   align-items: center;

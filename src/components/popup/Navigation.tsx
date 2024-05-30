@@ -83,7 +83,7 @@ export const NavigationBar = () => {
 
 const NavigationBarWrapper = styled.div<{ displayTheme: DisplayTheme }>`
   z-index: 5;
-  border-top: 2px solid #8e7bea;
+  border-top: 2px solid ${(props) => props.theme.primary};
   position: fixed;
   bottom: 0;
   color: white;

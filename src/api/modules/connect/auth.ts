@@ -10,6 +10,7 @@ export type AuthType =
   | "unlock"
   | "token"
   | "sign"
+  | "subscription"
   | "signMessage"
   | "signature"
   | "signDataItem";

@@ -5,7 +5,6 @@ import { type Tag } from "arweave/web/lib/transaction";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { Token } from "ao-tokens";
-import { useTokenIDs } from "./router";
 import { ArweaveSigner, createData } from "arbundles";
 import { getActiveKeyfile } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
@@ -75,10 +74,11 @@ export function useAo() {
 
 export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
   const [tokens, setTokens] = useState<TokenInfoWithBalance[]>([]);
-
   const [balances, setBalances] = useState<{ id: string; balance: number }[]>(
     []
   );
+  const [loading, setLoading] = useState(true);
+
   const tokensWithBalances = useMemo(
     () =>
       tokens.map((token) => ({
@@ -87,9 +87,6 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
       })),
     [tokens, balances]
   );
-
-  const [ids, loadingIDs] = useTokenIDs();
-  const ao = useAo();
 
   const [activeAddress] = useStorage<string>({
     key: "active_address",
@@ -106,48 +103,50 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
     instance: ExtensionStorage
   });
 
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    if (!loadingIDs) return;
-    setLoading(true);
-  }, [loadingIDs]);
   // fetch token infos
   useEffect(() => {
     (async () => {
-      if (loadingIDs) return;
-
       try {
         if (!aoSetting) {
-          return setTokens([]);
+          setTokens([]);
+          return;
         }
+
         setTokens(
           aoTokens.map((aoToken) => ({
             id: aoToken.processId,
             balance: 0,
             Ticker: aoToken.Ticker,
             Name: aoToken.Name,
-            Denomination: parseFloat(aoToken.Denomination || "1"),
+            Denomination: Number(aoToken.Denomination || 0),
             Logo: aoToken?.Logo
           }))
         );
       } catch {}
     })();
-  }, [ids, ao, loadingIDs, aoSetting]);
+  }, [aoTokens, aoSetting]);
 
   useEffect(() => {
     (async () => {
-      if (ids.length === 0 || loadingIDs || !activeAddress || !aoSetting) {
-        return setBalances([]);
+      if (!activeAddress || !aoSetting) {
+        setBalances([]);
+        return;
       }
 
       setLoading(true);
       try {
         const balances = await Promise.all(
-          ids.map(async (id) => {
+          tokens.map(async ({ id }) => {
             try {
-              const aoToken = await Token(id);
               const balance = Number(
-                await timeoutPromise(aoToken.getBalance(activeAddress), 3000)
+                await timeoutPromise(
+                  (async () => {
+                    const aoToken = await Token(id);
+                    const balance = await aoToken.getBalance(activeAddress);
+                    return balance;
+                  })(),
+                  6000
+                )
               );
               return {
                 id,
@@ -164,14 +163,121 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
         setLoading(false);
       }
     })();
-  }, [ids, activeAddress, ao, aoSetting]);
+  }, [tokens, activeAddress, aoSetting]);
+  return [tokensWithBalances, loading];
+}
+
+export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
+  const [balances, setBalances] = useState<{ id: string; balance: number }[]>(
+    []
+  );
+  const [loading, setLoading] = useState(true);
+
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
+
+  const [aoSetting] = useStorage<boolean>({
+    key: "setting_ao_support",
+    instance: ExtensionStorage
+  });
+
+  const [aoTokens] = useStorage<(TokenInfo & { processId: string })[]>({
+    key: "ao_tokens",
+    instance: ExtensionStorage
+  });
+
+  const [aoTokensCache] = useStorage<(TokenInfo & { processId: string })[]>(
+    { key: "ao_tokens_cache", instance: ExtensionStorage },
+    []
+  );
+
+  const [aoTokensIds] = useStorage(
+    { key: "ao_tokens_ids", instance: ExtensionStorage },
+    {}
+  );
+
+  const aoTokensToAdd = useMemo(() => {
+    if (!activeAddress || aoTokensCache.length === 0 || !aoSetting) {
+      return [];
+    }
+
+    const userTokenIds = aoTokensIds[activeAddress] || [];
+    const userTokensCache = aoTokensCache.filter((token) =>
+      userTokenIds.includes(token.processId)
+    );
+
+    return userTokensCache
+      .filter(
+        (token) =>
+          !aoTokens.some(({ processId }) => processId === token.processId)
+      )
+      .map((token) => ({
+        ...token,
+        id: token.processId,
+        Denomination: Number(token.Denomination || 0),
+        balance: 0
+      }));
+  }, [aoTokensCache, aoTokensIds, activeAddress, aoTokens]);
+
+  const tokensWithBalances = useMemo(
+    () =>
+      aoTokensToAdd.map((token) => ({
+        ...token,
+        balance: balances.find((bal) => bal.id === token.id)?.balance ?? null
+      })),
+    [aoTokensToAdd, balances]
+  );
+
+  useEffect(() => {
+    (async () => {
+      if (!activeAddress || !aoSetting) {
+        return setBalances([]);
+      }
+
+      setLoading(true);
+      try {
+        const balances = await Promise.all(
+          aoTokensToAdd.map(async (token) => {
+            try {
+              const balance = Number(
+                await timeoutPromise(
+                  (async () => {
+                    const aoToken = await Token(token.id);
+                    const balance = await aoToken.getBalance(activeAddress);
+                    return balance;
+                  })(),
+                  6000
+                )
+              );
+              return {
+                id: token.id,
+                balance
+              };
+            } catch (error) {
+              return { id: token.id, balance: null };
+            }
+          })
+        );
+        setBalances(balances);
+      } catch {
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [aoTokensToAdd, activeAddress, aoSetting]);
+
   return [tokensWithBalances, loading];
 }
 
 /**
  * Timeout for resolving balances from ao
  */
-async function timeoutPromise<T>(promise: Promise<T>, ms: number): Promise<T> {
+export async function timeoutPromise<T>(
+  promise: Promise<T>,
+  ms: number
+): Promise<T> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       reject(new Error(`Timeout after ${ms} ms`));

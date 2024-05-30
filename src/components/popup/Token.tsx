@@ -8,7 +8,7 @@ import { hoverEffect, useTheme } from "~utils/theme";
 import { loadTokenLogo, type Token } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { Text, TooltipV2 } from "@arconnect/components";
+import { ButtonV2, Text, TooltipV2 } from "@arconnect/components";
 import { getArPrice } from "~lib/coingecko";
 import { usePrice } from "~lib/redstone";
 import arLogoLight from "url:/assets/ar/logo_light.png";
@@ -18,21 +18,21 @@ import Squircle from "~components/Squircle";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
 import Arweave from "arweave";
-import { defaultGateway } from "~gateways/gateway";
 import { useGateway } from "~gateways/wayfinder";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { getUserAvatar } from "~lib/avatar";
 import { abbreviateNumber } from "~utils/format";
 import Skeleton from "~components/Skeleton";
+import { TrashIcon, PlusIcon, SettingsIcon } from "@iconicicons/react";
 
 export default function Token({ onClick, ...props }: Props) {
   const [totalBalance, setTotalBalance] = useState("");
-  const [isMillion, setIsMillion] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
   // display theme
   const theme = useTheme();
 
   const arweaveLogo = useMemo(
-    () => (theme === "dark" ? arLogoLight : arLogoDark),
+    () => (theme === "dark" ? arLogoDark : arLogoLight),
     [theme]
   );
 
@@ -48,11 +48,25 @@ export default function Token({ onClick, ...props }: Props) {
   );
 
   const balance = useMemo(() => {
-    const formattedBalance = formatTokenBalance(fractBalance);
-    setTotalBalance(formattedBalance);
+    const balanceToFormat = props.ao ? props.balance : fractBalance;
+    const isTinyBalance = balanceToFormat > 0 && balanceToFormat < 1e-6;
+    const isSmallBalance = balanceToFormat < 1 && balanceToFormat >= 1e-6;
+
+    const formattedBalance =
+      isTinyBalance || isSmallBalance
+        ? balanceToFormat.toString()
+        : formatTokenBalance(balanceToFormat);
+
+    setTotalBalance(
+      isTinyBalance
+        ? balanceToFormat.toFixed(20).replace(/(\.?)0+$/, "")
+        : formattedBalance
+    );
+
     const numBalance = parseFloat(formattedBalance.replace(/,/g, ""));
-    setIsMillion(numBalance >= 1_000_000);
-    return abbreviateNumber(numBalance);
+    setShowTooltip(numBalance >= 1_000_000 || isTinyBalance);
+
+    return isSmallBalance ? numBalance : abbreviateNumber(numBalance);
   }, [fractBalance]);
 
   // token price
@@ -69,6 +83,9 @@ export default function Token({ onClick, ...props }: Props) {
 
   // token logo
   const [logo, setLogo] = useState<string>();
+
+  const hasActionButton =
+    props?.onAddClick || props?.onRemoveClick || props?.onSettingsClick;
 
   useEffect(() => {
     (async () => {
@@ -87,40 +104,76 @@ export default function Token({ onClick, ...props }: Props) {
     })();
   }, [props, theme, logo, arweaveLogo]);
 
-  return (
-    <Wrapper onClick={onClick}>
-      <LogoAndDetails>
-        <LogoWrapper>
-          <Logo src={logo || ""} alt="" key={props.id} />
-        </LogoWrapper>
-        <TokenName>{props.name || props.ticker || "???"}</TokenName>
-        {props?.ao && <Image src={aoLogo} alt="ao logo" />}
-      </LogoAndDetails>
-      <BalanceSection>
-        {props?.loading ? (
-          <Skeleton width="80px" height="20px" />
-        ) : props?.error ? (
-          <TooltipV2 content={DegradedMessage} position="left">
-            <WarningIcon />
-          </TooltipV2>
-        ) : (
-          <>
-            {isMillion ? (
-              <BalanceTooltip content={totalBalance} position="topEnd">
-                <NativeBalance>
-                  {props.ao ? props.balance : balance} {props.ticker}
-                </NativeBalance>
-              </BalanceTooltip>
-            ) : (
-              <NativeBalance>
-                {props.ao ? props.balance : balance} {props.ticker}
-              </NativeBalance>
-            )}
-          </>
-        )}
+  useEffect(() => {
+    if (props?.ao && !props.defaultLogo) {
+      setLogo(arweaveLogo);
+    }
+  }, [arweaveLogo]);
 
-        <FiatBalance>{fiatBalance}</FiatBalance>
-      </BalanceSection>
+  return (
+    <Wrapper>
+      <InnerWrapper width={hasActionButton ? "86%" : "100%"} onClick={onClick}>
+        <LogoAndDetails>
+          <LogoWrapper>
+            <Logo src={logo || ""} alt="" key={props.id} />
+          </LogoWrapper>
+          <TokenName>{props.name || props.ticker || "???"}</TokenName>
+          {props?.ao && <Image src={aoLogo} alt="ao logo" />}
+        </LogoAndDetails>
+
+        <BalanceSection>
+          {props?.loading ? (
+            <Skeleton width="80px" height="20px" />
+          ) : props?.error ? (
+            <TooltipV2 content={DegradedMessage} position="left">
+              <WarningIcon />
+            </TooltipV2>
+          ) : (
+            <>
+              {showTooltip ? (
+                <BalanceTooltip content={totalBalance} position="topEnd">
+                  <NativeBalance>{balance}</NativeBalance>
+                </BalanceTooltip>
+              ) : (
+                <NativeBalance>{balance}</NativeBalance>
+              )}
+            </>
+          )}
+
+          <FiatBalance>{fiatBalance}</FiatBalance>
+        </BalanceSection>
+      </InnerWrapper>
+      {hasActionButton && (
+        <div style={{ zIndex: 1 }}>
+          {props?.onAddClick ? (
+            <ButtonV2
+              fullWidth
+              onClick={props.onAddClick}
+              style={{ padding: 0, minWidth: 40, maxWidth: 40 }}
+            >
+              <PlusIcon />
+            </ButtonV2>
+          ) : props?.onSettingsClick ? (
+            <ButtonV2
+              fullWidth
+              onClick={props.onSettingsClick}
+              style={{ padding: 0, minWidth: 40, maxWidth: 40 }}
+            >
+              <SettingsIcon />
+            </ButtonV2>
+          ) : (
+            props?.onRemoveClick && (
+              <ButtonV2
+                fullWidth
+                onClick={props.onRemoveClick}
+                style={{ padding: 0, minWidth: 40, maxWidth: 40 }}
+              >
+                <TrashIcon />
+              </ButtonV2>
+            )
+          )}
+        </div>
+      )}
     </Wrapper>
   );
 }
@@ -135,7 +188,7 @@ const DegradedMessage: React.ReactNode = (
   </div>
 );
 
-export const WarningIcon = ({ color }) => {
+export const WarningIcon = ({ color }: { color?: string }) => {
   return (
     <svg
       width="23"
@@ -157,6 +210,7 @@ export const WarningIcon = ({ color }) => {
 
 const Wrapper = styled.div`
   position: relative;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -174,6 +228,14 @@ const Wrapper = styled.div`
   &:active {
     transform: scale(0.98);
   }
+`;
+
+const InnerWrapper = styled.div<{ width: string }>`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: ${(props) => props.width};
 `;
 
 const BalanceTooltip = styled(TooltipV2)`
@@ -255,6 +317,9 @@ interface Props extends Token {
   ao?: boolean;
   loading?: boolean;
   error?: boolean;
+  onAddClick?: MouseEventHandler<HTMLButtonElement>;
+  onRemoveClick?: MouseEventHandler<HTMLButtonElement>;
+  onSettingsClick?: MouseEventHandler<HTMLButtonElement>;
   onClick?: MouseEventHandler<HTMLDivElement>;
 }
 

@@ -32,7 +32,11 @@ import {
   isNotNull,
   isExactly
 } from "typed-assert";
-import { Gateway } from "~gateways/gateway";
+import type { Gateway } from "~gateways/gateway";
+import {
+  RecurringPaymentFrequency,
+  type SubscriptionData
+} from "~subscriptions/subscription";
 
 export function isGateway(input: unknown): asserts input is Gateway {
   isRecordWithKeys(
@@ -47,6 +51,52 @@ export function isGateway(input: unknown): asserts input is Gateway {
     ["http", "https"],
     "Gateway protocol should be https/http."
   );
+}
+
+export function isSubscriptionType(
+  input: unknown
+): asserts input is SubscriptionData {
+  isInstanceOf(input, Object, "Input should be an object.");
+
+  const {
+    arweaveAccountAddress,
+    applicationName,
+    subscriptionName,
+    subscriptionFeeAmount,
+    recurringPaymentFrequency,
+    subscriptionEndDate,
+    applicationIcon
+  } = input as SubscriptionData;
+
+  isString(arweaveAccountAddress, "arweaveAccountAddress should be a string.");
+  isString(applicationName, "applicationName should be a string.");
+  isString(subscriptionName, "subscriptionName should be a string.");
+  isNumber(subscriptionFeeAmount, "subscriptionFeeAmount should be a number.");
+  isOneOf(
+    recurringPaymentFrequency,
+    Object.values(RecurringPaymentFrequency),
+    "Invalid recurringPaymentFrequency."
+  );
+
+  validateDate(subscriptionEndDate, "Invalid subscriptionEndDate date.");
+
+  if (applicationIcon !== undefined) {
+    isString(applicationIcon, "applicationIcon should be a string.");
+  }
+}
+
+function validateDate(date: string | Date, errorMessage: string): void {
+  let dateString: string;
+
+  if (date instanceof Date) {
+    dateString = date.toISOString();
+  } else {
+    dateString = date;
+  }
+
+  if (!dateString || isNaN(Date.parse(dateString))) {
+    throw new Error(errorMessage);
+  }
 }
 
 export function isTokenType(input: unknown): asserts input is TokenType {
