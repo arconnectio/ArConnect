@@ -3,6 +3,7 @@ import browser, { type Runtime, type Storage } from "webextension-polyfill";
 import { initializeARBalanceMonitor } from "./analytics";
 import { loadTokens } from "~tokens/token";
 import { getActiveAddress, getWallets } from "~wallets";
+import { ExtensionStorage } from "./storage";
 
 export const isManifestv3 = () =>
   browser.runtime.getManifest().manifest_version === 3;
