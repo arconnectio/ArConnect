@@ -98,10 +98,13 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
     instance: ExtensionStorage
   });
 
-  const [aoTokens] = useStorage<any[]>({
-    key: "ao_tokens",
-    instance: ExtensionStorage
-  });
+  const [aoTokens] = useStorage<any[]>(
+    {
+      key: "ao_tokens",
+      instance: ExtensionStorage
+    },
+    []
+  );
 
   // fetch token infos
   useEffect(() => {
@@ -183,10 +186,13 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
     instance: ExtensionStorage
   });
 
-  const [aoTokens] = useStorage<(TokenInfo & { processId: string })[]>({
-    key: "ao_tokens",
-    instance: ExtensionStorage
-  });
+  const [aoTokens] = useStorage<(TokenInfo & { processId: string })[]>(
+    {
+      key: "ao_tokens",
+      instance: ExtensionStorage
+    },
+    []
+  );
 
   const [aoTokensCache] = useStorage<(TokenInfo & { processId: string })[]>(
     { key: "ao_tokens_cache", instance: ExtensionStorage },
