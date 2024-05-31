@@ -6,7 +6,7 @@ import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import useSetting from "~settings/hook";
 import JSConfetti from "js-confetti";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLocation } from "wouter";
 
 export default function Done() {
