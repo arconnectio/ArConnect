@@ -3,7 +3,7 @@ import { type Allowance, defaultAllowance } from "./allowance";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import type { Storage } from "@plasmohq/storage";
-import { defaultGateway, Gateway } from "~gateways/gateway";
+import { defaultGateway, type Gateway } from "~gateways/gateway";
 
 export const PREFIX = "app_";
 export const defaultBundler = "https://turbo.ardrive.io";

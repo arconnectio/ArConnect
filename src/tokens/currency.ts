@@ -1,19 +1,28 @@
+import { Quantity } from "ao-tokens";
+import BigNumber from "bignumber.js";
+
 /** Token formatting config */
-export const tokenConfig: Intl.NumberFormatOptions = {
+export const tokenConfig: Intl.NumberFormatOptions &
+  BigIntToLocaleStringOptions = {
   maximumFractionDigits: 2
 };
 
 /**
  * Format token balance
  */
-export function formatTokenBalance(balance: string | number) {
-  const val = typeof balance === "string" ? parseFloat(balance) : balance;
+export function formatTokenBalance(
+  balance: string | number | BigNumber | Quantity
+) {
+  const val = Quantity.isQuantity(balance)
+    ? balance
+    : new Quantity("0", 20n).fromString(balance.toString());
 
   return val.toLocaleString(undefined, tokenConfig);
 }
 
 /** Fiat formatting config */
-export const fiatConfig: Intl.NumberFormatOptions = {
+export const fiatConfig: Intl.NumberFormatOptions &
+  BigIntToLocaleStringOptions = {
   style: "currency",
   currencyDisplay: "symbol",
   maximumFractionDigits: 2
@@ -22,8 +31,13 @@ export const fiatConfig: Intl.NumberFormatOptions = {
 /**
  * Format fiat balance
  */
-export function formatFiatBalance(balance: string | number, currency?: string) {
-  const val = typeof balance === "string" ? parseFloat(balance) : balance;
+export function formatFiatBalance(
+  balance: string | number | BigNumber | Quantity,
+  currency?: string
+) {
+  const val = Quantity.isQuantity(balance)
+    ? balance
+    : new Quantity("0", 20n).fromString(balance.toString());
 
   return val.toLocaleString(undefined, {
     ...fiatConfig,
@@ -94,16 +108,16 @@ export function getDecimals(cfg: DivisibilityOrDecimals) {
  * See the specs at specs.arweave.dev
  */
 export function balanceToFractioned(
-  balance: number,
+  balance: string,
   cfg: DivisibilityOrDecimals
 ) {
-  if (!balance) return 0;
+  if (!balance) return BigNumber("0");
 
   // parse decimals
   const decimals = getDecimals(cfg);
 
   // divide base balance using the decimals
-  return balance / Math.pow(10, decimals);
+  return BigNumber(balance).shiftedBy(-decimals);
 }
 
 /**
@@ -120,34 +134,11 @@ export function fractionedToBalance(
   // parse decimals
   const decimals = getDecimals(cfg);
 
-  if (tokenType !== "WARP") {
-    // Convert balance to a string to avoid precision issues
-    const balanceStr = balance.toString();
+  const balanceBigNum = BigNumber(balance).shiftedBy(decimals);
 
-    // Split the balance into integer and fractional parts
-    const [integerPart, fractionalPart = ""] = balanceStr.split(".");
-
-    // Calculate the number of fractional digits
-    const fractionalDigits = fractionalPart.length;
-
-    let combined: string;
-    if (fractionalDigits > decimals) {
-      // Truncate the fractional part to fit the specified number of decimals
-      const truncatedFractionalPart = fractionalPart.slice(0, decimals);
-      combined = integerPart + truncatedFractionalPart;
-    } else {
-      // Combine integer and fractional parts into a single string
-      combined = integerPart + fractionalPart.padEnd(decimals, "0");
-    }
-
-    // Convert the combined string to a BigInt
-    const result = BigInt(combined);
-
-    // Return the result as a string to avoid exponential notation
-    return result.toString();
-  } else {
-    return (+balance * Math.pow(10, decimals)).toString();
-  }
+  return tokenType === "WARP"
+    ? balanceBigNum.toFixed()
+    : balanceBigNum.toFixed(0);
 }
 
 export interface DivisibilityOrDecimals {

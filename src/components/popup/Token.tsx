@@ -24,6 +24,7 @@ import { getUserAvatar } from "~lib/avatar";
 import { abbreviateNumber } from "~utils/format";
 import Skeleton from "~components/Skeleton";
 import { TrashIcon, PlusIcon, SettingsIcon } from "@iconicicons/react";
+import BigNumber from "bignumber.js";
 
 export default function Token({ onClick, ...props }: Props) {
   const [totalBalance, setTotalBalance] = useState("");
@@ -48,26 +49,28 @@ export default function Token({ onClick, ...props }: Props) {
   );
 
   const balance = useMemo(() => {
-    const balanceToFormat = props.ao ? props.balance : fractBalance;
-    const isTinyBalance = balanceToFormat > 0 && balanceToFormat < 1e-6;
-    const isSmallBalance = balanceToFormat < 1 && balanceToFormat >= 1e-6;
+    const balanceToFormat = BigNumber(props.ao ? props.balance : fractBalance);
+    const isTinyBalance =
+      balanceToFormat.isGreaterThan(0) && balanceToFormat.isLessThan(1e-6);
+    const isSmallBalance =
+      balanceToFormat.isLessThan(1) &&
+      balanceToFormat.isGreaterThanOrEqualTo(1e-6);
 
     const formattedBalance =
       isTinyBalance || isSmallBalance
         ? balanceToFormat.toString()
         : formatTokenBalance(balanceToFormat);
 
-    setTotalBalance(
-      isTinyBalance
-        ? balanceToFormat.toFixed(20).replace(/(\.?)0+$/, "")
-        : formattedBalance
+    setTotalBalance(balanceToFormat.toFixed());
+
+    setShowTooltip(
+      balanceToFormat.isGreaterThanOrEqualTo(1_000_000) || isTinyBalance
     );
 
-    const numBalance = parseFloat(formattedBalance.replace(/,/g, ""));
-    setShowTooltip(numBalance >= 1_000_000 || isTinyBalance);
-
-    return isSmallBalance ? numBalance : abbreviateNumber(numBalance);
-  }, [fractBalance]);
+    return isSmallBalance
+      ? formattedBalance
+      : abbreviateNumber(balanceToFormat);
+  }, [fractBalance.toString()]);
 
   // token price
   const { price, currency } = usePrice(props.ticker);
@@ -76,7 +79,7 @@ export default function Token({ onClick, ...props }: Props) {
   const fiatBalance = useMemo(() => {
     if (!price) return <div />;
 
-    const estimate = fractBalance * price;
+    const estimate = fractBalance.multipliedBy(price);
 
     return formatFiatBalance(estimate, currency.toLowerCase());
   }, [price, balance, currency]);
@@ -347,7 +350,7 @@ export function ArToken({ onClick }: ArTokenProps) {
 
   // load ar balance
   const [balance, setBalance] = useState("0");
-  const [fiatBalance, setFiatBalance] = useState(0);
+  const [fiatBalance, setFiatBalance] = useState("0");
   const gateway = useGateway({ ensureStake: true });
 
   useEffect(() => {
@@ -358,10 +361,10 @@ export function ArToken({ onClick }: ArTokenProps) {
 
       // fetch balance
       const winstonBalance = await arweave.wallets.getBalance(activeAddress);
-      const arBalance = Number(arweave.ar.winstonToAr(winstonBalance));
+      const arBalance = BigNumber(arweave.ar.winstonToAr(winstonBalance));
 
       setBalance(formatTokenBalance(arBalance));
-      setFiatBalance(arBalance * price);
+      setFiatBalance(arBalance.multipliedBy(price).toString());
     })();
   }, [activeAddress, price, gateway]);
 

@@ -39,6 +39,7 @@ import useSetting from "~settings/hook";
 import prettyBytes from "pretty-bytes";
 import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
+import BigNumber from "bignumber.js";
 
 export default function Sign() {
   // sign params
@@ -97,13 +98,13 @@ export default function Sign() {
   // quantity
   const quantity = useMemo(() => {
     if (!params?.transaction?.quantity) {
-      return 0;
+      return BigNumber("0");
     }
 
     const arweave = new Arweave(defaultGateway);
     const ar = arweave.ar.winstonToAr(params.transaction.quantity);
 
-    return Number(ar);
+    return BigNumber(ar);
   }, [params]);
 
   // currency setting
@@ -119,7 +120,10 @@ export default function Sign() {
   }, [currency]);
 
   // transaction price
-  const fiatPrice = useMemo(() => quantity * arPrice, [quantity, arPrice]);
+  const fiatPrice = useMemo(
+    () => quantity.multipliedBy(arPrice),
+    [quantity.toString(), arPrice]
+  );
 
   // transaction fee
   const fee = useMemo(() => {

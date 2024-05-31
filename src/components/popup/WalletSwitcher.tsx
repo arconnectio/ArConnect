@@ -58,7 +58,7 @@ export default function WalletSwitcher({
         storedWallets.map((wallet) => ({
           name: wallet.nickname,
           address: wallet.address,
-          balance: 0,
+          balance: "0",
           hasAns: false,
           api: wallet.type === "hardware" ? wallet.api : undefined
         }))
@@ -131,7 +131,7 @@ export default function WalletSwitcher({
 
                 return {
                   ...wallet,
-                  balance: Number(balance)
+                  balance
                 };
               })
             );
@@ -442,7 +442,7 @@ interface DisplayedWallet {
   name: string;
   api?: HardwareApi;
   address: string;
-  balance: number;
+  balance: string;
   avatar?: string;
   hasAns: boolean;
 }

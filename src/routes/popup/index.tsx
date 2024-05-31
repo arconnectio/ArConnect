@@ -57,7 +57,7 @@ export default function Home() {
       if (tokens) {
         setNoBalance(false);
         return;
-      } else if (balance) {
+      } else if (balance.toNumber()) {
         setNoBalance(false);
         return;
       } else {

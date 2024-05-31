@@ -54,6 +54,7 @@ import Progress from "~components/Progress";
 import { updateSubscription } from "~subscriptions";
 import { SubscriptionStatus } from "~subscriptions/subscription";
 import { checkPassword } from "~wallets/auth";
+import BigNumber from "bignumber.js";
 
 interface Props {
   tokenID: string;
@@ -62,13 +63,8 @@ interface Props {
   subscription?: boolean;
 }
 
-function formatNumber(amount: number, decimalPlaces: number = 2): string {
-  const rounded = amount.toFixed(decimalPlaces);
-
-  const factor = Math.pow(10, decimalPlaces);
-  const truncated = Math.floor(amount * factor) / factor;
-
-  return rounded;
+function formatNumber(amount: string, decimalPlaces: number = 2): string {
+  return BigNumber(amount).toFixed(decimalPlaces);
 }
 
 export default function Confirm({ tokenID, qty, subscription }: Props) {
@@ -115,16 +111,15 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
       try {
         const data: TransactionData = await TempTransactionStorage.get("send");
         if (data) {
-          if (Number(data.qty) < Number(allowance)) {
+          const qty = BigNumber(data.qty);
+          if (qty.isLessThan(Number(allowance))) {
             setNeedsSign(false);
           } else {
             setNeedsSign(true);
           }
-          const estimatedFiatTotal = Number(
-            (
-              Number(data.estimatedFiat) + Number(data.estimatedNetworkFee)
-            ).toFixed(2)
-          );
+          const estimatedFiatTotal = BigNumber(data.estimatedFiat)
+            .plus(data.estimatedNetworkFee)
+            .toFixed(2);
           setIsAo(data.isAo);
           setRecipient(data.recipient);
           setEstimatedTotal(estimatedFiatTotal.toString());
@@ -663,7 +658,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
                 <BodySection
                   ticker={token?.ticker}
                   title={`Sending ${token?.ticker}`}
-                  value={formatNumber(Number(amount))}
+                  value={formatNumber(amount)}
                   estimatedValue={isAo ? "-.--" : estimatedFiatAmount}
                 />
                 <BodySection

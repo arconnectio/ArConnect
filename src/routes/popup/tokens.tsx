@@ -153,7 +153,7 @@ export default function Tokens() {
             defaultLogo={token?.Logo}
             id={token.id}
             ticker={token.Ticker}
-            balance={Number(token.balance || null)}
+            balance={token.balance || "0"}
             onClick={(e) => {
               e.preventDefault();
               handleTokenClick(token.id);
@@ -172,7 +172,7 @@ export default function Tokens() {
             defaultLogo={token?.Logo}
             id={token.id}
             ticker={token.Ticker}
-            balance={Number(token.balance || null)}
+            balance={token.balance || "0"}
             onClick={(e) => {
               e.preventDefault();
               handleTokenClick(token.id);

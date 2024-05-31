@@ -1,3 +1,5 @@
+import BigNumber from "bignumber.js";
+
 /**
  * Get app URL from any link
  *
@@ -80,27 +82,32 @@ export const formatSettingName = (name: string) => {
  * @param value The numeric value to abbreviate, as a number or string.
  * @returns The abbreviated string representation of the number.
  */
-export function abbreviateNumber(value: number): string {
+export function abbreviateNumber(value: number | string | BigNumber): string {
   let suffix = "";
-  let abbreviatedValue = value;
 
-  if (value >= 1e12) {
-    // Trillions
-    suffix = "T";
-    abbreviatedValue = value / 1e12;
-  } else if (value >= 1e9) {
-    // Billions
-    suffix = "B";
-    abbreviatedValue = value / 1e9;
-  } else if (value >= 1e6) {
-    // Millions
-    suffix = "M";
-    abbreviatedValue = value / 1e6;
+  if (!BigNumber.isBigNumber(value)) {
+    value = BigNumber(value);
   }
 
-  if (abbreviatedValue % 1 === 0) {
-    return `${abbreviatedValue}${suffix}`;
+  let abbreviatedValue = value;
+
+  if (value.isGreaterThanOrEqualTo(1e12)) {
+    // Trillions
+    suffix = "T";
+    abbreviatedValue = value.dividedBy(1e12);
+  } else if (value.isGreaterThanOrEqualTo(1e9)) {
+    // Billions
+    suffix = "B";
+    abbreviatedValue = value.dividedBy(1e9);
+  } else if (value.isGreaterThanOrEqualTo(1e6)) {
+    // Millions
+    suffix = "M";
+    abbreviatedValue = value.dividedBy(1e6);
+  }
+
+  if (abbreviatedValue.mod(1).isEqualTo(0)) {
+    return `${abbreviatedValue.toFixed()}${suffix}`;
   } else {
-    return `${abbreviatedValue.toFixed(1)}${suffix}`;
+    return `${abbreviatedValue.toFixed(2)}${suffix}`;
   }
 }

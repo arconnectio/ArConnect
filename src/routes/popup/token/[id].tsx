@@ -96,11 +96,14 @@ export default function Asset({ id }: Props) {
   const tokenBalance = useMemo(() => {
     if (!state) return "0";
 
-    const val = balanceToFractioned(state.balances?.[activeAddress], {
-      id,
-      decimals: state.decimals,
-      divisibility: state.divisibility
-    });
+    const val = balanceToFractioned(
+      String(state.balances?.[activeAddress] || "0"),
+      {
+        id,
+        decimals: state.decimals,
+        divisibility: state.divisibility
+      }
+    );
 
     return formatTokenBalance(val);
   }, [id, state, activeAddress]);
@@ -180,13 +183,16 @@ export default function Asset({ id }: Props) {
       return `?? ${currency.toUpperCase()}`;
     }
 
-    const bal = balanceToFractioned(state.balances?.[activeAddress], {
-      id,
-      decimals: state.decimals,
-      divisibility: state.divisibility
-    });
+    const bal = balanceToFractioned(
+      String(state.balances?.[activeAddress] || "0"),
+      {
+        id,
+        decimals: state.decimals,
+        divisibility: state.divisibility
+      }
+    );
 
-    return formatFiatBalance(price * bal, currency);
+    return formatFiatBalance(bal.multipliedBy(price), currency);
   }, [id, state, activeAddress, price, currency]);
 
   const [priceWarningShown, setPriceWarningShown] = useStorage({

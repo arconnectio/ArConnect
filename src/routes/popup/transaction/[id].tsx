@@ -34,6 +34,7 @@ import {
 import { TempTransactionStorage } from "~utils/storage";
 import { useContact } from "~contacts/hooks";
 import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
+import BigNumber from "bignumber.js";
 
 // pull contacts and check if to address is in contacts
 
@@ -174,9 +175,9 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
 
   // transaction price
   const fiatPrice = useMemo(() => {
-    const transactionQty = Number(transaction?.quantity?.ar || "0");
+    const transactionQty = BigNumber(transaction?.quantity?.ar || "0");
 
-    return transactionQty * arPrice;
+    return transactionQty.multipliedBy(arPrice);
   }, [transaction, arPrice]);
 
   // get content type
@@ -281,7 +282,7 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                 <Section style={{ paddingTop: 9, paddingBottom: 8 }}>
                   <AmountTitle>
                     {!ao.isAo
-                      ? formatTokenBalance(Number(transaction.quantity.ar))
+                      ? formatTokenBalance(transaction.quantity.ar || "0")
                       : 0}
                     {/* NEEDS TO BE DYNAMIC */}
                     {!ao.isAo && <span>AR</span>}
