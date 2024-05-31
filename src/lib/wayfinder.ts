@@ -27,8 +27,18 @@ const pingUpdater = async (
   data: GatewayAddressRegistryItem[],
   onUpdate: any
 ) => {
-  const newData = structuredClone(data);
-  const pingPromises = data.map((item, index) => async () => {
+  const CLabs = "CDoilQgKg6Pmp4Q0LJ4d84VXRgB3Ay9pIJ_SA617cVk";
+  const CLabsGateway = data.find((item) => item.id === CLabs);
+
+  let newData = structuredClone(data)
+    .sort((a, b) => b.operatorStake - a.operatorStake)
+    .slice(0, 5);
+
+  if (CLabsGateway && !newData.some((item) => item.id === CLabsGateway)) {
+    newData.push(CLabsGateway);
+  }
+
+  const pingPromises = newData.map((item, index) => async () => {
     const delayMs = pingStaggerDelayMs * index;
     await new Promise((resolve) => setTimeout(resolve, delayMs));
 
