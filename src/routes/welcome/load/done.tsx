@@ -12,7 +12,6 @@ import { useLocation } from "wouter";
 export default function Done() {
   // analytics opt-in
   const [analytics, setAnalytics] = useSetting<boolean>("analytics");
-  const [gdpr, setGdpr] = useState<boolean>(null);
   const [answered, setAnswered] = useStorage<boolean>({
     key: "analytics_consent_answered",
     instance: ExtensionStorage
@@ -35,7 +34,7 @@ export default function Done() {
     const getLocation = async () => {
       try {
         const loc = await isUserInGDPRCountry();
-        setGdpr(loc);
+        setAnalytics(!loc);
       } catch (err) {
         console.error(err);
       }
@@ -43,13 +42,6 @@ export default function Done() {
 
     getLocation();
   }, []);
-
-  useEffect(() => {
-    if (gdpr !== null) {
-      const val = !gdpr;
-      setAnalytics(gdpr);
-    }
-  }, [gdpr]);
 
   // Segment
   useEffect(() => {
@@ -69,9 +61,9 @@ export default function Done() {
       <Paragraph>{browser.i18n.getMessage("all_set_paragraph")}</Paragraph>
       <Checkbox
         checked={!!analytics}
-        onChange={async (checked) => {
-          await setAnalytics(checked);
-          await setAnswered(true);
+        onChange={() => {
+          setAnalytics((prev) => !prev);
+          setAnswered(true);
         }}
       >
         {browser.i18n.getMessage("analytics_title")}

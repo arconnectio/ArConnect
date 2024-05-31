@@ -273,12 +273,8 @@ const GDPR_COUNTRIES_AND_OTHERS = [
 // Defaults to true to
 export const isUserInGDPRCountry = async (): Promise<boolean> => {
   try {
-    const apiKey = process.env.PLASMO_PUBLIC_IPINFO_API_KEY;
-    if (!apiKey) {
-      return true;
-    }
+    const response = await axios.get("https://ipinfo.io?token=f73f7a8b88a8bf");
 
-    const response = await axios.get("https://ipinfo.io?token=f73f7a8b88a8bf"); // Replace with your IPinfo token
     const { country } = response.data;
     return GDPR_COUNTRIES_AND_OTHERS.includes(country);
   } catch (error) {
