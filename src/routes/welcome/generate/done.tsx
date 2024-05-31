@@ -12,6 +12,7 @@ import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "@plasmohq/storage/hook";
 import JSConfetti from "js-confetti";
 import { useLocation } from "wouter";
+import { addExpiration } from "~wallets/auth";
 
 export default function Done() {
   // wallet context
@@ -47,6 +48,9 @@ export default function Done() {
       nickname ? { nickname, wallet: wallet.jwk } : wallet.jwk,
       password
     );
+
+    // add password expiration
+    addExpiration();
 
     // log user onboarded
     await trackEvent(EventType.ONBOARDED, {});
