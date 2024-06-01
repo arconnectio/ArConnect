@@ -50,7 +50,7 @@ export default function Done() {
     );
 
     // add password expiration
-    addExpiration();
+    await addExpiration();
 
     // log user onboarded
     await trackEvent(EventType.ONBOARDED, {});
