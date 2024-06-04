@@ -1477,6 +1477,14 @@
       "message": "在 ArConnect 中启用通知",
       "description": "Enable Notification title"
   },
+  "no_notifications": {
+    "message": "当前没有通知",
+    "description": "No notifications title"
+  },
+  "no_notifications_get_started": {
+    "message": "发送交易以开始",
+    "description": "Send Transactions to get notifications"
+  },
   "introducing_notifications": {
       "message": "介绍通知",
       "description": "Alternative Enable Notification title"

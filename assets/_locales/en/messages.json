@@ -1481,6 +1481,14 @@
     "message": "Introducing Notifications",
     "description": "Alternative Enable Notification title"
   },
+  "no_notifications": {
+    "message": "No notifications at this time.",
+    "description": "No notifications title"
+  },
+  "no_notifications_get_started": {
+    "message": "Send transactions to get started.",
+    "description": "Send Transactions to get notifications"
+  },
   "enable_notifications_paragraph": {
     "message": "Stay updated with instant alerts for transactions and ao messages.",
     "description": "Enable notifications paragraph"
