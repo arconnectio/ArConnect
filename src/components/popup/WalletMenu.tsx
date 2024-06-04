@@ -1,4 +1,5 @@
 import { motion, AnimatePresence, type Variants } from "framer-motion";
+import browser from "webextension-polyfill";
 import styled from "styled-components";
 
 export default function WalletMenu({ open, close, menuItems }: Props) {
@@ -22,7 +23,7 @@ export default function WalletMenu({ open, close, menuItems }: Props) {
                 }}
               >
                 {item.icon}
-                <MenuTitle>{item.title}</MenuTitle>
+                <MenuTitle>{browser.i18n.getMessage(item.title)}</MenuTitle>
               </MenuItem>
             ))}
           </MenuCard>

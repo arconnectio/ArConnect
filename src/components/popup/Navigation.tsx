@@ -6,6 +6,7 @@ import {
   Home01,
   Home02
 } from "@untitled-ui/icons-react";
+import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { useLocation } from "wouter";
 import { useHistory } from "~utils/hash_router";
@@ -69,7 +70,7 @@ export const NavigationBar = () => {
                     <IconWrapper displayTheme={theme} size={button.size}>
                       {button.icon}
                     </IconWrapper>
-                    <div>{button.title}</div>
+                    <div>{browser.i18n.getMessage(button.title)}</div>
                   </NavigationButton>
                 );
               })}

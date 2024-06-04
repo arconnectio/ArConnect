@@ -1,0 +1,1921 @@
+{
+  "extensionDescription": {
+      "message": "Arweave 的安全钱包管理",
+      "description": "Extension description"
+  },
+  "clickToCopy": {
+      "message": "点击复制",
+      "description": "Text to indicate the ability to copy something"
+  },
+  "switchedToWallet": {
+      "message": "已切换到 $ADDRESS$",
+      "description": "Notification on switching active wallet",
+      "placeholders": {
+          "address": {
+              "content": "$1",
+              "example": "ljvCPN31...-CS-6Iho8U"
+          }
+      }
+  },
+  "yes": {
+      "message": "是",
+      "description": "The word \"yes\""
+  },
+  "no": {
+      "message": "否",
+      "description": "The word \"no\""
+  },
+  "accept": {
+      "message": "接受",
+      "description": "Accept terms"
+  },
+  "add_wallet": {
+      "message": "添加钱包",
+      "description": "Add a wallet text"
+  },
+  "analytics_description": {
+      "message": "我们现在使用分析工具。",
+      "description": "Opting into Analytics text"
+  },
+  "analytics_title": {
+      "message": "选择加入分析",
+      "description": "Analytics title"
+  },
+  "edit": {
+      "message": "编辑",
+      "description": "Edit text"
+  },
+  "appConnected": {
+      "message": "应用已连接",
+      "description": "Application connected text"
+  },
+  "appNotConnected": {
+      "message": "应用未连接",
+      "description": "Application connected text"
+  },
+  "forceConnect": {
+      "message": "强制连接",
+      "description": "Force connect button text"
+  },
+  "decline": {
+      "message": "拒绝",
+      "description": "Decline terms"
+  },
+  "devtools": {
+      "message": "开发者工具",
+      "description": "Devtools name"
+  },
+  "gatewayNotTestnet": {
+      "message": "网关不是测试网网络",
+      "description": "Gateway not a testnet notification"
+  },
+  "mint": {
+      "message": "铸造",
+      "description": "Mint button text"
+  },
+  "mintAr": {
+      "message": "铸造 AR",
+      "description": "Mint AR tokens title"
+  },
+  "arMinted": {
+      "message": "铸造了 $QTY$ AR 到 $ADDRESS$",
+      "description": "Message on arweave minted to an address",
+      "placeholders": {
+          "qty": {
+              "content": "$1",
+              "example": "10"
+          },
+          "address": {
+              "content": "$2",
+              "example": "ljvCPN31...-CS-6Iho8U"
+          }
+      }
+  },
+  "tokenMintFailed": {
+      "message": "铸造代币失败",
+      "description": "Message indicating minting failure"
+  },
+  "mine": {
+      "message": "挖矿",
+      "description": "Mine button text"
+  },
+  "mined": {
+      "message": "已挖矿",
+      "description": "Mine success message"
+  },
+  "miningFailed": {
+      "message": "挖矿失败",
+      "description": "Mine failure message"
+  },
+  "fillOutQtyField": {
+      "message": "请填写数量字段",
+      "description": "Fill out qty field error"
+  },
+  "fillOutTargetField": {
+      "message": "请填写目标字段",
+      "description": "Fill out target field error"
+  },
+  "addFileError": {
+      "message": "请添加文件",
+      "description": "Add file error"
+  },
+  "couldNotReadTxData": {
+      "message": "无法读取交易数据文件",
+      "description": "File reading failure for tx data"
+  },
+  "invalidPassword": {
+      "message": "密码无效",
+      "description": "Invalid password error"
+  },
+  "testnetLive": {
+      "message": "测试网已上线",
+      "description": "Testnet live message"
+  },
+  "testnetDown": {
+      "message": "测试网已离线",
+      "description": "Testnet offline message"
+  },
+  "testnetGatewayUrlLabel": {
+      "message": "测试网网关网址",
+      "description": "Label indicating the input content to be the testnet gateway url"
+  },
+  "arlocalCommandTutorial": {
+      "message": "没有安装 ArLocal？像这样运行它：",
+      "description": "Tutorial for the user on running ArLocal"
+  },
+  "addTestnetTokensSubtitle": {
+      "message": "将测试网代币添加到您的钱包",
+      "description": "Subtitle indicating the ability to add testnet AR tokens to the active wallet"
+  },
+  "analytics": {
+      "message": "分析",
+      "description": "Analytics text"
+  },
+  "arQtyPlaceholder": {
+      "message": "AR 数量...",
+      "description": "Placeholder for AR amount input"
+  },
+  "createTransaction": {
+      "message": "创建交易",
+      "description": "Create transaction title"
+  },
+  "createTransactionSubtitle": {
+      "message": "发送带有标签和数据的交易",
+      "description": "Send transaction subtitle"
+  },
+  "leaveEmptyForNone": {
+      "message": "留空表示无...",
+      "description": "Placeholder for inputs that take empty values as none"
+  },
+  "target": {
+      "message": "目标",
+      "description": "Target label"
+  },
+  "amount": {
+      "message": "金额",
+      "description": "Amount label"
+  },
+  "tags": {
+      "message": "标签",
+      "description": "Tags label"
+  },
+  "name": {
+      "message": "名称",
+      "description": "Name label"
+  },
+  "tagNamePlaceholder": {
+      "message": "标签名称...",
+      "description": "Tag name placeholder"
+  },
+  "value": {
+      "message": "值",
+      "description": "Value label"
+  },
+  "tagValuePlaceholder": {
+      "message": "标签值...",
+      "description": "Tag value placeholder"
+  },
+  "addTag": {
+      "message": "添加标签",
+      "description": "Add tag button"
+  },
+  "data": {
+      "message": "数据",
+      "description": "Data label"
+  },
+  "dragAndDropFile": {
+      "message": "拖放文件...",
+      "description": "File input label"
+  },
+  "password": {
+      "message": "密码",
+      "description": "Password label"
+  },
+  "new_password": {
+      "message": "新密码",
+      "description": "Password label"
+  },
+  "confirm_new_password": {
+      "message": "重新输入新密码",
+      "description": "Password label"
+  },
+  "enterPasswordToDecrypt": {
+      "message": "输入密码以解密钱包...",
+      "description": "Password request to decrypt wallet"
+  },
+  "sendTransaction": {
+      "message": "发送交易",
+      "description": "Send transaction button"
+  },
+  "permissionDescriptionAccessAddress": {
+      "message": "访问 ArConnect 中选择的当前地址",
+      "description": "Description for the \"ACCESS_ADDRESS\" permission"
+  },
+  "permissionDescriptionAccessPublicKey": {
+      "message": "访问 ArConnect 中选择的当前地址的公钥",
+      "description": "Description for the \"ACCESS_PUBLIC_KEY\" permission"
+  },
+  "permissionDescriptionAccessAllAddresses": {
+      "message": "访问添加到 ArConnect 的所有地址",
+      "description": "Description for the \"ACCESS_ALL_ADDRESSES\" permission"
+  },
+  "permissionDescriptionSign": {
+      "message": "签署交易",
+      "description": "Description for the \"SIGN_TRANSACTION\" permission"
+  },
+  "permissionDescriptionEncrypt": {
+      "message": "使用用户的密钥文件加密数据",
+      "description": "Description for the \"ENCRYPT\" permission"
+  },
+  "permissionDescriptionDecrypt": {
+      "message": "使用用户的密钥文件解密数据",
+      "description": "Description for the \"DECRYPT\" permission"
+  },
+  "permissionDescriptionSignature": {
+      "message": "使用用户的密钥文件签署数据",
+      "description": "Description for the \"SIGNATURE\" permission"
+  },
+  "permissionDescriptionArweaveConfig": {
+      "message": "访问用户的自定义 Arweave 配置",
+      "description": "Description for the \"ACCESS_ARWEAVE_CONFIG\" permission"
+  },
+  "permissionDescriptionDispatch": {
+      "message": "发送 Arweave 交易或互动",
+      "description": "Description for the \"DISPATCH\" permission"
+  },
+  "copyId": {
+      "message": "复制 ID",
+      "description": "Copy ID button text"
+  },
+  "connectionFailure": {
+      "message": "无法连接到应用",
+      "description": "Notification about app connection failure in devtools"
+  },
+  "permissions": {
+      "message": "权限",
+      "description": "Permissions title"
+  },
+  "allowance": {
+      "message": "额度",
+      "description": "Allowance title"
+  },
+  "allowanceTip": {
+      "message": "为此应用设置支出限制",
+      "description": "Tip explaining allowances for the user"
+  },
+  "enabled": {
+      "message": "已启用",
+      "description": "Enabled label"
+  },
+  "disabled": {
+      "message": "已禁用",
+      "description": "Disabled label"
+  },
+  "u_token_disabled": {
+      "message": "目前无法转移 U-Token",
+      "description": "U-token Disabled label"
+  },
+  "spent": {
+      "message": "已支出",
+      "description": "Spent text"
+  },
+  "reset": {
+      "message": "重置",
+      "description": "Reset text"
+  },
+  "resetSpentQty": {
+      "message": "重置已支出数量",
+      "description": "Reset tooltip text"
+  },
+  "limit": {
+      "message": "限制",
+      "description": "Limit text"
+  },
+  "gateway": {
+      "message": "网关",
+      "description": "Gateway title"
+  },
+  "bundlrNode": {
+      "message": "Bundler 节点",
+      "description": "Bundler node title"
+  },
+  "removeApp": {
+      "message": "移除应用",
+      "description": "Remove app button"
+  },
+  "removeAppNote": {
+      "message": "移除所有权限并断开与 ArConnect 的应用连接。",
+      "description": "Remove app note paragraph"
+  },
+  "remove": {
+      "message": "移除",
+      "description": "Remove button text"
+  },
+  "block": {
+      "message": "阻止",
+      "description": "Block button"
+  },
+  "unblock": {
+      "message": "取消阻止",
+      "description": "Unblock button"
+  },
+  "setCustomGateway": {
+      "message": "设置自定义网关",
+      "description": "Notification about setting a custom gateway for an app"
+  },
+  "settings": {
+      "message": "设置",
+      "description": "Settings title"
+  },
+  "setting_apps": {
+      "message": "应用程序",
+      "description": "Apps settings title"
+  },
+  "setting_wallets": {
+      "message": "钱包",
+      "description": "Wallets settings title"
+  },
+  "setting_config": {
+      "message": "下载配置",
+      "description": "Config settings title"
+  },
+  "setting_about": {
+      "message": "关于",
+      "description": "About settings title"
+  },
+  "setting_reset": {
+      "message": "重置",
+      "description": "Reset settings title"
+  },
+  "setting_analytic": {
+      "message": "分析",
+      "description": "Analytics to help make ArConnect better"
+  },
+  "setting_fee_multiplier": {
+      "message": "费用倍数",
+      "description": "Fee multiplier settings title"
+  },
+  "setting_currency": {
+      "message": "货币",
+      "description": "Reset settings title"
+  },
+  "setting_dre_node": {
+      "message": "Warp DRE 节点",
+      "description": "Warp DRE node setting title"
+  },
+  "setting_arverify": {
+      "message": "ArVerify 阈值",
+      "description": "ArVerify settings title"
+  },
+  "setting_arconfetti": {
+      "message": "ArConfetti 效果",
+      "description": "ArConfetti effect settings title"
+  },
+  "setting_sign_notification": {
+      "message": "签署通知",
+      "description": "Sign notification settings title"
+  },
+  "setting_sign_settings": {
+      "message": "签名设置",
+      "description": "Sign settings title"
+  },
+  "setting_display_theme": {
+      "message": "主题",
+      "description": "Theme settings title"
+  },
+  "setting_wayfinder": {
+      "message": "Wayfinder",
+      "description": "Wayfinder settings title"
+  },
+  "setting_notifications": {
+      "message": "通知",
+      "description": "Notifications settings title"
+  },
+  "setting_notifications_description": {
+      "message": "切换以接收钱包中新交易的提醒",
+      "description": "Notifications settings description"
+  },
+  "setting_apps_description": {
+      "message": "查看所有已连接的应用程序和设置",
+      "description": "App settings description"
+  },
+  "setting_wallets_description": {
+      "message": "管理您的钱包",
+      "description": "Wallet settings description"
+  },
+  "setting_config_description": {
+      "message": "下载 ArConnect 配置",
+      "description": "Config settings description"
+  },
+  "setting_about_description": {
+      "message": "关于 ArConnect 的信息",
+      "description": "Config settings description"
+  },
+  "setting_reset_description": {
+      "message": "移除所有钱包和数据",
+      "description": "Reset settings description"
+  },
+  "setting_analytics_description": {
+      "message": "向 ArConnect 团队提供有用的匿名数据以改进项目",
+      "description": "ArConnect Analytics description"
+  },
+  "setting_fee_multiplier_description": {
+      "message": "控制交易后的费用",
+      "description": "Fee multiplier settings description"
+  },
+  "setting_setting_currency_description": {
+      "message": "法定货币显示",
+      "description": "Currency settings description"
+  },
+  "setting_setting_dre_node_description": {
+      "message": "设置首选的 DRE 节点以进行合约评估",
+      "desription": "Preferred DRE node setting description"
+  },
+  "setting_setting_arverify_description": {
+      "message": "设置使用的验证阈值",
+      "description": "Arverify settings description"
+  },
+  "setting_setting_arconfetti_description": {
+      "message": "在使用钱包时显示动画",
+      "description": "ArConfetti settings description"
+  },
+  "setting_sign_notification_description": {
+      "message": "签署交易时通知",
+      "description": "Sign notification settings description"
+  },
+  "setting_display_theme_description": {
+      "message": "扩展 UI 的主题",
+      "description": "Display theme settings description"
+  },
+  "setting_wayfinder_description": {
+      "message": "针对 ar.io 网关的实验性系统范围导航器",
+      "description": "Wayfinder settings description"
+  },
+  "search_pick_option": {
+      "message": "搜索选项...",
+      "description": "Search input placeholder for the \"pick\" option component"
+  },
+  "search_apps": {
+      "message": "搜索应用...",
+      "description": "Search input placeholder for apps"
+  },
+  "search_wallets": {
+      "message": "搜索钱包...",
+      "description": "Search input placeholder for wallets"
+  },
+  "export_keyfile": {
+      "message": "导出密钥文件",
+      "description": "Export keyfile button"
+  },
+  "remove_wallet": {
+      "message": "移除钱包",
+      "description": "Remove wallet button"
+  },
+  "edit_wallet_name": {
+      "message": "编辑名称",
+      "description": "Edit wallet name title in settings"
+  },
+  "updated_wallet_name": {
+      "message": "已更新钱包名称",
+      "description": "Wallet name update notification content"
+  },
+  "error_updating_wallet_name": {
+      "message": "更新钱包名称时出错",
+      "description": "Wallet name update error notification content"
+  },
+  "copied_address": {
+      "message": "$NAME$ ($ADDRESS$) 地址已复制",
+      "description": "Address copy notification",
+      "placeholders": {
+          "name": {
+              "content": "$1",
+              "example": "Account 1"
+          },
+          "address": {
+              "content": "$2",
+              "example": "ljvCPN31...-CS-6Iho8U"
+          }
+      }
+  },
+  "copied_address_2": {
+      "message": "地址已复制",
+      "description": "Address copy notification 2"
+  },
+  "cannot_edit_with_ans": {
+      "message": "无法编辑昵称。钱包已经有 ANS 标签。",
+      "description": "Explainer for disabled edits for wallets with ANS profiles"
+  },
+  "add_wallet_subtitle": {
+      "message": "您可以添加任意数量",
+      "description": "Subtitle for add wallet section"
+  },
+  "drag_and_drop_wallet": {
+      "message": "拖放钱包...",
+      "description": "Wallet input text"
+  },
+  "enter_new_password": {
+      "message": "输入新密码...",
+      "description": "Password input placeholder"
+  },
+  "reenter_new_password": {
+      "message": "重新输入新密码...",
+      "description": "Re-enter input placeholder"
+  },
+  "enter_password": {
+      "message": "输入您的密码...",
+      "description": "Password input placeholder"
+  },
+  "enter_password_again": {
+      "message": "重新输入您的密码...",
+      "description": "Re-enter password input placeholder"
+  },
+  "passwords_match": {
+      "message": "密码匹配！",
+      "description": "Passwords are matching indicator text"
+  },
+  "passwords_not_match": {
+      "message": "密码不匹配",
+      "description": "Invalid re-entered password error"
+  },
+  "passwords_match_previous": {
+      "message": "新密码不能与旧密码相同",
+      "description": "Password must be different from old one"
+  },
+  "invalid_mnemonic": {
+      "message": "无效的助记词",
+      "description": "Invalid mnemonic seedphrase error notification"
+  },
+  "added_wallet": {
+      "message": "已添加钱包",
+      "description": "Added wallets notification"
+  },
+  "error_adding_wallet": {
+      "message": "添加钱包出错。请检查您的密码",
+      "description": "Error on wallet adding notification"
+  },
+  "no_apps_added": {
+      "message": "尚未添加应用...",
+      "description": "No apps added message"
+  },
+  "remove_wallet_modal_title": {
+      "message": "移除钱包？",
+      "description": "Remove wallet modal title"
+  },
+  "remove_wallet_modal_content": {
+      "message": "您确定要继续吗？此操作无法撤销。",
+      "description": "Remove wallet modal content"
+  },
+  "confirm": {
+      "message": "确认",
+      "description": "Confirm button text"
+  },
+  "confirm_transaction": {
+    "message": "确认交易",
+    "description": "Confirm Transaction Header"
+  },
+  "subscription_payment": {
+    "message": "订阅付款",
+    "description": "Subscribtion payment header"
+  },
+  "removed_wallet_notification": {
+      "message": "已移除钱包",
+      "description": "Notification for wallet removal"
+  },
+  "remove_wallet_error_notification": {
+      "message": "移除钱包出错",
+      "description": "Notification for wallet removal error"
+  },
+  "cancel": {
+      "message": "取消",
+      "description": "Cancel button text"
+  },
+  "export": {
+      "message": "导出",
+      "description": "Export button text"
+  },
+  "export_wallet_modal_title": {
+      "message": "导出钱包",
+      "description": "Export wallet modal title"
+  },
+  "export_wallet_error": {
+      "message": "导出钱包出错",
+      "description": "Wallet export error notification"
+  },
+  "development_version": {
+      "message": "开发版本",
+      "description": "Development version badge text"
+  },
+  "permissions_used": {
+      "message": "我们使用了以下权限：",
+      "description": "Used permissions label"
+  },
+  "reset_warning": {
+      "message": "重置 ArConnect 将删除您所有的数据。这包括您的钱包、设置和缓存数据。",
+      "description": "Warning about resetting ArConnect"
+  },
+  "irreversible_action": {
+      "message": "此操作是不可逆的！",
+      "description": "Warning about an irreversible action"
+  },
+  "reset_error": {
+      "message": "无法重置 ArConnect",
+      "description": "Error message on reset"
+  },
+  "welcome_to": {
+      "message": "欢迎来到",
+      "description": "\"Welcome to\" text"
+  },
+  "get_me_started": {
+      "message": "开始使用",
+      "description": "Get me started button text"
+  },
+  "have_wallet": {
+      "message": "我有一个钱包",
+      "description": "Has wallet button text"
+  },
+  "skip": {
+      "message": "跳过",
+      "description": "Skip label"
+  },
+  "next": {
+      "message": "下一步",
+      "description": "Next button text"
+  },
+  "what_is_arweave": {
+      "message": "什么是 Arweave？",
+      "description": "What is arweave title"
+  },
+  "about_arweave": {
+      "message": "Arweave 是一个允许您永久、可持续地存储数据的协议，只需一次性支付。该协议将拥有多余硬盘空间的人与需要永久存储数据或托管内容的个人和组织连接起来。",
+      "description": "A short paragraph explaining Arweave"
+  },
+  "what_is_the_permaweb": {
+      "message": "什么是永久网络？",
+      "description": "What is the permaweb title"
+  },
+  "about_permaweb": {
+      "message": "Arweave 上的永久网络是网络的下一次进化，使开发者和用户能够共享一个在全球范围内大量复制的有韧性的知识库，永久存在。除了数据，Arweave 还托管许多完全去中心化的永久应用程序。",
+      "description": "A short paragraph explaining the permaweb"
+  },
+  "what_is_arconnect": {
+      "message": "什么是 ArConnect？",
+      "description": "What is arconnect title"
+  },
+  "about_arconnect": {
+      "message": "ArConnect 是一个加密钱包扩展，允许您安全地与永久网络应用程序互动。它还让您可以轻松存储和管理资金。使用 ArConnect，您可以简单无缝地进入 Arweave 生态系统。",
+      "description": "A short paragraph explaining arconnect"
+  },
+  "read_more_arwiki": {
+      "message": "阅读更多在",
+      "description": "\"Read more at (ArWiki)\" text"
+  },
+  "backup": {
+      "message": "备份",
+      "description": "Backup title"
+  },
+  "backup_wallet_title": {
+      "message": "备份您的钱包",
+      "description": "Backup wallet title"
+  },
+  "backup_wallet_content": {
+      "message": "将这 12 个字的助记词保存到密码管理器，或将其写在纸上。永远不要与任何人分享。",
+      "description": "Backup wallet paragraph"
+  },
+  "copySeed": {
+      "message": "复制助记词",
+      "description": "Copy seedphrase text"
+  },
+  "done": {
+      "message": "完成",
+      "description": "Done button text"
+  },
+  "setup_complete_title": {
+      "message": "设置完成",
+      "description": "Setup complete title"
+  },
+  "generated_wallet": {
+      "message": "您的 Arweave 钱包地址为 $ADDRESS$ 已生成。您现在可以开始浏览永久网络了！",
+      "description": "Generated wallet notification",
+      "placeholders": {
+          "address": {
+              "content": "$1",
+              "example": "ljvCPN31...-CS-6Iho8U"
+          }
+      }
+  },
+  "error_generating_wallet": {
+      "message": "生成钱包出错",
+      "description": "Error generating wallet notification"
+  },
+  "written_down_seed": {
+      "message": "我已写下我的助记词",
+      "description": "Label for written down seedphrase checkbox"
+  },
+  "generating_wallet": {
+      "message": "生成钱包中...",
+      "description": "Generating wallet in progress text"
+  },
+  "keyfile": {
+      "message": "密钥文件",
+      "description": "Keyfile text"
+  },
+  "confirm_seed": {
+      "message": "确认您的助记词",
+      "description": "Confirm seedphrase title"
+  },
+  "confirm_seed_paragraph": {
+      "message": "通过在以下部分中完成缺失的助记词单词来验证您的助记词。",
+      "description": "Confirm seedphrase explainer paragraph"
+  },
+  "correct": {
+      "message": "正确",
+      "description": "Correct text"
+  },
+  "invalid_seed": {
+      "message": "输入的单词无效。请再试一次",
+      "description": "Invalid seed order notification"
+  },
+  "create_password": {
+      "message": "创建密码",
+      "description": "Create password title"
+  },
+  "create_password_paragraph": {
+      "message": "输入一个密码以保护 ArConnect。我们将使用此密码加密您的钱包。",
+      "description": "Create password explainer paragraph"
+  },
+  "password_not_strong": {
+      "message": "您的密码不够强",
+      "description": "Notification about bad password strength"
+  },
+  "password_strength_1": {
+      "message": "密码太弱",
+      "description": "Level 1 strength password text"
+  },
+  "password_strength_2": {
+      "message": "弱密码",
+      "description": "Level 2 strength password text"
+  },
+  "password_strength_3": {
+      "message": "还行的密码",
+      "description": "Level 3 strength password text"
+  },
+  "password_strength_4": {
+      "message": "强密码",
+      "description": "Level 4 strength password text"
+  },
+  "password_strength_5": {
+      "message": "非常强的密码",
+      "description": "Level 5 strength password text"
+  },
+  "password_strength_checklist_case": {
+      "message": "使用小写和大写字母",
+      "description": "Password strength checklist lowercase and uppercase element"
+  },
+  "password_strength_checklist_number": {
+      "message": "使用数字",
+      "description": "Password strength checklist number element"
+  },
+  "password_strength_checklist_symbol": {
+      "message": "使用符号",
+      "description": "Password strength checklist symbol element"
+  },
+  "password_strength_checklist_length": {
+      "message": "至少 10 个字符长",
+      "description": "Password strength checklist length element"
+  },
+  "no_wallets_added": {
+      "message": "未添加钱包",
+      "description": "No wallets added title (devtools)"
+  },
+  "no_wallets_added_paragraph": {
+      "message": "访问设置页面以使用此功能。",
+      "description": "No wallets added text (devtools)"
+  },
+  "setup": {
+      "message": "设置",
+      "description": "Setup button text"
+  },
+  "or": {
+      "message": "或",
+      "description": "\"Or\" text"
+  },
+  "enter_seedphrase": {
+      "message": "输入助记词...",
+      "description": "Enter seedphrase input placeholder"
+  },
+  "generate_wallet": {
+      "message": "生成钱包",
+      "description": "Generate wallet button text"
+  },
+  "enter_pw_gen_wallet": {
+      "message": "输入密码以生成钱包",
+      "description": "Request to enter password before generating a wallet in settings"
+  },
+  "select_recipient": {
+      "message": "选择接收者",
+      "description": "Select recipient when sending currency"
+  },
+  "send_to": {
+      "message": "发送到",
+      "description": "Send To for slider menu"
+  },
+  "no_close_window": {
+      "message": "不要关闭窗口！",
+      "description": "Request to not close the window"
+  },
+  "generated_wallet_dashboard": {
+      "message": "钱包已生成，您现在可以关闭窗口了",
+      "description": "Notification about wallet generation"
+  },
+  "provide_seedphrase": {
+      "message": "提供助记词",
+      "description": "Provide seedphrase for title in load wallet setup"
+  },
+  "provide_seedphrase_paragraph": {
+      "message": "拖放您的密钥文件或输入您生成钱包时保存的 12 个字的助记词。确保其顺序正确。",
+      "description": "Explainer about the seedphrase loading"
+  },
+  "sign_in": {
+      "message": "登录",
+      "description": "Sign In title"
+  },
+  "app_wants_to_connect": {
+      "message": "一个应用想要连接",
+      "description": "App wants to connect label"
+  },
+  "wallet": {
+      "message": "钱包",
+      "description": "Wallet label"
+  },
+  "enter_your_password": {
+      "message": "输入您的密码...",
+      "description": "Enter password placeholder"
+  },
+  "connect": {
+      "message": "连接",
+      "description": "Connect button text"
+  },
+  "allow_these_permissions": {
+      "message": "允许这些权限给应用程序：",
+      "description": "Auth permissions label"
+  },
+  "reset_allowance": {
+      "message": "重置额度",
+      "description": "Reset allowance title"
+  },
+  "reset_spent": {
+      "message": "重置已支出",
+      "description": "Reset spent button"
+  },
+  "allowance_limit_reached": {
+      "message": "此应用已达到其额度限制",
+      "description": "App allowance limit reached label"
+  },
+  "unlock": {
+      "message": "解锁",
+      "description": "Unlock title"
+  },
+  "unlock_wallet_to_use": {
+      "message": "您需要解锁钱包才能继续使用。",
+      "description": "Unlock wallet explanation"
+  },
+  "reset_wallet_password_to_use": {
+      "message": "您需要重置密码才能安全使用 ArConnect。",
+      "description": "Reset wallet password explanation"
+  },
+  "receive": {
+      "message": "接收",
+      "description": "Receive title"
+  },
+  "share": {
+      "message": "分享",
+      "description": "Share button text"
+  },
+  "send": {
+      "message": "发送",
+      "description": "Send title"
+  },
+  "send_message_optional": {
+      "message": "消息（可选）",
+      "description": "Optional message field"
+  },
+  "network_fee": {
+      "message": "网络费用",
+      "description": "Transaction network fee text"
+  },
+  "estimated": {
+    "message": "预计",
+    "description": "estimated"
+  },
+  "invalid_amount": {
+      "message": "金额必须大于 0",
+      "description": "Invalid tx amount message"
+  },
+  "invalid_address": {
+      "message": "目标地址无效",
+      "description": "Invalid address message"
+  },
+  "sent_tx": {
+      "message": "已发送交易",
+      "description": "Transaction sent successfully notification"
+  },
+  "failed_tx": {
+      "message": "无法发送交易",
+      "description": "Transfer error notification"
+  },
+  "assets": {
+      "message": "资产",
+      "description": "Assets title"
+  },
+  "asset": {
+      "message": "资产",
+      "description": "Asset title"
+  },
+  "view_all": {
+      "message": "查看全部",
+      "description": "View all link text"
+  },
+  "setting_tokens": {
+      "message": "代币",
+      "description": "Tokens setting title"
+  },
+  "setting_tokens_description": {
+      "message": "管理由去中心化应用程序或用户添加的代币",
+      "description": "Tokens setting description"
+  },
+  "setting_contacts": {
+      "message": "联系人",
+      "description": "Contacts setting title"
+  },
+  "setting_contacts_description": {
+      "message": "添加/编辑联系人",
+      "description": "Contacts setting description"
+  },
+  "explore": {
+      "message": "探索",
+      "description": "Explore title"
+  },
+  "explore_article_read_more": {
+      "message": "阅读更多",
+      "description": "Read more link text"
+  },
+  "addToken": {
+      "message": "添加代币",
+      "description": "Add token title"
+  },
+  "addTokenParagraph": {
+      "message": "$APP$ 想要向您的钱包添加一个代币。请查看以下详细信息。",
+      "description": "Add token explanation",
+      "placeholders": {
+          "app": {
+              "content": "$1",
+              "example": "ardrive.app"
+          }
+      }
+  },
+  "recents": {
+      "message": "最近",
+      "description": "Recents for send modal"
+  },
+  "all_set": {
+      "message": "一切就绪！",
+      "description": "All set title"
+  },
+  "all_set_paragraph": {
+      "message": "ArConnect 已使用您的密码和钱包设置完成。您现在可以关闭窗口。",
+      "description": "Paragraph indicating setup"
+  },
+  "token_add_failure": {
+      "message": "添加代币失败",
+      "description": "Failed to add token error message"
+  },
+  "no_assets": {
+      "message": "未添加资产...",
+      "description": "No assets added note"
+  },
+  "about_title": {
+      "message": "关于",
+      "description": "About title"
+  },
+  "no_description": {
+      "message": "没有可用描述",
+      "description": "No token description note"
+  },
+  "info_title": {
+      "message": "信息",
+      "description": "Token info section title"
+  },
+  "no_price": {
+      "message": "没有价格数据...",
+      "description": "No price data available note"
+  },
+  "collectibles": {
+      "message": "收藏品",
+      "description": "Collectibles title"
+  },
+  "collectible": {
+      "message": "收藏品",
+      "description": "Collectible title"
+  },
+  "no_collectibles": {
+      "message": "没有添加收藏品",
+      "description": "No collectibles added note"
+  },
+  "custom_gateway_warning": {
+      "message": "此代币使用自定义网关。这可能会减慢评估速度。",
+      "description": "Warning about adding tokens with custom gateways"
+  },
+  "custom_gateway_warning_simple": {
+      "message": "使用了自定义网关",
+      "description": "Custom gateway label for transaction details"
+  },
+  "choose_theme": {
+      "message": "选择 UI 主题",
+      "description": "UI theme option title in setup"
+  },
+  "light_theme": {
+      "message": "亮色",
+      "description": "Light theme"
+  },
+  "dark_theme": {
+      "message": "暗色",
+      "description": "Dark theme"
+  },
+  "system_theme": {
+      "message": "系统",
+      "description": "System theme"
+  },
+  "migration_available": {
+      "message": "可用迁移",
+      "description": "Migration available title"
+  },
+  "migration_available_paragraph": {
+      "message": "看来您之前已经使用过旧版本的 ArConnect。我们可以迁移您之前版本中的钱包供使用。您仍需完成设置过程。",
+      "description": "Migration available paragraph"
+  },
+  "migrate": {
+      "message": "迁移",
+      "description": "Migrate button text"
+  },
+  "migration_confirmation": {
+      "message": "完成设置后将迁移您的钱包",
+      "description": "Migration confirmation notification"
+  },
+  "migrate_wallets_list": {
+      "message": "这些钱包将被迁移：",
+      "description": "Label for migrated wallets"
+  },
+  "migrate_wallets_not_migrated": {
+      "message": "这些钱包不会被迁移：",
+      "description": "Label for wallets that won't be migrated"
+  },
+  "migrate_anyway": {
+      "message": "还是迁移！",
+      "description": "Migrate anyway button text"
+  },
+  "migration_available_welcome": {
+      "message": "您可以通过点击“我有一个钱包”来从旧的 ArConnect 迁移您的钱包。",
+      "description": "Migration available banner text"
+  },
+  "click_and_drag": {
+      "message": "点击并拖动",
+      "description": "Hover text for drag icon"
+  },
+  "token_type": {
+      "message": "代币类型",
+      "description": "Token type label"
+  },
+  "token_type_asset": {
+      "message": "资产",
+      "description": "Asset token type"
+  },
+  "token_type_collectible": {
+      "message": "收藏品",
+      "description": "Collectible token type (NFT, etc.)"
+  },
+  "remove_token": {
+      "message": "移除代币",
+      "description": "Remove token button text"
+  },
+  "your_balance": {
+      "message": "您的余额",
+      "description": "Balance label for tokens"
+  },
+  "history": {
+      "message": "历史",
+      "description": "History title"
+  },
+  "no_interaction_history": {
+      "message": "没有与此资产的历史记录",
+      "description": "No interaction history text for an asset"
+  },
+  "titles_transaction": {
+      "message": "交易",
+      "description": "Transaction title"
+  },
+  "transaction_id": {
+      "message": "交易 ID",
+      "description": "Transaction ID label"
+  },
+  "transaction_from": {
+      "message": "从",
+      "description": "Transaction \"from\" label"
+  },
+  "transaction_to": {
+      "message": "到",
+      "description": "Transaction \"to\" label"
+  },
+  "transaction_fee": {
+      "message": "网络费用",
+      "description": "Transaction \"fee\" label"
+  },
+  "transaction_size": {
+      "message": "大小",
+      "description": "Transaction \"size\" label"
+  },
+  "transaction_confirmations": {
+      "message": "确认",
+      "description": "Transaction \"confirmations\" label"
+  },
+  "transaction_block_height": {
+      "message": "区块",
+      "description": "Transaction \"block height\" label"
+  },
+  "transaction_block_timestamp": {
+      "message": "时间戳",
+      "description": "Transaction \"timestamp\" label"
+  },
+  "transaction_tags": {
+      "message": "标签",
+      "description": "Transaction \"tags\" label"
+  },
+  "transaction_input": {
+      "message": "输入",
+      "description": "Contract interaction input label"
+  },
+  "transaction_data": {
+      "message": "数据",
+      "description": "Transaction \"data\" label"
+  },
+  "transaction_data_binary_warning": {
+      "message": "无法显示二进制交易数据...",
+      "description": "Warning about ArConnect not being able to display a transaction's data"
+  },
+  "transaction_not_on_viewblock": {
+      "message": "在 Viewblock 上不可用",
+      "description": "Disabled viewblock link btn text"
+  },
+  "transaction_view_last": {
+      "message": "点击查看您最近签署的交易",
+      "description": "View last tx prompt content"
+  },
+  "sign_item": {
+      "message": "签署项目",
+      "description": "Sign message popup title"
+  },
+  "titles_signature": {
+      "message": "签署消息",
+      "description": "Sign message popup title"
+  },
+  "sign_data_description": {
+      "message": "$APPNAME$ 想要签署一笔交易。请查看以下详细信息。",
+      "description": "Description for signing an item containing a transfer",
+      "placeholders": {
+          "appname": {
+              "content": "$1",
+              "example": "permafacts.arweave.dev"
+          }
+      }
+  },
+  "signature_description": {
+      "message": "$APPNAME$ 想要签署一条消息。请查看以下消息。",
+      "description": "App signature request for data that cannot be decoded to string",
+      "placeholders": {
+          "appname": {
+              "content": "$1",
+              "example": "permafacts.arweave.dev"
+          }
+      }
+  },
+  "signature_message": {
+      "message": "消息",
+      "description": "Signature message label"
+  },
+  "signature_authorize": {
+      "message": "签署",
+      "description": "Sign message authorize button"
+  },
+  "titles_sign": {
+      "message": "签署交易",
+      "description": "Sign transaction popup title"
+  },
+  "sign_authorize": {
+      "message": "授权",
+      "description": "Authorize button label"
+  },
+  "sign_enter_password": {
+      "message": "输入密码以签署交易",
+      "description": "Request to enter password to sign transaction"
+  },
+  "sign_scan_qr": {
+      "message": "使用您的硬件钱包扫描下面的二维码",
+      "description": "Request to scan signature QR"
+  },
+  "viewblock": {
+      "message": "Viewblock",
+      "description": "view block"
+  },
+  "keystone_connect_title": {
+      "message": "连接 Keystone",
+      "description": "Connect keystone hardware wallet button"
+  },
+  "keystone_scan_error": {
+      "message": "扫描二维码时出错",
+      "description": "Notification about a keystone scanning error"
+  },
+  "keystone_invalid_result_type": {
+      "message": "检测到无效的二维码",
+      "description": "Notification about an invalid QR code while trying to scan a keystone wallet QR code"
+  },
+  "keystone_scan_progress": {
+      "message": "进度：$PROGRESS$",
+      "description": "Progress label for QR code scanning",
+      "placeholders": {
+          "progress": {
+              "content": "$1",
+              "example": "10%"
+          }
+      }
+  },
+  "keystone_loading_camera": {
+      "message": "加载扫描器...",
+      "description": "Loading hardware wallet QR scanner text"
+  },
+  "keystone_disabled_camera": {
+      "message": "您的相机已禁用。启用它以扫描二维码！",
+      "description": "Request to enable the built-in camera"
+  },
+  "keystone_allowed_camera": {
+      "message": "您已授予相机权限。请刷新页面！",
+      "description": "Request to refresh the page after granting camera permissions"
+  },
+  "keystone_features_warning": {
+      "message": "Keystone 支持处于测试阶段。某些 API 功能可能不受支持。",
+      "description": "Warning about keystone support"
+  },
+  "keystone_ao_description": {
+      "message": "Keystone 不支持发送 ao 代币。Keystone 只支持接收 ao 代币。发送支持即将到来。",
+      "description": "Description about keystone ao issue"
+  },
+  "keystone_ao_title": {
+      "message": "检测到 Keystone 错误。",
+      "description": "Title about keystone ao issue"
+  },
+  "keystone_ao_popup": {
+      "message": "Keystone 不支持发送 ao 代币。Keystone 只支持接收 ao 代币。发送支持即将到来。支持发送和接收 AR 代币。",
+      "description": "Popup description about keystone ao issue"
+  },
+  "keystone_ao_popup_title": {
+      "message": "Keystone AO 代币支持通知",
+      "description": "Popup description about keystone ao issue"
+  },
+  "token_price_estimate_warning": {
+      "message": "价格估算来自",
+      "description": "Price estimate warning text. Full text is displayed with a link to Redstone.finance"
+  },
+  "wallet_hardware_added": {
+      "message": "已添加 $WALLETTYPE$ 钱包",
+      "description": "Notification on adding a hardware wallet",
+      "placeholders": {
+          "wallettype": {
+              "content": "$1",
+              "example": "Keystone"
+          }
+      }
+  },
+  "wallet_hardware_not_added": {
+      "message": "无法添加 $WALLETTYPE$ 钱包",
+      "description": "Notification on error when adding a hardware wallet",
+      "placeholders": {
+          "wallettype": {
+              "content": "$1",
+              "example": "Keystone"
+          }
+      }
+  },
+  "wallet_hardware_unsupported": {
+      "message": "此功能不支持硬件钱包",
+      "description": "Notification about a feature that does not support usage with a hardware wallet as an active/selected wallet"
+  },
+  "notification_title_native_tx": {
+      "message": "交易已签署",
+      "description": "Notification title for signing a native tx"
+  },
+  "notification_title_dispatched_tx": {
+      "message": "交易已发送",
+      "description": "Notification title for dispatching a tx"
+  },
+  "notification_description_native_tx": {
+      "message": "总费用约为 $PRICE$ AR",
+      "description": "Notification body for native tx signing",
+      "placeholders": {
+          "price": {
+              "content": "$1",
+              "example": "10,234.15"
+          }
+      }
+  },
+  "notification_description_dispatch_tx": {
+      "message": "已提交到 Bundlr 网络",
+      "description": "Notification body for dispatched tx"
+  },
+  "transaction_send_add_target": {
+      "message": "添加接收者",
+      "description": "Add recipient title"
+  },
+  "transaction_send_address_input_label": {
+      "message": "接收者",
+      "description": "Label for the address input"
+  },
+  "transaction_send_address_input_placeholder": {
+      "message": "地址，ANS 或 ArNS...",
+      "description": "Placeholder for the address input"
+  },
+  "transaction_send_scan_address": {
+      "message": "扫描地址",
+      "description": "Scan address tooltip content"
+  },
+  "transaction_send_success": {
+      "message": "交易已发送",
+      "description": "Sent transaction successfully message"
+  },
+  "transaction_send_error": {
+      "message": "无法发送交易",
+      "description": "Transaction failure"
+  },
+  "transaction_auth_ur_fail": {
+      "message": "无法构建交易二维码",
+      "description": "Error notification about failed signing QR generation"
+  },
+  "transaction_send_loading": {
+      "message": "发送交易中...",
+      "description": "Sending transaction loading text"
+  },
+  "transaction_sending_token": {
+    "message": "发送 $TOKENNAME$",
+    "description": "Sending token description in confirmation",
+    "placeholders": {
+      "tokenname": {
+        "content": "$1",
+        "example": "AR"
+      }
+    }
+  },
+  "not_connected": {
+      "message": "未连接",
+      "description": "Not connected indicator"
+  },
+  "not_connected_text": {
+      "message": "此应用尚未使用 ArConnect。找到页面上的“连接”按钮以连接。",
+      "description": "Not connected indicator explainer"
+  },
+  "disconnect": {
+      "message": "断开连接",
+      "description": "Disconnect button text"
+  },
+  "disconnected": {
+      "message": "已断开",
+      "description": "Disconnected tooltip"
+  },
+  "account_connected": {
+      "message": "账户已连接",
+      "description": "Connected tooltip"
+  },
+  "copy_address": {
+      "message": "复制地址",
+      "description": "Click to copy address tooltip"
+  },
+  "expand_view": {
+      "message": "扩展视图",
+      "description": "Click to open extension in a browser tab"
+  },
+  "allowance_edit": {
+      "message": "编辑额度",
+      "description": "Edit allowance tooltip"
+  },
+  "balance_hide": {
+      "message": "隐藏余额",
+      "description": "Hide balance tooltip"
+  },
+  "balance_show": {
+      "message": "显示余额",
+      "description": "Show balance tooltip"
+  },
+  "lock_wallet": {
+      "message": "锁定钱包",
+      "description": "Lock wallet and terminate current session icon button"
+  },
+  "home": {
+      "message": "首页",
+      "description": "Home Button"
+  },
+  "home_no_balance": {
+      "message": "添加 $AR$ 以开始",
+      "description": "No balance message on homescreen",
+      "placeholders": {
+          "ar": {
+              "content": "$1",
+              "example": "$AR"
+          }
+      }
+  },
+  "home_transfer_balance": {
+      "message": "转移 AR",
+      "description": "Transfer balance button text"
+  },
+  "close_tab_generate_wallet_message": {
+      "message": "您确定要退出吗？您的新钱包正在生成中，将会丢失。",
+      "description": "Confirmation message for the user who tries to close a tab where a wallet is still being generated"
+  },
+  "close_tab_load_wallet_message": {
+      "message": "您确定要退出吗？您的钱包正在加载中，关闭标签页将停止此过程。",
+      "description": "Confirmation message for the user who tries to close a tab where a wallet is still being loaded"
+  },
+  "manage_assets_button": {
+      "message": "管理资产",
+      "description": "Manage assets button"
+  },
+  "installation_complete": {
+      "message": "安装完成",
+      "description": "Installation complete title"
+  },
+  "installation_complete_paragraph": {
+      "message": "将 ArConnect 固定到您的浏览器，使其易于访问并连接到您喜欢的 dApps。",
+      "description": "Installation complete paragraph"
+  },
+  "enable_notifications_title": {
+      "message": "在 ArConnect 中启用通知",
+      "description": "Enable Notification title"
+  },
+  "introducing_notifications": {
+      "message": "介绍通知",
+      "description": "Alternative Enable Notification title"
+  },
+  "enable_notifications_paragraph": {
+      "message": "保持更新，获取交易和 ao 消息的即时提醒。",
+      "description": "Enable notifications paragraph"
+  },
+  "alternative_enable_notifications_paragraph": {
+      "message": "当交易处理时立即接收通知。",
+      "description": "Enable notifications paragraph"
+  },
+  "get_started": {
+      "message": "开始",
+      "description": "Get started title"
+  },
+  "get_started_description": {
+      "message": "通过 ArConnect 探索 Arweave 上的无限可能",
+      "description": "Get started description"
+  },
+  "example_ardrive_description": {
+      "message": "ArDrive 提供永恒存储您的最有价值文件。只需一次付费，永远保存您的记忆。",
+      "description": "Placeholder for example get started"
+  },
+  "example_ans_description": {
+      "message": "ans.gg 是一个基于 Arweave 区块链的流行名称服务。一次购买，永久拥有。",
+      "description": "Placeholder for example get started"
+  },
+  "example_publish_description": {
+      "message": "一个旨在去中介化真相的证明中立出版平台。发布声明，并在事实市场中占据您的位置！",
+      "description": "Placeholder for example get started"
+  },
+  "example_permaswap_description": {
+      "message": "Permaswap 是一个加密货币交易所，允许交换 Arweave 资产。",
+      "description": "Placeholder for example get started"
+  },
+  "connect_with_us_title": {
+      "message": "与我们联系",
+      "description": "Connect with us title"
+  },
+  "connect_paragraph": {
+      "message": "在 X 上关注我们，了解团队正在工作的最新动态。",
+      "description": "Connect with us description"
+  },
+  "connect_paragraph_2": {
+      "message": "有问题吗？加入 Discord 服务器与开发人员聊天。",
+      "description": "Connect with us description"
+  },
+  "buy_ar_button": {
+      "message": "购买 AR",
+      "description": "Buy AR with Onramper button text"
+  },
+  "buy_screen_title": {
+      "message": "购买",
+      "description": "Buy AR with Onramper button text"
+  },
+  "buy_screen_pay": {
+      "message": "您支付",
+      "description": "Payment input label title"
+  },
+  "buy_screen_receive": {
+      "message": "您接收",
+      "description": "Receive input label title"
+  },
+  "buy_screen_switch": {
+      "message": "切换",
+      "description": "Switch button"
+  },
+  "buy_screen_payment_method": {
+      "message": "支付方式",
+      "description": "Select payment method title"
+  },
+  "buy_screen_enter": {
+      "message": "输入金额",
+      "description": "Enter fiat amount placeholder"
+  },
+  "buy_screen_receive_x": {
+      "message": "xxxx.xxxx",
+      "description": "Receive quantity placeholder"
+  },
+  "AR_button": {
+      "message": "AR",
+      "description": "Receive quantity button text"
+  },
+  "credit_debit": {
+      "message": "信用卡/借记卡",
+      "description": "Buy screen payment method text"
+  },
+  "conversion_error": {
+      "message": "获取报价失败：无效的法定金额。",
+      "description": "Buy screen conversion error text"
+  },
+  "confirm_purchase_title": {
+      "message": "将 AR 添加到您的钱包",
+      "description": "Confirm purchase header text"
+  },
+  "wallet_address": {
+      "message": "钱包地址",
+      "description": "Confirm purchase wallet address header"
+  },
+  "order_details": {
+      "message": "订单详情",
+      "description": "Confirm purchase order details title"
+  },
+  "confirm_rate": {
+      "message": "汇率",
+      "description": "Confirm purchase rate text"
+  },
+  "confirm_vendor_fee": {
+      "message": "供应商费用",
+      "description": "Confirm purchase vendor fee text"
+  },
+  "confirm_total": {
+      "message": "总计",
+      "description": "Confirm purchase total cost text"
+  },
+  "close_purchase_pending": {
+      "message": "关闭",
+      "description": "Close button text on purchase in progress page"
+  },
+  "congrats_purchase_pending": {
+      "message": "恭喜！",
+      "description": "Congrats text on purchase in progress page"
+  },
+  "info_purchase_pending": {
+      "message": "您的购买正在进行中。这可能需要 30-60 分钟完成。",
+      "description": "Info message text on purchase in progress page"
+  },
+  "order_id_purchase_pending": {
+      "message": "报价 ID：",
+      "description": "Order ID text on purchase in progress page"
+  },
+  "choose_payment_method": {
+      "message": "选择支付方式",
+      "description": "Payment method input modal title text"
+  },
+  "choose_fiat_currency": {
+      "message": "选择法定货币",
+      "description": "Fiat currency input modal title text"
+  },
+  "search_currency_placeholder": {
+      "message": "输入货币名称",
+      "description": "Currency search placeholder text"
+  },
+  "receive_AR_button": {
+      "message": "接收 AR",
+      "description": "Button text for the receive AR button"
+  },
+  "search_contacts": {
+      "message": "搜索联系人...",
+      "description": "Search input placeholder for contacts"
+  },
+  "add_contact": {
+      "message": "添加联系人",
+      "description": "Add a contact button text"
+  },
+  "send_transaction": {
+      "message": "发送交易",
+      "description": "Active contact send button text"
+  },
+  "contact_info": {
+      "message": "联系信息",
+      "description": "Contact settings title"
+  },
+  "user_not_in_contacts": {
+      "message": "此用户不在您的联系人中。",
+      "description": "Small message title on transaction confirmation page"
+  },
+  "create_contact": {
+      "message": "创建联系人？",
+      "description": "Create contact question"
+  },
+  "add_new_contact": {
+      "message": "添加新联系人",
+      "description": "Add a new contact title"
+  },
+  "uploaded_avatar": {
+      "message": "已上传头像到 Arweave。",
+      "description": "Successful upload toast text"
+  },
+  "ArNS_address": {
+      "message": "ArNS 地址",
+      "description": "Contact ArNS address subtitle"
+  },
+  "select_ArNS_address": {
+      "message": "选择 ArNS 地址",
+      "description": "Select ArNS address text"
+  },
+  "no_ArNS_address_found": {
+      "message": "未找到 ArNS 地址",
+      "description": "No ArNS address found text"
+  },
+  "arweave_url": {
+      "message": "ar://",
+      "description": "Arweave address for ArNS names"
+  },
+  "contact_avatar": {
+      "message": "头像",
+      "description": "Contact Avatar subtitle"
+  },
+  "first_last_name": {
+      "message": "名字和姓氏",
+      "description": "Contact name input placeholder text"
+  },
+  "arweave_account_address": {
+      "message": "Arweave 账户地址",
+      "description": "Contact arweave account address subtitle"
+  },
+  "account_address": {
+      "message": "账户地址",
+      "description": "Contact account address input placeholder text"
+  },
+  "notes": {
+      "message": "备注",
+      "description": "Contact notes subtitle"
+  },
+  "type_message_here": {
+      "message": "在此输入消息...",
+      "description": "Contact notes input placeholder text"
+  },
+  "save_changes": {
+      "message": "保存更改",
+      "description": "Save button text"
+  },
+  "remove_contact": {
+      "message": "移除联系人",
+      "description": "Remove contact button text"
+  },
+  "remove_contact_question": {
+      "message": "您确定要移除此联系人吗？",
+      "description": "Remove contact modal text"
+  },
+  "save_new_contact": {
+      "message": "保存新联系人",
+      "description": "Save new contact button text"
+  },
+  "address_in_use": {
+      "message": "地址已在使用中。",
+      "description": "Contacts error message if address is already in use"
+  },
+  "password_allowance": {
+      "message": "需要密码额度",
+      "description": "Input title for the password allowance label"
+  },
+  "add": {
+      "message": "添加",
+      "description": "Add button text"
+  },
+  "your_contacts": {
+      "message": "您的联系人",
+      "description": "Your Contacts title in Send Modal"
+  },
+  "check_address": {
+      "message": "请检查接收者地址",
+      "description": "Error message for invalid address/ArNS"
+  },
+  "incorrect_address": {
+      "message": "接收者地址不正确",
+      "description": "Error message for invalid ANS"
+  },
+  "arns_added": {
+      "message": "ar://$ADDRESS$ 已添加",
+      "description": "ArNS recipient added",
+      "placeholders": {
+          "address": {
+              "content": "$1",
+              "example": "Address"
+          }
+      }
+  },
+  "ans_added": {
+      "message": "$ADDRESS$ 已添加",
+      "description": "ANS recipient added",
+      "placeholders": {
+          "address": {
+              "content": "$1",
+              "example": "Address"
+          }
+      }
+  },
+  "setting_ao_support": {
+      "message": "ao 支持",
+      "description": "ao support settings title"
+  },
+  "setting_ao_support_description": {
+      "message": "在您的钱包中显示 ao 代币（测试版）",
+      "description": "ao support settings description"
+  },
+  "got_it": {
+      "message": "知道了",
+      "description": "Got it button text"
+  },
+  "display_ao_tokens": {
+      "message": "在 ArConnect 中显示 AO 代币（测试版）",
+      "description": "Display AO tokens description"
+  },
+  "ao_computer": {
+      "message": "ao.computer",
+      "description": "ao computer url"
+  },
+  "ao_announcement_text": {
+      "message": "关注未来的 ao 更新。了解更多访问",
+      "description": "ao announcement description text"
+  },
+  "ao_announcement_title": {
+      "message": "AO 测试网现已上线！",
+      "description": "ao announcement title text"
+  },
+  "ao_degraded": {
+      "message": "AO 代币处理网络降级。",
+      "description": "ao degraded title text"
+  },
+  "ao_degraded_description": {
+      "message": "网络问题解决后，AO 代币处理将可用。",
+      "description": "ao degraded description text"
+  },
+  "import_token": {
+      "message": "导入代币",
+      "description": "Import token button description"
+  },
+  "token_already_added": {
+      "message": "代币已添加",
+      "description": "Token already imported"
+  },
+  "token_already_removed": {
+      "message": "代币已移除",
+      "description": "Token already removed"
+  },
+  "token_imported": {
+      "message": "代币成功添加",
+      "description": "Token added"
+  },
+  "token_removed": {
+      "message": "代币成功移除",
+      "description": "Token removed"
+  },
+  "transaction_complete": {
+    "message": "交易完成",
+    "description": "transaction complete header"
+  },
+  "message": {
+    "message": "消息",
+    "description": "message header"
+  },
+  "subscription_allowance": {
+      "message": "订阅额度",
+      "description": "Subscription settings title"
+  },
+  "subscription_title": {
+      "message": "订阅",
+      "description": "Subscription title"
+  },
+  "subscriptions": {
+      "message": "订阅",
+      "description": "Subscriptions title"
+  },
+  "no_subscriptions": {
+    "message": "尚未订阅",
+    "description": "No subscriptions title"
+  },
+  "no_subscriptions_description": {
+    "message": "您的未来订阅将显示在这里",
+    "description": "No subscriptions description"
+  },
+  "subscribe_description": {
+      "message": "$APPNAME 请求设置一个定期付款的订阅",
+      "description": "Subscribe description"
+  },
+  "subscription_description": {
+      "message": "管理自动提现额度",
+      "description": "Subscription setting description"
+  },
+  "subscription_cancelled": {
+      "message": "订阅已取消",
+      "description": "The subscription has been successfully cancelled."
+  },
+  "subscription_cancelled_error": {
+      "message": "订阅取消错误",
+      "description": "There was an error cancelling the subscription. Please try again."
+  },
+  "subscription_deleted": {
+      "message": "订阅已删除",
+      "description": "The subscription has been successfully deleted."
+  },
+  "subscription_delete_error": {
+      "message": "订阅删除错误",
+      "description": "There was an error deleting the subscription. Please try again."
+  },
+  "subscription_add_failure": {
+      "message": "添加订阅失败",
+      "description": "Failed to add subscription error message"
+  },
+  "subscription_application_address": {
+    "message": "应用地址",
+    "description": "付款地址"
+  },
+
+  "subscription_recurring_amount": {
+    "message": "定期付款金额",
+    "description": "Recurring payment amount"
+  },
+  "auto_renewal": {
+    "message": "自动续订",
+    "description": "auto-renewal"
+  },
+  "auto_pay": {
+    "message": "自动付款",
+    "description": "auto-pay"
+  },
+  "confirm_subscription": {
+    "message": "确认订阅",
+    "description": "confirm subscription"
+  },
+  "end": {
+    "message": "结束",
+    "description": "end"
+  },
+  "next_payment": {
+    "message": "下一次付款",
+    "description": "next payment"
+  },
+  "start": {
+    "message": "开始",
+    "description": "start"
+  },
+  "Quarterly": {
+    "message": "季度",
+    "description": "quarterly frequency"
+  },
+  "Monthly": {
+    "message": "每月",
+    "description": "monthly frequency"
+  },
+  "Weekly": {
+    "message": "每周",
+    "description": "weekly frequency"
+  },
+  "Daily": {
+    "message": "每天",
+    "description": "daily frequency"
+  }
+}

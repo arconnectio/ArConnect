@@ -265,7 +265,9 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
     <Wrapper>
       <div>
         <HeadV2
-          title={message ? "Message" : "Transaction Complete"}
+          title={browser.i18n.getMessage(
+            message ? "message" : "transaction_complete"
+          )}
           back={() => {
             if (backPath === "/notifications") {
               back();

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { getActiveAddress } from "~wallets";
 import styled from "styled-components";
 import Squircle from "~components/Squircle";
+import browser from "webextension-polyfill";
 import { getSubscriptionData, updateSubscription } from "~subscriptions";
 import dayjs from "dayjs";
 import { useHistory } from "~utils/hash_router";
@@ -73,7 +74,7 @@ export default function Subscriptions() {
 
   return (
     <div>
-      <HeadV2 title="Subscriptions" />
+      <HeadV2 title={browser.i18n.getMessage("subscriptions")} />
       {subData && subData.length > 0 ? (
         <SubscriptionList>
           {subData.map((sub) => {
@@ -92,8 +93,8 @@ export default function Subscriptions() {
         </SubscriptionList>
       ) : (
         <NoSubscriptionWrapper displayTheme={theme}>
-          <div>No subscriptions yet</div>
-          <span>Your future subscriptions will be available here</span>
+          <div>{browser.i18n.getMessage("no_subscriptions")}</div>
+          <span>{browser.i18n.getMessage("no_subscriptions_description")}</span>
         </NoSubscriptionWrapper>
       )}
     </div>
