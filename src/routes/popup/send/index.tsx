@@ -348,7 +348,7 @@ export default function Send({ id }: Props) {
 
     if (parsedQty.isNaN()) return true;
 
-    return parsedQty.isLessThan(0) || max.isLessThan(parsedQty);
+    return parsedQty.lt(0) || max.lt(parsedQty);
   }, [qty, max.toString()]);
 
   // show token selector

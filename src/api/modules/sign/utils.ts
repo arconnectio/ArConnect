@@ -93,9 +93,9 @@ export async function signNotification(
   // format price
   let maximumFractionDigits = 0;
 
-  if (arPrice.isLessThan(0.1)) maximumFractionDigits = 6;
-  else if (arPrice.isLessThan(10)) maximumFractionDigits = 4;
-  else if (arPrice.isLessThan(1000)) maximumFractionDigits = 2;
+  if (arPrice.lt(0.1)) maximumFractionDigits = 6;
+  else if (arPrice.lt(10)) maximumFractionDigits = 4;
+  else if (arPrice.lt(1000)) maximumFractionDigits = 2;
 
   const formattedPrice = arPrice.toFormat(maximumFractionDigits);
 

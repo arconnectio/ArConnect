@@ -112,7 +112,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
         const data: TransactionData = await TempTransactionStorage.get("send");
         if (data) {
           const qty = BigNumber(data.qty);
-          if (qty.isLessThan(Number(allowance))) {
+          if (qty.lt(Number(allowance))) {
             setNeedsSign(false);
           } else {
             setNeedsSign(true);

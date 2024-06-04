@@ -28,9 +28,7 @@ export async function handleSubscriptionPayment(
   }
 
   if (
-    BigNumber(data.applicationAllowance).isLessThan(
-      data.subscriptionFeeAmount
-    ) &&
+    BigNumber(data.applicationAllowance).lt(data.subscriptionFeeAmount) &&
     !initialPayment
   ) {
     await statusUpdateSubscription(

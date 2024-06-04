@@ -67,7 +67,7 @@ export async function allowanceAuth(
   const total = allowance.spent.plus(price);
 
   // check if the price goes over the allowed total limit
-  const hasEnoughAllowance = total.isLessThanOrEqualTo(allowance.limit);
+  const hasEnoughAllowance = total.lte(allowance.limit);
 
   // if the allowance is enough, return
   if (hasEnoughAllowance) return;
