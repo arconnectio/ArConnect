@@ -6,6 +6,7 @@ import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
 import { v4 as uuid } from "uuid";
 import browser, { type Alarms } from "webextension-polyfill";
+import BigNumber from "bignumber.js";
 
 const PUBLIC_SEGMENT_WRITEKEY = "J97E4cvSZqmpeEdiUQNC2IxS1Kw4Cwxm";
 
@@ -163,7 +164,7 @@ export const trackBalance = async (alarmInfo?: Alarms.Alarm) => {
   if (alarmInfo && !alarmInfo.name.startsWith("track-balance")) return;
   const wallets = await getWallets();
   const arweave = new Arweave(defaultGateway);
-  let totalBalance = 0;
+  let totalBalance = BigNumber("0");
 
   await Promise.all(
     wallets.map(async ({ address }) => {
@@ -171,14 +172,16 @@ export const trackBalance = async (alarmInfo?: Alarms.Alarm) => {
         const balance = arweave.ar.winstonToAr(
           await arweave.wallets.getBalance(address)
         );
-        totalBalance += Number(balance);
+        totalBalance = totalBalance.plus(balance);
       } catch (e) {
         console.log("invalid", e);
       }
     })
   );
   try {
-    await trackDirect(EventType.BALANCE, { totalBalance });
+    await trackDirect(EventType.BALANCE, {
+      totalBalance: totalBalance.toString()
+    });
     const timer = setToStartOfNextMonth(new Date());
     browser.alarms.create("track-balance", {
       when: timer.getTime()

@@ -67,7 +67,7 @@ export async function calculateReward({ reward }: Transaction) {
  * @param type Signed transaction type
  */
 export async function signNotification(
-  price: number,
+  price: number | BigNumber,
   id: string,
   appURL: string,
   type: "sign" | "dispatch" = "sign"

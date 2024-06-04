@@ -1,9 +1,14 @@
 import { getMissingPermissions, type PermissionType } from "./permissions";
-import { type Allowance, defaultAllowance } from "./allowance";
+import {
+  type Allowance,
+  type AllowanceBigNumber,
+  defaultAllowance
+} from "./allowance";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import type { Storage } from "@plasmohq/storage";
 import { defaultGateway, type Gateway } from "~gateways/gateway";
+import BigNumber from "bignumber.js";
 
 export const PREFIX = "app_";
 export const defaultBundler = "https://turbo.ardrive.io";
@@ -135,10 +140,15 @@ export default class Application {
   /**
    * Allowance limit and spent qty
    */
-  async getAllowance(): Promise<Allowance> {
+  async getAllowance(): Promise<AllowanceBigNumber> {
     const settings = await this.#getSettings();
 
-    return settings.allowance || defaultAllowance;
+    const allowance = settings.allowance || defaultAllowance;
+    return {
+      enabled: allowance.enabled,
+      limit: BigNumber(allowance.limit),
+      spent: BigNumber(allowance.spent)
+    };
   }
 
   /**

@@ -22,6 +22,7 @@ import { ButtonV2, useToasts } from "@arconnect/components";
 import { useHistory } from "~utils/hash_router";
 import { getPrice } from "~lib/coingecko";
 import useSetting from "~settings/hook";
+import BigNumber from "bignumber.js";
 
 export default function SubscriptionPayment({ id }: { id: string }) {
   const [subData, setSubData] = useState<SubscriptionData | null>(null);
@@ -125,7 +126,9 @@ export default function SubscriptionPayment({ id }: { id: string }) {
       const arPrice = await getPrice("arweave", currency);
       if (arPrice) {
         setPrice(
-          (arPrice * subData.subscriptionFeeAmount).toFixed(2).toString()
+          BigNumber(arPrice)
+            .multipliedBy(subData.subscriptionFeeAmount)
+            .toFixed(2)
         );
       }
     }

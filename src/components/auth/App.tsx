@@ -38,7 +38,7 @@ export default function App({
     return winstonToArFormatted(allowance.limit);
   }, [allowance]);
 
-  function winstonToArFormatted(val: number) {
+  function winstonToArFormatted(val: string) {
     const arweave = new Arweave(defaultGateway);
     const arVal = arweave.ar.winstonToAr(val.toString());
 

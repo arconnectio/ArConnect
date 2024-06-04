@@ -91,15 +91,15 @@ export function abbreviateNumber(value: number | string | BigNumber): string {
 
   let abbreviatedValue = value;
 
-  if (value.isGreaterThanOrEqualTo(1e12)) {
+  if (value.gte(1e12)) {
     // Trillions
     suffix = "T";
     abbreviatedValue = value.dividedBy(1e12);
-  } else if (value.isGreaterThanOrEqualTo(1e9)) {
+  } else if (value.gte(1e9)) {
     // Billions
     suffix = "B";
     abbreviatedValue = value.dividedBy(1e9);
-  } else if (value.isGreaterThanOrEqualTo(1e6)) {
+  } else if (value.gte(1e6)) {
     // Millions
     suffix = "M";
     abbreviatedValue = value.dividedBy(1e6);

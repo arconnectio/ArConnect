@@ -50,11 +50,8 @@ export default function Token({ onClick, ...props }: Props) {
 
   const balance = useMemo(() => {
     const balanceToFormat = BigNumber(props.ao ? props.balance : fractBalance);
-    const isTinyBalance =
-      balanceToFormat.isGreaterThan(0) && balanceToFormat.isLessThan(1e-6);
-    const isSmallBalance =
-      balanceToFormat.isLessThan(1) &&
-      balanceToFormat.isGreaterThanOrEqualTo(1e-6);
+    const isTinyBalance = balanceToFormat.gt(0) && balanceToFormat.lt(1e-6);
+    const isSmallBalance = balanceToFormat.lt(1) && balanceToFormat.gte(1e-6);
 
     const formattedBalance =
       isTinyBalance || isSmallBalance
@@ -63,9 +60,7 @@ export default function Token({ onClick, ...props }: Props) {
 
     setTotalBalance(balanceToFormat.toFixed());
 
-    setShowTooltip(
-      balanceToFormat.isGreaterThanOrEqualTo(1_000_000) || isTinyBalance
-    );
+    setShowTooltip(balanceToFormat.gte(1_000_000) || isTinyBalance);
 
     return isSmallBalance
       ? formattedBalance

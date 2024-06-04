@@ -15,7 +15,6 @@ import { type Gateway } from "~gateways/gateway";
 import { ExtensionStorage } from "~utils/storage";
 import { defaultTokens } from "~tokens";
 import { defaultAoTokens, type TokenInfo } from "./aoTokens/ao";
-import BigNumber from "bignumber.js";
 
 export interface Token {
   id: string;
