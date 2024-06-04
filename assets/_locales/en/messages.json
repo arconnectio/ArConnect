@@ -595,7 +595,7 @@
   },
   "subscription_payment": {
     "message": "Subscription Payment",
-    "description": "确认交易标题"
+    "description": "Subscribtion payment header"
   },
   "removed_wallet_notification": {
     "message": "Removed wallet",
