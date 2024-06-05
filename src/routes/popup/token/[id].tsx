@@ -236,7 +236,7 @@ export default function Asset({ id }: Props) {
                 logo
               }}
               priceData={historicalPrices}
-              latestPrice={price}
+              latestPrice={+price}
               loading={loadingHistoricalPrices}
             >
               <PeriodPicker period={period} onChange={(p) => setPeriod(p)} />

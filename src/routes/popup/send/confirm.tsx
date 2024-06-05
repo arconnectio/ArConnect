@@ -358,7 +358,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
       }
     }
     // Prepare transaction
-    const transactionAmount = Number(latestTxQty);
+    const transactionAmount = BigNumber(latestTxQty);
     const prepared = await prepare(recipient.address);
     if (prepared) {
       let { gateway, transaction, type } = prepared;
@@ -369,7 +369,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
       isLocalWallet(decryptedWallet);
       const keyfile = decryptedWallet.keyfile;
 
-      if (transactionAmount <= allowance) {
+      if (transactionAmount.lte(allowance)) {
         try {
           convertedTransaction.setOwner(keyfile.n);
 
@@ -403,7 +403,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
           });
           trackEvent(EventType.TX_SENT, {
             contact: contact ? true : false,
-            amount: tokenID === "AR" ? transactionAmount : 0,
+            amount: tokenID === "AR" ? +transactionAmount : 0,
             fee: networkFee
           });
           // Redirect
@@ -472,7 +472,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
           });
           trackEvent(EventType.TX_SENT, {
             contact: contact ? true : false,
-            amount: tokenID === "AR" ? transactionAmount : 0,
+            amount: tokenID === "AR" ? +transactionAmount : 0,
             fee: networkFee
           });
           uToken

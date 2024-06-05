@@ -1,7 +1,7 @@
-import GQLResultInterface from "ar-gql/dist/faces";
+import type GQLResultInterface from "ar-gql/dist/faces";
 import { concatGatewayURL } from "./utils";
 import { findGateway } from "./wayfinder";
-import { Gateway } from "./gateway";
+import { type Gateway } from "./gateway";
 
 /**
  * Run a query on the Arweave Graphql API,

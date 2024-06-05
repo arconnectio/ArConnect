@@ -206,7 +206,7 @@ export default function Token() {
                     logo
                   }}
                   priceData={historicalPrices}
-                  latestPrice={price}
+                  latestPrice={+price}
                   loading={loadingHistoricalPrices}
                 >
                   <PeriodPicker
