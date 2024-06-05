@@ -3,6 +3,7 @@ import Arweave from "arweave";
 import type { GQLTransactionsResultInterface } from "ar-gql/dist/faces";
 import { ExtensionStorage } from "~utils/storage";
 import { getActiveAddress } from "~wallets";
+import { defaultConfig } from "./config";
 import {
   getTagValue,
   timeoutPromise,
@@ -67,7 +68,7 @@ async function getTokenInfo(id: string): Promise<TokenInfo> {
     ]
   };
   const res = await (
-    await fetch(`https://cu.ao-testnet.xyz/dry-run?process-id=${id}`, {
+    await fetch(`${defaultConfig.CU_URL}/dry-run?process-id=${id}`, {
       headers: {
         "content-type": "application/json"
       },

@@ -78,6 +78,7 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
     []
   );
   const [loading, setLoading] = useState(true);
+  const ao = useAo();
 
   const tokensWithBalances = useMemo(
     () =>
@@ -144,7 +145,7 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
               const balance = Number(
                 await timeoutPromise(
                   (async () => {
-                    const aoToken = await Token(id);
+                    const aoToken = await Token(id, null, ao);
                     const balance = await aoToken.getBalance(activeAddress);
                     return balance;
                   })(),
@@ -175,6 +176,7 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
     []
   );
   const [loading, setLoading] = useState(true);
+  const ao = useAo();
 
   const [activeAddress] = useStorage<string>({
     key: "active_address",
@@ -250,7 +252,7 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
               const balance = Number(
                 await timeoutPromise(
                   (async () => {
-                    const aoToken = await Token(token.id);
+                    const aoToken = await Token(token.id, null, ao);
                     const balance = await aoToken.getBalance(activeAddress);
                     return balance;
                   })(),
