@@ -252,7 +252,10 @@ export default function WalletHeader() {
         </TooltipV2>
       </AddressContainer>
       <WalletActions>
-        <TooltipV2 content="Notifications" position="bottom">
+        <TooltipV2
+          content={browser.i18n.getMessage("setting_notifications")}
+          position="bottom"
+        >
           <Action
             as={Bell03}
             onClick={() => {
@@ -275,7 +278,9 @@ export default function WalletHeader() {
           }}
         >
           <TooltipV2
-            content={!activeAppData ? "Disconnected" : "Account Connected"}
+            content={browser.i18n.getMessage(
+              !activeAppData ? "disconnected" : "account_connected"
+            )}
             position="bottomEnd"
           >
             <Action
@@ -409,7 +414,7 @@ export default function WalletHeader() {
         menuItems={[
           {
             icon: <Users01 style={{ width: "18px", height: "18px" }} />,
-            title: "Contacts",
+            title: "setting_contacts",
             route: () =>
               browser.tabs.create({
                 url: browser.runtime.getURL("tabs/dashboard.html#/contacts")
@@ -433,7 +438,7 @@ export default function WalletHeader() {
           },
           {
             icon: <Expand01 style={{ width: "18px", height: "17px" }} />,
-            title: "Expand view",
+            title: "expand_view",
             route: () => {
               window.open(
                 window.location.href.split("#")[0] + "?expanded=true"
@@ -442,7 +447,7 @@ export default function WalletHeader() {
           },
           {
             icon: <CreditCard01 style={{ width: "18px", height: "17px" }} />,
-            title: "Subscriptions",
+            title: "subscriptions",
             route: () => {
               push("/subscriptions");
             }

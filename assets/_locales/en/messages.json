@@ -589,6 +589,14 @@
     "message": "Confirm",
     "description": "Confirm button text"
   },
+  "confirm_transaction": {
+    "message": "Confirm Transaction",
+    "description": "Confirm Transaction Header"
+  },
+  "subscription_payment": {
+    "message": "Subscription Payment",
+    "description": "Subscribtion payment header"
+  },
   "removed_wallet_notification": {
     "message": "Removed wallet",
     "description": "Notification for wallet removal"
@@ -915,6 +923,10 @@
     "message": "network fee",
     "description": "Transaction network fee text"
   },
+  "estimated": {
+    "message": "estimated",
+    "description": "estimated"
+  },
   "invalid_amount": {
     "message": "Amount has to be more than 0",
     "description": "Invalid tx amount message"
@@ -1229,9 +1241,17 @@
     "message": "Scan the QR code below with your hardware wallet",
     "description": "Request to scan signature QR"
   },
+  "viewblock": {
+    "message": "Viewblock",
+    "description": "view block"
+  },
   "keystone_connect_title": {
     "message": "Connect Keystone",
     "description": "Connect keystone hardware wallet button"
+  },
+  "keystone_scan": {
+    "message": "Scan Response",
+    "description": "Notification about a keystone scanning error"
   },
   "keystone_scan_error": {
     "message": "There was an error scanning the QR code",
@@ -1365,6 +1385,16 @@
     "message": "Sending transaction...",
     "description": "Sending transaction loading text"
   },
+  "transaction_sending_token": {
+    "message": "Sending $TOKENNAME$",
+    "description": "Sending token description in confirmation ",
+    "placeholders": {
+      "tokenname": {
+        "content": "$1",
+        "example": "AR"
+      }
+    }
+  },
   "not_connected": {
     "message": "Not connected",
     "description": "Not connected indicator"
@@ -1376,6 +1406,14 @@
   "disconnect": {
     "message": "Disconnect",
     "description": "Disconnect button text"
+  },
+  "disconnected": {
+    "message": "Disconnected",
+    "description": "Disconnected tooltip"
+  },
+  "account_connected": {
+    "message": "Account Connected",
+    "description": "Connected tooltip"
   },
   "copy_address": {
     "message": "Copy address",
@@ -1400,6 +1438,10 @@
   "lock_wallet": {
     "message": "Lock wallet",
     "description": "Lock wallet and terminate current session icon button"
+  },
+  "home": {
+    "message":"Home", 
+    "description": "Home Button"
   },
   "home_no_balance": {
     "message": "Add $AR$ to get started",
@@ -1442,6 +1484,14 @@
   "introducing_notifications": {
     "message": "Introducing Notifications",
     "description": "Alternative Enable Notification title"
+  },
+  "no_notifications": {
+    "message": "No notifications at this time.",
+    "description": "No notifications title"
+  },
+  "no_notifications_get_started": {
+    "message": "Send transactions to get started.",
+    "description": "Send Transactions to get notifications"
   },
   "enable_notifications_paragraph": {
     "message": "Stay updated with instant alerts for transactions and ao messages.",
@@ -1774,6 +1824,14 @@
     "message": "Token Succesfully Removed",
     "description": "token removed"
   },
+  "transaction_complete": {
+    "message": "Transaction Complete",
+    "description": "transaction complete header"
+  },
+  "message": {
+    "message": "Message",
+    "description": "message header"
+  },
   "subscription_allowance": {
     "message": "Subscription Allowance",
     "description": "subscription settings title"
@@ -1781,6 +1839,18 @@
   "subscription_title": {
     "message": "Subscription",
     "description": "subscription title"
+  },
+  "subscriptions": {
+    "message": "Subscriptions",
+    "description": "subscriptions title"
+  },
+  "no_subscriptions": {
+    "message": "No subscriptions yet",
+    "description": "No subscriptions title"
+  },
+  "no_subscriptions_description": {
+    "message": "Your future subscriptions will be available here",
+    "description": "No subscriptions description"
   },
   "subscribe_description": {
     "message": "APPNAME requests to set up a subscription with recurring payments",
@@ -1813,5 +1883,58 @@
   "transaction_history_title": {
     "message": "Transaction History",
     "description": "Transaction History header"
+  },
+
+  "subscription_application_address": {
+    "message": "Application Address",
+    "description": "Address where payment will be made to"
+  },
+
+  
+  "subscription_recurring_amount": {
+    "message": "Recurring payment amount",
+    "description": "Recurring payment amount"
+  },
+
+  "auto_renewal": {
+    "message": "Auto-renewal",
+    "description": "auto-renewal"
+  },
+  "auto_pay": {
+    "message": "Auto-Pay",
+    "description": "auto-pay"
+  },
+  "confirm_subscription": {
+    "message": "Confirm Subscription",
+    "description": "confirm subscription"
+  },
+  
+  "end": {
+    "message": "End",
+    "description": "end"
+  },
+  "next_payment": {
+    "message": "Next payment",
+    "description": "next payment"
+  },
+  "start": {
+    "message": "Start",
+    "description": "start"
+  },
+  "Quarterly": {
+    "message": "Quarterly",
+    "description": "quarterly frequency"
+  },
+  "Monthly": {
+    "message": "Monthly",
+    "description": "monthly frequency"
+  },
+  "Weekly": {
+    "message": "Weekly",
+    "description": "weekly frequency"
+  },
+  "Daily": {
+    "message": "Daily",
+    "description": "daily frequency"
   }
 }
