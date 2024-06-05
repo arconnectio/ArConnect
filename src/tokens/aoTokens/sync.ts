@@ -14,6 +14,7 @@ import {
 /** Tokens storage name */
 const AO_TOKENS_CACHE = "ao_tokens_cache";
 const AO_TOKENS_IDS = "ao_tokens_ids";
+let isSyncInProgress = false;
 
 /**
  * Generic retry function for any async operation.
@@ -180,6 +181,20 @@ async function getNoticeTransactions(
  *  Sync AO Tokens
  */
 export async function syncAoTokens() {
+  if (isSyncInProgress) {
+    console.log("Already syncing AO tokens, please wait...");
+    await new Promise((resolve) => {
+      const checkState = setInterval(() => {
+        if (!isSyncInProgress) {
+          clearInterval(checkState);
+          resolve(null);
+        }
+      }, 100);
+    });
+    return { hasNextPage: true, syncCount: 0 };
+  }
+
+  isSyncInProgress = true;
   try {
     const activeAddress = await getActiveAddress();
     if (!activeAddress) return { hasNextPage: false, syncCount: 0 };
@@ -251,5 +266,7 @@ export async function syncAoTokens() {
   } catch (error: any) {
     console.log("Error syncing tokens: ", error?.message);
     return { hasNextPage: false, syncCount: 0 };
+  } finally {
+    isSyncInProgress = false;
   }
 }
