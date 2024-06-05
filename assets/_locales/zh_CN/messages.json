@@ -1249,6 +1249,11 @@
       "message": "连接 Keystone",
       "description": "Connect keystone hardware wallet button"
   },
+
+  "keystone_scan": {
+      "message": "扫描响应",
+      "description": "Notification about a keystone scanning error"
+  },
   "keystone_scan_error": {
       "message": "扫描二维码时出错",
       "description": "Notification about a keystone scanning error"

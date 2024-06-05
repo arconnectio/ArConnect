@@ -1249,6 +1249,10 @@
     "message": "Connect Keystone",
     "description": "Connect keystone hardware wallet button"
   },
+  "keystone_scan": {
+    "message": "Scan Response",
+    "description": "Notification about a keystone scanning error"
+  },
   "keystone_scan_error": {
     "message": "There was an error scanning the QR code",
     "description": "Notification about a keystone scanning error"

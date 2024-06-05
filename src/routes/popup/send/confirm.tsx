@@ -759,7 +759,8 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
             }
           }}
         >
-          {(hardwareStatus === "play" && "Scan response") ||
+          {(hardwareStatus === "play" &&
+            browser.i18n.getMessage("keystone_scan")) ||
             browser.i18n.getMessage("confirm")}
           {" >"}
         </SendButton>
