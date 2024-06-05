@@ -1809,5 +1809,9 @@
   "subscription_add_failure": {
     "message": "Failed to add subscription",
     "description": "Failed to add subscription error message"
+  },
+  "transaction_history_title": {
+    "message": "Transaction History",
+    "description": "Transaction History header"
   }
 }

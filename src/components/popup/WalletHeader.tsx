@@ -21,6 +21,7 @@ import {
   TooltipV2
 } from "@arconnect/components";
 import {
+  ArrowUpRightIcon,
   CheckIcon,
   ChevronDownIcon,
   CopyIcon,
@@ -444,6 +445,15 @@ export default function WalletHeader() {
             title: "Subscriptions",
             route: () => {
               push("/subscriptions");
+            }
+          },
+          {
+            icon: (
+              <ArrowUpRightIcon style={{ width: "18px", height: "17px" }} />
+            ),
+            title: "Transactions",
+            route: () => {
+              push("/transactions");
             }
           }
         ]}
