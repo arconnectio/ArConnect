@@ -1880,6 +1880,11 @@
     "message": "Failed to add subscription",
     "description": "Failed to add subscription error message"
   },
+  "transaction_history_title": {
+    "message": "Transaction History",
+    "description": "Transaction History header"
+  },
+
   "subscription_application_address": {
     "message": "Application Address",
     "description": "Address where payment will be made to"
@@ -1890,7 +1895,6 @@
     "message": "Recurring payment amount",
     "description": "Recurring payment amount"
   },
-  
 
   "auto_renewal": {
     "message": "Auto-renewal",
@@ -1932,5 +1936,21 @@
   "Daily": {
     "message": "Daily",
     "description": "daily frequency"
+  },
+  "transactions": {
+    "message": "Transactions",
+    "descriptions": "Transactions title"
+  },
+  "no_transactions": {
+    "message": "No transactions found",
+    "description": "No transactions message"
+  },
+  "sent": {
+    "message": "Sent",
+    "description": "sent"
+  },
+  "received": {
+    "message": "Received",
+    "description": "received"
   }
 }
