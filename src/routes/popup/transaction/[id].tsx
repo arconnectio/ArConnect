@@ -132,8 +132,10 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
       } else {
         timeoutID = undefined;
 
-        const sdkTag = data.transaction.tags.find((tag) => tag.name === "SDK");
-        if (sdkTag && sdkTag.value === "aoconnect") {
+        const dataProtocolTag = data.transaction.tags.find(
+          (tag) => tag.name === "Data-Protocol"
+        );
+        if (dataProtocolTag && dataProtocolTag.value === "ao") {
           setAo({ isAo: true, tokenId: data.transaction.recipient });
           const aoRecipient = data.transaction.tags.find(
             (tag) => tag.name === "Recipient"
