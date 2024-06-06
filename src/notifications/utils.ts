@@ -5,6 +5,7 @@ query ($address: String!) {
   transactions(first: 10, recipients: [$address], tags: [{ name: "Type", values: ["Transfer"] }]) {
 
     edges {
+      cursor
       node {
         id
         recipient
@@ -24,6 +25,7 @@ query ($address: String!) {
 export const AR_SENT_QUERY = `query ($address: String!) {
   transactions(first: 10, owners: [$address], tags: [{ name: "Type", values: ["Transfer"] }]) {
     edges {
+      cursor
       node {
         id
         recipient
@@ -52,6 +54,7 @@ query($address: String!) {
     ]
   ) {
     edges {
+      cursor
       node {
         recipient
         id
@@ -78,6 +81,7 @@ query($address: String!) {
     ]
   ) {
     edges {
+      cursor
       node {
         id
         recipient
@@ -129,6 +133,104 @@ export const ALL_AR_SENT_QUERY = `query ($address: String!) {
     }
   }
 }`;
+
+export const AR_RECEIVER_QUERY_WITH_CURSOR = `
+query ($address: String!, $after: String) {
+  transactions(first: 10, recipients: [$address], tags: [{ name: "Type", values: ["Transfer"] }], after: $after) {
+    edges {
+      cursor
+      node {
+        id
+        recipient
+        owner { address }
+        quantity { ar }
+        block { timestamp, height }
+        tags {
+          name
+          value
+        }
+      }
+    }
+  }
+}
+`;
+
+export const AR_SENT_QUERY_WITH_CURSOR = `
+query ($address: String!, $after: String) {
+  transactions(first: 10, owners: [$address], tags: [{ name: "Type", values: ["Transfer"] }], after: $after) {
+    edges {
+      cursor
+      node {
+        id
+        recipient
+        owner { address }
+        quantity { ar }
+        block { timestamp, height }
+        tags {
+          name
+          value
+        }
+      }
+    }
+  }
+}
+`;
+
+export const AO_RECEIVER_QUERY_WITH_CURSOR = `
+query($address: String!, $after: String) {
+  transactions(
+    first: 10, 
+    tags: [
+      {name: "Data-Protocol", values: ["ao"]}, 
+      {name: "Action", values: ["Transfer"]},
+      {name: "Recipient", values: [$address]}
+    ],
+    after: $after
+  ) {
+    edges {
+      cursor
+      node {
+        recipient
+        id
+        owner { address }
+        block { timestamp, height }
+        tags {
+          name
+          value
+        }
+      }
+    }
+  }
+}
+`;
+
+export const AO_SENT_QUERY_WITH_CURSOR = `
+query($address: String!, $after: String) {
+  transactions(
+    first: 10, 
+    owners: [$address], 
+    tags: [
+      {name: "Data-Protocol", values: ["ao"]}, 
+      {name: "Action", values: ["Transfer"]}
+    ],
+    after: $after
+  ) {
+    edges {
+      cursor
+      node {
+        id
+        recipient
+        owner { address }
+        block { timestamp, height }
+        tags {
+          name
+          value
+        }
+      }
+    }
+  }
+}
+`;
 
 export const combineAndSortTransactions = (responses: any[]) => {
   const combinedTransactions = responses.reduce((acc, response) => {

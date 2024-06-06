@@ -111,16 +111,43 @@ export function balanceToFractioned(
  * the units used by the contract.
  */
 export function fractionedToBalance(
-  balance: number,
-  cfg: DivisibilityOrDecimals
+  balance: string,
+  cfg: DivisibilityOrDecimals,
+  tokenType: "WARP" | "AO" | "AR"
 ) {
-  if (!balance) return 0;
+  if (!balance) return "0";
 
   // parse decimals
   const decimals = getDecimals(cfg);
 
-  // multiply fractioned balance using the decimals
-  return balance * Math.pow(10, decimals);
+  if (tokenType !== "WARP") {
+    // Convert balance to a string to avoid precision issues
+    const balanceStr = balance.toString();
+
+    // Split the balance into integer and fractional parts
+    const [integerPart, fractionalPart = ""] = balanceStr.split(".");
+
+    // Calculate the number of fractional digits
+    const fractionalDigits = fractionalPart.length;
+
+    let combined: string;
+    if (fractionalDigits > decimals) {
+      // Truncate the fractional part to fit the specified number of decimals
+      const truncatedFractionalPart = fractionalPart.slice(0, decimals);
+      combined = integerPart + truncatedFractionalPart;
+    } else {
+      // Combine integer and fractional parts into a single string
+      combined = integerPart + fractionalPart.padEnd(decimals, "0");
+    }
+
+    // Convert the combined string to a BigInt
+    const result = BigInt(combined);
+
+    // Return the result as a string to avoid exponential notation
+    return result.toString();
+  } else {
+    return (+balance * Math.pow(10, decimals)).toString();
+  }
 }
 
 export interface DivisibilityOrDecimals {

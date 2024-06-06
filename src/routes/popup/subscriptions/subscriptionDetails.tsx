@@ -44,13 +44,13 @@ export default function SubscriptionDetails({ id }: Props) {
   const theme = useTheme();
   const [subData, setSubData] = useState<SubscriptionData | null>(null);
   const [checked, setChecked] = useState(false);
+  const [autopayChecked, setAutopayChecked] = useState(false);
+
   const [push, goBack] = useHistory();
   const { setToast } = useToasts();
   const [price, setPrice] = useState<number | null>();
   const [currency] = useSetting<string>("currency");
   const [color, setColor] = useState<string>("");
-
-  const allowanceInput = useInput();
 
   // network fee
 
@@ -101,11 +101,12 @@ export default function SubscriptionDetails({ id }: Props) {
     const update = async () => {
       try {
         const address = await getActiveAddress();
-        if (subData && allowanceInput.state !== "") {
-          const newAllowance = parseFloat(allowanceInput.state);
-          if (!isNaN(newAllowance)) {
+        if (subData) {
+          if (!autopayChecked) {
+            updateAllowance(0, address, subData.arweaveAccountAddress);
+          } else {
             updateAllowance(
-              newAllowance,
+              subData.subscriptionFeeAmount,
               address,
               subData.arweaveAccountAddress
             );
@@ -116,7 +117,7 @@ export default function SubscriptionDetails({ id }: Props) {
       }
     };
     update();
-  }, [allowanceInput.state]);
+  }, [autopayChecked]);
 
   useEffect(() => {
     async function getSubData() {
@@ -131,7 +132,7 @@ export default function SubscriptionDetails({ id }: Props) {
         setSubData(subscription);
         setChecked(subscription.applicationAutoRenewal);
         setColor(getColorByStatus(subscription.subscriptionStatus));
-        allowanceInput.setState(subscription.applicationAllowance.toString());
+        setAutopayChecked(!!subscription.applicationAllowance);
         const arPrice = await getPrice("arweave", currency);
         if (arPrice) {
           setPrice(arPrice * subscription.subscriptionFeeAmount);
@@ -212,7 +213,7 @@ export default function SubscriptionDetails({ id }: Props) {
               displayTheme={theme}
               color={theme === "light" ? "#191919" : "#ffffff"}
             >
-              Application address:{" "}
+              {browser.i18n.getMessage("subscription_application_address")}:{" "}
               <span>{formatAddress(subData.arweaveAccountAddress, 5)}</span>
             </SubscriptionText>
             <PaymentDetails>
@@ -274,7 +275,21 @@ export default function SubscriptionDetails({ id }: Props) {
               <ToggleSwitch checked={checked} setChecked={setChecked} />
             </Body>
             {/* TODO: temporarily disabling threshold */}
-            <Threshold>
+            <Body>
+              <SubscriptionText
+                color={theme === "light" ? "#191919" : "#ffffff"}
+              >
+                Auto-Pay
+                <TooltipV2 content={InfoText} position="bottom">
+                  <InfoCircle />
+                </TooltipV2>
+              </SubscriptionText>
+              <ToggleSwitch
+                checked={autopayChecked}
+                setChecked={setAutopayChecked}
+              />
+            </Body>
+            {/* <Threshold>
               <Body>
                 <SubscriptionText
                   color={theme === "light" ? "#191919" : "#ffffff"}
@@ -286,7 +301,7 @@ export default function SubscriptionDetails({ id }: Props) {
                 </SubscriptionText>
               </Body>
               <InputV2 fullWidth {...allowanceInput.bindings} />{" "}
-            </Threshold>
+            </Threshold> */}
           </Main>
           <div
             style={{
@@ -320,10 +335,10 @@ export default function SubscriptionDetails({ id }: Props) {
 
 export const InfoText: React.ReactNode = (
   <div style={{ fontSize: "10px", lineHeight: "14px", textAlign: "center" }}>
-    Set the amount you <br />
-    want ArConnect to <br />
+    Enable if you'd like <br />
+    ArConnect to <br />
     automatically transfer <br />
-    to missed payments
+    to due payments
   </div>
 );
 

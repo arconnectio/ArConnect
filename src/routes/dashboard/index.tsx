@@ -110,9 +110,11 @@ export default function Settings({ params }: Props) {
       >
         <Spacer y={0.45} />
         <MidSettingsTitle>
-          {formatSettingName(
-            allSettings.find((s) => s.name === activeSetting)?.name
-          ) || ""}
+          {allSettings &&
+            browser.i18n.getMessage(
+              allSettings.find((s) => s.name === activeSetting)?.displayName ||
+                ""
+            )}
         </MidSettingsTitle>
         <Spacer y={0.85} />
         {activeSetting &&
@@ -247,6 +249,7 @@ const MidSettingsTitle = styled(Text).attrs({
 })`
   padding: 0 ${setting_element_padding};
   font-weight: 600;
+  text-transform: capitalize;
 `;
 
 interface Setting extends SettingItemData {
