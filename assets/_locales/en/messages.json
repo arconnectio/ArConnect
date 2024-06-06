@@ -1936,5 +1936,21 @@
   "Daily": {
     "message": "Daily",
     "description": "daily frequency"
+  },
+  "transactions": {
+    "message": "Transactions",
+    "descriptions": "Transactions title"
+  },
+  "no_transactions": {
+    "message": "No transactions found",
+    "description": "No transactions message"
+  },
+  "sent": {
+    "message": "Sent",
+    "description": "sent"
+  },
+  "received": {
+    "message": "Received",
+    "description": "received"
   }
 }

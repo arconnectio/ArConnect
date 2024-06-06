@@ -227,13 +227,17 @@ export default function Transactions() {
   const getTransactionDescription = (transaction: ExtendedTransaction) => {
     switch (transaction.transactionType) {
       case "sent":
-        return "Sent AR";
+        return `${browser.i18n.getMessage("sent")} AR`;
       case "received":
-        return "Received AR";
+        return `${browser.i18n.getMessage("received")} AR`;
       case "aoSent":
-        return `Sent ${transaction.aoInfo.tickerName}`;
+        return `${browser.i18n.getMessage("sent")} ${
+          transaction.aoInfo.tickerName
+        }`;
       case "aoReceived":
-        return `Received ${transaction.aoInfo.tickerName}`;
+        return `${browser.i18n.getMessage("received")} ${
+          transaction.aoInfo.tickerName
+        }`;
       default:
         return "";
     }
@@ -287,7 +291,9 @@ export default function Transactions() {
             ))
           ) : (
             <Empty>
-              <TitleMessage>No Transactions Found</TitleMessage>
+              <TitleMessage>
+                {browser.i18n.getMessage("no_transactions")}
+              </TitleMessage>
             </Empty>
           ))}
       </TransactionsWrapper>

@@ -456,7 +456,7 @@ export default function WalletHeader() {
             icon: (
               <ArrowUpRightIcon style={{ width: "18px", height: "17px" }} />
             ),
-            title: "Transactions",
+            title: "transactions",
             route: () => {
               push("/transactions");
             }
