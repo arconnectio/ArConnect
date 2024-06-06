@@ -20,6 +20,7 @@ import {
 import { useHistory } from "~utils/hash_router";
 import { getArPrice } from "~lib/coingecko";
 import useSetting from "~settings/hook";
+import { suggestedGateways } from "~gateways/gateway";
 
 type ExtendedTransaction = RawTransaction & {
   month: number;
@@ -62,10 +63,26 @@ export default function Transactions() {
         if (activeAddress) {
           const [rawReceived, rawSent, rawAoSent, rawAoReceived] =
             await Promise.all([
-              gql(AR_RECEIVER_QUERY, { address: activeAddress }),
-              gql(AR_SENT_QUERY, { address: activeAddress }),
-              gql(AO_SENT_QUERY, { address: activeAddress }),
-              gql(AO_RECEIVER_QUERY, { address: activeAddress })
+              gql(
+                AR_RECEIVER_QUERY,
+                { address: activeAddress },
+                suggestedGateways[1]
+              ),
+              gql(
+                AR_SENT_QUERY,
+                { address: activeAddress },
+                suggestedGateways[1]
+              ),
+              gql(
+                AO_SENT_QUERY,
+                { address: activeAddress },
+                suggestedGateways[1]
+              ),
+              gql(
+                AO_RECEIVER_QUERY,
+                { address: activeAddress },
+                suggestedGateways[1]
+              )
             ]);
 
           const sent: ExtendedTransaction[] =
