@@ -112,7 +112,8 @@ export default function Settings({ params }: Props) {
         <MidSettingsTitle>
           {allSettings &&
             browser.i18n.getMessage(
-              allSettings.find((s) => s.name === activeSetting)?.displayName
+              allSettings.find((s) => s.name === activeSetting)?.displayName ||
+                ""
             )}
         </MidSettingsTitle>
         <Spacer y={0.85} />
