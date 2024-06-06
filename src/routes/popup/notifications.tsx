@@ -189,8 +189,12 @@ export default function Notifications() {
         )}
         {empty && (
           <Empty>
-            <TitleMessage>No notifications at this time.</TitleMessage>
-            <TitleMessage>Send transactions to get started.</TitleMessage>
+            <TitleMessage>
+              {browser.i18n.getMessage("no_notifications")}
+            </TitleMessage>
+            <TitleMessage>
+              {browser.i18n.getMessage("no_notifications_get_started")}
+            </TitleMessage>
           </Empty>
         )}
         {subscriptions.map((subscription) => (
@@ -240,7 +244,7 @@ export default function Notifications() {
   );
 }
 
-const Empty = styled.div`
+export const Empty = styled.div`
   width: calc(100% - 30px);
   height: calc(100% - 64.59px);
   margin-top: 50%;
@@ -272,7 +276,7 @@ const Link = styled.a`
   cursor: pointer;
 `;
 
-const TitleMessage = styled.div`
+export const TitleMessage = styled.div`
   color: ${(props) => props.theme.primaryTextv2};
   font-size: 14px;
 `;

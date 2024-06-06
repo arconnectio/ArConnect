@@ -1,5 +1,5 @@
 import { ButtonV2, Checkbox, Spacer, Text } from "@arconnect/components";
-import { PageType, trackPage } from "~utils/analytics";
+import { PageType, isUserInGDPRCountry, trackPage } from "~utils/analytics";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import Paragraph from "~components/Paragraph";
@@ -29,6 +29,20 @@ export default function Done() {
     setLocation("/getting-started/1");
   }
 
+  // determine location
+  useEffect(() => {
+    const getLocation = async () => {
+      try {
+        const loc = await isUserInGDPRCountry();
+        setAnalytics(!loc);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    getLocation();
+  }, []);
+
   // Segment
   useEffect(() => {
     trackPage(PageType.ONBOARD_COMPLETE);
@@ -47,8 +61,8 @@ export default function Done() {
       <Paragraph>{browser.i18n.getMessage("all_set_paragraph")}</Paragraph>
       <Checkbox
         checked={!!analytics}
-        onChange={(checked) => {
-          setAnalytics(checked);
+        onChange={() => {
+          setAnalytics((prev) => !prev);
           setAnswered(true);
         }}
       >

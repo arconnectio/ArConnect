@@ -15,7 +15,7 @@ import {
   processTransactions
 } from "./utils";
 
-export type Transaction = {
+export type RawTransaction = {
   node: {
     id: string;
     recipient: string;
@@ -34,6 +34,9 @@ export type Transaction = {
       value: string;
     }>;
   };
+};
+
+export type Transaction = RawTransaction & {
   transactionType: string;
   quantity: string;
   isAo?: boolean;
