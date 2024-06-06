@@ -665,10 +665,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
                 <BodySection
                   alternate
                   ticker={token?.ticker}
-                  title={browser.i18n.getMessage(
-                    "transaction_sending_token"
-                    // token?.ticker
-                  )}
+                  title={browser.i18n.getMessage("transaction_sending_token")}
                   value={formatNumber(Number(amount))}
                   estimatedValue={isAo ? "-.--" : estimatedFiatAmount}
                 />
