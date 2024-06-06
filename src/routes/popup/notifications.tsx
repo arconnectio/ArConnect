@@ -186,8 +186,12 @@ export default function Notifications() {
         )}
         {empty && (
           <Empty>
-            <TitleMessage>No notifications at this time.</TitleMessage>
-            <TitleMessage>Send transactions to get started.</TitleMessage>
+            <TitleMessage>
+              {browser.i18n.getMessage("no_notifications")}
+            </TitleMessage>
+            <TitleMessage>
+              {browser.i18n.getMessage("no_notifications_get_started")}
+            </TitleMessage>
           </Empty>
         )}
         {subscriptions.map((subscription) => (

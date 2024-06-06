@@ -7,6 +7,7 @@ import { defaultGateway } from "~gateways/gateway";
 import { v4 as uuid } from "uuid";
 import browser, { type Alarms } from "webextension-polyfill";
 import BigNumber from "bignumber.js";
+import axios from "axios";
 
 const PUBLIC_SEGMENT_WRITEKEY = "J97E4cvSZqmpeEdiUQNC2IxS1Kw4Cwxm";
 
@@ -225,4 +226,65 @@ const setToStartOfNextMonth = (currentDate: Date): Date => {
     )
   );
   return newDate;
+};
+
+const GDPR_COUNTRIES_AND_OTHERS = [
+  "AT", // Austria
+  "BE", // Belgium
+  "BG", // Bulgaria
+  "HR", // Croatia
+  "CY", // Cyprus
+  "CZ", // Czech Republic
+  "DK", // Denmark
+  "EE", // Estonia
+  "FI", // Finland
+  "FR", // France
+  "DE", // Germany
+  "GR", // Greece
+  "HU", // Hungary
+  "IE", // Ireland
+  "IT", // Italy
+  "LV", // Latvia
+  "LT", // Lithuania
+  "LU", // Luxembourg
+  "MT", // Malta
+  "NL", // Netherlands
+  "PL", // Poland
+  "PT", // Portugal
+  "RO", // Romania
+  "SK", // Slovakia
+  "SI", // Slovenia
+  "ES", // Spain
+  "SE", // Sweden
+  "GB", // United Kingdom
+  "CH", // Switzerland
+  "BH", // Bahrain
+  "IL", // Israel
+  "QA", // Qatar
+  "TR", // Turkey
+  "KE", // Kenya
+  "MU", // Mauritius
+  "NG", // Nigeria
+  "ZA", // South Africa
+  "UG", // Uganda
+  "JP", // Japan
+  "KR", // South Korea
+  "NZ", // New Zealand
+  "AR", // Argentina
+  "BR", // Brazil
+  "UY", // Uruguay
+  "CA" // Canada
+];
+
+// Defaults to true to
+export const isUserInGDPRCountry = async (): Promise<boolean> => {
+  try {
+    const response = await axios.get("https://ipinfo.io?token=f73f7a8b88a8bf");
+
+    const { country } = response.data;
+    return GDPR_COUNTRIES_AND_OTHERS.includes(country);
+  } catch (error) {
+    console.error("Error fetching location:", error);
+    return true;
+  }
 };

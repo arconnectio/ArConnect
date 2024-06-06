@@ -216,7 +216,7 @@ export default function SubscriptionDetails({ id }: Props) {
               displayTheme={theme}
               color={theme === "light" ? "#191919" : "#ffffff"}
             >
-              Application address:{" "}
+              {browser.i18n.getMessage("subscription_application_address")}:{" "}
               <span>{formatAddress(subData.arweaveAccountAddress, 5)}</span>
             </SubscriptionText>
             <PaymentDetails>

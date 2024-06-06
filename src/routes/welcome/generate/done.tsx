@@ -6,7 +6,13 @@ import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import { addWallet } from "~wallets";
 import { useContext, useEffect } from "react";
-import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
+import {
+  EventType,
+  PageType,
+  isUserInGDPRCountry,
+  trackEvent,
+  trackPage
+} from "~utils/analytics";
 import useSetting from "~settings/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -66,6 +72,20 @@ export default function Done() {
     jsConfetti.addConfetti();
   }, []);
 
+  // determine location
+  useEffect(() => {
+    const getLocation = async () => {
+      try {
+        const loc = await isUserInGDPRCountry();
+        setAnalytics(!loc);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    getLocation();
+  }, []);
+
   // Segment
   useEffect(() => {
     trackPage(PageType.ONBOARD_COMPLETE);
@@ -81,8 +101,8 @@ export default function Done() {
       </Paragraph>
       <Checkbox
         checked={!!analytics}
-        onChange={(checked) => {
-          setAnalytics(checked);
+        onChange={() => {
+          setAnalytics((prev) => !prev);
           setAnswered(true);
         }}
       >
