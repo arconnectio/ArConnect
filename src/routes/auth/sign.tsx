@@ -256,6 +256,16 @@ export default function Sign() {
                   {formatAddress(params.address, 6)}
                 </PropertyValue>
               </TransactionProperty>
+              {transaction?.target && (
+                <TransactionProperty>
+                  <PropertyName>
+                    {browser.i18n.getMessage("transaction_to")}
+                  </PropertyName>
+                  <PropertyValue>
+                    {formatAddress(transaction.target, 6)}
+                  </PropertyValue>
+                </TransactionProperty>
+              )}
               <TransactionProperty>
                 <PropertyName>
                   {browser.i18n.getMessage("transaction_fee")}
