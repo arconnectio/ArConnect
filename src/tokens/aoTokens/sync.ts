@@ -15,6 +15,7 @@ import {
 const AO_TOKENS_CACHE = "ao_tokens_cache";
 const AO_TOKENS_IDS = "ao_tokens_ids";
 let isSyncInProgress = false;
+let lastHasNextPage = true;
 
 /**
  * Generic retry function for any async operation.
@@ -191,16 +192,22 @@ export async function syncAoTokens() {
         }
       }, 100);
     });
-    return { hasNextPage: true, syncCount: 0 };
+    return { hasNextPage: lastHasNextPage, syncCount: 0 };
   }
 
   isSyncInProgress = true;
   try {
     const activeAddress = await getActiveAddress();
-    if (!activeAddress) return { hasNextPage: false, syncCount: 0 };
+    if (!activeAddress) {
+      lastHasNextPage = false;
+      return { hasNextPage: false, syncCount: 0 };
+    }
 
     const aoSupport = await ExtensionStorage.get<boolean>("setting_ao_support");
-    if (!aoSupport) return { hasNextPage: false, syncCount: 0 };
+    if (!aoSupport) {
+      lastHasNextPage = false;
+      return { hasNextPage: false, syncCount: 0 };
+    }
 
     console.log("Synchronizing AO tokens...");
 
@@ -227,6 +234,7 @@ export async function syncAoTokens() {
 
     if (newProcessIds.length === 0) {
       console.log("No new ao tokens found!");
+      lastHasNextPage = hasNextPage;
       return { hasNextPage, syncCount: 0 };
     }
 
@@ -262,9 +270,11 @@ export async function syncAoTokens() {
     ]);
 
     console.log("Synchronized ao tokens!");
+    lastHasNextPage = hasNextPage;
     return { hasNextPage, syncCount: tokens.length };
   } catch (error: any) {
     console.log("Error syncing tokens: ", error?.message);
+    lastHasNextPage = false;
     return { hasNextPage: false, syncCount: 0 };
   } finally {
     isSyncInProgress = false;
