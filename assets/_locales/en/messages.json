@@ -1386,14 +1386,8 @@
     "description": "Sending transaction loading text"
   },
   "transaction_sending_token": {
-    "message": "Sending $TOKENNAME$",
-    "description": "Sending token description in confirmation ",
-    "placeholders": {
-      "tokenname": {
-        "content": "$1",
-        "example": "AR"
-      }
-    }
+    "message": "Sending",
+    "description": "Sending token description in confirmation "
   },
   "not_connected": {
     "message": "Not connected",

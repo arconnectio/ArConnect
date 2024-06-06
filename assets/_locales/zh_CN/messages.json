@@ -1387,14 +1387,8 @@
       "description": "Sending transaction loading text"
   },
   "transaction_sending_token": {
-    "message": "发送 $TOKENNAME$",
-    "description": "Sending token description in confirmation",
-    "placeholders": {
-      "tokenname": {
-        "content": "$1",
-        "example": "AR"
-      }
-    }
+    "message": "发送中",
+    "description": "Sending token description in confirmation"
   },
   "not_connected": {
       "message": "未连接",
