@@ -33,6 +33,12 @@ import { formatFiatBalance } from "~tokens/currency";
 import useSetting from "~settings/hook";
 import { getPrice } from "~lib/coingecko";
 import type { TokenInfo } from "~tokens/aoTokens/ao";
+import { ChevronUpIcon, ChevronDownIcon } from "@iconicicons/react";
+import { getUserAvatar } from "~lib/avatar";
+import { LogoWrapper, Logo } from "~components/popup/Token";
+import arLogoLight from "url:/assets/ar/logo_light.png";
+import arLogoDark from "url:/assets/ar/logo_dark.png";
+import { useTheme } from "~utils/theme";
 
 interface Tag {
   name: string;
@@ -75,9 +81,13 @@ export default function SignDataItem() {
   const [password, setPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [tokenName, setTokenName] = useState<string>("");
+  const [logo, setLogo] = useState<string>("");
   const [amount, setAmount] = useState<Quantity | null>(null);
+  const [showTags, setShowTags] = useState<boolean>(false);
   const { setToast } = useToasts();
 
+  const recipient =
+    params?.data?.tags.find((tag) => tag.name === "Recipient")?.value || "NA";
   const quantity =
     params?.data?.tags.find((tag) => tag.name === "Quantity")?.value || "0";
   const process = params?.data?.target;
@@ -102,6 +112,13 @@ export default function SignDataItem() {
       instance: ExtensionStorage
     },
     ""
+  );
+
+  const theme = useTheme();
+
+  const arweaveLogo = useMemo(
+    () => (theme === "dark" ? arLogoDark : arLogoLight),
+    [theme]
   );
 
   // currency setting
@@ -179,16 +196,14 @@ export default function SignDataItem() {
   useEffect(() => {
     const fetchTokenInfo = async () => {
       if (!process) return;
+      let tokenInfo: TokenInfo;
       try {
         setLoading(true);
         const token = await Token(params.data.target);
-
-        const tokenAmount = new Quantity(
-          BigInt(quantity),
-          token.info.Denomination
-        );
-        setTokenName(token.info.Name);
-        setAmount(tokenAmount);
+        tokenInfo = {
+          ...token.info,
+          Denomination: Number(token.info.Denomination)
+        };
       } catch (err) {
         // fallback
         console.log("err", err);
@@ -206,15 +221,25 @@ export default function SignDataItem() {
             ({ processId }) => params.data.target === processId
           );
           if (token) {
-            const tokenAmount = new Quantity(
-              BigInt(quantity),
-              BigInt(token.Denomination)
-            );
-            setTokenName(token.Name);
-            setAmount(tokenAmount);
+            tokenInfo = token;
           }
         } catch {}
       } finally {
+        if (tokenInfo) {
+          if (tokenInfo?.Logo) {
+            const logo = await getUserAvatar(tokenInfo?.Logo);
+            setLogo(logo || "");
+          } else {
+            setLogo(arweaveLogo);
+          }
+
+          const tokenAmount = new Quantity(
+            BigInt(quantity),
+            BigInt(tokenInfo.Denomination)
+          );
+          setTokenName(tokenInfo.Name);
+          setAmount(tokenAmount);
+        }
         setLoading(false);
       }
     };
@@ -242,6 +267,12 @@ export default function SignDataItem() {
     return () => window.removeEventListener("resize", adjustAmountFontSize);
   }, [amount]);
 
+  useEffect(() => {
+    if (tokenName && !logo) {
+      setLogo(arweaveLogo);
+    }
+  }, [tokenName, logo, theme]);
+
   return (
     <Wrapper ref={parentRef}>
       <div>
@@ -260,6 +291,24 @@ export default function SignDataItem() {
         </Description>
         {params ? (
           <Section>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: "4px"
+              }}
+            >
+              {!loading ? (
+                logo && (
+                  <LogoWrapper>
+                    <Logo src={logo} alt={`${tokenName} logo`} />
+                  </LogoWrapper>
+                )
+              ) : (
+                <Loading style={{ width: "16px", height: "16px" }} />
+              )}
+            </div>
             <FiatAmount>{formatFiatBalance(fiatPrice, currency)}</FiatAmount>
             <AmountTitle
               ref={childRef}
@@ -272,29 +321,31 @@ export default function SignDataItem() {
               }}
             >
               {formattedAmount}
-              {!loading ? (
-                <span style={{ lineHeight: "1.5em" }}>{tokenName}</span>
-              ) : (
-                <Loading style={{ width: "16px", height: "16px" }} />
-              )}
+              <span style={{ lineHeight: "1.5em" }}>{tokenName}</span>
             </AmountTitle>
             <Properties>
-              <TransactionProperty>
-                <PropertyName>
-                  {browser.i18n.getMessage("transaction_from")}
-                </PropertyName>
-                <PropertyValue>{formatAddress(activeAddress, 6)}</PropertyValue>
-              </TransactionProperty>
               {params?.data?.target && (
                 <TransactionProperty>
                   <PropertyName>
-                    {browser.i18n.getMessage("transaction_to")}
+                    {browser.i18n.getMessage("process_id")}
                   </PropertyName>
                   <PropertyValue>
                     {formatAddress(params?.data.target, 6)}
                   </PropertyValue>
                 </TransactionProperty>
               )}
+              <TransactionProperty>
+                <PropertyName>
+                  {browser.i18n.getMessage("transaction_from")}
+                </PropertyName>
+                <PropertyValue>{formatAddress(activeAddress, 6)}</PropertyValue>
+              </TransactionProperty>
+              <TransactionProperty>
+                <PropertyName>
+                  {browser.i18n.getMessage("transaction_to")}
+                </PropertyName>
+                <PropertyValue>{formatAddress(recipient, 6)}</PropertyValue>
+              </TransactionProperty>
               <TransactionProperty>
                 <PropertyName>
                   {browser.i18n.getMessage("transaction_fee")}
@@ -310,16 +361,25 @@ export default function SignDataItem() {
                 </PropertyValue>
               </TransactionProperty>
               <Spacer y={0.1} />
-              <PropertyName>
+              <PropertyName
+                style={{
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center"
+                }}
+                onClick={() => setShowTags(!showTags)}
+              >
                 {browser.i18n.getMessage("transaction_tags")}
+                {showTags ? <ChevronUpIcon /> : <ChevronDownIcon />}
               </PropertyName>
               <Spacer y={0.05} />
-              {params?.data.tags.map((tag, i) => (
-                <TransactionProperty key={i}>
-                  <PropertyName>{tag.name}</PropertyName>
-                  <TagValue>{tag.value}</TagValue>
-                </TransactionProperty>
-              ))}
+              {showTags &&
+                params?.data.tags.map((tag, i) => (
+                  <TransactionProperty key={i}>
+                    <PropertyName>{tag.name}</PropertyName>
+                    <TagValue>{tag.value}</TagValue>
+                  </TransactionProperty>
+                ))}
             </Properties>
           </Section>
         ) : (

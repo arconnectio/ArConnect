@@ -1137,6 +1137,10 @@
       "message": "交易 ID",
       "description": "Transaction ID label"
   },
+  "process_id": {
+      "message": "过程 ID",
+      "description": "Process ID label"
+  },
   "transaction_from": {
       "message": "从",
       "description": "Transaction \"from\" label"
