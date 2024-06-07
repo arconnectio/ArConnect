@@ -83,7 +83,7 @@ export default function AddToken() {
         //TODO double check
         isAddress(targetInput.state);
         if (type === "ao") {
-          const token = (await Token(targetInput.state)).info;
+          const token = (await Token(targetInput.state, null, ao)).info;
           const denomination = Number(token.Denomination.toString());
           const tokenInfo: TokenInfo = { ...token, Denomination: denomination };
           setToken(tokenInfo);

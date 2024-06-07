@@ -22,6 +22,7 @@ import { ExtensionStorage } from "~utils/storage";
 import { checkPassword } from "~wallets/auth";
 import { Quantity, Token } from "ao-tokens";
 import { getUserAvatar } from "~lib/avatar";
+import { useAo } from "~tokens/aoTokens/ao";
 
 interface Tag {
   name: string;
@@ -47,6 +48,7 @@ export default function SignDataItem() {
   const [logo, setLogo] = useState<string>("");
   const [amount, setAmount] = useState<Quantity | null>(null);
   const { setToast } = useToasts();
+  const ao = useAo();
 
   const recipient =
     params?.data?.tags.find((tag) => tag.name === "Recipient")?.value || "NA";
@@ -86,7 +88,7 @@ export default function SignDataItem() {
       try {
         if (process) {
           setLoading(true);
-          const token = await Token(params.data.target);
+          const token = await Token(params.data.target, null, ao);
           const logo = await getUserAvatar(token?.info?.Logo || "");
 
           const tokenAmount = new Quantity(

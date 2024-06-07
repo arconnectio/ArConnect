@@ -8,7 +8,7 @@ export interface Config {
 }
 
 export const defaultConfig: Config = {
-  CU_URL: "https://cu.ao-testnet.xyz",
+  CU_URL: "https://gateway.ar",
   MU_URL: "https://mu.ao-testnet.xyz",
   GATEWAY_URL: "https://g8way.io:443"
 };

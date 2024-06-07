@@ -3,6 +3,7 @@ import Arweave from "arweave";
 import type { GQLTransactionsResultInterface } from "ar-gql/dist/faces";
 import { ExtensionStorage } from "~utils/storage";
 import { getActiveAddress } from "~wallets";
+import { defaultConfig } from "./config";
 import {
   getTagValue,
   timeoutPromise,
@@ -13,6 +14,8 @@ import {
 /** Tokens storage name */
 const AO_TOKENS_CACHE = "ao_tokens_cache";
 const AO_TOKENS_IDS = "ao_tokens_ids";
+let isSyncInProgress = false;
+let lastHasNextPage = true;
 
 /**
  * Generic retry function for any async operation.
@@ -67,7 +70,7 @@ async function getTokenInfo(id: string): Promise<TokenInfo> {
     ]
   };
   const res = await (
-    await fetch(`https://cu.ao-testnet.xyz/dry-run?process-id=${id}`, {
+    await fetch(`${defaultConfig.CU_URL}/dry-run?process-id=${id}`, {
       headers: {
         "content-type": "application/json"
       },
@@ -179,12 +182,32 @@ async function getNoticeTransactions(
  *  Sync AO Tokens
  */
 export async function syncAoTokens() {
+  if (isSyncInProgress) {
+    console.log("Already syncing AO tokens, please wait...");
+    await new Promise((resolve) => {
+      const checkState = setInterval(() => {
+        if (!isSyncInProgress) {
+          clearInterval(checkState);
+          resolve(null);
+        }
+      }, 100);
+    });
+    return { hasNextPage: lastHasNextPage, syncCount: 0 };
+  }
+
+  isSyncInProgress = true;
   try {
     const activeAddress = await getActiveAddress();
-    if (!activeAddress) return { hasNextPage: false, syncCount: 0 };
+    if (!activeAddress) {
+      lastHasNextPage = false;
+      return { hasNextPage: false, syncCount: 0 };
+    }
 
     const aoSupport = await ExtensionStorage.get<boolean>("setting_ao_support");
-    if (!aoSupport) return { hasNextPage: false, syncCount: 0 };
+    if (!aoSupport) {
+      lastHasNextPage = false;
+      return { hasNextPage: false, syncCount: 0 };
+    }
 
     console.log("Synchronizing AO tokens...");
 
@@ -211,6 +234,7 @@ export async function syncAoTokens() {
 
     if (newProcessIds.length === 0) {
       console.log("No new ao tokens found!");
+      lastHasNextPage = hasNextPage;
       return { hasNextPage, syncCount: 0 };
     }
 
@@ -246,9 +270,13 @@ export async function syncAoTokens() {
     ]);
 
     console.log("Synchronized ao tokens!");
+    lastHasNextPage = hasNextPage;
     return { hasNextPage, syncCount: tokens.length };
   } catch (error: any) {
     console.log("Error syncing tokens: ", error?.message);
+    lastHasNextPage = false;
     return { hasNextPage: false, syncCount: 0 };
+  } finally {
+    isSyncInProgress = false;
   }
 }
