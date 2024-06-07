@@ -20,7 +20,7 @@ import {
 } from "~routes/popup/transaction/[id]";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
 import { formatAddress } from "~utils/format";
@@ -45,6 +45,23 @@ interface DataStructure {
   tags: Tag[];
 }
 
+const useMeasureTextWidth = () => {
+  const canvasRef = useRef(null);
+
+  if (!canvasRef.current) {
+    canvasRef.current = document.createElement("canvas");
+  }
+
+  const measureTextWidth = useCallback((text: string, font: string): number => {
+    const context = canvasRef.current.getContext("2d");
+    context.font = font;
+    const metrics = context.measureText(text);
+    return metrics.width;
+  }, []);
+
+  return measureTextWidth;
+};
+
 export default function SignDataItem() {
   // connect params
   const params = useAuthParams<{
@@ -54,6 +71,7 @@ export default function SignDataItem() {
 
   const parentRef = useRef(null);
   const childRef = useRef(null);
+  const measureTextWidth = useMeasureTextWidth();
   const [password, setPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [tokenName, setTokenName] = useState<string>("");
@@ -63,6 +81,11 @@ export default function SignDataItem() {
   const quantity =
     params?.data?.tags.find((tag) => tag.name === "Quantity")?.value || "0";
   const process = params?.data?.target;
+
+  const formattedAmount = useMemo(
+    () => (amount || 0).toLocaleString(),
+    [amount]
+  );
 
   const [signatureAllowance] = useStorage(
     {
@@ -114,6 +137,25 @@ export default function SignDataItem() {
 
     // close the window
     closeWindow();
+  }
+
+  function adjustAmountFontSize() {
+    if (!amount || !parentRef.current || !childRef.current) return;
+
+    const parentWidth = parentRef.current.offsetWidth;
+    const style = getComputedStyle(childRef.current);
+    const font = `${style.fontSize} ${style.fontFamily}`;
+    const childWidth = measureTextWidth(formattedAmount, font);
+
+    if (childWidth / parentWidth > 0.85) {
+      const newFontSize = parentWidth * 0.05;
+      childRef.current.style.fontSize = `${newFontSize}px`;
+      childRef.current.children[0].style.fontSize = `0.75rem`;
+    } else {
+      // default font sizes
+      childRef.current.style.fontSize = `2.5rem`;
+      childRef.current.children[0].style.fontSize = `1.25rem`;
+    }
   }
 
   useEffect(() => {
@@ -193,11 +235,11 @@ export default function SignDataItem() {
   }, [params?.authID, password]);
 
   useEffect(() => {
-    if (!amount || !parentRef.current || !childRef.current) return;
+    adjustAmountFontSize();
 
-    const parentWidth = parentRef.current.offsetWidth;
-    const newFontSize = parentWidth * 0.05;
-    childRef.current.style.fontSize = `${newFontSize}px`;
+    window.addEventListener("resize", adjustAmountFontSize);
+
+    return () => window.removeEventListener("resize", adjustAmountFontSize);
   }, [amount]);
 
   return (
@@ -224,14 +266,14 @@ export default function SignDataItem() {
               style={{
                 display: "flex",
                 flexWrap: "wrap",
-                marginLeft: "auto",
                 justifyContent: "center",
+                alignItems: "flex-end",
                 marginBottom: "16px"
               }}
             >
-              {(amount || 0).toLocaleString()}
+              {formattedAmount}
               {!loading ? (
-                <span>{tokenName}</span>
+                <span style={{ lineHeight: "1.5em" }}>{tokenName}</span>
               ) : (
                 <Loading style={{ width: "16px", height: "16px" }} />
               )}
