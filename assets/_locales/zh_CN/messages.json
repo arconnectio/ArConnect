@@ -768,7 +768,7 @@
       "description": "Notification about bad password strength"
   },
   "password_strength_1": {
-      "message": "密码太弱",
+      "message": "弱密码",
       "description": "Level 1 strength password text"
   },
   "password_strength_2": {
@@ -800,8 +800,14 @@
       "description": "Password strength checklist symbol element"
   },
   "password_strength_checklist_length": {
-      "message": "至少 10 个字符长",
-      "description": "Password strength checklist length element"
+      "message": "至少 $NUMBER$ 个字符长",
+      "description": "Password strength checklist length element",
+      "placeholders": {
+        "number": {
+          "content": "$1",
+          "example": "10"
+        }
+      }
   },
   "no_wallets_added": {
       "message": "未添加钱包",
@@ -900,8 +906,8 @@
       "description": "Unlock wallet explanation"
   },
   "reset_wallet_password_to_use": {
-      "message": "您需要重置密码才能安全使用 ArConnect。",
-      "description": "Reset wallet password explanation"
+    "message": "建议重置密码以增强安全性",
+    "description": "Reset wallet password explanation"
   },
   "receive": {
       "message": "接收",
@@ -1901,6 +1907,11 @@
     "message": "确认订阅",
     "description": "confirm subscription"
   },
+  "continue": {
+    "message": "继续",
+    "description": "Continue"
+  },
+
   "end": {
     "message": "结束",
     "description": "end"
@@ -1944,5 +1955,21 @@
   "received": {
     "message": "已收到",
     "description": "received"
+  },
+  "password_warning_title": {
+    "message": "密码强度警告",
+    "description": "Weak password warning title"
+  },
+  "password_warning_description": {
+    "message": "您的密码目前较弱。您可以继续，但我们建议使用以下组合：",
+    "description": "Password warning description"
+  },
+  "required": {
+    "message": "必需",
+    "description": "required"
+  },
+  "recommended": {
+    "message": "推荐",
+    "description": "recommended"
   }
 }

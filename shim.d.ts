@@ -53,6 +53,8 @@ declare module "styled-components" {
     primary: string;
     cardBorder: string;
     fail: string;
+    secondaryDelete: string;
+    delete: string;
     cardBackground: string;
     primaryBtnHover: string;
     primaryTextv2: string;
