@@ -209,7 +209,7 @@ export default function SendAuth({ tokenID }: Props) {
 
     console.log(
       "transaction amount:",
-      transactionAmount.toString(),
+      transactionAmount.toFixed(),
       "vs.",
       "sign allowance:",
       signAllowance

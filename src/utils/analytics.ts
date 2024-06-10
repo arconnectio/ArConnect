@@ -181,7 +181,7 @@ export const trackBalance = async (alarmInfo?: Alarms.Alarm) => {
   );
   try {
     await trackDirect(EventType.BALANCE, {
-      totalBalance: totalBalance.toString()
+      totalBalance: totalBalance.toFixed()
     });
     const timer = setToStartOfNextMonth(new Date());
     browser.alarms.create("track-balance", {

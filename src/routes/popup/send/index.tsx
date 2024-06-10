@@ -504,7 +504,7 @@ export default function Send({ id }: Props) {
                   )}
                   <MaxButton
                     altColor={theme === "dark" && "#423D59"}
-                    onClick={() => setQty(max.toString())}
+                    onClick={() => setQty(max.toFixed())}
                   >
                     Max
                   </MaxButton>

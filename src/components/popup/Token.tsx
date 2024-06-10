@@ -55,7 +55,7 @@ export default function Token({ onClick, ...props }: Props) {
 
     const formattedBalance =
       isTinyBalance || isSmallBalance
-        ? balanceToFormat.toString()
+        ? balanceToFormat.toFixed()
         : formatTokenBalance(balanceToFormat);
 
     setTotalBalance(balanceToFormat.toFixed());
