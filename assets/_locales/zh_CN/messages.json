@@ -1387,14 +1387,8 @@
       "description": "Sending transaction loading text"
   },
   "transaction_sending_token": {
-    "message": "发送 $TOKENNAME$",
-    "description": "Sending token description in confirmation",
-    "placeholders": {
-      "tokenname": {
-        "content": "$1",
-        "example": "AR"
-      }
-    }
+    "message": "发送中",
+    "description": "Sending token description in confirmation"
   },
   "not_connected": {
       "message": "未连接",
@@ -1882,6 +1876,10 @@
       "message": "添加订阅失败",
       "description": "Failed to add subscription error message"
   },
+  "transaction_history_title": {
+    "message": "交易历史",
+    "description": "Transaction History header"
+  },
   "subscription_application_address": {
     "message": "应用地址",
     "description": "付款地址"
@@ -1930,5 +1928,21 @@
   "Daily": {
     "message": "每天",
     "description": "daily frequency"
+  },
+  "transactions": {
+    "message": "交易",
+    "descriptions": "Transactions title"
+  },
+  "no_transactions": {
+    "message": "未找到交易",
+    "description": "No transactions message"
+  },
+  "sent": {
+    "message": "已发送",
+    "description": "sent"
+  },
+  "received": {
+    "message": "已收到",
+    "description": "received"
   }
 }

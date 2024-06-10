@@ -241,7 +241,7 @@ export default function Notifications() {
   );
 }
 
-const Empty = styled.div`
+export const Empty = styled.div`
   width: calc(100% - 30px);
   height: calc(100% - 64.59px);
   margin-top: 50%;
@@ -273,7 +273,7 @@ const Link = styled.a`
   cursor: pointer;
 `;
 
-const TitleMessage = styled.div`
+export const TitleMessage = styled.div`
   color: ${(props) => props.theme.primaryTextv2};
   font-size: 14px;
 `;
