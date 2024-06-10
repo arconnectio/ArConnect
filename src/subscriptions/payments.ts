@@ -204,6 +204,10 @@ const submitTx = async (
       transaction.id,
       manualPayment
     );
+    await trackEvent(EventType.SUBSCRIPTION_PAYMENT, {
+      amount: data.subscriptionFeeAmount,
+      autoPay: data.applicationAllowance !== 0
+    });
     return updatedSub;
   } catch (err) {
     // SEGMENT
