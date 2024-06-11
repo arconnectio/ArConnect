@@ -2,11 +2,11 @@ import browser from "webextension-polyfill";
 import { useEffect, useState } from "react";
 import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "@plasmohq/storage/hook";
+import { Text } from "@arconnect/components";
 
 import { gql } from "~gateways/api";
 import type { RawTransaction } from "~notifications/api";
 import styled from "styled-components";
-import { Empty, TitleMessage } from "~routes/popup/notifications";
 import { fetchTokenByProcessId } from "~utils/notifications";
 import { formatAddress } from "~utils/format";
 import { balanceToFractioned, formatFiatBalance } from "~tokens/currency";
@@ -261,7 +261,7 @@ export default function Transactions() {
         </ViewAll>
       </Heading>
       <Spacer y={1} />
-      <TransactionsWrapper>
+      <TransactionsWrapper showBorder={transactions.length > 0}>
         {!loading &&
           (transactions.length > 0 ? (
             transactions.map((transaction, index) => (
@@ -295,22 +295,21 @@ export default function Transactions() {
               </TransactionItem>
             ))
           ) : (
-            <Empty>
-              <TitleMessage>
-                {browser.i18n.getMessage("no_transactions")}
-              </TitleMessage>
-            </Empty>
+            <NoTransactions>
+              {browser.i18n.getMessage("no_transactions")}
+            </NoTransactions>
           ))}
       </TransactionsWrapper>
     </>
   );
 }
 
-const TransactionsWrapper = styled.div`
+const TransactionsWrapper = styled.div<{ showBorder: boolean }>`
   display: flex;
   flex-direction: column;
   border-radius: 10px;
-  border: 1px solid ${(props) => props.theme.backgroundSecondary};
+${(props) =>
+  props.showBorder && `border: 1px solid ${props.theme.backgroundSecondary}`}};
 `;
 
 const Main = styled.h4`
@@ -351,4 +350,10 @@ const TransactionItem = styled.div`
 const Underline = styled.div`
   height: 1px;
   background: ${(props) => props.theme.backgroundSecondary};
+`;
+
+const NoTransactions = styled(Text).attrs({
+  noMargin: true
+})`
+  text-align: center;
 `;

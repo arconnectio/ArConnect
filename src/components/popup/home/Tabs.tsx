@@ -76,11 +76,8 @@ const StyledTab = styled.div<{ active?: boolean; tabId: number }>`
   font-weight: 500;
   font-size: 18px;
   line-height: 25px;
-  // color: ${(props) => (props.active ? "#ffffff" : "#a3a3a3")};
   color: ${(props) =>
-    `rgb(${
-      props.active ? props.theme.primaryText : props.theme.secondaryText
-    })`};
+    props.active ? props.theme.primaryText : props.theme.secondaryTextv2};
   cursor: pointer;
 
   &::after {
@@ -88,7 +85,8 @@ const StyledTab = styled.div<{ active?: boolean; tabId: number }>`
     position: absolute;
     bottom: -2px;
     height: 2px;
-    background: ${(props) => (props.active ? "#8e7bea" : "#a3a3a3")};
+    background: ${(props) =>
+      props.active ? "#8e7bea" : props.theme.secondaryTextv2};
     transition: transform 0.3s ease-in-out;
     transform: scaleX(${(props) => (props.active ? 1 : 0)});
     ${(props) => props.tabId === 0 && "left: 0; right: -12px;"}
@@ -98,7 +96,7 @@ const StyledTab = styled.div<{ active?: boolean; tabId: number }>`
 `;
 
 const Underline = styled.div<{ active?: boolean }>`
-  border: 1px solid #a3a3a3;
+  border: 1px solid ${(props) => props.theme.secondaryTextv2};
   transition: border-color 0.3s ease-in-out;
 `;
 

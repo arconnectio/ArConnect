@@ -20,7 +20,7 @@ export const ViewAll = styled(Title).attrs({
   align-items: center;
   font-size: 1rem;
   gap: 0.2rem;
-  color: rgb(${(props) => props.theme.secondaryText});
+  color: ${(props) => props.theme.secondaryTextv2};
   cursor: pointer;
   transition: all 0.23s ease-in-out;
 
