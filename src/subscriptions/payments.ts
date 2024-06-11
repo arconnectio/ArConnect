@@ -12,7 +12,8 @@ import { fractionedToBalance } from "~tokens/currency";
 import { arPlaceholder } from "~routes/popup/send";
 import {
   calculateNextPaymentDate,
-  updateSubscription as statusUpdateSubscription
+  updateSubscription as statusUpdateSubscription,
+  trackCanceledSubscription
 } from "~subscriptions";
 import { isLocalWallet } from "~utils/assertions";
 
@@ -49,6 +50,7 @@ export async function handleSubscriptionPayment(
       data.arweaveAccountAddress,
       SubscriptionStatus.CANCELED
     );
+    await trackCanceledSubscription(data, true);
     throw new Error("Payment is overdue by more than a week.");
   }
 
@@ -269,6 +271,7 @@ export async function updateSubscriptionAlarm(
       data.arweaveAccountAddress,
       SubscriptionStatus.CANCELED
     );
+    await trackCanceledSubscription(data, true);
   } else if (
     new Date(data.subscriptionEndDate) <= nextPaymentDue.currentDate &&
     data.applicationAutoRenewal

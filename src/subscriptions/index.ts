@@ -1,3 +1,4 @@
+import { EventType, trackEvent } from "~utils/analytics";
 import {
   RecurringPaymentFrequency,
   SubscriptionStatus,
@@ -196,4 +197,19 @@ export async function getAutoAllowance(): Promise<number> {
     "setting_subscription_allowance"
   );
   return subscriptionAllowance;
+}
+
+export async function trackCanceledSubscription(
+  data: SubscriptionData,
+  autoCanceled: boolean
+) {
+  await trackEvent(EventType.UNSUBSCRIBED, {
+    applicationName: data.applicationName,
+    arweaveAccountAddress: data.arweaveAccountAddress,
+    recurringPaymentFrequency: data.recurringPaymentFrequency,
+    subscriptionFeeAmount: data.subscriptionFeeAmount,
+    autoPay: data.applicationAllowance !== 0,
+    autoRenewal: data.applicationAutoRenewal,
+    autoCanceled
+  });
 }
