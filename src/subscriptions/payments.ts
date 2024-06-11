@@ -206,12 +206,18 @@ const submitTx = async (
     );
     await trackEvent(EventType.SUBSCRIPTION_PAYMENT, {
       amount: data.subscriptionFeeAmount,
-      autoPay: data.applicationAllowance !== 0
+      autoPay: data.applicationAllowance !== 0,
+      success: true
     });
     return updatedSub;
   } catch (err) {
     // SEGMENT
     await trackEvent(EventType.TRANSACTION_INCOMPLETE, {});
+    await trackEvent(EventType.SUBSCRIPTION_PAYMENT, {
+      amount: data.subscriptionFeeAmount,
+      autoPay: data.applicationAllowance !== 0,
+      success: false
+    });
     throw new Error("Error posting subscription tx to Arweave");
   }
 };
