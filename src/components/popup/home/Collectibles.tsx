@@ -1,5 +1,5 @@
-import Title, { Heading, TokenCount, ViewAll } from "../Title";
-import { Section, Spacer, Text } from "@arconnect/components";
+import { Heading, TokenCount, ViewAll } from "../Title";
+import { Spacer, Text } from "@arconnect/components";
 import { useHistory } from "~utils/hash_router";
 import { useTokens } from "~tokens";
 import { useMemo } from "react";
@@ -21,9 +21,8 @@ export default function Collectibles() {
   const [push] = useHistory();
 
   return (
-    <Section>
+    <>
       <Heading>
-        <Title noMargin>{browser.i18n.getMessage("collectibles")}</Title>
         <ViewAll
           onClick={() => {
             if (collectibles.length === 0) return;
@@ -31,10 +30,10 @@ export default function Collectibles() {
           }}
         >
           {browser.i18n.getMessage("view_all")}
-          <TokenCount>{collectibles.length}</TokenCount>
+          <TokenCount>({collectibles.length})</TokenCount>
         </ViewAll>
       </Heading>
-      <Spacer y={0.8} />
+      <Spacer y={1} />
       {collectibles.length === 0 && (
         <NoAssets>{browser.i18n.getMessage("no_collectibles")}</NoAssets>
       )}
@@ -51,7 +50,7 @@ export default function Collectibles() {
           />
         ))}
       </CollectiblesList>
-    </Section>
+    </>
   );
 }
 
