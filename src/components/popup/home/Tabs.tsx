@@ -1,10 +1,32 @@
 import { Section } from "@arconnect/components";
-import { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
 import Tokens from "./Tokens";
 import Collectibles from "./Collectibles";
 import Transactions from "./Transactions";
+
+interface TabType {
+  id: number;
+  name: string;
+  component: () => JSX.Element;
+}
+
+interface TabProps {
+  tab: TabType;
+  active: boolean;
+  setActiveTab: Dispatch<SetStateAction<number>>;
+}
+
+const Tab = ({ tab, active, setActiveTab }: TabProps) => (
+  <StyledTab
+    active={active}
+    tabId={tab.id}
+    onClick={() => setActiveTab(tab.id)}
+  >
+    {browser.i18n.getMessage(tab.name)}
+  </StyledTab>
+);
 
 export default function Tabs() {
   const [activeTab, setActiveTab] = useState(0);
@@ -24,11 +46,10 @@ export default function Tabs() {
           {tabs.map((tab) => (
             <Tab
               key={tab.id}
+              tab={tab}
               active={tab.id === activeTab}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              {browser.i18n.getMessage(tab.name)}
-            </Tab>
+              setActiveTab={setActiveTab}
+            />
           ))}
         </TabsWrapper>
         <Underline />
@@ -49,7 +70,7 @@ const TabsWrapper = styled.div`
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
 `;
 
-const Tab = styled.div<{ active?: boolean }>`
+const StyledTab = styled.div<{ active?: boolean; tabId: number }>`
   position: relative;
   height: 25px;
   font-weight: 500;
@@ -66,12 +87,13 @@ const Tab = styled.div<{ active?: boolean }>`
     content: "";
     position: absolute;
     bottom: -2px;
-    left: 0;
-    right: 0;
     height: 2px;
     background: ${(props) => (props.active ? "#8e7bea" : "#a3a3a3")};
     transition: transform 0.3s ease-in-out;
     transform: scaleX(${(props) => (props.active ? 1 : 0)});
+    ${(props) => props.tabId === 0 && "left: 0; right: -12px;"}
+    ${(props) => props.tabId === 1 && "left: -12px; right: -12px;"}
+    ${(props) => props.tabId === 2 && "left: -12px; right: 0;"}
   }
 `;
 
