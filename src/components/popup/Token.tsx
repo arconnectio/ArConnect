@@ -39,10 +39,13 @@ export default function Token({ onClick, ...props }: Props) {
   // display theme
   const theme = useTheme();
 
-  const [aoNativeToken] = useStorage({
-    key: "ao_native_token",
-    instance: ExtensionStorage
-  });
+  const [aoNativeToken] = useStorage(
+    {
+      key: "ao_native_token",
+      instance: ExtensionStorage
+    },
+    ""
+  );
 
   const [activeAddress] = useStorage({
     key: "active_address",
@@ -144,8 +147,8 @@ export default function Token({ onClick, ...props }: Props) {
       ref.current &&
       activeAddress &&
       !props.loading &&
-      !aoConfettiShown &&
       aoNativeToken === props.id &&
+      !aoConfettiShown &&
       +props.balance > 0
     ) {
       triggerConfetti();

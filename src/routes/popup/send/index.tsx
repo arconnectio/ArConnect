@@ -617,6 +617,7 @@ export default function Send({ id }: Props) {
                     />
                   ))}
               </CollectiblesList>
+              <Spacer y={3} />
             </SliderWrapper>
           )}
           {showSlider && (
