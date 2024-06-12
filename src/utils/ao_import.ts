@@ -2,6 +2,8 @@ import { ExtensionStorage } from "./storage";
 import { getAoTokens } from "~tokens";
 import JSConfetti from "js-confetti";
 import { getTagValue, type Message, type TokenInfo } from "~tokens/aoTokens/ao";
+import { Quantity } from "ao-tokens";
+import { getActiveAddress } from "~wallets";
 
 const AO_NATIVE_TOKEN_REGISTRY = "Q2ri6Yl0wCIekTrVE0R6fQ9TT6ZlI7yIOPBnJsBhMzk";
 const AO_NATIVE_TOKEN_IMPORTED = "ao_native_token_imported";
@@ -60,6 +62,50 @@ async function getTokenInfo(id: string): Promise<TokenInfo> {
   throw new Error("Could not load token info.");
 }
 
+async function getBalance(token: TokenInfo, address: string) {
+  try {
+    const body = {
+      Id: "0000000000000000000000000000000000000000001",
+      Target: token.processId,
+      Owner: address,
+      Anchor: "0",
+      Data: "1234",
+      Tags: [
+        { name: "Action", value: "Balance" },
+        { name: "Data-Protocol", value: "ao" },
+        { name: "Type", value: "Message" },
+        { name: "Variant", value: "ao.TN.1" }
+      ]
+    };
+
+    const res = await (
+      await fetch(
+        `https://cu.ao-testnet.xyz/dry-run?process-id=${token.processId}`,
+        {
+          headers: {
+            "content-type": "application/json"
+          },
+          body: JSON.stringify(body),
+          method: "POST"
+        }
+      )
+    ).json();
+
+    // find result message
+    for (const msg of res.Messages as Message[]) {
+      const balance = getTagValue("Balance", msg.Tags);
+
+      // return balance if found
+      if (balance) {
+        return new Quantity(BigInt(balance), BigInt(token.Denomination));
+      }
+    }
+  } catch {}
+
+  // default return
+  return new Quantity(0, BigInt(token.Denomination));
+}
+
 export async function importAoNativeToken() {
   try {
     if (isImporting) return;
@@ -98,8 +144,12 @@ export async function importAoNativeToken() {
     await ExtensionStorage.set(AO_NATIVE_TOKEN_IMPORTED, true);
     await ExtensionStorage.set(AO_TOKENS, aoTokens);
 
-    // show confetti
-    showConfetti();
+    // check balance of current active address to show confetti
+    const activeAddress = await getActiveAddress();
+    if (!activeAddress) return;
+
+    const balance = await getBalance(token, activeAddress);
+    if (balance.toNumber() > 0) showConfetti();
   } catch (e) {
     console.log("Error importing ao native token");
   } finally {
