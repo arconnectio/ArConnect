@@ -44,8 +44,13 @@ export default function Token({ onClick, ...props }: Props) {
     instance: ExtensionStorage
   });
 
-  const [aoNativeConfettiShown] = useStorage({
-    key: "ao_native_confetti_shown",
+  const [activeAddress] = useStorage({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
+
+  const [aoConfettiShown, setAoConfettiShown] = useStorage({
+    key: `ao_confetti_shown_${activeAddress}`,
     instance: ExtensionStorage
   });
 
@@ -108,7 +113,7 @@ export default function Token({ onClick, ...props }: Props) {
   const triggerConfetti = async () => {
     const jsConfetti = new JSConfetti({ canvas: ref.current });
     jsConfetti.addConfetti();
-    await ExtensionStorage.set("ao_native_confetti_shown", true);
+    setAoConfettiShown(true);
   };
 
   useEffect(() => {
@@ -137,19 +142,26 @@ export default function Token({ onClick, ...props }: Props) {
   useEffect(() => {
     if (
       ref.current &&
-      !aoNativeConfettiShown &&
-      aoNativeToken &&
+      activeAddress &&
+      !props.loading &&
+      !aoConfettiShown &&
       aoNativeToken === props.id &&
       +props.balance > 0
     ) {
       triggerConfetti();
     }
-  }, [ref.current, aoNativeConfettiShown, aoNativeToken, props.balance]);
+  }, [
+    ref.current,
+    aoConfettiShown,
+    activeAddress,
+    aoNativeToken,
+    props.balance,
+    props.loading
+  ]);
 
   return (
     <Wrapper>
-      {(!aoNativeConfettiShown || ref.current) &&
-        aoNativeToken &&
+      {(!aoConfettiShown || ref.current) &&
         aoNativeToken === props.id &&
         +props.balance > 0 && <Canvas ref={ref} />}
       <InnerWrapper width={hasActionButton ? "86%" : "100%"} onClick={onClick}>
