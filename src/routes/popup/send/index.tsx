@@ -579,15 +579,6 @@ export default function Send({ id }: Props) {
             >
               <TokensSection>
                 <ArToken onClick={() => updateSelectedToken("AR")} />
-                {tokens
-                  .filter((token) => token.type === "asset")
-                  .map((token, i) => (
-                    <Token
-                      {...token}
-                      onClick={() => updateSelectedToken(token.id)}
-                      key={i}
-                    />
-                  ))}
                 {aoTokens.map((token, i) => (
                   <Token
                     key={token.id}
@@ -601,6 +592,15 @@ export default function Send({ id }: Props) {
                     onClick={() => updateSelectedToken(token.id)}
                   />
                 ))}
+                {tokens
+                  .filter((token) => token.type === "asset")
+                  .map((token, i) => (
+                    <Token
+                      {...token}
+                      onClick={() => updateSelectedToken(token.id)}
+                      key={i}
+                    />
+                  ))}
               </TokensSection>
               <CollectiblesList>
                 {tokens
@@ -617,6 +617,7 @@ export default function Send({ id }: Props) {
                     />
                   ))}
               </CollectiblesList>
+              <Spacer y={3} />
             </SliderWrapper>
           )}
           {showSlider && (
