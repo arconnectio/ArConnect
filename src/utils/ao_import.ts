@@ -76,6 +76,7 @@ export async function importAoNativeToken() {
       (t) => t.processId === token.processId
     );
     if (isAoTokenPresent) {
+      await ExtensionStorage.set(AO_NATIVE_TOKEN, token.processId);
       await ExtensionStorage.set(AO_NATIVE_TOKEN_IMPORTED, true);
       return;
     }
