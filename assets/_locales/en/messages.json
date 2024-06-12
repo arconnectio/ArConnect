@@ -1790,6 +1790,10 @@
     "message": "AO testnet is now live!",
     "description": "ao announcement title text"
   },
+  "ao_token_announcement_title": {
+    "message": "Congrats on the AO Token 4 year emissions rewards 🥳",
+    "description": "ao token announcement title text"
+  },
   "ao_degraded": {
     "message": "AO Token Process Network Degraded.",
     "description": "ao degraded title text"

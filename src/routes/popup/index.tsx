@@ -15,6 +15,7 @@ import { useTokens } from "~tokens";
 import { useAoTokens } from "~tokens/aoTokens/ao";
 import { useActiveWallet, useBalance } from "~wallets/hooks";
 import BuyButton from "~components/popup/home/BuyButton";
+import AoBanner from "~components/popup/home/AoBanner";
 
 export default function Home() {
   // get if the user has no balance
@@ -115,6 +116,7 @@ export default function Home() {
 
   return (
     <HomeWrapper>
+      <AoBanner activeAddress={activeAddress} />
       {loggedIn && <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />}
       <WalletHeader />
       <Balance />

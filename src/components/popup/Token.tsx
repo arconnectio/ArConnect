@@ -3,7 +3,13 @@ import {
   formatTokenBalance,
   balanceToFractioned
 } from "~tokens/currency";
-import { type MouseEventHandler, useEffect, useMemo, useState } from "react";
+import {
+  type MouseEventHandler,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import { hoverEffect, useTheme } from "~utils/theme";
 import { loadTokenLogo, type Token } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -24,12 +30,32 @@ import { getUserAvatar } from "~lib/avatar";
 import { abbreviateNumber } from "~utils/format";
 import Skeleton from "~components/Skeleton";
 import { TrashIcon, PlusIcon, SettingsIcon } from "@iconicicons/react";
+import JSConfetti from "js-confetti";
 
 export default function Token({ onClick, ...props }: Props) {
+  const ref = useRef(null);
   const [totalBalance, setTotalBalance] = useState("");
   const [showTooltip, setShowTooltip] = useState(false);
   // display theme
   const theme = useTheme();
+
+  const [aoNativeToken] = useStorage(
+    {
+      key: "ao_native_token",
+      instance: ExtensionStorage
+    },
+    ""
+  );
+
+  const [activeAddress] = useStorage({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
+
+  const [aoConfettiShown, setAoConfettiShown] = useStorage({
+    key: `ao_confetti_shown_${activeAddress}`,
+    instance: ExtensionStorage
+  });
 
   const arweaveLogo = useMemo(
     () => (theme === "dark" ? arLogoDark : arLogoLight),
@@ -87,6 +113,12 @@ export default function Token({ onClick, ...props }: Props) {
   const hasActionButton =
     props?.onAddClick || props?.onRemoveClick || props?.onSettingsClick;
 
+  const triggerConfetti = async () => {
+    const jsConfetti = new JSConfetti({ canvas: ref.current });
+    jsConfetti.addConfetti();
+    setAoConfettiShown(true);
+  };
+
   useEffect(() => {
     (async () => {
       if (!props?.id || logo) return;
@@ -110,8 +142,31 @@ export default function Token({ onClick, ...props }: Props) {
     }
   }, [arweaveLogo]);
 
+  useEffect(() => {
+    if (
+      ref.current &&
+      activeAddress &&
+      !props.loading &&
+      aoNativeToken === props.id &&
+      !aoConfettiShown &&
+      +props.balance > 0
+    ) {
+      triggerConfetti();
+    }
+  }, [
+    ref.current,
+    aoConfettiShown,
+    activeAddress,
+    aoNativeToken,
+    props.balance,
+    props.loading
+  ]);
+
   return (
     <Wrapper>
+      {(!aoConfettiShown || ref.current) &&
+        aoNativeToken === props.id &&
+        +props.balance > 0 && <Canvas ref={ref} />}
       <InnerWrapper width={hasActionButton ? "86%" : "100%"} onClick={onClick}>
         <LogoAndDetails>
           <LogoWrapper>
@@ -311,6 +366,14 @@ const BalanceSection = styled.div`
   span {
     text-align: right;
   }
+`;
+
+const Canvas = styled.canvas`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 `;
 
 interface Props extends Token {
