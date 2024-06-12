@@ -30,10 +30,10 @@ export default function AoBanner({ activeAddress }: AoBannerProps) {
     []
   );
 
-  const aoToken = useMemo<TokenInfo | undefined>(
-    () => aoTokens.find((token) => token.processId === aoNativeToken),
-    [aoTokens, aoNativeToken]
-  );
+  const aoToken = useMemo<TokenInfo | undefined>(() => {
+    if (!aoNativeToken || aoTokens.length === 0) return undefined;
+    return aoTokens.find((token) => token.processId === aoNativeToken);
+  }, [aoTokens, aoNativeToken]);
 
   async function getAoNativeTokenBalance() {
     const res = await ao.dryrun({
