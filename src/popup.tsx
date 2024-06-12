@@ -33,6 +33,8 @@ import MessageNotification from "~routes/popup/notification/[id]";
 import SubscriptionDetails from "~routes/popup/subscriptions/subscriptionDetails";
 import SubscriptionPayment from "~routes/popup/subscriptions/subscriptionPayment";
 import SubscriptionManagement from "~routes/popup/subscriptions/subscriptionManagement";
+import Transactions from "~routes/popup/transaction/transactions";
+import { importAoNativeToken } from "~utils/ao_import";
 
 export default function Popup() {
   const theme = useTheme();
@@ -44,6 +46,9 @@ export default function Popup() {
   useEffect(() => {
     // sync ans labels
     syncLabels();
+
+    // import ao native token
+    importAoNativeToken();
 
     // check expanded view
     if (new URLSearchParams(window.location.search).get("expanded")) {
@@ -95,6 +100,7 @@ export default function Popup() {
                     <SubscriptionPayment id={params?.id} />
                   )}
                 </Route>
+                <Route path="/transactions" component={Transactions} />
                 <Route path="/notifications" component={Notifications} />
                 <Route path="/notification/:id">
                   {(params: { id: string }) => (

@@ -630,7 +630,9 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
   return (
     <Wrapper>
       <HeadV2
-        title={!subscription ? "Confirm Transaction" : "Subscription Payment"}
+        title={browser.i18n.getMessage(
+          !subscription ? "confirm_transaction" : "subscription_payment"
+        )}
       />
       <ConfirmWrapper>
         <BodyWrapper>
@@ -661,21 +663,22 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
             {token && !hardwareStatus && (
               <>
                 <BodySection
+                  alternate
                   ticker={token?.ticker}
-                  title={`Sending ${token?.ticker}`}
+                  title={browser.i18n.getMessage("transaction_sending_token")}
                   value={formatNumber(Number(amount))}
                   estimatedValue={isAo ? "-.--" : estimatedFiatAmount}
                 />
                 <BodySection
                   alternate
-                  title={"AR network fee"}
-                  subtitle="(estimated)"
+                  title={`AR ${browser.i18n.getMessage("network_fee")}`}
+                  subtitle={`(${browser.i18n.getMessage("estimated")})`}
                   value={networkFee}
                   estimatedValue={estimatedFiatNetworkFee}
                 />
                 <BodySection
                   alternate
-                  title={"Total"}
+                  title={browser.i18n.getMessage("confirm_total")}
                   value={amount.toString()}
                   ticker={token.ticker}
                   estimatedValue={isAo ? "-.--" : estimatedTotal}
@@ -720,10 +723,10 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
                 {browser.i18n.getMessage("sign_enter_password")}
               </Description>
               <InputV2
-                placeholder="Enter your password"
+                placeholder={browser.i18n.getMessage("enter_password")}
                 small
                 {...passwordInput.bindings}
-                label={"Password"}
+                label={browser.i18n.getMessage("password")}
                 type="password"
                 fullWidth
                 onKeyDown={async (e) => {
@@ -754,7 +757,9 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
             }
           }}
         >
-          {(hardwareStatus === "play" && "Scan response") || "Confirm"}
+          {(hardwareStatus === "play" &&
+            browser.i18n.getMessage("keystone_scan")) ||
+            browser.i18n.getMessage("confirm")}
           {" >"}
         </SendButton>
       </ConfirmWrapper>
@@ -890,6 +895,9 @@ const Price = styled.div`
 
 const ArAmount = styled.div<{ alternate?: boolean }>`
   display: inline-flex;
+  flex-wrap: wrap;
+  margin-left: auto;
+  justify-content: flex-end;
   align-items: baseline;
   font-size: ${(props) => (props.alternate ? "16px" : "32px")};
   font-weight: 600;

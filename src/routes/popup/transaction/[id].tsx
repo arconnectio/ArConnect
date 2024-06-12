@@ -1,4 +1,9 @@
-import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
+import {
+  balanceToFractioned,
+  formatFiatBalance,
+  formatTokenBalance,
+  fractionedToBalance
+} from "~tokens/currency";
 import { AnimatePresence, type Variants, motion } from "framer-motion";
 import { Section, Spacer, Text } from "@arconnect/components";
 import type { GQLNodeInterface } from "ar-gql/dist/faces";
@@ -34,6 +39,7 @@ import {
 import { TempTransactionStorage } from "~utils/storage";
 import { useContact } from "~contacts/hooks";
 import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
+import { Token } from "ao-tokens";
 
 // pull contacts and check if to address is in contacts
 
@@ -55,6 +61,8 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
   const contact = useContact(transaction?.recipient);
 
   const [ao, setAo] = useState<ao>({ isAo: false });
+
+  const [ticker, setTicker] = useState<string | null>(null);
 
   const [showTags, setShowTags] = useState<boolean>(false);
 
@@ -124,8 +132,10 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
       } else {
         timeoutID = undefined;
 
-        const sdkTag = data.transaction.tags.find((tag) => tag.name === "SDK");
-        if (sdkTag && sdkTag.value === "aoconnect") {
+        const dataProtocolTag = data.transaction.tags.find(
+          (tag) => tag.name === "Data-Protocol"
+        );
+        if (dataProtocolTag && dataProtocolTag.value === "ao") {
           setAo({ isAo: true, tokenId: data.transaction.recipient });
           const aoRecipient = data.transaction.tags.find(
             (tag) => tag.name === "Recipient"
@@ -133,8 +143,17 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
           const aoQuantity = data.transaction.tags.find(
             (tag) => tag.name === "Quantity"
           );
-          data.transaction.quantity = { ar: aoQuantity.value, winston: "" };
-          data.transaction.recipient = aoRecipient.value;
+
+          if (aoQuantity) {
+            const tokenInfo = (await Token(data.transaction.recipient)).info;
+            const amount = balanceToFractioned(Number(aoQuantity.value), {
+              id: data.transaction.recipient,
+              decimals: Number(tokenInfo.Denomination)
+            });
+            setTicker(tokenInfo.Ticker);
+            data.transaction.quantity = { ar: amount.toString(), winston: "" };
+            data.transaction.recipient = aoRecipient.value;
+          }
         }
 
         setTransaction(data.transaction);
@@ -265,9 +284,11 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
     <Wrapper>
       <div>
         <HeadV2
-          title={message ? "Message" : "Transaction Complete"}
+          title={browser.i18n.getMessage(
+            message ? "message" : "transaction_complete"
+          )}
           back={() => {
-            if (backPath === "/notifications") {
+            if (backPath === "/notifications" || backPath === "/transactions") {
               back();
             } else {
               push("/");
@@ -282,9 +303,9 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                   <AmountTitle>
                     {!ao.isAo
                       ? formatTokenBalance(Number(transaction.quantity.ar))
-                      : 0}
+                      : transaction.quantity.ar}
                     {/* NEEDS TO BE DYNAMIC */}
-                    {!ao.isAo && <span>AR</span>}
+                    <span>{ticker ? ticker : "AR"}</span>
                   </AmountTitle>
                   <FiatAmount>
                     {ao.isAo ? "$-.--" : formatFiatBalance(fiatPrice, currency)}
@@ -527,13 +548,13 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                 fullWidth
                 onClick={() => {
                   const url = ao.isAo
-                    ? `https://ao_marton.g8way.io/#/process/${ao.tokenId}/${id}`
+                    ? `https://www.ao.link/message/${id}`
                     : `https://viewblock.io/arweave/tx/${id}`;
 
                   browser.tabs.create({ url });
                 }}
               >
-                {ao.isAo ? "ao Scanner" : "Viewblock"}
+                {ao.isAo ? "AOLink" : "Viewblock"}
                 <ShareIcon style={{ marginLeft: "5px" }} />
               </SendButton>
             </Section>

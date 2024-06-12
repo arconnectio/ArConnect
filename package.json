@@ -68,7 +68,7 @@
     "check-password-strength": "^2.0.7",
     "copy-to-clipboard": "^3.3.2",
     "dayjs": "^1.11.6",
-    "framer-motion": "^7.5.3",
+    "framer-motion": "7.5.3",
     "human-crypto-keys": "^0.1.4",
     "js-confetti": "^0.11.0",
     "mitt": "^3.0.0",
