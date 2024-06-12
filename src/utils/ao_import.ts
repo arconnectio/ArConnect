@@ -1,6 +1,5 @@
 import { ExtensionStorage } from "./storage";
 import { getAoTokens } from "~tokens";
-import JSConfetti from "js-confetti";
 import { getTagValue, type Message, type TokenInfo } from "~tokens/aoTokens/ao";
 import { Quantity } from "ao-tokens";
 import { getActiveAddress } from "~wallets";
@@ -9,11 +8,6 @@ const AO_NATIVE_TOKEN_REGISTRY = "Q2ri6Yl0wCIekTrVE0R6fQ9TT6ZlI7yIOPBnJsBhMzk";
 const AO_NATIVE_TOKEN_IMPORTED = "ao_native_token_imported";
 const AO_TOKENS = "ao_tokens";
 let isImporting = false;
-
-const showConfetti = async () => {
-  const jsConfetti = new JSConfetti();
-  jsConfetti.addConfetti();
-};
 
 async function getTokenInfo(id: string): Promise<TokenInfo> {
   const body = {
@@ -149,7 +143,9 @@ export async function importAoNativeToken() {
     if (!activeAddress) return;
 
     const balance = await getBalance(token, activeAddress);
-    if (balance.toNumber() > 0) showConfetti();
+    if (balance.toNumber() > 0) {
+      await ExtensionStorage.set("ao_native_token", token.processId);
+    }
   } catch (e) {
     console.log("Error importing ao native token");
   } finally {
