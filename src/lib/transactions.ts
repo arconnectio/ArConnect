@@ -1,8 +1,11 @@
 import type GQLResultInterface from "ar-gql/dist/faces";
 import type { GQLEdgeInterface } from "ar-gql/dist/faces";
 import type { RawTransaction } from "~notifications/api";
+import type { TokenInfo } from "~tokens/aoTokens/ao";
 import { formatAddress } from "~utils/format";
-import { fetchTokenByProcessId } from "~utils/notifications";
+import { ExtensionStorage } from "~utils/storage";
+
+let tokens: TokenInfo[] = null;
 
 export type ExtendedTransaction = RawTransaction & {
   cursor: string;
@@ -28,10 +31,24 @@ export function sortFn(a: ExtendedTransaction, b: ExtendedTransaction) {
   return timestampB - timestampA;
 }
 
-export const processTransaction = (
-  transaction: GQLEdgeInterface,
-  type: string
-) => ({
+export const fetchTokenByProcessId = async (
+  processId: string
+): Promise<TokenInfo> => {
+  if (!tokens) {
+    const [aoTokens, aoTokensCache] = await Promise.all([
+      ExtensionStorage.get<TokenInfo[]>("ao_tokens"),
+      ExtensionStorage.get<TokenInfo[]>("ao_tokens_cache")
+    ]);
+
+    tokens = [...aoTokens, ...aoTokensCache];
+  }
+
+  if (!tokens || !processId) return null;
+
+  return tokens.find((token) => token.processId === processId);
+};
+
+const processTransaction = (transaction: GQLEdgeInterface, type: string) => ({
   ...transaction,
   transactionType: type,
   day: 0,
@@ -40,7 +57,7 @@ export const processTransaction = (
   date: ""
 });
 
-export const processAoTransaction = async (
+const processAoTransaction = async (
   transaction: GQLEdgeInterface,
   type: string
 ) => {
@@ -79,6 +96,6 @@ export const processTransactions = async (
       return edges.map((transaction) => processTransaction(transaction, type));
     }
   } else {
-    return isAo ? Promise.resolve([]) : [];
+    return Promise.resolve([]);
   }
 };
