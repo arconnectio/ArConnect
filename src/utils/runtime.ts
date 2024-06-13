@@ -4,6 +4,7 @@ import { initializeARBalanceMonitor } from "./analytics";
 import { loadTokens } from "~tokens/token";
 import { getActiveAddress, getWallets } from "~wallets";
 import { ExtensionStorage } from "./storage";
+import { updateAoToken } from "./ao_import";
 
 export const isManifestv3 = () =>
   browser.runtime.getManifest().manifest_version === 3;
@@ -31,6 +32,9 @@ export async function onInstalled(details: Runtime.OnInstalledDetailsType) {
 
   // initialize tokens in wallet
   await loadTokens();
+
+  // update old ao token to new ao token
+  await updateAoToken();
 
   // wayfinder
   await scheduleGatewayUpdate();
