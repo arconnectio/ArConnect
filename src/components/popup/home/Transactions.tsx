@@ -5,10 +5,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { Text } from "@arconnect/components";
 
 import { gql } from "~gateways/api";
-import type { RawTransaction } from "~notifications/api";
 import styled from "styled-components";
-import { fetchTokenByProcessId } from "~utils/notifications";
-import { formatAddress } from "~utils/format";
 import { balanceToFractioned, formatFiatBalance } from "~tokens/currency";
 import {
   AO_RECEIVER_QUERY,
@@ -22,22 +19,14 @@ import useSetting from "~settings/hook";
 import { suggestedGateways } from "~gateways/gateway";
 import { Spacer } from "@arconnect/components";
 import { Heading, ViewAll, TokenCount } from "../Title";
-
-type ExtendedTransaction = RawTransaction & {
-  month: number;
-  year: number;
-  transactionType: string;
-  date: string | null;
-  day: number;
-  aoInfo?: {
-    tickerName: string;
-    denomination?: number;
-    quantity: number;
-  };
-};
+import {
+  processTransactions,
+  sortFn,
+  type ExtendedTransaction
+} from "~lib/transactions";
 
 export default function Transactions() {
-  const [transactions, setTransactions] = useState<ExtendedTransaction[]>([]);
+  const [transactions, fetchTransactions] = useState<ExtendedTransaction[]>([]);
   const [arPrice, setArPrice] = useState(0);
   const [push] = useHistory();
   const [loading, setLoading] = useState(false);
@@ -48,9 +37,7 @@ export default function Transactions() {
   });
 
   useEffect(() => {
-    getArPrice(currency)
-      .then((res) => setArPrice(res))
-      .catch();
+    getArPrice(currency).then(setArPrice).catch();
   }, [currency]);
 
   useEffect(() => {
@@ -58,100 +45,27 @@ export default function Transactions() {
       setLoading(true);
       try {
         if (activeAddress) {
+          const queries = [
+            AR_RECEIVER_QUERY,
+            AR_SENT_QUERY,
+            AO_SENT_QUERY,
+            AO_RECEIVER_QUERY
+          ];
+
           const [rawReceived, rawSent, rawAoSent, rawAoReceived] =
-            await Promise.all([
-              gql(
-                AR_RECEIVER_QUERY,
-                { address: activeAddress },
-                suggestedGateways[1]
-              ),
-              gql(
-                AR_SENT_QUERY,
-                { address: activeAddress },
-                suggestedGateways[1]
-              ),
-              gql(
-                AO_SENT_QUERY,
-                { address: activeAddress },
-                suggestedGateways[1]
-              ),
-              gql(
-                AO_RECEIVER_QUERY,
-                { address: activeAddress },
-                suggestedGateways[1]
+            await Promise.allSettled(
+              queries.map((query) =>
+                gql(query, { address: activeAddress }, suggestedGateways[1])
               )
-            ]);
+            );
 
-          const sent: ExtendedTransaction[] =
-            rawSent.data.transactions.edges.map((transaction) => ({
-              ...transaction,
-              transactionType: "sent",
-              day: 0,
-              month: 0,
-              year: 0,
-              date: ""
-            }));
-
-          const received: ExtendedTransaction[] =
-            rawReceived.data.transactions.edges.map((transaction) => ({
-              ...transaction,
-              transactionType: "received",
-              day: 0,
-              month: 0,
-              year: 0,
-              date: ""
-            }));
-
-          const aoSent: ExtendedTransaction[] = await Promise.all(
-            rawAoSent.data.transactions.edges.map(async (transaction) => {
-              const tokenData = await fetchTokenByProcessId(
-                transaction.node.recipient
-              );
-              const quantityTag = transaction.node.tags.find(
-                (tag) => tag.name === "Quantity"
-              );
-              return {
-                ...transaction,
-                transactionType: "aoSent",
-                day: 0,
-                month: 0,
-                year: 0,
-                date: "",
-                aoInfo: {
-                  quantity: quantityTag ? Number(quantityTag.value) : undefined,
-                  tickerName:
-                    tokenData?.Ticker ||
-                    formatAddress(transaction.node.recipient, 4),
-                  denomination: tokenData?.Denomination || 0
-                }
-              };
-            })
-          );
-
-          const aoReceived: ExtendedTransaction[] = await Promise.all(
-            rawAoReceived.data.transactions.edges.map(async (transaction) => {
-              const tokenData = await fetchTokenByProcessId(
-                transaction.node.recipient
-              );
-              const quantityTag = transaction.node.tags.find(
-                (tag) => tag.name === "Quantity"
-              );
-              return {
-                ...transaction,
-                transactionType: "aoReceived",
-                day: 0,
-                month: 0,
-                year: 0,
-                date: "",
-                aoInfo: {
-                  quantity: quantityTag ? Number(quantityTag.value) : undefined,
-                  tickerName:
-                    tokenData?.Ticker ||
-                    formatAddress(transaction.node.recipient, 4),
-                  denomination: tokenData?.Denomination || 1
-                }
-              };
-            })
+          const sent = await processTransactions(rawSent, "sent");
+          const received = await processTransactions(rawReceived, "sent");
+          const aoSent = await processTransactions(rawAoSent, "aoSent", true);
+          const aoReceived = await processTransactions(
+            rawAoReceived,
+            "aoReceived",
+            true
           );
 
           let combinedTransactions: ExtendedTransaction[] = [
@@ -160,13 +74,8 @@ export default function Transactions() {
             ...aoReceived,
             ...aoSent
           ];
-          combinedTransactions.sort((a, b) => {
-            const timestampA =
-              a.node?.block?.timestamp || Number.MAX_SAFE_INTEGER;
-            const timestampB =
-              b.node?.block?.timestamp || Number.MAX_SAFE_INTEGER;
-            return timestampB - timestampA;
-          });
+
+          combinedTransactions.sort(sortFn);
 
           combinedTransactions = combinedTransactions.map((transaction) => {
             if (transaction.node.block && transaction.node.block.timestamp) {
@@ -193,7 +102,7 @@ export default function Transactions() {
             }
           });
 
-          setTransactions(combinedTransactions);
+          fetchTransactions(combinedTransactions);
         }
       } catch (error) {
         console.error("Error fetching transactions", error);

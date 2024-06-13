@@ -137,6 +137,9 @@ export const ALL_AR_SENT_QUERY = `query ($address: String!) {
 export const AR_RECEIVER_QUERY_WITH_CURSOR = `
 query ($address: String!, $after: String) {
   transactions(first: 10, recipients: [$address], tags: [{ name: "Type", values: ["Transfer"] }], after: $after) {
+    pageInfo {
+      hasNextPage
+    }
     edges {
       cursor
       node {
@@ -158,6 +161,9 @@ query ($address: String!, $after: String) {
 export const AR_SENT_QUERY_WITH_CURSOR = `
 query ($address: String!, $after: String) {
   transactions(first: 10, owners: [$address], tags: [{ name: "Type", values: ["Transfer"] }], after: $after) {
+    pageInfo {
+      hasNextPage
+    }
     edges {
       cursor
       node {
@@ -187,6 +193,9 @@ query($address: String!, $after: String) {
     ],
     after: $after
   ) {
+    pageInfo {
+      hasNextPage
+    }
     edges {
       cursor
       node {
@@ -215,6 +224,9 @@ query($address: String!, $after: String) {
     ],
     after: $after
   ) {
+    pageInfo {
+      hasNextPage
+    }
     edges {
       cursor
       node {
