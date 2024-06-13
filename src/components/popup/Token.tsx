@@ -31,6 +31,7 @@ import { abbreviateNumber } from "~utils/format";
 import Skeleton from "~components/Skeleton";
 import { TrashIcon, PlusIcon, SettingsIcon } from "@iconicicons/react";
 import JSConfetti from "js-confetti";
+import { AO_NATIVE_TOKEN } from "~utils/ao_import";
 
 export default function Token({ onClick, ...props }: Props) {
   const ref = useRef(null);
@@ -38,14 +39,6 @@ export default function Token({ onClick, ...props }: Props) {
   const [showTooltip, setShowTooltip] = useState(false);
   // display theme
   const theme = useTheme();
-
-  const [aoNativeToken] = useStorage(
-    {
-      key: "ao_native_token",
-      instance: ExtensionStorage
-    },
-    ""
-  );
 
   const [activeAddress] = useStorage({
     key: "active_address",
@@ -147,7 +140,7 @@ export default function Token({ onClick, ...props }: Props) {
       ref.current &&
       activeAddress &&
       !props.loading &&
-      aoNativeToken === props.id &&
+      AO_NATIVE_TOKEN === props.id &&
       !aoConfettiShown &&
       +props.balance > 0
     ) {
@@ -157,7 +150,6 @@ export default function Token({ onClick, ...props }: Props) {
     ref.current,
     aoConfettiShown,
     activeAddress,
-    aoNativeToken,
     props.balance,
     props.loading
   ]);
@@ -165,7 +157,7 @@ export default function Token({ onClick, ...props }: Props) {
   return (
     <Wrapper>
       {(!aoConfettiShown || ref.current) &&
-        aoNativeToken === props.id &&
+        AO_NATIVE_TOKEN === props.id &&
         +props.balance > 0 && <Canvas ref={ref} />}
       <InnerWrapper width={hasActionButton ? "86%" : "100%"} onClick={onClick}>
         <LogoAndDetails>
