@@ -1,102 +1,32 @@
-import { ExtensionStorage } from "./storage";
 import { getAoTokens } from "~tokens";
-import { getTagValue, type Message, type TokenInfo } from "~tokens/aoTokens/ao";
+import { ExtensionStorage } from "./storage";
 
-const AO_NATIVE_TOKEN_REGISTRY = "Q2ri6Yl0wCIekTrVE0R6fQ9TT6ZlI7yIOPBnJsBhMzk";
-const AO_NATIVE_TOKEN_IMPORTED = "ao_native_token_imported";
-const AO_TOKENS = "ao_tokens";
-const AO_NATIVE_TOKEN = "ao_native_token";
-let isImporting = false;
+export const AO_NATIVE_TOKEN = "m3PaWzK4PTG9lAaqYQPaPdOcXdO8hYqi5Fe9NWqXd0w";
+export const AO_NATIVE_OLD_TOKEN =
+  "BJj8sNao3XPqsoJnea4DnJyPzHnKhkhcY1HtWBxHcLs";
 
-async function getTokenInfo(id: string): Promise<TokenInfo> {
-  const body = {
-    Id: "0000000000000000000000000000000000000000001",
-    Target: id,
-    Owner: "0000000000000000000000000000000000000000002",
-    Anchor: "0",
-    Data: "1234",
-    Tags: [
-      { name: "Action", value: "Info" },
-      { name: "Data-Protocol", value: "ao" },
-      { name: "Type", value: "Message" },
-      { name: "Variant", value: "ao.TN.1" }
-    ]
-  };
-  const res = await (
-    await fetch(`https://cu.ao-testnet.xyz/dry-run?process-id=${id}`, {
-      headers: {
-        "content-type": "application/json"
-      },
-      body: JSON.stringify(body),
-      method: "POST"
-    })
-  ).json();
+export const AO_NATIVE_TOKEN_INFO = {
+  Name: "AO",
+  Ticker: "AO",
+  Denomination: 12,
+  Logo: "UkS-mdoiG8hcAClhKK8ch4ZhEzla0mCPDOix9hpdSFE",
+  processId: AO_NATIVE_TOKEN
+};
 
-  // find message with token info
-  for (const msg of res.Messages as Message[]) {
-    const Ticker = getTagValue("Ticker", msg.Tags);
-    const Name = getTagValue("Name", msg.Tags);
-    const Denomination = getTagValue("Denomination", msg.Tags);
-    const Logo = getTagValue("Logo", msg.Tags);
-    const processId = getTagValue("Process-Id", msg.Tags);
-
-    if (!Ticker && !Name) continue;
-
-    // if the message was found, return the token details
-    return {
-      Name,
-      Ticker,
-      Denomination: Number(Denomination || 0),
-      Logo,
-      processId
-    };
-  }
-
-  throw new Error("Could not load token info.");
-}
-
-export async function importAoNativeToken() {
+export async function updateAoToken() {
   try {
-    if (isImporting) return;
-    isImporting = true;
-
-    // check if ao native token is already imported
-    const aoTokenImported = await ExtensionStorage.get<boolean>(
-      AO_NATIVE_TOKEN_IMPORTED
-    );
-    if (aoTokenImported) return;
-
-    // check if there is a valid ao native token
-    const token = await getTokenInfo(AO_NATIVE_TOKEN_REGISTRY);
-    if (!token?.Ticker || !token?.processId) return;
-
-    // check if ao native token is already added
     const aoTokens = await getAoTokens();
-    const isAoTokenPresent = aoTokens.some(
-      (t) => t.processId === token.processId
+    const updatedAoTokens = aoTokens.filter(
+      (token) => token.processId !== AO_NATIVE_OLD_TOKEN
     );
-    if (isAoTokenPresent) {
-      await ExtensionStorage.set(AO_NATIVE_TOKEN, token.processId);
-      await ExtensionStorage.set(AO_NATIVE_TOKEN_IMPORTED, true);
-      return;
+    const isAoTokenPresent = updatedAoTokens.some(
+      (token) => token.processId === AO_NATIVE_TOKEN
+    );
+    if (!isAoTokenPresent) {
+      updatedAoTokens.unshift(AO_NATIVE_TOKEN_INFO);
     }
-
-    // add ao native token to the first
-    aoTokens.unshift({
-      Name: token.Name,
-      Ticker: token.Ticker,
-      Denomination: token.Denomination,
-      Logo: token.Logo,
-      processId: token.processId
-    });
-
-    // set ao native token imported and updated ao tokens
-    await ExtensionStorage.set(AO_NATIVE_TOKEN_IMPORTED, true);
-    await ExtensionStorage.set(AO_TOKENS, aoTokens);
-    await ExtensionStorage.set(AO_NATIVE_TOKEN, token.processId);
+    await ExtensionStorage.set("ao_tokens", updatedAoTokens);
   } catch (e) {
-    console.log("Error importing ao native token");
-  } finally {
-    isImporting = false;
+    console.log(`Error updating old ao token with new ao token: ${e}`);
   }
 }

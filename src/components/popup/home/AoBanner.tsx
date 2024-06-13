@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import styled, { useTheme } from "styled-components";
 import browser from "webextension-polyfill";
 import { getTagValue, useAo, type Message } from "~tokens/aoTokens/ao";
+import { AO_NATIVE_TOKEN } from "~utils/ao_import";
 import { ExtensionStorage } from "~utils/storage";
 
 interface AoBannerProps {
@@ -17,11 +18,6 @@ export default function AoBanner({ activeAddress }: AoBannerProps) {
   const theme = useTheme();
   const [showBanner, setShowBanner] = useState(false);
 
-  const [aoNativeToken] = useStorage({
-    key: "ao_native_token",
-    instance: ExtensionStorage
-  });
-
   const [aoTokens] = useStorage(
     {
       key: "ao_tokens",
@@ -31,15 +27,15 @@ export default function AoBanner({ activeAddress }: AoBannerProps) {
   );
 
   const aoToken = useMemo<TokenInfo | undefined>(() => {
-    if (!aoNativeToken || aoTokens.length === 0) return undefined;
-    return aoTokens.find((token) => token.processId === aoNativeToken);
-  }, [aoTokens, aoNativeToken]);
+    if (aoTokens.length === 0) return undefined;
+    return aoTokens.find((token) => token.processId === AO_NATIVE_TOKEN);
+  }, [aoTokens]);
 
   async function getAoNativeTokenBalance() {
     const res = await ao.dryrun({
       Id: "0000000000000000000000000000000000000000001",
       Owner: activeAddress,
-      process: aoNativeToken,
+      process: AO_NATIVE_TOKEN,
       tags: [{ name: "Action", value: "Balance" }]
     });
 
@@ -63,12 +59,12 @@ export default function AoBanner({ activeAddress }: AoBannerProps) {
   }
 
   useEffect(() => {
-    if (activeAddress && aoNativeToken && aoToken && ao) {
+    if (activeAddress && aoToken && ao) {
       fetchAoNativeTokenBalance().catch(() => {});
     }
-  }, [activeAddress, aoNativeToken, aoToken, ao]);
+  }, [activeAddress, aoToken, ao]);
 
-  if (!activeAddress || !aoNativeToken || !aoToken || !showBanner) {
+  if (!activeAddress || !aoToken || !showBanner) {
     return null;
   }
 
