@@ -401,9 +401,12 @@ export function ArToken({ onClick }: ArTokenProps) {
   });
 
   // load ar balance
-  const [balance, setBalance] = useState("0");
+  const [balance, setBalance] = useState(0);
   const [fiatBalance, setFiatBalance] = useState(0);
-  const gateway = useGateway({ ensureStake: true });
+
+  // memoized requirements to ensure stability
+  const requirements = useMemo(() => ({ ensureStake: true }), []);
+  const gateway = useGateway(requirements);
 
   useEffect(() => {
     (async () => {
@@ -415,10 +418,13 @@ export function ArToken({ onClick }: ArTokenProps) {
       const winstonBalance = await arweave.wallets.getBalance(activeAddress);
       const arBalance = Number(arweave.ar.winstonToAr(winstonBalance));
 
-      setBalance(formatTokenBalance(arBalance));
-      setFiatBalance(arBalance * price);
+      setBalance(arBalance);
     })();
-  }, [activeAddress, price, gateway]);
+  }, [activeAddress, gateway]);
+
+  useEffect(() => {
+    setFiatBalance(balance * price);
+  }, [balance, price]);
 
   return (
     <Wrapper onClick={onClick}>
@@ -430,7 +436,7 @@ export function ArToken({ onClick }: ArTokenProps) {
       </LogoAndDetails>
       <BalanceSection>
         <NativeBalance>
-          {balance}
+          {formatTokenBalance(balance)}
           {" AR"}
         </NativeBalance>
         <FiatBalance>
