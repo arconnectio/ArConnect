@@ -37,16 +37,12 @@ export default function Token({ onClick, ...props }: Props) {
   const ref = useRef(null);
   const [totalBalance, setTotalBalance] = useState("");
   const [showTooltip, setShowTooltip] = useState(false);
+  const [aoConfettiShown, setAoConfettiShown] = useState(true);
   // display theme
   const theme = useTheme();
 
   const [activeAddress] = useStorage({
     key: "active_address",
-    instance: ExtensionStorage
-  });
-
-  const [aoConfettiShown, setAoConfettiShown] = useStorage({
-    key: `ao_confetti_shown_${activeAddress}`,
     instance: ExtensionStorage
   });
 
@@ -110,6 +106,7 @@ export default function Token({ onClick, ...props }: Props) {
     const jsConfetti = new JSConfetti({ canvas: ref.current });
     jsConfetti.addConfetti();
     setAoConfettiShown(true);
+    await ExtensionStorage.set(`ao_confetti_shown_${activeAddress}`, true);
   };
 
   useEffect(() => {
@@ -134,6 +131,14 @@ export default function Token({ onClick, ...props }: Props) {
       setLogo(arweaveLogo);
     }
   }, [arweaveLogo]);
+
+  useEffect(() => {
+    if (activeAddress && AO_NATIVE_TOKEN === props.id) {
+      ExtensionStorage.get<boolean>(`ao_confetti_shown_${activeAddress}`).then(
+        setAoConfettiShown
+      );
+    }
+  }, [AO_NATIVE_TOKEN, props.id, activeAddress]);
 
   useEffect(() => {
     if (
@@ -401,9 +406,12 @@ export function ArToken({ onClick }: ArTokenProps) {
   });
 
   // load ar balance
-  const [balance, setBalance] = useState("0");
+  const [balance, setBalance] = useState(0);
   const [fiatBalance, setFiatBalance] = useState(0);
-  const gateway = useGateway({ ensureStake: true });
+
+  // memoized requirements to ensure stability
+  const requirements = useMemo(() => ({ ensureStake: true }), []);
+  const gateway = useGateway(requirements);
 
   useEffect(() => {
     (async () => {
@@ -415,10 +423,13 @@ export function ArToken({ onClick }: ArTokenProps) {
       const winstonBalance = await arweave.wallets.getBalance(activeAddress);
       const arBalance = Number(arweave.ar.winstonToAr(winstonBalance));
 
-      setBalance(formatTokenBalance(arBalance));
-      setFiatBalance(arBalance * price);
+      setBalance(arBalance);
     })();
-  }, [activeAddress, price, gateway]);
+  }, [activeAddress, gateway]);
+
+  useEffect(() => {
+    setFiatBalance(balance * price);
+  }, [balance, price]);
 
   return (
     <Wrapper onClick={onClick}>
@@ -430,7 +441,7 @@ export function ArToken({ onClick }: ArTokenProps) {
       </LogoAndDetails>
       <BalanceSection>
         <NativeBalance>
-          {balance}
+          {formatTokenBalance(balance)}
           {" AR"}
         </NativeBalance>
         <FiatBalance>
