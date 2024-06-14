@@ -1794,6 +1794,18 @@
     "message": "Congrats on the AO Token 4 year emissions rewards 🥳",
     "description": "ao token announcement title text"
   },
+  "ao_token_send_popup": {
+    "message": "The AO token is non transferable until February 8th, 2025 when 15% of AO has been minted.",
+    "description": "Popup description about ao token transfer"
+  },
+  "ao_token_send_popup_title": {
+    "message": "AO Token Transfer Notice",
+    "description": "Popup description about ao token transfer"
+  },
+  "ao_token_send_popup_learn_more": {
+    "message": "Learn More",
+    "description": "Popup description about ao token transfer learn more"
+  },
   "ao_degraded": {
     "message": "AO Token Process Network Degraded.",
     "description": "ao degraded title text"

@@ -1796,6 +1796,18 @@
     "message": "恭喜获得 AO Token 4 年排放奖励 🥳",
     "description": "ao token announcement title text"
   },
+  "ao_token_send_popup": {
+    "message": "AO 代币在 2025 年 2 月 8 日之前不可转让，届时 AO 的 15% 已被铸造。",
+    "description": "Popup description about ao token transfer"
+  },
+  "ao_token_send_popup_title": {
+    "message": "AO代币转账公告",
+    "description": "Popup description about ao token transfer"
+  },
+  "ao_token_send_popup_learn_more": {
+    "message": "了解更多",
+    "description": "Popup description about ao token transfer learn more"
+  },
   "ao_degraded": {
       "message": "AO 代币处理网络降级。",
       "description": "ao degraded title text"
