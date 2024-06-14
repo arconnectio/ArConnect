@@ -65,6 +65,8 @@ import { formatAddress } from "~utils/format";
 import { useContact } from "~contacts/hooks";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { useAoTokens } from "~tokens/aoTokens/ao";
+import { AO_NATIVE_TOKEN } from "~utils/ao_import";
+import { AnnouncementPopup } from "./announcement";
 
 // default size for the qty text
 const defaulQtytSize = 3.7;
@@ -99,6 +101,8 @@ export default function Send({ id }: Props) {
   useEffect(() => {
     trackPage(PageType.SEND);
   }, []);
+
+  const [isOpen, setOpen] = useState(true);
 
   // active address
   const [activeAddress] = useStorage<string>({
@@ -351,6 +355,9 @@ export default function Send({ id }: Props) {
   const [showTokenSelector, setShownTokenSelector] = useState(false);
 
   function updateSelectedToken(id: string) {
+    if (id === AO_NATIVE_TOKEN) {
+      setOpen(true);
+    }
     setTokenID(id);
     setQty("");
     setShownTokenSelector(false);
@@ -414,6 +421,9 @@ export default function Send({ id }: Props) {
         }}
         title={browser.i18n.getMessage("send")}
       />
+      {AO_NATIVE_TOKEN === tokenID && (
+        <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />
+      )}
       <Wrapper showOverlay={showSlider || degraded || keystoneError}>
         <SendForm>
           {/* TOP INPUT */}
@@ -560,7 +570,8 @@ export default function Send({ id }: Props) {
               invalidQty ||
               parseFloat(qty) === 0 ||
               qty === "" ||
-              recipient.address === ""
+              recipient.address === "" ||
+              AO_NATIVE_TOKEN === tokenID
             }
             fullWidth
             onClick={send}
