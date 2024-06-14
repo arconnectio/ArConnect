@@ -42,13 +42,6 @@ export default function Tokens() {
         <NoTokens>{browser.i18n.getMessage("no_assets")}</NoTokens>
       )}
       <TokensList>
-        {assets.slice(0, 8).map((token, i) => (
-          <Token
-            {...token}
-            onClick={() => push(`/token/${token.id}`)}
-            key={i}
-          />
-        ))}
         {aoTokens.map((token) => (
           <Token
             loading={loading}
@@ -62,6 +55,13 @@ export default function Tokens() {
             ticker={token.Ticker}
             balance={Number(token.balance)}
             onClick={() => handleTokenClick(token.id)}
+          />
+        ))}
+        {assets.slice(0, 8).map((token, i) => (
+          <Token
+            {...token}
+            onClick={() => push(`/token/${token.id}`)}
+            key={i}
           />
         ))}
       </TokensList>

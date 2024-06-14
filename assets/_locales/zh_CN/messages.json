@@ -1792,6 +1792,10 @@
       "message": "AO 测试网现已上线！",
       "description": "ao announcement title text"
   },
+  "ao_token_announcement_title": {
+    "message": "恭喜获得 AO Token 4 年排放奖励 🥳",
+    "description": "ao token announcement title text"
+  },
   "ao_degraded": {
       "message": "AO 代币处理网络降级。",
       "description": "ao degraded title text"

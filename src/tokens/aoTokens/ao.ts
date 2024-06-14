@@ -13,6 +13,13 @@ export type AoInstance = ReturnType<typeof connect>;
 
 export const defaultAoTokens: TokenInfo[] = [
   {
+    Name: "AO",
+    Ticker: "AO",
+    Denomination: 12,
+    Logo: "UkS-mdoiG8hcAClhKK8ch4ZhEzla0mCPDOix9hpdSFE",
+    processId: "m3PaWzK4PTG9lAaqYQPaPdOcXdO8hYqi5Fe9NWqXd0w"
+  },
+  {
     Name: "TRUNK",
     Ticker: "TRUNK",
     Denomination: 3,
@@ -148,7 +155,7 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
                     const balance = await aoToken.getBalance(activeAddress);
                     return balance;
                   })(),
-                  6000
+                  10000
                 )
               );
               return {
@@ -254,7 +261,7 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
                     const balance = await aoToken.getBalance(activeAddress);
                     return balance;
                   })(),
-                  6000
+                  10000
                 )
               );
               return {
