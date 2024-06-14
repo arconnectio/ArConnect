@@ -60,7 +60,7 @@ export default function Transactions() {
             );
 
           const sent = await processTransactions(rawSent, "sent");
-          const received = await processTransactions(rawReceived, "sent");
+          const received = await processTransactions(rawReceived, "received");
           const aoSent = await processTransactions(rawAoSent, "aoSent", true);
           const aoReceived = await processTransactions(
             rawAoReceived,
