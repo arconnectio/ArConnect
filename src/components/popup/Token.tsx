@@ -37,16 +37,12 @@ export default function Token({ onClick, ...props }: Props) {
   const ref = useRef(null);
   const [totalBalance, setTotalBalance] = useState("");
   const [showTooltip, setShowTooltip] = useState(false);
+  const [aoConfettiShown, setAoConfettiShown] = useState(true);
   // display theme
   const theme = useTheme();
 
   const [activeAddress] = useStorage({
     key: "active_address",
-    instance: ExtensionStorage
-  });
-
-  const [aoConfettiShown, setAoConfettiShown] = useStorage({
-    key: `ao_confetti_shown_${activeAddress}`,
     instance: ExtensionStorage
   });
 
@@ -110,6 +106,7 @@ export default function Token({ onClick, ...props }: Props) {
     const jsConfetti = new JSConfetti({ canvas: ref.current });
     jsConfetti.addConfetti();
     setAoConfettiShown(true);
+    await ExtensionStorage.set(`ao_confetti_shown_${activeAddress}`, true);
   };
 
   useEffect(() => {
@@ -134,6 +131,14 @@ export default function Token({ onClick, ...props }: Props) {
       setLogo(arweaveLogo);
     }
   }, [arweaveLogo]);
+
+  useEffect(() => {
+    if (activeAddress && AO_NATIVE_TOKEN === props.id) {
+      ExtensionStorage.get<boolean>(`ao_confetti_shown_${activeAddress}`).then(
+        setAoConfettiShown
+      );
+    }
+  }, [AO_NATIVE_TOKEN, props.id, activeAddress]);
 
   useEffect(() => {
     if (
