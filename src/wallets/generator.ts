@@ -19,9 +19,9 @@ import { wordlists, mnemonicToSeed } from "bip39-web-crypto";
  */
 export async function jwkFromMnemonic(mnemonic: string) {
   let seedBuffer = await mnemonicToSeed(mnemonic);
-  let seed = Uint8Array.from(seedBuffer);
   const { privateKey } = await getKeyPairFromSeed(
-    seed,
+    //@ts-ignore
+    seedBuffer,
     {
       id: "rsa",
       modulusLength: 4096
