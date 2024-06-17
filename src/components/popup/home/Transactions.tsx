@@ -60,13 +60,18 @@ export default function Transactions() {
             );
 
           const sent = await processTransactions(rawSent, "sent");
+          console.log("sent", sent);
           const received = await processTransactions(rawReceived, "received");
+          console.log("received", received);
+          console.log("aoSent", rawAoSent);
           const aoSent = await processTransactions(rawAoSent, "aoSent", true);
           const aoReceived = await processTransactions(
             rawAoReceived,
             "aoReceived",
             true
           );
+          console.log("aore ", aoReceived);
+          console.log("combined", sent, received, aoReceived, aoSent);
 
           let combinedTransactions: ExtendedTransaction[] = [
             ...sent,
@@ -75,7 +80,9 @@ export default function Transactions() {
             ...aoSent
           ];
 
+          console.log("combined", combinedTransactions);
           combinedTransactions.sort(sortFn);
+          console.log("combined", combinedTransactions);
 
           combinedTransactions = combinedTransactions.map((transaction) => {
             if (transaction.node.block && transaction.node.block.timestamp) {
