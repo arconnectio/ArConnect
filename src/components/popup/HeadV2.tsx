@@ -150,7 +150,7 @@ const HeadWrapper = styled(Section)<{
   top: 0;
   left: 0;
   right: 0;
-  z-index: 11;
+  z-index: 21;
   display: flex;
   flex-direction: row;
   width: full;
