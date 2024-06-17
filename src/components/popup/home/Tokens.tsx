@@ -1,5 +1,5 @@
-import Title, { Heading, TokenCount, ViewAll } from "../Title";
-import { Section, Spacer, Text } from "@arconnect/components";
+import { Heading, TokenCount, ViewAll } from "../Title";
+import { Spacer, Text } from "@arconnect/components";
 import { useHistory } from "~utils/hash_router";
 import { useTokens } from "~tokens";
 import { useMemo } from "react";
@@ -30,15 +30,14 @@ export default function Tokens() {
   }
 
   return (
-    <Section>
+    <>
       <Heading>
-        <Title noMargin>{browser.i18n.getMessage("assets")}</Title>
         <ViewAll onClick={() => push("/tokens")}>
           {browser.i18n.getMessage("view_all")}
-          <TokenCount>{assets.length + aoTokens.length}</TokenCount>
+          <TokenCount>({assets.length + aoTokens.length})</TokenCount>
         </ViewAll>
       </Heading>
-      <Spacer y={0.8} />
+      <Spacer y={1} />
       {assets.length === 0 && aoTokens.length === 0 && (
         <NoTokens>{browser.i18n.getMessage("no_assets")}</NoTokens>
       )}
@@ -66,7 +65,7 @@ export default function Tokens() {
           />
         ))}
       </TokensList>
-    </Section>
+    </>
   );
 }
 

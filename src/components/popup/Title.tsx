@@ -18,9 +18,9 @@ export const ViewAll = styled(Title).attrs({
 })`
   display: flex;
   align-items: center;
-  font-size: 1.25rem;
-  gap: 0.45rem;
-  color: rgb(${(props) => props.theme.secondaryText});
+  font-size: 1rem;
+  gap: 0.2rem;
+  color: ${(props) => props.theme.secondaryTextv2};
   cursor: pointer;
   transition: all 0.23s ease-in-out;
 
@@ -30,12 +30,10 @@ export const ViewAll = styled(Title).attrs({
 `;
 
 export const TokenCount = styled.span`
-  font-size: 0.7rem;
+  font-size: 1rem;
   font-weight: 500;
-  color: rgb(${(props) => props.theme.secondaryText});
-  background-color: rgb(${(props) => props.theme.secondaryText}, 0.3);
+  color: rgb(${(props) => props.theme.primaryText});
   border-radius: 5px;
-  padding: 0.1rem 0.3rem;
 `;
 
 export default Title;
