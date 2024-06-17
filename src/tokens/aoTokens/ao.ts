@@ -8,6 +8,7 @@ import { Token } from "ao-tokens";
 import { ArweaveSigner, createData } from "arbundles";
 import { getActiveKeyfile } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
+import { freeDecryptedWallet } from "~wallets/encryption";
 
 export type AoInstance = ReturnType<typeof connect>;
 
@@ -346,6 +347,7 @@ export const sendAoTransfer = async (
         { name: "Quantity", value: amount }
       ]
     });
+    freeDecryptedWallet(decryptedWallet.keyfile);
     return transferID;
   } catch (err) {
     console.log("err", err);

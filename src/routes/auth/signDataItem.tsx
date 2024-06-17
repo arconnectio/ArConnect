@@ -87,9 +87,13 @@ export default function SignDataItem() {
   const { setToast } = useToasts();
 
   const recipient =
-    params?.data?.tags.find((tag) => tag.name === "Recipient")?.value || "NA";
+    params?.data?.tags?.find((tag) => tag.name === "Recipient")?.value || "";
   const quantity =
-    params?.data?.tags.find((tag) => tag.name === "Quantity")?.value || "0";
+    params?.data?.tags?.find((tag) => tag.name === "Quantity")?.value || "0";
+  const transfer = params?.data?.tags?.some(
+    (tag) => tag.name === "Action" && tag.value === "Transfer"
+  );
+
   const process = params?.data?.target;
 
   const formattedAmount = useMemo(
@@ -309,20 +313,27 @@ export default function SignDataItem() {
                 <Loading style={{ width: "16px", height: "16px" }} />
               )}
             </div>
-            <FiatAmount>{formatFiatBalance(fiatPrice, currency)}</FiatAmount>
-            <AmountTitle
-              ref={childRef}
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                justifyContent: "center",
-                alignItems: "flex-end",
-                marginBottom: "16px"
-              }}
-            >
-              {formattedAmount}
-              <span style={{ lineHeight: "1.5em" }}>{tokenName}</span>
-            </AmountTitle>
+            {transfer && (
+              <>
+                <FiatAmount>
+                  {formatFiatBalance(fiatPrice, currency)}
+                </FiatAmount>
+                <AmountTitle
+                  ref={childRef}
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                    alignItems: "flex-end",
+                    marginBottom: "16px"
+                  }}
+                >
+                  {formattedAmount}
+                  <span style={{ lineHeight: "1.5em" }}>{tokenName}</span>
+                </AmountTitle>
+              </>
+            )}
+
             <Properties>
               {params?.data?.target && (
                 <TransactionProperty>
@@ -340,12 +351,15 @@ export default function SignDataItem() {
                 </PropertyName>
                 <PropertyValue>{formatAddress(activeAddress, 6)}</PropertyValue>
               </TransactionProperty>
-              <TransactionProperty>
-                <PropertyName>
-                  {browser.i18n.getMessage("transaction_to")}
-                </PropertyName>
-                <PropertyValue>{formatAddress(recipient, 6)}</PropertyValue>
-              </TransactionProperty>
+              {recipient && (
+                <TransactionProperty>
+                  <PropertyName>
+                    {browser.i18n.getMessage("transaction_to")}
+                  </PropertyName>
+                  <PropertyValue>{formatAddress(recipient, 6)}</PropertyValue>
+                </TransactionProperty>
+              )}
+
               <TransactionProperty>
                 <PropertyName>
                   {browser.i18n.getMessage("transaction_fee")}
@@ -374,7 +388,7 @@ export default function SignDataItem() {
               </PropertyName>
               <Spacer y={0.05} />
               {showTags &&
-                params?.data.tags.map((tag, i) => (
+                params?.data?.tags?.map((tag, i) => (
                   <TransactionProperty key={i}>
                     <PropertyName>{tag.name}</PropertyName>
                     <TagValue>{tag.value}</TagValue>
