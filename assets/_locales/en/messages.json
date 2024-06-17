@@ -1147,6 +1147,10 @@
     "message": "Transaction ID",
     "description": "Transaction ID label"
   },
+  "process_id": {
+    "message": "Process ID",
+    "description": "Process ID label"
+  },
   "transaction_from": {
     "message": "From",
     "description": "Transaction \"from\" label"
