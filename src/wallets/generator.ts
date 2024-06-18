@@ -1,8 +1,8 @@
-import { getKeyPairFromMnemonic } from "human-crypto-keys";
+import { getKeyPairFromSeed } from "human-crypto-keys";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { passwordStrength } from "check-password-strength";
 import { isOneOf, isString } from "typed-assert";
-import { wordlists } from "bip39-web-crypto";
+import { wordlists, mnemonicToSeed } from "bip39-web-crypto";
 
 /**
  * Credits to arweave.app for the mnemonic wallet generation
@@ -18,8 +18,10 @@ import { wordlists } from "bip39-web-crypto";
  * @returns Wallet JWK
  */
 export async function jwkFromMnemonic(mnemonic: string) {
-  const { privateKey } = await getKeyPairFromMnemonic(
-    mnemonic,
+  let seedBuffer = await mnemonicToSeed(mnemonic);
+  const { privateKey } = await getKeyPairFromSeed(
+    //@ts-ignore
+    seedBuffer,
     {
       id: "rsa",
       modulusLength: 4096

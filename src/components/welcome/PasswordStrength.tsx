@@ -4,6 +4,7 @@ import { Spacer, Text } from "@arconnect/components";
 import { useMemo } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
+import Paragraph from "~components/Paragraph";
 
 export default function PasswordStrength({ password }: Props) {
   // get strength
@@ -44,6 +45,14 @@ export default function PasswordStrength({ password }: Props) {
       </Text>
       <Spacer y={0.85} />
       <StrengthChecklist>
+        <Paragraph noMargin>{browser.i18n.getMessage("required")}</Paragraph>
+        <StrengthCheck length={password ? password.length : 0}>
+          {(password && password.length >= 5 && <CheckIcon />) || <CloseIcon />}
+          <Text noMargin>
+            {browser.i18n.getMessage("password_strength_checklist_length", "5")}
+          </Text>
+        </StrengthCheck>
+        <Paragraph noMargin>{browser.i18n.getMessage("recommended")}</Paragraph>
         {checklist.map((elem, i) => {
           let valid = true;
 
@@ -64,7 +73,10 @@ export default function PasswordStrength({ password }: Props) {
             <CloseIcon />
           )}
           <Text noMargin>
-            {browser.i18n.getMessage("password_strength_checklist_length")}
+            {browser.i18n.getMessage(
+              "password_strength_checklist_length",
+              "10"
+            )}
           </Text>
         </StrengthCheck>
       </StrengthChecklist>
@@ -97,7 +109,7 @@ const StrengthChecklist = styled.div`
   gap: 0.45rem;
 `;
 
-const StrengthCheck = styled.div<{ isValid: boolean }>`
+const StrengthCheck = styled.div<{ isValid?: boolean; length?: number }>`
   display: flex;
   align-items: center;
   gap: 0.45rem;
@@ -105,7 +117,18 @@ const StrengthCheck = styled.div<{ isValid: boolean }>`
   p {
     font-size: 0.84rem;
     color: rgb(
-      ${(props) => (props.isValid ? "0, 255, 0" : props.theme.secondaryText)}
+      ${(props) => {
+        if (props.length !== undefined) {
+          if (props.length < 5) {
+            return props.theme.secondaryText;
+          } else if (props.length >= 5 && props.length < 10) {
+            return "255, 221, 87";
+          } else {
+            return "0, 255, 0";
+          }
+        }
+        return props.isValid ? "0, 255, 0" : props.theme.secondaryText;
+      }}
     );
     line-height: 1.1em;
     transition: all 0.17s ease-in-out;
@@ -115,7 +138,20 @@ const StrengthCheck = styled.div<{ isValid: boolean }>`
     font-size: 1rem;
     width: 1em;
     height: 1em;
-    color: rgb(${(props) => (props.isValid ? "0, 255, 0" : "255, 0, 0")});
+    color: rgb(
+      ${(props) => {
+        if (props.length !== undefined) {
+          if (props.length < 5) {
+            return "255, 0, 0";
+          } else if (props.length >= 5 && props.length < 10) {
+            return "255, 221, 87";
+          } else {
+            return "0, 255, 0";
+          }
+        }
+        return props.isValid ? "0, 255, 0" : "255, 0, 0";
+      }}
+    );
     transition: all 0.17s ease-in-out;
   }
 `;

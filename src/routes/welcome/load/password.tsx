@@ -13,9 +13,12 @@ import {
   Spacer,
   Text,
   useInput,
+  useModal,
   useToasts
 } from "@arconnect/components";
 import { PageType, trackPage } from "~utils/analytics";
+import { PasswordWarningModal } from "~routes/popup/passwordPopup";
+import { passwordStrength } from "check-password-strength";
 
 export default function Password() {
   // input controls
@@ -28,12 +31,15 @@ export default function Password() {
   // password context
   const { setPassword } = useContext(PasswordContext);
 
+  const passwordModal = useModal();
+
   // route
   const [, params] = useRoute<{ setup: string; page: string }>("/:setup/:page");
   const [, setLocation] = useLocation();
+  const passwordStatus = passwordStrength(passwordInput.state);
 
   // handle done button
-  function done() {
+  function done(skip: boolean = false) {
     // check if passwords match
     if (passwordInput.state !== validPasswordInput.state) {
       return setToast({
@@ -43,13 +49,18 @@ export default function Password() {
       });
     }
 
-    // check password validity
-    if (!checkPasswordValid(passwordInput.state)) {
+    // check password validty
+    if (passwordInput.state.length < 5) {
       return setToast({
         type: "error",
         content: browser.i18n.getMessage("password_not_strong"),
         duration: 2300
       });
+    }
+
+    if (!checkPasswordValid(passwordInput.state) && !skip) {
+      passwordModal.setOpen(true);
+      return;
     }
 
     // set password in global context
@@ -109,10 +120,18 @@ export default function Password() {
       <Spacer y={(matches && 1.15) || 1.55} />
       <PasswordStrength password={passwordInput.state} />
       <Spacer y={1} />
-      <ButtonV2 fullWidth onClick={done}>
+      <ButtonV2 fullWidth onClick={() => done()}>
         {browser.i18n.getMessage("next")}
         <ArrowRightIcon style={{ marginLeft: "5px" }} />
       </ButtonV2>
+      <PasswordWarningModal
+        done={done}
+        {...passwordModal.bindings}
+        passwordStatus={{
+          contains: passwordStatus.contains,
+          length: passwordStatus.length
+        }}
+      />
     </>
   );
 }
