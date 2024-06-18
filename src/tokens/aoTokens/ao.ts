@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { defaultConfig } from "./config";
-import { connect } from "@permaweb/aoconnect";
+import { connect, dryrun } from "@permaweb/aoconnect";
 import { type Tag } from "arweave/web/lib/transaction";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { Token } from "ao-tokens";
+import { Quantity, Token } from "ao-tokens";
 import { ArweaveSigner, createData } from "arbundles";
 import { getActiveKeyfile } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
+import { freeDecryptedWallet } from "~wallets/encryption";
 
 export type AoInstance = ReturnType<typeof connect>;
 
@@ -151,9 +152,27 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
               const balance = Number(
                 await timeoutPromise(
                   (async () => {
-                    const aoToken = await Token(id);
-                    const balance = await aoToken.getBalance(activeAddress);
-                    return balance;
+                    if (id === "m3PaWzK4PTG9lAaqYQPaPdOcXdO8hYqi5Fe9NWqXd0w") {
+                      try {
+                        const res = await dryrun({
+                          Id: "0000000000000000000000000000000000000000001",
+                          Owner: activeAddress,
+                          process:
+                            "F-EvpwmZXIlndrEqXOXSSifUeyn-LMBdeJKI6Gflk1g",
+                          tags: [{ name: "Action", value: "Balance" }]
+                        });
+                        const balance = res.Messages[0].Data;
+                        if (balance) {
+                          return new Quantity(BigInt(balance), BigInt(12));
+                        }
+                      } catch (err) {
+                        console.error("Error during dryrun:", err);
+                      }
+                    } else {
+                      const aoToken = await Token(id);
+                      const balance = await aoToken.getBalance(activeAddress);
+                      return balance;
+                    }
                   })(),
                   10000
                 )
@@ -168,7 +187,8 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
           })
         );
         setBalances(balances);
-      } catch {
+      } catch (err) {
+        console.error("Error fetching balances:", err);
       } finally {
         setLoading(false);
       }
@@ -353,6 +373,7 @@ export const sendAoTransfer = async (
         { name: "Quantity", value: amount }
       ]
     });
+    freeDecryptedWallet(decryptedWallet.keyfile);
     return transferID;
   } catch (err) {
     console.log("err", err);

@@ -92,10 +92,10 @@ const Warning = styled(Text)`
   color: #ff0000;
 `;
 
-const ResetButton = styled(ButtonV2).attrs({
+export const ResetButton = styled(ButtonV2).attrs({
   secondary: true,
   fullWidth: true
-})<{ displayTheme: DisplayTheme }>`
+})<{ displayTheme?: DisplayTheme }>`
   background-color: ${(props) => props.theme.delete};
   border: 1.5px solid ${(props) => props.theme.fail};
   color: #ffffff;

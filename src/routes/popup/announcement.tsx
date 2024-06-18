@@ -88,7 +88,7 @@ export const AnnouncementPopup = ({ isOpen, setOpen }) => {
   );
 };
 
-const Content = styled.div`
+export const Content = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -98,7 +98,7 @@ const Content = styled.div`
   flex-grow: 0;
 `;
 
-const ContentWrapper = styled.div`
+export const ContentWrapper = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;

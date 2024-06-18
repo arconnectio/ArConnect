@@ -8,6 +8,7 @@ import { getActiveAddress } from "~wallets";
 import {
   addSubscription,
   getSubscriptionData,
+  trackCanceledSubscription,
   updateSubscription
 } from "~subscriptions";
 import { formatAddress } from "~utils/format";
@@ -41,6 +42,7 @@ export default function SubscriptionPayment({ id }: { id: string }) {
         subData.arweaveAccountAddress,
         SubscriptionStatus.CANCELED
       );
+      await trackCanceledSubscription(subData, false);
       setToast({
         type: "success",
         content: browser.i18n.getMessage("subscription_cancelled"),
