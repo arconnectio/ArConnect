@@ -157,20 +157,18 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
                 await timeoutPromise(
                   (async () => {
                     if (id === AO_NATIVE_TOKEN) {
-                      try {
-                        const res = await dryrun({
-                          Id: "0000000000000000000000000000000000000000001",
-                          Owner: activeAddress,
-                          process: AO_NATIVE_TOKEN_BALANCE_MIRROR,
-                          tags: [{ name: "Action", value: "Balance" }]
-                        });
-                        const balance = res.Messages[0].Data;
-                        if (balance) {
-                          return new Quantity(BigInt(balance), BigInt(12));
-                        }
-                      } catch (err) {
-                        console.error("Error during dryrun:", err);
+                      const res = await dryrun({
+                        Id: "0000000000000000000000000000000000000000001",
+                        Owner: activeAddress,
+                        process: AO_NATIVE_TOKEN_BALANCE_MIRROR,
+                        tags: [{ name: "Action", value: "Balance" }]
+                      });
+                      const balance = res.Messages[0].Data;
+                      if (balance) {
+                        return new Quantity(BigInt(balance), BigInt(12));
                       }
+                      // default return
+                      return new Quantity(0, BigInt(12));
                     } else {
                       const aoToken = await Token(id);
                       const balance = await aoToken.getBalance(activeAddress);
