@@ -1803,7 +1803,7 @@
       "description": "ao announcement title text"
   },
   "ao_token_announcement_title": {
-    "message": "恭喜获得 AO Token 4 年排放奖励 🥳",
+    "message": "恭喜您通过持有 AR 获得 AO 代币！🥳",
     "description": "ao token announcement title text"
   },
   "ao_token_send_popup": {

@@ -26,11 +26,24 @@ const background: ModuleFunction<number[]> = async (
     throw new Error(err);
   }
 
-  await authenticate({
-    type: "signDataItem",
-    data: dataItem,
-    appData
-  });
+  if (
+    dataItem.tags?.some(
+      (tag) => tag.name === "Action" && tag.value === "Transfer"
+    ) &&
+    dataItem.tags?.some(
+      (tag) => tag.name === "Data-Protocol" && tag.value === "ao"
+    )
+  ) {
+    try {
+      await authenticate({
+        type: "signDataItem",
+        data: dataItem,
+        appData
+      });
+    } catch {
+      throw new Error("User rejected the sign data item request");
+    }
+  }
 
   // grab the user's keyfile
   const decryptedWallet = await getActiveKeyfile().catch((e) => {
