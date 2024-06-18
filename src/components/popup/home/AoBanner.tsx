@@ -18,39 +18,21 @@ export default function AoBanner({ activeAddress }: AoBannerProps) {
   const theme = useTheme();
   const [showBanner, setShowBanner] = useState(false);
 
-  const [aoTokens] = useStorage(
-    {
-      key: "ao_tokens",
-      instance: ExtensionStorage
-    },
-    []
-  );
-
-  const aoToken = useMemo<TokenInfo | undefined>(() => {
-    if (aoTokens.length === 0) return undefined;
-    return aoTokens.find((token) => token.processId === AO_NATIVE_TOKEN);
-  }, [aoTokens]);
-
   async function getAoNativeTokenBalance() {
     const res = await ao.dryrun({
       Id: "0000000000000000000000000000000000000000001",
       Owner: activeAddress,
-      process: AO_NATIVE_TOKEN,
+      process: "F-EvpwmZXIlndrEqXOXSSifUeyn-LMBdeJKI6Gflk1g",
       tags: [{ name: "Action", value: "Balance" }]
     });
 
-    // find result message
-    for (const msg of res.Messages as Message[]) {
-      const balance = getTagValue("Balance", msg.Tags);
+    const balance = res.Messages[0].Data;
 
-      // return balance if found
-      if (balance) {
-        return new Quantity(BigInt(balance), BigInt(aoToken.Denomination));
-      }
+    if (balance) {
+      return new Quantity(BigInt(balance), BigInt(12));
     }
 
-    // default return
-    return new Quantity(0, BigInt(aoToken.Denomination));
+    return new Quantity(0, BigInt(12));
   }
 
   async function fetchAoNativeTokenBalance() {
@@ -59,12 +41,12 @@ export default function AoBanner({ activeAddress }: AoBannerProps) {
   }
 
   useEffect(() => {
-    if (activeAddress && aoToken && ao) {
+    if (activeAddress && ao) {
       fetchAoNativeTokenBalance().catch(() => {});
     }
-  }, [activeAddress, aoToken, ao]);
+  }, [activeAddress, ao]);
 
-  if (!activeAddress || !aoToken || !showBanner) {
+  if (!activeAddress || !showBanner) {
     return null;
   }
 
