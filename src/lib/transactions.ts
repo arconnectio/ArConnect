@@ -35,10 +35,10 @@ export const fetchTokenByProcessId = async (
   processId: string
 ): Promise<TokenInfo> => {
   if (!tokens) {
-    const [aoTokens, aoTokensCache] = await Promise.all([
-      ExtensionStorage.get<TokenInfo[]>("ao_tokens"),
-      ExtensionStorage.get<TokenInfo[]>("ao_tokens_cache")
-    ]);
+    const aoTokens =
+      (await ExtensionStorage.get<TokenInfo[]>("ao_tokens")) || [];
+    const aoTokensCache =
+      (await ExtensionStorage.get<TokenInfo[]>("ao_tokens_cache")) || [];
 
     tokens = [...aoTokens, ...aoTokensCache];
   }
