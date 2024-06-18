@@ -9,6 +9,10 @@ import { ArweaveSigner, createData } from "arbundles";
 import { getActiveKeyfile } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
 import { freeDecryptedWallet } from "~wallets/encryption";
+import {
+  AO_NATIVE_TOKEN,
+  AO_NATIVE_TOKEN_BALANCE_MIRROR
+} from "~utils/ao_import";
 
 export type AoInstance = ReturnType<typeof connect>;
 
@@ -152,13 +156,12 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
               const balance = Number(
                 await timeoutPromise(
                   (async () => {
-                    if (id === "m3PaWzK4PTG9lAaqYQPaPdOcXdO8hYqi5Fe9NWqXd0w") {
+                    if (id === AO_NATIVE_TOKEN) {
                       try {
                         const res = await dryrun({
                           Id: "0000000000000000000000000000000000000000001",
                           Owner: activeAddress,
-                          process:
-                            "F-EvpwmZXIlndrEqXOXSSifUeyn-LMBdeJKI6Gflk1g",
+                          process: AO_NATIVE_TOKEN_BALANCE_MIRROR,
                           tags: [{ name: "Action", value: "Balance" }]
                         });
                         const balance = res.Messages[0].Data;
