@@ -10,10 +10,10 @@
     "@jridgewell/gen-mapping" "^0.3.5"
     "@jridgewell/trace-mapping" "^0.3.24"
 
-"@arconnect/components@^0.3.8":
-  version "0.3.8"
-  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.3.8.tgz#aa230bb0908b5b4b5ec9701b8b78810ab9388dc7"
-  integrity sha512-k7YKaMO37It+IYGQA3DYqriOeKlIJnII9wc7Sl+3V7dsUZ3rNEk+qXIFVbcO/vMZM/Z6AR9MEUwbTFufu8MV8Q==
+"@arconnect/components@^0.3.11":
+  version "0.3.11"
+  resolved "https://registry.yarnpkg.com/@arconnect/components/-/components-0.3.11.tgz#a1920019702eb00663c7d78eeb5272fe78de96cf"
+  integrity sha512-wy1OY6w6NtNh0tvBWyDohub0/kQzhdCleXTODcx8wyD3PBs1i846B+a3KG7etEJiKsXoVYdohhje1ne83CoBaQ==
   dependencies:
     "@iconicicons/react" "^1.5.1"
     axios "^1.6.7"
