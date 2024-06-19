@@ -387,7 +387,9 @@ export interface TokenInfo {
   Logo?: string;
   Denomination: number;
   processId?: string;
+  lastUpdated?: string | null;
 }
+
 export interface TokenInfoWithBalance extends TokenInfo {
   id: string;
   balance: number;

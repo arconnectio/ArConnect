@@ -51,6 +51,7 @@ declare module "styled-components" {
     backgroundSecondary: string;
     inputField: string;
     primary: string;
+    backgroundv2;
     cardBorder: string;
     fail: string;
     secondaryDelete: string;

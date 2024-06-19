@@ -7,6 +7,7 @@ import {
   useToasts
 } from "@arconnect/components";
 import type { Token, TokenType } from "~tokens/token";
+import { Token as aoToken } from "ao-tokens";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { AnimatePresence } from "framer-motion";
@@ -18,7 +19,11 @@ import { CopyButton } from "./WalletSettings";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
+import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { formatAddress } from "~utils/format";
+import { ResetButton } from "../Reset";
+import { RefreshCcw01 } from "@untitled-ui/icons-react";
+import { defaultAoTokens, type TokenInfo } from "~tokens/aoTokens/ao";
 
 export default function TokenSettings({ id }: Props) {
   // tokens
@@ -31,7 +36,7 @@ export default function TokenSettings({ id }: Props) {
   );
 
   // ao tokens
-  const [aoTokens] = useStorage<any[]>(
+  const [aoTokens, setAoTokens] = useStorage<TokenInfo[] | any[]>(
     {
       key: "ao_tokens",
       instance: ExtensionStorage
@@ -50,7 +55,6 @@ export default function TokenSettings({ id }: Props) {
           id: aoToken.processId,
           name: aoToken.Name,
           ticker: aoToken.Ticker
-          // Map additional AO token properties as needed
         },
         isAoToken: true
       };
@@ -73,35 +77,78 @@ export default function TokenSettings({ id }: Props) {
     });
   }
 
+  const refreshToken = async () => {
+    const defaultToken = defaultAoTokens.find((t) => t.processId === token.id);
+    if (!defaultToken) {
+      // Handle the case where the default token is not found
+      return;
+    } else {
+      const tokenInfo = (await aoToken(token.id)).info;
+      if (tokenInfo) {
+        const updatedTokens = aoTokens.map((t) =>
+          t.processId === token.id
+            ? {
+                ...t,
+                Name: tokenInfo.Name,
+                Ticker: tokenInfo.Ticker,
+                Logo: tokenInfo.Logo,
+                Denomination: Number(tokenInfo.Denomination),
+                processId: token.id,
+                lastUpdated: new Date().toISOString()
+              }
+            : t
+        );
+        setAoTokens(updatedTokens);
+      }
+    }
+  };
+
   if (!token) return null;
 
   return (
     <Wrapper>
       {isAoToken ? (
-        <div>
-          <TokenName>{token.name} (AO Token)</TokenName>
-          <Symbol>Symbol: {token.ticker}</Symbol>
-          <TokenAddress>
-            Address: {token.id}
-            <TooltipV2 content={browser.i18n.getMessage("copy_address")}>
-              <CopyButton
-                onClick={() => {
-                  copy(token.id);
-                  setToast({
-                    type: "info",
-                    content: browser.i18n.getMessage("copied_address", [
-                      formatAddress(token.id, 8)
-                    ]),
-                    duration: 2200
-                  });
-                }}
-              />
-            </TooltipV2>
-          </TokenAddress>
-        </div>
+        <Inner>
+          <TokenName>
+            {token.name} <Image src={aoLogo} />
+          </TokenName>
+          <div>
+            <Title>Symbol:</Title>
+            <Text title noMargin>
+              {token.ticker}
+            </Text>
+          </div>
+          <div>
+            <Title>Address:</Title>
+            <div style={{ display: "flex" }}>
+              <Text title noMargin>
+                {formatAddress(token.id, 10)}
+              </Text>
+              <TooltipV2 content={browser.i18n.getMessage("copy_address")}>
+                <CopyButton
+                  onClick={() => {
+                    copy(token.id);
+                    setToast({
+                      type: "info",
+                      content: browser.i18n.getMessage("copied_address", [
+                        formatAddress(token.id, 8)
+                      ]),
+                      duration: 2200
+                    });
+                  }}
+                />
+              </TooltipV2>
+            </div>
+          </div>
+          <div>
+            <Title>Denomination:</Title>
+            <Text title noMargin>
+              {token?.Denomination}
+            </Text>
+          </div>
+        </Inner>
       ) : (
         <div>
-          <Spacer y={0.45} />
           <TokenName>{token.name}</TokenName>
           <Spacer y={0.5} />
           <SelectV2
@@ -120,23 +167,57 @@ export default function TokenSettings({ id }: Props) {
             </option>
           </SelectV2>
           <AnimatePresence>
-            {token.gateway && <CustomGatewayWarning />}
+            {token?.gateway && <CustomGatewayWarning />}
           </AnimatePresence>
         </div>
       )}
-      <ButtonV2 fullWidth onClick={() => removeToken(id)}>
-        <TrashIcon style={{ marginRight: "5px" }} />
-        {browser.i18n.getMessage("remove_token")}
-      </ButtonV2>
+      <ButtonWrapper>
+        {isAoToken && (
+          <ButtonV2
+            fullWidth
+            onClick={async () => {
+              await refreshToken();
+            }}
+          >
+            <RefreshCcw01 style={{ marginRight: "5px", height: "18px" }} />
+            {/* {browser.i18n.getMessage("remove_token")} */}
+            Refresh Token
+          </ButtonV2>
+        )}
+
+        <ResetButton fullWidth onClick={() => removeToken(id)}>
+          <TrashIcon style={{ marginRight: "5px" }} />
+          {browser.i18n.getMessage("remove_token")}
+        </ResetButton>
+      </ButtonWrapper>
     </Wrapper>
   );
 }
+
+const Inner = styled.div`
+  gap: 8px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+`;
+
+const Image = styled.img`
+  width: 16px;
+  padding: 0 8px;
+  border: 1px solid rgb(${(props) => props.theme.cardBorder});
+  border-radius: 2px;
 `;
 
 const TokenName = styled(Text).attrs({
@@ -168,3 +249,9 @@ const Symbol = styled(Text).attrs({
 interface Props {
   id: string;
 }
+
+const Title = styled(Text).attrs({
+  noMargin: true
+})`
+  color: ${(props) => props.theme.primaryTextv2};
+`;
