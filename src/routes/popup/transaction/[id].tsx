@@ -152,7 +152,7 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
               decimals: Number(tokenInfo.Denomination)
             });
             setTicker(tokenInfo.Ticker);
-            data.transaction.quantity = { ar: amount.toString(), winston: "" };
+            data.transaction.quantity = { ar: amount.toFixed(), winston: "" };
             data.transaction.recipient = aoRecipient.value;
           }
         }
@@ -549,7 +549,7 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                 fullWidth
                 onClick={() => {
                   const url = ao.isAo
-                    ? `https://www.ao.link/message/${id}`
+                    ? `https://www.ao.link/#/message/${id}`
                     : `https://viewblock.io/arweave/tx/${id}`;
 
                   browser.tabs.create({ url });
