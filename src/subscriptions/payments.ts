@@ -12,7 +12,8 @@ import { fractionedToBalance } from "~tokens/currency";
 import { arPlaceholder } from "~routes/popup/send";
 import {
   calculateNextPaymentDate,
-  updateSubscription as statusUpdateSubscription
+  updateSubscription as statusUpdateSubscription,
+  trackCanceledSubscription
 } from "~subscriptions";
 import { isLocalWallet } from "~utils/assertions";
 import BigNumber from "bignumber.js";
@@ -50,6 +51,7 @@ export async function handleSubscriptionPayment(
       data.arweaveAccountAddress,
       SubscriptionStatus.CANCELED
     );
+    await trackCanceledSubscription(data, true);
     throw new Error("Payment is overdue by more than a week.");
   }
 
@@ -205,10 +207,20 @@ const submitTx = async (
       transaction.id,
       manualPayment
     );
+    await trackEvent(EventType.SUBSCRIPTION_PAYMENT, {
+      amount: data.subscriptionFeeAmount,
+      autoPay: data.applicationAllowance !== 0,
+      success: true
+    });
     return updatedSub;
   } catch (err) {
     // SEGMENT
     await trackEvent(EventType.TRANSACTION_INCOMPLETE, {});
+    await trackEvent(EventType.SUBSCRIPTION_PAYMENT, {
+      amount: data.subscriptionFeeAmount,
+      autoPay: data.applicationAllowance !== 0,
+      success: false
+    });
     throw new Error("Error posting subscription tx to Arweave");
   }
 };
@@ -260,6 +272,7 @@ export async function updateSubscriptionAlarm(
       data.arweaveAccountAddress,
       SubscriptionStatus.CANCELED
     );
+    await trackCanceledSubscription(data, true);
   } else if (
     new Date(data.subscriptionEndDate) <= nextPaymentDue.currentDate &&
     data.applicationAutoRenewal

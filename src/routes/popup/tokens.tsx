@@ -132,19 +132,6 @@ export default function Tokens() {
     <>
       <HeadV2 title={browser.i18n.getMessage("assets")} />
       <TokensList>
-        {assets.map((token, i) => (
-          <Token
-            {...token}
-            onClick={() => push(`/token/${token.id}`)}
-            onSettingsClick={(e) => {
-              e.preventDefault();
-              window.open(
-                `${browser.runtime.getURL("tabs/dashboard.html")}#/tokens`
-              );
-            }}
-            key={i}
-          />
-        ))}
         {aoTokens.map((token) => (
           <Token
             key={token.id}
@@ -162,6 +149,19 @@ export default function Tokens() {
               e.preventDefault();
               removeAoToken(token);
             }}
+          />
+        ))}
+        {assets.map((token, i) => (
+          <Token
+            {...token}
+            onClick={() => push(`/token/${token.id}`)}
+            onSettingsClick={(e) => {
+              e.preventDefault();
+              window.open(
+                `${browser.runtime.getURL("tabs/dashboard.html")}#/tokens`
+              );
+            }}
+            key={i}
           />
         ))}
         {aoTokensCache.map((token) => (

@@ -666,9 +666,15 @@ export const PropertyValue = styled(BasePropertyText)`
 
 export const TagValue = styled(PropertyValue)`
   max-width: 50%;
-  overflow: hidden;
+  overflow-y: scroll;
   white-space: nowrap;
-  text-overflow: ellipsis;
+
+  /* Hide Scrollbar */
+  scrollbar-width: none; /* For Firefox */
+  -ms-overflow-style: none; /* For Internet Explorer and Edge */
+  &::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Opera */
+  }
 `;
 
 const ImageDisplay = styled.img.attrs({

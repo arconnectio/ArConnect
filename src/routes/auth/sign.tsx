@@ -165,6 +165,38 @@ export default function Sign() {
     }));
   }, [transaction]);
 
+  const recipient = useMemo(() => {
+    if (tags.length === 0) return transaction?.target || "";
+
+    // Warp Token
+    const isWarpTx =
+      tags.some(
+        (tag) => tag.name === "App-Name" && tag.value === "SmartWeaveAction"
+      ) && tags.some((tag) => tag.name === "Contract");
+    if (isWarpTx) {
+      const inputTag = tags.find((tag) => tag.name === "Input");
+      if (inputTag?.value) {
+        try {
+          const inputValue = JSON.parse(inputTag.value);
+          if (inputValue?.function === "transfer" && inputValue?.target) {
+            return inputValue.target;
+          }
+        } catch (error) {}
+      }
+    }
+
+    // AO Token
+    const isAOTransferTx =
+      tags.some((tag) => tag.name === "Data-Protocol" && tag.value === "ao") &&
+      tags.some((tag) => tag.name === "Action" && tag.value === "Transfer");
+    if (isAOTransferTx) {
+      const recipientTag = tags.find((tag) => tag.name === "Recipient");
+      if (recipientTag?.value) return recipientTag.value;
+    }
+
+    return transaction?.target || "";
+  }, [tags]);
+
   /**
    * Hardware wallet logic
    */
@@ -260,6 +292,14 @@ export default function Sign() {
                   {formatAddress(params.address, 6)}
                 </PropertyValue>
               </TransactionProperty>
+              {transaction?.target && (
+                <TransactionProperty>
+                  <PropertyName>
+                    {browser.i18n.getMessage("transaction_to")}
+                  </PropertyName>
+                  <PropertyValue>{formatAddress(recipient, 6)}</PropertyValue>
+                </TransactionProperty>
+              )}
               <TransactionProperty>
                 <PropertyName>
                   {browser.i18n.getMessage("transaction_fee")}

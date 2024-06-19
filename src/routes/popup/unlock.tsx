@@ -2,12 +2,17 @@ import PasswordStrength from "~components/welcome/PasswordStrength";
 import PasswordMatch from "~components/welcome/PasswordMatch";
 import { checkPasswordValid } from "~wallets/generator";
 import { useEffect, useMemo, useState } from "react";
-import { isExpired, unlock } from "~wallets/auth";
+import {
+  addExpiration,
+  checkPassword,
+  isExpired,
+  removeDecryptionKey,
+  unlock
+} from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
 import { updatePassword } from "~wallets";
-import Head from "~components/popup/Head";
 import {
   ButtonV2,
   InputV2,
@@ -15,8 +20,13 @@ import {
   Spacer,
   Text,
   useInput,
+  useModal,
   useToasts
 } from "@arconnect/components";
+import HeadV2 from "~components/popup/HeadV2";
+import styled from "styled-components";
+import { PasswordWarningModal } from "./passwordPopup";
+import { passwordStrength } from "check-password-strength";
 
 export default function Unlock() {
   const [expired, setExpired] = useState(false);
@@ -40,6 +50,16 @@ export default function Unlock() {
   // router push
   const [push] = useHistory();
 
+  const passwordModal = useModal();
+
+  const passwordStatus = passwordStrength(newPasswordInput.state);
+
+  async function lockWallet() {
+    await removeDecryptionKey();
+    setExpired(false);
+    push("/unlock");
+  }
+
   // unlock ArConnect
   async function unlockWallet() {
     // unlock using password
@@ -58,7 +78,7 @@ export default function Unlock() {
   }
 
   // changes password and unlock ArConnect
-  async function changeAndUnlock() {
+  async function changeAndUnlock(skip: boolean = false) {
     if (newPasswordInput.state !== confirmNewPasswordInput.state) {
       return setToast({
         type: "error",
@@ -87,13 +107,18 @@ export default function Unlock() {
       });
     }
 
-    // check password validity
-    if (!checkPasswordValid(newPasswordInput.state)) {
+    if (!(await checkPassword(passwordInput.state))) {
       return setToast({
         type: "error",
-        content: browser.i18n.getMessage("password_not_strong"),
-        duration: 2300
+        content: browser.i18n.getMessage("invalidPassword"),
+        duration: 2200
       });
+    }
+
+    // check password validity
+    if (!checkPasswordValid(newPasswordInput.state) && !skip) {
+      passwordModal.setOpen(true);
+      return;
     }
 
     try {
@@ -126,19 +151,32 @@ export default function Unlock() {
   return (
     <Wrapper>
       <div>
-        <Head
+        <HeadV2
           title={browser.i18n.getMessage("unlock")}
           showOptions={false}
           back={() => {}}
           showBack={false}
         />
         <Spacer y={0.75} />
-        <Section>
+        <Section style={{ padding: "0 20px 16px 20px" }}>
           <Text noMargin>
             {browser.i18n.getMessage(
               expired ? "reset_wallet_password_to_use" : "unlock_wallet_to_use"
             )}
           </Text>
+          <Spacer y={1} />
+          {expired && (
+            <AltText
+              noMargin
+              onClick={async () => {
+                await addExpiration();
+                await lockWallet();
+              }}
+            >
+              {browser.i18n.getMessage("password_change")}
+            </AltText>
+          )}
+
           <Spacer y={1.5} />
           <InputV2
             type="password"
@@ -182,10 +220,28 @@ export default function Unlock() {
         </Section>
       </div>
       <Section>
-        <ButtonV2 fullWidth onClick={expired ? changeAndUnlock : unlockWallet}>
+        <ButtonV2
+          fullWidth
+          onClick={expired ? () => changeAndUnlock() : unlockWallet}
+        >
           {browser.i18n.getMessage("unlock")}
         </ButtonV2>
       </Section>
+      <PasswordWarningModal
+        done={changeAndUnlock}
+        {...passwordModal.bindings}
+        passwordStatus={{
+          contains: passwordStatus.contains,
+          length: passwordStatus.length
+        }}
+      />
     </Wrapper>
   );
 }
+
+const AltText = styled(Text)`
+  font-size: 12px;
+  color: rgb(${(props) => props.theme.primaryText});
+  text-decoration: underline;
+  cursor: pointer;
+`;

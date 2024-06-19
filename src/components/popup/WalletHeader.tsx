@@ -429,6 +429,13 @@ export default function WalletHeader() {
               })
           },
           {
+            icon: <CreditCard01 style={{ width: "18px", height: "17px" }} />,
+            title: "subscriptions",
+            route: () => {
+              push("/subscriptions");
+            }
+          },
+          {
             icon: <Settings01 style={{ width: "18px", height: "18px" }} />,
             title: "Settings",
             route: () =>
@@ -443,22 +450,6 @@ export default function WalletHeader() {
               window.open(
                 window.location.href.split("#")[0] + "?expanded=true"
               );
-            }
-          },
-          {
-            icon: <CreditCard01 style={{ width: "18px", height: "17px" }} />,
-            title: "subscriptions",
-            route: () => {
-              push("/subscriptions");
-            }
-          },
-          {
-            icon: (
-              <ArrowUpRightIcon style={{ width: "18px", height: "17px" }} />
-            ),
-            title: "transactions",
-            route: () => {
-              push("/transactions");
             }
           }
         ]}

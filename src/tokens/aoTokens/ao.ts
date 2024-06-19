@@ -1,17 +1,29 @@
 import { useEffect, useMemo, useState } from "react";
 import { defaultConfig } from "./config";
-import { connect } from "@permaweb/aoconnect";
+import { connect, dryrun } from "@permaweb/aoconnect";
 import { type Tag } from "arweave/web/lib/transaction";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { Token } from "ao-tokens";
+import { Quantity, Token } from "ao-tokens";
 import { ArweaveSigner, createData } from "arbundles";
 import { getActiveKeyfile } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
+import { freeDecryptedWallet } from "~wallets/encryption";
+import {
+  AO_NATIVE_TOKEN,
+  AO_NATIVE_TOKEN_BALANCE_MIRROR
+} from "~utils/ao_import";
 
 export type AoInstance = ReturnType<typeof connect>;
 
 export const defaultAoTokens: TokenInfo[] = [
+  {
+    Name: "AO",
+    Ticker: "AO",
+    Denomination: 12,
+    Logo: "UkS-mdoiG8hcAClhKK8ch4ZhEzla0mCPDOix9hpdSFE",
+    processId: "m3PaWzK4PTG9lAaqYQPaPdOcXdO8hYqi5Fe9NWqXd0w"
+  },
   {
     Name: "TRUNK",
     Ticker: "TRUNK",
@@ -143,12 +155,31 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
             try {
               const balance = await timeoutPromise(
                 (async () => {
-                  const aoToken = await Token(id);
-                  const balance = await aoToken.getBalance(activeAddress);
-                  return balance.toString();
+                  if (id === AO_NATIVE_TOKEN) {
+                    const res = await dryrun({
+                      Id: "0000000000000000000000000000000000000000001",
+                      Owner: activeAddress,
+                      process: AO_NATIVE_TOKEN_BALANCE_MIRROR,
+                      tags: [{ name: "Action", value: "Balance" }]
+                    });
+                    const balance = res.Messages[0].Data;
+                    if (balance) {
+                      return new Quantity(
+                        BigInt(balance),
+                        BigInt(12)
+                      ).toString();
+                    }
+                    // default return
+                    return new Quantity(0, BigInt(12)).toString();
+                  } else {
+                    const aoToken = await Token(id);
+                    const balance = await aoToken.getBalance(activeAddress);
+                    return balance.toString();
+                  }
                 })(),
-                6000
+                10000
               );
+
               return {
                 id,
                 balance
@@ -159,7 +190,8 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
           })
         );
         setBalances(balances);
-      } catch {
+      } catch (err) {
+        console.error("Error fetching balances:", err);
       } finally {
         setLoading(false);
       }
@@ -342,6 +374,7 @@ export const sendAoTransfer = async (
         { name: "Quantity", value: amount }
       ]
     });
+    freeDecryptedWallet(decryptedWallet.keyfile);
     return transferID;
   } catch (err) {
     console.log("err", err);

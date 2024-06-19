@@ -1,11 +1,9 @@
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useEffect, useMemo, useState } from "react";
-import Collectibles from "~components/popup/home/Collectibles";
 import WalletHeader from "~components/popup/WalletHeader";
 import NoBalance from "~components/popup/home/NoBalance";
 import Balance from "~components/popup/home/Balance";
-import Tokens from "~components/popup/home/Tokens";
 import { AnnouncementPopup } from "./announcement";
 import { getDecryptionKey, isExpired } from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
@@ -15,6 +13,8 @@ import { useTokens } from "~tokens";
 import { useAoTokens } from "~tokens/aoTokens/ao";
 import { useActiveWallet, useBalance } from "~wallets/hooks";
 import BuyButton from "~components/popup/home/BuyButton";
+import Tabs from "~components/popup/home/Tabs";
+import AoBanner from "~components/popup/home/AoBanner";
 
 export default function Home() {
   // get if the user has no balance
@@ -115,14 +115,14 @@ export default function Home() {
 
   return (
     <HomeWrapper>
+      <AoBanner activeAddress={activeAddress} />
       {loggedIn && <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />}
       <WalletHeader />
       <Balance />
       {(!noBalance && (
         <>
           <BuyButton />
-          <Tokens />
-          <Collectibles />
+          <Tabs />
         </>
       )) || <NoBalance />}
     </HomeWrapper>

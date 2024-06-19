@@ -10,6 +10,7 @@ import styled from "styled-components";
 import {
   deleteSubscription,
   getSubscriptionData,
+  trackCanceledSubscription,
   updateAllowance,
   updateAutoRenewal,
   updateSubscription
@@ -64,6 +65,7 @@ export default function SubscriptionDetails({ id }: Props) {
           subData.arweaveAccountAddress,
           SubscriptionStatus.CANCELED
         );
+        await trackCanceledSubscription(subData, false);
         setToast({
           type: "success",
           content: browser.i18n.getMessage("subscription_cancelled"),

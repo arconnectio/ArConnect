@@ -116,7 +116,11 @@ export default function Subscription() {
         applicationName: subscriptionData.applicationName,
         arweaveAccountAddress: subscriptionData.arweaveAccountAddress,
         recurringPaymentFrequency: subscriptionData.recurringPaymentFrequency,
-        subscriptionFeeAmount: subscriptionData.subscriptionFeeAmount
+        subscriptionFeeAmount: subscriptionData.subscriptionFeeAmount,
+        applicationUrl:
+          params?.url || subscriptionParams.subscriptionManagementUrl,
+        autoPay: autopayChecked,
+        autoRenewal: checked
       });
 
       // reply to request
