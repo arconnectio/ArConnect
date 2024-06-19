@@ -2,8 +2,7 @@ import { Quantity } from "ao-tokens";
 import BigNumber from "bignumber.js";
 
 /** Token formatting config */
-export const tokenConfig: Intl.NumberFormatOptions &
-  BigIntToLocaleStringOptions = {
+export const tokenConfig: Intl.NumberFormatOptions = {
   maximumFractionDigits: 2
 };
 
@@ -13,16 +12,16 @@ export const tokenConfig: Intl.NumberFormatOptions &
 export function formatTokenBalance(
   balance: string | number | BigNumber | Quantity
 ) {
-  const val = Quantity.isQuantity(balance)
+  const bigNum = BigNumber.isBigNumber(balance)
     ? balance
-    : new Quantity("0", 20n).fromString(balance.toString());
-
-  return val.toLocaleString(undefined, tokenConfig);
+    : BigNumber(balance.toString());
+  return bigNum
+    .toFormat(tokenConfig.maximumFractionDigits)
+    .replace(/\.?0*$/, "");
 }
 
 /** Fiat formatting config */
-export const fiatConfig: Intl.NumberFormatOptions &
-  BigIntToLocaleStringOptions = {
+export const fiatConfig: Intl.NumberFormatOptions = {
   style: "currency",
   currencyDisplay: "symbol",
   maximumFractionDigits: 2
@@ -35,11 +34,7 @@ export function formatFiatBalance(
   balance: string | number | BigNumber | Quantity,
   currency?: string
 ) {
-  const val = Quantity.isQuantity(balance)
-    ? balance
-    : new Quantity("0", 20n).fromString(balance.toString());
-
-  return val.toLocaleString(undefined, {
+  return (+balance).toLocaleString(undefined, {
     ...fiatConfig,
     currency: currency?.toLowerCase()
   });

@@ -108,6 +108,6 @@ export function abbreviateNumber(value: number | string | BigNumber): string {
   if (abbreviatedValue.mod(1).isEqualTo(0)) {
     return `${abbreviatedValue.toFixed()}${suffix}`;
   } else {
-    return `${abbreviatedValue.toFixed(2)}${suffix}`;
+    return `${abbreviatedValue.toFixed(1)}${suffix}`;
   }
 }

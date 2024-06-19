@@ -55,16 +55,18 @@ export default function Token({ onClick, ...props }: Props) {
   // token balance
   const fractBalance = useMemo(
     () =>
-      balanceToFractioned(props.balance, {
-        id: props.id,
-        decimals: props.decimals,
-        divisibility: props.divisibility
-      }),
+      props.ao
+        ? BigNumber(props.balance)
+        : balanceToFractioned(props.balance, {
+            id: props.id,
+            decimals: props.decimals,
+            divisibility: props.divisibility
+          }),
     [props]
   );
 
   const balance = useMemo(() => {
-    const balanceToFormat = BigNumber(props.ao ? props.balance : fractBalance);
+    const balanceToFormat = fractBalance;
     const isTinyBalance = balanceToFormat.gt(0) && balanceToFormat.lt(1e-6);
     const isSmallBalance = balanceToFormat.lt(1) && balanceToFormat.gte(1e-6);
 
@@ -75,11 +77,10 @@ export default function Token({ onClick, ...props }: Props) {
 
     setTotalBalance(balanceToFormat.toFixed());
 
+    const numBalance = formattedBalance.replace(/,/g, "");
     setShowTooltip(balanceToFormat.gte(1_000_000) || isTinyBalance);
 
-    return isSmallBalance
-      ? formattedBalance
-      : abbreviateNumber(balanceToFormat);
+    return isSmallBalance ? numBalance : abbreviateNumber(numBalance);
   }, [fractBalance.toString()]);
 
   // token price
