@@ -1,4 +1,4 @@
-import { TransformFinalizer } from "~api/foreground";
+import { type TransformFinalizer } from "~api/foreground";
 import type { ModuleFunction } from "~api/module";
 
 const foreground: ModuleFunction<unknown> = (data, options) => {

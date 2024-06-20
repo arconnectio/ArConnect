@@ -128,7 +128,7 @@ export default function Transactions() {
         if (transaction.aoInfo) {
           return `${balanceToFractioned(transaction.aoInfo.quantity, {
             divisibility: transaction.aoInfo.denomination
-          })} ${transaction.aoInfo.tickerName}`;
+          }).toFixed()} ${transaction.aoInfo.tickerName}`;
         }
         return "";
       default:

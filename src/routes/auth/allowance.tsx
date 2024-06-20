@@ -1,5 +1,9 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
-import { type Allowance, defaultAllowance } from "~applications/allowance";
+import {
+  type Allowance,
+  type AllowanceBigNumber,
+  defaultAllowance
+} from "~applications/allowance";
 import Application, { type AppInfo } from "~applications/application";
 import { checkPassword } from "~wallets/auth";
 import { useEffect, useState } from "react";
@@ -18,6 +22,7 @@ import App from "~components/auth/App";
 import Arweave from "arweave";
 import styled from "styled-components";
 import { defaultGateway } from "~gateways/gateway";
+import BigNumber from "bignumber.js";
 
 export default function Allowance() {
   const arweave = new Arweave(defaultGateway);
@@ -35,7 +40,7 @@ export default function Allowance() {
   const limitInput = useInput();
 
   // allowance
-  const [allowance, setAllowance] = useState<Allowance>();
+  const [allowance, setAllowance] = useState<AllowanceBigNumber>();
 
   useEffect(() => {
     if (!allowance) return;
@@ -93,28 +98,32 @@ export default function Allowance() {
 
     // update allowance
     await app.updateSettings(() => {
-      const updatedAllowance: Allowance = {
+      const updatedAllowance: AllowanceBigNumber = {
         ...defaultAllowance,
         ...allowance
       };
 
       if (limitInput.state !== "") {
-        const limitInputState = Number(
+        const limitInputState = BigNumber(
           arweave.ar.arToWinston(limitInput.state)
         );
 
         if (
-          limitInputState !== (allowance?.limit || 0) &&
-          limitInputState > 0
+          !limitInputState.eq(allowance?.limit || 0) &&
+          limitInputState.gt(0)
         ) {
           updatedAllowance.limit = limitInputState;
         }
       }
 
-      updatedAllowance.spent = 0;
+      updatedAllowance.spent = BigNumber("0");
 
       return {
-        allowance: updatedAllowance
+        allowance: {
+          enabled: updatedAllowance.enabled,
+          limit: updatedAllowance.limit.toString(),
+          spent: updatedAllowance.spent.toString()
+        }
       };
     });
 
@@ -138,7 +147,13 @@ export default function Allowance() {
           appName={appData?.name || params?.url}
           appUrl={params?.url}
           appIcon={appData?.logo}
-          allowance={allowance}
+          allowance={
+            allowance && {
+              enabled: allowance.enabled,
+              limit: allowance.limit.toFixed(),
+              spent: allowance.spent.toFixed()
+            }
+          }
         />
         <Spacer y={1.5} />
         <Section>

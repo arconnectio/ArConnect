@@ -19,6 +19,7 @@ import browser from "webextension-polyfill";
 import Arweave from "arweave";
 import { ensureAllowanceDispatch } from "./allowance";
 import { updateAllowance } from "../sign/allowance";
+import BigNumber from "bignumber.js";
 
 type ReturnType = {
   arConfetti: string | false;
@@ -124,7 +125,7 @@ const background: ModuleFunction<ReturnType> = async (
       transaction.addTag(arcTag.name, arcTag.value);
     }
     // calculate price
-    const price = +transaction.reward + parseInt(transaction.quantity);
+    const price = BigNumber(transaction.reward).plus(transaction.quantity);
 
     // ensure allowance
     await ensureAllowanceDispatch(

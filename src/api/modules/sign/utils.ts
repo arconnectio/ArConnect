@@ -6,6 +6,7 @@ import { ExtensionStorage } from "~utils/storage";
 import iconUrl from "url:/assets/icon512.png";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
+import BigNumber from "bignumber.js";
 
 /**
  * Fetch current arconfetti icon
@@ -52,9 +53,9 @@ export async function calculateReward({ reward }: Transaction) {
   if (multiplier === 1) return reward;
 
   // calculate fee with multiplier
-  const fee = +reward * multiplier;
+  const fee = BigNumber(reward).multipliedBy(multiplier);
 
-  return fee.toFixed(0);
+  return fee.toFixed(0, BigNumber.ROUND_FLOOR);
 }
 
 /**
@@ -66,7 +67,7 @@ export async function calculateReward({ reward }: Transaction) {
  * @param type Signed transaction type
  */
 export async function signNotification(
-  price: number,
+  price: number | BigNumber,
   id: string,
   appURL: string,
   type: "sign" | "dispatch" = "sign"
@@ -87,18 +88,16 @@ export async function signNotification(
   const arweave = new Arweave(gateway);
 
   // calculate price in AR
-  const arPrice = parseFloat(arweave.ar.winstonToAr(price.toString()));
+  const arPrice = BigNumber(arweave.ar.winstonToAr(price.toString()));
 
   // format price
   let maximumFractionDigits = 0;
 
-  if (arPrice < 0.1) maximumFractionDigits = 6;
-  else if (arPrice < 10) maximumFractionDigits = 4;
-  else if (arPrice < 1000) maximumFractionDigits = 2;
+  if (arPrice.lt(0.1)) maximumFractionDigits = 6;
+  else if (arPrice.lt(10)) maximumFractionDigits = 4;
+  else if (arPrice.lt(1000)) maximumFractionDigits = 2;
 
-  const formattedPrice = arPrice.toLocaleString(undefined, {
-    maximumFractionDigits
-  });
+  const formattedPrice = arPrice.toFormat(maximumFractionDigits);
 
   // give an ID to the notification
   const notificationID = nanoid();

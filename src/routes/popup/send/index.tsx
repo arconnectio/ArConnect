@@ -65,6 +65,7 @@ import { formatAddress } from "~utils/format";
 import { useContact } from "~contacts/hooks";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { useAoTokens } from "~tokens/aoTokens/ao";
+import BigNumber from "bignumber.js";
 import { AO_NATIVE_TOKEN } from "~utils/ao_import";
 import { AnnouncementPopup } from "./announcement";
 
@@ -75,7 +76,7 @@ export const arPlaceholder: TokenInterface = {
   name: "Arweave",
   ticker: "AR",
   type: "asset",
-  balance: 0,
+  balance: "0",
   decimals: 12
 };
 
@@ -219,7 +220,7 @@ export default function Send({ id }: Props) {
   );
 
   // balance
-  const [balance, setBalance] = useState(0);
+  const [balance, setBalance] = useState("0");
   const arBalance = useBalance();
 
   // Handle Recipient Input and Slider
@@ -230,7 +231,7 @@ export default function Send({ id }: Props) {
   useEffect(() => {
     (async () => {
       if (token.id === "AR") {
-        return setBalance(arBalance);
+        return setBalance(arBalance.toString());
       }
 
       // placeholder balance
@@ -243,20 +244,20 @@ export default function Send({ id }: Props) {
         );
 
         setBalance(
-          balanceToFractioned(result[0], {
+          balanceToFractioned(String(result[0]), {
             id: token.id,
             decimals: token.decimals,
             divisibility: token.divisibility
-          })
+          }).toString()
         );
       } else {
         setBalance(token.balance);
       }
     })();
-  }, [token, activeAddress, arBalance, id]);
+  }, [token, activeAddress, arBalance.toString(), id]);
 
   // token price
-  const [price, setPrice] = useState(0);
+  const [price, setPrice] = useState("0");
   const message = useInput();
 
   useEffect(() => {
@@ -264,34 +265,34 @@ export default function Send({ id }: Props) {
       if (token.id === "AR") {
         const arPrice = await getArPrice(currency);
 
-        return setPrice(arPrice);
+        return setPrice(arPrice.toString());
       }
 
       // get price from redstone
 
       if (isAo) {
-        return setPrice(0);
+        return setPrice("0");
       }
       const res = await redstone.getPrice(token.ticker);
 
       if (!res.value) {
-        return setPrice(0);
+        return setPrice("0");
       }
 
       // get price in currency
       const multiplier =
         currency !== "usd" ? await getPrice("usd", currency) : 1;
 
-      setPrice(res.value * multiplier);
+      setPrice(BigNumber(res.value).multipliedBy(multiplier).toString());
     })();
   }, [token, currency]);
 
   // quantity in the other currency
   const secondaryQty = useMemo(() => {
-    const qtyParsed = parseFloat(qty) || 0;
+    const qtyParsed = BigNumber(qty || "0");
 
-    if (qtyMode === "token") return qtyParsed * price;
-    else return qtyParsed * (1 / price);
+    if (qtyMode === "token") return qtyParsed.multipliedBy(price);
+    else return qtyParsed.dividedBy(price);
   }, [qty, qtyMode, price]);
 
   // network fee
@@ -321,35 +322,38 @@ export default function Send({ id }: Props) {
 
   // maximum possible send amount
   const max = useMemo(() => {
-    let maxAmountToken = balance - parseFloat(networkFee);
+    const balanceBigNum = BigNumber(balance);
+    const networkFeeBigNum = BigNumber(networkFee);
 
-    if (token.id !== "AR") maxAmountToken = balance;
+    let maxAmountToken = balanceBigNum.minus(networkFeeBigNum);
 
-    return maxAmountToken * (qtyMode === "fiat" ? price : 1);
+    if (token.id !== "AR") maxAmountToken = balanceBigNum;
+
+    return maxAmountToken.multipliedBy(qtyMode === "fiat" ? price : 1);
   }, [balance, token, networkFee, qtyMode]);
 
   // switch back to token qty mode if the
   // token does not have a fiat price
   useEffect(() => {
-    if (!!price) return;
+    if (!!+price) return;
     setQtyMode("token");
   }, [price]);
 
   // switch between fiat qty mode / token qty mode
   function switchQtyMode() {
-    if (!price) return;
+    if (!+price) return;
     setQty(secondaryQty.toFixed(4));
     setQtyMode((val) => (val === "fiat" ? "token" : "fiat"));
   }
 
   // invalid qty
   const invalidQty = useMemo(() => {
-    const parsedQty = Number(qty);
+    const parsedQty = BigNumber(qty);
 
-    if (Number.isNaN(parsedQty)) return true;
+    if (parsedQty.isNaN()) return true;
 
-    return parsedQty < 0 || parsedQty > max;
-  }, [qty, max]);
+    return parsedQty.lt(0) || max.lt(parsedQty);
+  }, [qty, max.toString()]);
 
   // show token selector
   const [showTokenSelector, setShownTokenSelector] = useState(false);
@@ -397,11 +401,11 @@ export default function Send({ id }: Props) {
 
     await TempTransactionStorage.set("send", {
       networkFee,
-      qty: qtyMode === "fiat" ? secondaryQty : qty,
+      qty: qtyMode === "fiat" ? secondaryQty.toFixed() : qty,
       token,
       recipient,
-      estimatedFiat: qtyMode === "fiat" ? qty : secondaryQty,
-      estimatedNetworkFee: parseFloat(networkFee) * price,
+      estimatedFiat: qtyMode === "fiat" ? qty : secondaryQty.toFixed(),
+      estimatedNetworkFee: BigNumber(networkFee).multipliedBy(price).toFixed(),
       message: message.state,
       qtyMode,
       isAo
@@ -500,7 +504,7 @@ export default function Send({ id }: Props) {
               fullWidth
               icon={
                 <InputIcons>
-                  {!!price && (
+                  {!!+price && (
                     <CurrencyButton onClick={switchQtyMode} disabled={isAo}>
                       <Currency active={qtyMode === "fiat"}>USD</Currency>/
                       <Currency active={qtyMode === "token"}>
@@ -511,7 +515,7 @@ export default function Send({ id }: Props) {
                   <MaxButton
                     disabled={degraded}
                     altColor={theme === "dark" && "#423D59"}
-                    onClick={() => setQty(max.toString())}
+                    onClick={() => setQty(max.toFixed())}
                   >
                     Max
                   </MaxButton>
@@ -520,7 +524,7 @@ export default function Send({ id }: Props) {
             />
           </RecipientAmountWrapper>
           <Datas>
-            {!!price && !isAo ? (
+            {!!+price && !isAo ? (
               <Text noMargin>
                 ≈
                 {qtyMode === "fiat"
@@ -600,7 +604,7 @@ export default function Send({ id }: Props) {
                     id={token.id}
                     ticker={token.Ticker}
                     divisibility={token.Denomination}
-                    balance={Number(token.balance)}
+                    balance={token.balance || "0"}
                     onClick={() => updateSelectedToken(token.id)}
                   />
                 ))}

@@ -14,6 +14,7 @@ import browser from "webextension-polyfill";
 import { signAuth } from "../sign/sign_auth";
 import Arweave from "arweave";
 import authenticate from "../connect/auth";
+import BigNumber from "bignumber.js";
 
 const background: ModuleFunction<number[]> = async (
   appData,
@@ -34,6 +35,19 @@ const background: ModuleFunction<number[]> = async (
       (tag) => tag.name === "Data-Protocol" && tag.value === "ao"
     )
   ) {
+    try {
+      const tags = dataItem?.tags || [];
+      const quantityTag = tags.find((tag) => tag.name === "Quantity");
+      if (quantityTag) {
+        const quantity = BigNumber(quantityTag.value).toFixed(
+          0,
+          BigNumber.ROUND_FLOOR
+        );
+        if (!isNaN(+quantity)) {
+          quantityTag.value = quantity;
+        }
+      }
+    } catch {}
     try {
       await authenticate({
         type: "signDataItem",

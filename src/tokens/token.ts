@@ -23,7 +23,7 @@ export interface Token {
   type: TokenType;
   gateway?: Gateway;
   dre?: string;
-  balance: number | null;
+  balance: string | null;
   divisibility?: number;
   decimals?: number;
   defaultLogo?: string;
@@ -218,12 +218,12 @@ export function parseInteractions(
 
     // interaction data
     let type: TokenInteractionType = "interaction";
-    let qty = Number(tx.node.quantity.ar);
+    let qty = tx.node.quantity.ar;
     let otherAddress: string;
 
     if (input.function === "transfer") {
       type = (recipient === activeAddress && "in") || "out";
-      qty = balanceToFractioned(Number(input.qty), fractionsCfg);
+      qty = balanceToFractioned(input.qty, fractionsCfg).toFixed();
       otherAddress =
         (recipient === activeAddress && tx.node.owner.address) || recipient;
     }

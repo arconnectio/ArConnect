@@ -31,7 +31,7 @@ import App from "~components/auth/App";
 import styled from "styled-components";
 import { EventType, trackEvent } from "~utils/analytics";
 import Application from "~applications/application";
-import { defaultGateway, Gateway } from "~gateways/gateway";
+import { defaultGateway, type Gateway } from "~gateways/gateway";
 
 export default function Connect() {
   // active address
