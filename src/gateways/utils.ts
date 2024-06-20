@@ -1,4 +1,4 @@
-import { Gateway } from "~gateways/gateway";
+import { type Gateway } from "~gateways/gateway";
 
 /**
  * Get the full gateway URL string, from the
@@ -21,7 +21,6 @@ export function urlToGateway(url: string): Gateway {
   return {
     host: gatewayURL.hostname,
     port: gatewayURL.port === "" ? 443 : Number(gatewayURL.port),
-    // @ts-expect-error
     protocol: gatewayURL.protocol?.replace(":", "") || "http"
   };
 }

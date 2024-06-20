@@ -16,6 +16,7 @@ import {
   trackCanceledSubscription
 } from "~subscriptions";
 import { isLocalWallet } from "~utils/assertions";
+import BigNumber from "bignumber.js";
 
 export async function handleSubscriptionPayment(
   data: SubscriptionData,
@@ -28,7 +29,7 @@ export async function handleSubscriptionPayment(
   }
 
   if (
-    data.applicationAllowance < data.subscriptionFeeAmount &&
+    BigNumber(data.applicationAllowance).lt(data.subscriptionFeeAmount) &&
     !initialPayment
   ) {
     await statusUpdateSubscription(
@@ -78,10 +79,10 @@ export const prepare = async (
 
     const winstonBalance = await arweave.wallets.getBalance(activeAddress);
 
-    const balance = Number(arweave.ar.winstonToAr(winstonBalance));
+    const balance = arweave.ar.winstonToAr(winstonBalance);
 
     // Check if the subscription fee exceeds the user's balance
-    if (data.subscriptionFeeAmount > balance) {
+    if (BigNumber(data.subscriptionFeeAmount).gt(balance)) {
       throw new Error("Subscription fee amount exceeds wallet balance");
     }
 

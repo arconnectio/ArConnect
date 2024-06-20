@@ -123,7 +123,7 @@ export default function Recipient({ tokenID, qty, message }: Props) {
           JSON.stringify({
             function: "transfer",
             target: target,
-            qty
+            qty: +qty
           })
         );
         addTransferTags(tx);
@@ -224,6 +224,6 @@ const Address = styled(Text).attrs({
 
 interface Props {
   tokenID: string;
-  qty: number;
+  qty: string;
   message?: string;
 }

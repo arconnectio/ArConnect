@@ -95,14 +95,11 @@ export default function Notifications() {
             quantityTransfered = notification.quantity;
           } else {
             ticker = token.Ticker;
-            quantityTransfered = balanceToFractioned(
-              Number(notification.quantity),
-              {
-                id: notification.tokenId,
-                decimals: token.Denomination,
-                divisibility: token.Denomination
-              }
-            );
+            quantityTransfered = balanceToFractioned(notification.quantity, {
+              id: notification.tokenId,
+              decimals: token.Denomination,
+              divisibility: token.Denomination
+            }).toFixed();
           }
         } else if (notification.transactionType !== "Transaction") {
           let token = await fetchTokenById(notification.tokenId);
@@ -117,7 +114,7 @@ export default function Notifications() {
               notification.node.tags
             );
             quantityTransfered = formatTokenBalance(
-              balanceToFractioned(Number(quantityTransfered), {
+              balanceToFractioned(quantityTransfered, {
                 id: notification.tokenId,
                 decimals: token.decimals,
                 divisibility: token.divisibility
@@ -126,7 +123,7 @@ export default function Notifications() {
           } else {
             ticker = token.ticker;
             quantityTransfered = formatTokenBalance(
-              Number(notification.quantity)
+              notification.quantity || "0"
             );
           }
         }

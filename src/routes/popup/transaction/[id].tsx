@@ -1,13 +1,19 @@
 import {
   balanceToFractioned,
   formatFiatBalance,
-  formatTokenBalance,
-  fractionedToBalance
+  formatTokenBalance
 } from "~tokens/currency";
 import { AnimatePresence, type Variants, motion } from "framer-motion";
 import { Section, Spacer, Text } from "@arconnect/components";
 import type { GQLNodeInterface } from "ar-gql/dist/faces";
-import { useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MutableRefObject
+} from "react";
 import { useGateway } from "~gateways/wayfinder";
 import { useHistory } from "~utils/hash_router";
 import {
@@ -39,6 +45,7 @@ import {
 import { TempTransactionStorage } from "~utils/storage";
 import { useContact } from "~contacts/hooks";
 import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
+import BigNumber from "bignumber.js";
 import { Token } from "ao-tokens";
 
 // pull contacts and check if to address is in contacts
@@ -57,6 +64,13 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
 
   // fetch tx data
   const [transaction, setTransaction] = useState<GQLNodeInterface>();
+  const [quantity, setQuantity] = useState("");
+
+  // adjust amount title font sizes
+  const parentRef = useRef(null);
+  const childRef = useRef(null);
+  useAdjustAmountTitleWidth(parentRef, childRef, quantity);
+
   // const [contact, setContact] = useState<any | undefined>(undefined);
   const contact = useContact(transaction?.recipient);
 
@@ -146,16 +160,17 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
 
           if (aoQuantity) {
             const tokenInfo = (await Token(data.transaction.recipient)).info;
-            const amount = balanceToFractioned(Number(aoQuantity.value), {
+            const amount = balanceToFractioned(aoQuantity.value, {
               id: data.transaction.recipient,
               decimals: Number(tokenInfo.Denomination)
             });
             setTicker(tokenInfo.Ticker);
-            data.transaction.quantity = { ar: amount.toString(), winston: "" };
+            data.transaction.quantity = { ar: amount.toFixed(), winston: "" };
             data.transaction.recipient = aoRecipient.value;
           }
         }
 
+        setQuantity(data.transaction.quantity.ar);
         setTransaction(data.transaction);
       }
     };
@@ -193,9 +208,9 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
 
   // transaction price
   const fiatPrice = useMemo(() => {
-    const transactionQty = Number(transaction?.quantity?.ar || "0");
+    const transactionQty = BigNumber(transaction?.quantity?.ar || "0");
 
-    return transactionQty * arPrice;
+    return transactionQty.multipliedBy(arPrice);
   }, [transaction, arPrice]);
 
   // get content type
@@ -281,7 +296,7 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
   }, [transaction]);
 
   return (
-    <Wrapper>
+    <Wrapper ref={parentRef}>
       <div>
         <HeadV2
           title={browser.i18n.getMessage(
@@ -300,9 +315,17 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
             {!message && (
               <>
                 <Section style={{ paddingTop: 9, paddingBottom: 8 }}>
-                  <AmountTitle>
+                  <AmountTitle
+                    ref={childRef}
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      justifyContent: "center",
+                      alignItems: "flex-end"
+                    }}
+                  >
                     {!ao.isAo
-                      ? formatTokenBalance(Number(transaction.quantity.ar))
+                      ? formatTokenBalance(transaction.quantity.ar || "0")
                       : transaction.quantity.ar}
                     {/* NEEDS TO BE DYNAMIC */}
                     <span>{ticker ? ticker : "AR"}</span>
@@ -548,7 +571,7 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                 fullWidth
                 onClick={() => {
                   const url = ao.isAo
-                    ? `https://www.ao.link/message/${id}`
+                    ? `https://www.ao.link/#/message/${id}`
                     : `https://viewblock.io/arweave/tx/${id}`;
 
                   browser.tabs.create({ url });
@@ -564,6 +587,52 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
     </Wrapper>
   );
 }
+
+export const useAdjustAmountTitleWidth = (
+  parentRef: MutableRefObject<any>,
+  childRef: MutableRefObject<any>,
+  quantity: string
+) => {
+  const canvasRef = useRef(null);
+
+  if (!canvasRef.current) {
+    canvasRef.current = document.createElement("canvas");
+  }
+
+  const measureTextWidth = useCallback((text: string, font: string): number => {
+    const context = canvasRef.current.getContext("2d");
+    context.font = font;
+    const metrics = context.measureText(text);
+    return metrics.width;
+  }, []);
+
+  function adjustAmountFontSize() {
+    if (!quantity || !parentRef.current || !childRef.current) return;
+
+    const parentWidth = parentRef.current.offsetWidth;
+    const style = getComputedStyle(childRef.current);
+    const font = `${style.fontSize} ${style.fontFamily}`;
+    const childWidth = measureTextWidth(quantity, font);
+
+    if (childWidth / parentWidth > 0.85) {
+      const newFontSize = parentWidth * 0.05;
+      childRef.current.style.fontSize = `${newFontSize}px`;
+      childRef.current.children[0].style.fontSize = `0.75rem`;
+    } else {
+      // default font sizes
+      childRef.current.style.fontSize = `2.5rem`;
+      childRef.current.children[0].style.fontSize = `1.25rem`;
+    }
+  }
+
+  useEffect(() => {
+    adjustAmountFontSize();
+
+    window.addEventListener("resize", adjustAmountFontSize);
+
+    return () => window.removeEventListener("resize", adjustAmountFontSize);
+  }, [quantity]);
+};
 
 const Wrapper = styled.div`
   display: flex;

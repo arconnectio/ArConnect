@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import useSetting from "~settings/hook";
 import redstone from "redstone-api";
 import { getPrice } from "./coingecko";
+import BigNumber from "bignumber.js";
 
 /**
  * Hook for the redstone token price API
@@ -11,7 +12,7 @@ import { getPrice } from "./coingecko";
  * @param opts Custom Redstone API "getPrice" options
  */
 export function usePrice(symbol?: string, opts?: GetPriceOptions) {
-  const [price, setPrice] = useState<number>();
+  const [price, setPrice] = useState<BigNumber>();
   const [loading, setLoading] = useState(false);
 
   // currency setting
@@ -37,7 +38,7 @@ export function usePrice(symbol?: string, opts?: GetPriceOptions) {
         const multiplier =
           currency !== "usd" ? await getPrice("usd", currency) : 1;
 
-        setPrice(res.value * multiplier);
+        setPrice(BigNumber(res.value).multipliedBy(multiplier));
       } catch {}
 
       setLoading(false);

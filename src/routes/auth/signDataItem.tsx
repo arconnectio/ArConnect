@@ -16,7 +16,8 @@ import {
   TransactionProperty,
   PropertyName,
   PropertyValue,
-  TagValue
+  TagValue,
+  useAdjustAmountTitleWidth
 } from "~routes/popup/transaction/[id]";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
@@ -51,23 +52,6 @@ interface DataStructure {
   tags: Tag[];
 }
 
-const useMeasureTextWidth = () => {
-  const canvasRef = useRef(null);
-
-  if (!canvasRef.current) {
-    canvasRef.current = document.createElement("canvas");
-  }
-
-  const measureTextWidth = useCallback((text: string, font: string): number => {
-    const context = canvasRef.current.getContext("2d");
-    context.font = font;
-    const metrics = context.measureText(text);
-    return metrics.width;
-  }, []);
-
-  return measureTextWidth;
-};
-
 export default function SignDataItem() {
   // connect params
   const params = useAuthParams<{
@@ -75,9 +59,6 @@ export default function SignDataItem() {
     data: DataStructure;
   }>();
 
-  const parentRef = useRef(null);
-  const childRef = useRef(null);
-  const measureTextWidth = useMeasureTextWidth();
   const [password, setPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [tokenName, setTokenName] = useState<string>("");
@@ -100,6 +81,11 @@ export default function SignDataItem() {
     () => (amount || 0).toLocaleString(),
     [amount]
   );
+
+  // adjust amount title font sizes
+  const parentRef = useRef(null);
+  const childRef = useRef(null);
+  useAdjustAmountTitleWidth(parentRef, childRef, formattedAmount);
 
   const [signatureAllowance] = useStorage(
     {
@@ -158,25 +144,6 @@ export default function SignDataItem() {
 
     // close the window
     closeWindow();
-  }
-
-  function adjustAmountFontSize() {
-    if (!amount || !parentRef.current || !childRef.current) return;
-
-    const parentWidth = parentRef.current.offsetWidth;
-    const style = getComputedStyle(childRef.current);
-    const font = `${style.fontSize} ${style.fontFamily}`;
-    const childWidth = measureTextWidth(formattedAmount, font);
-
-    if (childWidth / parentWidth > 0.85) {
-      const newFontSize = parentWidth * 0.05;
-      childRef.current.style.fontSize = `${newFontSize}px`;
-      childRef.current.children[0].style.fontSize = `0.75rem`;
-    } else {
-      // default font sizes
-      childRef.current.style.fontSize = `2.5rem`;
-      childRef.current.children[0].style.fontSize = `1.25rem`;
-    }
   }
 
   useEffect(() => {
@@ -262,14 +229,6 @@ export default function SignDataItem() {
 
     return () => window.removeEventListener("keydown", listener);
   }, [params?.authID, password]);
-
-  useEffect(() => {
-    adjustAmountFontSize();
-
-    window.addEventListener("resize", adjustAmountFontSize);
-
-    return () => window.removeEventListener("resize", adjustAmountFontSize);
-  }, [amount]);
 
   useEffect(() => {
     if (tokenName && !logo) {

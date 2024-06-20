@@ -32,7 +32,7 @@ export default function Tokens() {
     return aoTokens.map((token) => ({
       id: token.processId,
       defaultLogo: token.Logo,
-      balance: 0,
+      balance: "0",
       ticker: token.Ticker,
       type: "asset" as TokenType,
       name: token.Name
@@ -95,7 +95,7 @@ export default function Tokens() {
   const handleTokenClick = (token: {
     id: any;
     defaultLogo?: string;
-    balance?: number;
+    balance?: string;
     ticker?: string;
     type?: TokenType;
     name?: string;

@@ -40,6 +40,7 @@ import { getPrice } from "~lib/coingecko";
 import useSetting from "~settings/hook";
 import { EventType, trackEvent } from "~utils/analytics";
 import { handleSubscriptionPayment } from "~subscriptions/payments";
+import BigNumber from "bignumber.js";
 
 export default function Subscription() {
   //   connect params
@@ -54,13 +55,13 @@ export default function Subscription() {
   // get auth utils
   const { closeWindow, cancel } = useAuthUtils("subscription", params?.authID);
   const theme = useTheme();
-  const [price, setPrice] = useState<number | null>();
+  const [price, setPrice] = useState<BigNumber | null>();
 
   useEffect(() => {
     async function fetchArPrice() {
       const arPrice = await getPrice("arweave", currency);
       if (arPrice) {
-        setPrice(arPrice * params.subscriptionFeeAmount);
+        setPrice(BigNumber(arPrice).multipliedBy(params.subscriptionFeeAmount));
       }
     }
 

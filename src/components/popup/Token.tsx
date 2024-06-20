@@ -27,9 +27,10 @@ import Arweave from "arweave";
 import { useGateway } from "~gateways/wayfinder";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { getUserAvatar } from "~lib/avatar";
-import { abbreviateNumber } from "~utils/format";
+import { formatBalance } from "~utils/format";
 import Skeleton from "~components/Skeleton";
 import { TrashIcon, PlusIcon, SettingsIcon } from "@iconicicons/react";
+import BigNumber from "bignumber.js";
 import JSConfetti from "js-confetti";
 import { AO_NATIVE_TOKEN } from "~utils/ao_import";
 
@@ -54,35 +55,22 @@ export default function Token({ onClick, ...props }: Props) {
   // token balance
   const fractBalance = useMemo(
     () =>
-      balanceToFractioned(props.balance, {
-        id: props.id,
-        decimals: props.decimals,
-        divisibility: props.divisibility
-      }),
+      props.ao
+        ? BigNumber(props.balance)
+        : balanceToFractioned(props.balance, {
+            id: props.id,
+            decimals: props.decimals,
+            divisibility: props.divisibility
+          }),
     [props]
   );
 
   const balance = useMemo(() => {
-    const balanceToFormat = props.ao ? props.balance : fractBalance;
-    const isTinyBalance = balanceToFormat > 0 && balanceToFormat < 1e-6;
-    const isSmallBalance = balanceToFormat < 1 && balanceToFormat >= 1e-6;
-
-    const formattedBalance =
-      isTinyBalance || isSmallBalance
-        ? balanceToFormat.toString()
-        : formatTokenBalance(balanceToFormat);
-
-    setTotalBalance(
-      isTinyBalance
-        ? balanceToFormat.toFixed(20).replace(/(\.?)0+$/, "")
-        : formattedBalance
-    );
-
-    const numBalance = parseFloat(formattedBalance.replace(/,/g, ""));
-    setShowTooltip(numBalance >= 1_000_000 || isTinyBalance);
-
-    return isSmallBalance ? numBalance : abbreviateNumber(numBalance);
-  }, [fractBalance]);
+    const formattedBalance = formatBalance(fractBalance);
+    setTotalBalance(formattedBalance.tooltipBalance);
+    setShowTooltip(formattedBalance.showTooltip);
+    return formattedBalance.displayBalance;
+  }, [fractBalance.toString()]);
 
   // token price
   const { price, currency } = usePrice(props.ticker);
@@ -91,7 +79,7 @@ export default function Token({ onClick, ...props }: Props) {
   const fiatBalance = useMemo(() => {
     if (!price) return <div />;
 
-    const estimate = fractBalance * price;
+    const estimate = fractBalance.multipliedBy(price);
 
     return formatFiatBalance(estimate, currency.toLowerCase());
   }, [price, balance, currency]);
@@ -406,8 +394,11 @@ export function ArToken({ onClick }: ArTokenProps) {
   });
 
   // load ar balance
-  const [balance, setBalance] = useState(0);
-  const [fiatBalance, setFiatBalance] = useState(0);
+  const [balance, setBalance] = useState(BigNumber("0"));
+  const [fiatBalance, setFiatBalance] = useState(BigNumber("0"));
+  const [displayBalance, setDisplayBalance] = useState("0");
+  const [totalBalance, setTotalBalance] = useState("");
+  const [showTooltip, setShowTooltip] = useState(false);
 
   // memoized requirements to ensure stability
   const requirements = useMemo(() => ({ ensureStake: true }), []);
@@ -421,14 +412,18 @@ export function ArToken({ onClick }: ArTokenProps) {
 
       // fetch balance
       const winstonBalance = await arweave.wallets.getBalance(activeAddress);
-      const arBalance = Number(arweave.ar.winstonToAr(winstonBalance));
-
+      const arBalance = BigNumber(arweave.ar.winstonToAr(winstonBalance));
       setBalance(arBalance);
+
+      const formattedBalance = formatBalance(arBalance);
+      setTotalBalance(formattedBalance.tooltipBalance);
+      setShowTooltip(formattedBalance.showTooltip);
+      setDisplayBalance(formattedBalance.displayBalance);
     })();
   }, [activeAddress, gateway]);
 
   useEffect(() => {
-    setFiatBalance(balance * price);
+    setFiatBalance(balance.multipliedBy(price));
   }, [balance, price]);
 
   return (
@@ -439,15 +434,29 @@ export function ArToken({ onClick }: ArTokenProps) {
         </LogoWrapper>
         <TokenName>Arweave</TokenName>
       </LogoAndDetails>
-      <BalanceSection>
-        <NativeBalance>
-          {formatTokenBalance(balance)}
-          {" AR"}
-        </NativeBalance>
-        <FiatBalance>
-          {formatFiatBalance(fiatBalance, currency.toLowerCase())}
-        </FiatBalance>
-      </BalanceSection>
+      {showTooltip ? (
+        <BalanceSection>
+          <BalanceTooltip content={totalBalance} position="topEnd">
+            <NativeBalance>
+              {displayBalance}
+              {" AR"}
+            </NativeBalance>
+          </BalanceTooltip>
+          <FiatBalance>
+            {formatFiatBalance(fiatBalance, currency.toLowerCase())}
+          </FiatBalance>
+        </BalanceSection>
+      ) : (
+        <BalanceSection>
+          <NativeBalance>
+            {displayBalance}
+            {" AR"}
+          </NativeBalance>
+          <FiatBalance>
+            {formatFiatBalance(fiatBalance, currency.toLowerCase())}
+          </FiatBalance>
+        </BalanceSection>
+      )}
     </Wrapper>
   );
 }

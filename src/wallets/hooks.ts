@@ -9,6 +9,7 @@ import { findGateway } from "~gateways/wayfinder";
 import type { HardwareApi } from "./hardware";
 import type { StoredWallet } from "~wallets";
 import Arweave from "arweave";
+import BigNumber from "bignumber.js";
 
 /**
  * Wallets with details hook
@@ -110,7 +111,7 @@ export function useBalance() {
   });
 
   // balance in AR
-  const [balance, setBalance] = useState(0);
+  const [balance, setBalance] = useState(BigNumber("0"));
 
   useEffect(() => {
     (async () => {
@@ -122,7 +123,7 @@ export function useBalance() {
       // fetch balance
       const winstonBalance = await arweave.wallets.getBalance(activeAddress);
 
-      setBalance(Number(arweave.ar.winstonToAr(winstonBalance)));
+      setBalance(BigNumber(arweave.ar.winstonToAr(winstonBalance)));
     })();
   }, [activeAddress]);
 

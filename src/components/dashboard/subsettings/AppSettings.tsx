@@ -179,7 +179,7 @@ export default function AppSettings({ app, showTitle = false }: Props) {
                 allowance: {
                   ...defaultAllowance,
                   ...val.allowance,
-                  spent: 0
+                  spent: "0"
                 }
               }))
             }
@@ -201,7 +201,7 @@ export default function AppSettings({ app, showTitle = false }: Props) {
                 allowance: {
                   ...defaultAllowance,
                   ...val.allowance,
-                  limit: Number(arweave.ar.arToWinston(e.target.value))
+                  limit: arweave.ar.arToWinston(e.target.value)
                 }
               }))
             }
