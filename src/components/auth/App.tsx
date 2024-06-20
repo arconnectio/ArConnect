@@ -42,7 +42,7 @@ export default function App({
     const arweave = new Arweave(defaultGateway);
     const arVal = arweave.ar.winstonToAr(val.toString());
 
-    return new Quantity(arVal, 20n);
+    return new Quantity("0", 20n).fromString(arVal);
   }
 
   // display theme

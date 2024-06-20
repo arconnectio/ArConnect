@@ -147,11 +147,13 @@ export default function Allowance() {
           appName={appData?.name || params?.url}
           appUrl={params?.url}
           appIcon={appData?.logo}
-          allowance={{
-            enabled: allowance.enabled,
-            limit: allowance.limit.toString(),
-            spent: allowance.spent.toString()
-          }}
+          allowance={
+            allowance && {
+              enabled: allowance.enabled,
+              limit: allowance.limit.toFixed(),
+              spent: allowance.spent.toFixed()
+            }
+          }
         />
         <Spacer y={1.5} />
         <Section>
