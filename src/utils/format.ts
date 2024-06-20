@@ -90,10 +90,7 @@ export function formatBalance(balance: BigNumber) {
     .toFormat(20, BigNumber.ROUND_FLOOR)
     .replace(/\.?0*$/, "");
 
-  if (balance.lt(1)) {
-    displayBalance =
-      balance.toFixed(20, BigNumber.ROUND_FLOOR).replace(/\.?0*$/, "") || "0";
-  } else if (balance.lte(1e4)) {
+  if (balance.lte(1e4)) {
     displayBalance = BigNumber(balance.toPrecision(6, BigNumber.ROUND_FLOOR))
       .toFixed(20, BigNumber.ROUND_FLOOR)
       .replace(/\.?0*$/, "");
