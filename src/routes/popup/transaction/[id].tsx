@@ -548,7 +548,7 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                 fullWidth
                 onClick={() => {
                   const url = ao.isAo
-                    ? `https://www.ao.link/message/${id}`
+                    ? `https://www.ao.link/#/message/${id}`
                     : `https://viewblock.io/arweave/tx/${id}`;
 
                   browser.tabs.create({ url });
