@@ -13,6 +13,7 @@ import {
   AO_NATIVE_TOKEN,
   AO_NATIVE_TOKEN_BALANCE_MIRROR
 } from "~utils/ao_import";
+import type { Alarms } from "webextension-polyfill";
 
 export type AoInstance = ReturnType<typeof connect>;
 
@@ -53,6 +54,16 @@ export const defaultAoTokens: TokenInfo[] = [
     processId: "GcFxqTQnKHcr304qnOcq00ZqbaYGDn4Wbb0DHAM-wvU"
   }
 ];
+
+/**
+ * Dummy ID
+ */
+export const Id = "0000000000000000000000000000000000000000001";
+
+/**
+ * Dummy owner
+ */
+export const Owner = "0000000000000000000000000000000000000000002";
 
 export interface Message {
   Anchor: string;
@@ -158,7 +169,7 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
                   (async () => {
                     if (id === AO_NATIVE_TOKEN) {
                       const res = await dryrun({
-                        Id: "0000000000000000000000000000000000000000001",
+                        Id,
                         Owner: activeAddress,
                         process: AO_NATIVE_TOKEN_BALANCE_MIRROR,
                         tags: [{ name: "Action", value: "Balance" }]
@@ -170,9 +181,16 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
                       // default return
                       return new Quantity(0, BigInt(12));
                     } else {
-                      const aoToken = await Token(id);
-                      const balance = await aoToken.getBalance(activeAddress);
-                      return balance;
+                      const balance = await getAoTokenBalance(
+                        activeAddress,
+                        id
+                      );
+                      if (balance) {
+                        return balance;
+                      } else {
+                        // default return
+                        return new Quantity(0, BigInt(12));
+                      }
                     }
                   })(),
                   10000
@@ -196,6 +214,27 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
     })();
   }, [tokens, activeAddress, aoSetting]);
   return [tokensWithBalances, loading];
+}
+
+export async function getAoTokenBalance(address: string, process: string) {
+  const aoTokens = (await ExtensionStorage.get<TokenInfo[]>("ao_tokens")) || [];
+
+  const aoToken = aoTokens.find((token) => token.processId === process);
+
+  const res = await dryrun({
+    Id,
+    Owner: address,
+    process,
+    tags: [{ name: "Action", value: "Balance" }]
+  });
+
+  for (const msg of res.Messages as Message[]) {
+    const balance = getTagValue("Balance", msg.Tags);
+
+    if (balance && aoToken) {
+      return new Quantity(BigInt(balance), BigInt(aoToken.Denomination));
+    }
+  }
 }
 
 export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
@@ -379,6 +418,59 @@ export const sendAoTransfer = async (
   } catch (err) {
     console.log("err", err);
   }
+};
+
+/**
+ * Alarm handler for syncing ao tokens
+ */
+export const aoTokensCacheHandler = async (alarmInfo?: Alarms.Alarm) => {
+  if (alarmInfo && !alarmInfo.name.startsWith("update_ao_tokens")) return;
+
+  const aoTokens = (await ExtensionStorage.get<TokenInfo[]>("ao_tokens")) || [];
+
+  const updatedTokens = [...aoTokens];
+
+  for (const token of aoTokens) {
+    try {
+      const res = await timeoutPromise(
+        dryrun({
+          Id,
+          Owner,
+          process: token.processId,
+          tags: [{ name: "Action", value: "Info" }]
+        }),
+        6000
+      );
+
+      if (res.Messages && Array.isArray(res.Messages)) {
+        for (const msg of res.Messages as Message[]) {
+          const Ticker = getTagValue("Ticker", msg.Tags);
+          const Name = getTagValue("Name", msg.Tags);
+          const Denomination = getTagValue("Denomination", msg.Tags);
+          const Logo = getTagValue("Logo", msg.Tags);
+          const updatedToken = {
+            Name,
+            Ticker,
+            Denomination: Number(Denomination),
+            processId: token.processId,
+            Logo,
+            lastUpdated: new Date().toISOString()
+          };
+
+          const index = updatedTokens.findIndex(
+            (t) => t.processId === token.processId
+          );
+
+          if (index !== -1) {
+            updatedTokens[index] = { ...updatedTokens[index], ...updatedToken };
+          }
+        }
+      }
+    } catch (err) {
+      console.error(`Failed to update token with id ${token.processId}:`, err);
+    }
+  }
+  await ExtensionStorage.set("ao_tokens", updatedTokens);
 };
 
 export interface TokenInfo {
