@@ -200,7 +200,6 @@ export default function Transactions() {
                     </Secondary>
                   </Section>
                 </Transaction>
-                <Underline />
               </TransactionItem>
             ))
           ) : (
@@ -248,17 +247,31 @@ const Section = styled.div<{ alignRight?: boolean }>`
 
 const TransactionItem = styled.div`
   padding: 0 10px;
-  border-radius: 10px;
+  position: relative;
 
   &:hover {
-    background: #36324d;
-    border-radius: 10px;
+    background: ${(props) => props.theme.secondaryBtnHover};
   }
-`;
 
-const Underline = styled.div`
-  height: 1px;
-  background: ${(props) => props.theme.backgroundSecondary};
+  &:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 10px;
+    right: 10px;
+    height: 1px;
+    background-color: ${(props) => props.theme.backgroundSecondary};
+  }
+
+  &:first-child {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+
+  &:last-child {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
 `;
 
 const NoTransactions = styled(Text).attrs({

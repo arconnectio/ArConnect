@@ -430,7 +430,7 @@ export default function Send({ id }: Props) {
           {(keystoneError || degraded) && (
             <Degraded>
               <WarningWrapper>
-                <WarningIcon color="#fff" />
+                <WarningIcon color={theme === "dark" ? "#fff" : "#000"} />
               </WarningWrapper>
               <div>
                 {keystoneError ? (
@@ -509,6 +509,7 @@ export default function Send({ id }: Props) {
                     </CurrencyButton>
                   )}
                   <MaxButton
+                    disabled={degraded}
                     altColor={theme === "dark" && "#423D59"}
                     onClick={() => setQty(max.toString())}
                   >
@@ -659,7 +660,7 @@ export default function Send({ id }: Props) {
 }
 
 const Currency = styled.span<{ active: boolean }>`
-  color: ${(props) => (!props.active ? "#B9B9B9" : "#ffffff")};
+  color: ${(props) => (!props.active ? "#B9B9B9" : props.theme.primaryTextv2)};
 `;
 
 const Image = styled.img`
@@ -730,7 +731,7 @@ const Wrapper = styled.div<{ showOverlay: boolean }>`
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(${(props) => props.theme.background}, 0.5);
     z-index: 10;
     display: ${({ showOverlay }) => (showOverlay ? "block" : "none")};
   }
