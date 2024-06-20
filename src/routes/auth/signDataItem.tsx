@@ -40,7 +40,6 @@ import { LogoWrapper, Logo } from "~components/popup/Token";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import { useTheme } from "~utils/theme";
-import BigNumber from "bignumber.js";
 
 interface Tag {
   name: string;
@@ -74,9 +73,6 @@ export default function SignDataItem() {
     params?.data?.tags?.find((tag) => tag.name === "Quantity")?.value || "0";
   const transfer = params?.data?.tags?.some(
     (tag) => tag.name === "Action" && tag.value === "Transfer"
-  );
-  const isAo = params?.data?.tags?.some(
-    (tag) => tag.name === "Data-Protocol" && tag.value === "ao"
   );
 
   const process = params?.data?.target;
@@ -209,7 +205,7 @@ export default function SignDataItem() {
           }
 
           const tokenAmount = new Quantity(
-            BigInt(BigNumber(quantity).toFixed(0, BigNumber.ROUND_FLOOR)),
+            BigInt(quantity),
             BigInt(tokenInfo.Denomination)
           );
           setTokenName(tokenInfo.Name);
@@ -354,11 +350,7 @@ export default function SignDataItem() {
                 params?.data?.tags?.map((tag, i) => (
                   <TransactionProperty key={i}>
                     <PropertyName>{tag.name}</PropertyName>
-                    <TagValue>
-                      {isAo && transfer && tag.name === "Quantity"
-                        ? BigNumber(tag.value).toFixed(0, BigNumber.ROUND_FLOOR)
-                        : tag.value}
-                    </TagValue>
+                    <TagValue>{tag.value}</TagValue>
                   </TransactionProperty>
                 ))}
             </Properties>
