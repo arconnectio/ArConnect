@@ -396,6 +396,9 @@ export function ArToken({ onClick }: ArTokenProps) {
   // load ar balance
   const [balance, setBalance] = useState(BigNumber("0"));
   const [fiatBalance, setFiatBalance] = useState(BigNumber("0"));
+  const [displayBalance, setDisplayBalance] = useState("0");
+  const [totalBalance, setTotalBalance] = useState("");
+  const [showTooltip, setShowTooltip] = useState(false);
 
   // memoized requirements to ensure stability
   const requirements = useMemo(() => ({ ensureStake: true }), []);
@@ -410,8 +413,12 @@ export function ArToken({ onClick }: ArTokenProps) {
       // fetch balance
       const winstonBalance = await arweave.wallets.getBalance(activeAddress);
       const arBalance = BigNumber(arweave.ar.winstonToAr(winstonBalance));
-
       setBalance(arBalance);
+
+      const formattedBalance = formatBalance(arBalance);
+      setTotalBalance(formattedBalance.tooltipBalance);
+      setShowTooltip(formattedBalance.showTooltip);
+      setDisplayBalance(formattedBalance.displayBalance);
     })();
   }, [activeAddress, gateway]);
 
@@ -427,15 +434,29 @@ export function ArToken({ onClick }: ArTokenProps) {
         </LogoWrapper>
         <TokenName>Arweave</TokenName>
       </LogoAndDetails>
-      <BalanceSection>
-        <NativeBalance>
-          {formatTokenBalance(balance)}
-          {" AR"}
-        </NativeBalance>
-        <FiatBalance>
-          {formatFiatBalance(fiatBalance, currency.toLowerCase())}
-        </FiatBalance>
-      </BalanceSection>
+      {showTooltip ? (
+        <BalanceSection>
+          <BalanceTooltip content={totalBalance} position="topEnd">
+            <NativeBalance>
+              {displayBalance}
+              {" AR"}
+            </NativeBalance>
+          </BalanceTooltip>
+          <FiatBalance>
+            {formatFiatBalance(fiatBalance, currency.toLowerCase())}
+          </FiatBalance>
+        </BalanceSection>
+      ) : (
+        <BalanceSection>
+          <NativeBalance>
+            {displayBalance}
+            {" AR"}
+          </NativeBalance>
+          <FiatBalance>
+            {formatFiatBalance(fiatBalance, currency.toLowerCase())}
+          </FiatBalance>
+        </BalanceSection>
+      )}
     </Wrapper>
   );
 }
