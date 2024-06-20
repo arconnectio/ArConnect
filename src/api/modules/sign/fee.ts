@@ -60,7 +60,7 @@ export default async function handleFeeAlarm(alarmInfo: Alarms.Alarm) {
       if (feeMultiplier > 1) {
         feeTx.reward = BigNumber(feeTx.reward)
           .multipliedBy(feeMultiplier)
-          .toFixed(0);
+          .toFixed(0, BigNumber.ROUND_FLOOR);
       }
 
       await arweave.transactions.sign(feeTx, keyfile);

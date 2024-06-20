@@ -55,7 +55,7 @@ export async function calculateReward({ reward }: Transaction) {
   // calculate fee with multiplier
   const fee = BigNumber(reward).multipliedBy(multiplier);
 
-  return fee.toFixed(0);
+  return fee.toFixed(0, BigNumber.ROUND_FLOOR);
 }
 
 /**

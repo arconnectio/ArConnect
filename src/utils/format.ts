@@ -77,37 +77,70 @@ export const formatSettingName = (name: string) => {
 };
 
 /**
- * Abbreviates large numbers into a more readable format, using M, B, and T for millions, billions, and trillions respectively.
+ * Format balance into a more readable format, using M, B, T, Q, Qi, and S for millions, billions, trillions, quadrillions, quintillions, and sextillions respectively.
  *
- * @param value The numeric value to abbreviate, as a number or string.
- * @returns The abbreviated string representation of the number.
+ * @param balance The bignumber balance value to format.
+ * @returns An object containing displayBalance, tooltipBalance and showTooltip
  */
-export function abbreviateNumber(value: number | string | BigNumber): string {
-  let suffix = "";
+export function formatBalance(balance: BigNumber) {
+  let displayBalance: string;
+  let showTooltip = false;
 
-  if (!BigNumber.isBigNumber(value)) {
-    value = BigNumber(value);
-  }
+  const tooltipBalance = balance
+    .toFormat(20, BigNumber.ROUND_FLOOR)
+    .replace(/\.?0*$/, "");
 
-  let abbreviatedValue = value;
-
-  if (value.gte(1e12)) {
-    // Trillions
-    suffix = "T";
-    abbreviatedValue = value.dividedBy(1e12);
-  } else if (value.gte(1e9)) {
-    // Billions
-    suffix = "B";
-    abbreviatedValue = value.dividedBy(1e9);
-  } else if (value.gte(1e6)) {
-    // Millions
-    suffix = "M";
-    abbreviatedValue = value.dividedBy(1e6);
-  }
-
-  if (abbreviatedValue.mod(1).isEqualTo(0)) {
-    return `${abbreviatedValue.toFixed()}${suffix}`;
+  if (balance.lt(1)) {
+    displayBalance =
+      balance.toFixed(20, BigNumber.ROUND_FLOOR).replace(/\.?0*$/, "") || "0";
+  } else if (balance.lte(1e4)) {
+    displayBalance = BigNumber(balance.toPrecision(6, BigNumber.ROUND_FLOOR))
+      .toFixed(20, BigNumber.ROUND_FLOOR)
+      .replace(/\.?0*$/, "");
+    showTooltip = !balance.eq(displayBalance);
+  } else if (balance.lt(1e6)) {
+    displayBalance = BigNumber(balance.toPrecision(8, BigNumber.ROUND_FLOOR))
+      .toFixed(20, BigNumber.ROUND_FLOOR)
+      .replace(/\.?0*$/, "");
+    showTooltip = !balance.eq(displayBalance);
   } else {
-    return `${abbreviatedValue.toFixed(1)}${suffix}`;
+    showTooltip = true;
+    let suffix = "";
+    let divisor = 1;
+
+    if (balance.gte(1e21)) {
+      // Sextillions
+      suffix = "S";
+      divisor = 1e21;
+    } else if (balance.gte(1e18)) {
+      // Quintillions
+      suffix = "Qi";
+      divisor = 1e18;
+    } else if (balance.gte(1e15)) {
+      // Quadrillions
+      suffix = "Q";
+      divisor = 1e15;
+    } else if (balance.gte(1e12)) {
+      // Trillions
+      suffix = "T";
+      divisor = 1e12;
+    } else if (balance.gte(1e9)) {
+      // Billions
+      suffix = "B";
+      divisor = 1e9;
+    } else if (balance.gte(1e6)) {
+      // Millions
+      suffix = "M";
+      divisor = 1e6;
+    }
+
+    displayBalance =
+      BigNumber(
+        balance.dividedBy(divisor).toPrecision(6, BigNumber.ROUND_FLOOR)
+      )
+        .toFixed(20, BigNumber.ROUND_FLOOR)
+        .replace(/\.?0*$/, "") + suffix;
   }
+
+  return { displayBalance, tooltipBalance, showTooltip };
 }

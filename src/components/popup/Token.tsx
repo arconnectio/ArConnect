@@ -27,7 +27,7 @@ import Arweave from "arweave";
 import { useGateway } from "~gateways/wayfinder";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { getUserAvatar } from "~lib/avatar";
-import { abbreviateNumber } from "~utils/format";
+import { formatBalance } from "~utils/format";
 import Skeleton from "~components/Skeleton";
 import { TrashIcon, PlusIcon, SettingsIcon } from "@iconicicons/react";
 import BigNumber from "bignumber.js";
@@ -66,21 +66,10 @@ export default function Token({ onClick, ...props }: Props) {
   );
 
   const balance = useMemo(() => {
-    const balanceToFormat = fractBalance;
-    const isTinyBalance = balanceToFormat.gt(0) && balanceToFormat.lt(1e-6);
-    const isSmallBalance = balanceToFormat.lt(1) && balanceToFormat.gte(1e-6);
-
-    const formattedBalance =
-      isTinyBalance || isSmallBalance
-        ? balanceToFormat.toFixed()
-        : formatTokenBalance(balanceToFormat);
-
-    setTotalBalance(balanceToFormat.toFixed());
-
-    const numBalance = formattedBalance.replace(/,/g, "");
-    setShowTooltip(balanceToFormat.gte(1_000_000) || isTinyBalance);
-
-    return isSmallBalance ? numBalance : abbreviateNumber(numBalance);
+    const formattedBalance = formatBalance(fractBalance);
+    setTotalBalance(formattedBalance.tooltipBalance);
+    setShowTooltip(formattedBalance.showTooltip);
+    return formattedBalance.displayBalance;
   }, [fractBalance.toString()]);
 
   // token price

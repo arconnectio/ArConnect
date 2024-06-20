@@ -133,7 +133,7 @@ export function fractionedToBalance(
 
   return tokenType === "WARP"
     ? balanceBigNum.toFixed()
-    : balanceBigNum.toFixed(0);
+    : balanceBigNum.toFixed(0, BigNumber.ROUND_FLOOR);
 }
 
 export interface DivisibilityOrDecimals {
