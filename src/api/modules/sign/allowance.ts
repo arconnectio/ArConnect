@@ -1,6 +1,11 @@
-import { type Allowance, defaultAllowance } from "~applications/allowance";
+import {
+  type Allowance,
+  type AllowanceBigNumber,
+  defaultAllowance
+} from "~applications/allowance";
 import Application from "~applications/application";
 import authenticate from "../connect/auth";
+import BigNumber from "bignumber.js";
 
 /**
  * Get allowance for an app
@@ -23,7 +28,10 @@ export async function getAllowance(tabURL: string) {
  * @param price Price to update the allowance spent amount
  * with (quantity + reward)
  */
-export async function updateAllowance(tabURL: string, price: number) {
+export async function updateAllowance(
+  tabURL: string,
+  price: number | BigNumber
+) {
   // construct application
   const app = new Application(tabURL);
 
@@ -33,7 +41,9 @@ export async function updateAllowance(tabURL: string, price: number) {
       allowance: {
         ...defaultAllowance,
         ...allowance,
-        spent: (allowance?.spent || 0) + price
+        spent: BigNumber(allowance?.spent || 0)
+          .plus(price)
+          .toString()
       }
     };
   });
@@ -49,15 +59,15 @@ export async function updateAllowance(tabURL: string, price: number) {
  * @param price Price to check the allowance for (quantity + reward)
  */
 export async function allowanceAuth(
-  allowance: Allowance,
+  allowance: AllowanceBigNumber,
   tabURL: string,
-  price: number
+  price: number | BigNumber
 ) {
   // spent amount after this transaction
-  const total = allowance.spent + price;
+  const total = allowance.spent.plus(price);
 
   // check if the price goes over the allowed total limit
-  const hasEnoughAllowance = allowance.limit >= total;
+  const hasEnoughAllowance = total.lte(allowance.limit);
 
   // if the allowance is enough, return
   if (hasEnoughAllowance) return;

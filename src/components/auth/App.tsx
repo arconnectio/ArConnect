@@ -4,7 +4,7 @@ import {
   Spacer,
   Text
 } from "@arconnect/components";
-import { defaultGateway, Gateway } from "~gateways/gateway";
+import { defaultGateway, type Gateway } from "~gateways/gateway";
 import { useTheme as useDisplayTheme } from "~utils/theme";
 import type { Allowance } from "~applications/allowance";
 import { formatTokenBalance } from "~tokens/currency";
@@ -15,6 +15,7 @@ import browser from "webextension-polyfill";
 import Arweave from "arweave";
 import styled from "styled-components";
 import Label from "./Label";
+import { Quantity } from "ao-tokens";
 
 export default function App({
   appIcon,
@@ -25,23 +26,23 @@ export default function App({
 }: Props) {
   // allowance spent in AR
   const spent = useMemo(() => {
-    if (!allowance) return 0;
+    if (!allowance) return new Quantity("0");
 
     return winstonToArFormatted(allowance.spent);
   }, [allowance]);
 
   // allowance limit in AR
   const limit = useMemo(() => {
-    if (!allowance) return 0;
+    if (!allowance) return new Quantity("0");
 
     return winstonToArFormatted(allowance.limit);
   }, [allowance]);
 
-  function winstonToArFormatted(val: number) {
+  function winstonToArFormatted(val: string) {
     const arweave = new Arweave(defaultGateway);
     const arVal = arweave.ar.winstonToAr(val.toString());
 
-    return parseFloat(arVal);
+    return new Quantity("0", 20n).fromString(arVal);
   }
 
   // display theme

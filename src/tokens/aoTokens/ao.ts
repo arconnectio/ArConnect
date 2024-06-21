@@ -99,7 +99,7 @@ export function useAoTokens(
   refresh?: boolean
 ): [TokenInfoWithBalance[], boolean] {
   const [tokens, setTokens] = useState<TokenInfoWithBalance[]>([]);
-  const [balances, setBalances] = useState<{ id: string; balance: number }[]>(
+  const [balances, setBalances] = useState<{ id: string; balance: string }[]>(
     []
   );
   const [loading, setLoading] = useState(true);
@@ -143,7 +143,7 @@ export function useAoTokens(
         setTokens(
           aoTokens.map((aoToken) => ({
             id: aoToken.processId,
-            balance: 0,
+            balance: "0",
             Ticker: aoToken.Ticker,
             Name: aoToken.Name,
             Denomination: Number(aoToken.Denomination || 0),
@@ -178,29 +178,37 @@ export function useAoTokens(
                       });
                       const balance = res.Messages[0].Data;
                       if (balance) {
-                        return new Quantity(BigInt(balance), BigInt(12));
+                        return new Quantity(
+                          BigInt(balance),
+                          BigInt(12)
+                        ).toString();
                       }
                       // default return
-                      return new Quantity(0, BigInt(12));
+                      return new Quantity(0, BigInt(12)).toString();
                     } else {
-                      let balance: Quantity;
+                      let balance: string;
                       if (refresh) {
                         const aoToken = await Token(id);
-                        balance = await aoToken.getBalance(activeAddress);
+                        balance = (
+                          await aoToken.getBalance(activeAddress)
+                        ).toString();
                       } else {
-                        balance = await getAoTokenBalance(activeAddress, id);
+                        balance = (await getAoTokenBalance(activeAddress, id))
+                          .toString()
+                          .toString();
                       }
                       if (balance) {
                         return balance;
                       } else {
                         // default return
-                        return new Quantity(0, BigInt(12));
+                        return new Quantity(0, BigInt(12)).toString();
                       }
                     }
                   })(),
                   10000
                 )
               );
+
               return {
                 id,
                 balance
@@ -210,6 +218,7 @@ export function useAoTokens(
             }
           })
         );
+
         setBalances(balances);
       } catch (err) {
         console.error("Error fetching balances:", err);
@@ -246,7 +255,7 @@ export async function getAoTokenBalance(
 }
 
 export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
-  const [balances, setBalances] = useState<{ id: string; balance: number }[]>(
+  const [balances, setBalances] = useState<{ id: string; balance: string }[]>(
     []
   );
   const [loading, setLoading] = useState(true);
@@ -298,7 +307,7 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
         ...token,
         id: token.processId,
         Denomination: Number(token.Denomination || 0),
-        balance: 0
+        balance: "0"
       }));
   }, [aoTokensCache, aoTokensIds, activeAddress, aoTokens]);
 
@@ -322,15 +331,13 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
         const balances = await Promise.all(
           aoTokensToAdd.map(async (token) => {
             try {
-              const balance = Number(
-                await timeoutPromise(
-                  (async () => {
-                    const aoToken = await Token(token.id);
-                    const balance = await aoToken.getBalance(activeAddress);
-                    return balance;
-                  })(),
-                  10000
-                )
+              const balance = await timeoutPromise(
+                (async () => {
+                  const aoToken = await Token(token.id);
+                  const balance = await aoToken.getBalance(activeAddress);
+                  return balance.toString();
+                })(),
+                6000
               );
               return {
                 id: token.id,
@@ -492,5 +499,5 @@ export interface TokenInfo {
 
 export interface TokenInfoWithBalance extends TokenInfo {
   id: string;
-  balance: number;
+  balance: string;
 }

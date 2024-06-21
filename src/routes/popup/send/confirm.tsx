@@ -54,6 +54,7 @@ import Progress from "~components/Progress";
 import { updateSubscription } from "~subscriptions";
 import { SubscriptionStatus } from "~subscriptions/subscription";
 import { checkPassword } from "~wallets/auth";
+import BigNumber from "bignumber.js";
 
 interface Props {
   tokenID: string;
@@ -62,13 +63,8 @@ interface Props {
   subscription?: boolean;
 }
 
-function formatNumber(amount: number, decimalPlaces: number = 2): string {
-  const rounded = amount.toFixed(decimalPlaces);
-
-  const factor = Math.pow(10, decimalPlaces);
-  const truncated = Math.floor(amount * factor) / factor;
-
-  return rounded;
+function formatNumber(amount: string, decimalPlaces: number = 2): string {
+  return BigNumber(amount).toFixed(decimalPlaces);
 }
 
 export default function Confirm({ tokenID, qty, subscription }: Props) {
@@ -115,16 +111,15 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
       try {
         const data: TransactionData = await TempTransactionStorage.get("send");
         if (data) {
-          if (Number(data.qty) < Number(allowance)) {
+          const qty = BigNumber(data.qty);
+          if (qty.lt(Number(allowance))) {
             setNeedsSign(false);
           } else {
             setNeedsSign(true);
           }
-          const estimatedFiatTotal = Number(
-            (
-              Number(data.estimatedFiat) + Number(data.estimatedNetworkFee)
-            ).toFixed(2)
-          );
+          const estimatedFiatTotal = BigNumber(data.estimatedFiat)
+            .plus(data.estimatedNetworkFee)
+            .toFixed(2);
           setIsAo(data.isAo);
           setRecipient(data.recipient);
           setEstimatedTotal(estimatedFiatTotal.toString());
@@ -363,7 +358,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
       }
     }
     // Prepare transaction
-    const transactionAmount = Number(latestTxQty);
+    const transactionAmount = BigNumber(latestTxQty);
     const prepared = await prepare(recipient.address);
     if (prepared) {
       let { gateway, transaction, type } = prepared;
@@ -374,7 +369,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
       isLocalWallet(decryptedWallet);
       const keyfile = decryptedWallet.keyfile;
 
-      if (transactionAmount <= allowance) {
+      if (transactionAmount.lte(allowance)) {
         try {
           convertedTransaction.setOwner(keyfile.n);
 
@@ -408,7 +403,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
           });
           trackEvent(EventType.TX_SENT, {
             contact: contact ? true : false,
-            amount: tokenID === "AR" ? transactionAmount : 0,
+            amount: tokenID === "AR" ? +transactionAmount : 0,
             fee: networkFee
           });
           // Redirect
@@ -477,7 +472,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
           });
           trackEvent(EventType.TX_SENT, {
             contact: contact ? true : false,
-            amount: tokenID === "AR" ? transactionAmount : 0,
+            amount: tokenID === "AR" ? +transactionAmount : 0,
             fee: networkFee
           });
           uToken
@@ -666,7 +661,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
                   alternate
                   ticker={token?.ticker}
                   title={browser.i18n.getMessage("transaction_sending_token")}
-                  value={formatNumber(Number(amount))}
+                  value={formatNumber(amount)}
                   estimatedValue={isAo ? "-.--" : estimatedFiatAmount}
                 />
                 <BodySection

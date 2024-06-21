@@ -26,6 +26,7 @@ import Arweave from "arweave";
 import { removeDecryptionKey } from "~wallets/auth";
 import { findGateway } from "~gateways/wayfinder";
 import type { Gateway } from "~gateways/gateway";
+import BigNumber from "bignumber.js";
 
 export default function Balance() {
   const [loading, setLoading] = useState(false);
@@ -39,7 +40,7 @@ export default function Balance() {
   const balance = useBalance();
 
   // balance in local currency
-  const [fiat, setFiat] = useState(0);
+  const [fiat, setFiat] = useState(BigNumber("0"));
   const [currency] = useSetting<string>("currency");
 
   useEffect(() => {
@@ -50,9 +51,9 @@ export default function Balance() {
       const arPrice = await getArPrice(currency);
 
       // calculate fiat balance
-      setFiat(arPrice * balance);
+      setFiat(BigNumber(arPrice).multipliedBy(balance));
     })();
-  }, [balance, currency]);
+  }, [balance.toString(), currency]);
 
   // balance display
   const [hideBalance, setHideBalance] = useStorage<boolean>(
@@ -123,12 +124,12 @@ export default function Balance() {
   }
 
   useEffect(() => {
-    if (balance !== historicalBalance[0]) {
+    if (!balance.isEqualTo(historicalBalance[0])) {
       setLoading(true);
     } else {
       setLoading(false);
     }
-  }, [balance, historicalBalance]);
+  }, [balance.toString(), historicalBalance]);
 
   return (
     <Graph data={historicalBalance}>

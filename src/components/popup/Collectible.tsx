@@ -92,7 +92,7 @@ const Qty = styled(Name)`
 interface Props {
   id: string;
   name: string;
-  balance: number;
+  balance: string;
   divisibility?: number;
   decimals?: number;
   onClick?: MouseEventHandler<HTMLDivElement>;

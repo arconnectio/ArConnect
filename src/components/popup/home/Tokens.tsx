@@ -53,7 +53,7 @@ export default function Tokens() {
             defaultLogo={token?.Logo}
             id={token.id}
             ticker={token.Ticker}
-            balance={Number(token.balance)}
+            balance={token.balance || "0"}
             onClick={() => handleTokenClick(token.id)}
           />
         ))}

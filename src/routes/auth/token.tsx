@@ -28,7 +28,7 @@ import browser from "webextension-polyfill";
 import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
-import { Gateway } from "~gateways/gateway";
+import { type Gateway } from "~gateways/gateway";
 import { concatGatewayURL } from "~gateways/utils";
 import { findGateway, useGateway } from "~gateways/wayfinder";
 
@@ -206,7 +206,7 @@ export default function Token() {
                     logo
                   }}
                   priceData={historicalPrices}
-                  latestPrice={price}
+                  latestPrice={+price}
                   loading={loadingHistoricalPrices}
                 >
                   <PeriodPicker

@@ -19,7 +19,7 @@ export default function SignSettings() {
 
   useEffect(() => {
     async function initializeSettings() {
-      const currentSetting = await ExtensionStorage.get(
+      const currentSetting = await ExtensionStorage.get<boolean>(
         "setting_sign_notification"
       );
       setSignSettingsState(currentSetting);

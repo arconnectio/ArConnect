@@ -22,6 +22,7 @@ import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
 import { EventType, trackDirect } from "~utils/analytics";
+import BigNumber from "bignumber.js";
 
 const background: ModuleFunction<BackgroundResult> = async (
   appData,
@@ -83,7 +84,7 @@ const background: ModuleFunction<BackgroundResult> = async (
   // validate the user's allowance for this app
   // if it is not enough, we need the user to
   // raise it or cancel the transaction
-  const price = +transaction.reward + parseInt(transaction.quantity);
+  const price = BigNumber(transaction.reward).plus(transaction.quantity);
 
   // get allowance
   const allowance = await getAllowance(appData.appURL);

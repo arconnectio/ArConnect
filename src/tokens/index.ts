@@ -21,7 +21,7 @@ export const defaultTokens: Token[] = [
     name: "U",
     ticker: "U",
     type: "asset",
-    balance: 0,
+    balance: "0",
     divisibility: 1e6,
     defaultLogo: "J3WXX4OGa6wP5E9oLhNyqlN4deYI7ARjrd5se740ftE",
     dre: "https://dre-u.warp.cc"
@@ -31,7 +31,7 @@ export const defaultTokens: Token[] = [
     name: "STAMP Protocol",
     ticker: "$STAMP",
     type: "asset",
-    balance: 0,
+    balance: "0",
     dre: "https://dre-u.warp.cc"
   },
   {
@@ -39,7 +39,7 @@ export const defaultTokens: Token[] = [
     name: "ArDrive",
     ticker: "ARDRIVE",
     type: "asset",
-    balance: 0,
+    balance: "0",
     defaultLogo: "tN4vheZxrAIjqCfbs3MDdWTXg8a_57JUNyoqA4uwr1k",
     dre: "https://dre-4.warp.cc"
   }
@@ -96,7 +96,7 @@ export async function addToken(id: string, type: TokenType, dre?: string) {
     name: state.name,
     ticker: state.ticker,
     type,
-    balance: state.balances[activeAddress] || 0,
+    balance: String(state.balances[activeAddress] || 0),
     divisibility: state.divisibility,
     decimals: state.decimals,
     defaultLogo: settings.get("communityLogo") as string,
@@ -194,7 +194,7 @@ export function useTokens() {
               // parse settings
               const settings = getSettings(state);
 
-              token.balance = state.balances[activeAddress] || 0;
+              token.balance = String(state.balances[activeAddress] || 0);
               token.divisibility = state.divisibility;
               token.decimals = state.decimals;
               token.defaultLogo = settings.get("communityLogo");
