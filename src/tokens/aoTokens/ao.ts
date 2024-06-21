@@ -492,7 +492,7 @@ export interface TokenInfo {
   Name?: string;
   Ticker?: string;
   Logo?: string;
-  Denomination: number;
+  Denomination: number | BigInt;
   processId?: string;
   lastUpdated?: string | null;
 }

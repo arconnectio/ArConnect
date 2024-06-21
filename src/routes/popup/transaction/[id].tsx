@@ -47,6 +47,8 @@ import { useContact } from "~contacts/hooks";
 import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
 import BigNumber from "bignumber.js";
 import { Token } from "ao-tokens";
+import { fetchTokenByProcessId } from "~lib/transactions";
+import type { TokenInfo } from "~tokens/aoTokens/ao";
 
 // pull contacts and check if to address is in contacts
 
@@ -159,14 +161,20 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
           );
 
           if (aoQuantity) {
-            const tokenInfo = (await Token(data.transaction.recipient)).info;
-            const amount = balanceToFractioned(aoQuantity.value, {
-              id: data.transaction.recipient,
-              decimals: Number(tokenInfo.Denomination)
-            });
-            setTicker(tokenInfo.Ticker);
-            data.transaction.quantity = { ar: amount.toFixed(), winston: "" };
-            data.transaction.recipient = aoRecipient.value;
+            let tokenInfo: TokenInfo;
+            tokenInfo = await fetchTokenByProcessId(data.transaction.recipient);
+            if (!tokenInfo) {
+              tokenInfo = (await Token(data.transaction.recipient)).info;
+            }
+            if (tokenInfo) {
+              const amount = balanceToFractioned(aoQuantity.value, {
+                id: data.transaction.recipient,
+                decimals: Number(tokenInfo.Denomination)
+              });
+              setTicker(tokenInfo.Ticker);
+              data.transaction.quantity = { ar: amount.toFixed(), winston: "" };
+              data.transaction.recipient = aoRecipient.value;
+            }
           }
         }
 
