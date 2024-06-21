@@ -46,6 +46,7 @@ import {
   sendRequest
 } from "~utils/send";
 import { EventType, trackEvent } from "~utils/analytics";
+import BigNumber from "bignumber.js";
 interface Props {
   tokenID?: string;
 }
@@ -194,7 +195,7 @@ export default function SendAuth({ tokenID }: Props) {
       });
     }
 
-    const transactionAmount = Number(latestTxQty);
+    const transactionAmount = BigNumber(latestTxQty);
 
     // get tx and gateway
     let { type, gateway, transaction } = await getTransaction();
@@ -208,14 +209,14 @@ export default function SendAuth({ tokenID }: Props) {
 
     console.log(
       "transaction amount:",
-      transactionAmount,
+      transactionAmount.toFixed(),
       "vs.",
       "sign allowance:",
       signAllowance
     );
 
     // Check if the transaction amount is less than the signature allowance
-    if (transactionAmount <= signAllowance) {
+    if (transactionAmount.lte(signAllowance)) {
       // Process transaction without user signing
       try {
         // Decrypt wallet without user input

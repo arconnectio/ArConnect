@@ -17,7 +17,7 @@ export type ExtendedTransaction = RawTransaction & {
   aoInfo?: {
     tickerName: string;
     denomination?: number;
-    quantity: number;
+    quantity: string;
   };
 };
 
@@ -73,7 +73,7 @@ const processAoTransaction = async (
     year: 0,
     date: "",
     aoInfo: {
-      quantity: quantityTag ? Number(quantityTag.value) : undefined,
+      quantity: quantityTag ? quantityTag.value : undefined,
       tickerName:
         tokenData?.Ticker || formatAddress(transaction.node.recipient, 4),
       denomination: tokenData?.Denomination || 0

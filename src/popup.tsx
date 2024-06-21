@@ -132,7 +132,7 @@ export default function Popup() {
                   }) => (
                     <Recipient
                       tokenID={params?.token}
-                      qty={Number(params?.qty || "0")}
+                      qty={params?.qty || "0"}
                       message={params?.message || ""}
                     />
                   )}

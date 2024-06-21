@@ -1,5 +1,5 @@
 import { getActiveAddress, getActiveKeyfile } from "~wallets";
-import { defaultGateway, Gateway } from "~gateways/gateway";
+import { defaultGateway, type Gateway } from "~gateways/gateway";
 import { freeDecryptedWallet } from "~wallets/encryption";
 import type { Alarms } from "webextension-polyfill";
 import { findGateway } from "~gateways/wayfinder";
@@ -10,6 +10,7 @@ import { gql } from "~gateways/api";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave/web/common";
+import BigNumber from "bignumber.js";
 //import redstone from "redstone-api";
 
 /**
@@ -57,7 +58,9 @@ export default async function handleFeeAlarm(alarmInfo: Alarms.Alarm) {
 
       // fee multiplication
       if (feeMultiplier > 1) {
-        feeTx.reward = (+feeTx.reward * feeMultiplier).toFixed(0);
+        feeTx.reward = BigNumber(feeTx.reward)
+          .multipliedBy(feeMultiplier)
+          .toFixed(0, BigNumber.ROUND_FLOOR);
       }
 
       await arweave.transactions.sign(feeTx, keyfile);
@@ -186,13 +189,13 @@ export async function getFeeAmount(address: string, app: Application) {
     arPrice = res.arweave.usd;
   }*/
   const arPrice = await getArPrice("usd");
-  const usdPrice = 1 / arPrice; // 1 USD how much AR
+  const usdPrice = BigNumber(1).dividedBy(arPrice); // 1 USD how much AR
 
   if (res.data.transactions.edges.length) {
     const usd = res.data.transactions.edges.length >= 10 ? 0.01 : 0.03;
 
-    return arweave.ar.arToWinston((usdPrice * usd).toString());
-  } else return arweave.ar.arToWinston((usdPrice * 0.01).toString());
+    return arweave.ar.arToWinston(usdPrice.multipliedBy(usd).toString());
+  } else return arweave.ar.arToWinston(usdPrice.multipliedBy(0.01).toString());
 }
 
 /**
