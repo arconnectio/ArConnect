@@ -1991,5 +1991,21 @@
   "recommended": {
     "message": "推荐",
     "description": "recommended"
+  },
+  "add_wallet_error_message": {
+    "message": "请输入恢复短语或密钥文件，并在继续之前输入当前钱包的密码。",
+    "description": "如果恢复部分为空的错误消息"
+  },
+  "empty_password_error_message": {
+    "message": "请输入当前钱包的密码后再继续操作。不是您正在导入钱包的密码。",
+    "description": "如果密码部分为空的错误消息"
+  },
+  "missing_recovery_error_message": {
+    "message": "请在继续之前输入恢复短语或密钥文件。",
+    "description": "如果恢复短语或密钥文件为空的错误消息"
+  },
+  "incorrect_password_error_message": {
+    "message": "密码错误。请再次输入当前钱包的密码后再试。不是您正在导入钱包的密码。",
+    "description": "如果密码不正确的错误消息"
   }
 }

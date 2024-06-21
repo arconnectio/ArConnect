@@ -32,6 +32,34 @@ export default function AddWallet() {
   // loading
   const [loading, setLoading] = useState(false);
 
+  // error state for empty provided wallet
+  const [error, setError] = useState(false);
+
+  // password empty error state
+  const [emptyPasswordError, setEmptyPasswordError] = useState(false);
+
+  // missing phrase but has pw
+  const [missingRecoveryError, setMissingRecoveryError] = useState(false);
+
+  // incorrect password
+  const [incorrectPasswordError, setIncorrectPasswordError] = useState(false);
+
+  const getErrorMessage = () => {
+    if (error) {
+      return browser.i18n.getMessage("add_wallet_error_message");
+    }
+    if (emptyPasswordError) {
+      return browser.i18n.getMessage("empty_password_error_message");
+    }
+    if (missingRecoveryError) {
+      return browser.i18n.getMessage("missing_recovery_error_message");
+    }
+    if (incorrectPasswordError) {
+      return browser.i18n.getMessage("incorrect_password_error_message");
+    }
+    return "";
+  };
+
   // seedphrase or jwk loaded from
   // the seedphrase component
   const [providedWallet, setProvidedWallet] = useState<JWKInterface | string>();
@@ -41,7 +69,34 @@ export default function AddWallet() {
 
   // add wallet
   async function loadWallet() {
-    if (!providedWallet) return;
+    setError(false);
+    setEmptyPasswordError(false);
+    setMissingRecoveryError(false);
+    setIncorrectPasswordError(false);
+
+    // validate if recovery phrase or key file is provided
+    if (
+      !providedWallet &&
+      (passwordInput.state === undefined || passwordInput.state === "")
+    ) {
+      setError(true);
+      return;
+    }
+
+    // validate if password is provided
+    if (passwordInput.state === undefined || passwordInput.state === "") {
+      setEmptyPasswordError(true);
+      return;
+    }
+
+    // validate if recovery phrase or key file is not provided but password is provided
+    if (
+      !providedWallet &&
+      (passwordInput.state !== undefined || passwordInput.state !== "")
+    ) {
+      setMissingRecoveryError(true);
+      return;
+    }
     setLoading(true);
 
     // prevent user from closing the window
@@ -92,11 +147,7 @@ export default function AddWallet() {
       setLocation(`/wallets/${await arweave.wallets.jwkToAddress(jwk)}`);
     } catch (e) {
       console.log("Failed to load wallet", e);
-      setToast({
-        type: "error",
-        content: browser.i18n.getMessage("error_adding_wallet"),
-        duration: 2000
-      });
+      setIncorrectPasswordError(true);
     }
 
     finishUp();
@@ -248,6 +299,8 @@ export default function AddWallet() {
           <PlusIcon />
           {browser.i18n.getMessage("add_wallet")}
         </ButtonV2>
+        <Spacer y={0.5} />
+        <Error>{getErrorMessage()}</Error>
         <Spacer y={1.3} />
         <Or>{browser.i18n.getMessage("or").toUpperCase()}</Or>
         <Spacer y={1.3} />
@@ -290,6 +343,10 @@ const Title = styled(Text).attrs({
   noMargin: true
 })`
   font-weight: 600;
+`;
+
+const Error = styled(Text).attrs({ noMargin: true })`
+  color: ${(props) => props.theme.fail};
 `;
 
 const Or = styled(Text).attrs({
