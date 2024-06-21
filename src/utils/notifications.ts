@@ -1,9 +1,11 @@
 import { arPlaceholder } from "~routes/popup/send";
 import { ExtensionStorage } from "./storage";
-import { getActiveAddress } from "~wallets";
 import type { Transaction } from "~notifications/api";
-import type { Token } from "~tokens/token";
-import type { TokenInfo } from "~tokens/aoTokens/ao";
+import { type Token } from "~tokens/token";
+import { fetchTokenByProcessId, tokenInfoMap } from "~lib/transactions";
+import { getToken } from "~tokens";
+
+let tokens: Token[] = null;
 
 export const fetchNotifications = async (address: string) => {
   const n = await ExtensionStorage.get(`notifications_${address}`);
@@ -50,25 +52,40 @@ export const mergeAndSortNotifications = (
   return sortedNotifications;
 };
 
-export const fetchTokenByProcessId = async (
-  processId: string
-): Promise<TokenInfo> => {
-  const tokens = await ExtensionStorage.get<
-    (TokenInfo & { processId: string })[]
-  >("ao_tokens");
-  if (!tokens || !processId) return null;
+export { fetchTokenByProcessId };
 
-  return tokens.find((token) => token.processId === processId);
-};
+async function fetchTokenInfo(id: string) {
+  try {
+    if (tokenInfoMap.has(id)) {
+      return tokenInfoMap.get(id) as Token;
+    }
+
+    const token = await getToken(id, "asset");
+    tokenInfoMap.set(id, token);
+    return token;
+  } catch {
+    return null;
+  }
+}
 
 export const fetchTokenById = async (tokenId: string): Promise<Token> => {
   if (tokenId === "AR") {
     return arPlaceholder;
   }
-  const tokens = await ExtensionStorage.get<Token[]>("tokens");
+
+  if (!tokens) {
+    tokens = await ExtensionStorage.get<Token[]>("tokens");
+  }
 
   if (!tokens || !tokenId) return null;
-  return tokens.find((token) => token.id === tokenId);
+
+  const token = tokens.find((token) => token.id === tokenId);
+  if (token) {
+    tokenInfoMap.set(tokenId, token);
+    return token;
+  }
+
+  return fetchTokenInfo(tokenId);
 };
 
 export const extractQuantityTransferred = (tags: any[]): number | null => {
