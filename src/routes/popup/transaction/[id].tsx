@@ -161,7 +161,7 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
           );
 
           if (aoQuantity) {
-            let tokenInfo: TokenInfo;
+            let tokenInfo;
             tokenInfo = await fetchTokenByProcessId(data.transaction.recipient);
             if (!tokenInfo) {
               tokenInfo = (await Token(data.transaction.recipient)).info;
