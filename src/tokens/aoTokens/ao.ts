@@ -95,7 +95,9 @@ export function useAo() {
   return ao;
 }
 
-export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
+export function useAoTokens(
+  refresh?: boolean
+): [TokenInfoWithBalance[], boolean] {
   const [tokens, setTokens] = useState<TokenInfoWithBalance[]>([]);
   const [balances, setBalances] = useState<{ id: string; balance: number }[]>(
     []
@@ -181,10 +183,13 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
                       // default return
                       return new Quantity(0, BigInt(12));
                     } else {
-                      const balance = await getAoTokenBalance(
-                        activeAddress,
-                        id
-                      );
+                      let balance: Quantity;
+                      if (refresh) {
+                        const aoToken = await Token(id);
+                        balance = await aoToken.getBalance(activeAddress);
+                      } else {
+                        balance = await getAoTokenBalance(activeAddress, id);
+                      }
                       if (balance) {
                         return balance;
                       } else {
@@ -216,7 +221,10 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
   return [tokensWithBalances, loading];
 }
 
-export async function getAoTokenBalance(address: string, process: string) {
+export async function getAoTokenBalance(
+  address: string,
+  process: string
+): Promise<Quantity> {
   const aoTokens = (await ExtensionStorage.get<TokenInfo[]>("ao_tokens")) || [];
 
   const aoToken = aoTokens.find((token) => token.processId === process);
