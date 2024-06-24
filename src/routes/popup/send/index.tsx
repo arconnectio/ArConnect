@@ -448,7 +448,9 @@ export default function Send({ id }: Props) {
                   <>
                     <h4>{browser.i18n.getMessage("ao_degraded")}</h4>
                     <span>
-                      {browser.i18n.getMessage("ao_degraded_description")}
+                      {browser.i18n
+                        .getMessage("ao_degraded_description")
+                        .replace("<br/>", "")}
                     </span>
                   </>
                 )}

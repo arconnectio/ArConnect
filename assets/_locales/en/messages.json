@@ -1825,7 +1825,7 @@
     "description": "ao degraded title text"
   },
   "ao_degraded_description": {
-    "message": "AO token process will be available when the network issues are resolved.",
+    "message": "AO token process will be available when <br/>the network issues are resolved.",
     "description": "ao degraded description text"
   },
   "network_issue": {
