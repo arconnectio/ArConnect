@@ -185,6 +185,13 @@ export function useAoTokens(): [TokenInfoWithBalance[], boolean] {
                 balance
               };
             } catch (error) {
+              if (
+                error?.message === "Failed to fetch" ||
+                error?.message.includes("ERR_SSL_PROTOCOL_ERROR") ||
+                error?.message.includes("ERR_CONNECTION_CLOSED")
+              ) {
+                return { id, balance: "" };
+              }
               return { id, balance: null };
             }
           })
