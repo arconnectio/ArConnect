@@ -32,6 +32,7 @@ import Skeleton from "~components/Skeleton";
 import { TrashIcon, PlusIcon, SettingsIcon } from "@iconicicons/react";
 import BigNumber from "bignumber.js";
 import JSConfetti from "js-confetti";
+import browser from "webextension-polyfill";
 import { AO_NATIVE_TOKEN } from "~utils/ao_import";
 
 export default function Token({ onClick, ...props }: Props) {
@@ -224,21 +225,27 @@ export default function Token({ onClick, ...props }: Props) {
 
 const DegradedMessage: React.ReactNode = (
   <div style={{ textAlign: "center" }}>
-    <div style={{ fontSize: "14px" }}>ao token process network degraded.</div>
+    <div style={{ fontSize: "14px" }}>
+      {browser.i18n.getMessage("ao_degraded")}
+    </div>
     <div style={{ fontSize: "12px", color: "#a3a3a3" }}>
-      ao token process will be available when <br />
-      the network issues are resolved.
+      {browser.i18n.getMessage("ao_degraded_description")}
     </div>
   </div>
 );
 
 const NetworkErrorMessage: React.ReactNode = (
   <div style={{ textAlign: "center" }}>
-    <div style={{ fontSize: "14px" }}>Network issue detected.</div>
+    <div style={{ fontSize: "14px" }}>
+      {browser.i18n.getMessage("network_issue")}
+    </div>
     <div style={{ fontSize: "12px", color: "#a3a3a3" }}>
-      Your ISP or VPN is blocking access to AO.
-      <br />
-      Please use a different connection.
+      {browser.i18n
+        .getMessage("network_issue_description")
+        .split("<br/>")
+        .map((msg, index) => (
+          <div key={index}>{msg}</div>
+        ))}
     </div>
   </div>
 );
