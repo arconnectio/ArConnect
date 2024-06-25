@@ -3,7 +3,7 @@ import { ExtensionStorage } from "./storage";
 import { getActiveAddress } from "~wallets";
 import type { Transaction } from "~notifications/api";
 import type { Token } from "~tokens/token";
-import type { TokenInfo } from "~tokens/aoTokens/ao";
+import type { TokenInfo, TokenInfoWithProcessId } from "~tokens/aoTokens/ao";
 
 export const fetchNotifications = async (address: string) => {
   const n = await ExtensionStorage.get(`notifications_${address}`);
@@ -53,9 +53,9 @@ export const mergeAndSortNotifications = (
 export const fetchTokenByProcessId = async (
   processId: string
 ): Promise<TokenInfo> => {
-  const tokens = await ExtensionStorage.get<
-    (TokenInfo & { processId: string })[]
-  >("ao_tokens");
+  const tokens = await ExtensionStorage.get<TokenInfoWithProcessId[]>(
+    "ao_tokens"
+  );
   if (!tokens || !processId) return null;
 
   return tokens.find((token) => token.processId === processId);
