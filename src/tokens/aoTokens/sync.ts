@@ -216,24 +216,22 @@ export async function syncAoTokens() {
   isSyncInProgress = true;
 
   try {
-    const activeAddress = await getActiveAddress();
-    if (!activeAddress) {
-      lastHasNextPage = false;
-      return { hasNextPage: false, syncCount: 0 };
-    }
+    const [activeAddress, aoSupport] = await Promise.all([
+      getActiveAddress(),
+      ExtensionStorage.get<boolean>("setting_ao_support")
+    ]);
 
-    const aoSupport = await ExtensionStorage.get<boolean>("setting_ao_support");
-    if (!aoSupport) {
+    if (!activeAddress || !aoSupport) {
       lastHasNextPage = false;
       return { hasNextPage: false, syncCount: 0 };
     }
 
     console.log("Synchronizing AO tokens...");
 
-    const aoTokensCache = await getAoTokensCache();
-    let aoTokensIds =
-      (await ExtensionStorage.get<Record<string, string[]>>(AO_TOKENS_IDS)) ||
-      {};
+    const [aoTokensCache, aoTokensIds = {}] = await Promise.all([
+      getAoTokensCache(),
+      ExtensionStorage.get<Record<string, string[]>>(AO_TOKENS_IDS)
+    ]);
     const walletTokenIds = aoTokensIds[activeAddress] || [];
 
     const arweave = new Arweave(gateway);
@@ -265,17 +263,19 @@ export async function syncAoTokens() {
         }, 2)
       );
     const results = await Promise.allSettled(promises);
-    const tokens = results
-      .filter((result) => result.status === "fulfilled")
-      .map((result) => result.value)
-      .filter((token) => !!token.Ticker);
 
-    const tokensWithoutTicker = results
-      .filter((result) => result.status === "fulfilled")
-      .map((result) => result.value)
-      .filter(
-        (token) => !token.Ticker && !walletTokenIds.includes(token.processId)
-      );
+    const tokens = [];
+    const tokensWithoutTicker = [];
+    results.forEach((result) => {
+      if (result.status === "fulfilled") {
+        const token = result.value;
+        if (token.Ticker) {
+          tokens.push(token);
+        } else if (!walletTokenIds.includes(token.processId)) {
+          tokensWithoutTicker.push(token);
+        }
+      }
+    });
 
     const updatedTokens = [...aoTokensCache, ...tokens];
     const updatedProcessIds = newProcessIds.filter((processId) =>
@@ -358,17 +358,19 @@ export async function importAoTokens(alarm: Alarms.Alarm) {
         }, 2)
       );
     const results = await Promise.allSettled(promises);
-    const tokens = results
-      .filter((result) => result.status === "fulfilled")
-      .map((result) => result.value)
-      .filter((token) => !!token.Ticker);
 
-    const tokensToRestrict = results
-      .filter((result) => result.status === "fulfilled")
-      .map((result) => result.value)
-      .filter(
-        (token) => !token.Ticker && !removedTokenIds.includes(token.processId)
-      );
+    const tokens = [];
+    const tokensToRestrict = [];
+    results.forEach((result) => {
+      if (result.status === "fulfilled") {
+        const token = result.value;
+        if (token.Ticker) {
+          tokens.push(token);
+        } else if (!removedTokenIds.includes(token.processId)) {
+          tokensToRestrict.push(token);
+        }
+      }
+    });
 
     const updatedTokens = [...aoTokensCache, ...tokens];
 
