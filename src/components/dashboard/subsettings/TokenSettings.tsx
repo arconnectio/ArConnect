@@ -1,5 +1,6 @@
 import {
   ButtonV2,
+  Loading,
   SelectV2,
   Spacer,
   Text,
@@ -13,7 +14,7 @@ import { ExtensionStorage } from "~utils/storage";
 import { AnimatePresence } from "framer-motion";
 import { TrashIcon } from "@iconicicons/react";
 import { removeToken } from "~tokens";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import CustomGatewayWarning from "~components/auth/CustomGatewayWarning";
 import { CopyButton } from "./WalletSettings";
 import browser from "webextension-polyfill";
@@ -24,6 +25,7 @@ import { formatAddress } from "~utils/format";
 import { ResetButton } from "../Reset";
 import { RefreshCcw01 } from "@untitled-ui/icons-react";
 import { defaultAoTokens, type TokenInfo } from "~tokens/aoTokens/ao";
+import TokenLoading from "~components/popup/asset/Loading";
 
 export default function TokenSettings({ id }: Props) {
   // tokens
@@ -45,6 +47,8 @@ export default function TokenSettings({ id }: Props) {
   );
 
   const { setToast } = useToasts();
+
+  const [loading, setLoading] = useState(false);
 
   const { token, isAoToken } = useMemo(() => {
     const aoToken = aoTokens.find((ao) => ao.processId === id);
@@ -78,28 +82,35 @@ export default function TokenSettings({ id }: Props) {
   }
 
   const refreshToken = async () => {
+    setLoading(true);
     const defaultToken = defaultAoTokens.find((t) => t.processId === token.id);
     if (!defaultToken) {
-      // Handle the case where the default token is not found
-      return;
-    } else {
-      const tokenInfo = (await aoToken(token.id)).info;
-      if (tokenInfo) {
-        const updatedTokens = aoTokens.map((t) =>
-          t.processId === token.id
-            ? {
-                ...t,
-                Name: tokenInfo.Name,
-                Ticker: tokenInfo.Ticker,
-                Logo: tokenInfo.Logo,
-                Denomination: Number(tokenInfo.Denomination),
-                processId: token.id,
-                lastUpdated: new Date().toISOString()
-              }
-            : t
-        );
-        setAoTokens(updatedTokens);
+      try {
+        const tokenInfo = (await aoToken(token.id)).info;
+        if (tokenInfo) {
+          const updatedTokens = aoTokens.map((t) =>
+            t.processId === token.id
+              ? {
+                  ...t,
+                  Name: tokenInfo.Name,
+                  Ticker: tokenInfo.Ticker,
+                  Logo: tokenInfo.Logo,
+                  Denomination: Number(tokenInfo.Denomination),
+                  processId: token.id,
+                  lastUpdated: new Date().toISOString()
+                }
+              : t
+          );
+          setAoTokens(updatedTokens);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Error fetching token info:", err);
+        setLoading(false);
       }
+    } else {
+      setLoading(false);
+      return;
     }
   };
 
@@ -179,9 +190,14 @@ export default function TokenSettings({ id }: Props) {
               await refreshToken();
             }}
           >
-            <RefreshCcw01 style={{ marginRight: "5px", height: "18px" }} />
-            {/* {browser.i18n.getMessage("remove_token")} */}
-            Refresh Token
+            {!loading ? (
+              <>
+                <RefreshCcw01 style={{ marginRight: "5px", height: "18px" }} />
+                {browser.i18n.getMessage("refresh_token")}
+              </>
+            ) : (
+              <Loading />
+            )}
           </ButtonV2>
         )}
 

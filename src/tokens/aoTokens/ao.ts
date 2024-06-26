@@ -166,47 +166,45 @@ export function useAoTokens(
         const balances = await Promise.all(
           tokens.map(async ({ id }) => {
             try {
-              const balance = Number(
-                await timeoutPromise(
-                  (async () => {
-                    if (id === AO_NATIVE_TOKEN) {
-                      const res = await dryrun({
-                        Id,
-                        Owner: activeAddress,
-                        process: AO_NATIVE_TOKEN_BALANCE_MIRROR,
-                        tags: [{ name: "Action", value: "Balance" }]
-                      });
-                      const balance = res.Messages[0].Data;
-                      if (balance) {
-                        return new Quantity(
-                          BigInt(balance),
-                          BigInt(12)
-                        ).toString();
-                      }
+              const balance = await timeoutPromise(
+                (async () => {
+                  if (id === AO_NATIVE_TOKEN) {
+                    const res = await dryrun({
+                      Id,
+                      Owner: activeAddress,
+                      process: AO_NATIVE_TOKEN_BALANCE_MIRROR,
+                      tags: [{ name: "Action", value: "Balance" }]
+                    });
+                    const balance = res.Messages[0].Data;
+                    if (balance) {
+                      return new Quantity(
+                        BigInt(balance),
+                        BigInt(12)
+                      ).toString();
+                    }
+                    // default return
+                    return new Quantity(0, BigInt(12)).toString();
+                  } else {
+                    let balance: string;
+                    if (refresh) {
+                      const aoToken = await Token(id);
+                      balance = (
+                        await aoToken.getBalance(activeAddress)
+                      ).toString();
+                    } else {
+                      balance = (await getAoTokenBalance(activeAddress, id))
+                        .toString()
+                        .toString();
+                    }
+                    if (balance) {
+                      return balance;
+                    } else {
                       // default return
                       return new Quantity(0, BigInt(12)).toString();
-                    } else {
-                      let balance: string;
-                      if (refresh) {
-                        const aoToken = await Token(id);
-                        balance = (
-                          await aoToken.getBalance(activeAddress)
-                        ).toString();
-                      } else {
-                        balance = (await getAoTokenBalance(activeAddress, id))
-                          .toString()
-                          .toString();
-                      }
-                      if (balance) {
-                        return balance;
-                      } else {
-                        // default return
-                        return new Quantity(0, BigInt(12)).toString();
-                      }
                     }
-                  })(),
-                  10000
-                )
+                  }
+                })(),
+                10000
               );
 
               return {
