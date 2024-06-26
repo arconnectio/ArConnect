@@ -347,6 +347,10 @@
       "message": "设置",
       "description": "Settings title"
   },
+  "quick_settings": {
+    "message": "快速设置",
+    "description": "Quick Settings title"
+  },
   "setting_apps": {
       "message": "应用程序",
       "description": "Apps settings title"
@@ -412,8 +416,16 @@
       "description": "Notifications settings title"
   },
   "setting_notifications_description": {
-      "message": "切换以接收钱包中新交易的提醒",
+      "message": "管理钱包活动警报",
       "description": "Notifications settings description"
+  },
+  "setting_all_settings": {
+    "message": "所有设置",
+    "description": "All settings description"
+  },
+  "setting_all_settings_description": {
+    "message": "",
+    "description": "All settings description"
   },
   "setting_apps_description": {
       "message": "查看所有已连接的应用程序和设置",
@@ -486,6 +498,14 @@
   "export_keyfile": {
       "message": "导出密钥文件",
       "description": "Export keyfile button"
+  },
+  "export_keyfile_description": {
+    "message": "输入密码导出钱包密钥文件",
+    "description": "Export keyfile description"
+  },
+  "edit_wallet": {
+    "message": "编辑钱包",
+    "description": "Edit wallet button"
   },
   "remove_wallet": {
       "message": "移除钱包",

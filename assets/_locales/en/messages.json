@@ -347,6 +347,10 @@
     "message": "Settings",
     "description": "Settings title"
   },
+  "quick_settings": {
+    "message": "Quick Settings",
+    "description": "Quick Settings title"
+  },
   "setting_apps": {
     "message": "Applications",
     "description": "Apps settings title"
@@ -412,8 +416,16 @@
     "description": "Notifications settings title"
   },
   "setting_notifications_description": {
-    "message": "Toggle to receive alerts for new transactions in your wallet.",
+    "message": "Manage alerts for activities in your wallets",
     "description": "Notifications settings description"
+  },
+  "setting_all_settings": {
+    "message": "All Settings",
+    "description": "All settings title"
+  },
+  "setting_all_settings_description": {
+    "message": "",
+    "description": "All settings description"
   },
   "setting_apps_description": {
     "message": "View all connected apps & settings",
@@ -486,6 +498,14 @@
   "export_keyfile": {
     "message": "Export keyfile",
     "description": "Export keyfile button"
+  },
+  "export_keyfile_description": {
+    "message": "Enter your password to export wallet keyfile",
+    "description": "Export keyfile description"
+  },
+  "edit_wallet": {
+    "message": "Edit Wallet",
+    "description": "Edit wallet button"
   },
   "remove_wallet": {
     "message": "Remove wallet",

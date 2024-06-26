@@ -34,6 +34,10 @@ import SubscriptionDetails from "~routes/popup/subscriptions/subscriptionDetails
 import SubscriptionPayment from "~routes/popup/subscriptions/subscriptionPayment";
 import SubscriptionManagement from "~routes/popup/subscriptions/subscriptionManagement";
 import Transactions from "~routes/popup/transaction/transactions";
+import QuickSettings from "~routes/popup/settings/quickSettings";
+import Wallets from "~routes/popup/settings/wallets";
+import Wallet from "~routes/popup/settings/wallets/[address]";
+import ExportWallet from "~routes/popup/settings/wallets/[address]/export";
 
 export default function Popup() {
   const theme = useTheme();
@@ -81,6 +85,18 @@ export default function Popup() {
                 <Route path="/explore" component={Explore} />
                 <Route path="/unlock" component={Unlock} />
                 <Route path="/subscriptions" component={Subscriptions} />
+                <Route path="/quick-settings" component={QuickSettings} />
+                <Route path="/quick-settings/wallets" component={Wallets} />
+                <Route path="/quick-settings/wallets/:address">
+                  {(params: { address: string }) => (
+                    <Wallet address={params?.address} />
+                  )}
+                </Route>
+                <Route path="/quick-settings/wallets/:address/export">
+                  {(params: { address: string }) => (
+                    <ExportWallet address={params?.address} />
+                  )}
+                </Route>
                 <Route path="/subscriptions/:id">
                   {(params: { id: string }) => (
                     <SubscriptionDetails id={params?.id} />

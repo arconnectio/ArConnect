@@ -444,6 +444,13 @@ export default function WalletHeader() {
               })
           },
           {
+            icon: <Settings01 style={{ width: "18px", height: "18px" }} />,
+            title: "Settings",
+            route: () => {
+              push("/quick-settings");
+            }
+          },
+          {
             icon: <Expand01 style={{ width: "18px", height: "17px" }} />,
             title: "expand_view",
             route: () => {

@@ -9,14 +9,13 @@ import {
 import { useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import {
-  TicketIcon,
   GridIcon,
   InformationIcon,
   TrashIcon,
   WalletIcon,
   BellIcon
 } from "@iconicicons/react";
-import { Users01 } from "@untitled-ui/icons-react";
+import { Coins04, Users01 } from "@untitled-ui/icons-react";
 import WalletSettings from "~components/dashboard/subsettings/WalletSettings";
 import TokenSettings from "~components/dashboard/subsettings/TokenSettings";
 import AppSettings from "~components/dashboard/subsettings/AppSettings";
@@ -35,7 +34,6 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import settings from "~settings";
 import { PageType, trackPage } from "~utils/analytics";
-import { formatSettingName } from "~utils/format";
 import SignSettings from "~components/dashboard/SignSettings";
 import AddToken from "~components/dashboard/subsettings/AddToken";
 import NotificationSettings from "~components/dashboard/NotificationSettings";
@@ -283,7 +281,7 @@ const allSettings: Omit<Setting, "active">[] = [
     name: "tokens",
     displayName: "setting_tokens",
     description: "setting_tokens_description",
-    icon: TicketIcon,
+    icon: Coins04,
     component: Tokens
   },
   {
