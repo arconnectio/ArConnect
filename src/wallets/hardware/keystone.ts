@@ -10,6 +10,51 @@ import type { UR } from "@ngraveio/bc-ur";
 import { v4 as uuid } from "uuid";
 import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
+import { Signer } from "arbundles";
+import { EventEmitter } from "events";
+
+export interface KeystoneInteraction {
+  display(data: UR);
+}
+
+export class KeystoneSigner implements Signer {
+  readonly signatureType: number = 1;
+  readonly ownerLength: number = 512;
+  readonly signatureLength: number = 512;
+  #_event = new EventEmitter();
+  public get publicKey(): Buffer {
+    return this._publicKey;
+  }
+
+  constructor(
+    private _publicKey: Buffer,
+    private mfp: string,
+    private signType: SignType,
+    private interaction: KeystoneInteraction,
+    private options: SignatureOptions = { saltLength: 32 }
+  ) {}
+  sign(message: Uint8Array, _opts?: any): Promise<Uint8Array> {
+    const data = Buffer.from(message);
+    const signRequest = ArweaveSignRequest.constructArweaveRequest(
+      data,
+      this.mfp,
+      this.signType,
+      this.options.saltLength
+    );
+    return new Promise(async (resolve) => {
+      const ur = signRequest.toUR();
+      this.interaction.display(ur);
+      this.#_event.once("submit-signature", (signature) => {
+        resolve(signature);
+      });
+    });
+  }
+
+  submitSignature(signature: string) {
+    const signatureBytes = Buffer.from(signature, "base64");
+    this.#_event.emit("submit-signature", signatureBytes);
+  }
+}
 
 /**
  * Decode cbor result from a keystone QR code
