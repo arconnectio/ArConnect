@@ -38,6 +38,9 @@ import QuickSettings from "~routes/popup/settings/quickSettings";
 import Wallets from "~routes/popup/settings/wallets";
 import Wallet from "~routes/popup/settings/wallets/[address]";
 import ExportWallet from "~routes/popup/settings/wallets/[address]/export";
+import Applications from "~routes/popup/settings/apps";
+import AppSettings from "~routes/popup/settings/apps/[url]";
+import AppPermissions from "~routes/popup/settings/apps/[url]/permissions";
 
 export default function Popup() {
   const theme = useTheme();
@@ -95,6 +98,17 @@ export default function Popup() {
                 <Route path="/quick-settings/wallets/:address/export">
                   {(params: { address: string }) => (
                     <ExportWallet address={params?.address} />
+                  )}
+                </Route>
+                <Route path="/quick-settings/apps" component={Applications} />
+                <Route path="/quick-settings/apps/:url">
+                  {(params: { url: string }) => (
+                    <AppSettings url={params?.url} />
+                  )}
+                </Route>
+                <Route path="/quick-settings/apps/:url/permissions">
+                  {(params: { url: string }) => (
+                    <AppPermissions url={params?.url} />
                   )}
                 </Route>
                 <Route path="/subscriptions/:id">

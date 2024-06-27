@@ -332,11 +332,11 @@
     "description": "Remove button text"
   },
   "block": {
-    "message": "Block",
+    "message": "Block app",
     "description": "Block button"
   },
   "unblock": {
-    "message": "Unblock",
+    "message": "Unblock app",
     "description": "Unblock button"
   },
   "setCustomGateway": {

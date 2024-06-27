@@ -18,7 +18,8 @@ export default function AppListItem({
 
 interface Props {
   icon?: string;
-  name: string;
-  url: string;
+  name: React.ReactNode;
+  url: React.ReactNode;
   active: boolean;
+  small?: boolean;
 }

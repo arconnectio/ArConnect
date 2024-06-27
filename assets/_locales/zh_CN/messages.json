@@ -332,11 +332,11 @@
       "description": "Remove button text"
   },
   "block": {
-      "message": "阻止",
+      "message": "阻止应用程序",
       "description": "Block button"
   },
   "unblock": {
-      "message": "取消阻止",
+      "message": "解锁应用程序",
       "description": "Unblock button"
   },
   "setCustomGateway": {

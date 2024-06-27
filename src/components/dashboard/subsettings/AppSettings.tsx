@@ -293,7 +293,7 @@ export default function AppSettings({ app, showTitle = false }: Props) {
           }))
         }
         fullWidth
-        placeholder="https://node2.bundlr.network"
+        placeholder="https://turbo.ardrive.io"
       />
       <Spacer y={1.65} />
       <ButtonV2 fullWidth onClick={() => removeModal.setOpen(true)}>
