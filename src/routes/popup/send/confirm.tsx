@@ -520,11 +520,12 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
   const keystoneInteraction = useMemo(() => {
     const keystoneInteraction: KeystoneInteraction = {
       display(data) {
+        setIsLoading(false);
         setTransactionUR(data);
       }
     };
     return keystoneInteraction;
-  }, []);
+  }, [setIsLoading]);
 
   const keystoneSigner = useMemo(() => {
     if (wallet?.type !== "hardware") return null;
@@ -539,6 +540,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
 
   useEffect(() => {
     (async () => {
+      setIsLoading(true);
       if (!recipient?.address) return;
 
       // get the tx from storage
@@ -587,6 +589,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
 
       // get tx UR
       try {
+        setIsLoading(false);
         setTransactionUR(
           await transactionToUR(
             convertedTransaction,
@@ -604,7 +607,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
         push("/send/transfer");
       }
     })();
-  }, [wallet, recipient, keystoneSigner]);
+  }, [wallet, recipient, keystoneSigner, setIsLoading]);
 
   // current hardware wallet operation
   const [hardwareStatus, setHardwareStatus] = useState<"play" | "scan">();
