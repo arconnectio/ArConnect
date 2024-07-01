@@ -2,7 +2,7 @@ import browser from "webextension-polyfill";
 import { useEffect, useState } from "react";
 import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "@plasmohq/storage/hook";
-import { Text } from "@arconnect/components";
+import { Loading, Text } from "@arconnect/components";
 
 import { gql } from "~gateways/api";
 import styled from "styled-components";
@@ -207,6 +207,11 @@ export default function Transactions() {
               {browser.i18n.getMessage("no_transactions")}
             </NoTransactions>
           ))}
+        {loading && (
+          <LoadingWrapper>
+            <Loading style={{ width: "20px", height: "20px" }} />
+          </LoadingWrapper>
+        )}
       </TransactionsWrapper>
     </>
   );
@@ -278,4 +283,11 @@ const NoTransactions = styled(Text).attrs({
   noMargin: true
 })`
   text-align: center;
+`;
+
+const LoadingWrapper = styled.div`
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: top;
 `;
