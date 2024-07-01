@@ -44,6 +44,9 @@ import AppPermissions from "~routes/popup/settings/apps/[url]/permissions";
 import { default as QuickTokens } from "~routes/popup/settings/tokens";
 import TokenSettings from "~routes/popup/settings/tokens/[id]";
 import NewToken from "~routes/popup/settings/tokens/new";
+import Contacts from "~routes/popup/settings/contacts";
+import ContactSettings from "~routes/popup/settings/contacts/[address]";
+import NewContact from "~routes/popup/settings/contacts/new";
 
 export default function Popup() {
   const theme = useTheme();
@@ -121,6 +124,16 @@ export default function Popup() {
                   )}
                 </Route>
                 <Route path="/quick-settings/tokens/new" component={NewToken} />
+                <Route path="/quick-settings/contacts" component={Contacts} />
+                <Route path="/quick-settings/contacts/:address">
+                  {(params: { address: string }) => (
+                    <ContactSettings address={params?.address} />
+                  )}
+                </Route>
+                <Route
+                  path="/quick-settings/contacts/new"
+                  component={NewContact}
+                />
                 <Route path="/subscriptions/:id">
                   {(params: { id: string }) => (
                     <SubscriptionDetails id={params?.id} />

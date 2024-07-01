@@ -11,7 +11,7 @@ export default function ContactListItem({
   ...props
 }: Props & HTMLProps<HTMLDivElement>) {
   return (
-    <ContactWrapper active={active}>
+    <ContactWrapper small={props.small} active={active}>
       {/* @ts-ignore */}
       <Contact title={name} description={address} img={profileIcon} {...props}>
         {!profileIcon && <ListItemIcon as={User01} />}
@@ -25,14 +25,14 @@ interface Props {
   address: string;
   profileIcon: string;
   active: boolean;
+  small?: boolean;
 }
 
-const ContactWrapper = styled.div<{ active: boolean }>`
+const ContactWrapper = styled.div<{ active: boolean; small?: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: ${(props) => (props.active ? "0px 12.8px" : "0px 12.8px")};
-  border-radius: 20px;
+  border-radius: ${(props) => (props.small ? "10px" : "20px")};
   background-color: rgba(
     ${(props) => props.theme.theme},
     ${(props) =>
@@ -43,15 +43,17 @@ const ContactWrapper = styled.div<{ active: boolean }>`
   &:hover {
     background-color: rgba(
       ${(props) =>
-        props.theme.theme +
-        ", " +
-        (props.active
-          ? props.theme.displayTheme === "light"
-            ? ".24"
-            : ".14"
-          : props.theme.displayTheme === "light"
-          ? ".14"
-          : ".04")}
+        props.small
+          ? "43, 40, 56, 1"
+          : props.theme.theme +
+            ", " +
+            (props.active
+              ? props.theme.displayTheme === "light"
+                ? ".24"
+                : ".14"
+              : props.theme.displayTheme === "light"
+              ? ".14"
+              : ".04")}
     );
   }
 `;

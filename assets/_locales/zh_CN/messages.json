@@ -997,6 +997,10 @@
       "message": "联系人",
       "description": "Contacts setting title"
   },
+   "setting_contact": {
+    "message": "接触",
+    "description": "Contact setting title"
+  },
   "setting_contacts_description": {
       "message": "添加/编辑联系人",
       "description": "Contacts setting description"
@@ -1674,6 +1678,10 @@
       "message": "添加联系人",
       "description": "Add a contact button text"
   },
+  "new": {
+    "message": "新的",
+    "description": "Add a new button text"
+  },
   "send_transaction": {
       "message": "发送交易",
       "description": "Active contact send button text"
@@ -1689,6 +1697,10 @@
   "create_contact": {
       "message": "创建联系人？",
       "description": "Create contact question"
+  },
+  "new_contact": {
+    "message": "新联系人",
+    "description": "New contact title"
   },
   "add_new_contact": {
       "message": "添加新联系人",
@@ -1746,6 +1758,10 @@
       "message": "移除联系人",
       "description": "Remove contact button text"
   },
+  "edit_contact": {
+    "message": "更改联系资料",
+    "description": "Edit contact button text"
+  },
   "remove_contact_question": {
       "message": "您确定要移除此联系人吗？",
       "description": "Remove contact modal text"
@@ -1753,6 +1769,10 @@
   "save_new_contact": {
       "message": "保存新联系人",
       "description": "Save new contact button text"
+  },
+  "save_contact": {
+    "message": "保存联系方式",
+    "description": "Save contact button text"
   },
   "address_in_use": {
       "message": "地址已在使用中。",

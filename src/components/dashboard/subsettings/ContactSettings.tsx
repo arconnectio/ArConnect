@@ -25,8 +25,9 @@ import styled from "styled-components";
 import { svgie } from "~utils/svgies";
 import { useLocation } from "wouter";
 import copy from "copy-to-clipboard";
+import { formatAddress } from "~utils/format";
 
-export default function ContactSettings({ address }: Props) {
+export default function ContactSettings({ address, isQuickSetting }: Props) {
   // contacts
   const [storedContacts, setStoredContacts] = useStorage(
     {
@@ -193,7 +194,9 @@ export default function ContactSettings({ address }: Props) {
     if (editable) {
       return (
         <>
-          <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
+          <SubTitle small={isQuickSetting}>
+            {browser.i18n.getMessage("ArNS_address")}
+          </SubTitle>
           <InputWrapper>
             <SelectInput
               fullWidth
@@ -221,10 +224,13 @@ export default function ContactSettings({ address }: Props) {
     } else if (contact.ArNSAddress) {
       return (
         <>
-          <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
-          <ContactInfo>
+          <SubTitle small={isQuickSetting}>
+            {browser.i18n.getMessage("ArNS_address")}
+          </SubTitle>
+          <ContactInfo small={isQuickSetting}>
             {browser.i18n.getMessage("arweave_url") + contact.ArNSAddress}
             <Link
+              small={isQuickSetting}
               onClick={() =>
                 browser.tabs.create({
                   url: `https://${contact.ArNSAddress}.arweave.ar`
@@ -255,7 +261,7 @@ export default function ContactSettings({ address }: Props) {
     }
 
     removeContactModal.setOpen(false);
-    setLocation("/contacts");
+    setLocation(`/${isQuickSetting ? "quick-settings/" : ""}contacts`);
   };
 
   const copyAddress: MouseEventHandler = (e) => {
@@ -286,30 +292,34 @@ export default function ContactSettings({ address }: Props) {
   return (
     <Wrapper>
       <div>
-        <div>
-          <Spacer y={0.45} />
-          <Header>
-            <Title>{browser.i18n.getMessage("contact_info")}</Title>
-            <EditIcon onClick={toggleEdit} />
-          </Header>
-        </div>
-        <SubTitle>{browser.i18n.getMessage("contact_avatar")}</SubTitle>
+        {!isQuickSetting && (
+          <div>
+            <Spacer y={0.45} />
+            <Header>
+              <Title>{browser.i18n.getMessage("contact_info")}</Title>
+              <EditIcon onClick={toggleEdit} />
+            </Header>
+          </div>
+        )}
+        <SubTitle color="primary">
+          {browser.i18n.getMessage("contact_avatar")}
+        </SubTitle>
         <PicWrapper>
           {contact.avatarId && !avatarLoading ? (
-            <ContactPic src={contact.profileIcon} />
+            <ContactPic small={isQuickSetting} src={contact.profileIcon} />
           ) : (
             avatarLoading &&
             contact.avatarId && (
-              <AutoContactPic>
+              <AutoContactPic small={isQuickSetting}>
                 <LoadingSpin />
               </AutoContactPic>
             )
           )}
           {!contact.profileIcon && svgieAvatar && (
-            <ContactPic src={svgieAvatar} />
+            <ContactPic small={isQuickSetting} src={svgieAvatar} />
           )}
           {!contact.profileIcon && !svgieAvatar && (
-            <AutoContactPic>
+            <AutoContactPic small={isQuickSetting}>
               {generateProfileIcon(contact.name, contact.address)}
             </AutoContactPic>
           )}
@@ -328,7 +338,11 @@ export default function ContactSettings({ address }: Props) {
             </>
           ) : null}
         </PicWrapper>
-        {contact.name && <SubTitle>{browser.i18n.getMessage("name")}</SubTitle>}
+        {contact.name && (
+          <SubTitle small={isQuickSetting}>
+            {browser.i18n.getMessage("name")}
+          </SubTitle>
+        )}
         {editable ? (
           <InputWrapper>
             <InputV2
@@ -344,10 +358,10 @@ export default function ContactSettings({ address }: Props) {
             />
           </InputWrapper>
         ) : (
-          <ContactInfo>{contact.name}</ContactInfo>
+          <ContactInfo small={isQuickSetting}>{contact.name}</ContactInfo>
         )}
         <AddressWrapper>
-          <SubTitle>
+          <SubTitle small={isQuickSetting}>
             {browser.i18n.getMessage("arweave_account_address")}
             {editable && "*"}
           </SubTitle>
@@ -357,6 +371,7 @@ export default function ContactSettings({ address }: Props) {
               position="top"
             >
               <Action
+                small={isQuickSetting}
                 as={copied ? CheckIcon : CopyIcon}
                 onClick={copyAddress}
               />
@@ -378,15 +393,30 @@ export default function ContactSettings({ address }: Props) {
             />
           </InputWrapper>
         ) : (
-          <Address>{contact.address}</Address>
+          <Address small={isQuickSetting}>
+            {isQuickSetting
+              ? formatAddress(contact.address, 8)
+              : contact.address}
+          </Address>
         )}
         {<>{renderArNSAddress()}</>}
-        <SubTitle>{browser.i18n.getMessage("notes")}</SubTitle>
+        <SubTitle small={isQuickSetting}>
+          {browser.i18n.getMessage("notes")}
+        </SubTitle>
         <ContactNotes
+          small={isQuickSetting}
           placeholder={browser.i18n.getMessage("type_message_here")}
           value={contact.notes || ""}
           onChange={(e) => setContact({ ...contact, notes: e.target.value })}
-          style={{ height: editable ? "235px" : "269px" }}
+          style={{
+            height: editable
+              ? isQuickSetting
+                ? "78px"
+                : "235px"
+              : isQuickSetting
+              ? "78px"
+              : "269px"
+          }}
         />
       </div>
       {editable && (
@@ -408,39 +438,54 @@ export default function ContactSettings({ address }: Props) {
               {browser.i18n.getMessage("remove_contact")}
             </RemoveContact>
           </Footer>
-          <ModalV2
-            {...removeContactModal.bindings}
-            root={document.getElementById("__plasmo")}
-            actions={
-              <>
-                <ButtonV2
-                  secondary
-                  onClick={() => removeContactModal.setOpen(false)}
-                >
-                  {browser.i18n.getMessage("no")}
-                </ButtonV2>
-                <ButtonV2 onClick={confirmRemoveContact}>
-                  {browser.i18n.getMessage("yes")}
-                </ButtonV2>
-              </>
-            }
-          >
-            <CenterText heading>
-              {browser.i18n.getMessage("remove_contact")}
-            </CenterText>
-            <Spacer y={0.55} />
-            <CenterText noMargin>
-              {browser.i18n.getMessage("remove_contact_question")}
-            </CenterText>
-            <Spacer y={1} />
-          </ModalV2>
         </>
       )}
+      {isQuickSetting && !editable && (
+        <Footer>
+          <ButtonV2 fullWidth onClick={toggleEdit}>
+            {browser.i18n.getMessage("edit_contact")}
+          </ButtonV2>
+          <RemoveContact
+            fullWidth
+            secondary
+            onClick={() => removeContactModal.setOpen(true)}
+            displayTheme={theme}
+          >
+            {browser.i18n.getMessage("remove_contact")}
+          </RemoveContact>
+        </Footer>
+      )}
+      <ModalV2
+        {...removeContactModal.bindings}
+        root={document.getElementById("__plasmo")}
+        actions={
+          <>
+            <ButtonV2
+              secondary
+              onClick={() => removeContactModal.setOpen(false)}
+            >
+              {browser.i18n.getMessage("no")}
+            </ButtonV2>
+            <ButtonV2 onClick={confirmRemoveContact}>
+              {browser.i18n.getMessage("yes")}
+            </ButtonV2>
+          </>
+        }
+      >
+        <CenterText heading>
+          {browser.i18n.getMessage("remove_contact")}
+        </CenterText>
+        <Spacer y={0.55} />
+        <CenterText noMargin>
+          {browser.i18n.getMessage("remove_contact_question")}
+        </CenterText>
+        <Spacer y={1} />
+      </ModalV2>
     </Wrapper>
   );
 }
 
-const Action = styled(CopyIcon)`
+const Action = styled(CopyIcon)<{ small?: boolean }>`
   font-size: 1.25rem;
   width: 1em;
   height: 1em;
@@ -462,9 +507,11 @@ const LoadingSpin = styled(Loading)`
   width: 23px;
 `;
 
-const Link = styled(Share04)`
+const Link = styled(Share04)<{ small?: boolean }>`
   margin-left: 10px;
   cursor: pointer;
+  height: ${(props) => (props.small ? "0.875em" : "1em")};
+  width: ${(props) => (props.small ? "0.875em" : "1em")};
 `;
 
 export const Wrapper = styled.div`
@@ -499,12 +546,13 @@ export const CenterText = styled(Text)`
 
 const Address = styled(Text).attrs({
   heading: true
-})`
+})<{ small?: boolean }>`
   margin-bottom: 20px;
   font-weight: 500;
   display: flex;
   align-items: center;
   word-break: break-all;
+  ${(props) => props.small && "font-size: 1rem;"}
 `;
 
 const AddressWrapper = styled.div`
@@ -540,9 +588,9 @@ export const RemoveContact = styled(ButtonV2)<{ displayTheme: DisplayTheme }>`
   }
 `;
 
-export const AutoContactPic = styled.div`
-  width: 100px;
-  height: 100px;
+export const AutoContactPic = styled.div<{ small?: boolean }>`
+  width: ${(props) => (props.small ? "64px" : "100px")};
+  height: ${(props) => (props.small ? "64px" : "100px")};
   border-radius: 100%;
   margin-bottom: 10px;
   display: flex;
@@ -553,9 +601,9 @@ export const AutoContactPic = styled.div`
   background-color: #ab9aff26;
 `;
 
-export const ContactPic = styled.img`
-  width: 100px;
-  height: 100px;
+export const ContactPic = styled.img<{ small?: boolean }>`
+  width: ${(props) => (props.small ? "64px" : "100px")};
+  height: ${(props) => (props.small ? "64px" : "100px")};
   border-radius: 100%;
   margin-bottom: 10px;
 `;
@@ -565,7 +613,7 @@ export const InputWrapper = styled.div`
 `;
 
 export const SelectInput = styled(SelectV2)`
-  height: 53px;
+  ${(props) => !props.small && "height: 53px;"}
   padding: 10px 20px 10px 20px;
   color: #b9b9b9;
   font-size: 16px;
@@ -576,7 +624,7 @@ export const SelectInput = styled(SelectV2)`
 `;
 
 export const ContactInput = styled(InputV2)`
-  height: 33px;
+  ${(props) => !props.small && "height: 33px;"}
   padding: 10px 20px 10px 20px;
   color: #b9b9b9;
   font-size: 16px;
@@ -588,16 +636,17 @@ export const ContactInput = styled(InputV2)`
 
 const ContactInfo = styled(Text).attrs({
   heading: true
-})`
+})<{ small?: boolean }>`
   margin-bottom: 20px;
   font-weight: 500;
+  ${(props) => props.small && "font-size: 1rem;"}
   display: flex;
   align-items: center;
 `;
 
-export const ContactNotes = styled.textarea`
+export const ContactNotes = styled.textarea<{ small?: boolean }>`
   display: flex;
-  width: 96%;
+  width: ${(props) => (props.small ? "92%" : "96%")};
   border-radius: 15px;
   border: 1.5px solid #ab9aff26;
   padding: 12px;
@@ -614,9 +663,14 @@ export const ContactNotes = styled.textarea`
   color: #b9b9b9;
 `;
 
-export const SubTitle = styled(Text)`
-  font-size: 16px;
-  color: #aeadcd;
+export const SubTitle = styled(Text)<{ small?: boolean; color?: string }>`
+  font-size: ${(props) => (props.small ? "14px" : "16px")};
+  color: rgb(
+    ${(props) =>
+      props.color === "primary"
+        ? props.theme.primaryText
+        : props.theme.secondaryText}
+  );
   margin-bottom: 4px;
 `;
 
@@ -629,4 +683,5 @@ export const Title = styled(Text).attrs({
 
 interface Props {
   address: string;
+  isQuickSetting?: boolean;
 }

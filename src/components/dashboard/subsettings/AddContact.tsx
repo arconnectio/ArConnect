@@ -35,7 +35,11 @@ import copy from "copy-to-clipboard";
 import { gql } from "~gateways/api";
 import { useTheme } from "~utils/theme";
 
-export default function AddContact() {
+interface AddContactProps {
+  isQuickSetting?: boolean;
+}
+
+export default function AddContact({ isQuickSetting }: AddContactProps) {
   // contacts
   const [storedContacts, setStoredContacts] = useStorage(
     {
@@ -218,7 +222,9 @@ export default function AddContact() {
         avatarId: ""
       });
 
-      setLocation(`/contacts/${contact.address}`);
+      setLocation(
+        `/${isQuickSetting ? "quick-settings/" : ""}contacts/${contact.address}`
+      );
     } catch (error) {
       console.error("Error updating contacts:", error);
     }
@@ -238,7 +244,7 @@ export default function AddContact() {
     });
 
     removeContactModal.setOpen(false);
-    setLocation("/contacts");
+    setLocation(`/${isQuickSetting ? "quick-settings/" : ""}contacts`);
   };
 
   const areFieldsEmpty = () => {
@@ -248,19 +254,23 @@ export default function AddContact() {
   return (
     <Wrapper>
       <div>
-        <div>
-          <Spacer y={0.45} />
-          <Header>
-            <Title>{browser.i18n.getMessage("add_new_contact")}</Title>
-          </Header>
-        </div>
-        <SubTitle>{browser.i18n.getMessage("contact_avatar")}</SubTitle>
+        {!isQuickSetting && (
+          <div>
+            <Spacer y={0.45} />
+            <Header>
+              <Title>{browser.i18n.getMessage("add_new_contact")}</Title>
+            </Header>
+          </div>
+        )}
+        <SubTitle color="primary">
+          {browser.i18n.getMessage("contact_avatar")}
+        </SubTitle>
         <PicWrapper>
           {contact.avatarId && contact.profileIcon && (
-            <ContactPic src={contact.profileIcon} />
+            <ContactPic small={isQuickSetting} src={contact.profileIcon} />
           )}
           {!contact.avatarId && !contact.profileIcon && (
-            <AutoContactPic>
+            <AutoContactPic small={isQuickSetting}>
               {generateProfileIcon(contact.name, contact.address)}
             </AutoContactPic>
           )}
@@ -275,18 +285,18 @@ export default function AddContact() {
             onChange={handleAvatarUpload}
           />
         </PicWrapper>
-        <SubTitle>{browser.i18n.getMessage("name")}</SubTitle>
+        <SubTitle color="primary">{browser.i18n.getMessage("name")}*</SubTitle>
         <InputWrapper>
           <ContactInput
             fullWidth
-            small
+            small={isQuickSetting}
             name="name"
             placeholder={browser.i18n.getMessage("first_last_name")}
             value={contact.name}
             onChange={handleInputChange}
           />
         </InputWrapper>
-        <SubTitle>
+        <SubTitle color="primary">
           {browser.i18n.getMessage("arweave_account_address")}*
         </SubTitle>
         <InputWrapper>
@@ -294,7 +304,7 @@ export default function AddContact() {
             type="text"
             list="addressOptions"
             fullWidth
-            small
+            small={isQuickSetting}
             name="address"
             placeholder={
               contact.address
@@ -312,11 +322,13 @@ export default function AddContact() {
             ))}
           </datalist>
         </InputWrapper>
-        <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
+        <SubTitle color="primary">
+          {browser.i18n.getMessage("ArNS_address")}
+        </SubTitle>
         <InputWrapper>
           <SelectInput
             fullWidth
-            small
+            small={isQuickSetting}
             name="ArNSAddress"
             value={contact.ArNSAddress}
             onChange={(e) =>
@@ -335,8 +347,9 @@ export default function AddContact() {
             ))}
           </SelectInput>
         </InputWrapper>
-        <SubTitle>{browser.i18n.getMessage("notes")}</SubTitle>
+        <SubTitle color="primary">{browser.i18n.getMessage("notes")}</SubTitle>
         <NewContactNotes
+          small={isQuickSetting}
           placeholder={browser.i18n.getMessage("type_message_here")}
           value={contact.notes || ""}
           onChange={(e) => setContact({ ...contact, notes: e.target.value })}
@@ -349,7 +362,9 @@ export default function AddContact() {
             onClick={saveNewContact}
             disabled={areFieldsEmpty()}
           >
-            {browser.i18n.getMessage("save_new_contact")}
+            {browser.i18n.getMessage(
+              isQuickSetting ? "save_contact" : "save_new_contact"
+            )}
           </ButtonV2>
           <RemoveContact
             fullWidth
@@ -397,6 +412,6 @@ const AddressInput = styled(ContactInput)`
     display:none !important;
 `;
 
-const NewContactNotes = styled(ContactNotes)`
-  height: 235px;
+const NewContactNotes = styled(ContactNotes)<{ small?: boolean }>`
+  height: ${(props) => (props.small ? "130px;" : "235px;")};
 `;

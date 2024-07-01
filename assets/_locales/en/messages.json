@@ -1001,6 +1001,10 @@
     "message": "Contacts",
     "description": "Contacts setting title"
   },
+  "setting_contact": {
+    "message": "Contact",
+    "description": "Contact setting title"
+  },
   "setting_contacts_description": {
     "message": "Add/edit contacts",
     "description": "Contacts setting description"
@@ -1677,6 +1681,10 @@
     "message": "Add contact",
     "description": "Add a contact button text"
   },
+  "new": {
+    "message": "New",
+    "description": "Add a new button text"
+  },
   "send_transaction": {
     "message": "Send transaction",
     "description": "Active contact send button text"
@@ -1692,6 +1700,10 @@
   "create_contact": {
     "message": "Create contact?",
     "description": "Create contact question"
+  },
+  "new_contact": {
+    "message": "New Contact",
+    "description": "New contact title"
   },
   "add_new_contact": {
     "message": "Add a new contact",
@@ -1749,6 +1761,10 @@
     "message": "Remove contact",
     "description": "Remove contact button text"
   },
+  "edit_contact": {
+    "message": "Edit contact",
+    "description": "Edit contact button text"
+  },
   "remove_contact_question": {
     "message": "Are you sure you want to remove this contact?",
     "description": "Remove contact modal text"
@@ -1756,6 +1772,10 @@
   "save_new_contact": {
     "message": "Save new contact",
     "description": "Save new contact button text"
+  },
+  "save_contact": {
+    "message": "Save contact",
+    "description": "Save contact button text"
   },
   "address_in_use": {
     "message": "Address is already in use.",
