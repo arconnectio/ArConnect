@@ -495,6 +495,10 @@
       "message": "搜索钱包...",
       "description": "Search input placeholder for wallets"
   },
+  "search_tokens": {
+    "message": "搜索令牌...",
+    "description": "Search input placeholder for tokens"
+  },
   "export_keyfile": {
       "message": "导出密钥文件",
       "description": "Export keyfile button"
@@ -1813,6 +1817,10 @@
   "ao_computer": {
       "message": "ao.computer",
       "description": "ao computer url"
+  },
+  "ao_tokens": {
+    "message": "AO代币",
+    "description": "Ao Tokens"
   },
   "ao_announcement_text": {
       "message": "关注未来的 ao 更新。了解更多访问",

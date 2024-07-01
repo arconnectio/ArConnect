@@ -41,6 +41,9 @@ import ExportWallet from "~routes/popup/settings/wallets/[address]/export";
 import Applications from "~routes/popup/settings/apps";
 import AppSettings from "~routes/popup/settings/apps/[url]";
 import AppPermissions from "~routes/popup/settings/apps/[url]/permissions";
+import { default as QuickTokens } from "~routes/popup/settings/tokens";
+import TokenSettings from "~routes/popup/settings/tokens/[id]";
+import NewToken from "~routes/popup/settings/tokens/new";
 
 export default function Popup() {
   const theme = useTheme();
@@ -111,6 +114,13 @@ export default function Popup() {
                     <AppPermissions url={params?.url} />
                   )}
                 </Route>
+                <Route path="/quick-settings/tokens" component={QuickTokens} />
+                <Route path="/quick-settings/tokens/:id">
+                  {(params: { id: string }) => (
+                    <TokenSettings id={params?.id} />
+                  )}
+                </Route>
+                <Route path="/quick-settings/tokens/new" component={NewToken} />
                 <Route path="/subscriptions/:id">
                   {(params: { id: string }) => (
                     <SubscriptionDetails id={params?.id} />

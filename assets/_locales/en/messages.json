@@ -495,6 +495,10 @@
     "message": "Search for a wallet...",
     "description": "Search input placeholder for wallets"
   },
+  "search_tokens": {
+    "message": "Search for a token...",
+    "description": "Search input placeholder for tokens"
+  },
   "export_keyfile": {
     "message": "Export keyfile",
     "description": "Export keyfile button"
@@ -1132,7 +1136,7 @@
     "description": "Hover text for drag icon"
   },
   "token_type": {
-    "message": "Token type",
+    "message": "Token Type",
     "description": "Token type label"
   },
   "token_type_asset": {
@@ -1815,6 +1819,10 @@
   "ao_computer": {
     "message": "ao.computer",
     "description": "ao computer url"
+  },
+  "ao_tokens": {
+    "message": "AO Tokens",
+    "description": "Ao Tokens"
   },
   "ao_announcement_text": {
     "message": "Look out for new updates around ao in the future. To learn more visit",
