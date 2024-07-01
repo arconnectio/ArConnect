@@ -1991,5 +1991,21 @@
   "recommended": {
     "message": "推荐",
     "description": "recommended"
+  },
+ "add_wallet_error_message": {
+    "message": "请输入恢复短语或密钥文件，并输入 ArConnect 的密码后再继续。",
+    "description": "Error message if recovery section is left blank"
+  },
+  "empty_password_error_message": {
+    "message": "请输入 ArConnect 的密码，而不是您正在导入的钱包密码。",
+    "description": "Error message if password section is left blank"
+  },
+  "missing_recovery_error_message": {
+    "message": "请输入恢复短语或密钥文件后再继续。",
+    "description": "Error message if recovery phrase or key file is left blank"
+  },
+  "incorrect_password_error_message": {
+    "message": "密码错误。请输入 ArConnect 的密码后再试，而不是您正在导入的钱包密码。",
+    "description": "Error message if password is incorrect"
   }
 }
