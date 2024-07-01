@@ -1999,11 +1999,11 @@
     "description": "required"
   },
   "add_wallet_error_message": {
-    "message": "Please enter a recovery phrase or key file and enter the password to your current wallet before continuing.",
+    "message": "Please enter a recovery phrase or key file and enter the password to your ArConnect before continuing.",
     "description": "Error message if recovery section is left blank"
   },
   "empty_password_error_message": {
-    "message": "Please enter the password to your current wallet before continuing. Not the password to the wallet you are importing.",
+    "message": "Please enter the password to your ArConnect. Not the password to the wallet you are importing.",
     "description": "Error message if password section is left blank"
   },
   "missing_recovery_error_message": {
@@ -2011,7 +2011,7 @@
     "description": "Error message if recovery phrase or key file is left blank"
   },
   "incorrect_password_error_message": {
-    "message": "Password incorrect. Please enter the password to your current wallet and try again. Not the password to the wallet you are importing.",
+    "message": "Password incorrect. Please enter the password to your ArConnect and try again. Not the password to the wallet you are importing.",
     "description": "Error message if password is incorrect"
   }
 }
