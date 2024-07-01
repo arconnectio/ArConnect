@@ -1514,23 +1514,23 @@
     "description": "Get started title"
   },
   "get_started_description":{    
-    "message": "Explore the endless possibilities on Arweave through ArConnect",
+    "message": "Explore the endless possibilities on Arweave and aoComputer through ArConnect",
     "description": "Get started description"
   },
-  "example_ardrive_description" : {
-    "message": "ArDrive offers never-ending storage of your most valuable files. Pay once and save your memories forever.",
+  "example_astro_description" : {
+    "message": "Astro is a platform that allows users to mint the USDA stablecoin.",
     "description": "placeholder for example get started"
   },
-  "example_ans_description" : {
-    "message": "ans.gg is a popular name service built on top of the Arweave blockchain. Buy your domain once, own forever.",
+  "example_protocolland_description" : {
+    "message": "Protocol.Land is a decentralized, source controlled, code collaboration platform.",
     "description": "placeholder for example get started"
   },
   "example_publish_description" : {
     "message": "A provably neutral publishing platform aimed at dis-intermediating the truth. Publish assertions, and take your position in the Fact Marketplace!",
     "description": "placeholder for example get started"
   },
-  "example_permaswap_description" : {
-    "message": "Permaswap is a cryptocurrency exchange that enables swapping of Arweave assets.",
+  "example_bark_description" : {
+    "message": "Bark is a decentralized exchange to swap assets on the aoComputer network.",
     "description": "placeholder for example get started"
   },
   "connect_with_us_title": {

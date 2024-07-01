@@ -1511,23 +1511,23 @@
       "description": "Get started title"
   },
   "get_started_description": {
-      "message": "通过 ArConnect 探索 Arweave 上的无限可能",
+      "message": "通过 ArConnect 探索 Arweave 和 aoComputer 的无限可能",
       "description": "Get started description"
   },
-  "example_ardrive_description": {
-      "message": "ArDrive 提供永恒存储您的最有价值文件。只需一次付费，永远保存您的记忆。",
+  "example_astro_description": {
+      "message": "Astro 是一个允许用户铸造 USDA 稳定币的平台。",
       "description": "Placeholder for example get started"
   },
-  "example_ans_description": {
-      "message": "ans.gg 是一个基于 Arweave 区块链的流行名称服务。一次购买，永久拥有。",
+  "example_protocolland_description": {
+      "message": "Protocol.Land 是一个去中心化、源代码控制的代码协作平台。",
       "description": "Placeholder for example get started"
   },
   "example_publish_description": {
       "message": "一个旨在去中介化真相的证明中立出版平台。发布声明，并在事实市场中占据您的位置！",
       "description": "Placeholder for example get started"
   },
-  "example_permaswap_description": {
-      "message": "Permaswap 是一个加密货币交易所，允许交换 Arweave 资产。",
+  "example_bark_description": {
+      "message": "Bark 是一个去中心化交易所，用于在 aoComputer 网络上交换资产。",
       "description": "Placeholder for example get started"
   },
   "connect_with_us_title": {
