@@ -52,6 +52,7 @@ declare module "styled-components" {
     secondaryBtnHover: string;
     inputField: string;
     primary: string;
+    backgroundv2;
     cardBorder: string;
     fail: string;
     secondaryDelete: string;

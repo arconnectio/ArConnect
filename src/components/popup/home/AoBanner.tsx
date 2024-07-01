@@ -4,7 +4,7 @@ import { Quantity } from "ao-tokens";
 import { useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
 import browser from "webextension-polyfill";
-import { useAo } from "~tokens/aoTokens/ao";
+import { Id, useAo } from "~tokens/aoTokens/ao";
 import { AO_NATIVE_TOKEN_BALANCE_MIRROR } from "~utils/ao_import";
 import { ExtensionStorage } from "~utils/storage";
 
@@ -19,7 +19,7 @@ export default function AoBanner({ activeAddress }: AoBannerProps) {
 
   async function getAoNativeTokenBalance() {
     const res = await ao.dryrun({
-      Id: "0000000000000000000000000000000000000000001",
+      Id,
       Owner: activeAddress,
       process: AO_NATIVE_TOKEN_BALANCE_MIRROR,
       tags: [{ name: "Action", value: "Balance" }]

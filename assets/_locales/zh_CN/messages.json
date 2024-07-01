@@ -1123,6 +1123,10 @@
       "message": "移除代币",
       "description": "Remove token button text"
   },
+  "refresh_token": {
+    "message": "刷新令牌",
+    "description": "Refresh token button text"
+  },
   "your_balance": {
       "message": "您的余额",
       "description": "Balance label for tokens"

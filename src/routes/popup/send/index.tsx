@@ -124,7 +124,7 @@ export default function Send({ id }: Props) {
   const [currency] = useSetting<string>("currency");
 
   // aoTokens
-  const [aoTokens, loading] = useAoTokens();
+  const [aoTokens, loading] = useAoTokens(true);
 
   // set ao for following page
   const [isAo, setIsAo] = useState<boolean>(false);
