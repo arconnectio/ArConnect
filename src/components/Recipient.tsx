@@ -55,6 +55,7 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
 
   const [show, setShow] = useState<boolean>(true);
   const { lastRecipients, storedContacts } = useContacts(activeAddress);
+  const [loading, setLoading] = useState<boolean>(false);
   const { setToast } = useToasts();
 
   const possibleTargets = useMemo(() => {
@@ -102,8 +103,9 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
         }
         if (targetInput.state.startsWith("ar://"))
           search = targetInput.state.substring(5);
+        setLoading(true);
         const result = await searchArNSName(search);
-        if (!result.success) {
+        if (result.success) {
           onClick({ address: result.record.owner });
           onClose();
           setToast({
@@ -119,7 +121,10 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
         content: browser.i18n.getMessage("check_address"),
         duration: 2400
       });
-    } catch {}
+    } catch {
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredAndGroupedContacts = useMemo(() => {
@@ -167,6 +172,7 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
         />
         <ButtonV2
           style={{ borderRadius: "10px", width: "30px", padding: 0 }}
+          loading={loading}
           onClick={() => {
             submit();
           }}

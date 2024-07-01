@@ -1686,6 +1686,10 @@
       "message": "未找到 ArNS 地址",
       "description": "No ArNS address found text"
   },
+  "searching_ArNS_addresses": {
+    "message": "正在搜索 ArNS 地址...",
+    "description": "Search ArNS addressess text"
+  },
   "arweave_url": {
       "message": "ar://",
       "description": "Arweave address for ArNS names"

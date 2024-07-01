@@ -34,6 +34,7 @@ import { useLocation } from "wouter";
 import copy from "copy-to-clipboard";
 import { gql } from "~gateways/api";
 import { useTheme } from "~utils/theme";
+import { isAddressFormat } from "~utils/format";
 
 export default function AddContact() {
   // contacts
@@ -55,6 +56,7 @@ export default function AddContact() {
   const { setToast } = useToasts();
   const [location] = useLocation();
   const address = location.split("=")[1];
+  const [loading, setLoading] = useState(false);
 
   const [contact, setContact] = useState({
     name: "",
@@ -138,15 +140,20 @@ export default function AddContact() {
 
   async function fetchArnsAddresses(ownerAddress) {
     try {
+      setLoading(true);
       const arnsNames = await getAllArNSNames(ownerAddress);
-      setArnsResults(arnsNames.records || []);
+      setArnsResults(arnsNames || []);
     } catch (error) {
       console.error("Error fetching ArNS addresses:", error);
+    } finally {
+      setLoading(false);
     }
   }
 
   useEffect(() => {
-    fetchArnsAddresses(contact.address);
+    if (contact.address && isAddressFormat(contact.address)) {
+      fetchArnsAddresses(contact.address);
+    }
 
     (async () => {
       if (!activeAddress) return;
@@ -324,13 +331,15 @@ export default function AddContact() {
             }
           >
             <option value="">
-              {arnsResults.length === 0
+              {loading
+                ? browser.i18n.getMessage("searching_ArNS_addresses")
+                : arnsResults.length === 0
                 ? browser.i18n.getMessage("no_ArNS_address_found")
                 : browser.i18n.getMessage("select_ArNS_address")}
             </option>
-            {Object.entries(arnsResults).map(([contractTxId]) => (
-              <option key={contractTxId} value={contractTxId}>
-                {browser.i18n.getMessage("arweave_url") + contractTxId}
+            {arnsResults.map((arnsName) => (
+              <option key={arnsName} value={arnsName}>
+                {browser.i18n.getMessage("arweave_url") + arnsName}
               </option>
             ))}
           </SelectInput>

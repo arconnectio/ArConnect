@@ -1689,6 +1689,10 @@
     "message": "No ArNS address found",
     "description": "No ArNS address found text"
   },
+  "searching_ArNS_addresses": {
+    "message": "Searching ArNS addresses...",
+    "description": "Search ArNS addressess text"
+  },
   "arweave_url": {
     "message": "ar://",
     "description": "Arweave address for ArNS names"
