@@ -21,6 +21,23 @@ export const joinUrl = ({ url, path }: { url: string; path: string }) => {
   return urlObj.toString();
 };
 
+export function safeDecode<R = unknown>(data: any): R {
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    return data as R;
+  }
+}
+
+export class BaseError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = this.constructor.name;
+  }
+}
+
+export class WriteInteractionError extends BaseError {}
+
 export class AOProcess {
   private processId: string;
   private ao: {
@@ -57,7 +74,7 @@ export class AOProcess {
     });
   }
 
-  async createAoSigner(
+  static async createAoSigner(
     wallet: JWKInterface
   ): Promise<
     (args: {
@@ -135,65 +152,107 @@ export class AOProcess {
   async send<I, K>({
     tags,
     data,
-    wallet
+    wallet,
+    retries = 3
   }: {
     tags: Array<{ name: string; value: string }>;
     data?: I;
     wallet: JWKInterface;
+    retries?: number;
   }): Promise<{ id: string; result?: K }> {
-    console.debug(`Evaluating send interaction on contract`, {
-      tags,
-      data,
-      processId: this.processId
-    });
+    // main purpose of retries is to handle network errors/new process delays
+    let attempts = 0;
+    let lastError: Error | undefined;
+    while (attempts < retries) {
+      try {
+        console.debug(`Evaluating send interaction on contract`, {
+          tags,
+          data,
+          processId: this.processId
+        });
 
-    // append ar-io-sdk tags
+        // TODO: do a read as a dry run to check if the process supports the action
 
-    const messageId = await this.ao.message({
-      process: this.processId,
-      tags: [...tags],
-      data: JSON.stringify(data),
-      signer: await this.createAoSigner(wallet)
-    });
+        const messageId = await this.ao.message({
+          process: this.processId,
+          // TODO: any other default tags we want to add?
+          tags: [...tags],
+          data: typeof data !== "string" ? JSON.stringify(data) : data,
+          signer: await AOProcess.createAoSigner(wallet)
+        });
 
-    console.debug(`Sent message to process`, {
-      messageId,
-      processId: this.processId
-    });
+        console.debug(`Sent message to process`, {
+          messageId,
+          processId: this.processId
+        });
 
-    // check the result of the send interaction
-    const output = await this.ao.result({
-      message: messageId,
-      process: this.processId
-    });
+        // check the result of the send interaction
+        const output = await this.ao.result({
+          message: messageId,
+          process: this.processId
+        });
 
-    console.debug("Message result", {
-      output,
-      messageId,
-      processId: this.processId
-    });
+        console.debug("Message result", {
+          output,
+          messageId,
+          processId: this.processId
+        });
 
-    // check if there are any Messages in the output
-    if (output.Messages.length === 0) {
-      return { id: messageId };
+        // check if there are any Messages in the output
+        if (output.Messages?.length === 0 || output.Messages === undefined) {
+          return { id: messageId };
+        }
+
+        const tagsOutput = output.Messages[0].Tags;
+        const error = tagsOutput.find((tag) => tag.name === "Error");
+        // if there's an Error tag, throw an error related to it
+        if (error) {
+          const result = output.Messages[0].Data;
+          throw new WriteInteractionError(`${error.Value}: ${result}`);
+        }
+
+        if (output.Messages.length === 0) {
+          throw new Error(
+            `Process ${this.processId} does not support provided action.`
+          );
+        }
+
+        if (output.Messages[0].Data === undefined) {
+          return { id: messageId };
+        }
+
+        const resultData: K = safeDecode<K>(output.Messages[0].Data);
+
+        console.debug("Message result data", {
+          resultData,
+          messageId,
+          processId: this.processId
+        });
+
+        return { id: messageId, result: resultData };
+      } catch (error) {
+        console.error("Error sending message to process", {
+          error: error.message,
+          processId: this.processId,
+          tags
+        });
+        // throw on write interaction errors. No point retrying write interactions, waste of gas.
+        if (error.message.includes("500")) {
+          console.debug("Retrying send interaction", {
+            attempts,
+            retries,
+            error: error.message,
+            processId: this.processId
+          });
+          // exponential backoff
+          await new Promise((resolve) =>
+            setTimeout(resolve, 2 ** attempts * 2000)
+          );
+          attempts++;
+          lastError = error;
+        } else throw error;
+      }
     }
-
-    const tagsOutput = output.Messages[0].Tags;
-    const error = tagsOutput.find((tag) => tag.name === "Error");
-    // if there's an Error tag, throw an error related to it
-    if (error) {
-      const result = output.Messages[0].Data;
-      throw new Error(`${error.Value}: ${result}`);
-    }
-
-    const resultData: K = JSON.parse(output.Messages[0].Data);
-
-    console.debug("Message result data", {
-      resultData,
-      messageId,
-      processId: this.processId
-    });
-
-    return { id: messageId, result: resultData };
+    throw lastError;
   }
 }
