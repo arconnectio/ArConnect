@@ -47,6 +47,7 @@ export default function Tokens() {
             loading={loading}
             key={token.id}
             error={token.balance === null}
+            networkError={token.balance === ""}
             divisibility={token.Denomination}
             ao={true}
             type={"asset"}

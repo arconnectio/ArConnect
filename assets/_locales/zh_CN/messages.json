@@ -1826,6 +1826,14 @@
       "message": "网络问题解决后，AO 代币处理将可用。",
       "description": "ao degraded description text"
   },
+  "network_issue": {
+    "message": "检测到网络问题。",
+    "description": "network issue title text"
+  },
+  "network_issue_description": {
+    "message": "您的 ISP 或 VPN 阻止访问 AO。<br/> 请使用其他连接。",
+    "description": "network issue description text"
+  },
   "import_token": {
       "message": "导入代币",
       "description": "Import token button description"

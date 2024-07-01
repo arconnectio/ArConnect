@@ -1825,8 +1825,16 @@
     "description": "ao degraded title text"
   },
   "ao_degraded_description": {
-    "message": "AO token process will be available when the network issues are resolved.",
+    "message": "AO token process will be available when <br/>the network issues are resolved.",
     "description": "ao degraded description text"
+  },
+  "network_issue": {
+    "message": "Network Issue Detected.",
+    "description": "network issue title text"
+  },
+  "network_issue_description": {
+    "message": "Your ISP or VPN is blocking access to AO.<br/> Please use a different connection.",
+    "description": "network issue description text"
   },
   "import_token": {
     "message": "Import Token",
