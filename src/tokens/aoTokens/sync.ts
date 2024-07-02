@@ -7,7 +7,9 @@ import {
   getTagValue,
   timeoutPromise,
   type Message,
-  type TokenInfo
+  type TokenInfo,
+  Id,
+  Owner
 } from "./ao";
 
 /** Tokens storage name */
@@ -54,9 +56,9 @@ async function withRetry<T>(
 
 async function getTokenInfo(id: string): Promise<TokenInfo> {
   const body = {
-    Id: "0000000000000000000000000000000000000000001",
+    Id,
     Target: id,
-    Owner: "0000000000000000000000000000000000000000002",
+    Owner,
     Anchor: "0",
     Data: "1234",
     Tags: [

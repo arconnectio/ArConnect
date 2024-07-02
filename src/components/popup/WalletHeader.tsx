@@ -621,7 +621,7 @@ const AppAction = styled.div`
   display: flex;
 `;
 
-const Action = styled(CopyIcon)`
+export const Action = styled(CopyIcon)`
   cursor: pointer;
   font-size: 1.25rem;
   width: 1em;
