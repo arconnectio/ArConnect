@@ -88,8 +88,14 @@ export default function Settings({ params }: Props) {
 
     return (
       setting.name.toLowerCase().includes(query.toLowerCase()) ||
-      setting.displayName.toLowerCase().includes(query.toLowerCase()) ||
-      setting.description.toLowerCase().includes(query.toLowerCase())
+      browser.i18n
+        .getMessage(setting.displayName)
+        .toLowerCase()
+        .includes(query.toLowerCase()) ||
+      browser.i18n
+        .getMessage(setting.description)
+        .toLowerCase()
+        .includes(query.toLowerCase())
     );
   }
 
