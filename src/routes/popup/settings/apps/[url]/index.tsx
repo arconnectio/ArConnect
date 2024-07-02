@@ -24,6 +24,7 @@ import Arweave from "arweave";
 import { defaultGateway, suggestedGateways, testnets } from "~gateways/gateway";
 import HeadV2 from "~components/popup/HeadV2";
 import { useLocation } from "wouter";
+import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
 
 export default function AppSettings({ url }: Props) {
   // app settings
@@ -118,23 +119,19 @@ export default function AppSettings({ url }: Props) {
                 <InfoIcon />
               </TooltipV2>
             </Flex>
-            <ToggleSwitch width="44px" height="24px">
-              <input
-                type="checkbox"
-                checked={settings?.allowance.enabled}
-                onChange={() =>
-                  updateSettings((val) => ({
-                    ...val,
-                    allowance: {
-                      ...defaultAllowance,
-                      ...val.allowance,
-                      enabled: !val.allowance.enabled
-                    }
-                  }))
-                }
-              />
-              <span className="slider round"></span>
-            </ToggleSwitch>
+            <ToggleSwitch
+              checked={settings?.allowance.enabled}
+              setChecked={(enabled: boolean) => {
+                updateSettings((val) => ({
+                  ...val,
+                  allowance: {
+                    ...defaultAllowance,
+                    ...val.allowance,
+                    enabled: !val.allowance.enabled
+                  }
+                }));
+              }}
+            />
           </Flex>
           <Spacer y={1} />
           <div>
@@ -396,66 +393,6 @@ const CenterText = styled(Text)`
 
   @media screen and (max-width: 720px) {
     max-width: 90vw;
-  }
-`;
-
-const ToggleSwitch = styled.label<{ height?: string; width?: string }>`
-  position: relative;
-  display: inline-block;
-  width: ${(props) => props.width || "60px"};
-  height: ${(props) => props.height || "34px"};
-
-  input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: 0.4s;
-
-    &:before {
-      position: absolute;
-      content: "";
-      height: calc(${(props) => props.height || "34px"} - 8px);
-      width: calc(${(props) => props.height || "34px"} - 8px);
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: 0.4s;
-    }
-  }
-
-  input:checked + .slider {
-    background-color: ${(props) => props.theme.primary};
-  }
-
-  input:focus + .slider {
-    box-shadow: 0 0 1px ${(props) => props.theme.primary};
-  }
-
-  input:checked + .slider:before {
-    transform: translateX(
-      calc(
-        ${(props) => props.width || "60px"} -
-          ${(props) => props.height || "34px"}
-      )
-    );
-  }
-
-  .slider.round {
-    border-radius: 34px;
-
-    &:before {
-      border-radius: 50%;
-    }
   }
 `;
 

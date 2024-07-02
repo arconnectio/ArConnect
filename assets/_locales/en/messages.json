@@ -1537,6 +1537,14 @@
     "message": "Receive notifications instantly when a transaction processes.",
     "description": "Enable notifications paragraph"
   },
+  "toggle_notifications": {
+    "message": "Toggle notifications",
+    "description": "Toggle notifications text"
+  },
+  "toggle_notifications_decription": {
+    "message": "Toggle to receive alerts for new transactions in your wallet.",
+    "description": "Toggle notifications description text"
+  },
   "get_started":{    
     "message": "Get Started",
     "description": "Get started title"

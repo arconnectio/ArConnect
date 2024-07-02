@@ -47,6 +47,7 @@ import NewToken from "~routes/popup/settings/tokens/new";
 import Contacts from "~routes/popup/settings/contacts";
 import ContactSettings from "~routes/popup/settings/contacts/[address]";
 import NewContact from "~routes/popup/settings/contacts/new";
+import NotificationSettings from "~routes/popup/settings/notifications";
 
 export default function Popup() {
   const theme = useTheme();
@@ -133,6 +134,10 @@ export default function Popup() {
                 <Route
                   path="/quick-settings/contacts/new"
                   component={NewContact}
+                />
+                <Route
+                  path="/quick-settings/notifications"
+                  component={NotificationSettings}
                 />
                 <Route path="/subscriptions/:id">
                   {(params: { id: string }) => (

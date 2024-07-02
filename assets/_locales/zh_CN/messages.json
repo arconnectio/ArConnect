@@ -1534,6 +1534,14 @@
       "message": "当交易处理时立即接收通知。",
       "description": "Enable notifications paragraph"
   },
+  "toggle_notifications": {
+    "message": "切换通知",
+    "description": "Toggle notifications text"
+  },
+  "toggle_notifications_decription": {
+    "message": "切换以接收钱包中新交易的提醒。",
+    "description": "Toggle notifications description text"
+  },
   "get_started": {
       "message": "开始",
       "description": "Get started title"
