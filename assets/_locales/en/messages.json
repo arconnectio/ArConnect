@@ -1127,6 +1127,10 @@
     "message": "Remove token",
     "description": "Remove token button text"
   },
+  "refresh_token": {
+    "message": "Refresh token",
+    "description": "Refresh token button text"
+  },
   "your_balance": {
     "message": "Your balance",
     "description": "Balance label for tokens"
@@ -1514,23 +1518,23 @@
     "description": "Get started title"
   },
   "get_started_description":{    
-    "message": "Explore the endless possibilities on Arweave through ArConnect",
+    "message": "Explore the endless possibilities on Arweave and aoComputer through ArConnect",
     "description": "Get started description"
   },
-  "example_ardrive_description" : {
-    "message": "ArDrive offers never-ending storage of your most valuable files. Pay once and save your memories forever.",
+  "example_astro_description" : {
+    "message": "Astro is a platform that allows users to mint the USDA stablecoin.",
     "description": "placeholder for example get started"
   },
-  "example_ans_description" : {
-    "message": "ans.gg is a popular name service built on top of the Arweave blockchain. Buy your domain once, own forever.",
+  "example_protocolland_description" : {
+    "message": "Protocol.Land is a decentralized, source controlled, code collaboration platform.",
     "description": "placeholder for example get started"
   },
   "example_publish_description" : {
     "message": "A provably neutral publishing platform aimed at dis-intermediating the truth. Publish assertions, and take your position in the Fact Marketplace!",
     "description": "placeholder for example get started"
   },
-  "example_permaswap_description" : {
-    "message": "Permaswap is a cryptocurrency exchange that enables swapping of Arweave assets.",
+  "example_bark_description" : {
+    "message": "Bark is a decentralized exchange to swap assets on the aoComputer network.",
     "description": "placeholder for example get started"
   },
   "connect_with_us_title": {
@@ -1825,8 +1829,16 @@
     "description": "ao degraded title text"
   },
   "ao_degraded_description": {
-    "message": "AO token process will be available when the network issues are resolved.",
+    "message": "AO token process will be available when <br/>the network issues are resolved.",
     "description": "ao degraded description text"
+  },
+  "network_issue": {
+    "message": "Network Issue Detected.",
+    "description": "network issue title text"
+  },
+  "network_issue_description": {
+    "message": "Your ISP or VPN is blocking access to AO.<br/> Please use a different connection.",
+    "description": "network issue description text"
   },
   "import_token": {
     "message": "Import Token",
@@ -1997,5 +2009,21 @@
   "recommended":  {
     "message": "Recommended",
     "description": "required"
+  },
+  "add_wallet_error_message": {
+    "message": "Please enter a recovery phrase or key file and enter the password to your ArConnect before continuing.",
+    "description": "Error message if recovery section is left blank"
+  },
+  "empty_password_error_message": {
+    "message": "Please enter the password to your ArConnect. Not the password to the wallet you are importing.",
+    "description": "Error message if password section is left blank"
+  },
+  "missing_recovery_error_message": {
+    "message": "Please enter a recovery phrase or key file before continuing.",
+    "description": "Error message if recovery phrase or key file is left blank"
+  },
+  "incorrect_password_error_message": {
+    "message": "Password incorrect. Please enter the password to your ArConnect and try again. Not the password to the wallet you are importing.",
+    "description": "Error message if password is incorrect"
   }
 }

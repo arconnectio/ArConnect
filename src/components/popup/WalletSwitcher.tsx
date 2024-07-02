@@ -1,4 +1,4 @@
-import { EditIcon, PlusIcon, WalletIcon } from "@iconicicons/react";
+import { CopyIcon, EditIcon, PlusIcon, WalletIcon } from "@iconicicons/react";
 import {
   ButtonV2,
   Card,
@@ -16,7 +16,7 @@ import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEventHandler } from "react";
 import HardwareWalletIcon from "~components/hardware/HardwareWalletIcon";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
 import { findGateway } from "~gateways/wayfinder";
@@ -25,6 +25,8 @@ import Squircle from "~components/Squircle";
 import styled from "styled-components";
 import Arweave from "arweave";
 import { svgie } from "~utils/svgies";
+import { Action } from "./WalletHeader";
+import copy from "copy-to-clipboard";
 
 export default function WalletSwitcher({
   open,
@@ -107,6 +109,23 @@ export default function WalletSwitcher({
   // load wallet balances
   const [loadedBalances, setLoadedBalances] = useState(false);
 
+  const copyAddress = (
+    e: React.MouseEvent,
+    address: string,
+    walletName: string
+  ) => {
+    e.stopPropagation();
+    copy(address);
+    setToast({
+      type: "success",
+      duration: 2000,
+      content: browser.i18n.getMessage("copied_address", [
+        walletName,
+        formatAddress(address, 3)
+      ])
+    });
+  };
+
   useEffect(() => {
     (async () => {
       if (wallets.length === 0 || loadedBalances) return;
@@ -185,6 +204,20 @@ export default function WalletSwitcher({
                           )}
                           )
                         </Text>
+                        <div>
+                          <TooltipV2
+                            content={browser.i18n.getMessage("copy_address")}
+                            position="bottom"
+                          >
+                            <Action
+                              as={CopyIcon}
+                              onClick={(e) =>
+                                copyAddress(e, wallet.address, wallet.name)
+                              }
+                              style={{ width: "15px", height: "15px" }}
+                            />
+                          </TooltipV2>
+                        </div>
                         {wallet.address === activeAddress && (
                           <ActiveIndicator />
                         )}

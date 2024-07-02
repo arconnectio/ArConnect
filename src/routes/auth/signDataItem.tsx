@@ -166,7 +166,7 @@ export default function SignDataItem() {
   // get ao token info
   useEffect(() => {
     const fetchTokenInfo = async () => {
-      if (!process) return;
+      if (!process || !transfer) return;
       let tokenInfo: TokenInfo;
       try {
         setLoading(true);

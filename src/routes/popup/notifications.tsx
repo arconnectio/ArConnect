@@ -81,73 +81,82 @@ export default function Notifications() {
   const formatTxMessage = async (
     notifications: Transaction[]
   ): Promise<string[]> => {
-    const formattedTxMsgs = [];
-    for (const notification of notifications) {
-      let formattedMessage: string = "";
-      if (notification.transactionType !== "Message") {
-        let ticker;
-        let quantityTransfered;
-        if (notification.isAo) {
-          // handle ao messages/sents/receives
-          let token = await fetchTokenByProcessId(notification.tokenId);
-          if (!token) {
-            ticker = formatAddress(notification.tokenId, 4);
-            quantityTransfered = notification.quantity;
+    const formattedTxMsgs = await Promise.all(
+      notifications.map(async (notification) => {
+        try {
+          let formattedMessage: string = "";
+          if (notification.transactionType !== "Message") {
+            let ticker: string;
+            let quantityTransfered;
+            if (notification.isAo) {
+              // handle ao messages/sents/receives
+              let token = await fetchTokenByProcessId(notification.tokenId);
+              if (!token) {
+                ticker = formatAddress(notification.tokenId, 4);
+                quantityTransfered = notification.quantity;
+              } else {
+                ticker = token.Ticker;
+                quantityTransfered = balanceToFractioned(
+                  notification.quantity,
+                  {
+                    id: notification.tokenId,
+                    decimals: token.Denomination,
+                    divisibility: token.Denomination
+                  }
+                ).toFixed();
+              }
+            } else if (notification.transactionType !== "Transaction") {
+              let token = await fetchTokenById(notification.tokenId);
+              if (!token) {
+                ticker = formatAddress(notification.tokenId, 5);
+                quantityTransfered = extractQuantityTransferred(
+                  notification.node.tags
+                );
+              } else if (token.ticker !== "AR") {
+                ticker = token.ticker;
+                quantityTransfered = extractQuantityTransferred(
+                  notification.node.tags
+                );
+                quantityTransfered = formatTokenBalance(
+                  balanceToFractioned(quantityTransfered, {
+                    id: notification.tokenId,
+                    decimals: token.decimals,
+                    divisibility: token.divisibility
+                  })
+                );
+              } else {
+                ticker = token.ticker;
+                quantityTransfered = formatTokenBalance(
+                  notification.quantity || "0"
+                );
+              }
+            }
+            if (notification.transactionType === "Sent") {
+              formattedMessage = `Sent ${quantityTransfered} ${ticker} to ${
+                notification.isAo
+                  ? findRecipient(notification)
+                  : formatAddress(notification.node.recipient, 4)
+              }`;
+            } else if (notification.transactionType === "Received") {
+              formattedMessage = `Received ${quantityTransfered} ${ticker} from ${formatAddress(
+                notification.node.owner.address,
+                4
+              )}`;
+            }
           } else {
-            ticker = token.Ticker;
-            quantityTransfered = balanceToFractioned(notification.quantity, {
-              id: notification.tokenId,
-              decimals: token.Denomination,
-              divisibility: token.Denomination
-            }).toFixed();
+            formattedMessage = `New message from ${formatAddress(
+              notification.node.owner.address,
+              4
+            )}`;
           }
-        } else if (notification.transactionType !== "Transaction") {
-          let token = await fetchTokenById(notification.tokenId);
-          if (!token) {
-            ticker = formatAddress(notification.tokenId, 5);
-            quantityTransfered = extractQuantityTransferred(
-              notification.node.tags
-            );
-          } else if (token.ticker !== "AR") {
-            ticker = token.ticker;
-            quantityTransfered = extractQuantityTransferred(
-              notification.node.tags
-            );
-            quantityTransfered = formatTokenBalance(
-              balanceToFractioned(quantityTransfered, {
-                id: notification.tokenId,
-                decimals: token.decimals,
-                divisibility: token.divisibility
-              })
-            );
-          } else {
-            ticker = token.ticker;
-            quantityTransfered = formatTokenBalance(
-              notification.quantity || "0"
-            );
-          }
+          return formattedMessage;
+        } catch {
+          return null;
         }
-        if (notification.transactionType === "Sent") {
-          formattedMessage = `Sent ${quantityTransfered} ${ticker} to ${
-            notification.isAo
-              ? findRecipient(notification)
-              : formatAddress(notification.node.recipient, 4)
-          }`;
-        } else if (notification.transactionType === "Received") {
-          formattedMessage = `Received ${quantityTransfered} ${ticker} from ${formatAddress(
-            notification.node.owner.address,
-            4
-          )}`;
-        }
-      } else {
-        formattedMessage = `New message from ${formatAddress(
-          notification.node.owner.address,
-          4
-        )}`;
-      }
-      formattedTxMsgs.push(formattedMessage);
-    }
-    return formattedTxMsgs;
+      })
+    );
+
+    return formattedTxMsgs.filter((msg) => msg);
   };
 
   const formatDate = (timestamp) => {

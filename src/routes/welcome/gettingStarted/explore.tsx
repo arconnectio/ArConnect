@@ -1,7 +1,7 @@
 import { Spacer, Text } from "@arconnect/components";
-import arDriveLogo from "url:/assets/ecosystem/ardrive.svg";
-import ansLogo from "url:/assets/ecosystem/ans-logo.svg";
-import permaswapLogo from "url:/assets/ecosystem/permaswap.svg";
+import AstroLogo from "url:/assets/ecosystem/astro.png";
+import protocollandLogo from "url:/assets/ecosystem/protocolland.svg";
+import barkLogo from "url:/assets/ecosystem/bark.png";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -25,21 +25,25 @@ export default function Explore() {
       <Content>
         <Item>
           <ImageWrapper>
-            <Image src={arDriveLogo} alt={"ArDrive"} draggable={false} />
+            <Image src={AstroLogo} alt={"Astro"} draggable={false} />
           </ImageWrapper>
-          {browser.i18n.getMessage("example_ardrive_description")}
+          {browser.i18n.getMessage("example_astro_description")}
         </Item>
         <Item>
           <ImageWrapper>
-            <Image src={ansLogo} alt={"ArDrive"} draggable={false} />
+            <Image
+              src={protocollandLogo}
+              alt={"Protocol Land"}
+              draggable={false}
+            />
           </ImageWrapper>
-          {browser.i18n.getMessage("example_ans_description")}
+          {browser.i18n.getMessage("example_protocolland_description")}
         </Item>
         <Item>
           <ImageWrapper>
-            <Image src={permaswapLogo} alt={"permaswap"} draggable={false} />
+            <Image src={barkLogo} alt={"Bark"} draggable={false} />
           </ImageWrapper>
-          {browser.i18n.getMessage("example_permaswap_description")}
+          {browser.i18n.getMessage("example_bark_description")}
         </Item>
       </Content>
       <Spacer y={1.5} />
