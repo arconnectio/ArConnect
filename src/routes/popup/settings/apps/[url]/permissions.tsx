@@ -1,9 +1,10 @@
-import { Checkbox, Spacer, Text } from "@arconnect/components";
+import { Spacer, Text } from "@arconnect/components";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
 import { permissionData, type PermissionType } from "~applications/permissions";
+import Checkbox from "~components/Checkbox";
 
 export default function AppPermissions({ url }: Props) {
   // app settings
@@ -20,28 +21,35 @@ export default function AppPermissions({ url }: Props) {
         {Object.keys(permissionData).map(
           (permissionName: PermissionType, i) => (
             <div key={i}>
-              <PermissionCheckbox
-                onChange={(checked) =>
-                  updateSettings((val) => {
-                    // toggle permission
-                    if (checked && !val.permissions.includes(permissionName)) {
-                      val.permissions.push(permissionName);
-                    } else if (!checked) {
-                      val.permissions = val.permissions.filter(
-                        (p) => p !== permissionName
-                      );
-                    }
+              <Permission>
+                <Checkbox
+                  size={16}
+                  onChange={(checked) =>
+                    updateSettings((val) => {
+                      // toggle permission
+                      if (
+                        checked &&
+                        !val.permissions.includes(permissionName)
+                      ) {
+                        val.permissions.push(permissionName);
+                      } else if (!checked) {
+                        val.permissions = val.permissions.filter(
+                          (p) => p !== permissionName
+                        );
+                      }
 
-                    return val;
-                  })
-                }
-                checked={settings.permissions.includes(permissionName)}
-              >
-                <PermissionTitle>{permissionName}</PermissionTitle>
-                <PermissionDescription>
-                  {browser.i18n.getMessage(permissionData[permissionName])}
-                </PermissionDescription>
-              </PermissionCheckbox>
+                      return val;
+                    })
+                  }
+                  checked={settings.permissions.includes(permissionName)}
+                />
+                <div>
+                  <PermissionTitle>{permissionName}</PermissionTitle>
+                  <PermissionDescription>
+                    {browser.i18n.getMessage(permissionData[permissionName])}
+                  </PermissionDescription>
+                </div>
+              </Permission>
               {i !== Object.keys(permissionData).length - 1 && (
                 <Spacer y={0.8} />
               )}
@@ -69,8 +77,10 @@ const Title = styled(Text).attrs({
   font-size: 1.125rem;
 `;
 
-const PermissionCheckbox = styled(Checkbox)`
+const Permission = styled.div`
+  display: flex;
   align-items: center;
+  gap: 8px;
 `;
 
 export const PermissionDescription = styled(Text).attrs({

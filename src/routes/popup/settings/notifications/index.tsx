@@ -82,7 +82,7 @@ export default function NotificationSettings() {
                 notificationCustomizeSettings &&
                 notificationCustomizeSettings.includes("default")
               }
-              setChecked={(_) => handleRadioChange("default")}
+              onChange={(_) => handleRadioChange("default")}
             />
             <RadioText noMargin>
               Enable Arweave and ao Transaction Notifications
@@ -101,7 +101,7 @@ export default function NotificationSettings() {
                   "arTransferNotifications"
                 )
               }
-              setChecked={(_) => handleRadioChange("arTransferNotifications")}
+              onChange={(_) => handleRadioChange("arTransferNotifications")}
             />
             <RadioText noMargin>
               Enable Arweave Transaction Notifications
@@ -118,7 +118,7 @@ export default function NotificationSettings() {
                 notificationCustomizeSettings &&
                 notificationCustomizeSettings.includes("allTxns")
               }
-              setChecked={(_) => handleRadioChange("allTxns")}
+              onChange={(_) => handleRadioChange("allTxns")}
             />
             <RadioText noMargin>
               Enable all Arweave and ao Notifications

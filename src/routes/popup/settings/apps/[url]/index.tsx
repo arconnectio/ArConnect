@@ -105,7 +105,17 @@ export default function AppSettings({ url }: Props) {
                 setLocation(`/quick-settings/apps/${url}/permissions`)
               }
             >
-              <Text noMargin>{browser.i18n.getMessage("view_all")}</Text>
+              <Text
+                heading
+                noMargin
+                style={{
+                  fontSize: "1rem",
+                  fontWeight: 500,
+                  lineHeight: 1
+                }}
+              >
+                {browser.i18n.getMessage("view_all")}
+              </Text>
             </ResetButton>
           </Flex>
           <Spacer y={1} />
@@ -113,7 +123,11 @@ export default function AppSettings({ url }: Props) {
             <Flex alignItems="center" justifyContent="center">
               <TitleV1>{browser.i18n.getMessage("allowance")}</TitleV1>
               <TooltipV2
-                content={browser.i18n.getMessage("allowanceTip")}
+                content={
+                  <div style={{ width: "200px", textAlign: "center" }}>
+                    {browser.i18n.getMessage("allowanceTip")}
+                  </div>
+                }
                 position="top"
               >
                 <InfoIcon />
@@ -181,7 +195,7 @@ export default function AppSettings({ url }: Props) {
             </TitleV2>
             <TooltipV2
               content={browser.i18n.getMessage("resetSpentQty")}
-              position="top"
+              position="topEnd"
             >
               <ResetButton
                 onClick={() =>
@@ -195,7 +209,17 @@ export default function AppSettings({ url }: Props) {
                   }))
                 }
               >
-                <Text noMargin>{browser.i18n.getMessage("reset")}</Text>
+                <Text
+                  heading
+                  noMargin
+                  style={{
+                    fontSize: "1rem",
+                    fontWeight: 500,
+                    lineHeight: 1
+                  }}
+                >
+                  {browser.i18n.getMessage("reset")}
+                </Text>
               </ResetButton>
             </TooltipV2>
           </Flex>
@@ -381,7 +405,7 @@ const NumberInputV2 = styled(InputV2)`
 `;
 
 const ResetButton = styled.span`
-  border-bottom: 1px solid rgba(${(props) => props.theme.theme}, 0.8);
+  border-bottom: 1px solid rgba(${(props) => props.theme.primaryText}, 0.8);
   margin-left: 0.37rem;
   cursor: pointer;
 `;

@@ -1,7 +1,46 @@
-import type { Dispatch, SetStateAction } from "react";
+import { useEffect, useMemo, useState, type HTMLProps } from "react";
 import styled from "styled-components";
 
-const Round = styled.div`
+export const Checkbox = ({
+  checked,
+  onChange,
+  id,
+  size = 28
+}: CheckboxProps & Omit<HTMLProps<HTMLDivElement>, "onChange">) => {
+  const [state, setState] = useState(checked);
+  const effectiveId = useMemo(() => id || generateUniqueId(), []);
+
+  async function toggle() {
+    let newVal = state;
+
+    setState((val) => {
+      newVal = !val;
+      return newVal;
+    });
+
+    if (onChange) {
+      await onChange(newVal);
+    }
+  }
+
+  useEffect(() => setState(checked), [checked]);
+
+  return (
+    <CheckboxWrapper>
+      <CheckboxInput checked={state} onChange={toggle} id={effectiveId} />
+      <Label htmlFor={effectiveId} size={size}></Label>
+    </CheckboxWrapper>
+  );
+};
+
+interface CheckboxProps {
+  checked?: boolean;
+  onChange?: (checked: boolean) => void;
+  id?: string;
+  size?: number;
+}
+
+const CheckboxWrapper = styled.div`
   position: relative;
 `;
 
@@ -44,25 +83,9 @@ const Label = styled.label<{ size: number }>`
   }
 `;
 
-export const Checkbox = ({
-  checked,
-  setChecked,
-  size = 28
-}: {
-  checked: boolean;
-  setChecked: Dispatch<SetStateAction<boolean>>;
-  size?: number;
-}) => {
-  const handleChange = () => {
-    setChecked(!checked);
-  };
-
-  return (
-    <Round>
-      <CheckboxInput checked={checked} onChange={handleChange} />
-      <Label htmlFor="checkbox" size={size}></Label>
-    </Round>
-  );
+// Function to generate a unique ID
+const generateUniqueId = (): string => {
+  return `checkbox-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 };
 
 export default Checkbox;
