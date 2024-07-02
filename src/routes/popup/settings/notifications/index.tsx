@@ -6,12 +6,12 @@ import browser from "webextension-polyfill";
 import {
   RadioWrapper,
   RadioItem,
-  Radio,
   RadioInner
 } from "~components/dashboard/Setting";
 import HeadV2 from "~components/popup/HeadV2";
 import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
 import { InformationIcon } from "@iconicicons/react";
+import Checkbox from "~components/Checkbox";
 
 export default function NotificationSettings() {
   const [notificationSettings, setNotificationSettings] = useStorage(
@@ -76,12 +76,14 @@ export default function NotificationSettings() {
             style={{ padding: 0 }}
             onClick={() => handleRadioChange("default")}
           >
-            <Radio>
-              {notificationCustomizeSettings &&
-                notificationCustomizeSettings.includes("default") && (
-                  <RadioInner />
-                )}
-            </Radio>
+            <Checkbox
+              size={16}
+              checked={
+                notificationCustomizeSettings &&
+                notificationCustomizeSettings.includes("default")
+              }
+              setChecked={(_) => handleRadioChange("default")}
+            />
             <RadioText noMargin>
               Enable Arweave and ao Transaction Notifications
             </RadioText>
@@ -89,14 +91,18 @@ export default function NotificationSettings() {
           {/* JUST AR TRANSFER NOTIFICATIONS  */}
           <RadioItem
             style={{ padding: 0 }}
-            onClick={() => handleRadioChange("arTransferNotifications")}
+            onClick={(_) => handleRadioChange("arTransferNotifications")}
           >
-            <Radio>
-              {notificationCustomizeSettings &&
+            <Checkbox
+              size={16}
+              checked={
+                notificationCustomizeSettings &&
                 notificationCustomizeSettings.includes(
                   "arTransferNotifications"
-                ) && <RadioInner />}
-            </Radio>
+                )
+              }
+              setChecked={(_) => handleRadioChange("arTransferNotifications")}
+            />
             <RadioText noMargin>
               Enable Arweave Transaction Notifications
             </RadioText>
@@ -104,14 +110,16 @@ export default function NotificationSettings() {
           {/* ALL NOTIFICATIONS */}
           <RadioItem
             style={{ padding: 0 }}
-            onClick={() => handleRadioChange("allTxns")}
+            onClick={(_) => handleRadioChange("allTxns")}
           >
-            <Radio>
-              {notificationCustomizeSettings &&
-                notificationCustomizeSettings.includes("allTxns") && (
-                  <RadioInner />
-                )}
-            </Radio>
+            <Checkbox
+              size={16}
+              checked={
+                notificationCustomizeSettings &&
+                notificationCustomizeSettings.includes("allTxns")
+              }
+              setChecked={(_) => handleRadioChange("allTxns")}
+            />
             <RadioText noMargin>
               Enable all Arweave and ao Notifications
             </RadioText>

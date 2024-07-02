@@ -438,14 +438,6 @@ export default function WalletHeader() {
           {
             icon: <Settings01 style={{ width: "18px", height: "18px" }} />,
             title: "Settings",
-            route: () =>
-              browser.tabs.create({
-                url: browser.runtime.getURL("tabs/dashboard.html")
-              })
-          },
-          {
-            icon: <Settings01 style={{ width: "18px", height: "18px" }} />,
-            title: "Settings",
             route: () => {
               push("/quick-settings");
             }
