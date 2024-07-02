@@ -2,7 +2,6 @@ import { DREContract, DRENode, NODES } from "@arconnect/warp-dre";
 import type { EvalStateResult } from "warp-contracts";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { type Gateway } from "~gateways/gateway";
 import { isTokenState } from "~utils/assertions";
 import { useEffect, useState } from "react";
 import { getActiveAddress } from "~wallets";
@@ -88,11 +87,13 @@ export async function getAoTokensAutoImportRestrictedIds() {
 }
 
 /**
- * Add a token to the stored tokens
+ * Get a token with id, type and dre
  *
  * @param id ID of the token contract
+ * @param type Type of the token
+ * @param dre DRE node for token
  */
-export async function addToken(id: string, type: TokenType, dre?: string) {
+export async function getToken(id: string, type: TokenType, dre?: string) {
   // dre
   if (!dre) dre = await getDreForToken(id);
   const contract = new DREContract(id, new DRENode(dre));
@@ -111,10 +112,7 @@ export async function addToken(id: string, type: TokenType, dre?: string) {
   // parse settings
   const settings = getSettings(state);
 
-  // get tokens
-  const tokens = await getTokens();
-
-  tokens.push({
+  return {
     id,
     name: state.name,
     ticker: state.ticker,
@@ -124,7 +122,21 @@ export async function addToken(id: string, type: TokenType, dre?: string) {
     decimals: state.decimals,
     defaultLogo: settings.get("communityLogo") as string,
     dre
-  });
+  } as Token;
+}
+
+/**
+ * Add a token to the stored tokens
+ *
+ * @param id ID of the token contract
+ */
+export async function addToken(id: string, type: TokenType, dre?: string) {
+  const token = await getToken(id, type, dre);
+
+  // get tokens
+  const tokens = await getTokens();
+
+  tokens.push(token);
   await ExtensionStorage.set("tokens", tokens);
 }
 

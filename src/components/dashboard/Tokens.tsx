@@ -125,14 +125,6 @@ export default function Tokens() {
           values={tokens}
           style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}
         >
-          {tokens.map((token) => (
-            <TokenListItem
-              token={token}
-              active={activeTokenSetting === token.id}
-              key={token.id}
-            />
-          ))}
-          <Spacer y={2} />
           {enhancedAoTokens.length > 0 && aoSettingsState && (
             <>
               <Label style={{ paddingLeft: "4px", margin: "0" }}>
@@ -150,7 +142,17 @@ export default function Tokens() {
               ))}
             </>
           )}
+          <Spacer y={1} />
+          <Label style={{ paddingLeft: "4px", margin: "0" }}>warp tokens</Label>
+          {tokens.map((token) => (
+            <TokenListItem
+              token={token}
+              active={activeTokenSetting === token.id}
+              key={token.id}
+            />
+          ))}
         </Reorder.Group>
+        <Spacer y={1} />
       </div>
       <ButtonV2 fullWidth onClick={addToken}>
         {browser.i18n.getMessage("import_token")}

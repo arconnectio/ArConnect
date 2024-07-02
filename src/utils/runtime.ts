@@ -30,6 +30,11 @@ export async function onInstalled(details: Runtime.OnInstalledDetailsType) {
   // reset notifications
   // await ExtensionStorage.set("show_announcement", true);
 
+  // initialize alarm to update tokens once a week
+  browser.alarms.create("update_ao_tokens", {
+    periodInMinutes: 10080
+  });
+
   // initialize tokens in wallet
   await loadTokens();
 
