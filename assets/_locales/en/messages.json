@@ -29,6 +29,26 @@
     "message": "Accept",
     "description": "Accept terms"
   },
+  "search": {
+    "message": "Search",
+    "description": "Search text"
+  },
+  "general": {
+    "message": "General",
+    "description": "General text"
+  },
+  "advanced": {
+    "message": "Advanced",
+    "description": "Advanced text"
+  },
+  "show": {
+    "message": "Show",
+    "description": "Show text"
+  },
+  "hide": {
+    "message": "Hide",
+    "description": "Hide text"
+  },
   "add_wallet": {
     "message": "Add wallet",
     "description": "Add a wallet text"

@@ -29,6 +29,26 @@
       "message": "接受",
       "description": "Accept terms"
   },
+  "search": {
+    "message": "搜索",
+    "description": "Search text"
+  },
+  "general": {
+    "message": "普通",
+    "description": "General text"
+  },
+  "advanced": {
+    "message": "高级",
+    "description": "Advanced text"
+  },
+  "show": {
+    "message": "显示",
+    "description": "Show text"
+  },
+  "hide": {
+    "message": "隐藏",
+    "description": "Hide text"
+  },
   "add_wallet": {
       "message": "添加钱包",
       "description": "Add a wallet text"
