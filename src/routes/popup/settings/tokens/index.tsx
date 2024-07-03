@@ -98,7 +98,10 @@ export default function Tokens() {
 
   return (
     <>
-      <HeadV2 title={browser.i18n.getMessage("setting_tokens")} />
+      <HeadV2
+        title={browser.i18n.getMessage("setting_tokens")}
+        back={() => setLocation("/quick-settings")}
+      />
       <Wrapper>
         <div>
           <SearchInput

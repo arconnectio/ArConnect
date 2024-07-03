@@ -124,7 +124,10 @@ export default function Wallet({ address }: Props) {
 
   return (
     <>
-      <HeadV2 title={browser.i18n.getMessage("edit_wallet")} />
+      <HeadV2
+        title={browser.i18n.getMessage("edit_wallet")}
+        back={() => setLocation("/quick-settings/wallets")}
+      />
       <Wrapper>
         <div>
           <WalletWrapper>

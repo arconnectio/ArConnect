@@ -81,7 +81,10 @@ export default function Wallets() {
 
   return (
     <>
-      <HeadV2 title={browser.i18n.getMessage("setting_wallets")} />
+      <HeadV2
+        title={browser.i18n.getMessage("setting_wallets")}
+        back={() => setLocation("/quick-settings")}
+      />
       <Wrapper>
         <div style={{ height: "100%" }}>
           <SearchInput

@@ -3,17 +3,16 @@ import styled from "styled-components";
 import { ExtensionStorage } from "~utils/storage";
 import { Spacer, Text, TooltipV2 } from "@arconnect/components";
 import browser from "webextension-polyfill";
-import {
-  RadioWrapper,
-  RadioItem,
-  RadioInner
-} from "~components/dashboard/Setting";
+import { RadioWrapper, RadioItem } from "~components/dashboard/Setting";
 import HeadV2 from "~components/popup/HeadV2";
 import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
 import { InformationIcon } from "@iconicicons/react";
 import Checkbox from "~components/Checkbox";
+import { useLocation } from "wouter";
 
 export default function NotificationSettings() {
+  const [, setLocation] = useLocation();
+
   const [notificationSettings, setNotificationSettings] = useStorage(
     {
       key: "setting_notifications",
@@ -40,7 +39,10 @@ export default function NotificationSettings() {
 
   return (
     <>
-      <HeadV2 title={browser.i18n.getMessage("setting_notifications")} />
+      <HeadV2
+        title={browser.i18n.getMessage("setting_notifications")}
+        back={() => setLocation("/quick-settings")}
+      />
       <Wrapper>
         <ToggleSwitchWrapper>
           <TitleWrapper>

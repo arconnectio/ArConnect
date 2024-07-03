@@ -95,7 +95,10 @@ export default function AppSettings({ url }: Props) {
 
   return (
     <>
-      <HeadV2 title={settings?.name || settings?.url} />
+      <HeadV2
+        title={settings?.name || settings?.url}
+        back={() => setLocation("/quick-settings/apps")}
+      />
       <Wrapper>
         <div>
           <Flex alignItems="center" justifyContent="space-between">
@@ -380,6 +383,7 @@ const TitleV1 = styled(Text).attrs({
 })`
   margin-bottom: 0;
   font-size: 1.125rem;
+  font-weight: 500;
 `;
 
 const TitleV2 = styled(Text).attrs({
@@ -387,7 +391,7 @@ const TitleV2 = styled(Text).attrs({
 })`
   margin-bottom: 0.6em;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
 `;
 
 const NumberInputV2 = styled(InputV2)`

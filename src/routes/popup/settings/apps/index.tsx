@@ -78,7 +78,10 @@ export default function Applications() {
 
   return (
     <>
-      <HeadV2 title={browser.i18n.getMessage("setting_apps")} />
+      <HeadV2
+        title={browser.i18n.getMessage("setting_apps")}
+        back={() => setLocation("/quick-settings")}
+      />
       <Wrapper>
         <SearchWrapper>
           <SearchInput

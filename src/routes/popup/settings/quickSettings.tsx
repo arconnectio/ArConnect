@@ -7,38 +7,12 @@ import {
   LinkExternal02,
   Coins04
 } from "@untitled-ui/icons-react";
-import Wallets from "~components/dashboard/Wallets";
-import Applications from "~components/dashboard/Applications";
-import Contacts from "~components/dashboard/Contacts";
-import NotificationSettings from "~components/dashboard/NotificationSettings";
-import Tokens from "../tokens";
 import { useLocation } from "wouter";
 import { useMemo } from "react";
 import { ListItem, ListItemIcon } from "@arconnect/components";
 import type { Icon } from "~settings/setting";
 import type { HTMLProps, ReactNode } from "react";
 import styled from "styled-components";
-
-interface Props {
-  params: {
-    setting?: string;
-    subsetting?: string;
-  };
-}
-
-interface Setting extends SettingItemData {
-  name: string;
-  component?: (...args: any[]) => JSX.Element;
-  externalLink?: string;
-}
-
-type SettingItemData = {
-  icon: Icon;
-  displayName: string;
-  description: string;
-  active: boolean;
-  isExternalLink?: boolean;
-};
 
 export default function QuickSettings({ params }: Props) {
   // router location
@@ -49,7 +23,10 @@ export default function QuickSettings({ params }: Props) {
 
   return (
     <>
-      <HeadV2 title={browser.i18n.getMessage("quick_settings")} />
+      <HeadV2
+        title={browser.i18n.getMessage("quick_settings")}
+        back={() => setLocation("/")}
+      />
       <SettingsList>
         {allSettings.map((setting, i) => (
           <SettingListItem
@@ -102,6 +79,27 @@ function SettingListItem({
   );
 }
 
+interface Props {
+  params: {
+    setting?: string;
+    subsetting?: string;
+  };
+}
+
+interface Setting extends SettingItemData {
+  name: string;
+  component?: (...args: any[]) => JSX.Element;
+  externalLink?: string;
+}
+
+type SettingItemData = {
+  icon: Icon;
+  displayName: string;
+  description: string;
+  active: boolean;
+  isExternalLink?: boolean;
+};
+
 const ExternalLinkIcon = styled(LinkExternal02)`
   height: 1rem;
   width: 1rem;
@@ -128,36 +126,31 @@ const allSettings: Omit<Setting, "active">[] = [
     name: "wallets",
     displayName: "setting_wallets",
     description: "setting_wallets_description",
-    icon: WalletIcon,
-    component: Wallets
+    icon: WalletIcon
   },
   {
     name: "apps",
     displayName: "setting_apps",
     description: "setting_apps_description",
-    icon: GridIcon,
-    component: Applications
+    icon: GridIcon
   },
   {
     name: "tokens",
     displayName: "setting_tokens",
     description: "setting_tokens_description",
-    icon: Coins04,
-    component: Tokens
+    icon: Coins04
   },
   {
     name: "contacts",
     displayName: "setting_contacts",
     description: "setting_contacts_description",
-    icon: Users01,
-    component: Contacts
+    icon: Users01
   },
   {
     name: "notifications",
     displayName: "setting_notifications",
     description: "setting_notifications_description",
-    icon: BellIcon,
-    component: NotificationSettings
+    icon: BellIcon
   },
   {
     name: "All Settings",

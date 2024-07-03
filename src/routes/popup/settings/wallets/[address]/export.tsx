@@ -15,8 +15,11 @@ import { downloadFile } from "~utils/file";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
+import { useLocation } from "wouter";
 
 export default function ExportWallet({ address }: Props) {
+  const [, setLocation] = useLocation();
+
   // wallets
   const [wallets] = useStorage<StoredWallet[]>(
     {
@@ -79,7 +82,10 @@ export default function ExportWallet({ address }: Props) {
 
   return (
     <>
-      <HeadV2 title={browser.i18n.getMessage("export_keyfile")} />
+      <HeadV2
+        title={browser.i18n.getMessage("export_keyfile")}
+        back={() => setLocation(`/quick-settings/wallets/${address}`)}
+      />
       <Wrapper>
         <Text style={{ fontSize: "0.98rem" }}>
           {browser.i18n.getMessage("export_keyfile_description")}

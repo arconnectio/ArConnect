@@ -2,11 +2,17 @@ import HeadV2 from "~components/popup/HeadV2";
 import browser from "webextension-polyfill";
 import AddContact from "~components/dashboard/subsettings/AddContact";
 import styled from "styled-components";
+import { useLocation } from "wouter";
 
 export default function NewContact() {
+  const [, setLocation] = useLocation();
+
   return (
     <>
-      <HeadV2 title={browser.i18n.getMessage("new_contact")} />
+      <HeadV2
+        title={browser.i18n.getMessage("new_contact")}
+        back={() => setLocation("/quick-settings/contacts")}
+      />
       <Wrapper>
         <AddContact isQuickSetting={true} />
       </Wrapper>

@@ -79,7 +79,10 @@ export default function TokenSettings({ id }: Props) {
 
   return (
     <>
-      <HeadV2 title={token.name} />
+      <HeadV2
+        title={token.name}
+        back={() => setLocation("/quick-settings/tokens")}
+      />
       <Wrapper>
         <div>
           <Spacer y={0.45} />

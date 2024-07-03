@@ -5,17 +5,22 @@ import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
 import { permissionData, type PermissionType } from "~applications/permissions";
 import Checkbox from "~components/Checkbox";
+import { useLocation } from "wouter";
 
 export default function AppPermissions({ url }: Props) {
   // app settings
   const app = new Application(url);
   const [settings, updateSettings] = app.hook();
+  const [, setLocation] = useLocation();
 
   if (!settings) return <></>;
 
   return (
     <>
-      <HeadV2 title={settings?.name || settings?.url} />
+      <HeadV2
+        title={settings?.name || settings?.url}
+        back={() => setLocation(`/quick-settings/apps/${url}`)}
+      />
       <Wrapper>
         <Title noMargin>{browser.i18n.getMessage("permissions")}</Title>
         {Object.keys(permissionData).map(
