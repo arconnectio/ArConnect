@@ -3,32 +3,51 @@ import browser from "webextension-polyfill";
 import { PageType, trackPage } from "~utils/analytics";
 import HeadV2 from "~components/popup/HeadV2";
 import styled from "styled-components";
-import { InputV2 } from "@arconnect/components";
+import { InputV2, useInput } from "@arconnect/components";
 import { SearchIcon } from "@iconicicons/react";
 import AppIcon from "~components/popup/home/AppIcon";
 import { ShareIcon } from "@iconicicons/react";
-import { apps } from "~utils/apps";
+import { apps, type App } from "~utils/apps";
+import { useTheme } from "~utils/theme";
 
 export default function Explore() {
+  const [filteredApps, setFilteredApps] = useState(apps);
+  const searchInput = useInput();
+  const theme = useTheme();
+
   useEffect(() => {
     trackPage(PageType.EXPLORE);
   }, []);
+
+  useEffect(() => {
+    setFilteredApps(filterApps(apps, searchInput.state));
+  }, [searchInput.state]);
 
   return (
     <>
       <HeadV2 title={browser.i18n.getMessage("explore")} />
       <Wrapper>
         <InputV2
+          {...searchInput.bindings}
           small
           fullWidth
           icon={<SearchIcon />}
           placeholder="Search for a dApp"
         />
         <div>
-          {apps.map((app, index) => (
+          {filteredApps.map((app, index) => (
             <AppWrapper key={index}>
               <LogoWrapper>
-                <AppShortcut bgColor={app.assets?.bgColor}>
+                <AppShortcut
+                  bgColor={
+                    theme === "light"
+                      ? app.assets?.lightBackground
+                      : app.assets?.darkBackground
+                  }
+                  onClick={() => {
+                    browser.tabs.create({ url: app.links.website });
+                  }}
+                >
                   <Logo src={app.assets.logo} />
                 </AppShortcut>
               </LogoWrapper>
@@ -40,7 +59,14 @@ export default function Explore() {
                 <AppDescription>{app.description}</AppDescription>
               </Description>
               <IconWrapper>
-                <ShareIcon width={16} height={16} />
+                <ShareIcon
+                  style={{ cursor: "pointer" }}
+                  width={16}
+                  height={16}
+                  onClick={() => {
+                    browser.tabs.create({ url: app.links.website });
+                  }}
+                />
               </IconWrapper>
             </AppWrapper>
           ))}
@@ -49,6 +75,15 @@ export default function Explore() {
     </>
   );
 }
+
+const filterApps = (apps: App[], searchTerm: string = ""): App[] => {
+  return apps.filter(
+    (app: App) =>
+      app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+};
 
 const IconWrapper = styled.div`
   width: 16px;
@@ -67,7 +102,7 @@ const Title = styled.div`
 `;
 
 const Wrapper = styled.div`
-  padding: 18px 1rem 72px;
+  padding: 18px 1rem;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -121,8 +156,7 @@ const AppWrapper = styled.div`
 
 const AppShortcut = styled(AppIcon)<{ bgColor?: string }>`
   transition: all 0.125s ease-in-out;
-  color: ${(props) =>
-    props.bgColor ? props.bgColor : props.theme.primaryTextv2};
+  color: ${(props) => (props.bgColor ? props.bgColor : props.theme.background)};
 
   width: 32px;
   height: 32px;

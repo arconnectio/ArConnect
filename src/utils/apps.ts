@@ -23,7 +23,8 @@ export interface App {
   assets: {
     logo: string;
     thumbnail: string;
-    bgColor?: string;
+    lightBackground?: string;
+    darkBackground?: string;
   };
   links: {
     website: string;
@@ -35,64 +36,15 @@ export interface App {
 
 export const apps: App[] = [
   {
-    name: "ArDrive",
-    category: "Storage",
-    description:
-      "ArDrive offers never-ending storage of your most valuable files. Pay once and save your memories forever.",
-    assets: {
-      logo: ardriveLogo,
-      thumbnail: permaswapLogo,
-      bgColor: "rgba(19, 28, 37, 1)"
-    },
-    links: {
-      website: "https://ardrive.io",
-      twitter: "https://twitter.com/ardriveapp",
-      discord: "https://discord.com/invite/ya4hf2H",
-      github: "https://github.com/ardriveapp"
-    }
-  },
-  {
-    name: "Permaswap",
-    category: "Finance",
-    description:
-      "Permaswap is an engineering innovation to refactor AMM. Inspired by Arweave’s SmartWeave, we’ve proposed the SCP theory. By exploring SCP, we’re certain that the approach to building decentralized applications is not limited to the on-chain VM model and that the future of Dapp development will be diverse. The Permaswap Network will prove with a new architecture that decentralization should break the impossible triangle and provide users with a perfect experience.",
-    assets: {
-      logo: permaswapLogo,
-      thumbnail: permaswapLogo,
-      bgColor: "rgba(19, 28, 37, 1)"
-    },
-    links: {
-      website: "https://permaswap.network/",
-      twitter: "https://twitter.com/permaswap",
-      discord: "https://discord.gg/WM5MQZGVPF",
-      github: "https://github.com/permaswap"
-    }
-  },
-  {
-    name: "Astro",
-    category: "Finance",
-    description:
-      "Astro USD (USDA) is the very first stablecoin in the Arweave (and AO Computer) ecosystem.",
-    assets: {
-      logo: astroLogo,
-      thumbnail: "/apps/astro/thumbnail.png",
-      bgColor: "rgba(19, 28, 37, 1)"
-    },
-    links: {
-      website: "https://astrousd.com",
-      twitter: "https://twitter.com/AstroUSD",
-      discord: "https://discord.gg/NpNRtNE6PN"
-    }
-  },
-  {
     name: "Bark",
-    category: "Finance",
+    category: "Exchange",
     description:
       "Bark is the AO Computer's first decentralized Finance. It supports AMM trading pairs and extreme scalability.",
     assets: {
       logo: barkLogo,
       thumbnail: "/apps/bark/thumbnail.png",
-      bgColor: "rgba(19, 28, 37, 1)"
+      lightBackground: "rgba(230, 235, 240, 1)",
+      darkBackground: "rgba(19, 28, 37, 1)"
     },
     links: {
       website: "https://bark.arweave.dev"
@@ -100,13 +52,14 @@ export const apps: App[] = [
   },
   {
     name: "Protocol.Land",
-    category: "Development",
+    category: "Storage",
     description:
       "Code collaboration, reimagined. Protocol.Land is a decentralized, source controlled, code collaboration where you own your code.",
     assets: {
       logo: protocollandLogo,
       thumbnail: "/apps/protocolland/thumbnail.png",
-      bgColor: "rgba(19, 28, 37, 1)"
+      lightBackground: "rgba(230, 235, 240, 1)",
+      darkBackground: "rgba(19, 28, 37, 1)"
     },
     links: {
       website: "https://protocol.land",
@@ -116,10 +69,56 @@ export const apps: App[] = [
     }
   },
   {
+    name: "Astro",
+    category: "De-fi",
+    description:
+      "Astro USD (USDA) is the very first stablecoin in the Arweave (and AO Computer) ecosystem.",
+    assets: {
+      logo: astroLogo,
+      thumbnail: "/apps/astro/thumbnail.png",
+      lightBackground: "rgba(230, 235, 240, 1)",
+      darkBackground: "rgba(19, 28, 37, 1)"
+    },
+    links: {
+      website: "https://astrousd.com",
+      twitter: "https://twitter.com/AstroUSD",
+      discord: "https://discord.gg/NpNRtNE6PN"
+    }
+  },
+  {
+    name: "AFTR Market",
+    category: "Developer Tooling",
+    description:
+      "AFTR Market provides asset management and governance on-chain for Arweave assets.",
+    assets: {
+      logo: aftrmarketLogo,
+      thumbnail: "/apps/aftr/thumbnail.png"
+    },
+    links: {
+      website: "https://www.aftr.market/",
+      twitter: "https://twitter.com/AftrMarket",
+      discord: "https://discord.gg/YEy8VpuNXR"
+    }
+  },
+  {
+    name: "Bazar",
+    category: "Exchange",
+    description:
+      "The first fully decentralized atomic asset exchange built on the permaweb. Through the power of the Universal Content Marketplace (UCM) protocol and the Universal Data License (UDL) content creators can trade digital assets with real world rights.",
+    assets: {
+      logo: bazarLogo,
+      thumbnail: "/apps/bazar/thumbnail.gif"
+    },
+    links: {
+      website: "https://bazar.arweave.dev",
+      twitter: "https://twitter.com/OurBazAR"
+    }
+  },
+  {
     name: "Arweave Name System",
     category: "Social",
     description:
-      "The Arweave Name System (ArNS) works similarly to traditional Domain Name Services - but with ArNS, the registry is decentralized, permanent, and stored on Arweave. It’s a simple way to name and help you - and your users - find your data, apps, or websites on Arweave.",
+      "The Arweave Name System (ArNS) works similarly to traditional Domain Name Services - but with ArNS, the registry is decentralized, permanent, and stored on Arweave. It's a simple way to name and help you - and your users - find your data, apps, or websites on Arweave.",
     assets: {
       logo: arnsLogo,
       thumbnail: "/apps/arns/thumbnail.jpeg"
@@ -133,12 +132,14 @@ export const apps: App[] = [
   },
   {
     name: "Art By City",
-    category: "NFTs",
+    category: "Publishing",
     description:
       "Art By City is a chain-agnostic Web3 art and creative content protocol built on Arweave. The protocol is governed by the Art By City DAO. The Art By City DAO is a Profit Sharing Community or PSC. The Art By City community governs development of the Art By City protocol, dApps, and tools artists will need to take control of their Web3 experience.",
     assets: {
       logo: artByCityLogo,
-      thumbnail: "/apps/artbycity/thumbnail.png"
+      thumbnail: "/apps/artbycity/thumbnail.png",
+      lightBackground: "rgba(255, 255, 255, 1)",
+      darkBackground: "rgba(255, 255, 255, 1)"
     },
     links: {
       website: "https://artby.city",
@@ -165,7 +166,7 @@ export const apps: App[] = [
   },
   {
     name: "Permafacts",
-    category: "Social",
+    category: "Publishing",
     description:
       "A provably neutral publishing platform, built on top of the #FactsProtocol, aimed at dis-intermediating the truth. Publish assertions, and take your position in the Fact Marketplace!",
     assets: {
@@ -183,7 +184,7 @@ export const apps: App[] = [
     name: "Pianity",
     category: "NFTs",
     description:
-      "Pianity is a music NFT platform – built on environmentally-conscious Arweave technology — where musicians and their community gather to create, sell, buy and collect songs in limited editions. Pianity’s pioneering approach, which includes free listening for all, enables deeper connections between artists and their audience.",
+      "Pianity is a music NFT platform – built on environmentally-conscious Arweave technology — where musicians and their community gather to create, sell, buy and collect songs in limited editions. Pianity's pioneering approach, which includes free listening for all, enables deeper connections between artists and their audience.",
     assets: {
       logo: pianityLogo,
       thumbnail: "/apps/pianity/thumbnail.png"
@@ -211,7 +212,7 @@ export const apps: App[] = [
   },
   {
     name: "Permapages",
-    category: "Social",
+    category: "Publishing",
     description:
       "Create and manage your own permanent web3 profile and permaweb pages built on Arweave.",
     assets: {
@@ -221,6 +222,24 @@ export const apps: App[] = [
     links: {
       website: "https://permapages.app",
       twitter: "https://twitter.com/permapages"
+    }
+  },
+  {
+    name: "ArDrive",
+    category: "Storage",
+    description:
+      "ArDrive offers never-ending storage of your most valuable files. Pay once and save your memories forever.",
+    assets: {
+      logo: ardriveLogo,
+      thumbnail: permaswapLogo,
+      lightBackground: "rgba(230, 235, 240, 1)",
+      darkBackground: "rgba(19, 28, 37, 1)"
+    },
+    links: {
+      website: "https://ardrive.io",
+      twitter: "https://twitter.com/ardriveapp",
+      discord: "https://discord.com/invite/ya4hf2H",
+      github: "https://github.com/ardriveapp"
     }
   },
   {
@@ -267,33 +286,21 @@ export const apps: App[] = [
     }
   },
   {
-    name: "Bazar",
-    category: "NFTs",
+    name: "Permaswap",
+    category: "Exchange",
     description:
-      "The first fully decentralized atomic asset exchange built on the permaweb. Through the power of the Universal Content Marketplace (UCM) protocol and the Universal Data License (UDL) content creators can trade digital assets with real world rights.",
+      "Permaswap is an engineering innovation to refactor AMM. Inspired by Arweave's SmartWeave, we've proposed the SCP theory. By exploring SCP, we're certain that the approach to building decentralized applications is not limited to the on-chain VM model and that the future of Dapp development will be diverse. The Permaswap Network will prove with a new architecture that decentralization should break the impossible triangle and provide users with a perfect experience.",
     assets: {
-      logo: bazarLogo,
-      thumbnail: "/apps/bazar/thumbnail.gif"
+      logo: permaswapLogo,
+      thumbnail: permaswapLogo,
+      lightBackground: "rgba(230, 235, 240, 1)",
+      darkBackground: "rgba(19, 28, 37, 1)"
     },
     links: {
-      website: "https://bazar.arweave.dev",
-      twitter: "https://twitter.com/OurBazAR"
-    }
-  },
-  {
-    name: "AFTR Market",
-    category: "Finance",
-    description:
-      "AFTR Market provides asset management and governance on-chain for Arweave assets.",
-    assets: {
-      logo: aftrmarketLogo,
-      thumbnail: "/apps/aftr/thumbnail.png",
-      bgColor: "rgba(19, 28, 37, 1)"
-    },
-    links: {
-      website: "https://www.aftr.market/",
-      twitter: "https://twitter.com/AftrMarket",
-      discord: "https://discord.gg/YEy8VpuNXR"
+      website: "https://permaswap.network/",
+      twitter: "https://twitter.com/permaswap",
+      discord: "https://discord.gg/WM5MQZGVPF",
+      github: "https://github.com/permaswap"
     }
   }
 ];
