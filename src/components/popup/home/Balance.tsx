@@ -124,7 +124,7 @@ export default function Balance() {
   }
 
   useEffect(() => {
-    if (!balance.isEqualTo(historicalBalance[0])) {
+    if (parseFloat(balance.toString()) !== historicalBalance[0]) {
       setLoading(true);
     } else {
       setLoading(false);
