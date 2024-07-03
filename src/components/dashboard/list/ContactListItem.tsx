@@ -43,7 +43,7 @@ const ContactWrapper = styled.div<{ active: boolean; small?: boolean }>`
   &:hover {
     background-color: rgba(
       ${(props) =>
-        props.small
+        props.small && props.theme.displayTheme === "dark"
           ? "43, 40, 56, 1"
           : props.theme.theme +
             ", " +
