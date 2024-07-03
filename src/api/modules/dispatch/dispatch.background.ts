@@ -14,7 +14,7 @@ import type { DispatchResult } from "./index";
 import { signedTxTags } from "../sign/tags";
 import { getActiveKeyfile } from "~wallets";
 import { isString } from "typed-assert";
-import Application, { pricingEndpoint } from "~applications/application";
+import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
 import { ensureAllowanceDispatch } from "./allowance";
@@ -88,7 +88,7 @@ const background: ModuleFunction<ReturnType> = async (
     const dataEntry = createData(data, dataSigner, { tags });
 
     // check allowance
-    const price = await getPrice(dataEntry, pricingEndpoint);
+    const price = await getPrice(dataEntry, await app.getBundler());
 
     await ensureAllowanceDispatch(
       dataEntry,
