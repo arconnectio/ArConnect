@@ -2,10 +2,7 @@ import { Card, Spacer, Text, useInput } from "@arconnect/components";
 import SettingListItem, {
   type Props as SettingItemData
 } from "~components/dashboard/list/SettingListItem";
-import {
-  setting_element_padding,
-  SettingsList
-} from "~components/dashboard/list/BaseElement";
+import { SettingsList } from "~components/dashboard/list/BaseElement";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import {
@@ -113,7 +110,7 @@ export default function Settings({ params }: Props) {
 
   return (
     <SettingsWrapper>
-      <Panel smallPadding>
+      <Panel normalPadding showRightBorder>
         <Spacer y={0.45} />
         <SettingsTitle>{browser.i18n.getMessage("settings")}</SettingsTitle>
         <Spacer y={0.85} />
@@ -162,14 +159,7 @@ export default function Settings({ params }: Props) {
               ))}
         </SettingsList>
       </Panel>
-      <Panel
-        normalPadding={
-          activeSetting !== "apps" &&
-          activeSetting !== "wallets" &&
-          activeSetting !== "tokens" &&
-          activeSetting !== "contacts"
-        }
-      >
+      <Panel normalPadding showRightBorder>
         <Spacer y={0.45} />
         <MidSettingsTitle>
           {allSettings &&
@@ -198,7 +188,7 @@ export default function Settings({ params }: Props) {
               return <Component />;
             })())}
       </Panel>
-      <Panel normalPadding>
+      <Panel>
         {!!activeAppSetting && (
           <AppSettings
             app={activeAppSetting}
@@ -243,16 +233,14 @@ const SettingsWrapper = styled.div`
   align-items: stretch;
   grid-template-columns: 1fr 1fr 1.5fr;
   padding: 2rem;
-  gap: 1.5rem;
   width: calc(100vw - 2rem * 2);
   height: calc(100vh - 2rem * 2);
 
   @media screen and (max-width: 900px) {
     display: flex;
     flex-wrap: wrap;
-    gap: 2rem;
+    row-gap: 2rem;
     height: auto;
-    justify-content: space-between;
   }
 `;
 
@@ -285,11 +273,16 @@ const isMac = () => {
   return userAgent.includes("Mac") && !userAgent.includes("Windows");
 };
 
-const Panel = styled(Card)<{ normalPadding?: boolean }>`
+const Panel = styled(Card)<{
+  normalPadding?: boolean;
+  showRightBorder?: boolean;
+}>`
   position: relative;
-  padding: 0.5rem ${(props) => (!props.normalPadding ? "0.35rem" : "0.95rem")};
+  border-radius: 0;
+  border: 0;
+  ${(props) => props.showRightBorder && `border-right: 1.5px solid #8e7bea;`}
+  padding: ${(props) => (props.normalPadding ? "1.5rem 1rem" : "1.5rem")};
   overflow-y: auto;
-  height: calc(100% - 0.35rem * 2);
 
   ${!isMac()
     ? `
@@ -304,6 +297,11 @@ const Panel = styled(Card)<{ normalPadding?: boolean }>`
   @media screen and (max-width: 900px) {
     width: calc(50% - 2.5rem);
     height: 55vh;
+    flex-grow: 1;
+
+    &:nth-child(2) {
+      border: 0;
+    }
 
     &:last-child {
       width: 100%;
@@ -314,6 +312,7 @@ const Panel = styled(Card)<{ normalPadding?: boolean }>`
   @media screen and (max-width: 645px) {
     width: 100%;
     height: 55vh;
+    border: 0;
 
     &:last-child {
       height: auto;
@@ -324,15 +323,12 @@ const Panel = styled(Card)<{ normalPadding?: boolean }>`
 const SettingsTitle = styled(Text).attrs({
   title: true,
   noMargin: true
-})`
-  padding: 0 ${setting_element_padding};
-`;
+})``;
 
 const MidSettingsTitle = styled(Text).attrs({
   title: true,
   noMargin: true
 })`
-  padding: 0 ${setting_element_padding};
   font-weight: 600;
   text-transform: capitalize;
 `;
