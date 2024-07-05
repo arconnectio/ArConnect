@@ -279,7 +279,6 @@ const Panel = styled(Card)<{
 }>`
   position: relative;
   border-radius: 0;
-  border: 0;
   ${(props) => props.showRightBorder && `border-right: 1.5px solid #8e7bea;`}
   padding: ${(props) => (props.normalPadding ? "1.5rem 1rem" : "1.5rem")};
   overflow-y: auto;
@@ -300,7 +299,7 @@ const Panel = styled(Card)<{
     flex-grow: 1;
 
     &:nth-child(2) {
-      border: 0;
+      border-right: 1px solid rgb(${(props) => props.theme.cardBorder});
     }
 
     &:last-child {
@@ -312,7 +311,7 @@ const Panel = styled(Card)<{
   @media screen and (max-width: 645px) {
     width: 100%;
     height: 55vh;
-    border: 0;
+    border-right: 1px solid rgb(${(props) => props.theme.cardBorder});
 
     &:last-child {
       height: auto;
