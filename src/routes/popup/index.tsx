@@ -15,6 +15,7 @@ import { useActiveWallet, useBalance } from "~wallets/hooks";
 import BuyButton from "~components/popup/home/BuyButton";
 import Tabs from "~components/popup/home/Tabs";
 import AoBanner from "~components/popup/home/AoBanner";
+import { scheduleImportAoTokens } from "~tokens/aoTokens/sync";
 
 export default function Home() {
   // get if the user has no balance
@@ -93,6 +94,9 @@ export default function Home() {
       }
     };
     checkExpiration();
+
+    // schedule import ao tokens
+    scheduleImportAoTokens();
   }, []);
 
   useEffect(() => {

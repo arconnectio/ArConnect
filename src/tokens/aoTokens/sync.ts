@@ -1,5 +1,11 @@
-import { defaultGateway } from "~gateways/gateway";
 import Arweave from "arweave";
+import type { Alarms } from "webextension-polyfill";
+import browser from "webextension-polyfill";
+import {
+  getAoTokens,
+  getAoTokensCache,
+  getAoTokensAutoImportRestrictedIds
+} from "~tokens";
 import type { GQLTransactionsResultInterface } from "ar-gql/dist/faces";
 import { ExtensionStorage } from "~utils/storage";
 import { getActiveAddress } from "~wallets";
@@ -13,8 +19,22 @@ import {
 } from "./ao";
 
 /** Tokens storage name */
+const AO_TOKENS = "ao_tokens";
 const AO_TOKENS_CACHE = "ao_tokens_cache";
 const AO_TOKENS_IDS = "ao_tokens_ids";
+const AO_TOKENS_IMPORT_TIMESTAMP = "ao_tokens_import_timestamp";
+const AO_TOKENS_AUTO_IMPORT_RESTRICTED_IDS =
+  "ao_tokens_auto_import_restricted_ids";
+
+/** Variables for sync */
+let isSyncInProgress = false;
+let lastHasNextPage = true;
+
+const gateway = {
+  host: "arweave-search.goldsky.com",
+  port: 443,
+  protocol: "https"
+};
 
 /**
  * Generic retry function for any async operation.
@@ -138,14 +158,15 @@ function getNoticeTransactionsQuery(
 async function getNoticeTransactions(
   arweave: Arweave,
   address: string,
-  filterProcesses: string[] = []
+  filterProcesses: string[] = [],
+  fetchCountLimit = 5
 ) {
   let fetchCount = 0;
   let hasNextPage = true;
   let ids = new Set<string>();
 
   // Fetch atmost 500 transactions
-  while (hasNextPage && fetchCount <= 5) {
+  while (hasNextPage && fetchCount <= fetchCountLimit) {
     try {
       const query = getNoticeTransactionsQuery(address, filterProcesses);
       const transactions = await withRetry(async () => {
@@ -181,26 +202,41 @@ async function getNoticeTransactions(
  *  Sync AO Tokens
  */
 export async function syncAoTokens() {
-  try {
-    const activeAddress = await getActiveAddress();
-    if (!activeAddress) return { hasNextPage: false, syncCount: 0 };
+  if (isSyncInProgress) {
+    console.log("Already syncing AO tokens, please wait...");
+    await new Promise((resolve) => {
+      const checkState = setInterval(() => {
+        if (!isSyncInProgress) {
+          clearInterval(checkState);
+          resolve(null);
+        }
+      }, 100);
+    });
+    return { hasNextPage: lastHasNextPage, syncCount: 0 };
+  }
 
-    const aoSupport = await ExtensionStorage.get<boolean>("setting_ao_support");
-    if (!aoSupport) return { hasNextPage: false, syncCount: 0 };
+  isSyncInProgress = true;
+
+  try {
+    const [activeAddress, aoSupport] = await Promise.all([
+      getActiveAddress(),
+      ExtensionStorage.get<boolean>("setting_ao_support")
+    ]);
+
+    if (!activeAddress || !aoSupport) {
+      lastHasNextPage = false;
+      return { hasNextPage: false, syncCount: 0 };
+    }
 
     console.log("Synchronizing AO tokens...");
 
-    const aoTokensCache =
-      (await ExtensionStorage.get<(TokenInfo & { processId: string })[]>(
-        AO_TOKENS_CACHE
-      )) || [];
-    const aoTokensIds =
-      (await ExtensionStorage.get<{ [key: string]: string[] }>(
-        AO_TOKENS_IDS
-      )) || {};
+    const [aoTokensCache, aoTokensIds = {}] = await Promise.all([
+      getAoTokensCache(),
+      ExtensionStorage.get<Record<string, string[]>>(AO_TOKENS_IDS)
+    ]);
     const walletTokenIds = aoTokensIds[activeAddress] || [];
 
-    const arweave = new Arweave(defaultGateway);
+    const arweave = new Arweave(gateway);
     const { processIds, hasNextPage } = await getNoticeTransactions(
       arweave,
       activeAddress,
@@ -213,6 +249,7 @@ export async function syncAoTokens() {
 
     if (newProcessIds.length === 0) {
       console.log("No new ao tokens found!");
+      lastHasNextPage = hasNextPage;
       return { hasNextPage, syncCount: 0 };
     }
 
@@ -228,15 +265,30 @@ export async function syncAoTokens() {
         }, 2)
       );
     const results = await Promise.allSettled(promises);
-    const tokens = results
-      .filter((result) => result.status === "fulfilled")
-      .map((result) => result.value)
-      .filter((token) => !!token.Ticker);
+
+    const tokens = [];
+    const tokensWithoutTicker = [];
+    results.forEach((result) => {
+      if (result.status === "fulfilled") {
+        const token = result.value;
+        if (token.Ticker) {
+          tokens.push(token);
+        } else if (!walletTokenIds.includes(token.processId)) {
+          tokensWithoutTicker.push(token);
+        }
+      }
+    });
 
     const updatedTokens = [...aoTokensCache, ...tokens];
     const updatedProcessIds = newProcessIds.filter((processId) =>
       updatedTokens.some((token) => token.processId === processId)
     );
+
+    if (tokensWithoutTicker.length > 0) {
+      updatedProcessIds.push(
+        ...tokensWithoutTicker.map(({ processId }) => processId)
+      );
+    }
 
     walletTokenIds.push(...updatedProcessIds);
     aoTokensIds[activeAddress] = walletTokenIds;
@@ -248,9 +300,128 @@ export async function syncAoTokens() {
     ]);
 
     console.log("Synchronized ao tokens!");
+    lastHasNextPage = hasNextPage;
     return { hasNextPage, syncCount: tokens.length };
   } catch (error: any) {
     console.log("Error syncing tokens: ", error?.message);
+    lastHasNextPage = false;
     return { hasNextPage: false, syncCount: 0 };
+  } finally {
+    isSyncInProgress = false;
   }
+}
+
+/**
+ *  Import AO Tokens
+ */
+export async function importAoTokens(alarm: Alarms.Alarm) {
+  if (alarm?.name !== "import_ao_tokens") return;
+
+  try {
+    const activeAddress = await getActiveAddress();
+
+    console.log("Importing AO tokens...");
+
+    let [aoTokens, aoTokensCache, removedTokenIds = []] = await Promise.all([
+      getAoTokens(),
+      getAoTokensCache(),
+      getAoTokensAutoImportRestrictedIds()
+    ]);
+
+    let aoTokensIds = new Set(aoTokens.map(({ processId }) => processId));
+    const aoTokensCacheIds = new Set(
+      aoTokensCache.map(({ processId }) => processId)
+    );
+    let tokenIdstoExclude = new Set([...aoTokensIds, ...removedTokenIds]);
+    const walletTokenIds = new Set([...tokenIdstoExclude, ...aoTokensCacheIds]);
+
+    const arweave = new Arweave(gateway);
+    const { processIds } = await getNoticeTransactions(
+      arweave,
+      activeAddress,
+      Array.from(walletTokenIds)
+    );
+
+    const newProcessIds = Array.from(
+      new Set([...processIds, ...aoTokensCacheIds])
+    ).filter((processId) => !tokenIdstoExclude.has(processId));
+
+    if (newProcessIds.length === 0) {
+      console.log("No new ao tokens found!");
+      return;
+    }
+
+    const promises = newProcessIds
+      .filter((processId) => !aoTokensCacheIds.has(processId))
+      .map((processId) =>
+        withRetry(async () => {
+          const token = await timeoutPromise(getTokenInfo(processId), 3000);
+          return { ...token, processId };
+        }, 2)
+      );
+    const results = await Promise.allSettled(promises);
+
+    const tokens = [];
+    const tokensToRestrict = [];
+    results.forEach((result) => {
+      if (result.status === "fulfilled") {
+        const token = result.value;
+        if (token.Ticker) {
+          tokens.push(token);
+        } else if (!removedTokenIds.includes(token.processId)) {
+          tokensToRestrict.push(token);
+        }
+      }
+    });
+
+    const updatedTokens = [...aoTokensCache, ...tokens];
+
+    aoTokens = await getAoTokens();
+    aoTokensIds = new Set(aoTokens.map(({ processId }) => processId));
+    tokenIdstoExclude = new Set([...aoTokensIds, ...removedTokenIds]);
+
+    if (tokensToRestrict.length > 0) {
+      removedTokenIds.push(
+        ...tokensToRestrict.map(({ processId }) => processId)
+      );
+      await ExtensionStorage.set(
+        AO_TOKENS_AUTO_IMPORT_RESTRICTED_IDS,
+        removedTokenIds
+      );
+    }
+
+    const newTokens = updatedTokens.filter(
+      (token) => !tokenIdstoExclude.has(token.processId)
+    );
+    if (newTokens.length === 0) return;
+
+    newTokens.forEach((token) => aoTokens.push(token));
+    await ExtensionStorage.set(AO_TOKENS, aoTokens);
+
+    console.log("Imported ao tokens!");
+  } catch (error: any) {
+    console.log("Error importing tokens: ", error?.message);
+  } finally {
+    await ExtensionStorage.set(AO_TOKENS_IMPORT_TIMESTAMP, 0);
+  }
+}
+
+export async function scheduleImportAoTokens() {
+  const timestamp = await ExtensionStorage.get<number>(
+    AO_TOKENS_IMPORT_TIMESTAMP
+  );
+  if (timestamp && Date.now() - timestamp < 5 * 60 * 1000) {
+    console.log("Importing ao tokens is already running. Skipping...");
+    return;
+  }
+
+  const activeAddress = await getActiveAddress();
+  if (!activeAddress) return;
+
+  const aoSupport = await ExtensionStorage.get<boolean>("setting_ao_support");
+  if (!aoSupport) return;
+
+  await ExtensionStorage.set(AO_TOKENS_IMPORT_TIMESTAMP, Date.now());
+
+  browser.alarms.create("import_ao_tokens", { when: Date.now() + 2000 });
 }

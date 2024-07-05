@@ -275,7 +275,7 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
     instance: ExtensionStorage
   });
 
-  const [aoTokens] = useStorage<(TokenInfo & { processId: string })[]>(
+  const [aoTokens] = useStorage<TokenInfoWithProcessId[]>(
     {
       key: "ao_tokens",
       instance: ExtensionStorage
@@ -283,7 +283,7 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
     []
   );
 
-  const [aoTokensCache] = useStorage<(TokenInfo & { processId: string })[]>(
+  const [aoTokensCache] = useStorage<TokenInfoWithProcessId[]>(
     { key: "ao_tokens_cache", instance: ExtensionStorage },
     []
   );
@@ -501,6 +501,8 @@ export interface TokenInfo {
   processId?: string;
   lastUpdated?: string | null;
 }
+
+export type TokenInfoWithProcessId = TokenInfo & { processId: string };
 
 export interface TokenInfoWithBalance extends TokenInfo {
   id: string;
