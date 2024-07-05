@@ -29,6 +29,26 @@
     "message": "Accept",
     "description": "Accept terms"
   },
+  "search": {
+    "message": "Search",
+    "description": "Search text"
+  },
+  "general": {
+    "message": "General",
+    "description": "General text"
+  },
+  "advanced": {
+    "message": "Advanced",
+    "description": "Advanced text"
+  },
+  "show": {
+    "message": "Show",
+    "description": "Show text"
+  },
+  "hide": {
+    "message": "Hide",
+    "description": "Hide text"
+  },
   "add_wallet": {
     "message": "Add wallet",
     "description": "Add a wallet text"
@@ -332,11 +352,11 @@
     "description": "Remove button text"
   },
   "block": {
-    "message": "Block",
+    "message": "Block app",
     "description": "Block button"
   },
   "unblock": {
-    "message": "Unblock",
+    "message": "Unblock app",
     "description": "Unblock button"
   },
   "setCustomGateway": {
@@ -346,6 +366,10 @@
   "settings": {
     "message": "Settings",
     "description": "Settings title"
+  },
+  "quick_settings": {
+    "message": "Quick Settings",
+    "description": "Quick Settings title"
   },
   "setting_apps": {
     "message": "Applications",
@@ -412,8 +436,16 @@
     "description": "Notifications settings title"
   },
   "setting_notifications_description": {
-    "message": "Toggle to receive alerts for new transactions in your wallet.",
+    "message": "Manage alerts for activities in your wallets",
     "description": "Notifications settings description"
+  },
+  "setting_all_settings": {
+    "message": "All Settings",
+    "description": "All settings title"
+  },
+  "setting_all_settings_description": {
+    "message": "",
+    "description": "All settings description"
   },
   "setting_apps_description": {
     "message": "View all connected apps & settings",
@@ -483,9 +515,21 @@
     "message": "Search for a wallet...",
     "description": "Search input placeholder for wallets"
   },
+  "search_tokens": {
+    "message": "Search for a token...",
+    "description": "Search input placeholder for tokens"
+  },
   "export_keyfile": {
     "message": "Export keyfile",
     "description": "Export keyfile button"
+  },
+  "export_keyfile_description": {
+    "message": "Enter your password to export wallet keyfile",
+    "description": "Export keyfile description"
+  },
+  "edit_wallet": {
+    "message": "Edit Wallet",
+    "description": "Edit wallet button"
   },
   "remove_wallet": {
     "message": "Remove wallet",
@@ -977,6 +1021,10 @@
     "message": "Contacts",
     "description": "Contacts setting title"
   },
+  "setting_contact": {
+    "message": "Contact",
+    "description": "Contact setting title"
+  },
   "setting_contacts_description": {
     "message": "Add/edit contacts",
     "description": "Contacts setting description"
@@ -1112,7 +1160,7 @@
     "description": "Hover text for drag icon"
   },
   "token_type": {
-    "message": "Token type",
+    "message": "Token Type",
     "description": "Token type label"
   },
   "token_type_asset": {
@@ -1258,6 +1306,10 @@
   "sign_scan_qr": {
     "message": "Scan the QR code below with your hardware wallet",
     "description": "Request to scan signature QR"
+  },
+  "generate_qr_code": {
+    "message": "Generate QR code",
+    "description": "Generate QR code button"
   },
   "viewblock": {
     "message": "Viewblock",
@@ -1513,6 +1565,14 @@
     "message": "Receive notifications instantly when a transaction processes.",
     "description": "Enable notifications paragraph"
   },
+  "toggle_notifications": {
+    "message": "Toggle notifications",
+    "description": "Toggle notifications text"
+  },
+  "toggle_notifications_decription": {
+    "message": "Toggle to receive alerts for new transactions in your wallet.",
+    "description": "Toggle notifications description text"
+  },
   "get_started":{    
     "message": "Get Started",
     "description": "Get started title"
@@ -1657,6 +1717,10 @@
     "message": "Add contact",
     "description": "Add a contact button text"
   },
+  "new": {
+    "message": "New",
+    "description": "Add a new button text"
+  },
   "send_transaction": {
     "message": "Send transaction",
     "description": "Active contact send button text"
@@ -1672,6 +1736,10 @@
   "create_contact": {
     "message": "Create contact?",
     "description": "Create contact question"
+  },
+  "new_contact": {
+    "message": "New Contact",
+    "description": "New contact title"
   },
   "add_new_contact": {
     "message": "Add a new contact",
@@ -1733,6 +1801,10 @@
     "message": "Remove contact",
     "description": "Remove contact button text"
   },
+  "edit_contact": {
+    "message": "Edit contact",
+    "description": "Edit contact button text"
+  },
   "remove_contact_question": {
     "message": "Are you sure you want to remove this contact?",
     "description": "Remove contact modal text"
@@ -1740,6 +1812,10 @@
   "save_new_contact": {
     "message": "Save new contact",
     "description": "Save new contact button text"
+  },
+  "save_contact": {
+    "message": "Save contact",
+    "description": "Save contact button text"
   },
   "address_in_use": {
     "message": "Address is already in use.",
@@ -1803,6 +1879,10 @@
   "ao_computer": {
     "message": "ao.computer",
     "description": "ao computer url"
+  },
+  "ao_tokens": {
+    "message": "AO Tokens",
+    "description": "Ao Tokens"
   },
   "ao_announcement_text": {
     "message": "Look out for new updates around ao in the future. To learn more visit",

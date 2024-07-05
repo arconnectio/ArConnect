@@ -27,4 +27,5 @@ const Wrapper = styled.div<Props>`
 
 interface Props {
   sticky?: boolean;
+  small?: boolean;
 }

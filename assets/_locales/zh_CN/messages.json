@@ -29,6 +29,26 @@
       "message": "接受",
       "description": "Accept terms"
   },
+  "search": {
+    "message": "搜索",
+    "description": "Search text"
+  },
+  "general": {
+    "message": "普通",
+    "description": "General text"
+  },
+  "advanced": {
+    "message": "高级",
+    "description": "Advanced text"
+  },
+  "show": {
+    "message": "显示",
+    "description": "Show text"
+  },
+  "hide": {
+    "message": "隐藏",
+    "description": "Hide text"
+  },
   "add_wallet": {
       "message": "添加钱包",
       "description": "Add a wallet text"
@@ -332,11 +352,11 @@
       "description": "Remove button text"
   },
   "block": {
-      "message": "阻止",
+      "message": "阻止应用程序",
       "description": "Block button"
   },
   "unblock": {
-      "message": "取消阻止",
+      "message": "解锁应用程序",
       "description": "Unblock button"
   },
   "setCustomGateway": {
@@ -346,6 +366,10 @@
   "settings": {
       "message": "设置",
       "description": "Settings title"
+  },
+  "quick_settings": {
+    "message": "快速设置",
+    "description": "Quick Settings title"
   },
   "setting_apps": {
       "message": "应用程序",
@@ -412,8 +436,16 @@
       "description": "Notifications settings title"
   },
   "setting_notifications_description": {
-      "message": "切换以接收钱包中新交易的提醒",
+      "message": "管理钱包活动警报",
       "description": "Notifications settings description"
+  },
+  "setting_all_settings": {
+    "message": "所有设置",
+    "description": "All settings description"
+  },
+  "setting_all_settings_description": {
+    "message": "",
+    "description": "All settings description"
   },
   "setting_apps_description": {
       "message": "查看所有已连接的应用程序和设置",
@@ -483,9 +515,21 @@
       "message": "搜索钱包...",
       "description": "Search input placeholder for wallets"
   },
+  "search_tokens": {
+    "message": "搜索令牌...",
+    "description": "Search input placeholder for tokens"
+  },
   "export_keyfile": {
       "message": "导出密钥文件",
       "description": "Export keyfile button"
+  },
+  "export_keyfile_description": {
+    "message": "输入密码导出钱包密钥文件",
+    "description": "Export keyfile description"
+  },
+  "edit_wallet": {
+    "message": "编辑钱包",
+    "description": "Edit wallet button"
   },
   "remove_wallet": {
       "message": "移除钱包",
@@ -973,6 +1017,10 @@
       "message": "联系人",
       "description": "Contacts setting title"
   },
+   "setting_contact": {
+    "message": "接触",
+    "description": "Contact setting title"
+  },
   "setting_contacts_description": {
       "message": "添加/编辑联系人",
       "description": "Contacts setting description"
@@ -1255,6 +1303,10 @@
       "message": "使用您的硬件钱包扫描下面的二维码",
       "description": "Request to scan signature QR"
   },
+  "generate_qr_code": {
+    "message": "生成二维码",
+    "description": "Generate QR code button"
+  },
   "viewblock": {
       "message": "Viewblock",
       "description": "view block"
@@ -1510,6 +1562,14 @@
       "message": "当交易处理时立即接收通知。",
       "description": "Enable notifications paragraph"
   },
+  "toggle_notifications": {
+    "message": "切换通知",
+    "description": "Toggle notifications text"
+  },
+  "toggle_notifications_decription": {
+    "message": "切换以接收钱包中新交易的提醒。",
+    "description": "Toggle notifications description text"
+  },
   "get_started": {
       "message": "开始",
       "description": "Get started title"
@@ -1654,6 +1714,10 @@
       "message": "添加联系人",
       "description": "Add a contact button text"
   },
+  "new": {
+    "message": "新的",
+    "description": "Add a new button text"
+  },
   "send_transaction": {
       "message": "发送交易",
       "description": "Active contact send button text"
@@ -1669,6 +1733,10 @@
   "create_contact": {
       "message": "创建联系人？",
       "description": "Create contact question"
+  },
+  "new_contact": {
+    "message": "新联系人",
+    "description": "New contact title"
   },
   "add_new_contact": {
       "message": "添加新联系人",
@@ -1730,6 +1798,10 @@
       "message": "移除联系人",
       "description": "Remove contact button text"
   },
+  "edit_contact": {
+    "message": "更改联系资料",
+    "description": "Edit contact button text"
+  },
   "remove_contact_question": {
       "message": "您确定要移除此联系人吗？",
       "description": "Remove contact modal text"
@@ -1737,6 +1809,10 @@
   "save_new_contact": {
       "message": "保存新联系人",
       "description": "Save new contact button text"
+  },
+  "save_contact": {
+    "message": "保存联系方式",
+    "description": "Save contact button text"
   },
   "address_in_use": {
       "message": "地址已在使用中。",
@@ -1801,6 +1877,10 @@
   "ao_computer": {
       "message": "ao.computer",
       "description": "ao computer url"
+  },
+  "ao_tokens": {
+    "message": "AO代币",
+    "description": "Ao Tokens"
   },
   "ao_announcement_text": {
       "message": "关注未来的 ao 更新。了解更多访问",

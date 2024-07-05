@@ -1,22 +1,23 @@
-import { Card, Spacer, Text } from "@arconnect/components";
+import { Card, Spacer, Text, useInput } from "@arconnect/components";
 import SettingListItem, {
   type Props as SettingItemData
 } from "~components/dashboard/list/SettingListItem";
-import {
-  setting_element_padding,
-  SettingsList
-} from "~components/dashboard/list/BaseElement";
-import { useEffect, useMemo } from "react";
+import { SettingsList } from "~components/dashboard/list/BaseElement";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import {
-  TicketIcon,
   GridIcon,
   InformationIcon,
   TrashIcon,
   WalletIcon,
   BellIcon
 } from "@iconicicons/react";
-import { Users01 } from "@untitled-ui/icons-react";
+import {
+  Coins04,
+  Users01,
+  ChevronUp,
+  ChevronDown
+} from "@untitled-ui/icons-react";
 import WalletSettings from "~components/dashboard/subsettings/WalletSettings";
 import TokenSettings from "~components/dashboard/subsettings/TokenSettings";
 import AppSettings from "~components/dashboard/subsettings/AppSettings";
@@ -33,16 +34,21 @@ import About from "~components/dashboard/About";
 import Reset from "~components/dashboard/Reset";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import settings from "~settings";
+import settings, { getSetting } from "~settings";
 import { PageType, trackPage } from "~utils/analytics";
-import { formatSettingName } from "~utils/format";
 import SignSettings from "~components/dashboard/SignSettings";
 import AddToken from "~components/dashboard/subsettings/AddToken";
 import NotificationSettings from "~components/dashboard/NotificationSettings";
+import SearchInput from "~components/dashboard/SearchInput";
 
 export default function Settings({ params }: Props) {
   // router location
   const [, setLocation] = useLocation();
+
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
+  // search
+  const searchInput = useInput();
 
   // active setting val
   const activeSetting = useMemo(() => params.setting, [params.setting]);
@@ -69,6 +75,27 @@ export default function Settings({ params }: Props) {
     return new Application(decodeURIComponent(activeSubSetting));
   }, [activeSubSetting]);
 
+  // search filter function
+  function filterSearchResults(setting: Omit<Setting, "active">) {
+    const query = searchInput.state;
+
+    if (query === "" || !query) {
+      return true;
+    }
+
+    return (
+      setting.name.toLowerCase().includes(query.toLowerCase()) ||
+      browser.i18n
+        .getMessage(setting.displayName)
+        .toLowerCase()
+        .includes(query.toLowerCase()) ||
+      browser.i18n
+        .getMessage(setting.description)
+        .toLowerCase()
+        .includes(query.toLowerCase())
+    );
+  }
+
   // redirect to the first setting
   // if none is selected
   useEffect(() => {
@@ -83,31 +110,56 @@ export default function Settings({ params }: Props) {
 
   return (
     <SettingsWrapper>
-      <Panel smallPadding>
+      <Panel normalPadding showRightBorder>
         <Spacer y={0.45} />
         <SettingsTitle>{browser.i18n.getMessage("settings")}</SettingsTitle>
         <Spacer y={0.85} />
+        <SearchInput
+          placeholder={browser.i18n.getMessage("search")}
+          {...searchInput.bindings}
+        />
+        <Spacer y={0.85} />
+        <Text noMargin>{browser.i18n.getMessage("general")}</Text>
+        <Spacer y={0.85} />
         <SettingsList>
-          {allSettings.map((setting, i) => (
+          {basicSettings.filter(filterSearchResults).map((setting, i) => (
             <SettingListItem
               displayName={setting.displayName}
               description={setting.description}
               icon={setting.icon}
               active={activeSetting === setting.name}
               onClick={() => setLocation("/" + setting.name)}
-              key={i}
+              key={`basic-settings-${i}`}
             />
           ))}
+          <AdvancedWrapper>
+            <Text noMargin>{browser.i18n.getMessage("advanced")}</Text>
+            <div
+              onClick={() => setShowAdvanced((prev) => !prev)}
+              style={{ display: "flex", cursor: "pointer" }}
+            >
+              <Text noMargin>
+                {browser.i18n.getMessage(showAdvanced ? "hide" : "show")}
+              </Text>
+              <Action as={showAdvanced ? ChevronUp : ChevronDown} />
+            </div>
+          </AdvancedWrapper>
+          {showAdvanced &&
+            advancedSettings
+              .filter(filterSearchResults)
+              .map((setting, i) => (
+                <SettingListItem
+                  displayName={setting.displayName}
+                  description={setting.description}
+                  icon={setting.icon}
+                  active={activeSetting === setting.name}
+                  onClick={() => setLocation("/" + setting.name)}
+                  key={`advanced-settings-${i}`}
+                />
+              ))}
         </SettingsList>
       </Panel>
-      <Panel
-        normalPadding={
-          activeSetting !== "apps" &&
-          activeSetting !== "wallets" &&
-          activeSetting !== "tokens" &&
-          activeSetting !== "contacts"
-        }
-      >
+      <Panel normalPadding showRightBorder>
         <Spacer y={0.45} />
         <MidSettingsTitle>
           {allSettings &&
@@ -136,7 +188,7 @@ export default function Settings({ params }: Props) {
               return <Component />;
             })())}
       </Panel>
-      <Panel normalPadding>
+      <Panel>
         {!!activeAppSetting && (
           <AppSettings
             app={activeAppSetting}
@@ -181,16 +233,37 @@ const SettingsWrapper = styled.div`
   align-items: stretch;
   grid-template-columns: 1fr 1fr 1.5fr;
   padding: 2rem;
-  gap: 1.5rem;
   width: calc(100vw - 2rem * 2);
   height: calc(100vh - 2rem * 2);
 
   @media screen and (max-width: 900px) {
     display: flex;
     flex-wrap: wrap;
-    gap: 2rem;
+    row-gap: 2rem;
     height: auto;
-    justify-content: space-between;
+  }
+`;
+
+const AdvancedWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const Action = styled(ChevronDown)`
+  cursor: pointer;
+  font-size: 1.25rem;
+  width: 1.5rem;
+  height: 1.54rem;
+  color: rgb(${(props) => props.theme.secondaryText});
+  transition: all 0.23s ease-in-out;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &:active {
+    transform: scale(0.92);
   }
 `;
 
@@ -200,11 +273,15 @@ const isMac = () => {
   return userAgent.includes("Mac") && !userAgent.includes("Windows");
 };
 
-const Panel = styled(Card)<{ normalPadding?: boolean }>`
+const Panel = styled(Card)<{
+  normalPadding?: boolean;
+  showRightBorder?: boolean;
+}>`
   position: relative;
-  padding: 0.5rem ${(props) => (!props.normalPadding ? "0.35rem" : "0.95rem")};
+  border-radius: 0;
+  ${(props) => props.showRightBorder && `border-right: 1.5px solid #8e7bea;`}
+  padding: ${(props) => (props.normalPadding ? "1.5rem 1rem" : "1.5rem")};
   overflow-y: auto;
-  height: calc(100% - 0.35rem * 2);
 
   ${!isMac()
     ? `
@@ -219,6 +296,11 @@ const Panel = styled(Card)<{ normalPadding?: boolean }>`
   @media screen and (max-width: 900px) {
     width: calc(50% - 2.5rem);
     height: 55vh;
+    flex-grow: 1;
+
+    &:nth-child(2) {
+      border-right: 1px solid rgb(${(props) => props.theme.cardBorder});
+    }
 
     &:last-child {
       width: 100%;
@@ -229,6 +311,7 @@ const Panel = styled(Card)<{ normalPadding?: boolean }>`
   @media screen and (max-width: 645px) {
     width: 100%;
     height: 55vh;
+    border-right: 1px solid rgb(${(props) => props.theme.cardBorder});
 
     &:last-child {
       height: auto;
@@ -239,15 +322,12 @@ const Panel = styled(Card)<{ normalPadding?: boolean }>`
 const SettingsTitle = styled(Text).attrs({
   title: true,
   noMargin: true
-})`
-  padding: 0 ${setting_element_padding};
-`;
+})``;
 
 const MidSettingsTitle = styled(Text).attrs({
   title: true,
   noMargin: true
 })`
-  padding: 0 ${setting_element_padding};
   font-weight: 600;
   text-transform: capitalize;
 `;
@@ -264,14 +344,7 @@ interface Props {
   };
 }
 
-const allSettings: Omit<Setting, "active">[] = [
-  {
-    name: "apps",
-    displayName: "setting_apps",
-    description: "setting_apps_description",
-    icon: GridIcon,
-    component: Applications
-  },
+const basicSettings: Omit<Setting, "active">[] = [
   {
     name: "wallets",
     displayName: "setting_wallets",
@@ -280,10 +353,17 @@ const allSettings: Omit<Setting, "active">[] = [
     component: Wallets
   },
   {
+    name: "apps",
+    displayName: "setting_apps",
+    description: "setting_apps_description",
+    icon: GridIcon,
+    component: Applications
+  },
+  {
     name: "tokens",
     displayName: "setting_tokens",
     description: "setting_tokens_description",
-    icon: TicketIcon,
+    icon: Coins04,
     component: Tokens
   },
   {
@@ -294,25 +374,38 @@ const allSettings: Omit<Setting, "active">[] = [
     component: Contacts
   },
   {
-    name: "sign_settings",
-    displayName: "setting_sign_settings",
-    description: "setting_sign_notification_description",
-    icon: BellIcon,
-    component: SignSettings
-  },
-  {
     name: "notifications",
     displayName: "setting_notifications",
     description: "setting_notifications_description",
     icon: BellIcon,
     component: NotificationSettings
   },
-  ...settings.map((setting) => ({
-    name: setting.name,
-    displayName: setting.displayName,
-    description: setting.description,
-    icon: setting.icon
-  })),
+  getSetting("display_theme") as Omit<Setting, "active">,
+  {
+    name: "about",
+    displayName: "setting_about",
+    description: "setting_about_description",
+    icon: InformationIcon,
+    component: About
+  }
+];
+
+const advancedSettings: Omit<Setting, "active">[] = [
+  {
+    name: "sign_settings",
+    displayName: "setting_sign_settings",
+    description: "setting_sign_notification_description",
+    icon: BellIcon,
+    component: SignSettings
+  },
+  ...settings
+    .filter((setting) => setting.name !== "display_theme")
+    .map((setting) => ({
+      name: setting.name,
+      displayName: setting.displayName,
+      description: setting.description,
+      icon: setting.icon
+    })),
   // TODO
   /*{
     name: "config",
@@ -321,13 +414,6 @@ const allSettings: Omit<Setting, "active">[] = [
     icon: DownloadIcon
   },*/
   {
-    name: "about",
-    displayName: "setting_about",
-    description: "setting_about_description",
-    icon: InformationIcon,
-    component: About
-  },
-  {
     name: "reset",
     displayName: "setting_reset",
     description: "setting_reset_description",
@@ -335,3 +421,5 @@ const allSettings: Omit<Setting, "active">[] = [
     component: Reset
   }
 ];
+
+const allSettings = [...basicSettings, ...advancedSettings];

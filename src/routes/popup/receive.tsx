@@ -1,10 +1,4 @@
-import {
-  ButtonV2,
-  Section,
-  TooltipV2,
-  useToasts,
-  type DisplayTheme
-} from "@arconnect/components";
+import { ButtonV2, Section, TooltipV2, useToasts } from "@arconnect/components";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { CheckIcon, CopyIcon } from "@iconicicons/react";
@@ -13,14 +7,20 @@ import { QRCodeSVG } from "qrcode.react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
-import { useEffect, type MouseEventHandler, useState } from "react";
+import { useEffect, type MouseEventHandler, useState, useMemo } from "react";
 import { PageType, trackPage } from "~utils/analytics";
 import HeadV2 from "~components/popup/HeadV2";
 import { Degraded, WarningWrapper } from "./send";
 import { WarningIcon } from "~components/popup/Token";
 import { useActiveWallet } from "~wallets/hooks";
+import { useLocation } from "wouter";
 
-export default function Receive() {
+interface ReceiveProps {
+  walletName?: string;
+  walletAddress?: string;
+}
+
+export default function Receive({ walletName, walletAddress }: ReceiveProps) {
   // active address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
@@ -28,25 +28,35 @@ export default function Receive() {
   });
   const [copied, setCopied] = useState(false);
 
+  const effectiveAddress = useMemo(
+    () => walletAddress || activeAddress,
+    [walletAddress, activeAddress]
+  );
+
   //segment
   useEffect(() => {
-    trackPage(PageType.RECEIVE);
+    if (!walletName && !walletAddress) {
+      trackPage(PageType.RECEIVE);
+    }
   }, []);
 
   const { setToast } = useToasts();
+
+  // location
+  const [, setLocation] = useLocation();
 
   const wallet = useActiveWallet();
   const keystoneWarning = wallet?.type === "hardware";
 
   const copyAddress: MouseEventHandler = (e) => {
     e.stopPropagation();
-    copy(activeAddress);
+    copy(effectiveAddress);
     setCopied(true);
     setTimeout(() => setCopied(false), 1000);
     setToast({
       type: "success",
       duration: 2000,
-      content: `${formatAddress(activeAddress, 3)} ${browser.i18n.getMessage(
+      content: `${formatAddress(effectiveAddress, 3)} ${browser.i18n.getMessage(
         "copied_address_2"
       )}`
     });
@@ -55,7 +65,16 @@ export default function Receive() {
   return (
     <Wrapper>
       <div>
-        <HeadV2 title={browser.i18n.getMessage("receive")} />
+        <HeadV2
+          title={walletName || browser.i18n.getMessage("receive")}
+          back={() => {
+            if (walletName && walletAddress) {
+              setLocation(`/quick-settings/wallets/${walletAddress}`);
+            } else {
+              setLocation("/");
+            }
+          }}
+        />
       </div>
       <div>
         {keystoneWarning && (
@@ -75,13 +94,13 @@ export default function Receive() {
                 fgColor="#fff"
                 bgColor="transparent"
                 size={275}
-                value={activeAddress ?? ""}
+                value={effectiveAddress ?? ""}
               />
             </QRCodeWrapper>
           </Section>
           <Section style={{ padding: "8px 15px 0 15px" }}>
             <AddressField fullWidth onClick={copyAddress}>
-              {formatAddress(activeAddress ?? "", 6)}
+              {formatAddress(effectiveAddress ?? "", 6)}
               <TooltipV2
                 content={browser.i18n.getMessage("copy_address")}
                 position="bottom"
