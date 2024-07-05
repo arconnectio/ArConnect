@@ -12,6 +12,7 @@ import BigNumber from "bignumber.js";
 
 export const PREFIX = "app_";
 export const defaultBundler = "https://turbo.ardrive.io";
+export const pricingEndpoint = "https://payment.ardrive.io";
 
 export default class Application {
   /** Root URL of the app */
