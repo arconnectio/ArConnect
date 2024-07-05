@@ -24,9 +24,9 @@ export interface GatewayAddressRegistryItem
 }
 
 export interface GatewayAddressRegistryCache {
-  contractTxId: string;
+  // contractTxId: string;
   gateways: Record<string, GatewayAddressRegistryItemData>;
-  evaluationOptions: {};
+  // evaluationOptions: {};
 }
 
 interface GatewayVault {

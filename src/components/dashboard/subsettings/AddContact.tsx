@@ -28,12 +28,13 @@ import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import { findGateway } from "~gateways/wayfinder";
 import { uploadUserAvatar, getUserAvatar } from "~lib/avatar";
-import { getAllArNSNames } from "~lib/arns";
+// import { getAllArNSNames } from "~lib/arns";
 import styled from "styled-components";
 import { useLocation } from "wouter";
 import copy from "copy-to-clipboard";
 import { gql } from "~gateways/api";
 import { useTheme } from "~utils/theme";
+// import { isAddressFormat } from "~utils/format";
 
 export default function AddContact() {
   // contacts
@@ -71,7 +72,8 @@ export default function AddContact() {
     }
   }, []);
 
-  const [arnsResults, setArnsResults] = useState([]);
+  // const [loading, setLoading] = useState(false);
+  // const [arnsResults, setArnsResults] = useState([]);
   const [lastRecipients, setLastRecipients] = useState<string[]>([]);
 
   const generateProfileIcon = (name, address) => {
@@ -136,17 +138,23 @@ export default function AddContact() {
     });
   };
 
-  async function fetchArnsAddresses(ownerAddress) {
-    try {
-      const arnsNames = await getAllArNSNames(ownerAddress);
-      setArnsResults(arnsNames.records || []);
-    } catch (error) {
-      console.error("Error fetching ArNS addresses:", error);
-    }
-  }
+  // TODO: Uncomment when getAllArNSNames is optimized
+  // async function fetchArnsAddresses(ownerAddress) {
+  //   try {
+  //     setLoading(true);
+  //     const arnsNames = await getAllArNSNames(ownerAddress);
+  //     setArnsResults(arnsNames || []);
+  //   } catch (error) {
+  //     console.error("Error fetching ArNS addresses:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
 
   useEffect(() => {
-    fetchArnsAddresses(contact.address);
+    // if (contact.address && isAddressFormat(contact.address)) {
+    //   fetchArnsAddresses(contact.address);
+    // }
 
     (async () => {
       if (!activeAddress) return;
@@ -312,7 +320,7 @@ export default function AddContact() {
             ))}
           </datalist>
         </InputWrapper>
-        <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
+        {/* <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
         <InputWrapper>
           <SelectInput
             fullWidth
@@ -324,17 +332,19 @@ export default function AddContact() {
             }
           >
             <option value="">
-              {arnsResults.length === 0
+              {loading
+                ? browser.i18n.getMessage("searching_ArNS_addresses")
+                : arnsResults.length === 0
                 ? browser.i18n.getMessage("no_ArNS_address_found")
                 : browser.i18n.getMessage("select_ArNS_address")}
             </option>
-            {Object.entries(arnsResults).map(([contractTxId]) => (
-              <option key={contractTxId} value={contractTxId}>
-                {browser.i18n.getMessage("arweave_url") + contractTxId}
+            {arnsResults.map((arnsName) => (
+              <option key={arnsName} value={arnsName}>
+                {browser.i18n.getMessage("arweave_url") + arnsName}
               </option>
             ))}
           </SelectInput>
-        </InputWrapper>
+        </InputWrapper> */}
         <SubTitle>{browser.i18n.getMessage("notes")}</SubTitle>
         <NewContactNotes
           placeholder={browser.i18n.getMessage("type_message_here")}

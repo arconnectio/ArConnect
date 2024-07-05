@@ -19,12 +19,13 @@ import { EventType, trackEvent } from "~utils/analytics";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import browser from "webextension-polyfill";
-import { getAllArNSNames } from "~lib/arns";
+// import { getAllArNSNames } from "~lib/arns";
 import { useTheme } from "~utils/theme";
 import styled from "styled-components";
 import { svgie } from "~utils/svgies";
 import { useLocation } from "wouter";
 import copy from "copy-to-clipboard";
+// import { isAddressFormat } from "~utils/format";
 
 export default function ContactSettings({ address }: Props) {
   // contacts
@@ -49,10 +50,11 @@ export default function ContactSettings({ address }: Props) {
     avatarId: ""
   });
   const [contactIndex, setContactIndex] = useState(-1);
-  const [arnsResults, setArnsResults] = useState([]);
+  // const [arnsResults, setArnsResults] = useState([]);
   const [avatarLoading, setAvatarLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [originalContact, setOriginalContact] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const svgieAvatar = useMemo(() => {
     if (!contact.address || contact.avatarId) {
@@ -66,7 +68,9 @@ export default function ContactSettings({ address }: Props) {
     if (loadedContact) {
       setContact(loadedContact);
       setContactIndex(storedContacts.indexOf(loadedContact));
-      fetchArnsAddresses(loadedContact.address);
+      // if (loadedContact.address && isAddressFormat(loadedContact.address)) {
+      //   fetchArnsAddresses(loadedContact.address);
+      // }
     } else {
       setContact({
         name: "",
@@ -80,14 +84,18 @@ export default function ContactSettings({ address }: Props) {
     }
   }, [storedContacts, address]);
 
-  async function fetchArnsAddresses(ownerAddress) {
-    try {
-      const arnsNames = await getAllArNSNames(ownerAddress);
-      setArnsResults(arnsNames.records || []);
-    } catch (error) {
-      console.error("Error fetching ArNS addresses:", error);
-    }
-  }
+  // TODO: Uncomment when getAllArNSNames is optimized
+  // async function fetchArnsAddresses(ownerAddress) {
+  //   try {
+  //     setLoading(true);
+  //     const arnsNames = await getAllArNSNames(ownerAddress);
+  //     setArnsResults(arnsNames || []);
+  //   } catch (error) {
+  //     console.error("Error fetching ArNS addresses:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -193,7 +201,7 @@ export default function ContactSettings({ address }: Props) {
     if (editable) {
       return (
         <>
-          <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
+          {/* <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
           <InputWrapper>
             <SelectInput
               fullWidth
@@ -205,17 +213,19 @@ export default function ContactSettings({ address }: Props) {
               }
             >
               <option value="">
-                {arnsResults.length === 0 && !contact.ArNSAddress
+                {loading
+                  ? browser.i18n.getMessage("searching_ArNS_addresses")
+                  : arnsResults.length === 0 && !contact.ArNSAddress
                   ? browser.i18n.getMessage("no_ArNS_address_found")
                   : browser.i18n.getMessage("select_ArNS_address")}
               </option>
-              {Object.entries(arnsResults).map(([contractTxId]) => (
-                <option key={contractTxId} value={contractTxId}>
-                  {browser.i18n.getMessage("arweave_url") + contractTxId}
+              {arnsResults.map((arnsName) => (
+                <option key={arnsName} value={arnsName}>
+                  {browser.i18n.getMessage("arweave_url") + arnsName}
                 </option>
               ))}
             </SelectInput>
-          </InputWrapper>
+          </InputWrapper> */}
         </>
       );
     } else if (contact.ArNSAddress) {
