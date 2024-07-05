@@ -7,7 +7,13 @@ import Balance from "~components/popup/home/Balance";
 import { AnnouncementPopup } from "./announcement";
 import { getDecryptionKey, isExpired } from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
-import { trackEvent, EventType, trackPage, PageType } from "~utils/analytics";
+import {
+  trackEvent,
+  EventType,
+  trackPage,
+  PageType,
+  checkWalletBits
+} from "~utils/analytics";
 import styled from "styled-components";
 import { useTokens } from "~tokens";
 import { useAoTokens } from "~tokens/aoTokens/ao";
@@ -97,6 +103,20 @@ export default function Home() {
 
     // schedule import ao tokens
     scheduleImportAoTokens();
+  }, []);
+
+  useEffect(() => {
+    const checkBits = async () => {
+      const bits = await checkWalletBits();
+
+      if (bits === null) {
+        return;
+      } else {
+        await trackEvent(EventType.BITS_LENGTH, { mismatch: bits });
+      }
+    };
+
+    checkBits();
   }, []);
 
   useEffect(() => {
