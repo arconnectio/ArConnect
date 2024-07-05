@@ -188,6 +188,7 @@ export default function Contacts({ isQuickSetting }: ContactsProps) {
             </React.Fragment>
           );
         })}
+        <Spacer y={1} />
       </SettingsList>
     </Wrapper>
   );
