@@ -40,13 +40,6 @@ export const defaultAoTokens: TokenInfo[] = [
     processId: "8p7ApPZxC_37M06QHVejCQrKsHbcJEerd3jWNkDUWPQ"
   },
   {
-    Name: "AOCRED",
-    Ticker: "testnet-AOCRED",
-    Denomination: 3,
-    Logo: "eIOOJiqtJucxvB4k8a-sEKcKpKTh9qQgOV3Au7jlGYc",
-    processId: "Sa0iBLPNyJQrwpTTG-tWLQU-1QeUAJA73DdxGGiKoJc"
-  },
-  {
     Name: "Astro USD (Test)",
     Ticker: "USDA-TST",
     Denomination: 12,
@@ -275,7 +268,7 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
     instance: ExtensionStorage
   });
 
-  const [aoTokens] = useStorage<(TokenInfo & { processId: string })[]>(
+  const [aoTokens] = useStorage<TokenInfoWithProcessId[]>(
     {
       key: "ao_tokens",
       instance: ExtensionStorage
@@ -283,7 +276,7 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
     []
   );
 
-  const [aoTokensCache] = useStorage<(TokenInfo & { processId: string })[]>(
+  const [aoTokensCache] = useStorage<TokenInfoWithProcessId[]>(
     { key: "ao_tokens_cache", instance: ExtensionStorage },
     []
   );
@@ -501,6 +494,8 @@ export interface TokenInfo {
   processId?: string;
   lastUpdated?: string | null;
 }
+
+export type TokenInfoWithProcessId = TokenInfo & { processId: string };
 
 export interface TokenInfoWithBalance extends TokenInfo {
   id: string;

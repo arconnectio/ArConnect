@@ -1,7 +1,7 @@
 import { arPlaceholder } from "~routes/popup/send";
 import { ExtensionStorage } from "./storage";
 import type { Transaction } from "~notifications/api";
-import { type Token } from "~tokens/token";
+import type { Token } from "~tokens/token";
 import { fetchTokenByProcessId, tokenInfoMap } from "~lib/transactions";
 import { getToken } from "~tokens";
 

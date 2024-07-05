@@ -21,7 +21,6 @@ import {
   TooltipV2
 } from "@arconnect/components";
 import {
-  ArrowUpRightIcon,
   CheckIcon,
   ChevronDownIcon,
   CopyIcon,
@@ -209,6 +208,52 @@ export default function WalletHeader() {
 
   // copied address
   const [copied, setCopied] = useState(false);
+
+  const menuItems = useMemo(() => {
+    const items = [
+      {
+        icon: <Users01 style={{ width: "18px", height: "18px" }} />,
+        title: "setting_contacts",
+        route: () =>
+          browser.tabs.create({
+            url: browser.runtime.getURL("tabs/dashboard.html#/contacts")
+          })
+      },
+      {
+        icon: <Container style={{ width: "18px", height: "17px" }} />,
+        title: "Viewblock",
+        route: () =>
+          browser.tabs.create({
+            url: `https://viewblock.io/arweave/address/${activeAddress}`
+          })
+      },
+      {
+        icon: <CreditCard01 style={{ width: "18px", height: "17px" }} />,
+        title: "subscriptions",
+        route: () => {
+          push("/subscriptions");
+        }
+      },
+      {
+        icon: <Settings01 style={{ width: "18px", height: "18px" }} />,
+        title: "Settings",
+        route: () => {
+          push("/quick-settings");
+        }
+      }
+    ];
+    if (!isExpanded && items.length === 4) {
+      items.push({
+        icon: <Expand01 style={{ width: "18px", height: "17px" }} />,
+        title: "expand_view",
+        route: () => {
+          window.open(window.location.href.split("#")[0] + "?expanded=true");
+        }
+      });
+    }
+
+    return items;
+  }, [activeAddress, isExpanded]);
 
   return (
     <Wrapper displayTheme={theme} scrolled={scrollY > 14}>
@@ -411,48 +456,7 @@ export default function WalletHeader() {
       <WalletMenu
         open={menuOpen}
         close={() => setMenuOpen(false)}
-        menuItems={[
-          {
-            icon: <Users01 style={{ width: "18px", height: "18px" }} />,
-            title: "setting_contacts",
-            route: () =>
-              browser.tabs.create({
-                url: browser.runtime.getURL("tabs/dashboard.html#/contacts")
-              })
-          },
-          {
-            icon: <Container style={{ width: "18px", height: "17px" }} />,
-            title: "Viewblock",
-            route: () =>
-              browser.tabs.create({
-                url: `https://viewblock.io/arweave/address/${activeAddress}`
-              })
-          },
-          {
-            icon: <CreditCard01 style={{ width: "18px", height: "17px" }} />,
-            title: "subscriptions",
-            route: () => {
-              push("/subscriptions");
-            }
-          },
-          {
-            icon: <Settings01 style={{ width: "18px", height: "18px" }} />,
-            title: "Settings",
-            route: () =>
-              browser.tabs.create({
-                url: browser.runtime.getURL("tabs/dashboard.html")
-              })
-          },
-          {
-            icon: <Expand01 style={{ width: "18px", height: "17px" }} />,
-            title: "expand_view",
-            route: () => {
-              window.open(
-                window.location.href.split("#")[0] + "?expanded=true"
-              );
-            }
-          }
-        ]}
+        menuItems={menuItems}
       />
     </Wrapper>
   );

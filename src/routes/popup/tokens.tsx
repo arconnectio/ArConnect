@@ -1,7 +1,11 @@
 import { useHistory } from "~utils/hash_router";
 import { ButtonV2, Section, useToasts, Loading } from "@arconnect/components";
 import { EditIcon } from "@iconicicons/react";
-import { getAoTokens, useTokens } from "~tokens";
+import {
+  getAoTokens,
+  getAoTokensAutoImportRestrictedIds,
+  useTokens
+} from "~tokens";
 import { useEffect, useMemo, useState } from "react";
 import browser from "webextension-polyfill";
 import Token from "~components/popup/Token";
@@ -54,7 +58,7 @@ export default function Tokens() {
     try {
       const aoTokens = await getAoTokens();
 
-      if (aoTokens.find(({ processId }) => processId === token.id)) {
+      if (aoTokens.some(({ processId }) => processId === token.id)) {
         setToast({
           type: "error",
           content: browser.i18n.getMessage("token_already_added"),
@@ -85,7 +89,7 @@ export default function Tokens() {
     try {
       const aoTokens = await getAoTokens();
 
-      if (!aoTokens.find(({ processId }) => processId === token.id)) {
+      if (!aoTokens.some(({ processId }) => processId === token.id)) {
         setToast({
           type: "error",
           content: browser.i18n.getMessage("token_already_removed"),
@@ -94,9 +98,17 @@ export default function Tokens() {
         throw new Error("Token already removed");
       }
 
+      const restrictedTokenIds = await getAoTokensAutoImportRestrictedIds();
       const updatedTokens = aoTokens.filter(
         ({ processId }) => processId !== token.id
       );
+      if (!restrictedTokenIds.includes(token.id)) {
+        restrictedTokenIds.push(token.id);
+        await ExtensionStorage.set(
+          "ao_tokens_auto_import_restricted_ids",
+          restrictedTokenIds
+        );
+      }
       await ExtensionStorage.set("ao_tokens", updatedTokens);
       setToast({
         type: "success",
@@ -112,11 +124,8 @@ export default function Tokens() {
     if (!aoSupport) return;
     try {
       setIsLoading(true);
-      for (let i = 0; i < 2; i++) {
-        const { hasNextPage, syncCount } = await syncAoTokens();
-        setHasNextPage(!!hasNextPage);
-        if (!hasNextPage || (hasNextPage && syncCount > 0)) break;
-      }
+      const { hasNextPage } = await syncAoTokens();
+      setHasNextPage(!!hasNextPage);
     } finally {
       setIsLoading(false);
     }

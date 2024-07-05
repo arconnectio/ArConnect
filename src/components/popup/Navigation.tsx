@@ -44,41 +44,41 @@ export const NavigationBar = () => {
   const theme = useTheme();
   const [push] = useHistory();
   const [location] = useLocation();
-  const shouldShowNavigationBar = buttons.some((button) => {
-    if (button.title === "Send") {
-      return location.startsWith(button.route);
-    } else {
-      return location === button.route;
-    }
-  });
+  const shouldShowNavigationBar =
+    location !== "/explore" &&
+    buttons.some((button) => {
+      if (button.title === "Send") {
+        return location.startsWith(button.route);
+      } else {
+        return location === button.route;
+      }
+    });
+
+  if (!shouldShowNavigationBar) {
+    return null;
+  }
 
   return (
-    <>
-      {shouldShowNavigationBar && (
-        <NavigationBarWrapper displayTheme={theme}>
-          <>
-            <NavigationButtons>
-              {buttons.map((button, index) => {
-                const active = button.route === location;
-                return (
-                  <NavigationButton
-                    displayTheme={theme}
-                    active={active}
-                    key={index}
-                    onClick={() => push(button.route)}
-                  >
-                    <IconWrapper displayTheme={theme} size={button.size}>
-                      {button.icon}
-                    </IconWrapper>
-                    <div>{browser.i18n.getMessage(button.title)}</div>
-                  </NavigationButton>
-                );
-              })}
-            </NavigationButtons>
-          </>
-        </NavigationBarWrapper>
-      )}
-    </>
+    <NavigationBarWrapper displayTheme={theme}>
+      <NavigationButtons>
+        {buttons.map((button, index) => {
+          const active = button.route === location;
+          return (
+            <NavigationButton
+              displayTheme={theme}
+              active={active}
+              key={index}
+              onClick={() => push(button.route)}
+            >
+              <IconWrapper displayTheme={theme} size={button.size}>
+                {button.icon}
+              </IconWrapper>
+              <div>{browser.i18n.getMessage(button.title)}</div>
+            </NavigationButton>
+          );
+        })}
+      </NavigationButtons>
+    </NavigationBarWrapper>
   );
 };
 

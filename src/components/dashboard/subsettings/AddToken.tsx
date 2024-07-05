@@ -9,7 +9,7 @@ import {
 } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import { useEffect, useState } from "react";
-import { useAo, type TokenInfo, useAoTokens } from "~tokens/aoTokens/ao";
+import { type TokenInfo } from "~tokens/aoTokens/ao";
 import { Token } from "ao-tokens";
 import styled from "styled-components";
 import { isAddress } from "~utils/assertions";
@@ -21,7 +21,11 @@ import type { TokenState, TokenType } from "~tokens/token";
 import { concatGatewayURL } from "~gateways/utils";
 import { useGateway } from "~gateways/wayfinder";
 
-export default function AddToken() {
+interface AddTokenProps {
+  isQuickSetting?: boolean;
+}
+
+export default function AddToken({ isQuickSetting }: AddTokenProps) {
   const targetInput = useInput();
   const gateway = useGateway({ startBlock: 0 });
   const [tokenType, setTokenType] = useState<TokenType>("asset");
@@ -30,7 +34,6 @@ export default function AddToken() {
   const [loading, setLoading] = useState<boolean>(false);
   const [warp, setWarp] = useState<string | null>(null);
   const tokens = useTokens();
-  const ao = useAo();
   const { setToast } = useToasts();
 
   const onImportToken = async () => {
@@ -114,9 +117,14 @@ export default function AddToken() {
   return (
     <Wrapper>
       <div>
-        <Spacer y={0.45} />
-        <Title>{browser.i18n.getMessage("import_token")}</Title>
+        {!isQuickSetting && (
+          <>
+            <Spacer y={0.45} />
+            <Title>{browser.i18n.getMessage("import_token")}</Title>
+          </>
+        )}
         <Select
+          small={isQuickSetting}
           label={browser.i18n.getMessage("token_type")}
           onChange={(e) => {
             // @ts-expect-error
@@ -136,7 +144,8 @@ export default function AddToken() {
           <>
             <Spacer y={0.5} />
             <Select
-              label="asset/collectible"
+              small={isQuickSetting}
+              label="Asset/Collectible"
               onChange={(e) => {
                 // @ts-expect-error
                 setTokenType(e.target.value);
@@ -158,6 +167,7 @@ export default function AddToken() {
 
         <Spacer y={0.5} />
         <InputV2
+          small={isQuickSetting}
           {...targetInput.bindings}
           type="string"
           fullWidth
