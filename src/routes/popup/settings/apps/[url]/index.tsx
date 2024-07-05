@@ -28,7 +28,7 @@ import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
 
 export default function AppSettings({ url }: Props) {
   // app settings
-  const app = new Application(url);
+  const app = new Application(decodeURIComponent(url));
   const [settings, updateSettings] = app.hook();
   const arweave = new Arweave(defaultGateway);
 
