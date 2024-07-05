@@ -1303,6 +1303,10 @@
     "message": "Scan the QR code below with your hardware wallet",
     "description": "Request to scan signature QR"
   },
+  "generate_qr_code": {
+    "message": "Generate QR code",
+    "description": "Generate QR code button"
+  },
   "viewblock": {
     "message": "Viewblock",
     "description": "view block"

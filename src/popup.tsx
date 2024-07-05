@@ -48,6 +48,7 @@ import Contacts from "~routes/popup/settings/contacts";
 import ContactSettings from "~routes/popup/settings/contacts/[address]";
 import NewContact from "~routes/popup/settings/contacts/new";
 import NotificationSettings from "~routes/popup/settings/notifications";
+import GenerateQR from "~routes/popup/settings/wallets/[address]/qr";
 
 export default function Popup() {
   const theme = useTheme();
@@ -83,7 +84,7 @@ export default function Popup() {
                   )}
                 </Route>
                 <Route path="/purchase-pending" component={PendingPurchase} />
-                <Route path="/receive" component={Receive} />
+                <Route path="/receive">{() => <Receive />}</Route>
                 <Route path="/send/transfer/:id?">
                   {(params: { id?: string }) => <Send id={params?.id} />}
                 </Route>
@@ -105,6 +106,11 @@ export default function Popup() {
                 <Route path="/quick-settings/wallets/:address/export">
                   {(params: { address: string }) => (
                     <ExportWallet address={params?.address} />
+                  )}
+                </Route>
+                <Route path="/quick-settings/wallets/:address/qr">
+                  {(params: { address: string }) => (
+                    <GenerateQR address={params?.address} />
                   )}
                 </Route>
                 <Route path="/quick-settings/apps" component={Applications} />

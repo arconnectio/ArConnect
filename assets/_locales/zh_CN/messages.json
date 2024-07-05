@@ -1299,6 +1299,10 @@
       "message": "使用您的硬件钱包扫描下面的二维码",
       "description": "Request to scan signature QR"
   },
+  "generate_qr_code": {
+    "message": "生成二维码",
+    "description": "Generate QR code button"
+  },
   "viewblock": {
       "message": "Viewblock",
       "description": "view block"

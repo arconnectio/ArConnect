@@ -9,6 +9,7 @@ import {
   useModal,
   useToasts
 } from "@arconnect/components";
+import { QrCode02 } from "@untitled-ui/icons-react";
 import { CopyIcon, DownloadIcon, TrashIcon } from "@iconicicons/react";
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { removeWallet, type StoredWallet } from "~wallets";
@@ -23,7 +24,6 @@ import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { formatAddress } from "~utils/format";
 import HeadV2 from "~components/popup/HeadV2";
-import { QRCodeSVG } from "qrcode.react";
 import { useLocation } from "wouter";
 
 export default function Wallet({ address }: Props) {
@@ -130,47 +130,45 @@ export default function Wallet({ address }: Props) {
       />
       <Wrapper>
         <div>
-          <WalletWrapper>
-            <div>
-              <WalletName>
-                {ansLabel || wallet.nickname}
-                {wallet.type === "hardware" && (
-                  <TooltipV2
-                    content={
-                      wallet.api.slice(0, 1).toUpperCase() + wallet.api.slice(1)
-                    }
-                    position="bottom"
-                  >
-                    <HardwareWalletIcon
-                      src={wallet.api === "keystone" ? keystoneLogo : undefined}
-                    />
-                  </TooltipV2>
-                )}
-              </WalletName>
-              <WalletAddress>
-                {formatAddress(wallet.address, 8)}
+          <div>
+            <WalletName>
+              {ansLabel || wallet.nickname}
+              {wallet.type === "hardware" && (
                 <TooltipV2
-                  content={browser.i18n.getMessage("copy_address")}
+                  content={
+                    wallet.api.slice(0, 1).toUpperCase() + wallet.api.slice(1)
+                  }
                   position="bottom"
                 >
-                  <CopyButton
-                    onClick={() => {
-                      copy(wallet.address);
-                      setToast({
-                        type: "info",
-                        content: browser.i18n.getMessage("copied_address", [
-                          wallet.nickname,
-                          formatAddress(wallet.address, 3)
-                        ]),
-                        duration: 2200
-                      });
-                    }}
+                  <HardwareWalletIcon
+                    src={wallet.api === "keystone" ? keystoneLogo : undefined}
                   />
                 </TooltipV2>
-              </WalletAddress>
-            </div>
-            <QrCodeIcon address={address} />
-          </WalletWrapper>
+              )}
+            </WalletName>
+            <WalletAddress>
+              {formatAddress(wallet.address, 8)}
+              <TooltipV2
+                content={browser.i18n.getMessage("copy_address")}
+                position="bottom"
+              >
+                <CopyButton
+                  onClick={() => {
+                    copy(wallet.address);
+                    setToast({
+                      type: "info",
+                      content: browser.i18n.getMessage("copied_address", [
+                        wallet.nickname,
+                        formatAddress(wallet.address, 3)
+                      ]),
+                      duration: 2200
+                    });
+                  }}
+                />
+              </TooltipV2>
+            </WalletAddress>
+          </div>
+
           <Title>{browser.i18n.getMessage("edit_wallet_name")}</Title>
           {!!ansLabel && (
             <Warning>{browser.i18n.getMessage("cannot_edit_with_ans")}</Warning>
@@ -198,13 +196,22 @@ export default function Wallet({ address }: Props) {
         <div>
           <ButtonV2
             fullWidth
+            onClick={() => setLocation(`/quick-settings/wallets/${address}/qr`)}
+          >
+            {browser.i18n.getMessage("generate_qr_code")}
+            <QrCode02 style={{ marginLeft: "2px" }} />
+          </ButtonV2>
+          <Spacer y={0.625} />
+          <ButtonV2
+            fullWidth
+            secondary
             onClick={() =>
               setLocation(`/quick-settings/wallets/${address}/export`)
             }
             disabled={wallet.type === "hardware"}
           >
-            <DownloadIcon style={{ marginRight: "5px" }} />
             {browser.i18n.getMessage("export_keyfile")}
+            <DownloadIcon style={{ marginLeft: "2px" }} />
           </ButtonV2>
           <Spacer y={0.625} />
           <ButtonV2
@@ -212,8 +219,8 @@ export default function Wallet({ address }: Props) {
             style={{ backgroundColor: "#8C1A1A" }}
             onClick={() => removeModal.setOpen(true)}
           >
-            <TrashIcon style={{ marginRight: "5px" }} />
             {browser.i18n.getMessage("remove_wallet")}
+            <TrashIcon style={{ marginLeft: "2px" }} />
           </ButtonV2>
         </div>
         <ModalV2
@@ -271,56 +278,6 @@ export default function Wallet({ address }: Props) {
   );
 }
 
-function QrCodeIcon({ address }: { address: string }) {
-  // QR modal
-  const qrModal = useModal();
-
-  return (
-    <>
-      <LogoWrapper onClick={() => qrModal.setOpen(true)}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="33.333"
-          height="33.333"
-          viewBox="0 0 35 34"
-          fill="none"
-        >
-          <path
-            d="M9.86111 9.36111H9.875M25.1389 9.36111H25.1528M9.86111 24.6389H9.875M18.8889 18.3889H18.9028M25.1389 24.6389H25.1528M24.4444 29.5H30V23.9444M20.2778 23.25V29.5M30 19.7778H23.75M22.5 14.2222H27.7778C28.5556 14.2222 28.9446 14.2222 29.2417 14.0708C29.503 13.9377 29.7155 13.7252 29.8486 13.4639C30 13.1668 30 12.7779 30 12V6.72222C30 5.94437 30 5.55545 29.8486 5.25835C29.7155 4.99701 29.503 4.78454 29.2417 4.65138C28.9446 4.5 28.5556 4.5 27.7778 4.5H22.5C21.7221 4.5 21.3332 4.5 21.0361 4.65138C20.7748 4.78454 20.5623 4.99701 20.4292 5.25835C20.2778 5.55545 20.2778 5.94437 20.2778 6.72222V12C20.2778 12.7779 20.2778 13.1668 20.4292 13.4639C20.5623 13.7252 20.7748 13.9377 21.0361 14.0708C21.3332 14.2222 21.7221 14.2222 22.5 14.2222ZM7.22222 14.2222H12.5C13.2779 14.2222 13.6668 14.2222 13.9639 14.0708C14.2252 13.9377 14.4377 13.7252 14.5708 13.4639C14.7222 13.1668 14.7222 12.7779 14.7222 12V6.72222C14.7222 5.94437 14.7222 5.55545 14.5708 5.25835C14.4377 4.99701 14.2252 4.78454 13.9639 4.65138C13.6668 4.5 13.2779 4.5 12.5 4.5H7.22222C6.44437 4.5 6.05545 4.5 5.75835 4.65138C5.49701 4.78454 5.28454 4.99701 5.15138 5.25835C5 5.55545 5 5.94437 5 6.72222V12C5 12.7779 5 13.1668 5.15138 13.4639C5.28454 13.7252 5.49701 13.9377 5.75835 14.0708C6.05545 14.2222 6.44437 14.2222 7.22222 14.2222ZM7.22222 29.5H12.5C13.2779 29.5 13.6668 29.5 13.9639 29.3486C14.2252 29.2155 14.4377 29.003 14.5708 28.7417C14.7222 28.4446 14.7222 28.0556 14.7222 27.2778V22C14.7222 21.2221 14.7222 20.8332 14.5708 20.5361C14.4377 20.2748 14.2252 20.0623 13.9639 19.9292C13.6668 19.7778 13.2779 19.7778 12.5 19.7778H7.22222C6.44437 19.7778 6.05545 19.7778 5.75835 19.9292C5.49701 20.0623 5.28454 20.2748 5.15138 20.5361C5 20.8332 5 21.2221 5 22V27.2778C5 28.0556 5 28.4446 5.15138 28.7417C5.28454 29.003 5.49701 29.2155 5.75835 29.3486C6.05545 29.5 6.44437 29.5 7.22222 29.5Z"
-            stroke="white"
-            stroke-width="2.77778"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </LogoWrapper>
-      <ModalV2 {...qrModal.bindings} root={document.getElementById("__plasmo")}>
-        <QRCodeSVG
-          fgColor="#fff"
-          bgColor="transparent"
-          size={240}
-          value={address ?? ""}
-        />
-      </ModalV2>
-    </>
-  );
-}
-
-const LogoWrapper = styled.div<{ small?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: ${(props) => (props.small ? "2.1875rem" : "2.8rem;")};
-  height: ${(props) => (props.small ? "2.1875rem" : "2.8rem;")};
-  background-color: ${(props) => props.theme.primary};
-  cursor: pointer;
-  border-radius: 11.905px;
-
-  &:hover {
-    background-color: ${(props) => props.theme.primaryBtnHover};
-  }
-`;
-
 const CenterText = styled(Text)`
   text-align: center;
 `;
@@ -342,11 +299,6 @@ const WalletName = styled(Text).attrs({
   gap: 0.45rem;
   font-size: 1.25rem;
   font-weight: 600;
-`;
-
-const WalletWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
 `;
 
 const HardwareWalletIcon = styled.img.attrs({
