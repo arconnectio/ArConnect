@@ -135,7 +135,7 @@ export default function Contacts({ isQuickSetting }: ContactsProps) {
 
   return (
     <Wrapper>
-      <SearchWrapper>
+      <SearchWrapper small={isQuickSetting}>
         <SearchInput
           small={isQuickSetting}
           placeholder={browser.i18n.getMessage("search_contacts")}
@@ -209,7 +209,7 @@ const LetterHeader = styled.div`
   font-size: 12px;
 `;
 
-const SearchWrapper = styled.div`
+const SearchWrapper = styled.div<{ small?: boolean }>`
   position: sticky;
   display: grid;
   gap: 8px;
@@ -218,7 +218,8 @@ const SearchWrapper = styled.div`
   right: 0;
   z-index: 20;
   grid-template-columns: auto auto;
-  background-color: rgb(${(props) => props.theme.cardBackground});
+  ${(props) =>
+    !props.small && `background-color: rgb(${props.theme.cardBackground})`}
 `;
 
 const AddContactButton = styled(ButtonV2)`

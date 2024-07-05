@@ -88,6 +88,7 @@ export default function Wallets() {
       <Wrapper>
         <div style={{ height: "100%" }}>
           <SearchInput
+            small
             placeholder={browser.i18n.getMessage("search_wallets")}
             {...searchInput.bindings}
           />

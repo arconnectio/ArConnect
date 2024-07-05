@@ -122,6 +122,7 @@ export default function Applications() {
         {connectedApps && connectedApps.length === 0 && (
           <NoAppsText>{browser.i18n.getMessage("no_apps_added")}</NoAppsText>
         )}
+        <Spacer y={1} />
       </Wrapper>
     </>
   );
@@ -144,7 +145,6 @@ const SearchWrapper = styled.div`
   left: 0;
   right: 0;
   z-index: 20;
-  background-color: rgb(${(props) => props.theme.cardBackground});
 `;
 
 const NoAppsText = styled(Text)`
