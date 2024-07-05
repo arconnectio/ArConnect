@@ -124,7 +124,7 @@ export default function Send({ id }: Props) {
   const [currency] = useSetting<string>("currency");
 
   // aoTokens
-  const [aoTokens, loading] = useAoTokens();
+  const [aoTokens, loading] = useAoTokens(true);
 
   // set ao for following page
   const [isAo, setIsAo] = useState<boolean>(false);
@@ -448,7 +448,9 @@ export default function Send({ id }: Props) {
                   <>
                     <h4>{browser.i18n.getMessage("ao_degraded")}</h4>
                     <span>
-                      {browser.i18n.getMessage("ao_degraded_description")}
+                      {browser.i18n
+                        .getMessage("ao_degraded_description")
+                        .replace("<br/>", "")}
                     </span>
                   </>
                 )}

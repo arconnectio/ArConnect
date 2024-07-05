@@ -15,6 +15,8 @@ import browser from "webextension-polyfill";
 import { syncLabels } from "~wallets";
 import { trackBalance } from "~utils/analytics";
 import { subscriptionsHandler } from "~subscriptions/api";
+import { importAoTokens } from "~tokens/aoTokens/sync";
+import { aoTokensCacheHandler } from "~tokens/aoTokens/ao";
 
 // watch for API calls
 onMessage("api_call", handleApiCalls);
@@ -37,6 +39,9 @@ browser.alarms.onAlarm.addListener(subscriptionsHandler);
 
 browser.alarms.onAlarm.addListener(trackBalance);
 
+// handle ao tokens info cache update
+browser.alarms.onAlarm.addListener(aoTokensCacheHandler);
+
 // handle alarm for updating gateways
 browser.alarms.onAlarm.addListener(handleGatewayUpdate);
 
@@ -45,6 +50,9 @@ browser.alarms.onAlarm.addListener(syncLabels);
 
 // handle decryption key removal alarm
 browser.alarms.onAlarm.addListener(keyRemoveAlarmListener);
+
+// handle importing ao tokens
+browser.alarms.onAlarm.addListener(importAoTokens);
 
 // handle window close
 browser.windows.onRemoved.addListener(onWindowClose);

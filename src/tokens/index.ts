@@ -2,7 +2,6 @@ import { DREContract, DRENode, NODES } from "@arconnect/warp-dre";
 import type { EvalStateResult } from "warp-contracts";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { type Gateway } from "~gateways/gateway";
 import { isTokenState } from "~utils/assertions";
 import { useEffect, useState } from "react";
 import { getActiveAddress } from "~wallets";
@@ -12,7 +11,7 @@ import {
   type TokenState,
   type TokenType
 } from "./token";
-import type { TokenInfo } from "./aoTokens/ao";
+import type { TokenInfoWithProcessId } from "./aoTokens/ao";
 
 /** Default tokens */
 export const defaultTokens: Token[] = [
@@ -53,23 +52,48 @@ export async function getTokens() {
 
   return tokens || defaultTokens;
 }
+
 /**
  * Get stored ao tokens
  */
 export async function getAoTokens() {
-  const tokens = await ExtensionStorage.get<
-    (TokenInfo & { processId: string })[]
-  >("ao_tokens");
+  const tokens = await ExtensionStorage.get<TokenInfoWithProcessId[]>(
+    "ao_tokens"
+  );
 
   return tokens || [];
 }
 
 /**
- * Add a token to the stored tokens
+ * Get stored ao tokens cache
+ */
+export async function getAoTokensCache() {
+  const tokens = await ExtensionStorage.get<TokenInfoWithProcessId[]>(
+    "ao_tokens_cache"
+  );
+
+  return tokens || [];
+}
+
+/**
+ * Get stored ao tokens removed ids
+ */
+export async function getAoTokensAutoImportRestrictedIds() {
+  const removedIds = await ExtensionStorage.get<string[]>(
+    "ao_tokens_auto_import_restricted_ids"
+  );
+
+  return removedIds || [];
+}
+
+/**
+ * Get a token with id, type and dre
  *
  * @param id ID of the token contract
+ * @param type Type of the token
+ * @param dre DRE node for token
  */
-export async function addToken(id: string, type: TokenType, dre?: string) {
+export async function getToken(id: string, type: TokenType, dre?: string) {
   // dre
   if (!dre) dre = await getDreForToken(id);
   const contract = new DREContract(id, new DRENode(dre));
@@ -88,10 +112,7 @@ export async function addToken(id: string, type: TokenType, dre?: string) {
   // parse settings
   const settings = getSettings(state);
 
-  // get tokens
-  const tokens = await getTokens();
-
-  tokens.push({
+  return {
     id,
     name: state.name,
     ticker: state.ticker,
@@ -101,7 +122,21 @@ export async function addToken(id: string, type: TokenType, dre?: string) {
     decimals: state.decimals,
     defaultLogo: settings.get("communityLogo") as string,
     dre
-  });
+  } as Token;
+}
+
+/**
+ * Add a token to the stored tokens
+ *
+ * @param id ID of the token contract
+ */
+export async function addToken(id: string, type: TokenType, dre?: string) {
+  const token = await getToken(id, type, dre);
+
+  // get tokens
+  const tokens = await getTokens();
+
+  tokens.push(token);
   await ExtensionStorage.set("tokens", tokens);
 }
 
@@ -120,6 +155,14 @@ export async function removeToken(id: string) {
       tokens.filter((token) => token.id !== id)
     );
   } else if (aoTokens.some((token) => token.processId === id)) {
+    const restrictedTokenIds = await getAoTokensAutoImportRestrictedIds();
+    if (!restrictedTokenIds.includes(id)) {
+      restrictedTokenIds.push(id);
+      await ExtensionStorage.set(
+        "ao_tokens_auto_import_restricted_ids",
+        restrictedTokenIds
+      );
+    }
     await ExtensionStorage.set(
       "ao_tokens",
       aoTokens.filter((token) => token.processId !== id)
