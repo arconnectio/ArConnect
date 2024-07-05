@@ -40,13 +40,6 @@ export const defaultAoTokens: TokenInfo[] = [
     processId: "8p7ApPZxC_37M06QHVejCQrKsHbcJEerd3jWNkDUWPQ"
   },
   {
-    Name: "AOCRED",
-    Ticker: "testnet-AOCRED",
-    Denomination: 3,
-    Logo: "eIOOJiqtJucxvB4k8a-sEKcKpKTh9qQgOV3Au7jlGYc",
-    processId: "Sa0iBLPNyJQrwpTTG-tWLQU-1QeUAJA73DdxGGiKoJc"
-  },
-  {
     Name: "Astro USD (Test)",
     Ticker: "USDA-TST",
     Denomination: 12,
