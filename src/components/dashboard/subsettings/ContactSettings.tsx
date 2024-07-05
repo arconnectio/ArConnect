@@ -19,13 +19,13 @@ import { EventType, trackEvent } from "~utils/analytics";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import browser from "webextension-polyfill";
-import { getAllArNSNames } from "~lib/arns";
+// import { getAllArNSNames } from "~lib/arns";
 import { useTheme } from "~utils/theme";
 import styled from "styled-components";
 import { svgie } from "~utils/svgies";
 import { useLocation } from "wouter";
 import copy from "copy-to-clipboard";
-import { isAddressFormat } from "~utils/format";
+// import { isAddressFormat } from "~utils/format";
 
 export default function ContactSettings({ address }: Props) {
   // contacts
@@ -50,7 +50,7 @@ export default function ContactSettings({ address }: Props) {
     avatarId: ""
   });
   const [contactIndex, setContactIndex] = useState(-1);
-  const [arnsResults, setArnsResults] = useState([]);
+  // const [arnsResults, setArnsResults] = useState([]);
   const [avatarLoading, setAvatarLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [originalContact, setOriginalContact] = useState(null);
@@ -68,9 +68,9 @@ export default function ContactSettings({ address }: Props) {
     if (loadedContact) {
       setContact(loadedContact);
       setContactIndex(storedContacts.indexOf(loadedContact));
-      if (loadedContact.address && isAddressFormat(loadedContact.address)) {
-        fetchArnsAddresses(loadedContact.address);
-      }
+      // if (loadedContact.address && isAddressFormat(loadedContact.address)) {
+      //   fetchArnsAddresses(loadedContact.address);
+      // }
     } else {
       setContact({
         name: "",
@@ -84,17 +84,18 @@ export default function ContactSettings({ address }: Props) {
     }
   }, [storedContacts, address]);
 
-  async function fetchArnsAddresses(ownerAddress) {
-    try {
-      setLoading(true);
-      const arnsNames = await getAllArNSNames(ownerAddress);
-      setArnsResults(arnsNames || []);
-    } catch (error) {
-      console.error("Error fetching ArNS addresses:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  // TODO: Uncomment when getAllArNSNames is optimized
+  // async function fetchArnsAddresses(ownerAddress) {
+  //   try {
+  //     setLoading(true);
+  //     const arnsNames = await getAllArNSNames(ownerAddress);
+  //     setArnsResults(arnsNames || []);
+  //   } catch (error) {
+  //     console.error("Error fetching ArNS addresses:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -200,7 +201,7 @@ export default function ContactSettings({ address }: Props) {
     if (editable) {
       return (
         <>
-          <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
+          {/* <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
           <InputWrapper>
             <SelectInput
               fullWidth
@@ -224,7 +225,7 @@ export default function ContactSettings({ address }: Props) {
                 </option>
               ))}
             </SelectInput>
-          </InputWrapper>
+          </InputWrapper> */}
         </>
       );
     } else if (contact.ArNSAddress) {

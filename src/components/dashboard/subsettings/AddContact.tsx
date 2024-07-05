@@ -28,13 +28,13 @@ import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import { findGateway } from "~gateways/wayfinder";
 import { uploadUserAvatar, getUserAvatar } from "~lib/avatar";
-import { getAllArNSNames } from "~lib/arns";
+// import { getAllArNSNames } from "~lib/arns";
 import styled from "styled-components";
 import { useLocation } from "wouter";
 import copy from "copy-to-clipboard";
 import { gql } from "~gateways/api";
 import { useTheme } from "~utils/theme";
-import { isAddressFormat } from "~utils/format";
+// import { isAddressFormat } from "~utils/format";
 
 export default function AddContact() {
   // contacts
@@ -56,7 +56,6 @@ export default function AddContact() {
   const { setToast } = useToasts();
   const [location] = useLocation();
   const address = location.split("=")[1];
-  const [loading, setLoading] = useState(false);
 
   const [contact, setContact] = useState({
     name: "",
@@ -73,7 +72,8 @@ export default function AddContact() {
     }
   }, []);
 
-  const [arnsResults, setArnsResults] = useState([]);
+  // const [loading, setLoading] = useState(false);
+  // const [arnsResults, setArnsResults] = useState([]);
   const [lastRecipients, setLastRecipients] = useState<string[]>([]);
 
   const generateProfileIcon = (name, address) => {
@@ -138,22 +138,23 @@ export default function AddContact() {
     });
   };
 
-  async function fetchArnsAddresses(ownerAddress) {
-    try {
-      setLoading(true);
-      const arnsNames = await getAllArNSNames(ownerAddress);
-      setArnsResults(arnsNames || []);
-    } catch (error) {
-      console.error("Error fetching ArNS addresses:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  // TODO: Uncomment when getAllArNSNames is optimized
+  // async function fetchArnsAddresses(ownerAddress) {
+  //   try {
+  //     setLoading(true);
+  //     const arnsNames = await getAllArNSNames(ownerAddress);
+  //     setArnsResults(arnsNames || []);
+  //   } catch (error) {
+  //     console.error("Error fetching ArNS addresses:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
 
   useEffect(() => {
-    if (contact.address && isAddressFormat(contact.address)) {
-      fetchArnsAddresses(contact.address);
-    }
+    // if (contact.address && isAddressFormat(contact.address)) {
+    //   fetchArnsAddresses(contact.address);
+    // }
 
     (async () => {
       if (!activeAddress) return;
@@ -319,7 +320,7 @@ export default function AddContact() {
             ))}
           </datalist>
         </InputWrapper>
-        <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
+        {/* <SubTitle>{browser.i18n.getMessage("ArNS_address")}</SubTitle>
         <InputWrapper>
           <SelectInput
             fullWidth
@@ -343,7 +344,7 @@ export default function AddContact() {
               </option>
             ))}
           </SelectInput>
-        </InputWrapper>
+        </InputWrapper> */}
         <SubTitle>{browser.i18n.getMessage("notes")}</SubTitle>
         <NewContactNotes
           placeholder={browser.i18n.getMessage("type_message_here")}
