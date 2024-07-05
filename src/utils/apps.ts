@@ -266,7 +266,7 @@ export const apps: App[] = [
       thumbnail: "/apps/arwiki/thumbnail.jpeg"
     },
     links: {
-      website: "https://arwiki.wik",
+      website: "https://arwiki.wiki",
       twitter: "https://x.com/TheArWiki"
     }
   },
