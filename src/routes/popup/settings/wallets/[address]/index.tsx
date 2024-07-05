@@ -247,6 +247,7 @@ export default function Wallet({ address }: Props) {
                       ),
                       duration: 2000
                     });
+                    setLocation("/quick-settings/wallets");
                   } catch (e) {
                     console.log("Error removing wallet", e);
                     setToast({
