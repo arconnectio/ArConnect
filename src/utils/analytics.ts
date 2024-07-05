@@ -1,13 +1,16 @@
 import { getSetting } from "~settings";
 import { ExtensionStorage, TempTransactionStorage } from "./storage";
 import { AnalyticsBrowser } from "@segment/analytics-next";
-import { getWallets } from "~wallets";
+import { getWallets, getActiveKeyfile, getActiveAddress } from "~wallets";
 import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
 import { v4 as uuid } from "uuid";
 import browser, { type Alarms } from "webextension-polyfill";
 import BigNumber from "bignumber.js";
 import axios from "axios";
+import { isLocalWallet } from "./assertions";
+import { ArweaveSigner } from "arbundles";
+import { freeDecryptedWallet } from "~wallets/encryption";
 
 const PUBLIC_SEGMENT_WRITEKEY = "J97E4cvSZqmpeEdiUQNC2IxS1Kw4Cwxm";
 
@@ -36,7 +39,8 @@ export enum EventType {
   TX_SENT = "TX_SENT",
   SUBSCRIBED = "SUBSCRIBED",
   UNSUBSCRIBED = "UNSUBSCRIBED",
-  SUBSCRIPTION_PAYMENT = "SUBSCRIPTION_PAYMENT"
+  SUBSCRIPTION_PAYMENT = "SUBSCRIPTION_PAYMENT",
+  BITS_LENGTH = "BITS_LENGTH"
 }
 
 export enum PageType {
@@ -228,6 +232,62 @@ const setToStartOfNextMonth = (currentDate: Date): Date => {
     )
   );
   return newDate;
+};
+
+/**
+ * Checks the bit length the active Arweave wallet.
+ *
+ * This function verifies the integrity of the currently active wallet by comparing
+ * the expected length of the public key with its actual length. It uses the ArweaveSigner
+ * to generate the public key from the wallet's keyfile.
+ *
+ *
+ * @returns {Promise<boolean | null>} A promise that resolves to:
+ *   - true if an integrity issue is detected (lengths don't match)
+ *   - false if no integrity issue is found
+ *   - null if the check has already been performed for this address or if an error occurs
+ *
+ * @throws {Error} If no wallets are added or if there's an issue accessing the wallet
+ */
+export const checkWalletBits = async (): Promise<boolean | null> => {
+  const activeAddress = await getActiveAddress();
+  if (!activeAddress) {
+    return null;
+  }
+  const hasBeenTracked = await ExtensionStorage.get<boolean>(
+    `bits_check_${activeAddress}`
+  );
+
+  if (hasBeenTracked) {
+    return null;
+  }
+
+  try {
+    const decryptedWallet = await getActiveKeyfile().catch((e) => {
+      throw new Error("No wallets added");
+    });
+    isLocalWallet(decryptedWallet);
+
+    const signer = new ArweaveSigner(decryptedWallet.keyfile);
+    const owner = signer.publicKey;
+    const expectedLength = signer.ownerLength;
+    const actualLength = owner.byteLength;
+
+    const lengthsMatch = expectedLength === actualLength;
+
+    freeDecryptedWallet(decryptedWallet.keyfile);
+
+    await ExtensionStorage.set(`bits_check_${activeAddress}`, true);
+
+    return !lengthsMatch;
+  } catch (error) {
+    console.error(
+      `An error occurred during wallet integrity check: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+    return null;
+  }
 };
 
 const GDPR_COUNTRIES_AND_OTHERS = [
