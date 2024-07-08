@@ -143,6 +143,24 @@ export async function messageToUR(
   return signRequest.toUR();
 }
 
+export async function dataItemToUR(
+  data: Uint8Array,
+  xfp: string,
+  options: SignatureOptions = { saltLength: 32 }
+) {
+  const messageBuff = Buffer.from(data);
+
+  // construct request
+  const signRequest = ArweaveSignRequest.constructArweaveRequest(
+    messageBuff,
+    xfp,
+    SignType.DataItem,
+    options.saltLength
+  );
+
+  return signRequest.toUR();
+}
+
 /**
  * Decode cbor result from a keystone QR code
  * with an Arweave transaction

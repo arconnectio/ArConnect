@@ -9,12 +9,18 @@ import type { ModuleFunction } from "~api/background";
 import { ArweaveSigner, createData } from "arbundles";
 import Application from "~applications/application";
 import { getPrice } from "../dispatch/uploader";
-import { getActiveKeyfile } from "~wallets";
+import { getActiveKeyfile, getActiveWallet } from "~wallets";
 import browser from "webextension-polyfill";
-import { signAuth } from "../sign/sign_auth";
+import {
+  signAuth,
+  signAuthKeystone,
+  type AuthKeystoneData
+} from "../sign/sign_auth";
 import Arweave from "arweave";
 import authenticate from "../connect/auth";
 import BigNumber from "bignumber.js";
+import { createDataItem } from "~utils/data_item";
+import signMessage from "../sign_message";
 
 const background: ModuleFunction<number[]> = async (
   appData,
@@ -69,10 +75,6 @@ const background: ModuleFunction<number[]> = async (
     throw new Error("No wallets added");
   });
 
-  // ensure that the currently selected
-  // wallet is not a local wallet
-  isLocalWallet(decryptedWallet);
-
   // create app
   const app = new Application(appData.appURL);
 
@@ -83,44 +85,71 @@ const background: ModuleFunction<number[]> = async (
   const { data, ...options } = dataItem;
   const binaryData = new Uint8Array(data);
 
-  // create bundlr tx as a data entry
-  const dataSigner = new ArweaveSigner(decryptedWallet.keyfile);
-  const dataEntry = createData(binaryData, dataSigner, options);
+  if (decryptedWallet.type == "local") {
+    // create bundlr tx as a data entry
+    const dataSigner = new ArweaveSigner(decryptedWallet.keyfile);
+    const dataEntry = createData(binaryData, dataSigner, options);
 
-  // check allowance
-  // const price = await getPrice(dataEntry, await app.getBundler());
-  const allowance = await app.getAllowance();
+    // check allowance
+    // const price = await getPrice(dataEntry, await app.getBundler());
+    const allowance = await app.getAllowance();
 
-  // allowance or sign auth
-  try {
-    if (!allowance.enabled) {
-      // get address
-      const address = await arweave.wallets.jwkToAddress(
-        decryptedWallet.keyfile
-      );
+    // allowance or sign auth
+    try {
+      if (!allowance.enabled) {
+        // get address
+        const address = await arweave.wallets.jwkToAddress(
+          decryptedWallet.keyfile
+        );
 
-      await signAuth(
-        appData.appURL,
-        // @ts-expect-error
-        dataEntry.toJSON(),
-        address
-      );
+        await signAuth(
+          appData.appURL,
+          // @ts-expect-error
+          dataEntry.toJSON(),
+          address
+        );
+      }
+    } catch (e) {
+      freeDecryptedWallet(decryptedWallet.keyfile);
+      throw new Error(e?.message || e);
     }
-  } catch (e) {
+    // sign item
+    await dataEntry.sign(dataSigner);
+
+    // update allowance spent amount (in winstons)
+    // await updateAllowance(appData.appURL, price);
+
+    // remove keyfile
     freeDecryptedWallet(decryptedWallet.keyfile);
-    throw new Error(e?.message || e);
+
+    return Array.from<number>(dataEntry.getRaw());
+  } else {
+    // create bundlr tx as a data entry
+    const activeWallet = await getActiveWallet();
+    if (activeWallet.type != "hardware") throw new Error("Invalid Wallet Type");
+    const signerConfig = {
+      signatureType: 1,
+      signatureLength: 512,
+      ownerLength: 512,
+      publicKey: Buffer.from(
+        Arweave.utils.b64UrlToBuffer(activeWallet.publicKey)
+      )
+    };
+    const dataEntry = createDataItem(binaryData, signerConfig, options);
+    try {
+      const data: AuthKeystoneData = {
+        type: "DataItem",
+        data: dataEntry.getRaw()
+      };
+      const res = await signAuthKeystone(data);
+      dataEntry.setSignature(
+        Buffer.from(Arweave.utils.b64UrlToBuffer(res.data.signature))
+      );
+    } catch (e) {
+      throw new Error(e?.message || e);
+    }
+    return Array.from<number>(dataEntry.getRaw());
   }
-
-  // sign item
-  await dataEntry.sign(dataSigner);
-
-  // update allowance spent amount (in winstons)
-  // await updateAllowance(appData.appURL, price);
-
-  // remove keyfile
-  freeDecryptedWallet(decryptedWallet.keyfile);
-
-  return Array.from<number>(dataEntry.getRaw());
 };
 
 export default background;
