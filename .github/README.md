@@ -161,14 +161,68 @@ Decrypt data with the user's wallet. This is an implementation of the [webcrypto
 
 Requires the `DECRYPT` [permission](#permissions).
 
-### `signature(data, options): Promise<Uint8Array>`
+### ~~`signature(data, options): Promise<Uint8Array>`~~
 
-Get the signature for a data array.
+> ⚠️ **Deprecation warning:** The `signature()` function is deprecated in ArConnect 1.0.0. Read about the alternatives below.
+
+#### Alternatives
+
+There are quite a few cases where you might need to generate a cryptographic signature for a piece of data or message so that you can verify them. The most common ones and their alternatives are the following:
+
+- Generating a signature for a transaction: [`sign()`](#signtransaction-options-promisetransaction)
+- Generating a signature for a bundle data item: [`signDataItem()`](#signdataitemdataitem) or [`dispatch()`](#dispatchtransaction-promisedispatchresult)
+- Signing a message to later validate ownership: [`signMessage()`](#signmessagedata-options-promiseuint8array) combined with [`verifyMessage()`](verify-message.md)
+
+~~Get the signature for a data array.~~
+
+- ~~`data`: `Uint8Array` data to get the signature for~~
+- ~~`options`: Signature options~~
+  <br />
+- ~~`returns`: Signature~~
+
+~~Requires the `SIGNATURE` [permission](#permissions).~~
+
+### `signDataItem(dataItem): Promise<RawDataItem>`
+
+Generate a signed data item, than can later be submitted to an [ANS-104](https://github.com/ArweaveTeam/arweave-standards/blob/master/ans/ANS-104.md) compatible bundler
+
+- dataItem: `DataItem` type object with the data to sign
+
+The `DataItem` type should conform to:
+
+```ts
+export interface DataItem {
+  data: string | Uint8Array;
+  target?: string;
+  anchor?: string;
+  tags?: {
+    name: string;
+    value: string;
+  }[];
+}
+```
+
+### `signMessage(data, options): Promise<Uint8Array>`
+
+Get a cryptographic signature for any piece of data for later validation
 
 - `data`: `Uint8Array` data to get the signature for
 - `options`: Signature options
   <br />
-- `returns`: Signature
+- `returns`: `Uint8Array` Signed data
+
+Requires the `SIGNATURE` [permission](#permissions).
+
+### `verifyMessage(data, signature): Promise<Boolean>`
+
+Verify validity of a cryptographic signature for a given piece of data
+
+- `data`: `ArrayBuffer` data to verify against the signature
+- `signature`: `ArrayBuffer | string` Signature to validate
+- `publicKey?`: `string` Arweave wallet `JWK.n` field, tx owner field or [public key from Arconnect](#getactivepublickey-promisestring)
+- `options`: [`SignMessageOptions`](#signmessagedata-options-promiseuint8array) Configuration for the signature
+  <br />
+- `returns`: `Boolean` Validity of the signature
 
 Requires the `SIGNATURE` [permission](#permissions).
 
@@ -273,7 +327,7 @@ To add the types to your project, you should either include the package in your 
 
 Type declarations can be found [here](../types/index.d.ts).
 
-## Build project (Chrome, Firefox, Brave)
+## Build project (Chrome, Brave)
 
 You can find the build guide [here](./CONTRIBUTING.md#building-the-project).
 
