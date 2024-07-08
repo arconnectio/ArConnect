@@ -1,54 +1,62 @@
 # Contributing to ArConnect
 
-The following is a set of guidelines for contributing to the ArConnect extension. Thank you for your interest 😊.
+Thank you for your interest in contributing to the ArConnect extension! Below are the guidelines to help you get started.
 
-## Building the project
+## Building the Project
 
-Clone this repo, then open a terminal at the root of the project.
+1. **Clone the Repository:** Clone this repository to your local machine.
 
-Install the dependencies. We are using the Yarn package manager:
+2. **Open Terminal:** Navigate to the root directory of the project.
 
-```sh
-yarn install
-```
+3. **Install Dependencies:** We use Yarn as our package manager. Run the following command to install the necessary dependencies:
 
-To build from source, you will need to execute the `build` command followed by the target for which you are building. For example:
+   ```sh
+   yarn install
+   ```
 
-```sh
-yarn build:chrome
-```
+4. **Build the extension:**
 
-If you want to run in development mode that provides hot-code reloading, run:
+   1. **Build from Source:** To build the extension for a specific target, run the build command followed by the target name. For example, to build for Chrome, use:
 
-```sh
-yarn dev:chrome
-```
+   ```sh
+   yarn build:chrome
+   ```
 
-The compiled extension will be stored in the `build` folder. Now all you need to do is to load the built files as an "Unpacked extension" in Chrome / Brave. Open the extensions manager and click "Load unpacked" (this button will not be visible if developer mode is not toggled). Select the `dev-chrome-mv3` (if you are testing in development mode) or `build-chrome-mv3` folder when it asks for a directory to load.
+   2. **Development Mode:** If you want to enable hot-code reloading, run:
 
-## Commits and code-style
+   ```sh
+   yarn dev:chrome
+   ```
 
-Please adhere to the prettier configuration provided and run:
+5. **Load the Extension:**
+   - The compiled extension will be located in the `build` folder.
+   - To load it in Chrome or Brave, open the extensions manager and click "Load unpacked" (ensure developer mode is enabled).
+   - Select the `dev-chrome-mv3` folder for development mode or `build-chrome-mv3` for the production build.
 
-```sh
-yarn fmt
-```
+## Commits and Code Style
 
-to format your code accordingly.
+1. **Code Formatting:** Please adhere to the Prettier configuration provided. To format your code, run:
 
-Commits should look similar to this:
+   ```sh
+   yarn fmt
+   ```
 
-```sh
-feat: add more cool stuff
-```
+2. **Commit Messages:** Follow the Conventional Commits guidelines for your commit messages. An example commit message is:
 
-Please follow [this guide](https://www.conventionalcommits.org/en/v1.0.0/#summary) on best practices for commit messages.
+   ```sh
+   feat: add more cool stuff
+   ```
 
-## i18n
+   For more details on best practices, refer to [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary).
 
-We currently support English and Chinese (simplified) in the project.
-Please provide all text used in the UI inside `messages.json` within the correct locale folder (currently `/assets/_locales/`).
+## Internationalization (i18n)
 
-## Required languages
+We currently support English and Simplified Chinese.
 
-This project is based in Plasmo, uses Typescript and React Styled Components.
+Please place all UI text in `messages.json` within the appropriate locale folder (located in `/assets/_locales/`).
+
+## Required Languages
+
+This project is built using Plasmo, TypeScript, and React Styled Components.
+
+Thank you again for contributing! 😊
