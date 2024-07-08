@@ -171,7 +171,7 @@ There are quite a few cases where you might need to generate a cryptographic sig
 
 - Generating a signature for a transaction: [`sign()`](#signtransaction-options-promisetransaction)
 - Generating a signature for a bundle data item: [`signDataItem()`](#signdataitemdataitem) or [`dispatch()`](#dispatchtransaction-promisedispatchresult)
-- Signing a message to later validate ownership: [`signMessage()`](#signmessagedata-options-promiseuint8array) combined with [`verifyMessage()`](verify-message.md)
+- Signing a message to later validate ownership: [`signMessage()`](#signmessagedata-options-promiseuint8array) combined with [`verifyMessage()`](#verifymessagedata-signature-promiseboolean)
 
 ~~Get the signature for a data array.~~
 
