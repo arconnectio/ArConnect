@@ -1,5 +1,4 @@
 import type { DataItem } from "arbundles";
-import { defaultBundler, pricingEndpoint } from "~applications/application";
 
 /**
  * Upload a data entry to a Bundlr node
@@ -32,13 +31,7 @@ export async function getPrice(dataItem: DataItem, node: string) {
   const size = dataItem.getRaw().length;
 
   // fetch price
-  let endpoint;
-  if (node === defaultBundler) {
-    endpoint = pricingEndpoint;
-  } else {
-    endpoint = node;
-  }
-  const res = await fetch(`${endpoint}/price/arweave/${size}`);
+  const res = await fetch(`${node}/price/arweave/${size}`);
 
   if (res.status >= 400)
     throw new Error(`Error fetching price: ${res.status} ${res.statusText}`);
