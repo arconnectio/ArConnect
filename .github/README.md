@@ -207,11 +207,21 @@ export interface DataItem {
 Get a cryptographic signature for any piece of data for later validation
 
 - `data`: `Uint8Array` data to get the signature for
-- `options`: Signature options
+- `options`: [`SignMessageOptions`](#options) Signature options
   <br />
 - `returns`: `Uint8Array` Signed data
 
 Requires the `SIGNATURE` [permission](#permissions).
+
+#### Options
+
+ArConnect allows you to customize the hash algorithm (`SHA-256` by default):
+
+```ts
+export interface SignMessageOptions {
+  hashAlgorithm?: "SHA-256" | "SHA-384" | "SHA-512";
+}
+```
 
 ### `verifyMessage(data, signature): Promise<Boolean>`
 
@@ -220,7 +230,7 @@ Verify validity of a cryptographic signature for a given piece of data
 - `data`: `ArrayBuffer` data to verify against the signature
 - `signature`: `ArrayBuffer | string` Signature to validate
 - `publicKey?`: `string` Arweave wallet `JWK.n` field, tx owner field or [public key from Arconnect](#getactivepublickey-promisestring)
-- `options`: [`SignMessageOptions`](#signmessagedata-options-promiseuint8array) Configuration for the signature
+- `options`: [`SignMessageOptions`](#options) Configuration for the signature
   <br />
 - `returns`: `Boolean` Validity of the signature
 
