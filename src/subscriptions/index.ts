@@ -46,7 +46,7 @@ export async function getSubscription(
 export async function deleteSubscription(
   activeAddress: string,
   deleteId: string
-) {
+): Promise<boolean> {
   try {
     const subscriptions = await getSubscriptionData(activeAddress);
     const subscriptionIndex = subscriptions.findIndex(
@@ -60,11 +60,14 @@ export async function deleteSubscription(
         `subscriptions_${activeAddress}`,
         subscriptions
       );
+      return true;
     } else {
       console.log("No subscription found with the given ID");
+      return false;
     }
   } catch (err) {
     console.log("Error deleting subscription:", err);
+    return false;
   }
 }
 

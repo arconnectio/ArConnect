@@ -61,6 +61,8 @@ import signDataItem, {
   finalizer as signDataItemFinalizer
 } from "./modules/sign_data_item/sign_data_item.foreground";
 import getSubscriptionModule from "./modules/get_subscription";
+import deleteSubcription from "./modules/delete_subscription/delete_subscription.foreground";
+import deleteSubscriptionModule from "./modules/delete_subscription";
 
 /** Foreground modules */
 const modules: ForegroundModule[] = [
@@ -97,6 +99,7 @@ const modules: ForegroundModule[] = [
   },
 
   { ...getSubscriptionModule, function: getSubscription },
+  { ...deleteSubscriptionModule, function: deleteSubcription },
   { ...subscriptionModule, function: subscription }
 ];
 
