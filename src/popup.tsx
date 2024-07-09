@@ -34,6 +34,21 @@ import SubscriptionDetails from "~routes/popup/subscriptions/subscriptionDetails
 import SubscriptionPayment from "~routes/popup/subscriptions/subscriptionPayment";
 import SubscriptionManagement from "~routes/popup/subscriptions/subscriptionManagement";
 import Transactions from "~routes/popup/transaction/transactions";
+import QuickSettings from "~routes/popup/settings/quickSettings";
+import Wallets from "~routes/popup/settings/wallets";
+import Wallet from "~routes/popup/settings/wallets/[address]";
+import ExportWallet from "~routes/popup/settings/wallets/[address]/export";
+import Applications from "~routes/popup/settings/apps";
+import AppSettings from "~routes/popup/settings/apps/[url]";
+import AppPermissions from "~routes/popup/settings/apps/[url]/permissions";
+import { default as QuickTokens } from "~routes/popup/settings/tokens";
+import TokenSettings from "~routes/popup/settings/tokens/[id]";
+import NewToken from "~routes/popup/settings/tokens/new";
+import Contacts from "~routes/popup/settings/contacts";
+import ContactSettings from "~routes/popup/settings/contacts/[address]";
+import NewContact from "~routes/popup/settings/contacts/new";
+import NotificationSettings from "~routes/popup/settings/notifications";
+import GenerateQR from "~routes/popup/settings/wallets/[address]/qr";
 
 export default function Popup() {
   const theme = useTheme();
@@ -69,7 +84,7 @@ export default function Popup() {
                   )}
                 </Route>
                 <Route path="/purchase-pending" component={PendingPurchase} />
-                <Route path="/receive" component={Receive} />
+                <Route path="/receive">{() => <Receive />}</Route>
                 <Route path="/send/transfer/:id?">
                   {(params: { id?: string }) => <Send id={params?.id} />}
                 </Route>
@@ -81,6 +96,55 @@ export default function Popup() {
                 <Route path="/explore" component={Explore} />
                 <Route path="/unlock" component={Unlock} />
                 <Route path="/subscriptions" component={Subscriptions} />
+                <Route path="/quick-settings" component={QuickSettings} />
+                <Route path="/quick-settings/wallets" component={Wallets} />
+                <Route path="/quick-settings/wallets/:address">
+                  {(params: { address: string }) => (
+                    <Wallet address={params?.address} />
+                  )}
+                </Route>
+                <Route path="/quick-settings/wallets/:address/export">
+                  {(params: { address: string }) => (
+                    <ExportWallet address={params?.address} />
+                  )}
+                </Route>
+                <Route path="/quick-settings/wallets/:address/qr">
+                  {(params: { address: string }) => (
+                    <GenerateQR address={params?.address} />
+                  )}
+                </Route>
+                <Route path="/quick-settings/apps" component={Applications} />
+                <Route path="/quick-settings/apps/:url">
+                  {(params: { url: string }) => (
+                    <AppSettings url={params?.url} />
+                  )}
+                </Route>
+                <Route path="/quick-settings/apps/:url/permissions">
+                  {(params: { url: string }) => (
+                    <AppPermissions url={params?.url} />
+                  )}
+                </Route>
+                <Route path="/quick-settings/tokens" component={QuickTokens} />
+                <Route path="/quick-settings/tokens/:id">
+                  {(params: { id: string }) => (
+                    <TokenSettings id={params?.id} />
+                  )}
+                </Route>
+                <Route path="/quick-settings/tokens/new" component={NewToken} />
+                <Route path="/quick-settings/contacts" component={Contacts} />
+                <Route path="/quick-settings/contacts/:address">
+                  {(params: { address: string }) => (
+                    <ContactSettings address={params?.address} />
+                  )}
+                </Route>
+                <Route
+                  path="/quick-settings/contacts/new"
+                  component={NewContact}
+                />
+                <Route
+                  path="/quick-settings/notifications"
+                  component={NotificationSettings}
+                />
                 <Route path="/subscriptions/:id">
                   {(params: { id: string }) => (
                     <SubscriptionDetails id={params?.id} />

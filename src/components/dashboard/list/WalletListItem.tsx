@@ -59,6 +59,7 @@ interface Props {
   name: string;
   address: string;
   active: boolean;
+  small?: boolean;
 }
 
 const HardwareIcon = styled(HardwareWalletIcon)`

@@ -33,7 +33,7 @@ import prettyBytes from "pretty-bytes";
 import { formatFiatBalance } from "~tokens/currency";
 import useSetting from "~settings/hook";
 import { getPrice } from "~lib/coingecko";
-import type { TokenInfo } from "~tokens/aoTokens/ao";
+import type { TokenInfo, TokenInfoWithProcessId } from "~tokens/aoTokens/ao";
 import { ChevronUpIcon, ChevronDownIcon } from "@iconicicons/react";
 import { getUserAvatar } from "~lib/avatar";
 import { LogoWrapper, Logo } from "~components/popup/Token";
@@ -180,11 +180,11 @@ export default function SignDataItem() {
         console.log("err", err);
         try {
           const aoTokens =
-            (await ExtensionStorage.get<(TokenInfo & { processId: string })[]>(
+            (await ExtensionStorage.get<TokenInfoWithProcessId[]>(
               "ao_tokens"
             )) || [];
           const aoTokensCache =
-            (await ExtensionStorage.get<(TokenInfo & { processId: string })[]>(
+            (await ExtensionStorage.get<TokenInfoWithProcessId[]>(
               "ao_tokens_cache"
             )) || [];
           const aoTokensCombined = [...aoTokens, ...aoTokensCache];

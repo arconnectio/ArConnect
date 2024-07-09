@@ -2590,24 +2590,25 @@
     "@parcel/utils" "2.9.3"
     nullthrows "^1.1.1"
 
-"@permaweb/ao-scheduler-utils@~0.0.7":
+"@permaweb/ao-scheduler-utils@~0.0.16":
   version "0.0.19"
-  resolved "https://registry.yarnpkg.com/@permaweb/ao-scheduler-utils/-/ao-scheduler-utils-0.0.19.tgz#69d35c19583624ace3f500f53b4b4d73fca883e1"
+  resolved "https://registry.npmjs.org/@permaweb/ao-scheduler-utils/-/ao-scheduler-utils-0.0.19.tgz#69d35c19583624ace3f500f53b4b4d73fca883e1"
   integrity sha512-xwIe9FqQ1UZxEYWvSGJDONz0xr4vDq2Ny1NeRUiO0dKYoonShN+oI1ULgrHocKOjOPNEgRX70vMCKGLe+3x70A==
   dependencies:
     lru-cache "^10.2.2"
     ramda "^0.30.0"
     zod "^3.23.5"
 
-"@permaweb/aoconnect@^0.0.43":
-  version "0.0.43"
-  resolved "https://registry.yarnpkg.com/@permaweb/aoconnect/-/aoconnect-0.0.43.tgz#765e058c22d8405e25f12117b3af87bc16bca58e"
-  integrity sha512-nGPhJw8i6HxTHEg2yU12S7dvU3OwPZ7tF7Od4tRZgefbbgVM+LmIJbqvsX6GW4gjl1zYbcOZGymo78BfXabyTQ==
+"@permaweb/aoconnect@^0.0.55":
+  version "0.0.55"
+  resolved "https://registry.npmjs.org/@permaweb/aoconnect/-/aoconnect-0.0.55.tgz#d856a078d3702154ac58541d09478d25ed3acf2c"
+  integrity sha512-W2GtLZedVseuDkCKk4CmM9SFmi0DdrMKqvhMBm9xo65z+Mzr/t1TEjMJKRNzEA2qh5IdwM43sWJ5fmbBYLg6TQ==
   dependencies:
-    "@permaweb/ao-scheduler-utils" "~0.0.7"
+    "@permaweb/ao-scheduler-utils" "~0.0.16"
     buffer "^6.0.3"
     debug "^4.3.4"
     hyper-async "^1.1.2"
+    mnemonist "^0.39.8"
     ramda "^0.29.1"
     warp-arbundles "^1.0.4"
     zod "^3.22.4"
@@ -8898,6 +8899,13 @@ mnemonic-id@3.2.7:
   resolved "https://registry.yarnpkg.com/mnemonic-id/-/mnemonic-id-3.2.7.tgz#f7d77d8b39e009ad068117cbafc458a6c6f8cddf"
   integrity sha512-kysx9gAGbvrzuFYxKkcRjnsg/NK61ovJOV4F1cHTRl9T5leg+bo6WI0pWIvOFh1Z/yDL0cjA5R3EEGPPLDv/XA==
 
+mnemonist@^0.39.8:
+  version "0.39.8"
+  resolved "https://registry.npmjs.org/mnemonist/-/mnemonist-0.39.8.tgz#9078cd8386081afd986cca34b52b5d84ea7a4d38"
+  integrity sha512-vyWo2K3fjrUw8YeeZ1zF0fy6Mu59RHokURlld8ymdUPjMlD9EC9ov1/YPqTgqRvUN9nTr3Gqfz29LYAmu0PHPQ==
+  dependencies:
+    obliterator "^2.0.1"
+
 module-error@^1.0.1, module-error@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/module-error/-/module-error-1.0.2.tgz#8d1a48897ca883f47a45816d4fb3e3c6ba404d86"
@@ -9369,6 +9377,11 @@ object.assign@^4.1.4, object.assign@^4.1.5:
     has-symbols "^1.0.3"
     object-keys "^1.1.1"
 
+obliterator@^2.0.1:
+  version "2.0.4"
+  resolved "https://registry.npmjs.org/obliterator/-/obliterator-2.0.4.tgz#fa650e019b2d075d745e44f1effeb13a2adbe816"
+  integrity sha512-lgHwxlxV1qIg1Eap7LgIeoBWIMFibOjbrYPIPJZcI1mmGAI2m3lNYpK12Y+GBdPQ0U1hRwSord7GIaawz962qQ==
+
 once@^1.3.0, once@^1.3.1, once@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/once/-/once-1.4.0.tgz#583b1aa775961d4b113ac17d9c50baef9dd76bd1"
@@ -9812,6 +9825,13 @@ plasmo@0.86.3:
     tempy "3.1.0"
     typescript "5.2.2"
 
+plimit-lit@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.npmjs.org/plimit-lit/-/plimit-lit-3.0.1.tgz#45a2aee1a7249aa9c2eafc67b6a27bc927e3aa39"
+  integrity sha512-EyTTdP5LMX6WbHihG8R9w6DS+c3pyMpeKooOFuGDCyuVBogQjYNtoYwKLRD6hM1+VkHzGcfIuyLoWi6l5JA3iA==
+  dependencies:
+    queue-lit "^3.0.0"
+
 popmotion@11.0.5:
   version "11.0.5"
   resolved "https://registry.npmjs.org/popmotion/-/popmotion-11.0.5.tgz#8e3e014421a0ffa30ecd722564fd2558954e1f7d"
@@ -10080,6 +10100,11 @@ querystring-es3@^0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/querystring-es3/-/querystring-es3-0.2.1.tgz#9ec61f79049875707d69414596fd907a4d711e73"
   integrity sha512-773xhDQnZBMFobEiztv8LIl70ch5MSF/jUQVlhwFyBILqq96anmoctVIYz+ZRp0qbCKATTn6ev02M3r7Ga5vqA==
+
+queue-lit@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.npmjs.org/queue-lit/-/queue-lit-3.0.0.tgz#5062f815e49c28759a2dc12124ab1723d563b932"
+  integrity sha512-iyVL2X5G58kICVGLW/nseYmdHxBoAp2Gav16H23NPtIllyEJ+UheHlYZqBjO+lJHRYoZRSrX7chH8tMrH9MB/A==
 
 queue-microtask@^1.2.2, queue-microtask@^1.2.3:
   version "1.2.3"

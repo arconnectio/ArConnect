@@ -1,4 +1,4 @@
-import { ButtonV2, Spacer, useInput } from "@arconnect/components";
+import { ButtonV2, Spacer, Text, useInput } from "@arconnect/components";
 import React, { useState, useEffect, useMemo } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -12,8 +12,13 @@ import { formatAddress } from "~utils/format";
 import { multiSort } from "~utils/multi_sort";
 import { enrichContact } from "~contacts/hooks";
 import { EventType, trackEvent } from "~utils/analytics";
+import type { Contacts } from "~components/Recipient";
 
-export default function Contacts() {
+interface ContactsProps {
+  isQuickSetting?: boolean;
+}
+
+export default function Contacts({ isQuickSetting }: ContactsProps) {
   // contacts
   const [storedContacts, setStoredContacts] = useStorage(
     {
@@ -31,7 +36,7 @@ export default function Contacts() {
 
   useEffect(() => {
     async function fetchContacts() {
-      const storedContacts = await ExtensionStorage.get("contacts");
+      const storedContacts = await ExtensionStorage.get<Contacts>("contacts");
 
       if (storedContacts) {
         const namedContacts = storedContacts.filter((contact) => contact.name);
@@ -100,7 +105,11 @@ export default function Contacts() {
 
   // Update the URL when a contact is clicked
   const handleContactClick = (contactAddress: string) => {
-    setLocation(`/contacts/${encodeURIComponent(contactAddress)}`);
+    setLocation(
+      `/${isQuickSetting ? "quick-settings/" : ""}contacts/${encodeURIComponent(
+        contactAddress
+      )}`
+    );
   };
 
   const searchInput = useInput();
@@ -121,22 +130,24 @@ export default function Contacts() {
 
   const addContact = () => {
     trackEvent(EventType.ADD_CONTACT, { fromContactSettings: true });
-    setLocation("/contacts/new");
+    setLocation(`/${isQuickSetting ? "quick-settings/" : ""}contacts/new`);
   };
 
   return (
     <Wrapper>
-      <SearchWrapper>
+      <SearchWrapper small={isQuickSetting}>
         <SearchInput
+          small={isQuickSetting}
           placeholder={browser.i18n.getMessage("search_contacts")}
           {...searchInput.bindings}
           sticky
         />
         <AddContactButton onClick={addContact}>
-          {browser.i18n.getMessage("add_contact")}
+          {browser.i18n.getMessage(isQuickSetting ? "new" : "add_contact")}
         </AddContactButton>
       </SearchWrapper>
       <Spacer y={1} />
+      <Title>{browser.i18n.getMessage("your_contacts")}</Title>
       <SettingsList>
         {Object.entries(groupedContacts).map(([letter, contacts]) => {
           const filteredContacts = contacts.filter(filterSearchResults);
@@ -153,6 +164,7 @@ export default function Contacts() {
                   {/* Check if contact has name */}
                   {contact.name && (
                     <ContactListItem
+                      small={isQuickSetting}
                       name={contact.name}
                       address={formatAddress(contact.address, 8)}
                       profileIcon={contact.profileIcon}
@@ -163,6 +175,7 @@ export default function Contacts() {
                   {/* Address only contacts */}
                   {!contact.name && (
                     <ContactListItem
+                      small={isQuickSetting}
                       name={formatAddress(contact.address, 4)}
                       address={formatAddress(contact.address, 8)}
                       profileIcon={contact.profileIcon}
@@ -175,6 +188,7 @@ export default function Contacts() {
             </React.Fragment>
           );
         })}
+        <Spacer y={1} />
       </SettingsList>
     </Wrapper>
   );
@@ -196,7 +210,7 @@ const LetterHeader = styled.div`
   font-size: 12px;
 `;
 
-const SearchWrapper = styled.div`
+const SearchWrapper = styled.div<{ small?: boolean }>`
   position: sticky;
   display: grid;
   gap: 8px;
@@ -205,10 +219,16 @@ const SearchWrapper = styled.div`
   right: 0;
   z-index: 20;
   grid-template-columns: auto auto;
-  background-color: rgb(${(props) => props.theme.cardBackground});
+  ${(props) =>
+    !props.small && `background-color: rgb(${props.theme.cardBackground})`}
 `;
 
 const AddContactButton = styled(ButtonV2)`
   width: 100%;
   height: 100%;
+`;
+
+const Title = styled(Text).attrs({ heading: true })`
+  color: ${(props) => `rgb(${props.theme.primaryText})`};
+  font-size: 1.25rem;
 `;

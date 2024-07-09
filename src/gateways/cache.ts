@@ -1,8 +1,9 @@
 import { extractGarItems, pingUpdater } from "~lib/wayfinder";
 import browser, { type Alarms } from "webextension-polyfill";
-import { defaultGARCacheURL } from "./gateway";
-import type { ProcessedData } from "./types";
+import type { GatewayAddressRegistryCache, ProcessedData } from "./types";
 import { ExtensionStorage } from "~utils/storage";
+import { AOProcess } from "~lib/ao";
+import { AO_ARNS_PROCESS } from "~lib/arns";
 
 /** Cache storage name */
 const CACHE_STORAGE_NAME = "gateways";
@@ -53,8 +54,11 @@ export async function handleGatewayUpdate(alarm?: Alarms.Alarm) {
 
   try {
     // fetch cache
-    const data = await (await fetch(defaultGARCacheURL)).json();
-    const garItems = extractGarItems(data);
+    const ArIO = new AOProcess({ processId: AO_ARNS_PROCESS });
+    const gateways = (await ArIO.read({
+      tags: [{ name: "Action", value: "Gateways" }]
+    })) as GatewayAddressRegistryCache["gateways"];
+    const garItems = extractGarItems({ gateways });
 
     // healtcheck
     await pingUpdater(garItems, (newData) => {
