@@ -20,7 +20,7 @@ const foreground: ModuleFunction<SubscriptionData[]> = (data) => {
   }
 
   // optional fields
-  const allFields = [...requiredFields, "applicationIcon"];
+  const allFields = [...requiredFields, "applicationIcon", "nextPaymentDue"];
 
   Object.keys(data).forEach((key) => {
     if (!allFields.includes(key as keyof SubscriptionData)) {

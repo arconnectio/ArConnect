@@ -39,7 +39,10 @@ import { useEffect, useState } from "react";
 import { getPrice } from "~lib/coingecko";
 import useSetting from "~settings/hook";
 import { EventType, trackEvent } from "~utils/analytics";
-import { handleSubscriptionPayment } from "~subscriptions/payments";
+import {
+  handleSubscriptionPayment,
+  setSubscriptionAlarm
+} from "~subscriptions/payments";
 import BigNumber from "bignumber.js";
 
 export default function Subscription() {
@@ -76,8 +79,6 @@ export default function Subscription() {
       const { authID, ...subscriptionParams } = params;
       const activeAddress = await getActiveAddress();
 
-      // process payment
-      // append txid to payment history array
       const subscriptionData: SubscriptionData = {
         arweaveAccountAddress: subscriptionParams.arweaveAccountAddress,
         applicationName: subscriptionParams.applicationName,
@@ -87,28 +88,36 @@ export default function Subscription() {
         subscriptionStatus: SubscriptionStatus.ACTIVE,
         recurringPaymentFrequency:
           subscriptionParams.recurringPaymentFrequency as RecurringPaymentFrequency,
-
-        // If this is left blank, this will automatically be set to the subfee amount
-        // applicationAllowance: !isNaN(Number(allowanceInput.state))
-        //   ? Number(allowanceInput.state)
-        //   : params.subscriptionFeeAmount,
-
         applicationAllowance: autopayChecked ? params.subscriptionFeeAmount : 0,
-
-        nextPaymentDue: new Date(),
-
-        // TODO:  this should be default started to now
+        nextPaymentDue: subscriptionParams?.nextPaymentDue
+          ? new Date(subscriptionParams.nextPaymentDue)
+          : new Date(),
         subscriptionStartDate: new Date(),
         subscriptionEndDate: new Date(subscriptionParams.subscriptionEndDate),
         applicationIcon: subscriptionParams.applicationIcon,
         applicationAutoRenewal: checked
       };
 
-      const updated = await handleSubscriptionPayment(subscriptionData, true);
+      let updated: SubscriptionData | null = null;
+
+      if (subscriptionParams.nextPaymentDue) {
+        // If nextPaymentDue exists, skip handleSubscriptionPayment
+        updated = subscriptionData;
+
+        // Set the alarm
+        setSubscriptionAlarm(
+          subscriptionParams.arweaveAccountAddress,
+          new Date(subscriptionParams.nextPaymentDue)
+        );
+      } else {
+        // If nextPaymentDue doesn't exist, proceed with handleSubscriptionPayment
+        updated = await handleSubscriptionPayment(subscriptionData, true);
+      }
+
       if (updated) {
         await addSubscription(activeAddress, updated);
       } else {
-        throw new Error();
+        throw new Error("Failed to update or add subscription");
       }
 
       // segment

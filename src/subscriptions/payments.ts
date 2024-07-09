@@ -2,7 +2,11 @@ import { ExtensionStorage, type RawStoredTransfer } from "~utils/storage";
 import { fallbackGateway } from "~gateways/gateway";
 import type Transaction from "arweave/web/lib/transaction";
 import { EventType, trackEvent } from "~utils/analytics";
-import { SubscriptionStatus, type SubscriptionData } from "./subscription";
+import {
+  SubscriptionStatus,
+  type SubscriptionData,
+  RecurringPaymentFrequency
+} from "./subscription";
 import { findGateway } from "~gateways/wayfinder";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
@@ -248,31 +252,40 @@ export async function updateSubscriptionAlarm(
   updatedTxnId: string,
   manualPayment: boolean = false
 ): Promise<SubscriptionData> {
-  let nextPaymentDue: { currentDate: Date; status: "success" | "fail" };
+  data.paymentHistory = [
+    ...(data.paymentHistory || []),
+    { txId: updatedTxnId, date: new Date() }
+  ];
 
-  if (manualPayment) {
-    nextPaymentDue = calculateNextPaymentDate(
-      new Date(),
+  if (data.recurringPaymentFrequency === RecurringPaymentFrequency.ONE_TIME) {
+    await clearAlarmAndUpdateSubscriptionStatus(
+      activeAddress,
+      data,
+      SubscriptionStatus.COMPLETED
+    );
+    return data;
+  }
+
+  const nextPaymentDue: { currentDate: Date; status: "success" | "fail" } =
+    calculateNextPaymentDate(
+      manualPayment ? new Date() : data.nextPaymentDue,
       data.recurringPaymentFrequency
     );
-  } else
-    nextPaymentDue = calculateNextPaymentDate(
-      data.nextPaymentDue,
-      data.recurringPaymentFrequency
-    );
 
+  // cancel sub
   if (
     (new Date(data.subscriptionEndDate) <= nextPaymentDue.currentDate &&
       !data.applicationAutoRenewal) ||
     nextPaymentDue.status === "fail"
   ) {
-    browser.alarms.clear(`subscription-alarm-${data.arweaveAccountAddress}`);
-    await statusUpdateSubscription(
+    await clearAlarmAndUpdateSubscriptionStatus(
       activeAddress,
-      data.arweaveAccountAddress,
+      data,
       SubscriptionStatus.CANCELED
     );
     await trackCanceledSubscription(data, true);
+
+    // AutoRenewal
   } else if (
     new Date(data.subscriptionEndDate) <= nextPaymentDue.currentDate &&
     data.applicationAutoRenewal
@@ -293,13 +306,40 @@ export async function updateSubscriptionAlarm(
     browser.alarms.create(`subscription-alarm-${data.arweaveAccountAddress}`, {
       when: nextPaymentDue.currentDate.getTime()
     });
+    data.nextPaymentDue = nextPaymentDue.currentDate;
   }
-
-  if (!data.paymentHistory) {
-    data.paymentHistory = [];
-  }
-  data.paymentHistory.push({ txId: updatedTxnId, date: new Date() });
-  data.nextPaymentDue = nextPaymentDue.currentDate;
 
   return data;
+}
+
+async function clearAlarmAndUpdateSubscriptionStatus(
+  activeAddress: string,
+  data: SubscriptionData,
+  status: SubscriptionStatus
+) {
+  await browser.alarms.clear(
+    `subscription-alarm-${data.arweaveAccountAddress}`
+  );
+  await statusUpdateSubscription(
+    activeAddress,
+    data.arweaveAccountAddress,
+    status
+  );
+}
+
+/**
+ * Sets an alarm for a subscription based on the account address and the next payment due date.
+ *
+ * @param accountAddress The Arweave account address associated with the subscription
+ * @param alarmDate The date when the alarm should trigger
+ */
+export function setSubscriptionAlarm(
+  accountAddress: string,
+  alarmDate: Date
+): void {
+  const alarmName = `subscription-alarm-${accountAddress}`;
+
+  browser.alarms.create(alarmName, {
+    when: alarmDate.getTime()
+  });
 }

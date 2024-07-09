@@ -80,7 +80,7 @@ export default function SubscriptionManagement({ id }: Props) {
                 </Degraded>
               </NextPaymentSection>
               <Title style={{ margin: "12px 0" }}>Payment History</Title>
-              {subData.paymentHistory.length > 0 && (
+              {subData.paymentHistory ? (
                 <>
                   {subData.paymentHistory.map((payment, index) => (
                     <ListItem
@@ -97,6 +97,8 @@ export default function SubscriptionManagement({ id }: Props) {
                     />
                   ))}
                 </>
+              ) : (
+                <>No Payments found</>
               )}
             </PaymentHistory>
           </>
