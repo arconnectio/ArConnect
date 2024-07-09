@@ -88,14 +88,12 @@ const background: ModuleFunction<number[]> = async (
   const dataEntry = createData(binaryData, dataSigner, options);
 
   // check allowance
-  const price = await getPrice(dataEntry, await app.getBundler());
+  // const price = await getPrice(dataEntry, await app.getBundler());
   const allowance = await app.getAllowance();
 
   // allowance or sign auth
   try {
-    if (allowance.enabled) {
-      await allowanceAuth(allowance, appData.appURL, price);
-    } else {
+    if (!allowance.enabled) {
       // get address
       const address = await arweave.wallets.jwkToAddress(
         decryptedWallet.keyfile
@@ -117,7 +115,7 @@ const background: ModuleFunction<number[]> = async (
   await dataEntry.sign(dataSigner);
 
   // update allowance spent amount (in winstons)
-  await updateAllowance(appData.appURL, price);
+  // await updateAllowance(appData.appURL, price);
 
   // remove keyfile
   freeDecryptedWallet(decryptedWallet.keyfile);
