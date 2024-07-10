@@ -49,6 +49,10 @@
     "message": "隐藏",
     "description": "Hide text"
   },
+  "close": {
+    "message": "关闭",
+    "description": "Close button text"
+  },
   "add_wallet": {
       "message": "添加钱包",
       "description": "Add a wallet text"
@@ -664,6 +668,14 @@
   "export_wallet_error": {
       "message": "导出钱包出错",
       "description": "Wallet export error notification"
+  },
+  "import_wallet_key_length_short_error_title": {
+    "message": "密钥长度太短",
+    "description": "Key Length Too Short error"
+  },
+  "import_wallet_key_length_short_error": {
+    "message": "您导入的钱包的密钥长度小于在 AO 网络上进行交易所需的长度。建议您创建一个新的ArConnect钱包，并将您的资产转移到新钱包中。",
+    "description": "Key Length Too Short error"
   },
   "development_version": {
       "message": "开发版本",

@@ -49,6 +49,10 @@
     "message": "Hide",
     "description": "Hide text"
   },
+  "close": {
+    "message": "Close",
+    "description": "Close button text"
+  },
   "add_wallet": {
     "message": "Add wallet",
     "description": "Add a wallet text"
@@ -664,6 +668,14 @@
   "export_wallet_error": {
     "message": "Error exporting wallet",
     "description": "Wallet export error notification"
+  },
+  "import_wallet_key_length_short_error_title": {
+    "message": "Key Length Too Short",
+    "description": "Key Length Too Short error title"
+  },
+  "import_wallet_key_length_short_error": {
+    "message": "The key length of the wallet you are importing is less than the required length to transact on the AO network.  It is recommended you create a new ArConnect wallet and transfer your assets to your new wallet.",
+    "description": "Key Length Too Short error"
   },
   "development_version": {
     "message": "Development",

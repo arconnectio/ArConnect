@@ -11,7 +11,8 @@ import {
   Spacer,
   useToasts,
   ButtonV2,
-  InputV2
+  InputV2,
+  useModal
 } from "@arconnect/components";
 import BackupWalletPage from "~components/welcome/generate/BackupWalletPage";
 import KeystoneButton from "~components/hardware/KeystoneButton";
@@ -21,10 +22,15 @@ import * as bip39 from "bip39-web-crypto";
 import Arweave from "arweave/web/common";
 import styled from "styled-components";
 import { defaultGateway } from "~gateways/gateway";
+import { ArweaveSigner } from "arbundles";
+import { WalletKeySizeErrorModal } from "~components/WalletKeySizeErrorModal";
 
 export default function AddWallet() {
   // password input
   const passwordInput = useInput();
+
+  // wallet size error modal
+  const walletModal = useModal();
 
   // toasts
   const { setToast } = useToasts();
@@ -131,6 +137,15 @@ export default function AddWallet() {
         typeof providedWallet === "string"
           ? await jwkFromMnemonic(providedWallet)
           : providedWallet;
+
+      const signer = new ArweaveSigner(jwk);
+      const expectedLength = signer.ownerLength;
+      const actualLength = signer.publicKey.byteLength;
+      if (expectedLength !== actualLength) {
+        walletModal.setOpen(true);
+        finishUp();
+        return;
+      }
 
       await addWallet(jwk, passwordInput.state);
 
@@ -326,6 +341,7 @@ export default function AddWallet() {
           {browser.i18n.getMessage("generate_wallet")}
         </ButtonV2>
       </div>
+      <WalletKeySizeErrorModal {...walletModal} />
     </Wrapper>
   );
 }

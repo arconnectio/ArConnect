@@ -23,6 +23,8 @@ import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { addExpiration } from "~wallets/auth";
+import { ArweaveSigner } from "arbundles";
+import { WalletKeySizeErrorModal } from "~components/WalletKeySizeErrorModal";
 
 export default function Wallets() {
   // password context
@@ -36,6 +38,9 @@ export default function Wallets() {
 
   // migration modal
   const migrationModal = useModal();
+
+  // wallet size error modal
+  const walletModal = useModal();
 
   // wallets to migrate
   const [walletsToMigrate, setWalletsToMigrate] = useState<JWKInterface[]>([]);
@@ -130,6 +135,15 @@ export default function Wallets() {
           typeof loadedWallet === "string"
             ? await jwkFromMnemonic(loadedWallet)
             : loadedWallet;
+
+        const signer = new ArweaveSigner(jwk);
+        const expectedLength = signer.ownerLength;
+        const actualLength = signer.publicKey.byteLength;
+        if (expectedLength !== actualLength) {
+          walletModal.setOpen(true);
+          finishUp();
+          return;
+        }
 
         // add wallet
         await addWallet(jwk, password);
@@ -248,6 +262,7 @@ export default function Wallets() {
         </ModalText>
         <Spacer y={0.75} />
       </ModalV2>
+      <WalletKeySizeErrorModal {...walletModal} back={() => setLocation(`/`)} />
     </>
   );
 }
