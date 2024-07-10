@@ -49,6 +49,10 @@
     "message": "隐藏",
     "description": "Hide text"
   },
+  "save": {
+    "message": "节省",
+    "description": "Save button text"
+  },
   "add_wallet": {
       "message": "添加钱包",
       "description": "Add a wallet text"
@@ -294,6 +298,10 @@
   "permissions": {
       "message": "权限",
       "description": "Permissions title"
+  },
+  "edit_permissions": {
+    "message": "编辑权限",
+    "description": "Edit permissions title"
   },
   "allowance": {
       "message": "额度",

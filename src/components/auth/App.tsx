@@ -22,7 +22,8 @@ export default function App({
   appName,
   appUrl,
   gateway,
-  allowance
+  allowance,
+  showTitle = true
 }: Props) {
   // allowance spent in AR
   const spent = useMemo(() => {
@@ -50,14 +51,18 @@ export default function App({
 
   return (
     <>
-      <SidePaddingSection>
-        <Label>
-          {browser.i18n.getMessage(
-            gateway ? "app_wants_to_connect" : "allowance_limit_reached"
-          )}
-        </Label>
-      </SidePaddingSection>
-      <Spacer y={0.4} />
+      {showTitle && (
+        <>
+          <SidePaddingSection>
+            <Label>
+              {browser.i18n.getMessage(
+                gateway ? "app_wants_to_connect" : "allowance_limit_reached"
+              )}
+            </Label>
+          </SidePaddingSection>
+          <Spacer y={0.4} />
+        </>
+      )}
       <SidePaddingSection size="slim">
         <Wrapper displayTheme={theme}>
           <AppData>
@@ -103,12 +108,9 @@ const SidePaddingSection = styled(Section)`
 `;
 
 const Wrapper = styled.div<{ displayTheme: DisplayTheme }>`
-  background-color: rgb(
-    ${(props) =>
-      props.displayTheme === "light" ? "0, 0, 0" : props.theme.cardBackground}
-  );
-  border-radius: 27px;
-  padding: 1rem;
+  border-radius: 10px;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -164,4 +166,5 @@ interface Props {
   appUrl: string;
   gateway?: Gateway;
   allowance?: Allowance;
+  showTitle?: boolean;
 }
