@@ -204,6 +204,7 @@ export default function Connect() {
         <App
           appName={appData.name || appUrl}
           appUrl={appUrl}
+          showTitle={false}
           // TODO: wayfinder
           gateway={params?.gateway || defaultGateway}
           appIcon={appData.logo}
@@ -268,7 +269,6 @@ export default function Connect() {
                       <Description alt>Edit Permissions</Description>
                     </PermissionsTitle>
                   </Permissions>
-                  {arweave.ar.arToWinston(allowanceInput.state)}
                   {requestedPermissions.map((permission, i) => (
                     <Permission key={i}>
                       <StyledCheckIcon />
