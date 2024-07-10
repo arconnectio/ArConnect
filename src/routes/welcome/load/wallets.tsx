@@ -24,7 +24,7 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { addExpiration } from "~wallets/auth";
 import { ArweaveSigner } from "arbundles";
-import { WalletKeySizeErrorModal } from "~components/WalletKeySizeErrorModal";
+import { WalletKeySizeErrorModal } from "~components/modals/WalletKeySizeErrorModal";
 
 export default function Wallets() {
   // password context

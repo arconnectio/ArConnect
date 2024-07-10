@@ -23,7 +23,7 @@ import Arweave from "arweave/web/common";
 import styled from "styled-components";
 import { defaultGateway } from "~gateways/gateway";
 import { ArweaveSigner } from "arbundles";
-import { WalletKeySizeErrorModal } from "~components/WalletKeySizeErrorModal";
+import { WalletKeySizeErrorModal } from "~components/modals/WalletKeySizeErrorModal";
 
 export default function AddWallet() {
   // password input

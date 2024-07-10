@@ -1,13 +1,7 @@
-import {
-  ButtonV2,
-  ModalV2,
-  Spacer,
-  Text,
-  type DisplayTheme
-} from "@arconnect/components";
+import { ButtonV2, ModalV2, Spacer } from "@arconnect/components";
 import { useRef } from "react";
 import browser from "webextension-polyfill";
-import styled from "styled-components";
+import { ContentWrapper, Content, HeaderText, CenterText } from "./Components";
 
 interface Props {
   isOpen: boolean;
@@ -54,48 +48,3 @@ export const WalletKeySizeErrorModal = ({ isOpen, setOpen, back }: Props) => {
     </ModalV2>
   );
 };
-
-const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  flex: none;
-  align-self: stretch;
-  flex-grow: 0;
-`;
-
-const ContentWrapper = styled.div`
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: space-between;
-`;
-
-const CenterText = styled(Text).attrs({
-  noMargin: true
-})<{ displayTheme?: DisplayTheme }>`
-  width: 245px;
-  text-align: center;
-  color: ${(props) =>
-    props.theme.displayTheme === "light" ? "#191919" : "#FFFFFF"};
-  font-weight: 500;
-  font-size: 11px;
-  line-height: 16px;
-  align-self: stretch;
-  flex: none;
-  flex-grow: 0;
-
-  a {
-    color: rgb(${(props) => props.theme.theme});
-    text-decoration: none;
-  }
-`;
-
-const HeaderText = styled(Text)<{ displayTheme?: DisplayTheme }>`
-  font-size: 18px;
-  font-weight: 500;
-  color: ${(props) =>
-    props.theme.displayTheme === "light" ? "#191919" : "#FFFFFF"};
-`;
