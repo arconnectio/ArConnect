@@ -107,6 +107,8 @@ export default function Home() {
 
   useEffect(() => {
     const checkBits = async () => {
+      if (!loggedIn) return;
+
       const bits = await checkWalletBits();
 
       if (bits === null) {
@@ -117,7 +119,7 @@ export default function Home() {
     };
 
     checkBits();
-  }, []);
+  }, [loggedIn]);
 
   useEffect(() => {
     // check whether to show announcement
