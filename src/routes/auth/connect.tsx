@@ -32,6 +32,11 @@ import styled from "styled-components";
 import { EventType, trackEvent } from "~utils/analytics";
 import Application from "~applications/application";
 import { defaultGateway, type Gateway } from "~gateways/gateway";
+import HeadV2 from "~components/popup/HeadV2";
+import { CheckIcon, CloseIcon } from "@iconicicons/react";
+import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
+import { defaultAllowance } from "~applications/allowance";
+import Arweave from "arweave";
 
 export default function Connect() {
   // active address
@@ -40,11 +45,15 @@ export default function Connect() {
     instance: ExtensionStorage
   });
 
+  const arweave = new Arweave(defaultGateway);
+
   // wallet switcher open
   const [switcherOpen, setSwitcherOpen] = useState(false);
 
   // page
   const [page, setPage] = useState<"unlock" | "permissions">("unlock");
+
+  const allowanceInput = useInput();
 
   // connect params
   const params = useAuthParams<{
@@ -72,6 +81,9 @@ export default function Connect() {
   const [requestedPermissions, setRequestedPermissions] = useState<
     PermissionType[]
   >([]);
+
+  // allowance for permissions
+  const [allowanceEnabled, setAllowanceEnabled] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -147,6 +159,14 @@ export default function Connect() {
         permissions,
         name: appData.name,
         logo: appData.logo,
+        allowance: {
+          enabled: allowanceEnabled,
+          limit:
+            allowanceEnabled && allowanceInput.state
+              ? arweave.ar.arToWinston(allowanceInput.state)
+              : defaultAllowance.limit,
+          spent: "0" // in winstons
+        },
         // TODO: wayfinder
         gateway: params.gateway || defaultGateway
       });
@@ -169,15 +189,18 @@ export default function Connect() {
     closeWindow();
   }
 
+  useEffect(() => {
+    allowanceInput.setState(arweave.ar.winstonToAr(defaultAllowance.limit));
+  }, []);
+
   return (
     <Wrapper>
       <div>
-        <Head
+        <HeadV2
           title={browser.i18n.getMessage("sign_in")}
           showOptions={false}
           back={cancel}
         />
-        <Spacer y={0.75} />
         <App
           appName={appData.name || appUrl}
           appUrl={appUrl}
@@ -185,7 +208,7 @@ export default function Connect() {
           gateway={params?.gateway || defaultGateway}
           appIcon={appData.logo}
         />
-        <Spacer y={1.5} />
+
         <ContentWrapper>
           <AnimatePresence initial={false}>
             {page === "unlock" && (
@@ -233,36 +256,53 @@ export default function Connect() {
             {page === "permissions" && (
               <PermissionsContent>
                 <Section>
-                  <Text>
-                    {browser.i18n.getMessage("allow_these_permissions")}
-                  </Text>
+                  <Description>
+                    {/* {browser.i18n.getMessage("allow_these_permissions")} */}
+                    Bazar wants to connect to your wallet with the following
+                    permissions
+                  </Description>
+                  <Url>{params.url}</Url>
+                  <Permissions>
+                    <PermissionsTitle>
+                      <Description>App Permissions</Description>
+                      <Description alt>Edit Permissions</Description>
+                    </PermissionsTitle>
+                  </Permissions>
+                  {arweave.ar.arToWinston(allowanceInput.state)}
                   {requestedPermissions.map((permission, i) => (
-                    <div key={i}>
-                      <Checkbox
-                        checked={permissions.includes(permission)}
-                        onChange={(checked) =>
-                          setPermissions((val) => {
-                            if (checked && val.includes(permission)) return val;
-                            if (!checked && !val.includes(permission))
-                              return val;
-                            if (checked && !val.includes(permission)) {
-                              return [...val, permission];
-                            }
-                            if (!checked && val.includes(permission)) {
-                              return val.filter((p) => p !== permission);
-                            }
-                          })
-                        }
-                      >
+                    <Permission key={i}>
+                      <StyledCheckIcon />
+                      <PermissionItem>
                         {browser.i18n.getMessage(
                           permissionData[permission.toUpperCase()]
                         )}
-                      </Checkbox>
-                      {i !== requestedPermissions.length - 1 && (
-                        <Spacer y={0.8} />
-                      )}
-                    </div>
+                      </PermissionItem>
+                    </Permission>
                   ))}
+                  <AllowanceSection>
+                    <div>Allowance</div>
+                    <ToggleSwitch
+                      checked={allowanceEnabled}
+                      setChecked={setAllowanceEnabled}
+                    />
+                  </AllowanceSection>
+                  {allowanceEnabled && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <AllowanceInput
+                        label={"Limit"}
+                        fullWidth
+                        small
+                        icon={<>AR</>}
+                        type="number"
+                        {...allowanceInput.bindings}
+                      />
+                    </motion.div>
+                  )}
                 </Section>
               </PermissionsContent>
             )}
@@ -295,12 +335,79 @@ const WalletSelectWrapper = styled.div`
   position: relative;
 `;
 
+const Permissions = styled.div`
+  padding-bottom: 1rem;
+`;
+
+const Permission = styled.div`
+  margin: 0;
+  align-items: center;
+  display: flex;
+  gap: 8px;
+`;
+
+const PermissionsTitle = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+`;
+
 const SelectIcon = styled(ChevronDownIcon)`
   font-size: 1rem;
   width: 1.375rem;
   height: 1.375 rem;
   color: ${(props) => props.theme.primaryTextv2};
   transition: all 0.23s ease-in-out;
+`;
+
+const Description = styled(Text)<{ alt?: boolean }>`
+  color: ${(props) =>
+    props.alt ? `rgb(${props.theme.theme})` : props.theme.primaryTextv2};
+  margin-bottom: 4px;
+  ${(props) =>
+    props.alt &&
+    `
+    cursor: pointer;
+  `}
+`;
+const Url = styled(Text)`
+  color: ${(props) => props.theme.secondaryTextv2};
+  font-size: 12px;
+`;
+
+const StyledCheckIcon = styled(CheckIcon)`
+  width: 17px;
+  height: 17px;
+  min-width: 17px;
+  min-height: 17px;
+  flex-shrink: 0;
+  color: rgba(20, 209, 16, 1);
+`;
+
+const AllowanceInput = styled(InputV2)`
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+`;
+
+const PermissionItem = styled(Text)`
+  color: ${(props) => props.theme.primaryTextv2};
+  margin: 0;
+  font-size: 14px;
+`;
+
+const AllowanceSection = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-top: 18px;
+  div {
+    color: ${(props) => props.theme.primaryTextv2};
+    font-size: 18px;
+    font-weight: 00;
+  }
 `;
 
 const WalletSelect = styled(Card)<{ open: boolean }>`
