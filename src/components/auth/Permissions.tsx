@@ -1,4 +1,4 @@
-import { Section, Text } from "@arconnect/components";
+import { ButtonV2, Section, Text } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { permissionData, type PermissionType } from "~applications/permissions";
@@ -8,11 +8,13 @@ import { useEffect, useState } from "react";
 type PermissionsProps = {
   requestedPermissions: PermissionType[];
   update: (updatedPermissions: PermissionType[]) => void;
+  closeEdit: (setEdit: boolean) => void;
 };
 
 export default function Permissions({
   requestedPermissions,
-  update
+  update,
+  closeEdit
 }: PermissionsProps) {
   const [permissions, setPermissions] = useState<Map<PermissionType, boolean>>(
     new Map()
@@ -49,14 +51,7 @@ export default function Permissions({
                         onChange={(checked) => {
                           const updated = new Map(permissions);
                           updated.set(permissionName, checked);
-
                           setPermissions(updated);
-                          const updatedPermissions = Array.from(
-                            updated.entries()
-                          )
-                            .filter(([, value]) => value)
-                            .map(([key]) => key);
-                          update(updatedPermissions);
                         }}
                         checked={requestedPermissions.includes(permissionName)}
                       />
@@ -78,6 +73,20 @@ export default function Permissions({
           </PermissionsWrapper>
         </Section>
       </div>
+      <div style={{ padding: "0 16px" }}>
+        <ButtonV2
+          fullWidth
+          onClick={() => {
+            const updatedPermissions = Array.from(permissions.entries())
+              .filter(([, value]) => value)
+              .map(([key]) => key);
+            update(updatedPermissions);
+            closeEdit(false);
+          }}
+        >
+          {browser.i18n.getMessage("save")}
+        </ButtonV2>
+      </div>
     </Wrapper>
   );
 }
@@ -86,6 +95,7 @@ const Wrapper = styled.div`
   display: flex;
   width: 100vw;
   flex-direction: column;
+  height: calc(100vh - 163px);
   justify-content: space-between;
 `;
 

@@ -203,6 +203,12 @@ export default function Connect() {
     allowanceInput.setState(arweave.ar.winstonToAr(defaultAllowance.limit));
   }, []);
 
+  const removedPermissions = useMemo(() => {
+    return requestedPermCopy.filter(
+      (permission) => !requestedPermissions.includes(permission)
+    );
+  }, [requestedPermCopy, requestedPermissions]);
+
   return (
     <Wrapper>
       <div>
@@ -270,21 +276,24 @@ export default function Connect() {
                   <PermissionsContent>
                     <Section>
                       <Description>
-                        {/* {browser.i18n.getMessage("allow_these_permissions")} */}
-                        Bazar wants to connect to your wallet with the following
-                        permissions
+                        {browser.i18n.getMessage(
+                          "allow_these_permissions",
+                          appData.name || appUrl
+                        )}
                       </Description>
                       <Url>{params.url}</Url>
                       <StyledPermissions>
                         <PermissionsTitle>
-                          <Description>App Permissions</Description>
+                          <Description>
+                            {browser.i18n.getMessage("app_permissions")}
+                          </Description>
                           <Description
                             alt
                             onClick={() => {
                               setEdit(!edit);
                             }}
                           >
-                            Edit Permissions
+                            {browser.i18n.getMessage("edit_permissions")}
                           </Description>
                         </PermissionsTitle>
                       </StyledPermissions>
@@ -315,7 +324,7 @@ export default function Connect() {
                         ))}
 
                       <AllowanceSection>
-                        <div>Allowance</div>
+                        <div>{browser.i18n.getMessage("allowance")}</div>
                         <ToggleSwitch
                           checked={allowanceEnabled}
                           setChecked={setAllowanceEnabled}
@@ -329,7 +338,7 @@ export default function Connect() {
                           transition={{ duration: 0.2 }}
                         >
                           <AllowanceInput
-                            label={"Limit"}
+                            label={browser.i18n.getMessage("limit")}
                             fullWidth
                             small
                             icon={<>AR</>}
@@ -343,8 +352,9 @@ export default function Connect() {
                 ) : (
                   <>
                     <Permissions
-                      requestedPermissions={requestedPermCopy}
+                      requestedPermissions={requestedPermissions}
                       update={setRequestedPermissions}
+                      closeEdit={setEdit}
                     />
                   </>
                 )}
@@ -353,12 +363,8 @@ export default function Connect() {
           </AnimatePresence>
         </ContentWrapper>
       </div>
-      <Section>
-        {edit ? (
-          <ButtonV2 fullWidth onClick={() => setEdit(false)}>
-            {browser.i18n.getMessage("save")}
-          </ButtonV2>
-        ) : (
+      {!edit && (
+        <Section>
           <>
             <ButtonV2
               fullWidth
@@ -371,16 +377,22 @@ export default function Connect() {
               }}
             >
               {browser.i18n.getMessage(
-                page === "unlock" ? "sign_in" : "connect"
+                page === "unlock"
+                  ? "sign_in"
+                  : removedPermissions.length > 0
+                  ? "allow_selected_permissions"
+                  : "always_allow"
               )}
             </ButtonV2>
             <Spacer y={0.75} />
             <ButtonV2 fullWidth secondary onClick={cancel}>
-              {browser.i18n.getMessage("cancel")}
+              {browser.i18n.getMessage(
+                page === "unlock" ? "cancel" : "always_ask_permission"
+              )}
             </ButtonV2>
           </>
-        )}
-      </Section>
+        </Section>
+      )}
     </Wrapper>
   );
 }
