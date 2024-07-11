@@ -260,7 +260,7 @@
       "description": "Description for the \"ACCESS_ALL_ADDRESSES\" permission"
   },
   "permissionDescriptionSign": {
-      "message": "允许在没有审核和确认的情况下签署交易",
+      "message": "允许签署交易。",
       "description": "Description for the \"SIGN_TRANSACTION\" permission"
   },
   "permissionDescriptionEncrypt": {
@@ -272,7 +272,7 @@
       "description": "Description for the \"DECRYPT\" permission"
   },
   "permissionDescriptionSignature": {
-      "message": "允许在没有审核和确认的情况下签署数据",
+      "message": "允许签署数据。",
       "description": "Description for the \"SIGNATURE\" permission"
   },
   "permissionDescriptionArweaveConfig": {
@@ -280,7 +280,7 @@
       "description": "Description for the \"ACCESS_ARWEAVE_CONFIG\" permission"
   },
   "permissionDescriptionDispatch": {
-      "message": "允许在没有审核和确认的情况下使用派发交易",
+      "message": "允许使用调度交易。",
       "description": "Description for the \"DISPATCH\" permission"
   },
   "copyId": {

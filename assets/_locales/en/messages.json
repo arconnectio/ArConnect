@@ -260,7 +260,7 @@
     "description": "Description for the \"ACCESS_ALL_ADDRESSES\" permission"
   },
   "permissionDescriptionSign": {
-    "message": "Allows the signing of a transaction without a review and confirmation",
+    "message": "Allows the signing of a transaction.",
     "description": "Description for the \"SIGN_TRANSACTION\" permission"
   },
   "permissionDescriptionEncrypt": {
@@ -272,7 +272,7 @@
     "description": "Description for the \"DECRYPT\" permission"
   },
   "permissionDescriptionSignature": {
-    "message": "Allows the signing of data without a review and confirmation",
+    "message": "Allows the signing of data.",
     "description": "Description for the \"SIGNATURE\" permission"
   },
   "permissionDescriptionArweaveConfig": {
@@ -280,7 +280,7 @@
     "description": "Description for the \"ACCESS_ARWEAVE_CONFIG\" permission"
   },
   "permissionDescriptionDispatch": {
-    "message": "Allows using dispatch transactions without a review and confirmation.",
+    "message": "Allows using dispatch transactions.",
     "description": "Description for the \"DISPATCH\" permission"
   },
   "copyId": {
