@@ -12,7 +12,7 @@ import aoLogo from "url:/assets/ecosystem/ao-token-logo.png";
 import styled from "styled-components";
 import { CheckIcon, CloseIcon } from "@iconicicons/react";
 import { ResetButton } from "~components/dashboard/Reset";
-import { ContentWrapper, Content } from "~components/modals/Components";
+import { Content, ContentWrapper } from "~components/modals/Components";
 
 export const PasswordWarningModal = ({
   open,

@@ -681,8 +681,12 @@
     "message": "您导入的钱包的密钥长度小于在 AO 网络上进行交易所需的长度。建议您创建一个新的ArConnect钱包，并将您的资产转移到新钱包中。",
     "description": "Key Length Too Short error"
   },
+  "generate_wallet_key_length_short_error_title": {
+    "message": "生成钱包时出错",
+    "description": "Key Length Too Short error title"
+  },
   "generate_wallet_key_length_short_error": {
-    "message": "生成钱包时出错，请点击下方重试按钮重试。",
+    "message": "单击下面的重试按钮再试一次。",
     "description": "Key Length Too Short error"
   },
   "generate_wallet_in_progress": {

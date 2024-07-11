@@ -23,6 +23,7 @@ export const WalletRetryCreationModal = ({
   const [loading, setLoading] = useState(false);
 
   async function handleRetry() {
+    if (loading) return;
     setLoading(true);
     try {
       const { jwk } = await onRetry(true);
@@ -46,7 +47,7 @@ export const WalletRetryCreationModal = ({
           <div>
             <HeaderText noMargin heading>
               {browser.i18n.getMessage(
-                "import_wallet_key_length_short_error_title"
+                "generate_wallet_key_length_short_error_title"
               )}
             </HeaderText>
             <Spacer y={1} />

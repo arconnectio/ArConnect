@@ -1,6 +1,6 @@
 import { ButtonV2, Spacer, Text, useModal } from "@arconnect/components";
 import { useLocation, useRoute } from "wouter";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { WalletContext } from "../setup";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
@@ -21,11 +21,17 @@ export default function Backup() {
   // seed blur status
   const [shown, setShown] = useState(false);
 
+  // loading
+  const [loading, setLoading] = useState(false);
+
   // wallet retry modal
   const walletRetryModal = useModal();
 
   // wallet context
   const { wallet: generatedWallet, generateWallet } = useContext(WalletContext);
+
+  // ref to track the latest generated wallet
+  const walletRef = useRef(generatedWallet);
 
   // route
   const [, params] = useRoute<{ setup: string; page: string }>("/:setup/:page");
@@ -42,17 +48,37 @@ export default function Backup() {
   }
 
   async function handleNext() {
-    if (generatedWallet.jwk) {
+    if (loading) return;
+    setLoading(true);
+
+    try {
+      if (!walletRef.current.jwk) {
+        await new Promise((resolve) => {
+          const checkState = setInterval(() => {
+            if (walletRef.current.jwk) {
+              clearInterval(checkState);
+              resolve(null);
+            }
+          }, 500);
+        });
+      }
+
       const { actualLength, expectedLength } = await getWalletKeyLength(
-        generatedWallet.jwk
+        walletRef.current.jwk
       );
       if (expectedLength !== actualLength) {
         walletRetryModal.setOpen(true);
       } else {
         setLocation(`/${params.setup}/${Number(params.page) + 1}`);
       }
-    }
+    } catch {}
+
+    setLoading(false);
   }
+
+  useEffect(() => {
+    walletRef.current = generatedWallet;
+  }, [generatedWallet]);
 
   // Segment
   useEffect(() => {
@@ -73,7 +99,7 @@ export default function Backup() {
         {browser.i18n.getMessage("copySeed")}
       </CopySeed>
       <Spacer y={1} />
-      <ButtonV2 fullWidth onClick={handleNext}>
+      <ButtonV2 fullWidth onClick={handleNext} loading={loading}>
         {browser.i18n.getMessage("next")}
         <ArrowRightIcon />
       </ButtonV2>
