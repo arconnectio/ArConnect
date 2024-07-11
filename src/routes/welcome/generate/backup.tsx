@@ -1,4 +1,4 @@
-import { ButtonV2, Spacer, Text } from "@arconnect/components";
+import { ButtonV2, Spacer, Text, useModal } from "@arconnect/components";
 import { useLocation, useRoute } from "wouter";
 import { useContext, useEffect, useState } from "react";
 import { WalletContext } from "../setup";
@@ -14,13 +14,18 @@ import {
   EyeOffIcon
 } from "@iconicicons/react";
 import { PageType, trackPage } from "~utils/analytics";
+import { getWalletKeyLength } from "~wallets";
+import { WalletRetryCreationModal } from "~components/modals/WalletRetryCreationModal";
 
 export default function Backup() {
   // seed blur status
   const [shown, setShown] = useState(false);
 
+  // wallet retry modal
+  const walletRetryModal = useModal();
+
   // wallet context
-  const generatedWallet = useContext(WalletContext);
+  const { wallet: generatedWallet, generateWallet } = useContext(WalletContext);
 
   // route
   const [, params] = useRoute<{ setup: string; page: string }>("/:setup/:page");
@@ -34,6 +39,19 @@ export default function Backup() {
     copy(generatedWallet.mnemonic || "");
     setCopyDisplay(false);
     setTimeout(() => setCopyDisplay(true), 1050);
+  }
+
+  async function handleNext() {
+    if (generatedWallet.jwk) {
+      const { actualLength, expectedLength } = await getWalletKeyLength(
+        generatedWallet.jwk
+      );
+      if (expectedLength !== actualLength) {
+        walletRetryModal.setOpen(true);
+      } else {
+        setLocation(`/${params.setup}/${Number(params.page) + 1}`);
+      }
+    }
   }
 
   // Segment
@@ -55,15 +73,14 @@ export default function Backup() {
         {browser.i18n.getMessage("copySeed")}
       </CopySeed>
       <Spacer y={1} />
-      <ButtonV2
-        fullWidth
-        onClick={() =>
-          setLocation(`/${params.setup}/${Number(params.page) + 1}`)
-        }
-      >
+      <ButtonV2 fullWidth onClick={handleNext}>
         {browser.i18n.getMessage("next")}
         <ArrowRightIcon />
       </ButtonV2>
+      <WalletRetryCreationModal
+        {...walletRetryModal}
+        onRetry={generateWallet}
+      />
     </>
   );
 }

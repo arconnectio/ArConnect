@@ -53,6 +53,10 @@
     "message": "Close",
     "description": "Close button text"
   },
+  "retry": {
+    "message": "Retry",
+    "description": "Retry button text"
+  },
   "add_wallet": {
     "message": "Add wallet",
     "description": "Add a wallet text"
@@ -676,6 +680,14 @@
   "import_wallet_key_length_short_error": {
     "message": "The key length of the wallet you are importing is less than the required length to transact on the AO network.  It is recommended you create a new ArConnect wallet and transfer your assets to your new wallet.",
     "description": "Key Length Too Short error"
+  },
+  "generate_wallet_key_length_short_error": {
+    "message": "Error when generating wallet, click the retry button below to try again.",
+    "description": "Key Length Too Short error"
+  },
+  "generate_wallet_in_progress": {
+    "message": "The wallet creation process can take 30-60 seconds.",
+    "description": "Generate wallet in progresss text"
   },
   "development_version": {
     "message": "Development",

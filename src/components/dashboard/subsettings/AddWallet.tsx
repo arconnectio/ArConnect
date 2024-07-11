@@ -23,6 +23,7 @@ import Arweave from "arweave/web/common";
 import styled from "styled-components";
 import { defaultGateway } from "~gateways/gateway";
 import { WalletKeySizeErrorModal } from "~components/modals/WalletKeySizeErrorModal";
+import { WalletRetryCreationModal } from "~components/modals/WalletRetryCreationModal";
 
 export default function AddWallet() {
   // password input
@@ -30,6 +31,9 @@ export default function AddWallet() {
 
   // wallet size error modal
   const walletModal = useModal();
+
+  // wallet retry modal
+  const walletRetryModal = useModal();
 
   // toasts
   const { setToast } = useToasts();
@@ -184,7 +188,7 @@ export default function AddWallet() {
   }, []);
 
   // generate new wallet
-  async function generateWallet() {
+  async function generateWallet(retry?: boolean) {
     setGenerating(true);
 
     // generate a seedphrase
@@ -239,6 +243,13 @@ export default function AddWallet() {
     }
 
     try {
+      const { actualLength, expectedLength } = await getWalletKeyLength(
+        generatedWallet.jwk
+      );
+      if (actualLength !== expectedLength) {
+        walletRetryModal.setOpen(true);
+        return;
+      }
       // add the wallet
       await addWallet(generatedWallet.jwk, passwordInput.state);
 
@@ -339,6 +350,10 @@ export default function AddWallet() {
         </ButtonV2>
       </div>
       <WalletKeySizeErrorModal {...walletModal} />
+      <WalletRetryCreationModal
+        {...walletRetryModal}
+        onRetry={generateWallet}
+      />
     </Wrapper>
   );
 }

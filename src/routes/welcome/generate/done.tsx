@@ -22,7 +22,7 @@ import { addExpiration } from "~wallets/auth";
 
 export default function Done() {
   // wallet context
-  const wallet = useContext(WalletContext);
+  const { wallet } = useContext(WalletContext);
 
   const [, setLocation] = useLocation();
 

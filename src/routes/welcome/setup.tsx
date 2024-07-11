@@ -92,54 +92,57 @@ export default function Setup({ setupMode, page }: Props) {
   const { setToast } = useToasts();
 
   // generate wallet in the background
-  const [generatedWallet, setGeneratedWallet] = useState<WalletContextValue>(
-    {}
-  );
+  const [generatedWallet, setGeneratedWallet] = useState<GeneratedWallet>({});
 
   const navigate = () => {
     setLocation(`/${params.setup}/${page - 1}`);
   };
 
+  async function generateWallet(retry?: boolean) {
+    // only generate wallet if the
+    // setup mode is wallet generation
+    if ((!isGenerateWallet || generatedWallet.address) && !retry) return;
+
+    // prevent user from closing the window
+    // while ArConnect is generating a wallet
+    window.onbeforeunload = () =>
+      browser.i18n.getMessage("close_tab_generate_wallet_message");
+
+    try {
+      const arweave = new Arweave(defaultGateway);
+
+      // generate seed
+      const seed = await bip39.generateMnemonic();
+
+      setGeneratedWallet({ mnemonic: seed });
+
+      // generate wallet from seedphrase
+      const generatedKeyfile = await jwkFromMnemonic(seed);
+
+      setGeneratedWallet((val) => ({ ...val, jwk: generatedKeyfile }));
+
+      // get address
+      const address = await arweave.wallets.jwkToAddress(generatedKeyfile);
+
+      setGeneratedWallet((val) => ({ ...val, address }));
+
+      return generatedWallet;
+    } catch (e) {
+      console.log("Error generating wallet", e);
+      setToast({
+        type: "error",
+        content: browser.i18n.getMessage("error_generating_wallet"),
+        duration: 2300
+      });
+    }
+
+    // reset before unload
+    window.onbeforeunload = null;
+    return {};
+  }
+
   useEffect(() => {
-    (async () => {
-      // only generate wallet if the
-      // setup mode is wallet generation
-      if (!isGenerateWallet || generatedWallet.address) return;
-
-      // prevent user from closing the window
-      // while ArConnect is generating a wallet
-      window.onbeforeunload = () =>
-        browser.i18n.getMessage("close_tab_generate_wallet_message");
-
-      try {
-        const arweave = new Arweave(defaultGateway);
-
-        // generate seed
-        const seed = await bip39.generateMnemonic();
-
-        setGeneratedWallet({ mnemonic: seed });
-
-        // generate wallet from seedphrase
-        const generatedKeyfile = await jwkFromMnemonic(seed);
-
-        setGeneratedWallet((val) => ({ ...val, jwk: generatedKeyfile }));
-
-        // get address
-        const address = await arweave.wallets.jwkToAddress(generatedKeyfile);
-
-        setGeneratedWallet((val) => ({ ...val, address }));
-      } catch (e) {
-        console.log("Error generating wallet", e);
-        setToast({
-          type: "error",
-          content: browser.i18n.getMessage("error_generating_wallet"),
-          duration: 2300
-        });
-      }
-
-      // reset before unload
-      window.onbeforeunload = null;
-    })();
+    generateWallet();
   }, [isGenerateWallet]);
 
   // animate content sice
@@ -189,7 +192,9 @@ export default function Setup({ setupMode, page }: Props) {
         </HeaderContainer>
         <Spacer y={1.5} />
         <PasswordContext.Provider value={{ password, setPassword }}>
-          <WalletContext.Provider value={generatedWallet}>
+          <WalletContext.Provider
+            value={{ wallet: generatedWallet, generateWallet }}
+          >
             <Content>
               <PageWrapper style={{ height: contentSize }}>
                 <AnimatePresence initial={false}>
@@ -290,9 +295,17 @@ export const PasswordContext = createContext({
   password: ""
 });
 
-export const WalletContext = createContext<WalletContextValue>({});
+export const WalletContext = createContext<WalletContextValue>({
+  wallet: {},
+  generateWallet: (retry?: boolean) => Promise.resolve({})
+});
 
 interface WalletContextValue {
+  wallet: GeneratedWallet;
+  generateWallet: (retry?: boolean) => Promise<GeneratedWallet>;
+}
+
+interface GeneratedWallet {
   address?: string;
   mnemonic?: string;
   jwk?: JWKInterface;
