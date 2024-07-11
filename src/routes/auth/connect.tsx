@@ -36,7 +36,7 @@ import { CheckIcon, CloseIcon } from "@iconicicons/react";
 import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
 import { defaultAllowance } from "~applications/allowance";
 import Arweave from "arweave";
-// import Permissions from "../../components/auth/Permissions";
+import Permissions from "../../components/auth/Permissions";
 
 export default function Connect() {
   // active address
@@ -342,10 +342,10 @@ export default function Connect() {
                   </PermissionsContent>
                 ) : (
                   <>
-                    {/* <Permissions
+                    <Permissions
                       requestedPermissions={requestedPermCopy}
                       update={setRequestedPermissions}
-                    /> */}
+                    />
                   </>
                 )}
               </>
