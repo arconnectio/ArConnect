@@ -26,7 +26,6 @@ import WalletSwitcher from "~components/popup/WalletSwitcher";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
 import Label from "~components/auth/Label";
-import Head from "~components/popup/Head";
 import App from "~components/auth/App";
 import styled from "styled-components";
 import { EventType, trackEvent } from "~utils/analytics";
@@ -37,6 +36,7 @@ import { CheckIcon, CloseIcon } from "@iconicicons/react";
 import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
 import { defaultAllowance } from "~applications/allowance";
 import Arweave from "arweave";
+// import Permissions from "../../components/auth/Permissions";
 
 export default function Connect() {
   // active address
@@ -85,6 +85,9 @@ export default function Connect() {
   // allowance for permissions
   const [allowanceEnabled, setAllowanceEnabled] = useState(true);
 
+  // state management for edit
+  const [edit, setEdit] = useState(false);
+
   useEffect(() => {
     (async () => {
       if (!params) return;
@@ -105,8 +108,15 @@ export default function Connect() {
       setRequestedPermissions(
         requested.filter((p) => Object.keys(permissionData).includes(p))
       );
+      setRequetedPermCopy(
+        requested.filter((p) => Object.keys(permissionData).includes(p))
+      );
     })();
   }, [params]);
+
+  const [requestedPermCopy, setRequetedPermCopy] = useState<PermissionType[]>(
+    []
+  );
 
   // permissions to add
   const [permissions, setPermissions] = useState<PermissionType[]>([]);
@@ -197,9 +207,9 @@ export default function Connect() {
     <Wrapper>
       <div>
         <HeadV2
-          title={browser.i18n.getMessage("sign_in")}
+          title={!edit ? browser.i18n.getMessage("sign_in") : "Permissions"}
           showOptions={false}
-          back={cancel}
+          back={edit ? () => setEdit(false) : cancel}
         />
         <App
           appName={appData.name || appUrl}
@@ -255,77 +265,121 @@ export default function Connect() {
               </UnlockWrapper>
             )}
             {page === "permissions" && (
-              <PermissionsContent>
-                <Section>
-                  <Description>
-                    {/* {browser.i18n.getMessage("allow_these_permissions")} */}
-                    Bazar wants to connect to your wallet with the following
-                    permissions
-                  </Description>
-                  <Url>{params.url}</Url>
-                  <Permissions>
-                    <PermissionsTitle>
-                      <Description>App Permissions</Description>
-                      <Description alt>Edit Permissions</Description>
-                    </PermissionsTitle>
-                  </Permissions>
-                  {requestedPermissions.map((permission, i) => (
-                    <Permission key={i}>
-                      <StyledCheckIcon />
-                      <PermissionItem>
-                        {browser.i18n.getMessage(
-                          permissionData[permission.toUpperCase()]
-                        )}
-                      </PermissionItem>
-                    </Permission>
-                  ))}
-                  <AllowanceSection>
-                    <div>Allowance</div>
-                    <ToggleSwitch
-                      checked={allowanceEnabled}
-                      setChecked={setAllowanceEnabled}
-                    />
-                  </AllowanceSection>
-                  {allowanceEnabled && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <AllowanceInput
-                        label={"Limit"}
-                        fullWidth
-                        small
-                        icon={<>AR</>}
-                        type="number"
-                        {...allowanceInput.bindings}
-                      />
-                    </motion.div>
-                  )}
-                </Section>
-              </PermissionsContent>
+              <>
+                {!edit ? (
+                  <PermissionsContent>
+                    <Section>
+                      <Description>
+                        {/* {browser.i18n.getMessage("allow_these_permissions")} */}
+                        Bazar wants to connect to your wallet with the following
+                        permissions
+                      </Description>
+                      <Url>{params.url}</Url>
+                      <StyledPermissions>
+                        <PermissionsTitle>
+                          <Description>App Permissions</Description>
+                          <Description
+                            alt
+                            onClick={() => {
+                              setEdit(!edit);
+                            }}
+                          >
+                            Edit Permissions
+                          </Description>
+                        </PermissionsTitle>
+                      </StyledPermissions>
+                      {requestedPermissions.map((permission, i) => (
+                        <Permission key={i}>
+                          <StyledCheckIcon />
+                          <PermissionItem>
+                            {browser.i18n.getMessage(
+                              permissionData[permission.toUpperCase()]
+                            )}
+                          </PermissionItem>
+                        </Permission>
+                      ))}
+                      {requestedPermCopy
+                        .filter(
+                          (permission) =>
+                            !requestedPermissions.includes(permission)
+                        )
+                        .map((permission, i) => (
+                          <Permission key={i}>
+                            <StyledCloseIcon />
+                            <PermissionItem>
+                              {browser.i18n.getMessage(
+                                permissionData[permission.toUpperCase()]
+                              )}
+                            </PermissionItem>
+                          </Permission>
+                        ))}
+
+                      <AllowanceSection>
+                        <div>Allowance</div>
+                        <ToggleSwitch
+                          checked={allowanceEnabled}
+                          setChecked={setAllowanceEnabled}
+                        />
+                      </AllowanceSection>
+                      {allowanceEnabled && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <AllowanceInput
+                            label={"Limit"}
+                            fullWidth
+                            small
+                            icon={<>AR</>}
+                            type="number"
+                            {...allowanceInput.bindings}
+                          />
+                        </motion.div>
+                      )}
+                    </Section>
+                  </PermissionsContent>
+                ) : (
+                  <>
+                    {/* <Permissions
+                      requestedPermissions={requestedPermCopy}
+                      update={setRequestedPermissions}
+                    /> */}
+                  </>
+                )}
+              </>
             )}
           </AnimatePresence>
         </ContentWrapper>
       </div>
       <Section>
-        <ButtonV2
-          fullWidth
-          onClick={async () => {
-            if (page === "unlock") {
-              await unlock();
-            } else {
-              await connect();
-            }
-          }}
-        >
-          {browser.i18n.getMessage(page === "unlock" ? "sign_in" : "connect")}
-        </ButtonV2>
-        <Spacer y={0.75} />
-        <ButtonV2 fullWidth secondary onClick={cancel}>
-          {browser.i18n.getMessage("cancel")}
-        </ButtonV2>
+        {edit ? (
+          <ButtonV2 fullWidth onClick={() => setEdit(false)}>
+            {browser.i18n.getMessage("save")}
+          </ButtonV2>
+        ) : (
+          <>
+            <ButtonV2
+              fullWidth
+              onClick={async () => {
+                if (page === "unlock") {
+                  await unlock();
+                } else {
+                  await connect();
+                }
+              }}
+            >
+              {browser.i18n.getMessage(
+                page === "unlock" ? "sign_in" : "connect"
+              )}
+            </ButtonV2>
+            <Spacer y={0.75} />
+            <ButtonV2 fullWidth secondary onClick={cancel}>
+              {browser.i18n.getMessage("cancel")}
+            </ButtonV2>
+          </>
+        )}
       </Section>
     </Wrapper>
   );
@@ -335,7 +389,7 @@ const WalletSelectWrapper = styled.div`
   position: relative;
 `;
 
-const Permissions = styled.div`
+const StyledPermissions = styled.div`
   padding-bottom: 1rem;
 `;
 
@@ -382,6 +436,15 @@ const StyledCheckIcon = styled(CheckIcon)`
   min-height: 17px;
   flex-shrink: 0;
   color: rgba(20, 209, 16, 1);
+`;
+
+const StyledCloseIcon = styled(CloseIcon)`
+  width: 17px;
+  height: 17px;
+  min-width: 17px;
+  min-height: 17px;
+  flex-shrink: 0;
+  color: ${(props) => props.theme.fail};
 `;
 
 const AllowanceInput = styled(InputV2)`
