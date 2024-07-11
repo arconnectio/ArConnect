@@ -49,6 +49,10 @@
     "message": "Hide",
     "description": "Hide text"
   },
+  "save": {
+    "message": "Save",
+    "description": "Save button text"
+  },
   "add_wallet": {
     "message": "Add wallet",
     "description": "Add a wallet text"
@@ -294,6 +298,10 @@
   "permissions": {
     "message": "Permissions",
     "description": "Permissions title"
+  },
+  "edit_permissions": {
+    "message": "Edit permissions",
+    "description": "Edit permissions title"
   },
   "allowance": {
     "message": "Allowance",
