@@ -4,7 +4,7 @@ import type { JWKInterface } from "arweave/web/lib/wallet";
 import { checkPassword } from "~wallets/auth";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { addWallet } from "~wallets";
+import { addWallet, getWalletKeyLength } from "~wallets";
 import {
   Text,
   useInput,
@@ -22,7 +22,6 @@ import * as bip39 from "bip39-web-crypto";
 import Arweave from "arweave/web/common";
 import styled from "styled-components";
 import { defaultGateway } from "~gateways/gateway";
-import { ArweaveSigner } from "arbundles";
 import { WalletKeySizeErrorModal } from "~components/modals/WalletKeySizeErrorModal";
 
 export default function AddWallet() {
@@ -138,9 +137,7 @@ export default function AddWallet() {
           ? await jwkFromMnemonic(providedWallet)
           : providedWallet;
 
-      const signer = new ArweaveSigner(jwk);
-      const expectedLength = signer.ownerLength;
-      const actualLength = signer.publicKey.byteLength;
+      const { actualLength, expectedLength } = await getWalletKeyLength(jwk);
       if (expectedLength !== actualLength) {
         walletModal.setOpen(true);
         finishUp();

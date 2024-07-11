@@ -20,6 +20,7 @@ import {
   getDecryptionKey,
   setDecryptionKey
 } from "./auth";
+import { ArweaveSigner } from "arbundles";
 
 /**
  * Locally stored wallet
@@ -394,4 +395,11 @@ export async function syncLabels(alarmInfo?: Alarms.Alarm) {
         : wallet.nickname
     }))
   );
+}
+
+export async function getWalletKeyLength(jwk: JWKInterface) {
+  const signer = new ArweaveSigner(jwk);
+  const expectedLength = signer.ownerLength;
+  const actualLength = signer.publicKey.byteLength;
+  return { actualLength, expectedLength };
 }

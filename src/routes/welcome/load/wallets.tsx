@@ -1,6 +1,11 @@
 import { isValidMnemonic, jwkFromMnemonic } from "~wallets/generator";
 import { ExtensionStorage, OLD_STORAGE_NAME } from "~utils/storage";
-import { addWallet, getWallets, setActiveWallet } from "~wallets";
+import {
+  addWallet,
+  getWalletKeyLength,
+  getWallets,
+  setActiveWallet
+} from "~wallets";
 import type { KeystoneAccount } from "~wallets/hardware/keystone";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -23,7 +28,6 @@ import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { addExpiration } from "~wallets/auth";
-import { ArweaveSigner } from "arbundles";
 import { WalletKeySizeErrorModal } from "~components/modals/WalletKeySizeErrorModal";
 
 export default function Wallets() {
@@ -136,9 +140,7 @@ export default function Wallets() {
             ? await jwkFromMnemonic(loadedWallet)
             : loadedWallet;
 
-        const signer = new ArweaveSigner(jwk);
-        const expectedLength = signer.ownerLength;
-        const actualLength = signer.publicKey.byteLength;
+        const { expectedLength, actualLength } = await getWalletKeyLength(jwk);
         if (expectedLength !== actualLength) {
           walletModal.setOpen(true);
           finishUp();
