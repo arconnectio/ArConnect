@@ -136,16 +136,23 @@ export default function AddWallet() {
 
     try {
       // load jwk from seedphrase input state
-      const jwk =
+      let jwk =
         typeof providedWallet === "string"
           ? await jwkFromMnemonic(providedWallet)
           : providedWallet;
 
-      const { actualLength, expectedLength } = await getWalletKeyLength(jwk);
+      let { actualLength, expectedLength } = await getWalletKeyLength(jwk);
       if (expectedLength !== actualLength) {
-        walletModal.setOpen(true);
-        finishUp();
-        return;
+        if (typeof providedWallet !== "string") {
+          walletModal.setOpen(true);
+          finishUp();
+          return;
+        } else {
+          while (expectedLength !== actualLength) {
+            jwk = await jwkFromMnemonic(providedWallet);
+            ({ actualLength, expectedLength } = await getWalletKeyLength(jwk));
+          }
+        }
       }
 
       await addWallet(jwk, passwordInput.state);
