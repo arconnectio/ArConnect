@@ -57,6 +57,10 @@
     "message": "重试",
     "description": "Retry button text"
   },
+  "save": {
+    "message": "节省",
+    "description": "Save button text"
+  },
   "add_wallet": {
       "message": "添加钱包",
       "description": "Add a wallet text"
@@ -256,39 +260,39 @@
       "description": "Send transaction button"
   },
   "permissionDescriptionAccessAddress": {
-      "message": "访问 ArConnect 中选择的当前地址",
+      "message": "允许访问活动地址",
       "description": "Description for the \"ACCESS_ADDRESS\" permission"
   },
   "permissionDescriptionAccessPublicKey": {
-      "message": "访问 ArConnect 中选择的当前地址的公钥",
+      "message": "允许访问活动地址的公钥",
       "description": "Description for the \"ACCESS_PUBLIC_KEY\" permission"
   },
   "permissionDescriptionAccessAllAddresses": {
-      "message": "访问添加到 ArConnect 的所有地址",
+      "message": "允许访问所有活动和非活动钱包地址",
       "description": "Description for the \"ACCESS_ALL_ADDRESSES\" permission"
   },
   "permissionDescriptionSign": {
-      "message": "签署交易",
+      "message": "允许签署交易。",
       "description": "Description for the \"SIGN_TRANSACTION\" permission"
   },
   "permissionDescriptionEncrypt": {
-      "message": "使用用户的密钥文件加密数据",
+      "message": "允许使用钱包的密钥文件加密数据。这并不授予对密钥文件的访问权限",
       "description": "Description for the \"ENCRYPT\" permission"
   },
   "permissionDescriptionDecrypt": {
-      "message": "使用用户的密钥文件解密数据",
+      "message": "允许使用钱包的密钥文件解密数据。这并不授予对密钥文件的访问权限",
       "description": "Description for the \"DECRYPT\" permission"
   },
   "permissionDescriptionSignature": {
-      "message": "使用用户的密钥文件签署数据",
+      "message": "允许签署数据。",
       "description": "Description for the \"SIGNATURE\" permission"
   },
   "permissionDescriptionArweaveConfig": {
-      "message": "访问用户的自定义 Arweave 配置",
+      "message": "允许读取 ArConnect 配置文件",
       "description": "Description for the \"ACCESS_ARWEAVE_CONFIG\" permission"
   },
   "permissionDescriptionDispatch": {
-      "message": "发送 Arweave 交易或互动",
+      "message": "允许使用调度交易。",
       "description": "Description for the \"DISPATCH\" permission"
   },
   "copyId": {
@@ -302,6 +306,14 @@
   "permissions": {
       "message": "权限",
       "description": "Permissions title"
+  },
+  "edit_permissions": {
+    "message": "编辑权限",
+    "description": "Edit permissions title"
+  },
+  "app_permissions": {
+    "message": "应用权限",
+    "description": "App permissions title"
   },
   "allowance": {
       "message": "额度",
@@ -949,9 +961,27 @@
       "message": "连接",
       "description": "Connect button text"
   },
+  "always_allow": {
+    "message": "始终允许",
+    "description": "Always allow button"
+  },
+  "always_ask_permission": {
+    "message": "始终询问权限",
+    "description": "Always allow button"
+  },
+  "allow_selected_permissions": {
+    "message": "允许选择的权限",
+    "description": "Always allow button"
+  },
   "allow_these_permissions": {
-      "message": "允许这些权限给应用程序：",
-      "description": "Auth permissions label"
+      "message": "$APPNAME$ 想要使用以下权限连接到您的钱包",
+      "description": "Auth permissions label",
+      "placeholders": {
+        "appname": {
+          "content": "$1",
+          "example": "permafacts.arweave.dev"
+        }
+      }
   },
   "reset_allowance": {
       "message": "重置额度",
