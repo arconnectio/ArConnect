@@ -2,7 +2,8 @@ import {
   type DisplayTheme,
   Section,
   Spacer,
-  Text
+  Text,
+  ListItem
 } from "@arconnect/components";
 import { defaultGateway, type Gateway } from "~gateways/gateway";
 import { useTheme as useDisplayTheme } from "~utils/theme";
@@ -22,7 +23,8 @@ export default function App({
   appName,
   appUrl,
   gateway,
-  allowance
+  allowance,
+  showTitle = true
 }: Props) {
   // allowance spent in AR
   const spent = useMemo(() => {
@@ -50,16 +52,28 @@ export default function App({
 
   return (
     <>
-      <SidePaddingSection>
-        <Label>
-          {browser.i18n.getMessage(
-            gateway ? "app_wants_to_connect" : "allowance_limit_reached"
-          )}
-        </Label>
-      </SidePaddingSection>
-      <Spacer y={0.4} />
+      {showTitle && (
+        <>
+          <SidePaddingSection>
+            <Label>
+              {browser.i18n.getMessage(
+                gateway ? "app_wants_to_connect" : "allowance_limit_reached"
+              )}
+            </Label>
+          </SidePaddingSection>
+          <Spacer y={0.4} />
+        </>
+      )}
       <SidePaddingSection size="slim">
-        <Wrapper displayTheme={theme}>
+        <ListItem
+          title={appName || appUrl}
+          img={appIcon}
+          description={`${browser.i18n.getMessage("gateway")}: ${
+            gateway.host || ""
+          }`}
+          style={{ pointerEvents: "none" }}
+        />
+        {/* <Wrapper displayTheme={theme}>
           <AppData>
             <AppIcon img={appIcon} key={appIcon}>
               {!appIcon && <NoAppIcon />}
@@ -91,7 +105,7 @@ export default function App({
               {" AR"}
             </AllowanceSpent>
           )}
-        </Wrapper>
+        </Wrapper> */}
       </SidePaddingSection>
     </>
   );
@@ -103,12 +117,9 @@ const SidePaddingSection = styled(Section)`
 `;
 
 const Wrapper = styled.div<{ displayTheme: DisplayTheme }>`
-  background-color: rgb(
-    ${(props) =>
-      props.displayTheme === "light" ? "0, 0, 0" : props.theme.cardBackground}
-  );
-  border-radius: 27px;
-  padding: 1rem;
+  border-radius: 10px;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -164,4 +175,5 @@ interface Props {
   appUrl: string;
   gateway?: Gateway;
   allowance?: Allowance;
+  showTitle?: boolean;
 }
