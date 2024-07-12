@@ -10,7 +10,7 @@ import { PageType, trackPage } from "~utils/analytics";
 
 export default function Confirm() {
   // wallet context
-  const generatedWallet = useContext(WalletContext);
+  const { wallet: generatedWallet } = useContext(WalletContext);
 
   // toasts
   const { setToast } = useToasts();

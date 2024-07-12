@@ -31,6 +31,9 @@ export default function AddWallet() {
   // wallet size error modal
   const walletModal = useModal();
 
+  // wallet generation taking longer
+  const [showLongWaitMessage, setShowLongWaitMessage] = useState(false);
+
   // toasts
   const { setToast } = useToasts();
 
@@ -112,6 +115,7 @@ export default function AddWallet() {
     const finishUp = () => {
       // reset before unload
       window.onbeforeunload = null;
+      setShowLongWaitMessage(false);
       setLoading(false);
     };
 
@@ -131,17 +135,26 @@ export default function AddWallet() {
     }
 
     try {
+      const startTime = Date.now();
       // load jwk from seedphrase input state
-      const jwk =
+      let jwk =
         typeof providedWallet === "string"
           ? await jwkFromMnemonic(providedWallet)
           : providedWallet;
 
-      const { actualLength, expectedLength } = await getWalletKeyLength(jwk);
+      let { actualLength, expectedLength } = await getWalletKeyLength(jwk);
       if (expectedLength !== actualLength) {
-        walletModal.setOpen(true);
-        finishUp();
-        return;
+        if (typeof providedWallet !== "string") {
+          walletModal.setOpen(true);
+          finishUp();
+          return;
+        } else {
+          while (expectedLength !== actualLength) {
+            setShowLongWaitMessage(Date.now() - startTime > 30000);
+            jwk = await jwkFromMnemonic(providedWallet);
+            ({ actualLength, expectedLength } = await getWalletKeyLength(jwk));
+          }
+        }
       }
 
       await addWallet(jwk, passwordInput.state);
@@ -187,15 +200,25 @@ export default function AddWallet() {
   async function generateWallet() {
     setGenerating(true);
 
+    const startTime = Date.now();
+
     // generate a seedphrase
     const seedphrase = await bip39.generateMnemonic();
 
     setGeneratedWallet({ seedphrase });
 
     // generate from seedphrase
-    const jwk = await jwkFromMnemonic(seedphrase);
+    let jwk = await jwkFromMnemonic(seedphrase);
+
+    let { actualLength, expectedLength } = await getWalletKeyLength(jwk);
+    while (expectedLength !== actualLength) {
+      setShowLongWaitMessage(Date.now() - startTime > 30000);
+      jwk = await jwkFromMnemonic(seedphrase);
+      ({ actualLength, expectedLength } = await getWalletKeyLength(jwk));
+    }
 
     setGeneratedWallet((val) => ({ ...val, jwk }));
+    setShowLongWaitMessage(false);
     setGenerating(false);
 
     return { jwk, seedphrase };
@@ -337,6 +360,11 @@ export default function AddWallet() {
           <SettingsIcon />
           {browser.i18n.getMessage("generate_wallet")}
         </ButtonV2>
+        {(generating || loading) && showLongWaitMessage && (
+          <Text style={{ textAlign: "center", marginTop: "0.3rem" }}>
+            {browser.i18n.getMessage("longer_than_usual")}
+          </Text>
+        )}
       </div>
       <WalletKeySizeErrorModal {...walletModal} />
     </Wrapper>

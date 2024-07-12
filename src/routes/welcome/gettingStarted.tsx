@@ -38,6 +38,8 @@ export default function GettingStarted({ page }) {
     if (pageNum < 5) {
       setLocation(`/getting-started/${pageNum}`);
     } else {
+      // reset before unload
+      window.onbeforeunload = null;
       window.top.close();
     }
   };

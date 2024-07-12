@@ -34,6 +34,9 @@ export default function Wallets() {
   // password context
   const { password } = useContext(PasswordContext);
 
+  // wallet generation taking longer
+  const [showLongWaitMessage, setShowLongWaitMessage] = useState(false);
+
   // migration available
   const [oldState] = useStorage({
     key: OLD_STORAGE_NAME,
@@ -110,6 +113,7 @@ export default function Wallets() {
     const finishUp = () => {
       // reset before unload
       window.onbeforeunload = null;
+      setShowLongWaitMessage(false);
       setLoading(false);
     };
 
@@ -135,16 +139,28 @@ export default function Wallets() {
 
       if (loadedWallet) {
         // load jwk from seedphrase input state
-        const jwk =
+        const startTime = Date.now();
+
+        let jwk =
           typeof loadedWallet === "string"
             ? await jwkFromMnemonic(loadedWallet)
             : loadedWallet;
 
-        const { expectedLength, actualLength } = await getWalletKeyLength(jwk);
+        let { actualLength, expectedLength } = await getWalletKeyLength(jwk);
         if (expectedLength !== actualLength) {
-          walletModal.setOpen(true);
-          finishUp();
-          return;
+          if (typeof loadedWallet !== "string") {
+            walletModal.setOpen(true);
+            finishUp();
+            return;
+          } else {
+            while (expectedLength !== actualLength) {
+              setShowLongWaitMessage(Date.now() - startTime > 30000);
+              jwk = await jwkFromMnemonic(loadedWallet);
+              ({ actualLength, expectedLength } = await getWalletKeyLength(
+                jwk
+              ));
+            }
+          }
         }
 
         // add wallet
@@ -214,6 +230,11 @@ export default function Wallets() {
         {browser.i18n.getMessage("next")}
         <ArrowRightIcon style={{ marginLeft: "5px" }} />
       </ButtonV2>
+      {loading && showLongWaitMessage && (
+        <Text style={{ textAlign: "center", marginTop: "0.3rem" }}>
+          {browser.i18n.getMessage("longer_than_usual")}
+        </Text>
+      )}
       <ModalV2
         {...migrationModal.bindings}
         root={document.getElementById("__plasmo")}
