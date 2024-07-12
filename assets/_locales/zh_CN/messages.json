@@ -49,10 +49,6 @@
     "message": "隐藏",
     "description": "Hide text"
   },
-  "save": {
-    "message": "节省",
-    "description": "Save button text"
-  },
   "add_wallet": {
       "message": "添加钱包",
       "description": "Add a wallet text"
@@ -298,14 +294,6 @@
   "permissions": {
       "message": "权限",
       "description": "Permissions title"
-  },
-  "edit_permissions": {
-    "message": "编辑权限",
-    "description": "Edit permissions title"
-  },
-  "app_permissions": {
-    "message": "应用权限",
-    "description": "App permissions title"
   },
   "allowance": {
       "message": "额度",
@@ -937,27 +925,9 @@
       "message": "连接",
       "description": "Connect button text"
   },
-  "always_allow": {
-    "message": "始终允许",
-    "description": "Always allow button"
-  },
-  "always_ask_permission": {
-    "message": "始终询问权限",
-    "description": "Always allow button"
-  },
-  "allow_selected_permissions": {
-    "message": "允许选择的权限",
-    "description": "Always allow button"
-  },
   "allow_these_permissions": {
-      "message": "$APPNAME$ 想要使用以下权限连接到您的钱包",
-      "description": "Auth permissions label",
-      "placeholders": {
-        "appname": {
-          "content": "$1",
-          "example": "permafacts.arweave.dev"
-        }
-      }
+      "message": "允许这些权限给应用程序：",
+      "description": "Auth permissions label"
   },
   "reset_allowance": {
       "message": "重置额度",
