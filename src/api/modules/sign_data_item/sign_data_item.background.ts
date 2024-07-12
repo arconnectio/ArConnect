@@ -27,13 +27,17 @@ const background: ModuleFunction<number[]> = async (
     throw new Error(err);
   }
 
+  const app = new Application(appData.appURL);
+  const allowance = await app.getAllowance();
+
   if (
-    dataItem.tags?.some(
+    (dataItem.tags?.some(
       (tag) => tag.name === "Action" && tag.value === "Transfer"
     ) &&
-    dataItem.tags?.some(
-      (tag) => tag.name === "Data-Protocol" && tag.value === "ao"
-    )
+      dataItem.tags?.some(
+        (tag) => tag.name === "Data-Protocol" && tag.value === "ao"
+      )) ||
+    allowance.enabled
   ) {
     try {
       const tags = dataItem?.tags || [];
@@ -74,7 +78,6 @@ const background: ModuleFunction<number[]> = async (
   isLocalWallet(decryptedWallet);
 
   // create app
-  const app = new Application(appData.appURL);
 
   // create arweave client
   const arweave = new Arweave(await app.getGatewayConfig());
@@ -89,7 +92,6 @@ const background: ModuleFunction<number[]> = async (
 
   // check allowance
   // const price = await getPrice(dataEntry, await app.getBundler());
-  const allowance = await app.getAllowance();
 
   // allowance or sign auth
   try {

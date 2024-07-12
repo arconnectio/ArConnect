@@ -424,7 +424,7 @@ const CenterText = styled(Text)`
   }
 `;
 
-const Flex = styled.div<{ alignItems: string; justifyContent: string }>`
+export const Flex = styled.div<{ alignItems: string; justifyContent: string }>`
   display: flex;
   align-items: ${(props) => props.alignItems};
   justify-content: ${(props) => props.justifyContent};

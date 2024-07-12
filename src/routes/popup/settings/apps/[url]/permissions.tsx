@@ -9,7 +9,7 @@ import { useLocation } from "wouter";
 
 export default function AppPermissions({ url }: Props) {
   // app settings
-  const app = new Application(url);
+  const app = new Application(decodeURIComponent(url));
   const [settings, updateSettings] = app.hook();
   const [, setLocation] = useLocation();
 

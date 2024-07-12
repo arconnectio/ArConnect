@@ -7,6 +7,7 @@ import {
   Section,
   Spacer,
   Text,
+  TooltipV2,
   useInput,
   useToasts
 } from "@arconnect/components";
@@ -33,10 +34,14 @@ import Application from "~applications/application";
 import { defaultGateway, type Gateway } from "~gateways/gateway";
 import HeadV2 from "~components/popup/HeadV2";
 import { CheckIcon, CloseIcon } from "@iconicicons/react";
-import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
+import {
+  InfoCircle,
+  ToggleSwitch
+} from "~routes/popup/subscriptions/subscriptionDetails";
 import { defaultAllowance } from "~applications/allowance";
 import Arweave from "arweave";
 import Permissions from "../../components/auth/Permissions";
+import { Flex } from "~routes/popup/settings/apps/[url]";
 
 export default function Connect() {
   // active address
@@ -155,7 +160,7 @@ export default function Connect() {
   }
 
   // connect
-  async function connect() {
+  async function connect(alwaysAsk: boolean = false) {
     if (appUrl === "") return;
 
     // get existing permissions
@@ -170,7 +175,7 @@ export default function Connect() {
         name: appData.name,
         logo: appData.logo,
         allowance: {
-          enabled: allowanceEnabled,
+          enabled: alwaysAsk ? false : allowanceEnabled,
           limit:
             allowanceEnabled && allowanceInput.state
               ? arweave.ar.arToWinston(allowanceInput.state)
@@ -183,7 +188,26 @@ export default function Connect() {
     } else {
       // update existing permissions, if the app
       // has already been added
-      await app.updateSettings({ permissions });
+
+      const allowance = await app.getAllowance();
+      await app.updateSettings({
+        permissions,
+        allowance: {
+          // Always preserve the current spent amount
+          spent: allowance.spent.toString(),
+
+          // Determine the new limit:
+          limit: alwaysAsk
+            ? allowance.limit.toString() // If 'Always Ask' is enabled, keep the existing limit
+            : allowanceEnabled && allowanceInput.state
+            ? arweave.ar.arToWinston(allowanceInput.state) // If allowance is enabled and a new limit is set, use the new limit
+            : defaultAllowance.limit, // Otherwise, use the default limit
+
+          // If 'Always Ask' is true, disable allowance
+          // Otherwise, use the current allowance enabled state
+          enabled: alwaysAsk ? false : allowanceEnabled
+        }
+      });
     }
 
     // send response
@@ -324,7 +348,17 @@ export default function Connect() {
                         ))}
 
                       <AllowanceSection>
-                        <div>{browser.i18n.getMessage("allowance")}</div>
+                        <Flex
+                          alignItems="center"
+                          justifyContent="space-between"
+                          style={{ gap: "4px" }}
+                        >
+                          <div>{browser.i18n.getMessage("allowance")}</div>
+                          <TooltipV2 content={InfoText} position="bottom">
+                            <InfoCircle />
+                          </TooltipV2>
+                        </Flex>
+
                         <ToggleSwitch
                           checked={allowanceEnabled}
                           setChecked={setAllowanceEnabled}
@@ -385,7 +419,11 @@ export default function Connect() {
               )}
             </ButtonV2>
             <Spacer y={0.75} />
-            <ButtonV2 fullWidth secondary onClick={cancel}>
+            <ButtonV2
+              fullWidth
+              secondary
+              onClick={page === "unlock" ? cancel : () => connect(true)}
+            >
               {browser.i18n.getMessage(
                 page === "unlock" ? "cancel" : "always_ask_permission"
               )}
@@ -396,6 +434,13 @@ export default function Connect() {
     </Wrapper>
   );
 }
+
+const InfoText: React.ReactNode = (
+  <div style={{ fontSize: "10px", lineHeight: "14px", textAlign: "center" }}>
+    Set the amount you want <br />
+    ArConnect to automatically transfer
+  </div>
+);
 
 const WalletSelectWrapper = styled.div`
   position: relative;
