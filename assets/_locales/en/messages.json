@@ -49,6 +49,18 @@
     "message": "Hide",
     "description": "Hide text"
   },
+  "close": {
+    "message": "Close",
+    "description": "Close button text"
+  },
+  "retry": {
+    "message": "Retry",
+    "description": "Retry button text"
+  },
+  "save": {
+    "message": "Save",
+    "description": "Save button text"
+  },
   "add_wallet": {
     "message": "Add wallet",
     "description": "Add a wallet text"
@@ -665,6 +677,18 @@
     "message": "Error exporting wallet",
     "description": "Wallet export error notification"
   },
+  "import_wallet_key_length_short_error_title": {
+    "message": "Key Length Too Short",
+    "description": "Key Length Too Short error title"
+  },
+  "import_wallet_key_length_short_error": {
+    "message": "The key length of the wallet you are importing is less than the required length to transact on the AO network.  It is recommended you create a new ArConnect wallet and transfer your assets to your new wallet.",
+    "description": "Key Length Too Short error"
+  },
+  "generate_wallet_in_progress": {
+    "message": "The wallet creation process can take 30-60 seconds.",
+    "description": "Generate wallet in progresss text"
+  },
   "development_version": {
     "message": "Development",
     "description": "Development version badge text"
@@ -778,6 +802,10 @@
   "generating_wallet": {
     "message": "Generating wallet...",
     "description": "Generating wallet in progress text"
+  },
+  "longer_than_usual": {
+    "message": "Please wait, this is taking longer than usual...",
+    "description": "Longer than usual text"
   },
   "keyfile": {
     "message": "Keyfile",

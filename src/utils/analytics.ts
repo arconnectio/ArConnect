@@ -1,7 +1,12 @@
 import { getSetting } from "~settings";
 import { ExtensionStorage, TempTransactionStorage } from "./storage";
 import { AnalyticsBrowser } from "@segment/analytics-next";
-import { getWallets, getActiveKeyfile, getActiveAddress } from "~wallets";
+import {
+  getWallets,
+  getActiveKeyfile,
+  getActiveAddress,
+  getWalletKeyLength
+} from "~wallets";
 import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
 import { v4 as uuid } from "uuid";
@@ -9,7 +14,6 @@ import browser, { type Alarms } from "webextension-polyfill";
 import BigNumber from "bignumber.js";
 import axios from "axios";
 import { isLocalWallet } from "./assertions";
-import { ArweaveSigner } from "arbundles";
 import { freeDecryptedWallet } from "~wallets/encryption";
 
 const PUBLIC_SEGMENT_WRITEKEY = "J97E4cvSZqmpeEdiUQNC2IxS1Kw4Cwxm";
@@ -278,10 +282,9 @@ export const checkWalletBits = async (): Promise<boolean | null> => {
     });
     isLocalWallet(decryptedWallet);
 
-    const signer = new ArweaveSigner(decryptedWallet.keyfile);
-    const owner = signer.publicKey;
-    const expectedLength = signer.ownerLength;
-    const actualLength = owner.byteLength;
+    const { actualLength, expectedLength } = await getWalletKeyLength(
+      decryptedWallet.keyfile
+    );
 
     freeDecryptedWallet(decryptedWallet.keyfile);
 
