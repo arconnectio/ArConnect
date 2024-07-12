@@ -2103,5 +2103,13 @@
   "incorrect_password_error_message": {
     "message": "密码错误。请输入 ArConnect 的密码后再试，而不是您正在导入的钱包密码。",
     "description": "Error message if password is incorrect"
+  },
+  "mismatch_warning_title": {
+    "message": "检测到钱包不匹配。",
+    "description": "Title for wallet mismatch warning on sda"
+  },
+  "mismatch_warning": {
+    "message": "您的钱包存在不匹配的位长度。您可以继续操作，但可能会遇到错误。交易可能会失败或表现异常。",
+    "description": "warning for mismatch wallet"
   }
 }

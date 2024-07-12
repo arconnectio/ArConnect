@@ -2109,5 +2109,13 @@
   "incorrect_password_error_message": {
     "message": "Password incorrect. Please enter the password to your ArConnect and try again. Not the password to the wallet you are importing.",
     "description": "Error message if password is incorrect"
+  },
+  "mismatch_warning_title": {
+    "message": "Wallet Mismatch Detected.",
+    "description": "Title for wallet mismatch warning on sda"
+  },
+  "mismatch_warning": {
+    "message": "Your wallet has a mismatched bit length. You can proceed, but may encounter errors. Transactions could fail or behave unexpectedly.",
+    "description": "warning for mismatch wallet"
   }
 }
