@@ -147,8 +147,6 @@ export default function Setup({ setupMode, page }: Props) {
       });
     }
 
-    // reset before unload
-    window.onbeforeunload = null;
     return {};
   }
 

@@ -99,6 +99,9 @@ export default function Done() {
 
     setShowLongWaitMessage(false);
     setLoading(false);
+
+    // reset before unload
+    window.onbeforeunload = null;
   }
 
   useEffect(() => {
