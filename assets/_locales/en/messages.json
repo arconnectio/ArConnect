@@ -49,7 +49,6 @@
     "message": "Hide",
     "description": "Hide text"
   },
-<<<<<<< HEAD
   "close": {
     "message": "Close",
     "description": "Close button text"
@@ -62,8 +61,6 @@
     "message": "Save",
     "description": "Save button text"
   },
-=======
->>>>>>> a9e4eb0e7190179ffb372143a5cf6bf13d9e41a9
   "add_wallet": {
     "message": "Add wallet",
     "description": "Add a wallet text"
