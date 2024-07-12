@@ -1,6 +1,11 @@
 import { isValidMnemonic, jwkFromMnemonic } from "~wallets/generator";
 import { ExtensionStorage, OLD_STORAGE_NAME } from "~utils/storage";
-import { addWallet, getWallets, setActiveWallet } from "~wallets";
+import {
+  addWallet,
+  getWalletKeyLength,
+  getWallets,
+  setActiveWallet
+} from "~wallets";
 import type { KeystoneAccount } from "~wallets/hardware/keystone";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -23,10 +28,14 @@ import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { addExpiration } from "~wallets/auth";
+import { WalletKeySizeErrorModal } from "~components/modals/WalletKeySizeErrorModal";
 
 export default function Wallets() {
   // password context
   const { password } = useContext(PasswordContext);
+
+  // wallet generation taking longer
+  const [showLongWaitMessage, setShowLongWaitMessage] = useState(false);
 
   // migration available
   const [oldState] = useStorage({
@@ -36,6 +45,9 @@ export default function Wallets() {
 
   // migration modal
   const migrationModal = useModal();
+
+  // wallet size error modal
+  const walletModal = useModal();
 
   // wallets to migrate
   const [walletsToMigrate, setWalletsToMigrate] = useState<JWKInterface[]>([]);
@@ -101,6 +113,7 @@ export default function Wallets() {
     const finishUp = () => {
       // reset before unload
       window.onbeforeunload = null;
+      setShowLongWaitMessage(false);
       setLoading(false);
     };
 
@@ -126,10 +139,29 @@ export default function Wallets() {
 
       if (loadedWallet) {
         // load jwk from seedphrase input state
-        const jwk =
+        const startTime = Date.now();
+
+        let jwk =
           typeof loadedWallet === "string"
             ? await jwkFromMnemonic(loadedWallet)
             : loadedWallet;
+
+        let { actualLength, expectedLength } = await getWalletKeyLength(jwk);
+        if (expectedLength !== actualLength) {
+          if (typeof loadedWallet !== "string") {
+            walletModal.setOpen(true);
+            finishUp();
+            return;
+          } else {
+            while (expectedLength !== actualLength) {
+              setShowLongWaitMessage(Date.now() - startTime > 30000);
+              jwk = await jwkFromMnemonic(loadedWallet);
+              ({ actualLength, expectedLength } = await getWalletKeyLength(
+                jwk
+              ));
+            }
+          }
+        }
 
         // add wallet
         await addWallet(jwk, password);
@@ -198,6 +230,11 @@ export default function Wallets() {
         {browser.i18n.getMessage("next")}
         <ArrowRightIcon style={{ marginLeft: "5px" }} />
       </ButtonV2>
+      {loading && showLongWaitMessage && (
+        <Text style={{ textAlign: "center", marginTop: "0.3rem" }}>
+          {browser.i18n.getMessage("longer_than_usual")}
+        </Text>
+      )}
       <ModalV2
         {...migrationModal.bindings}
         root={document.getElementById("__plasmo")}
@@ -248,6 +285,7 @@ export default function Wallets() {
         </ModalText>
         <Spacer y={0.75} />
       </ModalV2>
+      <WalletKeySizeErrorModal {...walletModal} back={() => setLocation(`/`)} />
     </>
   );
 }

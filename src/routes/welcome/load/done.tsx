@@ -25,6 +25,9 @@ export default function Done() {
       await setAnalytics(false);
     }
 
+    // reset before unload
+    window.onbeforeunload = null;
+
     // redirect to getting started pages
     setLocation("/getting-started/1");
   }
