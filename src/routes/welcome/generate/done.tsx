@@ -5,7 +5,7 @@ import { formatAddress } from "~utils/format";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import { addWallet } from "~wallets";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import {
   EventType,
   PageType,
@@ -23,6 +23,13 @@ import { addExpiration } from "~wallets/auth";
 export default function Done() {
   // wallet context
   const { wallet } = useContext(WalletContext);
+  const walletRef = useRef(wallet);
+
+  // loading
+  const [loading, setLoading] = useState(false);
+
+  // wallet generation taking longer
+  const [showLongWaitMessage, setShowLongWaitMessage] = useState(false);
 
   const [, setLocation] = useLocation();
 
@@ -36,10 +43,27 @@ export default function Done() {
 
   // add generated wallet
   async function done() {
+    if (loading) return;
+
+    const startTime = Date.now();
+
+    setLoading(true);
     // add wallet
     let nickname: string;
 
-    if (!wallet.address || !wallet.jwk) return;
+    if (!walletRef.current.address || !walletRef.current.jwk) {
+      await new Promise((resolve) => {
+        const checkState = setInterval(() => {
+          if (walletRef.current.jwk) {
+            clearInterval(checkState);
+            resolve(null);
+          }
+          if (!showLongWaitMessage) {
+            setShowLongWaitMessage(Date.now() - startTime > 10000);
+          }
+        }, 1000);
+      });
+    }
 
     try {
       const ansProfile = (await getAnsProfile(wallet.address)) as AnsUser;
@@ -68,6 +92,9 @@ export default function Done() {
 
     // redirect to getting started pages
     setLocation("/getting-started/1");
+
+    setShowLongWaitMessage(false);
+    setLoading(false);
   }
 
   useEffect(() => {
@@ -89,6 +116,10 @@ export default function Done() {
 
     getLocation();
   }, []);
+
+  useEffect(() => {
+    walletRef.current = wallet;
+  }, [wallet]);
 
   // Segment
   useEffect(() => {
@@ -113,9 +144,14 @@ export default function Done() {
         {browser.i18n.getMessage("analytics_title")}
       </Checkbox>
       <Spacer y={3} />
-      <ButtonV2 fullWidth onClick={done}>
+      <ButtonV2 fullWidth onClick={done} loading={loading}>
         {browser.i18n.getMessage("done")}
       </ButtonV2>
+      {loading && showLongWaitMessage && (
+        <Text noMargin style={{ textAlign: "center", marginTop: "0.3rem" }}>
+          {browser.i18n.getMessage("longer_than_usual")}
+        </Text>
+      )}
     </>
   );
 }

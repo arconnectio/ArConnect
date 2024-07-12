@@ -26,6 +26,7 @@ import LoadDone from "./load/done";
 import Theme from "./load/theme";
 import { defaultGateway } from "~gateways/gateway";
 import Pagination, { Status } from "~components/Pagination";
+import { getWalletKeyLength } from "~wallets";
 
 /** Wallet generate pages */
 const generatePages = [
@@ -98,10 +99,10 @@ export default function Setup({ setupMode, page }: Props) {
     setLocation(`/${params.setup}/${page - 1}`);
   };
 
-  async function generateWallet(retry?: boolean) {
+  async function generateWallet() {
     // only generate wallet if the
     // setup mode is wallet generation
-    if ((!isGenerateWallet || generatedWallet.address) && !retry) return;
+    if (!isGenerateWallet || generatedWallet.address) return;
 
     // prevent user from closing the window
     // while ArConnect is generating a wallet
@@ -117,7 +118,17 @@ export default function Setup({ setupMode, page }: Props) {
       setGeneratedWallet({ mnemonic: seed });
 
       // generate wallet from seedphrase
-      const generatedKeyfile = await jwkFromMnemonic(seed);
+      let generatedKeyfile = await jwkFromMnemonic(seed);
+
+      let { actualLength, expectedLength } = await getWalletKeyLength(
+        generatedKeyfile
+      );
+      while (expectedLength !== actualLength) {
+        generatedKeyfile = await jwkFromMnemonic(seed);
+        ({ actualLength, expectedLength } = await getWalletKeyLength(
+          generatedKeyfile
+        ));
+      }
 
       setGeneratedWallet((val) => ({ ...val, jwk: generatedKeyfile }));
 
