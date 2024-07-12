@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type HTMLProps
-} from "react";
+import { useEffect, useMemo, useState, type HTMLProps } from "react";
 import styled from "styled-components";
 
 export const Checkbox = ({
@@ -16,15 +10,18 @@ export const Checkbox = ({
   const [state, setState] = useState(checked);
   const effectiveId = useMemo(() => id || generateUniqueId(), []);
 
-  const toggle = useCallback(async () => {
-    setState((prevState) => {
-      const newState = !prevState;
-      if (onChange) {
-        onChange(newState);
-      }
-      return newState;
+  async function toggle() {
+    let newVal = state;
+
+    setState((val) => {
+      newVal = !val;
+      return newVal;
     });
-  }, [onChange]);
+
+    if (onChange) {
+      await onChange(newVal);
+    }
+  }
 
   useEffect(() => setState(checked), [checked]);
 

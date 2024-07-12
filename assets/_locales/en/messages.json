@@ -49,10 +49,6 @@
     "message": "Hide",
     "description": "Hide text"
   },
-  "save": {
-    "message": "Save",
-    "description": "Save button text"
-  },
   "add_wallet": {
     "message": "Add wallet",
     "description": "Add a wallet text"
@@ -298,14 +294,6 @@
   "permissions": {
     "message": "Permissions",
     "description": "Permissions title"
-  },
-  "edit_permissions": {
-    "message": "Edit permissions",
-    "description": "Edit permissions title"
-  },
-  "app_permissions": {
-    "message": "App permissions",
-    "description": "App permissions title"
   },
   "allowance": {
     "message": "Allowance",
@@ -941,27 +929,9 @@
     "message": "Connect",
     "description": "Connect button text"
   },
-  "always_allow": {
-    "message": "Always allow",
-    "description": "Always allow button"
-  },
-  "always_ask_permission": {
-    "message": "Always ask permission",
-    "description": "Always allow button"
-  },
-  "allow_selected_permissions": {
-    "message": "Allow selected permissions",
-    "description": "Always allow button"
-  },
   "allow_these_permissions": {
-    "message": "$APPNAME$ wants to connect to your wallet with the following permissions",
-    "description": "Auth permissions label",
-    "placeholders": {
-      "appname": {
-        "content": "$1",
-        "example": "permafacts.arweave.dev"
-      }
-    }
+    "message": "Allow these permissions for the application:",
+    "description": "Auth permissions label"
   },
   "reset_allowance": {
     "message": "Reset allowance",
