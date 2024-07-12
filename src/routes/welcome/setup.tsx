@@ -26,6 +26,7 @@ import LoadDone from "./load/done";
 import Theme from "./load/theme";
 import { defaultGateway } from "~gateways/gateway";
 import Pagination, { Status } from "~components/Pagination";
+import { getWalletKeyLength } from "~wallets";
 
 /** Wallet generate pages */
 const generatePages = [
@@ -92,54 +93,65 @@ export default function Setup({ setupMode, page }: Props) {
   const { setToast } = useToasts();
 
   // generate wallet in the background
-  const [generatedWallet, setGeneratedWallet] = useState<WalletContextValue>(
-    {}
-  );
+  const [generatedWallet, setGeneratedWallet] = useState<GeneratedWallet>({});
 
   const navigate = () => {
     setLocation(`/${params.setup}/${page - 1}`);
   };
 
-  useEffect(() => {
-    (async () => {
-      // only generate wallet if the
-      // setup mode is wallet generation
-      if (!isGenerateWallet || generatedWallet.address) return;
+  async function generateWallet() {
+    // only generate wallet if the
+    // setup mode is wallet generation
+    if (!isGenerateWallet || generatedWallet.address) return;
 
-      // prevent user from closing the window
-      // while ArConnect is generating a wallet
-      window.onbeforeunload = () =>
-        browser.i18n.getMessage("close_tab_generate_wallet_message");
+    // prevent user from closing the window
+    // while ArConnect is generating a wallet
+    window.onbeforeunload = () =>
+      browser.i18n.getMessage("close_tab_generate_wallet_message");
 
-      try {
-        const arweave = new Arweave(defaultGateway);
+    try {
+      const arweave = new Arweave(defaultGateway);
 
-        // generate seed
-        const seed = await bip39.generateMnemonic();
+      // generate seed
+      const seed = await bip39.generateMnemonic();
 
-        setGeneratedWallet({ mnemonic: seed });
+      setGeneratedWallet({ mnemonic: seed });
 
-        // generate wallet from seedphrase
-        const generatedKeyfile = await jwkFromMnemonic(seed);
+      // generate wallet from seedphrase
+      let generatedKeyfile = await jwkFromMnemonic(seed);
 
-        setGeneratedWallet((val) => ({ ...val, jwk: generatedKeyfile }));
-
-        // get address
-        const address = await arweave.wallets.jwkToAddress(generatedKeyfile);
-
-        setGeneratedWallet((val) => ({ ...val, address }));
-      } catch (e) {
-        console.log("Error generating wallet", e);
-        setToast({
-          type: "error",
-          content: browser.i18n.getMessage("error_generating_wallet"),
-          duration: 2300
-        });
+      let { actualLength, expectedLength } = await getWalletKeyLength(
+        generatedKeyfile
+      );
+      while (expectedLength !== actualLength) {
+        generatedKeyfile = await jwkFromMnemonic(seed);
+        ({ actualLength, expectedLength } = await getWalletKeyLength(
+          generatedKeyfile
+        ));
       }
 
-      // reset before unload
-      window.onbeforeunload = null;
-    })();
+      setGeneratedWallet((val) => ({ ...val, jwk: generatedKeyfile }));
+
+      // get address
+      const address = await arweave.wallets.jwkToAddress(generatedKeyfile);
+
+      setGeneratedWallet((val) => ({ ...val, address }));
+
+      return generatedWallet;
+    } catch (e) {
+      console.log("Error generating wallet", e);
+      setToast({
+        type: "error",
+        content: browser.i18n.getMessage("error_generating_wallet"),
+        duration: 2300
+      });
+    }
+
+    return {};
+  }
+
+  useEffect(() => {
+    generateWallet();
   }, [isGenerateWallet]);
 
   // animate content sice
@@ -189,7 +201,9 @@ export default function Setup({ setupMode, page }: Props) {
         </HeaderContainer>
         <Spacer y={1.5} />
         <PasswordContext.Provider value={{ password, setPassword }}>
-          <WalletContext.Provider value={generatedWallet}>
+          <WalletContext.Provider
+            value={{ wallet: generatedWallet, generateWallet }}
+          >
             <Content>
               <PageWrapper style={{ height: contentSize }}>
                 <AnimatePresence initial={false}>
@@ -290,9 +304,17 @@ export const PasswordContext = createContext({
   password: ""
 });
 
-export const WalletContext = createContext<WalletContextValue>({});
+export const WalletContext = createContext<WalletContextValue>({
+  wallet: {},
+  generateWallet: (retry?: boolean) => Promise.resolve({})
+});
 
 interface WalletContextValue {
+  wallet: GeneratedWallet;
+  generateWallet: (retry?: boolean) => Promise<GeneratedWallet>;
+}
+
+interface GeneratedWallet {
   address?: string;
   mnemonic?: string;
   jwk?: JWKInterface;

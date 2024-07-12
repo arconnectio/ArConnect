@@ -49,6 +49,18 @@
     "message": "Hide",
     "description": "Hide text"
   },
+  "close": {
+    "message": "Close",
+    "description": "Close button text"
+  },
+  "retry": {
+    "message": "Retry",
+    "description": "Retry button text"
+  },
+  "save": {
+    "message": "Save",
+    "description": "Save button text"
+  },
   "add_wallet": {
     "message": "Add wallet",
     "description": "Add a wallet text"
@@ -248,39 +260,39 @@
     "description": "Send transaction button"
   },
   "permissionDescriptionAccessAddress": {
-    "message": "Access the current address selected in ArConnect",
+    "message": "Allows access to the active address",
     "description": "Description for the \"ACCESS_ADDRESS\" permission"
   },
   "permissionDescriptionAccessPublicKey": {
-    "message": "Access the public key of the current address selected in ArConnect",
+    "message": "Allows access to the active address public key",
     "description": "Description for the \"ACCESS_PUBLIC_KEY\" permission"
   },
   "permissionDescriptionAccessAllAddresses": {
-    "message": "Access all addresses added to ArConnect",
+    "message": "Allows access to all the active and non-active wallet addresses",
     "description": "Description for the \"ACCESS_ALL_ADDRESSES\" permission"
   },
   "permissionDescriptionSign": {
-    "message": "Sign a transaction",
+    "message": "Allows the signing of a transaction.",
     "description": "Description for the \"SIGN_TRANSACTION\" permission"
   },
   "permissionDescriptionEncrypt": {
-    "message": "Encrypt data using the user's keyfile",
+    "message": "Allows encrypting data using wallet's keyfile. It does not grant access to keyfile.",
     "description": "Description for the \"ENCRYPT\" permission"
   },
   "permissionDescriptionDecrypt": {
-    "message": "Decrypt data using the user's keyfile",
+    "message": "Allows decrypting data using wallet's keyfile. It does not grant access to keyfile.",
     "description": "Description for the \"DECRYPT\" permission"
   },
   "permissionDescriptionSignature": {
-    "message": "Sign data using the user's keyfile",
+    "message": "Allows the signing of data.",
     "description": "Description for the \"SIGNATURE\" permission"
   },
   "permissionDescriptionArweaveConfig": {
-    "message": "Access the user's custom Arweave config",
+    "message": "Access read access to ArConnect configuration file",
     "description": "Description for the \"ACCESS_ARWEAVE_CONFIG\" permission"
   },
   "permissionDescriptionDispatch": {
-    "message": "Dispatch an Arweave transaction or interaction",
+    "message": "Allows using dispatch transactions.",
     "description": "Description for the \"DISPATCH\" permission"
   },
   "copyId": {
@@ -665,6 +677,18 @@
     "message": "Error exporting wallet",
     "description": "Wallet export error notification"
   },
+  "import_wallet_key_length_short_error_title": {
+    "message": "Key Length Too Short",
+    "description": "Key Length Too Short error title"
+  },
+  "import_wallet_key_length_short_error": {
+    "message": "The key length of the wallet you are importing is less than the required length to transact on the AO network.  It is recommended you create a new ArConnect wallet and transfer your assets to your new wallet.",
+    "description": "Key Length Too Short error"
+  },
+  "generate_wallet_in_progress": {
+    "message": "The wallet creation process can take 30-60 seconds.",
+    "description": "Generate wallet in progresss text"
+  },
   "development_version": {
     "message": "Development",
     "description": "Development version badge text"
@@ -778,6 +802,10 @@
   "generating_wallet": {
     "message": "Generating wallet...",
     "description": "Generating wallet in progress text"
+  },
+  "longer_than_usual": {
+    "message": "Please wait, this is taking longer than usual...",
+    "description": "Longer than usual text"
   },
   "keyfile": {
     "message": "Keyfile",
@@ -2109,5 +2137,13 @@
   "incorrect_password_error_message": {
     "message": "Password incorrect. Please enter the password to your ArConnect and try again. Not the password to the wallet you are importing.",
     "description": "Error message if password is incorrect"
+  },
+  "mismatch_warning_title": {
+    "message": "Wallet Mismatch Detected.",
+    "description": "Title for wallet mismatch warning on sda"
+  },
+  "mismatch_warning": {
+    "message": "Your wallet has a mismatched bit length. You can proceed, but may encounter errors. Transactions could fail or behave unexpectedly.",
+    "description": "warning for mismatch wallet"
   }
 }

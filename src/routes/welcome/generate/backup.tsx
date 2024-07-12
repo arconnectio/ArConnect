@@ -1,6 +1,6 @@
 import { ButtonV2, Spacer, Text } from "@arconnect/components";
 import { useLocation, useRoute } from "wouter";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { WalletContext } from "../setup";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
@@ -20,7 +20,10 @@ export default function Backup() {
   const [shown, setShown] = useState(false);
 
   // wallet context
-  const generatedWallet = useContext(WalletContext);
+  const { wallet: generatedWallet } = useContext(WalletContext);
+
+  // ref to track the latest generated wallet
+  const walletRef = useRef(generatedWallet);
 
   // route
   const [, params] = useRoute<{ setup: string; page: string }>("/:setup/:page");
@@ -35,6 +38,10 @@ export default function Backup() {
     setCopyDisplay(false);
     setTimeout(() => setCopyDisplay(true), 1050);
   }
+
+  useEffect(() => {
+    walletRef.current = generatedWallet;
+  }, [generatedWallet]);
 
   // Segment
   useEffect(() => {

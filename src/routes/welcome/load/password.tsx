@@ -70,16 +70,12 @@ export default function Password() {
     setLocation(`/${params.setup}/${Number(params.page) + 1}`);
   }
 
-  // password valid
-  const validPassword = useMemo(
-    () => checkPasswordValid(passwordInput.state),
-    [passwordInput]
-  );
-
   // passwords match
   const matches = useMemo(
-    () => passwordInput.state === validPasswordInput.state && validPassword,
-    [passwordInput, validPasswordInput, validPassword]
+    () =>
+      passwordInput.state === validPasswordInput.state &&
+      passwordInput.state?.length >= 5,
+    [passwordInput, validPasswordInput]
   );
 
   // Segment

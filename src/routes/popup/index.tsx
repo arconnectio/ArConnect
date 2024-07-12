@@ -107,17 +107,13 @@ export default function Home() {
 
   useEffect(() => {
     const checkBits = async () => {
-      const bits = await checkWalletBits();
+      if (!loggedIn) return;
 
-      if (bits === null) {
-        return;
-      } else {
-        await trackEvent(EventType.BITS_LENGTH, { mismatch: bits });
-      }
+      const bits = await checkWalletBits();
     };
 
     checkBits();
-  }, []);
+  }, [loggedIn]);
 
   useEffect(() => {
     // check whether to show announcement
