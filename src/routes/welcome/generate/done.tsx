@@ -66,7 +66,9 @@ export default function Done() {
     }
 
     try {
-      const ansProfile = (await getAnsProfile(wallet.address)) as AnsUser;
+      const ansProfile = (await getAnsProfile(
+        walletRef.current.address
+      )) as AnsUser;
 
       if (ansProfile) {
         nickname = ansProfile.currentLabel;
@@ -75,7 +77,9 @@ export default function Done() {
 
     // add the wallet
     await addWallet(
-      nickname ? { nickname, wallet: wallet.jwk } : wallet.jwk,
+      nickname
+        ? { nickname, wallet: walletRef.current.jwk }
+        : walletRef.current.jwk,
       password
     );
 
