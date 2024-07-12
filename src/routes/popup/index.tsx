@@ -108,12 +108,6 @@ export default function Home() {
   useEffect(() => {
     const checkBits = async () => {
       const bits = await checkWalletBits();
-
-      if (bits === null) {
-        return;
-      } else {
-        await trackEvent(EventType.BITS_LENGTH, { mismatch: bits });
-      }
     };
 
     checkBits();

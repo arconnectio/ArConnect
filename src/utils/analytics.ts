@@ -234,6 +234,11 @@ const setToStartOfNextMonth = (currentDate: Date): Date => {
   return newDate;
 };
 
+export interface WalletBitsCheck {
+  checked: boolean;
+  mismatch: boolean;
+}
+
 /**
  * Checks the bit length the active Arweave wallet.
  *
@@ -254,11 +259,16 @@ export const checkWalletBits = async (): Promise<boolean | null> => {
   if (!activeAddress) {
     return null;
   }
-  const hasBeenTracked = await ExtensionStorage.get<boolean>(
-    `bits_check_${activeAddress}`
+
+  const storageKey = `bits_check_${activeAddress}`;
+
+  const hasBeenTracked = await ExtensionStorage.get<boolean | WalletBitsCheck>(
+    storageKey
   );
 
-  if (hasBeenTracked) {
+  if (typeof hasBeenTracked === "boolean") {
+    await ExtensionStorage.remove(storageKey);
+  } else if (hasBeenTracked && hasBeenTracked.checked) {
     return null;
   }
 
@@ -273,11 +283,16 @@ export const checkWalletBits = async (): Promise<boolean | null> => {
     const expectedLength = signer.ownerLength;
     const actualLength = owner.byteLength;
 
-    const lengthsMatch = expectedLength === actualLength;
-
     freeDecryptedWallet(decryptedWallet.keyfile);
 
-    await ExtensionStorage.set(`bits_check_${activeAddress}`, true);
+    const lengthsMatch = expectedLength === actualLength;
+
+    await ExtensionStorage.set(`bits_check_${activeAddress}`, {
+      checked: true,
+      mismatch: !lengthsMatch
+    });
+
+    await trackEvent(EventType.BITS_LENGTH, { mismatch: !lengthsMatch });
 
     return !lengthsMatch;
   } catch (error) {
