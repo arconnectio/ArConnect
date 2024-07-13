@@ -14,6 +14,7 @@ import {
   AO_NATIVE_TOKEN_BALANCE_MIRROR
 } from "~utils/ao_import";
 import type { Alarms } from "webextension-polyfill";
+import type { KeystoneSigner } from "~wallets/hardware/keystone";
 
 export type AoInstance = ReturnType<typeof connect>;
 
@@ -484,6 +485,54 @@ export const aoTokensCacheHandler = async (alarmInfo?: Alarms.Alarm) => {
     }
   }
   await ExtensionStorage.set("ao_tokens", updatedTokens);
+};
+
+export const sendAoTransferKeystone = async (
+  ao: AoInstance,
+  process: string,
+  recipient: string,
+  amount: string,
+  keystoneSigner: KeystoneSigner
+) => {
+  try {
+    const dataItemSigner = async ({
+      data,
+      tags = [],
+      target,
+      anchor
+    }: {
+      data: any;
+      tags?: { name: string; value: string }[];
+      target?: string;
+      anchor?: string;
+    }): Promise<{ id: string; raw: ArrayBuffer }> => {
+      const signer = keystoneSigner;
+      const dataItem = createData(data, signer, { tags, target, anchor });
+      const serial = dataItem.getRaw();
+      const signature = await signer.sign(serial);
+      dataItem.setSignature(Buffer.from(signature));
+
+      return {
+        id: dataItem.id,
+        raw: dataItem.getRaw()
+      };
+    };
+    const transferID = await ao.message({
+      process,
+      signer: dataItemSigner,
+      tags: [
+        { name: "Action", value: "Transfer" },
+        {
+          name: "Recipient",
+          value: recipient
+        },
+        { name: "Quantity", value: amount }
+      ]
+    });
+    return transferID;
+  } catch (err) {
+    console.log("err", err);
+  }
 };
 
 export interface TokenInfo {

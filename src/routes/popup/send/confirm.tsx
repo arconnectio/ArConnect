@@ -45,16 +45,26 @@ import {
 import { fractionedToBalance } from "~tokens/currency";
 import { type Token } from "~tokens/token";
 import { useContact } from "~contacts/hooks";
-import { sendAoTransfer, useAo } from "~tokens/aoTokens/ao";
+import {
+  sendAoTransfer,
+  sendAoTransferKeystone,
+  useAo
+} from "~tokens/aoTokens/ao";
 import { useActiveWallet } from "~wallets/hooks";
 import { UR } from "@ngraveio/bc-ur";
-import { decodeSignature, transactionToUR } from "~wallets/hardware/keystone";
+import {
+  KeystoneSigner,
+  decodeSignature,
+  transactionToUR,
+  type KeystoneInteraction
+} from "~wallets/hardware/keystone";
 import { useScanner } from "@arconnect/keystone-sdk";
 import Progress from "~components/Progress";
 import { updateSubscription } from "~subscriptions";
 import { SubscriptionStatus } from "~subscriptions/subscription";
 import { checkPassword } from "~wallets/auth";
 import BigNumber from "bignumber.js";
+import { SignType } from "@keystonehq/bc-ur-registry-arweave";
 
 interface Props {
   tokenID: string;
@@ -507,8 +517,30 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
   const [transactionUR, setTransactionUR] = useState<UR>();
   const [preparedTx, setPreparedTx] = useState<Partial<RawStoredTransfer>>();
 
+  const keystoneInteraction = useMemo(() => {
+    const keystoneInteraction: KeystoneInteraction = {
+      display(data) {
+        setIsLoading(false);
+        setTransactionUR(data);
+      }
+    };
+    return keystoneInteraction;
+  }, [setIsLoading]);
+
+  const keystoneSigner = useMemo(() => {
+    if (wallet?.type !== "hardware") return null;
+    const keystoneSigner = new KeystoneSigner(
+      Buffer.from(Arweave.utils.b64UrlToBuffer(wallet.publicKey)),
+      wallet.xfp,
+      isAo ? SignType.DataItem : SignType.Transaction,
+      keystoneInteraction
+    );
+    return keystoneSigner;
+  }, [wallet, isAo, keystoneInteraction]);
+
   useEffect(() => {
     (async () => {
+      setIsLoading(true);
       if (!recipient?.address) return;
 
       // get the tx from storage
@@ -524,6 +556,32 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
       // is a hardware wallet
       if (wallet?.type !== "hardware") return;
 
+      if (isAo) {
+        try {
+          setPreparedTx(prepared);
+          const res = await sendAoTransferKeystone(
+            ao,
+            tokenID,
+            recipient.address,
+            fractionedToBalance(amount, token, "AO"),
+            keystoneSigner
+          );
+          if (res) {
+            setToast({
+              type: "success",
+              content: browser.i18n.getMessage("sent_tx"),
+              duration: 2000
+            });
+            push(`/transaction/${res}`);
+            setIsLoading(false);
+          }
+          return res;
+        } catch (err) {
+          console.log("err in ao", err);
+          throw err;
+        }
+      }
+
       const arweave = new Arweave(prepared.gateway);
       const convertedTransaction = arweave.transactions.fromRaw(
         prepared.transaction
@@ -531,6 +589,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
 
       // get tx UR
       try {
+        setIsLoading(false);
         setTransactionUR(
           await transactionToUR(
             convertedTransaction,
@@ -548,7 +607,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
         push("/send/transfer");
       }
     })();
-  }, [wallet, recipient]);
+  }, [wallet, recipient, keystoneSigner, setIsLoading]);
 
   // current hardware wallet operation
   const [hardwareStatus, setHardwareStatus] = useState<"play" | "scan">();
@@ -581,6 +640,11 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
 
         // decode signature
         const { id, signature } = await decodeSignature(res);
+
+        if (isAo) {
+          keystoneSigner.submitSignature(signature);
+          return;
+        }
 
         // set signature
         transaction.setSignature({

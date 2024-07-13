@@ -1,15 +1,13 @@
 import { replyToAuthRequest, useAuthParams, useAuthUtils } from "~utils/auth";
-import { decodeSignature, messageToUR } from "~wallets/hardware/keystone";
+import {
+  dataItemToUR,
+  decodeSignature,
+  messageToUR
+} from "~wallets/hardware/keystone";
 import { useEffect, useState } from "react";
 import { useScanner } from "@arconnect/keystone-sdk";
 import { useActiveWallet } from "~wallets/hooks";
 import type { UR } from "@ngraveio/bc-ur";
-import {
-  Properties,
-  PropertyName,
-  PropertyValue,
-  TransactionProperty
-} from "~routes/popup/transaction/[id]";
 import {
   ButtonV2,
   Section,
@@ -24,31 +22,69 @@ import Progress from "~components/Progress";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import Message from "~components/auth/Message";
-
-export default function SignMessage() {
+import type { AuthKeystoneType } from "~api/modules/sign/sign_auth";
+import { onMessage, sendMessage } from "@arconnect/webext-bridge";
+import type { Chunk } from "~api/modules/sign/chunks";
+import { bytesFromChunks } from "~api/modules/sign/transaction_builder";
+export default function SignKeystone() {
   // sign params
   const params = useAuthParams<{
-    data: string;
+    collectionId: string;
+    keystoneSignType: string;
   }>();
-
   // reconstructed transaction
   const [dataToSign, setDataToSign] = useState<Buffer>();
+  const [dataType, setDataType] = useState("Message");
 
   useEffect(() => {
     (async () => {
-      if (!params?.data) return;
-      // reset tx
-      setDataToSign(Buffer.from(params?.data, "base64"));
+      // request chunks
+      if (params) {
+        setDataType(params?.keystoneSignType);
+        sendMessage("auth_listening", null, "background");
+
+        const chunks: Chunk[] = [];
+
+        // listen for chunks
+        onMessage("auth_chunk", ({ sender, data }) => {
+          // check data type
+          if (
+            data.collectionID !== params.collectionID ||
+            sender.context !== "background" ||
+            data.type === "start"
+          ) {
+            return;
+          }
+          // end chunk stream
+          if (data.type === "end") {
+            const bytes = bytesFromChunks(chunks);
+            const signData = Buffer.from(bytes);
+            setDataToSign(signData);
+          } else if (data.type === "bytes") {
+            // add chunk
+            chunks.push(data);
+          }
+        });
+      }
     })();
   }, [params]);
 
+  useEffect(() => {
+    (async () => {
+      if (dataType === "DataItem" && !!dataToSign) {
+        await loadTransactionUR();
+        setPage("qr");
+      }
+    })();
+  }, [dataType, dataToSign]);
+
   // get auth utils
-  const { closeWindow, cancel } = useAuthUtils("signMessage", params?.authID);
+  const { closeWindow, cancel } = useAuthUtils("signKeystone", params?.authID);
 
   // authorize
   async function authorize(data?: any) {
     // reply to request
-    await replyToAuthRequest("signMessage", params.authID, undefined, data);
+    await replyToAuthRequest("signKeystone", params.authID, undefined, data);
 
     // close the window
     closeWindow();
@@ -69,11 +105,14 @@ export default function SignMessage() {
 
   async function loadTransactionUR() {
     if (wallet.type !== "hardware" || !dataToSign) return;
-
     // load the ur data
-    const ur = await messageToUR(dataToSign, wallet.xfp);
-
-    setTransactionUR(ur);
+    if (dataType === "DataItem") {
+      const ur = await dataItemToUR(dataToSign, wallet.xfp);
+      setTransactionUR(ur);
+    } else {
+      const ur = await messageToUR(dataToSign, wallet.xfp);
+      setTransactionUR(ur);
+    }
   }
 
   // loading
@@ -106,7 +145,7 @@ export default function SignMessage() {
 
       // reply to request
       await replyToAuthRequest(
-        "signMessage",
+        "signKeystone",
         params.authID,
         "Failed to decode signature from keystone"
       );
@@ -133,7 +172,7 @@ export default function SignMessage() {
           allowOpen={false}
         />
         <Spacer y={0.75} />
-        {(!page && dataToSign && (
+        {(!page && dataToSign && dataType === "Message" && (
           <Section>
             <Message message={[...dataToSign]} />
           </Section>
@@ -145,13 +184,13 @@ export default function SignMessage() {
               <>
                 <AnimatedQRScanner
                   {...scanner.bindings}
-                  onError={(error) =>
+                  onError={(error) => {
                     setToast({
                       type: "error",
                       duration: 2300,
                       content: browser.i18n.getMessage(`keystone_${error}`)
-                    })
-                  }
+                    });
+                  }}
                 />
                 <Spacer y={1} />
                 <Text>
