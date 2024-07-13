@@ -485,7 +485,7 @@ export const aoTokensCacheHandler = async (alarmInfo?: Alarms.Alarm) => {
     }
   }
   await ExtensionStorage.set("ao_tokens", updatedTokens);
-}
+};
 
 export const sendAoTransferKeystone = async (
   ao: AoInstance,
