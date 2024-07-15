@@ -10,6 +10,52 @@ import { nanoid } from "nanoid";
 export type SplitTransaction = Partial<Transaction>;
 
 /**
+ * Split an Uint8Array to chunks, per chunks value max size is limited to 0.5mb
+ */
+export const bytesToChunks = (
+  data: Uint8Array,
+  id: string,
+  start_index: number
+): Chunk[] => {
+  const dataChunks: Chunk[] = [];
+
+  for (let i = 0; i < Math.ceil(data.length / CHUNK_SIZE); i++) {
+    const sliceFrom = i * CHUNK_SIZE;
+    const chunkValue = data.slice(sliceFrom, sliceFrom + CHUNK_SIZE);
+
+    dataChunks.push({
+      collectionID: id,
+      type: "bytes",
+      index: i + start_index,
+      value: Array.from(chunkValue)
+    });
+  }
+  return dataChunks;
+};
+
+/**
+ * Reconstruct bytes from chunks
+ */
+export const bytesFromChunks = (chunks: Chunk[]): Uint8Array => {
+  chunks.sort((a, b) => a.index - b.index);
+
+  const dataSize = getDataSize(chunks);
+  const reconstructedData = new Uint8Array(dataSize);
+
+  let previousLength = 0;
+
+  for (const chunk of chunks) {
+    if (chunk.type === "bytes") {
+      const chunkBuffer = new Uint8Array(chunk.value as number[]);
+
+      reconstructedData.set(chunkBuffer, previousLength);
+      previousLength += chunkBuffer.length;
+    }
+  }
+  return reconstructedData;
+};
+
+/**
  * Split the tags and the data of a transaction in
  * chunks and remove them from the transaction object
  *
@@ -81,7 +127,7 @@ export function getDataSize(chunks: Chunk[]): number {
   let dataSize = 0;
 
   for (const chunk of chunks) {
-    if (chunk.type === "data") {
+    if (chunk.type === "data" || chunk.type === "bytes") {
       dataSize += chunk.value?.length || 0;
     }
   }

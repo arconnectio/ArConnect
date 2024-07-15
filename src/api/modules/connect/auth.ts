@@ -11,7 +11,7 @@ export type AuthType =
   | "token"
   | "sign"
   | "subscription"
-  | "signMessage"
+  | "signKeystone"
   | "signature"
   | "signDataItem";
 

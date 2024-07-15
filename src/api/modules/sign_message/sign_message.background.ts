@@ -8,7 +8,7 @@ import {
   isNumberArray,
   isSignMessageOptions
 } from "~utils/assertions";
-import { signAuthMessage } from "../sign/sign_auth";
+import { signAuthKeystone, type AuthKeystoneData } from "../sign/sign_auth";
 import Arweave from "arweave";
 
 const background: ModuleFunction<number[]> = async (
@@ -66,7 +66,11 @@ const background: ModuleFunction<number[]> = async (
 
     return Array.from(new Uint8Array(signature));
   } else {
-    const res = await signAuthMessage(dataToSign);
+    const data: AuthKeystoneData = {
+      type: "Message",
+      data: dataToSign
+    };
+    const res = await signAuthKeystone(data);
     const sig = Arweave.utils.b64UrlToBuffer(res.data.signature);
     return Array.from(sig);
   }
