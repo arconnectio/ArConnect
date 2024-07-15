@@ -541,6 +541,10 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
   useEffect(() => {
     (async () => {
       setIsLoading(true);
+      if (!recipient?.address) {
+        setIsLoading(false);
+        return;
+      }
 
       // get the tx from storage
       const prepared = await prepare(recipient.address);
@@ -589,7 +593,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
         prepared.transaction
       );
 
-      // get tx UR
+      // get3 tx UR
       try {
         setIsLoading(false);
         setTransactionUR(
@@ -809,7 +813,6 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
           disabled={
             (needsSign && !passwordInput.state) ||
             isLoading ||
-            !recipient?.address ||
             hardwareStatus === "scan"
           }
           onClick={async () => {
@@ -819,6 +822,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
             }
           }}
         >
+          {console.log("hardware", hardwareStatus, isLoading)}
           {(hardwareStatus === "play" &&
             browser.i18n.getMessage("keystone_scan")) ||
             browser.i18n.getMessage("confirm")}
