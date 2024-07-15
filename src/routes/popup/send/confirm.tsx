@@ -541,7 +541,6 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
   useEffect(() => {
     (async () => {
       setIsLoading(true);
-      if (!recipient?.address) return;
 
       // get the tx from storage
       const prepared = await prepare(recipient.address);
@@ -554,7 +553,10 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
 
       // check if the current wallet
       // is a hardware wallet
-      if (wallet?.type !== "hardware") return;
+      if (wallet?.type !== "hardware") {
+        setIsLoading(false);
+        return;
+      }
 
       if (isAo) {
         try {
@@ -807,6 +809,7 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
           disabled={
             (needsSign && !passwordInput.state) ||
             isLoading ||
+            !recipient?.address ||
             hardwareStatus === "scan"
           }
           onClick={async () => {
