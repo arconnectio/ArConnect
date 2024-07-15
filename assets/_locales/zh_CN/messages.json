@@ -1935,11 +1935,11 @@
     "description": "Popup description about ao token transfer learn more"
   },
   "ao_degraded": {
-      "message": "AO 代币处理网络降级。",
+      "message": "无法连接到 AO 令牌进程",
       "description": "ao degraded title text"
   },
   "ao_degraded_description": {
-      "message": "网络问题解决后，AO 代币处理将可用。",
+      "message": "网络问题解决后，AO 余额将可用。",
       "description": "ao degraded description text"
   },
   "network_issue": {
