@@ -946,7 +946,7 @@
       "description": "Always allow button"
     },
     "always_ask_tooltip":{
-      "message:": "每次交互前始终要求确认",
+      "message": "每次交互前始终要求确认",
       "description": "Always allow tooltip"
     },
     "always_ask_permission": {

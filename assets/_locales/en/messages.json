@@ -954,7 +954,7 @@
     "description": "Always allow button"
   },
   "always_ask_tooltip":{
-    "message:": "Always ask for confirmation before any interaction",
+    "message": "Always ask for confirmation before any interaction",
     "description": "Always allow tooltip"
   },
   "allow_selected_permissions": {
