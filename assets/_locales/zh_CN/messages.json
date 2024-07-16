@@ -945,6 +945,10 @@
       "message": "始终允许",
       "description": "Always allow button"
     },
+    "always_ask_tooltip":{
+      "message:": "每次交互前始终要求确认",
+      "description": "Always allow tooltip"
+    },
     "always_ask_permission": {
       "message": "始终询问权限",
       "description": "Always allow button"

@@ -953,6 +953,10 @@
     "message": "Always ask permission",
     "description": "Always allow button"
   },
+  "always_ask_tooltip":{
+    "message:": "Always ask for confirmation before any interaction",
+    "description": "Always allow tooltip"
+  },
   "allow_selected_permissions": {
     "message": "Allow selected permissions",
     "description": "Always allow button"

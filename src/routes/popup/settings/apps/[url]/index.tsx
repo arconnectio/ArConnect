@@ -151,6 +151,34 @@ export default function AppSettings({ url }: Props) {
             />
           </Flex>
           <Spacer y={1} />
+          {/* Always Ask Popup */}
+          <Flex alignItems="center" justifyContent="space-between">
+            <Flex alignItems="center" justifyContent="center">
+              <TitleV1>
+                {browser.i18n.getMessage("always_ask_permission")}
+              </TitleV1>
+              <TooltipV2
+                content={
+                  <div style={{ width: "200px", textAlign: "center" }}>
+                    {browser.i18n.getMessage("always_ask_tooltip")}
+                  </div>
+                }
+                position="top"
+              >
+                <InfoIcon />
+              </TooltipV2>
+            </Flex>
+            <ToggleSwitch
+              checked={settings?.alwaysAsk}
+              setChecked={(enabled: boolean) => {
+                updateSettings((val) => ({
+                  ...val,
+                  alwaysAsk: !val.alwaysAsk
+                }));
+              }}
+            />
+          </Flex>
+          <Spacer y={1} />
           <div>
             <TitleV2>{browser.i18n.getMessage("limit")}</TitleV2>
             <div
