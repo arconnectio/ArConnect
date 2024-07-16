@@ -9,7 +9,7 @@ import { useLocation } from "wouter";
 
 export default function AppPermissions({ url }: Props) {
   // app settings
-  const app = new Application(url);
+  const app = new Application(decodeURIComponent(url));
   const [settings, updateSettings] = app.hook();
   const [, setLocation] = useLocation();
 
@@ -24,42 +24,53 @@ export default function AppPermissions({ url }: Props) {
       <Wrapper>
         <Title noMargin>{browser.i18n.getMessage("permissions")}</Title>
         {Object.keys(permissionData).map(
-          (permissionName: PermissionType, i) => (
-            <div key={i}>
-              <Permission>
-                <Checkbox
-                  size={16}
-                  onChange={(checked) =>
-                    updateSettings((val) => {
-                      // toggle permission
-                      if (
-                        checked &&
-                        !val.permissions.includes(permissionName)
-                      ) {
-                        val.permissions.push(permissionName);
-                      } else if (!checked) {
-                        val.permissions = val.permissions.filter(
-                          (p) => p !== permissionName
-                        );
-                      }
+          (permissionName: PermissionType, i) => {
+            let formattedPermissionName = permissionName
+              .split("_")
+              .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+              .join(" ");
 
-                      return val;
-                    })
-                  }
-                  checked={settings.permissions.includes(permissionName)}
-                />
-                <div>
-                  <PermissionTitle>{permissionName}</PermissionTitle>
-                  <PermissionDescription>
-                    {browser.i18n.getMessage(permissionData[permissionName])}
-                  </PermissionDescription>
-                </div>
-              </Permission>
-              {i !== Object.keys(permissionData).length - 1 && (
-                <Spacer y={0.8} />
-              )}
-            </div>
-          )
+            if (permissionName === "SIGNATURE") {
+              formattedPermissionName = "Sign Data";
+            }
+
+            return (
+              <div key={i}>
+                <Permission>
+                  <Checkbox
+                    size={16}
+                    onChange={(checked) =>
+                      updateSettings((val) => {
+                        // toggle permission
+                        if (
+                          checked &&
+                          !val.permissions.includes(permissionName)
+                        ) {
+                          val.permissions.push(permissionName);
+                        } else if (!checked) {
+                          val.permissions = val.permissions.filter(
+                            (p) => p !== permissionName
+                          );
+                        }
+
+                        return val;
+                      })
+                    }
+                    checked={settings.permissions.includes(permissionName)}
+                  />
+                  <div>
+                    <PermissionTitle>{formattedPermissionName}</PermissionTitle>
+                    <PermissionDescription>
+                      {browser.i18n.getMessage(permissionData[permissionName])}
+                    </PermissionDescription>
+                  </div>
+                </Permission>
+                {i !== Object.keys(permissionData).length - 1 && (
+                  <Spacer y={0.8} />
+                )}
+              </div>
+            );
+          }
         )}
         <Spacer y={1} />
       </Wrapper>
