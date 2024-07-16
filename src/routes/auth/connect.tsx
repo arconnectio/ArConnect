@@ -163,6 +163,14 @@ export default function Connect() {
   async function connect(alwaysAsk: boolean = false) {
     if (appUrl === "") return;
 
+    if (allowanceEnabled && Number(allowanceInput.state) < 0.001) {
+      return setToast({
+        type: "error",
+        content: browser.i18n.getMessage("invalid_qty_error"),
+        duration: 2200
+      });
+    }
+
     // get existing permissions
     const app = new Application(appUrl);
     const existingPermissions = await app.getPermissions();
@@ -174,11 +182,12 @@ export default function Connect() {
         permissions,
         name: appData.name,
         logo: appData.logo,
+        alwaysAsk,
         allowance: {
-          enabled: alwaysAsk ? false : allowanceEnabled,
+          enabled: allowanceEnabled,
           limit:
             allowanceEnabled && allowanceInput.state
-              ? arweave.ar.arToWinston(allowanceInput.state)
+              ? arweave.ar.arToWinston(allowanceInput.state) // If allowance is enabled and a new limit is set, use the new limit
               : defaultAllowance.limit,
           spent: "0" // in winstons
         },
@@ -192,20 +201,14 @@ export default function Connect() {
       const allowance = await app.getAllowance();
       await app.updateSettings({
         permissions,
+        alwaysAsk,
         allowance: {
-          // Always preserve the current spent amount
-          spent: allowance.spent.toString(),
-
-          // Determine the new limit:
-          limit: alwaysAsk
-            ? allowance.limit.toString() // If 'Always Ask' is enabled, keep the existing limit
-            : allowanceEnabled && allowanceInput.state
-            ? arweave.ar.arToWinston(allowanceInput.state) // If allowance is enabled and a new limit is set, use the new limit
-            : defaultAllowance.limit, // Otherwise, use the default limit
-
-          // If 'Always Ask' is true, disable allowance
-          // Otherwise, use the current allowance enabled state
-          enabled: alwaysAsk ? false : allowanceEnabled
+          enabled: allowanceEnabled,
+          limit:
+            allowanceEnabled && allowanceInput.state
+              ? arweave.ar.arToWinston(allowanceInput.state) // If allowance is enabled and a new limit is set, use the new limit
+              : defaultAllowance.limit,
+          spent: "0" // in winstons
         }
       });
     }
@@ -354,7 +357,7 @@ export default function Connect() {
                           style={{ gap: "4px" }}
                         >
                           <div>{browser.i18n.getMessage("allowance")}</div>
-                          <TooltipV2 content={InfoText} position="bottom">
+                          <TooltipV2 content={InfoText} position="right">
                             <InfoCircle />
                           </TooltipV2>
                         </Flex>

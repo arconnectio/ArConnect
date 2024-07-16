@@ -28,16 +28,15 @@ const background: ModuleFunction<number[]> = async (
   }
 
   const app = new Application(appData.appURL);
-  const allowance = await app.getAllowance();
+  const alwaysAsk = await app.getAlwaysAsk();
 
   if (
-    (dataItem.tags?.some(
+    dataItem.tags?.some(
       (tag) => tag.name === "Action" && tag.value === "Transfer"
     ) &&
-      dataItem.tags?.some(
-        (tag) => tag.name === "Data-Protocol" && tag.value === "ao"
-      )) ||
-    allowance.enabled
+    dataItem.tags?.some(
+      (tag) => tag.name === "Data-Protocol" && tag.value === "ao"
+    )
   ) {
     try {
       const tags = dataItem?.tags || [];
@@ -92,10 +91,11 @@ const background: ModuleFunction<number[]> = async (
 
   // check allowance
   // const price = await getPrice(dataEntry, await app.getBundler());
+  // we are no longer checking for allowance on this page
 
   // allowance or sign auth
   try {
-    if (!allowance.enabled) {
+    if (alwaysAsk) {
       // get address
       const address = await arweave.wallets.jwkToAddress(
         decryptedWallet.keyfile

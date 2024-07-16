@@ -151,6 +151,10 @@
     "message": "Invalid password",
     "description": "Invalid password error"
   },
+  "invalid_qty_error": {
+    "message": "0.001 is the lowest amount. Please change your limit to a higher amount",
+    "description": "Warning message for setting a limit too low"
+  },
   "testnetLive": {
     "message": "Testnet is live",
     "description": "Testnet live message"

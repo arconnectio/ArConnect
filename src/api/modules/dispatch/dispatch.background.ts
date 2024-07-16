@@ -81,6 +81,9 @@ const background: ModuleFunction<ReturnType> = async (
   // get allowance
   const allowance = await app.getAllowance();
 
+  // always ask
+  const alwaysAsk = await app.getAlwaysAsk();
+
   // attempt to create a bundle
   try {
     // create bundlr tx as a data entry
@@ -95,7 +98,8 @@ const background: ModuleFunction<ReturnType> = async (
       appData,
       allowance,
       decryptedWallet.keyfile,
-      price
+      price,
+      alwaysAsk
     );
 
     // sign and upload bundler tx

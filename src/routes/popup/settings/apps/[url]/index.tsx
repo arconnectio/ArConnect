@@ -160,10 +160,15 @@ export default function AppSettings({ url }: Props) {
             >
               <NumberInputV2
                 small
+                disabled={!settings?.allowance?.enabled}
                 {...limitInput.bindings}
-                type="number"
+                type={settings?.allowance?.enabled ? "number" : "text"}
                 min={0}
-                defaultValue={arweave.ar.winstonToAr(limit)}
+                defaultValue={
+                  !settings?.allowance?.enabled
+                    ? "∞"
+                    : arweave.ar.winstonToAr(limit)
+                }
                 placeholder={browser.i18n.getMessage("allowance_edit")}
                 onChange={(e) =>
                   updateSettings((val) => ({
