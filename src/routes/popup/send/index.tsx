@@ -138,9 +138,6 @@ export default function Send({ id }: Props) {
     "token"
   );
 
-  const wallet = useActiveWallet();
-  const keystoneError = wallet?.type === "hardware" && isAo;
-
   // tokens
   const tokens = useTokens();
 
@@ -428,32 +425,21 @@ export default function Send({ id }: Props) {
       {AO_NATIVE_TOKEN === tokenID && (
         <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />
       )}
-      <Wrapper showOverlay={showSlider || degraded || keystoneError}>
+      <Wrapper showOverlay={showSlider || degraded}>
         <SendForm>
           {/* TOP INPUT */}
-          {(keystoneError || degraded) && (
+          {degraded && (
             <Degraded>
               <WarningWrapper>
                 <WarningIcon color={theme === "dark" ? "#fff" : "#000"} />
               </WarningWrapper>
               <div>
-                {keystoneError ? (
-                  <>
-                    <h4>{browser.i18n.getMessage("keystone_ao_title")}</h4>
-                    <span>
-                      {browser.i18n.getMessage("keystone_ao_description")}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <h4>{browser.i18n.getMessage("ao_degraded")}</h4>
-                    <span>
-                      {browser.i18n
-                        .getMessage("ao_degraded_description")
-                        .replace("<br/>", "")}
-                    </span>
-                  </>
-                )}
+                <h4>{browser.i18n.getMessage("ao_degraded")}</h4>
+                <span>
+                  {browser.i18n
+                    .getMessage("ao_degraded_description")
+                    .replace("<br/>", "")}
+                </span>
               </div>
             </Degraded>
           )}

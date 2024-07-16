@@ -36,10 +36,17 @@ import { getPrice } from "~lib/coingecko";
 import type { TokenInfo, TokenInfoWithProcessId } from "~tokens/aoTokens/ao";
 import { ChevronUpIcon, ChevronDownIcon } from "@iconicicons/react";
 import { getUserAvatar } from "~lib/avatar";
-import { LogoWrapper, Logo } from "~components/popup/Token";
+import { LogoWrapper, Logo, WarningIcon } from "~components/popup/Token";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import { useTheme } from "~utils/theme";
+import {
+  checkWalletBits,
+  EventType,
+  trackEvent,
+  type WalletBitsCheck
+} from "~utils/analytics";
+import { Degraded, WarningWrapper } from "~routes/popup/send";
 
 interface Tag {
   name: string;
@@ -65,6 +72,7 @@ export default function SignDataItem() {
   const [logo, setLogo] = useState<string>("");
   const [amount, setAmount] = useState<Quantity | null>(null);
   const [showTags, setShowTags] = useState<boolean>(false);
+  const [mismatch, setMismatch] = useState<boolean>(false);
   const { setToast } = useToasts();
 
   const recipient =
@@ -236,6 +244,34 @@ export default function SignDataItem() {
     }
   }, [tokenName, logo, theme]);
 
+  // check for if bits check exists, if it does, check mismatch
+  useEffect(() => {
+    const walletCheck = async () => {
+      if (!activeAddress) {
+        setMismatch(false);
+        return;
+      }
+      try {
+        const storageKey = `bits_check_${activeAddress}`;
+        const storedCheck = await ExtensionStorage.get<
+          WalletBitsCheck | boolean
+        >(storageKey);
+
+        if (typeof storedCheck !== "object") {
+          const bits = await checkWalletBits();
+          if (bits !== null) {
+            setMismatch(bits);
+          }
+        } else {
+          setMismatch(storedCheck.mismatch);
+        }
+      } catch (error) {
+        console.error("Error checking wallet bits:", error);
+      }
+    };
+    walletCheck();
+  }, [activeAddress]);
+
   return (
     <Wrapper ref={parentRef}>
       <div>
@@ -244,6 +280,21 @@ export default function SignDataItem() {
           showOptions={false}
           back={cancel}
         />
+        {mismatch && transfer && (
+          <Degraded>
+            <WarningWrapper>
+              <WarningIcon color={theme === "dark" ? "#fff" : "#000"} />{" "}
+            </WarningWrapper>
+            <div>
+              <h4>{browser.i18n.getMessage("mismatch_warning_title")}</h4>
+              <span>
+                <h4>{browser.i18n.getMessage("mismatch_warning")}</h4>
+
+                {/* <a>Read more</a> */}
+              </span>
+            </div>
+          </Degraded>
+        )}
         <Description>
           <Text noMargin>
             {browser.i18n.getMessage(
