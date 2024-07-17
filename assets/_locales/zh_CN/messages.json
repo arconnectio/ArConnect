@@ -49,6 +49,14 @@
       "message": "隐藏",
       "description": "Hide text"
     },
+    "close": {
+      "message": "关闭",
+      "description": "Close button text"
+    },
+    "retry": {
+      "message": "重试",
+      "description": "Retry button text"
+    },
     "save": {
       "message": "节省",
       "description": "Save button text"
@@ -150,10 +158,6 @@
     "invalidPassword": {
         "message": "密码无效",
         "description": "Invalid password error"
-    },
-    "invalid_qty_error": {
-      "message": "0.001 是最低金额。请将您的限制更改为更高的金额。",
-      "description": "Warning message for setting a limit too low"
     },
     "testnetLive": {
         "message": "测试网已上线",
@@ -681,6 +685,18 @@
         "message": "导出钱包出错",
         "description": "Wallet export error notification"
     },
+    "import_wallet_key_length_short_error_title": {
+      "message": "密钥长度太短",
+      "description": "Key Length Too Short error"
+    },
+    "import_wallet_key_length_short_error": {
+      "message": "您导入的钱包的密钥长度小于在 AO 网络上进行交易所需的长度。建议您创建一个新的ArConnect钱包，并将您的资产转移到新钱包中。",
+      "description": "Key Length Too Short error"
+    },
+    "generate_wallet_in_progress": {
+      "message": "钱包创建过程可能需要 30-60 秒。",
+      "description": "Generate wallet in progresss text"
+    },
     "development_version": {
         "message": "开发版本",
         "description": "Development version badge text"
@@ -794,6 +810,10 @@
     "generating_wallet": {
         "message": "生成钱包中...",
         "description": "Generating wallet in progress text"
+    },
+    "longer_than_usual": {
+      "message": "请稍等，这比平常需要更长的时间...",
+      "description": "Longer than usual text"
     },
     "keyfile": {
         "message": "密钥文件",
@@ -944,10 +964,6 @@
     "always_allow": {
       "message": "始终允许",
       "description": "Always allow button"
-    },
-    "always_ask_tooltip":{
-      "message": "每次交互前始终要求确认",
-      "description": "Always allow tooltip"
     },
     "always_ask_permission": {
       "message": "始终询问权限",
@@ -1945,11 +1961,11 @@
       "description": "Popup description about ao token transfer learn more"
     },
     "ao_degraded": {
-        "message": "AO 代币处理网络降级。",
+        "message": "无法连接到 AO 令牌进程",
         "description": "ao degraded title text"
     },
     "ao_degraded_description": {
-        "message": "网络问题解决后，AO 代币处理将可用。",
+        "message": "网络问题解决后，AO 余额将可用。",
         "description": "ao degraded description text"
     },
     "network_issue": {
@@ -2141,6 +2157,14 @@
     "incorrect_password_error_message": {
       "message": "密码错误。请输入 ArConnect 的密码后再试，而不是您正在导入的钱包密码。",
       "description": "Error message if password is incorrect"
+    },
+    "mismatch_warning_title": {
+      "message": "检测到钱包不匹配。",
+      "description": "Title for wallet mismatch warning on sda"
+    },
+    "mismatch_warning": {
+      "message": "您的钱包存在不匹配的位长度。您可以继续操作，但可能会遇到错误。交易可能会失败或表现异常。",
+      "description": "warning for mismatch wallet"
     }
   }
   
