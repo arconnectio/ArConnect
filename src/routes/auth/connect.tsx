@@ -163,7 +163,11 @@ export default function Connect() {
   async function connect(alwaysAsk: boolean = false) {
     if (appUrl === "") return;
 
-    if (allowanceEnabled && Number(allowanceInput.state) < 0.001) {
+    if (
+      allowanceEnabled &&
+      Number(allowanceInput.state) < 0.001 &&
+      !alwaysAsk
+    ) {
       return setToast({
         type: "error",
         content: browser.i18n.getMessage("invalid_qty_error"),
@@ -182,13 +186,14 @@ export default function Connect() {
         permissions,
         name: appData.name,
         logo: appData.logo,
-        alwaysAsk,
+        // alwaysAsk,
         allowance: {
-          enabled: allowanceEnabled,
-          limit:
-            allowanceEnabled && allowanceInput.state
-              ? arweave.ar.arToWinston(allowanceInput.state) // If allowance is enabled and a new limit is set, use the new limit
-              : defaultAllowance.limit,
+          enabled: alwaysAsk || allowanceEnabled,
+          limit: alwaysAsk // if it's always ask set the limit to 0
+            ? "0"
+            : allowanceEnabled
+            ? arweave.ar.arToWinston(allowanceInput.state) // If allowance is enabled and a new limit is set, use the new limit
+            : Number.MAX_SAFE_INTEGER.toString(), // If allowance is disabled set it to max number
           spent: "0" // in winstons
         },
         // TODO: wayfinder
@@ -201,13 +206,14 @@ export default function Connect() {
       const allowance = await app.getAllowance();
       await app.updateSettings({
         permissions,
-        alwaysAsk,
+        // alwaysAsk,
         allowance: {
-          enabled: allowanceEnabled,
-          limit:
-            allowanceEnabled && allowanceInput.state
-              ? arweave.ar.arToWinston(allowanceInput.state) // If allowance is enabled and a new limit is set, use the new limit
-              : defaultAllowance.limit,
+          enabled: alwaysAsk ?? allowanceEnabled,
+          limit: alwaysAsk // if it's always ask set the limit to 0
+            ? "0"
+            : allowanceEnabled
+            ? arweave.ar.arToWinston(allowanceInput.state) // If allowance is enabled and a new limit is set, use the new limit
+            : Number.MAX_SAFE_INTEGER.toString(), // If allowance is disabled set it to max number
           spent: "0" // in winstons
         }
       });

@@ -138,12 +138,6 @@ export default class Application {
     return settings.bundler || defaultBundler;
   }
 
-  async getAlwaysAsk(): Promise<boolean> {
-    const settings = await this.#getSettings();
-
-    return !!settings.alwaysAsk;
-  }
-
   /**
    * Allowance limit and spent qty
    */
@@ -207,7 +201,6 @@ export interface InitAppParams extends AppInfo {
   permissions: PermissionType[];
   gateway?: Gateway;
   allowance?: Allowance;
-  alwaysAsk?: boolean;
   blocked?: boolean;
   bundler?: string;
 }

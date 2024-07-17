@@ -34,7 +34,8 @@ const background: ModuleFunction<number[]> = async (
   }
 
   const app = new Application(appData.appURL);
-  const alwaysAsk = await app.getAlwaysAsk();
+  const allowance = await app.getAllowance();
+  const alwaysAsk = allowance.enabled && allowance.limit.eq(BigNumber("0"));
 
   if (
     dataItem.tags?.some(

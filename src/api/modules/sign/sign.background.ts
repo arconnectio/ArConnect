@@ -90,10 +90,10 @@ const background: ModuleFunction<BackgroundResult> = async (
   const allowance = await getAllowance(appData.appURL);
 
   // always ask
-  const alwaysAsk = await app.getAlwaysAsk();
+  const alwaysAsk = allowance.enabled && allowance.limit.eq(BigNumber("0"));
 
   // check if there is an allowance limit, if there is we need to check allowance
-  // if alwaysAsk is enabled, then we'll need to signAuth popup
+  // if alwaysAsk is true, then we'll need to signAuth popup
   // if allowance is disabled, proceed with signing
   if (alwaysAsk) {
     // get address of keyfile
@@ -124,7 +124,7 @@ const background: ModuleFunction<BackgroundResult> = async (
     // authenticate user if the allowance
     // limit is reached
     try {
-      await allowanceAuth(allowance, appData.appURL, price);
+      await allowanceAuth(allowance, appData.appURL, price, alwaysAsk);
     } catch (e) {
       freeDecryptedWallet(keyfile);
       throw new Error(e?.message || e);

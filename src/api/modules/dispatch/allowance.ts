@@ -34,8 +34,10 @@ export async function ensureAllowanceDispatch(
         dataEntry.toJSON(),
         address
       );
-    } else if (allowance.enabled) {
-      await allowanceAuth(allowance, appData.appURL, price);
+    }
+
+    if (allowance.enabled) {
+      await allowanceAuth(allowance, appData.appURL, price, alwaysAsk);
     }
   } catch (e) {
     freeDecryptedWallet(keyfile);

@@ -42,6 +42,10 @@ export default function AppSettings({ url }: Props) {
     return val.toString();
   }, [settings]);
 
+  const isAllowanceDisabled = useMemo(() => {
+    return !settings?.allowance?.enabled;
+  }, [settings?.allowance?.enabled]);
+
   // allowance limit
   const limit = useMemo(() => {
     const val = settings?.allowance?.limit;
@@ -137,43 +141,18 @@ export default function AppSettings({ url }: Props) {
               </TooltipV2>
             </Flex>
             <ToggleSwitch
-              checked={settings?.allowance.enabled}
+              checked={!isAllowanceDisabled}
               setChecked={(enabled: boolean) => {
                 updateSettings((val) => ({
                   ...val,
                   allowance: {
                     ...defaultAllowance,
                     ...val.allowance,
-                    enabled: !val.allowance.enabled
+                    enabled: enabled,
+                    limit: enabled
+                      ? val.allowance.limit
+                      : Number.MAX_SAFE_INTEGER.toString()
                   }
-                }));
-              }}
-            />
-          </Flex>
-          <Spacer y={1} />
-          {/* Always Ask Popup */}
-          <Flex alignItems="center" justifyContent="space-between">
-            <Flex alignItems="center" justifyContent="center">
-              <TitleV1>
-                {browser.i18n.getMessage("always_ask_permission")}
-              </TitleV1>
-              <TooltipV2
-                content={
-                  <div style={{ width: "200px", textAlign: "center" }}>
-                    {browser.i18n.getMessage("always_ask_tooltip")}
-                  </div>
-                }
-                position="top"
-              >
-                <InfoIcon />
-              </TooltipV2>
-            </Flex>
-            <ToggleSwitch
-              checked={settings?.alwaysAsk}
-              setChecked={(enabled: boolean) => {
-                updateSettings((val) => ({
-                  ...val,
-                  alwaysAsk: !val.alwaysAsk
                 }));
               }}
             />
@@ -188,14 +167,12 @@ export default function AppSettings({ url }: Props) {
             >
               <NumberInputV2
                 small
-                disabled={!settings?.allowance?.enabled}
+                disabled={isAllowanceDisabled}
                 {...limitInput.bindings}
-                type={settings?.allowance?.enabled ? "number" : "text"}
+                type={!isAllowanceDisabled ? "number" : "text"}
                 min={0}
-                defaultValue={
-                  !settings?.allowance?.enabled
-                    ? "∞"
-                    : arweave.ar.winstonToAr(limit)
+                value={
+                  isAllowanceDisabled ? "∞" : arweave.ar.winstonToAr(limit)
                 }
                 placeholder={browser.i18n.getMessage("allowance_edit")}
                 onChange={(e) =>
