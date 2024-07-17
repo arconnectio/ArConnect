@@ -1963,11 +1963,11 @@
     "description": "Popup description about ao token transfer learn more"
   },
   "ao_degraded": {
-    "message": "AO Token Process Network Degraded.",
+    "message": "Unable to connect to AO Token Process",
     "description": "ao degraded title text"
   },
   "ao_degraded_description": {
-    "message": "AO token process will be available when <br/>the network issues are resolved.",
+    "message": "AO balance will be available when <br/>network issues are resolved.",
     "description": "ao degraded description text"
   },
   "network_issue": {

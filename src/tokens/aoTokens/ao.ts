@@ -102,7 +102,7 @@ export function useAoTokens(
     () =>
       tokens.map((token) => ({
         ...token,
-        balance: balances.find((bal) => bal.id === token.id)?.balance ?? null
+        balance: balances.find((bal) => bal.id === token.id)?.balance
       })),
     [tokens, balances]
   );

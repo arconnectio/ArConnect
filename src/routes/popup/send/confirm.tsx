@@ -541,7 +541,10 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
   useEffect(() => {
     (async () => {
       setIsLoading(true);
-      if (!recipient?.address) return;
+      if (!recipient?.address) {
+        setIsLoading(false);
+        return;
+      }
 
       // get the tx from storage
       const prepared = await prepare(recipient.address);
@@ -554,7 +557,10 @@ export default function Confirm({ tokenID, qty, subscription }: Props) {
 
       // check if the current wallet
       // is a hardware wallet
-      if (wallet?.type !== "hardware") return;
+      if (wallet?.type !== "hardware") {
+        setIsLoading(false);
+        return;
+      }
 
       if (isAo) {
         try {
