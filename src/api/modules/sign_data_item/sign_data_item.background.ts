@@ -33,6 +33,10 @@ const background: ModuleFunction<number[]> = async (
     throw new Error(err);
   }
 
+  const app = new Application(appData.appURL);
+  const allowance = await app.getAllowance();
+  const alwaysAsk = allowance.enabled && allowance.limit.eq(BigNumber("0"));
+
   if (
     dataItem.tags?.some(
       (tag) => tag.name === "Action" && tag.value === "Transfer"
@@ -76,7 +80,6 @@ const background: ModuleFunction<number[]> = async (
   });
 
   // create app
-  const app = new Application(appData.appURL);
 
   // create arweave client
   const arweave = new Arweave(await app.getGatewayConfig());
@@ -92,11 +95,11 @@ const background: ModuleFunction<number[]> = async (
 
     // check allowance
     // const price = await getPrice(dataEntry, await app.getBundler());
-    const allowance = await app.getAllowance();
+    // we are no longer checking for allowance on this page
 
     // allowance or sign auth
     try {
-      if (!allowance.enabled) {
+      if (alwaysAsk) {
         // get address
         const address = await arweave.wallets.jwkToAddress(
           decryptedWallet.keyfile
