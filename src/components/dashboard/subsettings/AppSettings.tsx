@@ -153,16 +153,17 @@ export default function AppSettings({ app, showTitle = false }: Props) {
       <Spacer y={1} />
       <Title>{browser.i18n.getMessage("allowance")}</Title>
       <PermissionCheckbox
-        onChange={(checked) =>
-          updateSettings((val) => ({
+        onChange={(checked) => {
+          setEditingLimit(false);
+          return updateSettings((val) => ({
             ...val,
             allowance: {
               ...defaultAllowance,
               ...val.allowance,
               enabled: checked
             }
-          }))
-        }
+          }));
+        }}
         checked={settings.allowance?.enabled}
       >
         {browser.i18n.getMessage(
@@ -203,9 +204,11 @@ export default function AppSettings({ app, showTitle = false }: Props) {
       <Text noMargin>
         {browser.i18n.getMessage("limit")}
         {": "}
-        {(editingLimit && (
+        {editingLimit ? (
           <EmptyInput
             value={arweave.ar.winstonToAr(limit)}
+            min="0"
+            step="any"
             onChange={(e) =>
               updateSettings((val) => ({
                 ...val,
@@ -217,14 +220,18 @@ export default function AppSettings({ app, showTitle = false }: Props) {
               }))
             }
           />
-        )) ||
-          arweave.ar.winstonToAr(limit)}
+        ) : settings?.allowance?.enabled ? (
+          arweave.ar.winstonToAr(limit)
+        ) : (
+          "∞"
+        )}
         {" AR "}
         <TooltipV2
           content={browser.i18n.getMessage("allowance_edit")}
           position="top"
         >
           <EditLimitButton
+            disabled={!settings?.allowance?.enabled}
             as={editingLimit ? CheckIcon : EditIcon}
             onClick={() => setEditingLimit((val) => !val)}
           />
@@ -403,19 +410,21 @@ const EmptyInput = styled.input.attrs({
   color: rgb(${(props) => props.theme.secondaryText});
 `;
 
-const EditLimitButton = styled(EditIcon)`
+const EditLimitButton = styled(EditIcon)<{ disabled?: boolean }>`
   font-size: 1em;
   width: 1em;
   height: 1em;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   transition: all 0.23s ease-in-out;
+  opacity: ${(props) => (props.disabled ? "0.5" : "1")};
+  pointer-events: ${(props) => (props.disabled ? "none" : "auto")};
 
   &:hover {
-    opacity: 0.8;
+    opacity: ${(props) => (props.disabled ? "0.5" : "0.8")};
   }
 
   &:active {
-    transform: scale(0.83);
+    transform: ${(props) => (props.disabled ? "none" : "scale(0.83)")};
   }
 `;
 

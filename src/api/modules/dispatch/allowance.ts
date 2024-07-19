@@ -18,16 +18,14 @@ export async function ensureAllowanceDispatch(
   appData: ModuleAppData,
   allowance: AllowanceBigNumber,
   keyfile: JWKInterface,
-  price: number | BigNumber
+  price: number | BigNumber,
+  alwaysAsk?: boolean
 ) {
   const arweave = new Arweave(defaultGateway);
 
   // allowance or sign auth
   try {
-    if (allowance.enabled) {
-      await allowanceAuth(allowance, appData.appURL, price);
-    } else {
-      // get address
+    if (alwaysAsk) {
       const address = await arweave.wallets.jwkToAddress(keyfile);
 
       await signAuth(
@@ -37,8 +35,13 @@ export async function ensureAllowanceDispatch(
         address
       );
     }
+
+    if (allowance.enabled) {
+      await allowanceAuth(allowance, appData.appURL, price, alwaysAsk);
+    }
   } catch (e) {
     freeDecryptedWallet(keyfile);
     throw new Error(e?.message || e);
   }
+  return;
 }
