@@ -7,6 +7,7 @@ import {
   Section,
   Spacer,
   Text,
+  TooltipV2,
   useInput,
   useToasts
 } from "@arconnect/components";
@@ -26,12 +27,21 @@ import WalletSwitcher from "~components/popup/WalletSwitcher";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
 import Label from "~components/auth/Label";
-import Head from "~components/popup/Head";
 import App from "~components/auth/App";
 import styled from "styled-components";
 import { EventType, trackEvent } from "~utils/analytics";
 import Application from "~applications/application";
 import { defaultGateway, type Gateway } from "~gateways/gateway";
+import HeadV2 from "~components/popup/HeadV2";
+import { CheckIcon, CloseIcon } from "@iconicicons/react";
+import {
+  InfoCircle,
+  ToggleSwitch
+} from "~routes/popup/subscriptions/subscriptionDetails";
+import { defaultAllowance } from "~applications/allowance";
+import Arweave from "arweave";
+import Permissions from "../../components/auth/Permissions";
+import { Flex } from "~routes/popup/settings/apps/[url]";
 
 export default function Connect() {
   // active address
@@ -40,11 +50,15 @@ export default function Connect() {
     instance: ExtensionStorage
   });
 
+  const arweave = new Arweave(defaultGateway);
+
   // wallet switcher open
   const [switcherOpen, setSwitcherOpen] = useState(false);
 
   // page
   const [page, setPage] = useState<"unlock" | "permissions">("unlock");
+
+  const allowanceInput = useInput();
 
   // connect params
   const params = useAuthParams<{
@@ -73,6 +87,12 @@ export default function Connect() {
     PermissionType[]
   >([]);
 
+  // allowance for permissions
+  const [allowanceEnabled, setAllowanceEnabled] = useState(true);
+
+  // state management for edit
+  const [edit, setEdit] = useState(false);
+
   useEffect(() => {
     (async () => {
       if (!params) return;
@@ -93,8 +113,15 @@ export default function Connect() {
       setRequestedPermissions(
         requested.filter((p) => Object.keys(permissionData).includes(p))
       );
+      setRequetedPermCopy(
+        requested.filter((p) => Object.keys(permissionData).includes(p))
+      );
     })();
   }, [params]);
+
+  const [requestedPermCopy, setRequetedPermCopy] = useState<PermissionType[]>(
+    []
+  );
 
   // permissions to add
   const [permissions, setPermissions] = useState<PermissionType[]>([]);
@@ -133,8 +160,20 @@ export default function Connect() {
   }
 
   // connect
-  async function connect() {
+  async function connect(alwaysAsk: boolean = false) {
     if (appUrl === "") return;
+
+    if (
+      allowanceEnabled &&
+      Number(allowanceInput.state) < 0.001 &&
+      !alwaysAsk
+    ) {
+      return setToast({
+        type: "error",
+        content: browser.i18n.getMessage("invalid_qty_error"),
+        duration: 2200
+      });
+    }
 
     // get existing permissions
     const app = new Application(appUrl);
@@ -147,13 +186,37 @@ export default function Connect() {
         permissions,
         name: appData.name,
         logo: appData.logo,
+        // alwaysAsk,
+        allowance: {
+          enabled: alwaysAsk || allowanceEnabled,
+          limit: alwaysAsk // if it's always ask set the limit to 0
+            ? "0"
+            : allowanceEnabled
+            ? arweave.ar.arToWinston(allowanceInput.state) // If allowance is enabled and a new limit is set, use the new limit
+            : Number.MAX_SAFE_INTEGER.toString(), // If allowance is disabled set it to max number
+          spent: "0" // in winstons
+        },
         // TODO: wayfinder
         gateway: params.gateway || defaultGateway
       });
     } else {
       // update existing permissions, if the app
       // has already been added
-      await app.updateSettings({ permissions });
+
+      const allowance = await app.getAllowance();
+      await app.updateSettings({
+        permissions,
+        // alwaysAsk,
+        allowance: {
+          enabled: alwaysAsk ?? allowanceEnabled,
+          limit: alwaysAsk // if it's always ask set the limit to 0
+            ? "0"
+            : allowanceEnabled
+            ? arweave.ar.arToWinston(allowanceInput.state) // If allowance is enabled and a new limit is set, use the new limit
+            : Number.MAX_SAFE_INTEGER.toString(), // If allowance is disabled set it to max number
+          spent: "0" // in winstons
+        }
+      });
     }
 
     // send response
@@ -169,23 +232,33 @@ export default function Connect() {
     closeWindow();
   }
 
+  useEffect(() => {
+    allowanceInput.setState(arweave.ar.winstonToAr(defaultAllowance.limit));
+  }, []);
+
+  const removedPermissions = useMemo(() => {
+    return requestedPermCopy.filter(
+      (permission) => !requestedPermissions.includes(permission)
+    );
+  }, [requestedPermCopy, requestedPermissions]);
+
   return (
     <Wrapper>
       <div>
-        <Head
-          title={browser.i18n.getMessage("sign_in")}
+        <HeadV2
+          title={!edit ? browser.i18n.getMessage("sign_in") : "Permissions"}
           showOptions={false}
-          back={cancel}
+          back={edit ? () => setEdit(false) : cancel}
         />
-        <Spacer y={0.75} />
         <App
           appName={appData.name || appUrl}
           appUrl={appUrl}
+          showTitle={false}
           // TODO: wayfinder
           gateway={params?.gateway || defaultGateway}
           appIcon={appData.logo}
         />
-        <Spacer y={1.5} />
+
         <ContentWrapper>
           <AnimatePresence initial={false}>
             {page === "unlock" && (
@@ -231,68 +304,172 @@ export default function Connect() {
               </UnlockWrapper>
             )}
             {page === "permissions" && (
-              <PermissionsContent>
-                <Section>
-                  <Text>
-                    {browser.i18n.getMessage("allow_these_permissions")}
-                  </Text>
-                  {requestedPermissions.map((permission, i) => (
-                    <div key={i}>
-                      <Checkbox
-                        checked={permissions.includes(permission)}
-                        onChange={(checked) =>
-                          setPermissions((val) => {
-                            if (checked && val.includes(permission)) return val;
-                            if (!checked && !val.includes(permission))
-                              return val;
-                            if (checked && !val.includes(permission)) {
-                              return [...val, permission];
-                            }
-                            if (!checked && val.includes(permission)) {
-                              return val.filter((p) => p !== permission);
-                            }
-                          })
-                        }
-                      >
+              <>
+                {!edit ? (
+                  <PermissionsContent>
+                    <Section>
+                      <Description>
                         {browser.i18n.getMessage(
-                          permissionData[permission.toUpperCase()]
+                          "allow_these_permissions",
+                          appData.name || appUrl
                         )}
-                      </Checkbox>
-                      {i !== requestedPermissions.length - 1 && (
-                        <Spacer y={0.8} />
+                      </Description>
+                      <Url>{params.url}</Url>
+                      <StyledPermissions>
+                        <PermissionsTitle>
+                          <Description>
+                            {browser.i18n.getMessage("app_permissions")}
+                          </Description>
+                          <Description
+                            alt
+                            onClick={() => {
+                              setEdit(!edit);
+                            }}
+                          >
+                            {browser.i18n.getMessage("edit_permissions")}
+                          </Description>
+                        </PermissionsTitle>
+                      </StyledPermissions>
+                      {requestedPermissions.map((permission, i) => (
+                        <Permission key={i}>
+                          <StyledCheckIcon />
+                          <PermissionItem>
+                            {browser.i18n.getMessage(
+                              permissionData[permission.toUpperCase()]
+                            )}
+                          </PermissionItem>
+                        </Permission>
+                      ))}
+                      {requestedPermCopy
+                        .filter(
+                          (permission) =>
+                            !requestedPermissions.includes(permission)
+                        )
+                        .map((permission, i) => (
+                          <Permission key={i}>
+                            <StyledCloseIcon />
+                            <PermissionItem>
+                              {browser.i18n.getMessage(
+                                permissionData[permission.toUpperCase()]
+                              )}
+                            </PermissionItem>
+                          </Permission>
+                        ))}
+
+                      <AllowanceSection>
+                        <Flex
+                          alignItems="center"
+                          justifyContent="space-between"
+                          style={{ gap: "4px" }}
+                        >
+                          <div>{browser.i18n.getMessage("allowance")}</div>
+                          <TooltipV2 content={InfoText} position="right">
+                            <InfoCircle />
+                          </TooltipV2>
+                        </Flex>
+
+                        <ToggleSwitch
+                          checked={allowanceEnabled}
+                          setChecked={setAllowanceEnabled}
+                        />
+                      </AllowanceSection>
+                      {allowanceEnabled && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <AllowanceInput
+                            label={browser.i18n.getMessage("limit")}
+                            fullWidth
+                            small
+                            icon={<>AR</>}
+                            type="number"
+                            {...allowanceInput.bindings}
+                          />
+                        </motion.div>
                       )}
-                    </div>
-                  ))}
-                </Section>
-              </PermissionsContent>
+                    </Section>
+                  </PermissionsContent>
+                ) : (
+                  <>
+                    <Permissions
+                      requestedPermissions={requestedPermissions}
+                      update={setRequestedPermissions}
+                      closeEdit={setEdit}
+                    />
+                  </>
+                )}
+              </>
             )}
           </AnimatePresence>
         </ContentWrapper>
       </div>
-      <Section>
-        <ButtonV2
-          fullWidth
-          onClick={async () => {
-            if (page === "unlock") {
-              await unlock();
-            } else {
-              await connect();
-            }
-          }}
-        >
-          {browser.i18n.getMessage(page === "unlock" ? "sign_in" : "connect")}
-        </ButtonV2>
-        <Spacer y={0.75} />
-        <ButtonV2 fullWidth secondary onClick={cancel}>
-          {browser.i18n.getMessage("cancel")}
-        </ButtonV2>
-      </Section>
+      {!edit && (
+        <Section>
+          <>
+            <ButtonV2
+              fullWidth
+              onClick={async () => {
+                if (page === "unlock") {
+                  await unlock();
+                } else {
+                  await connect();
+                }
+              }}
+            >
+              {browser.i18n.getMessage(
+                page === "unlock"
+                  ? "sign_in"
+                  : removedPermissions.length > 0
+                  ? "allow_selected_permissions"
+                  : "always_allow"
+              )}
+            </ButtonV2>
+            <Spacer y={0.75} />
+            <ButtonV2
+              fullWidth
+              secondary
+              onClick={page === "unlock" ? cancel : () => connect(true)}
+            >
+              {browser.i18n.getMessage(
+                page === "unlock" ? "cancel" : "always_ask_permission"
+              )}
+            </ButtonV2>
+          </>
+        </Section>
+      )}
     </Wrapper>
   );
 }
 
+const InfoText: React.ReactNode = (
+  <div style={{ fontSize: "10px", lineHeight: "14px", textAlign: "center" }}>
+    Set the amount you want <br />
+    ArConnect to automatically transfer
+  </div>
+);
+
 const WalletSelectWrapper = styled.div`
   position: relative;
+`;
+
+const StyledPermissions = styled.div`
+  padding-bottom: 1rem;
+`;
+
+const Permission = styled.div`
+  margin: 0;
+  align-items: center;
+  display: flex;
+  gap: 8px;
+`;
+
+const PermissionsTitle = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
 `;
 
 const SelectIcon = styled(ChevronDownIcon)`
@@ -301,6 +478,65 @@ const SelectIcon = styled(ChevronDownIcon)`
   height: 1.375 rem;
   color: ${(props) => props.theme.primaryTextv2};
   transition: all 0.23s ease-in-out;
+`;
+
+const Description = styled(Text)<{ alt?: boolean }>`
+  color: ${(props) =>
+    props.alt ? `rgb(${props.theme.theme})` : props.theme.primaryTextv2};
+  margin-bottom: 4px;
+  ${(props) =>
+    props.alt &&
+    `
+    cursor: pointer;
+  `}
+`;
+const Url = styled(Text)`
+  color: ${(props) => props.theme.secondaryTextv2};
+  font-size: 12px;
+`;
+
+const StyledCheckIcon = styled(CheckIcon)`
+  width: 17px;
+  height: 17px;
+  min-width: 17px;
+  min-height: 17px;
+  flex-shrink: 0;
+  color: rgba(20, 209, 16, 1);
+`;
+
+const StyledCloseIcon = styled(CloseIcon)`
+  width: 17px;
+  height: 17px;
+  min-width: 17px;
+  min-height: 17px;
+  flex-shrink: 0;
+  color: ${(props) => props.theme.fail};
+`;
+
+const AllowanceInput = styled(InputV2)`
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+`;
+
+const PermissionItem = styled(Text)`
+  color: ${(props) => props.theme.primaryTextv2};
+  margin: 0;
+  font-size: 14px;
+`;
+
+const AllowanceSection = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-top: 18px;
+  div {
+    color: ${(props) => props.theme.primaryTextv2};
+    font-size: 18px;
+    font-weight: 00;
+  }
 `;
 
 const WalletSelect = styled(Card)<{ open: boolean }>`

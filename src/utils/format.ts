@@ -51,7 +51,7 @@ export function formatAddress(address: string, count = 13) {
  * @param addr String to validate
  * @returns Valid address or not
  */
-export const isAddressFormat = (addr: string) => /[a-z0-9_-]{43}/i.test(addr);
+export const isAddressFormat = (addr: string) => /^[a-z0-9_-]{43}$/i.test(addr);
 
 /**
  * Capitalizes first letters of settings name and replaces "_" with " "

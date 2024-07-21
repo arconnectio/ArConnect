@@ -61,7 +61,8 @@ export async function updateAllowance(
 export async function allowanceAuth(
   allowance: AllowanceBigNumber,
   tabURL: string,
-  price: number | BigNumber
+  price: number | BigNumber,
+  override: boolean = false
 ) {
   // spent amount after this transaction
   const total = allowance.spent.plus(price);
@@ -69,8 +70,8 @@ export async function allowanceAuth(
   // check if the price goes over the allowed total limit
   const hasEnoughAllowance = total.lte(allowance.limit);
 
-  // if the allowance is enough, return
-  if (hasEnoughAllowance) return;
+  // if the allowance is enough or override is true, return
+  if (hasEnoughAllowance || override) return;
 
   // try to authenticate to raise the allowance amount
   await authenticate({
