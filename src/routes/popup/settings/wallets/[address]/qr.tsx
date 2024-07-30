@@ -158,6 +158,10 @@ export default function GenerateQR({ address }: { address: string }) {
             placeholder={browser.i18n.getMessage("password")}
             {...passwordInput.bindings}
             fullWidth
+            onKeyDown={(e) => {
+              if (e.key !== "Enter") return;
+              generateQr();
+            }}
           />
           <Spacer y={1} />
           <ButtonV2 fullWidth onClick={generateQr} loading={loading}>
