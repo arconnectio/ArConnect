@@ -2179,5 +2179,9 @@
   "mismatch_warning": {
     "message": "Your wallet has a mismatched bit length. You can proceed, but may encounter errors. Transactions could fail or behave unexpectedly.",
     "description": "warning for mismatch wallet"
+  },
+  "transak_unavailable": {
+    "message": "Transak is unavailable at the moment. Please try again later.",
+    "description": "Transak unavailable error message"
   }
 }
