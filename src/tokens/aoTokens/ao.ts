@@ -163,21 +163,8 @@ export function useAoTokens(
               const balance = await timeoutPromise(
                 (async () => {
                   if (id === AO_NATIVE_TOKEN) {
-                    const res = await dryrun({
-                      Id,
-                      Owner: activeAddress,
-                      process: AO_NATIVE_TOKEN_BALANCE_MIRROR,
-                      tags: [{ name: "Action", value: "Balance" }]
-                    });
-                    const balance = res.Messages[0].Data;
-                    if (balance) {
-                      return new Quantity(
-                        BigInt(balance),
-                        BigInt(12)
-                      ).toString();
-                    }
-                    // default return
-                    return new Quantity(0, BigInt(12)).toString();
+                    const res = await getNativeTokenBalance(activeAddress);
+                    return res;
                   } else {
                     let balance: string;
                     if (refresh) {
@@ -251,6 +238,17 @@ export async function getAoTokenBalance(
       return new Quantity(BigInt(balance), BigInt(aoToken.Denomination));
     }
   }
+}
+
+export async function getNativeTokenBalance(address: string): Promise<string> {
+  const res = await dryrun({
+    Id,
+    Owner: address,
+    process: AO_NATIVE_TOKEN_BALANCE_MIRROR,
+    tags: [{ name: "Action", value: "Balance" }]
+  });
+  const balance = res.Messages[0].Data;
+  return balance ? new Quantity(BigInt(balance), BigInt(12)).toString() : "0";
 }
 
 export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
@@ -547,6 +545,6 @@ export interface TokenInfo {
 export type TokenInfoWithProcessId = TokenInfo & { processId: string };
 
 export interface TokenInfoWithBalance extends TokenInfo {
-  id: string;
+  id?: string;
   balance: string;
 }

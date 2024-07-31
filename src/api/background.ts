@@ -41,6 +41,8 @@ import signDataItemModule from "./modules/sign_data_item";
 import signDataItem from "./modules/sign_data_item/sign_data_item.background";
 import subscriptionModule from "./modules/subscription";
 import subscription from "./modules/subscription/subscription.background";
+import userBalancesModule from "./modules/user_balances";
+import userBalances from "./modules/user_balances/user_balances.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
@@ -63,7 +65,8 @@ const modules: BackgroundModule<any>[] = [
   { ...privateHashModule, function: privateHash },
   { ...verifyMessageModule, function: verifyMessage },
   { ...signDataItemModule, function: signDataItem },
-  { ...subscriptionModule, function: subscription }
+  { ...subscriptionModule, function: subscription },
+  { ...userBalancesModule, function: userBalances }
 ];
 
 export default modules;

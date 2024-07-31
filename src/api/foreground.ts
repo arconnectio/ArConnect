@@ -59,6 +59,8 @@ import signDataItemModule from "./modules/sign_data_item";
 import signDataItem, {
   finalizer as signDataItemFinalizer
 } from "./modules/sign_data_item/sign_data_item.foreground";
+import userBalancesModule from "./modules/user_balances";
+import userBalances from "./modules/user_balances/user_balances.foreground";
 
 /** Foreground modules */
 const modules: ForegroundModule[] = [
@@ -93,7 +95,8 @@ const modules: ForegroundModule[] = [
     function: signDataItem,
     finalizer: signDataItemFinalizer
   },
-  { ...subscriptionModule, function: subscription }
+  { ...subscriptionModule, function: subscription },
+  { ...userBalancesModule, function: userBalances }
 ];
 
 export default modules;
