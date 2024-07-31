@@ -69,7 +69,7 @@ export default function App({
           title={appName || appUrl}
           img={appIcon}
           description={`${browser.i18n.getMessage("gateway")}: ${
-            gateway.host || ""
+            gateway?.host || ""
           }`}
           style={{ pointerEvents: "none" }}
         />

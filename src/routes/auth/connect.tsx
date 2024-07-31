@@ -7,6 +7,7 @@ import {
   Section,
   Spacer,
   Text,
+  TooltipV2,
   useInput,
   useToasts
 } from "@arconnect/components";
@@ -33,10 +34,14 @@ import Application from "~applications/application";
 import { defaultGateway, type Gateway } from "~gateways/gateway";
 import HeadV2 from "~components/popup/HeadV2";
 import { CheckIcon, CloseIcon } from "@iconicicons/react";
-import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
+import {
+  InfoCircle,
+  ToggleSwitch
+} from "~routes/popup/subscriptions/subscriptionDetails";
 import { defaultAllowance } from "~applications/allowance";
 import Arweave from "arweave";
 import Permissions from "../../components/auth/Permissions";
+import { Flex } from "~routes/popup/settings/apps/[url]";
 
 export default function Connect() {
   // active address
@@ -155,8 +160,20 @@ export default function Connect() {
   }
 
   // connect
-  async function connect() {
+  async function connect(alwaysAsk: boolean = false) {
     if (appUrl === "") return;
+
+    if (
+      allowanceEnabled &&
+      Number(allowanceInput.state) < 0.001 &&
+      !alwaysAsk
+    ) {
+      return setToast({
+        type: "error",
+        content: browser.i18n.getMessage("invalid_qty_error"),
+        duration: 2200
+      });
+    }
 
     // get existing permissions
     const app = new Application(appUrl);
@@ -169,12 +186,14 @@ export default function Connect() {
         permissions,
         name: appData.name,
         logo: appData.logo,
+        // alwaysAsk,
         allowance: {
-          enabled: allowanceEnabled,
-          limit:
-            allowanceEnabled && allowanceInput.state
-              ? arweave.ar.arToWinston(allowanceInput.state)
-              : defaultAllowance.limit,
+          enabled: alwaysAsk || allowanceEnabled,
+          limit: alwaysAsk // if it's always ask set the limit to 0
+            ? "0"
+            : allowanceEnabled
+            ? arweave.ar.arToWinston(allowanceInput.state) // If allowance is enabled and a new limit is set, use the new limit
+            : Number.MAX_SAFE_INTEGER.toString(), // If allowance is disabled set it to max number
           spent: "0" // in winstons
         },
         // TODO: wayfinder
@@ -183,7 +202,21 @@ export default function Connect() {
     } else {
       // update existing permissions, if the app
       // has already been added
-      await app.updateSettings({ permissions });
+
+      const allowance = await app.getAllowance();
+      await app.updateSettings({
+        permissions,
+        // alwaysAsk,
+        allowance: {
+          enabled: alwaysAsk ?? allowanceEnabled,
+          limit: alwaysAsk // if it's always ask set the limit to 0
+            ? "0"
+            : allowanceEnabled
+            ? arweave.ar.arToWinston(allowanceInput.state) // If allowance is enabled and a new limit is set, use the new limit
+            : Number.MAX_SAFE_INTEGER.toString(), // If allowance is disabled set it to max number
+          spent: "0" // in winstons
+        }
+      });
     }
 
     // send response
@@ -324,7 +357,17 @@ export default function Connect() {
                         ))}
 
                       <AllowanceSection>
-                        <div>{browser.i18n.getMessage("allowance")}</div>
+                        <Flex
+                          alignItems="center"
+                          justifyContent="space-between"
+                          style={{ gap: "4px" }}
+                        >
+                          <div>{browser.i18n.getMessage("allowance")}</div>
+                          <TooltipV2 content={InfoText} position="right">
+                            <InfoCircle />
+                          </TooltipV2>
+                        </Flex>
+
                         <ToggleSwitch
                           checked={allowanceEnabled}
                           setChecked={setAllowanceEnabled}
@@ -385,7 +428,11 @@ export default function Connect() {
               )}
             </ButtonV2>
             <Spacer y={0.75} />
-            <ButtonV2 fullWidth secondary onClick={cancel}>
+            <ButtonV2
+              fullWidth
+              secondary
+              onClick={page === "unlock" ? cancel : () => connect(true)}
+            >
               {browser.i18n.getMessage(
                 page === "unlock" ? "cancel" : "always_ask_permission"
               )}
@@ -396,6 +443,13 @@ export default function Connect() {
     </Wrapper>
   );
 }
+
+const InfoText: React.ReactNode = (
+  <div style={{ fontSize: "10px", lineHeight: "14px", textAlign: "center" }}>
+    Set the amount you want <br />
+    ArConnect to automatically transfer
+  </div>
+);
 
 const WalletSelectWrapper = styled.div`
   position: relative;

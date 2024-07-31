@@ -42,6 +42,10 @@ export default function AppSettings({ url }: Props) {
     return val.toString();
   }, [settings]);
 
+  const isAllowanceDisabled = useMemo(() => {
+    return !settings?.allowance?.enabled;
+  }, [settings?.allowance?.enabled]);
+
   // allowance limit
   const limit = useMemo(() => {
     const val = settings?.allowance?.limit;
@@ -137,14 +141,17 @@ export default function AppSettings({ url }: Props) {
               </TooltipV2>
             </Flex>
             <ToggleSwitch
-              checked={settings?.allowance.enabled}
+              checked={!isAllowanceDisabled}
               setChecked={(enabled: boolean) => {
                 updateSettings((val) => ({
                   ...val,
                   allowance: {
                     ...defaultAllowance,
                     ...val.allowance,
-                    enabled: !val.allowance.enabled
+                    enabled: enabled,
+                    limit: enabled
+                      ? val.allowance.limit
+                      : Number.MAX_SAFE_INTEGER.toString()
                   }
                 }));
               }}
@@ -160,10 +167,13 @@ export default function AppSettings({ url }: Props) {
             >
               <NumberInputV2
                 small
+                disabled={isAllowanceDisabled}
                 {...limitInput.bindings}
-                type="number"
+                type={!isAllowanceDisabled ? "number" : "text"}
                 min={0}
-                defaultValue={arweave.ar.winstonToAr(limit)}
+                value={
+                  isAllowanceDisabled ? "∞" : arweave.ar.winstonToAr(limit)
+                }
                 placeholder={browser.i18n.getMessage("allowance_edit")}
                 onChange={(e) =>
                   updateSettings((val) => ({
@@ -424,7 +434,7 @@ const CenterText = styled(Text)`
   }
 `;
 
-const Flex = styled.div<{ alignItems: string; justifyContent: string }>`
+export const Flex = styled.div<{ alignItems: string; justifyContent: string }>`
   display: flex;
   align-items: ${(props) => props.alignItems};
   justify-content: ${(props) => props.justifyContent};

@@ -89,19 +89,13 @@ const background: ModuleFunction<BackgroundResult> = async (
   // get allowance
   const allowance = await getAllowance(appData.appURL);
 
-  // check if there is an allowance limit
-  // if there isn't, we need to ask the user
-  // to manually confirm the transaction
-  if (allowance.enabled && activeWallet.type === "local") {
-    // authenticate user if the allowance
-    // limit is reached
-    try {
-      await allowanceAuth(allowance, appData.appURL, price);
-    } catch (e) {
-      freeDecryptedWallet(keyfile);
-      throw new Error(e?.message || e);
-    }
-  } else {
+  // always ask
+  const alwaysAsk = allowance.enabled && allowance.limit.eq(BigNumber("0"));
+
+  // check if there is an allowance limit, if there is we need to check allowance
+  // if alwaysAsk is true, then we'll need to signAuth popup
+  // if allowance is disabled, proceed with signing
+  if (alwaysAsk) {
     // get address of keyfile
     const addr =
       activeWallet.type === "local"
@@ -125,6 +119,15 @@ const background: ModuleFunction<BackgroundResult> = async (
       }
 
       throw new Error("User failed to sign the transaction manually");
+    }
+  } else if (allowance.enabled && activeWallet.type === "local") {
+    // authenticate user if the allowance
+    // limit is reached
+    try {
+      await allowanceAuth(allowance, appData.appURL, price, alwaysAsk);
+    } catch (e) {
+      freeDecryptedWallet(keyfile);
+      throw new Error(e?.message || e);
     }
   }
 
