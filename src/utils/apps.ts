@@ -178,7 +178,9 @@ export const apps: App[] = [
       "AI powered MMO game built on AO. Petition the Llama King for Llama Coin! 100% onchain.",
     assets: {
       logo: llamaLogo,
-      thumbnail: "/apps/llamaland/logo.png"
+      thumbnail: "/apps/llamaland/logo.png",
+      lightBackground: "rgba(230, 235, 240, 1)",
+      darkBackground: "rgba(19, 28, 37, 1)"
     },
     links: {
       website: "https://llamaland.g8way.io/#/",
@@ -192,7 +194,9 @@ export const apps: App[] = [
       "Unlocking DeFi on AO. Swap tokens, provide liquidity, and earn fees.",
     assets: {
       logo: arswapLogo,
-      thumbnail: "/apps/arswap/logo.png"
+      thumbnail: "/apps/arswap/logo.png",
+      lightBackground: "rgba(230, 235, 240, 1)",
+      darkBackground: "rgba(19, 28, 37, 1)"
     },
     links: {
       website: "https://arswap.org/",
@@ -222,7 +226,9 @@ export const apps: App[] = [
       "Create and manage your own permanent web3 profile and permaweb pages built on Arweave.",
     assets: {
       logo: permapagesLogo,
-      thumbnail: "/apps/permapages/thumbnail.png"
+      thumbnail: "/apps/permapages/thumbnail.png",
+      lightBackground: "rgba(230, 235, 240, 1)",
+      darkBackground: "rgba(19, 28, 37, 1)"
     },
     links: {
       website: "https://permapages.app",
