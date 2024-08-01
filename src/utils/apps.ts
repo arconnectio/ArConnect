@@ -14,6 +14,7 @@ import artByCityLogo from "url:/assets/ecosystem/artbycity.png";
 import permapagesLogo from "url:/assets/ecosystem/permapages.svg";
 import echoLogo from "url:/assets/ecosystem/echo.svg";
 import permaFacts from "url:/assets/ecosystem/permafacts.svg";
+import betterideaLogo from "url:/assets/ecosystem/betteridea.png";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 
 export interface App {
@@ -66,6 +67,23 @@ export const apps: App[] = [
       twitter: "https://twitter.com/ProtocolLand",
       discord: "https://discord.com/invite/GqxX2vtwRj",
       github: "https://github.com/labscommunity/protocol-land"
+    }
+  },
+  {
+    name: "BetterIDEa IDE",
+    category: "Development",
+    description: "Feature rich web IDE for building on AO",
+    assets: {
+      logo: betterideaLogo,
+      thumbnail: "/apps/betteridea/thumbnail.png",
+      lightBackground: "rgba(240, 240, 240, 1)",
+      darkBackground: "rgba(20, 34, 19, 1)"
+    },
+    links: {
+      website: "https://betteridea.dev",
+      twitter: "https://twitter.com/betteridea-dev",
+      discord: "",
+      github: "https://github.com/betteridea-dev"
     }
   },
   {
