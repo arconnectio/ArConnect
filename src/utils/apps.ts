@@ -81,8 +81,8 @@ export const apps: App[] = [
     },
     links: {
       website: "https://betteridea.dev",
-      twitter: "https://twitter.com/betteridea-dev",
-      discord: "",
+      twitter: "https://twitter.com/betteridea_dev",
+      discord: "https://discord.gg/nm6VKUQBrA",
       github: "https://github.com/betteridea-dev"
     }
   },
