@@ -41,8 +41,8 @@ import signDataItemModule from "./modules/sign_data_item";
 import signDataItem from "./modules/sign_data_item/sign_data_item.background";
 import subscriptionModule from "./modules/subscription";
 import subscription from "./modules/subscription/subscription.background";
-import userBalancesModule from "./modules/user_balances";
-import userBalances from "./modules/user_balances/user_balances.background";
+import userTokensModule from "./modules/user_tokens";
+import userTokens from "./modules/user_tokens/user_tokens.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
@@ -66,7 +66,7 @@ const modules: BackgroundModule<any>[] = [
   { ...verifyMessageModule, function: verifyMessage },
   { ...signDataItemModule, function: signDataItem },
   { ...subscriptionModule, function: subscription },
-  { ...userBalancesModule, function: userBalances }
+  { ...userTokensModule, function: userTokens }
 ];
 
 export default modules;

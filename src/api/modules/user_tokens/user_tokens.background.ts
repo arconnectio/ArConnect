@@ -8,9 +8,16 @@ import {
 } from "~tokens/aoTokens/ao";
 import { AO_NATIVE_TOKEN } from "~utils/ao_import";
 
-const background: ModuleFunction<TokenInfoWithBalance[]> = async () => {
+const background: ModuleFunction<TokenInfoWithBalance[] | TokenInfo[]> = async (
+  _,
+  options?: { fetchBalance?: boolean }
+) => {
   const address = await ExtensionStorage.get("active_address");
   const tokens = (await ExtensionStorage.get<TokenInfo[]>("ao_tokens")) || [];
+
+  if (!options?.fetchBalance) {
+    return tokens;
+  }
 
   const enrichedTokens: TokenInfoWithBalance[] = await Promise.all(
     tokens.map(async (token) => {
