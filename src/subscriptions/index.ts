@@ -21,10 +21,32 @@ export async function getSubscriptionData(
   }
 }
 
+// get singular subscription data from storage
+export async function getSubscription(
+  address: string,
+  targetId: string
+): Promise<SubscriptionData | null> {
+  try {
+    if (!address) {
+      throw new Error("No address provided");
+    }
+    const subscriptions = await getSubscriptionData(address);
+
+    const subscription = subscriptions.find(
+      (subscription) => subscription.arweaveAccountAddress === targetId
+    );
+
+    return subscription || null;
+  } catch (err) {
+    console.error("Error getting subscription:", err);
+    return null;
+  }
+}
+
 export async function deleteSubscription(
   activeAddress: string,
   deleteId: string
-) {
+): Promise<boolean> {
   try {
     const subscriptions = await getSubscriptionData(activeAddress);
     const subscriptionIndex = subscriptions.findIndex(
@@ -38,11 +60,14 @@ export async function deleteSubscription(
         `subscriptions_${activeAddress}`,
         subscriptions
       );
+      return true;
     } else {
       console.log("No subscription found with the given ID");
+      return false;
     }
   } catch (err) {
     console.log("Error deleting subscription:", err);
+    return false;
   }
 }
 

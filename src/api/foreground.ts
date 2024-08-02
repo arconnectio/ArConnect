@@ -48,6 +48,7 @@ import signMessage, {
   finalizer as signMessageFinalizer
 } from "./modules/sign_message/sign_message.foreground";
 import subscriptionModule from "./modules/subscription";
+import getSubscription from "./modules/get_subscription/get_subscription.foreground";
 import subscription from "./modules/subscription/subscription.foreground";
 import privateHashModule from "./modules/private_hash";
 import privateHash, {
@@ -59,6 +60,9 @@ import signDataItemModule from "./modules/sign_data_item";
 import signDataItem, {
   finalizer as signDataItemFinalizer
 } from "./modules/sign_data_item/sign_data_item.foreground";
+import getSubscriptionModule from "./modules/get_subscription";
+import deleteSubcription from "./modules/delete_subscription/delete_subscription.foreground";
+import deleteSubscriptionModule from "./modules/delete_subscription";
 
 /** Foreground modules */
 const modules: ForegroundModule[] = [
@@ -93,6 +97,9 @@ const modules: ForegroundModule[] = [
     function: signDataItem,
     finalizer: signDataItemFinalizer
   },
+
+  { ...getSubscriptionModule, function: getSubscription },
+  { ...deleteSubscriptionModule, function: deleteSubcription },
   { ...subscriptionModule, function: subscription }
 ];
 
