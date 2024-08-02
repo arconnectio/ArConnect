@@ -90,6 +90,10 @@ export default function GenerateQR({ address }: { address: string }) {
     }
   }, [wallet]);
 
+  useEffect(() => {
+    return () => setFrames([]);
+  }, []);
+
   return (
     <Wrapper>
       <div>
