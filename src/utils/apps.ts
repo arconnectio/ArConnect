@@ -15,6 +15,7 @@ import aoLinkLogo from "url:/assets/ecosystem/aolink.svg";
 import llamaLogo from "url:/assets/ecosystem/llama.png";
 import arswapLogo from "url:/assets/ecosystem/arswap.jpg";
 import liquidopsLogo from "url:/assets/ecosystem/liquidops.svg";
+import betterideaLogo from "url:/assets/ecosystem/betteridea.png";
 
 export interface App {
   name: string;
@@ -251,6 +252,23 @@ export const apps: App[] = [
       twitter: "https://twitter.com/ardriveapp",
       discord: "https://discord.com/invite/ya4hf2H",
       github: "https://github.com/ardriveapp"
+    }
+  },
+  {
+    name: "BetterIDEa IDE",
+    category: "Developer Tooling",
+    description: "Feature rich web IDE for building on AO",
+    assets: {
+      logo: betterideaLogo,
+      thumbnail: "/apps/betteridea/thumbnail.png",
+      lightBackground: "rgba(240, 240, 240, 1)",
+      darkBackground: "rgba(20, 34, 19, 1)"
+    },
+    links: {
+      website: "https://betteridea.dev",
+      twitter: "https://twitter.com/betteridea_dev",
+      discord: "https://discord.gg/nm6VKUQBrA",
+      github: "https://github.com/betteridea-dev"
     }
   },
   {
