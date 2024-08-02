@@ -13,7 +13,7 @@ import dexiLogo from "url:/assets/ecosystem/dexi.svg";
 import dcaAgentLogo from "url:/assets/ecosystem/autonomous-dca-agent.png";
 import aoLinkLogo from "url:/assets/ecosystem/aolink.svg";
 import llamaLogo from "url:/assets/ecosystem/llama.png";
-import arswapLogo from "url:/assets/ecosystem/arswap.jpg";
+import arswapLogo from "url:/assets/ecosystem/arswap.png";
 import liquidopsLogo from "url:/assets/ecosystem/liquidops.svg";
 import betterideaLogo from "url:/assets/ecosystem/betteridea.png";
 
@@ -108,7 +108,8 @@ export const apps: App[] = [
       "The first fully decentralized atomic asset exchange built on the permaweb. Through the power of the Universal Content Marketplace (UCM) protocol and the Universal Data License (UDL) content creators can trade digital assets with real world rights.",
     assets: {
       logo: bazarLogo,
-      thumbnail: "/apps/bazar/thumbnail.gif"
+      thumbnail: "/apps/bazar/thumbnail.gif",
+      lightBackground: "rgba(230, 235, 240, 1)"
     },
     links: {
       website: "https://bazar.arweave.dev",
@@ -137,7 +138,8 @@ export const apps: App[] = [
       "Dexi autonomously identifies, collects, and aggregates financial data from events within the AO network, including asset prices, token swaps, liquidity fluctuations, and token asset characteristics.",
     assets: {
       logo: dexiLogo,
-      thumbnail: "/apps/dexi/thumbnail.png"
+      thumbnail: "/apps/dexi/thumbnail.png",
+      lightBackground: "rgba(230, 235, 240, 1)"
     },
     links: {
       website: "https://dexi.arweave.dev/",
@@ -151,7 +153,8 @@ export const apps: App[] = [
       "The Autonomous DCA Agent executes a dynamic dollar-cost-average (DCA) investment strategy across various liquidity pools within the AO ecosystem.",
     assets: {
       logo: dcaAgentLogo,
-      thumbnail: "/apps/autonomousdca/thumbnail.png"
+      thumbnail: "/apps/autonomousdca/thumbnail.png",
+      lightBackground: "rgba(230, 235, 240, 1)"
     },
     links: {
       website: "https://dca_agent.arweave.dev/",
@@ -165,7 +168,8 @@ export const apps: App[] = [
       "ao.link serves as a message explorer for the ao Network, offering functionalities similar to block explorers in conventional blockchain systems.",
     assets: {
       logo: aoLinkLogo,
-      thumbnail: "/apps/aolink/logo.png"
+      thumbnail: "/apps/aolink/logo.png",
+      lightBackground: "rgba(230, 235, 240, 1)"
     },
     links: {
       website: "https://www.ao.link/",
@@ -211,7 +215,8 @@ export const apps: App[] = [
       "The Arweave Name System (ArNS) works similarly to traditional Domain Name Services - but with ArNS, the registry is decentralized, permanent, and stored on Arweave. It's a simple way to name and help you - and your users - find your data, apps, or websites on Arweave.",
     assets: {
       logo: arnsLogo,
-      thumbnail: "/apps/arns/thumbnail.jpeg"
+      thumbnail: "/apps/arns/thumbnail.jpeg",
+      lightBackground: "rgba(230, 235, 240, 1)"
     },
     links: {
       website: "https://arns.app",
@@ -278,7 +283,8 @@ export const apps: App[] = [
       "As MediaWiki is the software that powers Wikipedia, ArWiki is the software that powers the Arweave Wiki. However, ArWiki is a Web3 platform -- it is completely decentralized, and is hosted on and served from the Arweave permaweb itself.",
     assets: {
       logo: arwikiLogo,
-      thumbnail: "/apps/arwiki/thumbnail.jpeg"
+      thumbnail: "/apps/arwiki/thumbnail.jpeg",
+      lightBackground: "rgba(230, 235, 240, 1)"
     },
     links: {
       website: "https://arwiki.wiki",
@@ -292,7 +298,8 @@ export const apps: App[] = [
       "A decentralized archival platform that preserves human history and culture digitally.",
     assets: {
       logo: alexLogo,
-      thumbnail: "/apps/alex/thumbnail.png"
+      thumbnail: "/apps/alex/thumbnail.png",
+      lightBackground: "rgba(230, 235, 240, 1)"
     },
     links: {
       website: "https://alex.arweave.dev/",
@@ -308,7 +315,7 @@ export const apps: App[] = [
     assets: {
       logo: permaswapLogo,
       thumbnail: permaswapLogo,
-      lightBackground: "rgba(230, 235, 240, 1)",
+      // lightBackground: "rgba(230, 235, 240, 1)",
       darkBackground: "rgba(19, 28, 37, 1)"
     },
     links: {
