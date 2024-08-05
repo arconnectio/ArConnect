@@ -37,27 +37,29 @@ export default function Explore() {
         <div>
           {filteredApps.map((app, index) => (
             <AppWrapper key={index}>
-              <LogoWrapper>
-                <AppShortcut
-                  bgColor={
-                    theme === "light"
-                      ? app.assets?.lightBackground
-                      : app.assets?.darkBackground
-                  }
-                  onClick={() => {
-                    browser.tabs.create({ url: app.links.website });
-                  }}
-                >
-                  <Logo src={app.assets.logo} />
-                </AppShortcut>
-              </LogoWrapper>
-              <Description>
-                <Title>
-                  <AppTitle>{app.name}</AppTitle>
-                  <Pill>{app.category}</Pill>
-                </Title>
-                <AppDescription>{app.description}</AppDescription>
-              </Description>
+              <LogoDescriptionWrapper>
+                <LogoWrapper>
+                  <AppShortcut
+                    bgColor={
+                      theme === "light"
+                        ? app.assets?.lightBackground
+                        : app.assets?.darkBackground
+                    }
+                    onClick={() => {
+                      browser.tabs.create({ url: app.links.website });
+                    }}
+                  >
+                    <Logo src={app.assets.logo} />
+                  </AppShortcut>
+                </LogoWrapper>
+                <Description>
+                  <Title>
+                    <AppTitle>{app.name}</AppTitle>
+                    <Pill>{app.category}</Pill>
+                  </Title>
+                  <AppDescription>{app.description}</AppDescription>
+                </Description>
+              </LogoDescriptionWrapper>
               <IconWrapper>
                 <ShareIcon
                   style={{ cursor: "pointer" }}
@@ -150,6 +152,12 @@ const Logo = styled.img`
 
 const AppWrapper = styled.div`
   padding: 10px;
+  gap: 12px;
+  display: flex;
+  justify-content: space-between;
+`;
+
+const LogoDescriptionWrapper = styled.div`
   gap: 12px;
   display: flex;
 `;

@@ -61,6 +61,10 @@
     "message": "Save",
     "description": "Save button text"
   },
+  "generate": {
+    "message": "Generate",
+    "description": "Generate button text"
+  },
   "add_wallet": {
     "message": "Add wallet",
     "description": "Add a wallet text"
@@ -298,6 +302,10 @@
   "permissionDescriptionDispatch": {
     "message": "Allows using dispatch transactions.",
     "description": "Description for the \"DISPATCH\" permission"
+  },
+  "permissionAccessTokens": {
+    "message": "Allows access to view tokens and their balances that you've added to your wallet",
+    "description": "Description for the permission to access user-added token and token balances"
   },
   "copyId": {
     "message": "Copy ID",
@@ -1373,6 +1381,14 @@
     "message": "Generate QR code",
     "description": "Generate QR code button"
   },
+  "generate_qr_code_title": {
+    "message": "Enter your password to generate QR Code",
+    "description": "Generate QR code title"
+  },
+  "cannot_generate_qr_code": {
+    "message": "Cannot generate QR code for your hardware wallet.",
+    "description": "Cannot generate QR text"
+  },
   "viewblock": {
     "message": "Viewblock",
     "description": "view block"
@@ -2179,5 +2195,9 @@
   "mismatch_warning": {
     "message": "Your wallet has a mismatched bit length. You can proceed, but may encounter errors. Transactions could fail or behave unexpectedly.",
     "description": "warning for mismatch wallet"
+  },
+  "transak_unavailable": {
+    "message": "Transak is unavailable at the moment. Please try again later.",
+    "description": "Transak unavailable error message"
   }
 }
