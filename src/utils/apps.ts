@@ -5,17 +5,17 @@ import arwikiLogo from "url:/assets/ecosystem/arwiki.png";
 import bazarLogo from "url:/assets/ecosystem/bazar.png";
 import protocollandLogo from "url:/assets/ecosystem/protocolland.svg";
 import permaswapLogo from "url:/assets/ecosystem/permaswap.svg";
-import pianityLogo from "url:/assets/ecosystem/pianity.png";
 import barkLogo from "url:/assets/ecosystem/bark.png";
-import ansLogo from "url:/assets/ecosystem/ans-logo.svg";
 import arnsLogo from "url:/assets/ecosystem/arns.svg";
 import astroLogo from "url:/assets/ecosystem/astro.png";
-import artByCityLogo from "url:/assets/ecosystem/artbycity.png";
 import permapagesLogo from "url:/assets/ecosystem/permapages.svg";
-import echoLogo from "url:/assets/ecosystem/echo.svg";
-import permaFacts from "url:/assets/ecosystem/permafacts.svg";
+import dexiLogo from "url:/assets/ecosystem/dexi.svg";
+import dcaAgentLogo from "url:/assets/ecosystem/autonomous-dca-agent.png";
+import aoLinkLogo from "url:/assets/ecosystem/aolink.svg";
+import llamaLogo from "url:/assets/ecosystem/llama.png";
+import arswapLogo from "url:/assets/ecosystem/arswap.png";
+import liquidopsLogo from "url:/assets/ecosystem/liquidops.svg";
 import betterideaLogo from "url:/assets/ecosystem/betteridea.png";
-import arLogoLight from "url:/assets/ar/logo_light.png";
 
 export interface App {
   name: string;
@@ -39,8 +39,7 @@ export const apps: App[] = [
   {
     name: "Bark",
     category: "Exchange",
-    description:
-      "Bark is the AO Computer's first decentralized Finance. It supports AMM trading pairs and extreme scalability.",
+    description: "Bark is the AO Computer's first decentralized exchange.",
     assets: {
       logo: barkLogo,
       thumbnail: "/apps/bark/thumbnail.png",
@@ -55,7 +54,7 @@ export const apps: App[] = [
     name: "Protocol.Land",
     category: "Storage",
     description:
-      "Code collaboration, reimagined. Protocol.Land is a decentralized, source controlled, code collaboration where you own your code.",
+      "Protocol.Land is a decentralized home for decentralized codebases.",
     assets: {
       logo: protocollandLogo,
       thumbnail: "/apps/protocolland/thumbnail.png",
@@ -70,27 +69,10 @@ export const apps: App[] = [
     }
   },
   {
-    name: "BetterIDEa IDE",
-    category: "Development",
-    description: "Feature rich web IDE for building on AO",
-    assets: {
-      logo: betterideaLogo,
-      thumbnail: "/apps/betteridea/thumbnail.png",
-      lightBackground: "rgba(240, 240, 240, 1)",
-      darkBackground: "rgba(20, 34, 19, 1)"
-    },
-    links: {
-      website: "https://betteridea.dev",
-      twitter: "https://twitter.com/betteridea_dev",
-      discord: "https://discord.gg/nm6VKUQBrA",
-      github: "https://github.com/betteridea-dev"
-    }
-  },
-  {
     name: "Astro",
-    category: "De-fi",
+    category: "Defi",
     description:
-      "Astro USD (USDA) is the very first stablecoin in the Arweave (and AO Computer) ecosystem.",
+      "Astro introduces USDA as the first overcollateralized stablecoin on AO.",
     assets: {
       logo: astroLogo,
       thumbnail: "/apps/astro/thumbnail.png",
@@ -104,8 +86,39 @@ export const apps: App[] = [
     }
   },
   {
+    name: "LiquidOps",
+    category: "Defi",
+    description:
+      "A simple, secure lending & borrowing platform for AR & AO assets.",
+    assets: {
+      logo: liquidopsLogo,
+      thumbnail: "/apps/astro/thumbnail.png",
+      lightBackground: "rgba(230, 235, 240, 1)",
+      darkBackground: "rgba(19, 28, 37, 1)"
+    },
+    links: {
+      website: "https://www.liquidops.io",
+      twitter: "https://x.com/Liquid_Ops"
+    }
+  },
+  {
+    name: "Bazar",
+    category: "Exchange",
+    description:
+      "The first fully decentralized atomic asset exchange built on the permaweb. Through the power of the Universal Content Marketplace (UCM) protocol and the Universal Data License (UDL) content creators can trade digital assets with real world rights.",
+    assets: {
+      logo: bazarLogo,
+      thumbnail: "/apps/bazar/thumbnail.gif",
+      lightBackground: "rgba(230, 235, 240, 1)"
+    },
+    links: {
+      website: "https://bazar.arweave.dev",
+      twitter: "https://twitter.com/OurBazAR"
+    }
+  },
+  {
     name: "AFTR Market",
-    category: "Developer Tooling",
+    category: "Infrastructure",
     description:
       "AFTR Market provides asset management and governance on-chain for Arweave assets.",
     assets: {
@@ -119,17 +132,80 @@ export const apps: App[] = [
     }
   },
   {
-    name: "Bazar",
-    category: "Exchange",
+    name: "Dexi",
+    category: "Defi",
     description:
-      "The first fully decentralized atomic asset exchange built on the permaweb. Through the power of the Universal Content Marketplace (UCM) protocol and the Universal Data License (UDL) content creators can trade digital assets with real world rights.",
+      "Dexi autonomously identifies, collects, and aggregates financial data from events within the AO network, including asset prices, token swaps, liquidity fluctuations, and token asset characteristics.",
     assets: {
-      logo: bazarLogo,
-      thumbnail: "/apps/bazar/thumbnail.gif"
+      logo: dexiLogo,
+      thumbnail: "/apps/dexi/thumbnail.png",
+      lightBackground: "rgba(230, 235, 240, 1)"
     },
     links: {
-      website: "https://bazar.arweave.dev",
-      twitter: "https://twitter.com/OurBazAR"
+      website: "https://dexi.arweave.dev/",
+      twitter: "https://x.com/autonomous_af"
+    }
+  },
+  {
+    name: "Autonomous DCA Agent",
+    category: "Agent",
+    description:
+      "The Autonomous DCA Agent executes a dynamic dollar-cost-average (DCA) investment strategy across various liquidity pools within the AO ecosystem.",
+    assets: {
+      logo: dcaAgentLogo,
+      thumbnail: "/apps/autonomousdca/thumbnail.png",
+      lightBackground: "rgba(230, 235, 240, 1)"
+    },
+    links: {
+      website: "https://dca_agent.arweave.dev/",
+      twitter: "https://x.com/autonomous_af"
+    }
+  },
+  {
+    name: "ao Link",
+    category: "Developer Tooling",
+    description:
+      "ao.link serves as a message explorer for the ao Network, offering functionalities similar to block explorers in conventional blockchain systems.",
+    assets: {
+      logo: aoLinkLogo,
+      thumbnail: "/apps/aolink/logo.png",
+      lightBackground: "rgba(230, 235, 240, 1)"
+    },
+    links: {
+      website: "https://www.ao.link/",
+      twitter: "https://x.com/TheDataOS"
+    }
+  },
+  {
+    name: "Llama Land",
+    category: "Social",
+    description:
+      "AI powered MMO game built on AO. Petition the Llama King for Llama Coin! 100% onchain.",
+    assets: {
+      logo: llamaLogo,
+      thumbnail: "/apps/llamaland/logo.png",
+      lightBackground: "rgba(230, 235, 240, 1)",
+      darkBackground: "rgba(19, 28, 37, 1)"
+    },
+    links: {
+      website: "https://llamaland.g8way.io/#/",
+      twitter: "https://x.com/LlamaLandAO"
+    }
+  },
+  {
+    name: "ArSwap",
+    category: "Exchange",
+    description:
+      "Unlocking DeFi on AO. Swap tokens, provide liquidity, and earn fees.",
+    assets: {
+      logo: arswapLogo,
+      thumbnail: "/apps/arswap/logo.png",
+      lightBackground: "rgba(230, 235, 240, 1)",
+      darkBackground: "rgba(19, 28, 37, 1)"
+    },
+    links: {
+      website: "https://arswap.org/",
+      twitter: "https://x.com/ar_swap"
     }
   },
   {
@@ -139,7 +215,8 @@ export const apps: App[] = [
       "The Arweave Name System (ArNS) works similarly to traditional Domain Name Services - but with ArNS, the registry is decentralized, permanent, and stored on Arweave. It's a simple way to name and help you - and your users - find your data, apps, or websites on Arweave.",
     assets: {
       logo: arnsLogo,
-      thumbnail: "/apps/arns/thumbnail.jpeg"
+      thumbnail: "/apps/arns/thumbnail.jpeg",
+      lightBackground: "rgba(230, 235, 240, 1)"
     },
     links: {
       website: "https://arns.app",
@@ -149,93 +226,15 @@ export const apps: App[] = [
     }
   },
   {
-    name: "Art By City",
-    category: "Publishing",
-    description:
-      "Art By City is a chain-agnostic Web3 art and creative content protocol built on Arweave. The protocol is governed by the Art By City DAO. The Art By City DAO is a Profit Sharing Community or PSC. The Art By City community governs development of the Art By City protocol, dApps, and tools artists will need to take control of their Web3 experience.",
-    assets: {
-      logo: artByCityLogo,
-      thumbnail: "/apps/artbycity/thumbnail.png",
-      lightBackground: "rgba(255, 255, 255, 1)",
-      darkBackground: "rgba(255, 255, 255, 1)"
-    },
-    links: {
-      website: "https://artby.city",
-      twitter: "https://twitter.com/artbycity",
-      discord: "https://discord.gg/w4Yhc95b8p",
-      github: "https://github.com/art-by-city"
-    }
-  },
-  {
-    name: "ECHO",
-    category: "Social",
-    description:
-      "ECHO is the first decentralized social engagement protocol based on Arweave. Its goal is to provide the fundamental infrastructure of Web3 social by introducing the first comment widget that can be deployed on any Web3 website with permanent data storage, so that users can speak up for themselves in a decentralized, permissionless, and censorship-resistant environment. ",
-    assets: {
-      logo: echoLogo,
-      thumbnail: "/apps/echo/thumbnail.png"
-    },
-    links: {
-      website: "https://0xecho.com",
-      twitter: "https://twitter.com/0x_ECHO",
-      discord: "https://discord.gg/KFxyaw9Wdj",
-      github: "https://github.com/0x-echo"
-    }
-  },
-  {
-    name: "Permafacts",
-    category: "Publishing",
-    description:
-      "A provably neutral publishing platform, built on top of the #FactsProtocol, aimed at dis-intermediating the truth. Publish assertions, and take your position in the Fact Marketplace!",
-    assets: {
-      logo: permaFacts,
-      thumbnail: "/apps/permafacts/thumbnail.png"
-    },
-    links: {
-      website: "https://permafacts.arweave.dev",
-      twitter: "https://twitter.com/permafacts",
-      discord: "https://discord.gg/uGg8VAvqU7",
-      github: "https://github.com/facts-laboratory"
-    }
-  },
-  {
-    name: "Pianity",
-    category: "NFTs",
-    description:
-      "Pianity is a music NFT platform – built on environmentally-conscious Arweave technology — where musicians and their community gather to create, sell, buy and collect songs in limited editions. Pianity's pioneering approach, which includes free listening for all, enables deeper connections between artists and their audience.",
-    assets: {
-      logo: pianityLogo,
-      thumbnail: "/apps/pianity/thumbnail.png"
-    },
-    links: {
-      website: "https://pianity.com",
-      twitter: "https://twitter.com/pianitynft",
-      discord: "https://discord.gg/pianity"
-    }
-  },
-  {
-    name: "Arweave Name Service (ANS)",
-    category: "Social",
-    description:
-      "ans.gg is a popular name service built on top of the Arweave blockchain. Buy your domain once, own forever.",
-    assets: {
-      logo: ansLogo,
-      thumbnail: "/apps/ans/thumbnail.png"
-    },
-    links: {
-      website: "https://ans.gg",
-      twitter: "https://twitter.com/ArweaveANS",
-      discord: "https://discord.gg/decentland"
-    }
-  },
-  {
     name: "Permapages",
     category: "Publishing",
     description:
       "Create and manage your own permanent web3 profile and permaweb pages built on Arweave.",
     assets: {
       logo: permapagesLogo,
-      thumbnail: "/apps/permapages/thumbnail.png"
+      thumbnail: "/apps/permapages/thumbnail.png",
+      lightBackground: "rgba(230, 235, 240, 1)",
+      darkBackground: "rgba(19, 28, 37, 1)"
     },
     links: {
       website: "https://permapages.app",
@@ -261,17 +260,20 @@ export const apps: App[] = [
     }
   },
   {
-    name: "ArCode Studio",
-    category: "Development",
-    description:
-      "ArCode Studio is an online IDE for smartweave contracts. As ArCode works on the browser all the files are saved in cache memory and removed when the cache is cleared.",
+    name: "BetterIDEa IDE",
+    category: "Developer Tooling",
+    description: "Feature rich web IDE for building on AO",
     assets: {
-      logo: arLogoLight,
-      thumbnail: "/apps/arcode/thumbnail.jpeg"
+      logo: betterideaLogo,
+      thumbnail: "/apps/betteridea/thumbnail.png",
+      lightBackground: "rgba(240, 240, 240, 1)",
+      darkBackground: "rgba(20, 34, 19, 1)"
     },
     links: {
-      website: "https://arcode.ar-io.dev",
-      github: "https://github.com/luckyr13/arcode"
+      website: "https://betteridea.dev",
+      twitter: "https://twitter.com/betteridea_dev",
+      discord: "https://discord.gg/nm6VKUQBrA",
+      github: "https://github.com/betteridea-dev"
     }
   },
   {
@@ -281,7 +283,8 @@ export const apps: App[] = [
       "As MediaWiki is the software that powers Wikipedia, ArWiki is the software that powers the Arweave Wiki. However, ArWiki is a Web3 platform -- it is completely decentralized, and is hosted on and served from the Arweave permaweb itself.",
     assets: {
       logo: arwikiLogo,
-      thumbnail: "/apps/arwiki/thumbnail.jpeg"
+      thumbnail: "/apps/arwiki/thumbnail.jpeg",
+      lightBackground: "rgba(230, 235, 240, 1)"
     },
     links: {
       website: "https://arwiki.wiki",
@@ -295,7 +298,8 @@ export const apps: App[] = [
       "A decentralized archival platform that preserves human history and culture digitally.",
     assets: {
       logo: alexLogo,
-      thumbnail: "/apps/alex/thumbnail.png"
+      thumbnail: "/apps/alex/thumbnail.png",
+      lightBackground: "rgba(230, 235, 240, 1)"
     },
     links: {
       website: "https://alex.arweave.dev/",
@@ -311,7 +315,7 @@ export const apps: App[] = [
     assets: {
       logo: permaswapLogo,
       thumbnail: permaswapLogo,
-      lightBackground: "rgba(230, 235, 240, 1)",
+      // lightBackground: "rgba(230, 235, 240, 1)",
       darkBackground: "rgba(19, 28, 37, 1)"
     },
     links: {
