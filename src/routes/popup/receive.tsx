@@ -115,26 +115,26 @@ export default function Receive({ walletName, walletAddress }: ReceiveProps) {
   );
 }
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: calc(100vh - 72px);
 `;
 
-const ContentWrapper = styled.div`
+export const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
 `;
 
-const AddressField = styled(ButtonV2)`
+export const AddressField = styled(ButtonV2)`
   display: flex;
   align-items: center;
   gap: 5px;
   font-weight: 500;
 `;
 
-const CopyAction = styled(CopyIcon)`
+export const CopyAction = styled(CopyIcon)`
   font-size: 1.25rem;
   width: 1em;
   height: 1em;
@@ -151,7 +151,7 @@ const CopyAction = styled(CopyIcon)`
   }
 `;
 
-const QRCodeWrapper = styled.div`
+export const QRCodeWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;

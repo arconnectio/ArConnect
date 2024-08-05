@@ -61,6 +61,10 @@
     "message": "节省",
     "description": "Save button text"
   },
+  "generate": {
+    "message": "产生",
+    "description": "Generate button text"
+  },
   "add_wallet": {
       "message": "添加钱包",
       "description": "Add a wallet text"
@@ -1364,6 +1368,14 @@
   "generate_qr_code": {
     "message": "生成二维码",
     "description": "Generate QR code button"
+  },
+  "generate_qr_code_title": {
+    "message": "输入密码生成二维码",
+    "description": "Generate QR code title"
+  },
+  "cannot_generate_qr_code": {
+    "message": "无法为您的硬件钱包生成二维码。",
+    "description": "Cannot generate QR text"
   },
   "viewblock": {
       "message": "Viewblock",
