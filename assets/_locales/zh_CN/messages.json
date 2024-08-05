@@ -295,6 +295,10 @@
       "message": "允许使用调度交易。",
       "description": "Description for the \"DISPATCH\" permission"
   },
+  "permissionAccessTokens": {
+    "message": "允许查看您已添加到钱包中的代币及其余额",
+    "description": "Description for the permission to access user-added token and token balances"
+  },
   "copyId": {
       "message": "复制 ID",
       "description": "Copy ID button text"

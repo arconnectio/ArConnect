@@ -299,6 +299,10 @@
     "message": "Allows using dispatch transactions.",
     "description": "Description for the \"DISPATCH\" permission"
   },
+  "permissionAccessTokens": {
+    "message": "Allows access to view tokens and their balances that you've added to your wallet",
+    "description": "Description for the permission to access user-added token and token balances"
+  },
   "copyId": {
     "message": "Copy ID",
     "description": "Copy ID button text"

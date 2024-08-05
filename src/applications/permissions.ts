@@ -10,7 +10,8 @@ export type PermissionType =
   | "DECRYPT"
   | "SIGNATURE"
   | "ACCESS_ARWEAVE_CONFIG"
-  | "DISPATCH";
+  | "DISPATCH"
+  | "ACCESS_TOKENS";
 
 /**
  * All permissions with their descriptions
@@ -24,7 +25,8 @@ export const permissionData: Record<PermissionType, string> = {
   DECRYPT: "permissionDescriptionDecrypt",
   SIGNATURE: "permissionDescriptionSignature",
   ACCESS_ARWEAVE_CONFIG: "permissionDescriptionArweaveConfig",
-  DISPATCH: "permissionDescriptionDispatch"
+  DISPATCH: "permissionDescriptionDispatch",
+  ACCESS_TOKENS: "permissionAccessTokens"
 };
 
 /**
