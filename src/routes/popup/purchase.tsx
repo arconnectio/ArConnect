@@ -4,7 +4,8 @@ import {
   Text,
   ListItem,
   ButtonV2,
-  Loading
+  Loading,
+  useToasts
 } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import { ChevronRight } from "@untitled-ui/icons-react";
@@ -19,6 +20,7 @@ import type { PaymentType, Quote } from "~lib/onramper";
 import { useHistory } from "~utils/hash_router";
 import { ExtensionStorage } from "~utils/storage";
 import { useDebounce } from "~wallets/hooks";
+import { retryWithDelay } from "~utils/retry";
 
 export default function Purchase() {
   const [push] = useHistory();
@@ -32,6 +34,7 @@ export default function Purchase() {
   const [showPaymentSelector, setShowPaymentSelector] = useState(false);
   const [showCurrencySelector, setShowCurrencySelector] = useState(false);
   const [quote, setQuote] = useState<Quote | null>();
+  const { setToast } = useToasts();
 
   const handlePaymentClose = () => {
     setShowPaymentSelector(false);
@@ -39,6 +42,19 @@ export default function Purchase() {
 
   const handleCurrencyClose = () => {
     setShowCurrencySelector(false);
+  };
+
+  const showTransakErrorToast = () => {
+    setToast({
+      type: "error",
+      content: browser.i18n.getMessage("transak_unavailable"),
+      duration: 2400
+    });
+  };
+
+  const finishUp = (quote: Quote | null) => {
+    setQuote(quote);
+    setLoading(false);
   };
 
   //segment
@@ -84,8 +100,7 @@ export default function Purchase() {
         !selectedCurrency ||
         !paymentMethod
       ) {
-        setLoading(false);
-        setQuote(null);
+        finishUp(null);
         return;
       }
       const baseUrl = "https://api.transak.com/api/v1/pricing/public/quotes";
@@ -106,18 +121,31 @@ export default function Purchase() {
       const url = `${baseUrl}?${params.toString()}`;
 
       try {
-        const response = await fetch(url);
+        const response = await retryWithDelay(() => fetch(url));
         if (!response.ok) {
-          setQuote(null);
-          throw new Error("Network response was not ok");
+          try {
+            const resJson = await response.json();
+            if (resJson?.error?.message) {
+              setToast({
+                type: "error",
+                content: resJson?.error?.message,
+                duration: 2400
+              });
+            } else {
+              throw new Error("Network response was not ok");
+            }
+          } catch {
+            showTransakErrorToast();
+          }
+          finishUp(null);
+          return;
         }
         const data = await response.json();
-        setQuote(data.response);
-        setLoading(false);
+        finishUp(data.response);
       } catch (error) {
         console.error("Error fetching data:", error);
-        setQuote(null);
-        setLoading(false);
+        showTransakErrorToast();
+        finishUp(null);
       }
       setLoading(false);
     };

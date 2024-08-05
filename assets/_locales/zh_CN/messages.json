@@ -2169,5 +2169,9 @@
   "mismatch_warning": {
     "message": "您的钱包存在不匹配的位长度。您可以继续操作，但可能会遇到错误。交易可能会失败或表现异常。",
     "description": "warning for mismatch wallet"
+  },
+  "transak_unavailable": {
+    "message": "Transak 目前不可用。请稍后再试。",
+    "description": "Transak unavailable error message"
   }
 }
