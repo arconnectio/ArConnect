@@ -260,7 +260,7 @@ export const apps: App[] = [
     }
   },
   {
-    name: "BetterIDEa IDE",
+    name: "BetterIDEa",
     category: "Developer Tooling",
     description: "Feature rich web IDE for building on AO",
     assets: {
@@ -270,7 +270,7 @@ export const apps: App[] = [
       darkBackground: "rgba(20, 34, 19, 1)"
     },
     links: {
-      website: "https://betteridea.dev",
+      website: "https://betteridea.arweave.net/",
       twitter: "https://twitter.com/betteridea_dev",
       discord: "https://discord.gg/nm6VKUQBrA",
       github: "https://github.com/betteridea-dev"
