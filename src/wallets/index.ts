@@ -209,6 +209,54 @@ export async function getActiveKeyfile(): Promise<DecryptedWallet> {
 }
 
 /**
+ * Get the wallet with decrypted JWK
+ *
+ * !!IMPORTANT!!
+ *
+ * When using this function, always make sure to remove the keyfile
+ * from the memory, after it is no longer needed, using the
+ * "freeDecryptedWallet(activekeyfile.keyfile)" function.
+ *
+ * @returns wallet with decrypted JWK
+ */
+export async function getKeyfile(address: string): Promise<DecryptedWallet> {
+  // fetch data from storage
+  const wallets = await getWallets();
+  const wallet = wallets.find((wallet) => wallet.address === address);
+
+  // return if hardware wallet
+  if (wallet.type === "hardware") {
+    return wallet;
+  }
+
+  // get decryption key
+  let decryptionKey = await getDecryptionKey();
+
+  // unlock ArConnect if the decryption key is undefined
+  // this means that the user has to enter their decryption
+  // key so it can be used later
+  if (!decryptionKey && !!wallet) {
+    await authenticate({
+      type: "unlock"
+    });
+
+    // re-read the decryption key
+    decryptionKey = await getDecryptionKey();
+  }
+
+  // decrypt keyfile
+  const decryptedKeyfile = await decryptWallet(wallet.keyfile, decryptionKey);
+
+  // construct decrypted wallet object
+  const decryptedWallet: DecryptedWallet = {
+    ...wallet,
+    keyfile: decryptedKeyfile
+  };
+
+  return decryptedWallet;
+}
+
+/**
  * Add a wallet for the user
  *
  * @param wallet Wallet JWK object

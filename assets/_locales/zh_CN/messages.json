@@ -61,6 +61,10 @@
     "message": "节省",
     "description": "Save button text"
   },
+  "generate": {
+    "message": "产生",
+    "description": "Generate button text"
+  },
   "add_wallet": {
       "message": "添加钱包",
       "description": "Add a wallet text"
@@ -294,6 +298,10 @@
   "permissionDescriptionDispatch": {
       "message": "允许使用调度交易。",
       "description": "Description for the \"DISPATCH\" permission"
+  },
+  "permissionAccessTokens": {
+    "message": "允许查看您已添加到钱包中的代币及其余额",
+    "description": "Description for the permission to access user-added token and token balances"
   },
   "copyId": {
       "message": "复制 ID",
@@ -1361,6 +1369,14 @@
     "message": "生成二维码",
     "description": "Generate QR code button"
   },
+  "generate_qr_code_title": {
+    "message": "输入密码生成二维码",
+    "description": "Generate QR code title"
+  },
+  "cannot_generate_qr_code": {
+    "message": "无法为您的硬件钱包生成二维码。",
+    "description": "Cannot generate QR text"
+  },
   "viewblock": {
       "message": "Viewblock",
       "description": "view block"
@@ -2165,5 +2181,9 @@
   "mismatch_warning": {
     "message": "您的钱包存在不匹配的位长度。您可以继续操作，但可能会遇到错误。交易可能会失败或表现异常。",
     "description": "warning for mismatch wallet"
+  },
+  "transak_unavailable": {
+    "message": "Transak 目前不可用。请稍后再试。",
+    "description": "Transak unavailable error message"
   }
 }
