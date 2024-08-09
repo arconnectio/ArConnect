@@ -5,10 +5,11 @@ import {
   ListItem,
   ButtonV2,
   Loading,
-  useToasts
+  useToasts,
+  ListItemIcon
 } from "@arconnect/components";
 import browser from "webextension-polyfill";
-import { ChevronRight } from "@untitled-ui/icons-react";
+import { ChevronRight, Bank, BankNote01 } from "@untitled-ui/icons-react";
 import switchIcon from "url:/assets/ecosystem/switch-vertical.svg";
 import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
@@ -227,8 +228,14 @@ export default function Purchase() {
           <InputButton
             label={browser.i18n.getMessage("buy_screen_payment_method")}
             onClick={() => setShowPaymentSelector(true)}
-            disabled={false}
-            body={paymentMethod?.name || ""}
+            disabled={!paymentMethod}
+            body={
+              paymentMethod?.id === "pm_us_wire_bank_transfer"
+                ? "Wire Transfer"
+                : paymentMethod?.id === "pm_cash_app"
+                ? "Cash App"
+                : paymentMethod?.name || ""
+            }
             icon={
               <div
                 style={{
@@ -324,19 +331,33 @@ const PaymentSelectorScreen = ({
         padding={"0 0 15px 0;"}
       />
       {payments.map((payment, index) => {
-        return (
-          <ListItem
-            key={index}
-            small
-            title={payment.name}
-            description={`processing time ${payment.processingTime}`}
-            img={payment.icon}
-            onClick={() => {
-              updatePayment(payment);
-              onClose();
-            }}
-          />
-        );
+        if (payment.isActive) {
+          const isWireTransfer = payment.id === "pm_us_wire_bank_transfer";
+          const isCashApp = payment.id === "pm_cash_app";
+          return (
+            <ListItem
+              key={index}
+              small
+              title={
+                isWireTransfer
+                  ? "Wire Transfer"
+                  : isCashApp
+                  ? "Cash App"
+                  : payment.name
+              }
+              description={`processing time ${payment.processingTime}`}
+              img={!isWireTransfer && !isCashApp && payment.icon}
+              onClick={() => {
+                updatePayment(payment);
+                onClose();
+              }}
+            >
+              {isWireTransfer && <ListItemIcon as={Bank} />}
+              {isCashApp && <ListItemIcon as={BankNote01} />}
+            </ListItem>
+          );
+        }
+        return null;
       })}
     </SelectorWrapper>
   );
