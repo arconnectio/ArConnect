@@ -15,7 +15,6 @@ import {
 } from "~utils/ao_import";
 import type { Alarms } from "webextension-polyfill";
 import type { KeystoneSigner } from "~wallets/hardware/keystone";
-import browser from "webextension-polyfill";
 
 export type AoInstance = ReturnType<typeof connect>;
 
@@ -423,9 +422,7 @@ export const sendAoTransfer = async (
           name: "Recipient",
           value: recipient
         },
-        { name: "Quantity", value: amount },
-        { name: "Client", value: "ArConnect" },
-        { name: "Client-Version", value: browser.runtime.getManifest().version }
+        { name: "Quantity", value: amount }
       ]
     });
     freeDecryptedWallet(decryptedWallet.keyfile);
@@ -527,9 +524,7 @@ export const sendAoTransferKeystone = async (
           name: "Recipient",
           value: recipient
         },
-        { name: "Quantity", value: amount },
-        { name: "Client", value: "ArConnect" },
-        { name: "Client-Version", value: browser.runtime.getManifest().version }
+        { name: "Quantity", value: amount }
       ]
     });
     return transferID;
