@@ -204,7 +204,7 @@ async function balanceHistory(address: string, gateway: Gateway) {
     await gql(
       `
       query($recipient: String!) {
-        transactions(recipients: [$recipient], first: 100) {
+        transactions(recipients: [$recipient], first: 100, bundledIn: null) {
           edges {
             node {
               owner {
@@ -231,7 +231,7 @@ async function balanceHistory(address: string, gateway: Gateway) {
     await gql(
       `
       query($owner: String!) {
-        transactions(owners: [$owner], first: 100) {
+        transactions(owners: [$owner], first: 100, bundledIn: null) {
           edges {
             node {
               owner {

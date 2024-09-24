@@ -2,8 +2,7 @@
 
 export const AR_RECEIVER_QUERY = `
 query ($address: String!) {
-  transactions(first: 10, recipients: [$address], tags: [{ name: "Type", values: ["Transfer"] }]) {
-
+  transactions(first: 10, recipients: [$address], bundledIn: null) {
     edges {
       cursor
       node {
@@ -23,7 +22,7 @@ query ($address: String!) {
 `;
 
 export const AR_SENT_QUERY = `query ($address: String!) {
-  transactions(first: 10, owners: [$address], tags: [{ name: "Type", values: ["Transfer"] }]) {
+  transactions(first: 10, owners: [$address], bundledIn: null) {
     edges {
       cursor
       node {
@@ -136,7 +135,7 @@ export const ALL_AR_SENT_QUERY = `query ($address: String!) {
 
 export const AR_RECEIVER_QUERY_WITH_CURSOR = `
 query ($address: String!, $after: String) {
-  transactions(first: 10, recipients: [$address], tags: [{ name: "Type", values: ["Transfer"] }], after: $after) {
+  transactions(first: 10, recipients: [$address], bundledIn: null, after: $after) {
     pageInfo {
       hasNextPage
     }
@@ -160,7 +159,7 @@ query ($address: String!, $after: String) {
 
 export const AR_SENT_QUERY_WITH_CURSOR = `
 query ($address: String!, $after: String) {
-  transactions(first: 10, owners: [$address], tags: [{ name: "Type", values: ["Transfer"] }], after: $after) {
+  transactions(first: 10, owners: [$address], bundledIn: null, after: $after) {
     pageInfo {
       hasNextPage
     }
