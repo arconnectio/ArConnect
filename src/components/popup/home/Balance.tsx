@@ -124,7 +124,9 @@ export default function Balance() {
   }
 
   useEffect(() => {
-    if (parseFloat(balance.toString()) !== historicalBalance[0]) {
+    if (
+      balance.toNumber() !== historicalBalance[historicalBalance.length - 1]
+    ) {
       setLoading(true);
     } else {
       setLoading(false);
@@ -198,13 +200,19 @@ export default function Balance() {
 
 async function balanceHistory(address: string, gateway: Gateway) {
   const arweave = new Arweave(gateway);
+  let minHeight = 0;
+  try {
+    const { height } = await arweave.network.getInfo();
+    // blocks per day - 720
+    minHeight = height - 720 * 30;
+  } catch {}
 
   // find txs coming in and going out
   const inTxs = (
     await gql(
       `
-      query($recipient: String!) {
-        transactions(recipients: [$recipient], first: 100, bundledIn: null) {
+      query($recipient: String!, $minHeight: Int!) {
+        transactions(recipients: [$recipient], first: 100, bundledIn: null, block: {min: $minHeight}) {
           edges {
             node {
               owner {
@@ -224,14 +232,15 @@ async function balanceHistory(address: string, gateway: Gateway) {
         }
       }
     `,
-      { recipient: address }
+      { recipient: address, minHeight }
     )
   ).data.transactions.edges;
+
   const outTxs = (
     await gql(
       `
-      query($owner: String!) {
-        transactions(owners: [$owner], first: 100, bundledIn: null) {
+      query($owner: String!, $minHeight: Int!) {
+        transactions(owners: [$owner], first: 100, bundledIn: null, block: {min: $minHeight}) {
           edges {
             node {
               owner {
@@ -251,37 +260,41 @@ async function balanceHistory(address: string, gateway: Gateway) {
         }
       }    
     `,
-      { owner: address }
+      { owner: address, minHeight }
     )
   ).data.transactions.edges;
 
-  // sort txs
+  // Merge and sort transactions in descending order (newest first)
   const txs = inTxs
     .concat(outTxs)
     .map((edge) => edge.node)
-    .filter((tx) => !!tx?.block?.timestamp)
-    .sort((a, b) => a.block.timestamp - b.block.timestamp);
+    .filter((tx) => !!tx?.block?.timestamp) // Filter out transactions without a timestamp
+    .sort((a, b) => b.block.timestamp - a.block.timestamp); // Sort by newest to oldest
 
-  // get initial balance
-  let balance = parseFloat(
+  // Get the current balance
+  let balance = BigNumber(
     arweave.ar.winstonToAr(await arweave.wallets.getBalance(address))
   );
 
-  const res = [balance];
+  // Initialize the result array with the current balance
+  const res = [balance.toNumber()];
 
-  // go back in time by tx and calculate
-  // historical balance
+  // Process transactions from newest to oldest, adjusting the balance
   for (const tx of txs) {
-    balance -= parseFloat(tx.fee.ar);
-
     if (tx.owner.address === address) {
-      balance -= parseFloat(tx.quantity.ar);
+      // Outgoing transaction: add back the transaction amount and fee (since we are reversing)
+      balance = balance.plus(tx.quantity.ar).plus(tx.fee.ar);
     } else {
-      balance += parseFloat(tx.quantity.ar);
+      // Incoming transaction: subtract the amount received
+      balance = balance.minus(tx.quantity.ar);
     }
 
-    res.push(balance);
+    // Push the balance at that point in time
+    res.push(balance.toNumber());
   }
+
+  // Reverse the result array to have chronological order for the line chart (oldest to newest)
+  res.reverse();
 
   return res;
 }
