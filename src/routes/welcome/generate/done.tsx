@@ -18,7 +18,6 @@ import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "@plasmohq/storage/hook";
 import JSConfetti from "js-confetti";
 import { useLocation } from "wouter";
-import { addExpiration } from "~wallets/auth";
 
 export default function Done() {
   // wallet context
@@ -82,9 +81,6 @@ export default function Done() {
         : walletRef.current.jwk,
       password
     );
-
-    // add password expiration
-    await addExpiration();
 
     // log user onboarded
     await trackEvent(EventType.ONBOARDED, {});

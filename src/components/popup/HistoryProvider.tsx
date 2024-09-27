@@ -1,5 +1,5 @@
 import { type PropsWithChildren, useEffect, useState } from "react";
-import { getDecryptionKey, isExpired } from "~wallets/auth";
+import { getDecryptionKey } from "~wallets/auth";
 import { useLocation } from "wouter";
 import {
   type BackAction,
@@ -28,14 +28,12 @@ export default function HistoryProvider({ children }: PropsWithChildren<{}>) {
   };
 
   // redirect to unlock if decryiption
-  // key is not available or if the password
-  // has expired and needs to be reset
+  // key is not available
   useEffect(() => {
     (async () => {
       const decryptionKey = await getDecryptionKey();
-      const expired = await isExpired();
 
-      if (!decryptionKey || expired) {
+      if (!decryptionKey) {
         push("/unlock");
       }
     })();
