@@ -29,6 +29,7 @@ import {
   getFullMonthName,
   getTransactionDescription
 } from "~lib/transactions";
+import BigNumber from "bignumber.js";
 
 const defaultCursors = ["", "", "", ""];
 const defaultHasNextPages = [true, true, true, true];
@@ -85,8 +86,8 @@ export default function Transactions() {
           })
         );
 
-      const sent = await processTransactions(rawSent, "sent");
-      const received = await processTransactions(rawReceived, "received");
+      let sent = await processTransactions(rawSent, "sent");
+      let received = await processTransactions(rawReceived, "received");
       const aoSent = await processTransactions(rawAoSent, "aoSent", true);
       const aoReceived = await processTransactions(
         rawAoReceived,
@@ -99,6 +100,9 @@ export default function Transactions() {
           (data, idx) => data[data.length - 1]?.cursor ?? prev[idx]
         )
       );
+
+      sent = sent.filter((tx) => BigNumber(tx.node.quantity.ar).gt(0));
+      received = received.filter((tx) => BigNumber(tx.node.quantity.ar).gt(0));
 
       setHasNextPages(
         [rawReceived, rawSent, rawAoSent, rawAoReceived].map(
