@@ -3,6 +3,11 @@ import { objectToUrlParams } from "./url";
 import type { AuthResult } from "shim";
 import { nanoid } from "nanoid";
 import browser from "webextension-polyfill";
+import { Mutex } from "~utils/mutex";
+
+const mutex = new Mutex();
+let keepAliveInterval: number | null = null;
+let activePopups = 0;
 
 export type AuthType =
   | "connect"
@@ -74,8 +79,11 @@ async function createAuthPopup(data: AuthData) {
  * Await for a browser message from the popup
  */
 const result = (authID: string, tabId: number) =>
-  new Promise<AuthResult>((resolve, reject) =>
+  new Promise<AuthResult>(async (resolve, reject) => {
+    startKeepAlive();
+
     onMessage("auth_result", ({ sender, data }) => {
+      stopKeepAlive();
       // validate sender by it's tabId
       if (sender.tabId !== tabId) {
         return;
@@ -93,5 +101,47 @@ const result = (authID: string, tabId: number) =>
       } else {
         resolve(data);
       }
-    })
-  );
+    });
+  });
+
+/**
+ * Function to send periodic keep-alive messages
+ */
+const startKeepAlive = async () => {
+  const unlock = await mutex.lock();
+
+  try {
+    // Increment the active popups count
+    activePopups++;
+    if (activePopups > 0 && keepAliveInterval === null) {
+      console.log("Started keep-alive messages...");
+      keepAliveInterval = setInterval(
+        () => browser.alarms.create("keep-alive", { when: Date.now() + 1 }),
+        20000
+      );
+    }
+  } finally {
+    unlock();
+  }
+};
+
+/**
+ * Function to stop sending keep-alive messages
+ */
+const stopKeepAlive = async () => {
+  const unlock = await mutex.lock();
+
+  try {
+    // Decrement the active popups count
+    activePopups--;
+    if (activePopups <= 0 && keepAliveInterval !== null) {
+      // Stop keep-alive messages when no popups are active
+      browser.alarms.clear("keep-alive");
+      clearInterval(keepAliveInterval);
+      keepAliveInterval = null;
+      console.log("Stopped keep-alive messages...");
+    }
+  } finally {
+    unlock();
+  }
+};
