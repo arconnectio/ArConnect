@@ -46,18 +46,22 @@ const background: ModuleFunction<number[]> = async (
     )
   ) {
     try {
-      const tags = dataItem?.tags || [];
-      const quantityTag = tags.find((tag) => tag.name === "Quantity");
+      const quantityTag = dataItem.tags?.find((tag) => tag.name === "Quantity");
       if (quantityTag) {
-        const quantity = BigNumber(quantityTag.value).toFixed(
-          0,
-          BigNumber.ROUND_FLOOR
-        );
-        if (!isNaN(+quantity)) {
-          quantityTag.value = quantity;
+        const quantityBigNum = BigNumber(quantityTag.value);
+
+        // Ensure the quantity is a valid positive non-zero number (greater than 0)
+        if (!quantityBigNum.isPositive() || quantityBigNum.isZero()) {
+          throw new Error("INVALID_QUANTITY");
         }
+
+        quantityTag.value = quantityBigNum.toFixed(0, BigNumber.ROUND_FLOOR);
       }
-    } catch {}
+    } catch (e) {
+      if (e?.message === "INVALID_QUANTITY") {
+        throw new Error("Quantity must be a valid positive non-zero number.");
+      }
+    }
     try {
       await authenticate({
         type: "signDataItem",

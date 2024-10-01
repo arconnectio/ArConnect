@@ -14,6 +14,7 @@ import {
   combineAndSortTransactions,
   processTransactions
 } from "./utils";
+import BigNumber from "bignumber.js";
 
 export type RawTransaction = {
   node: {
@@ -87,13 +88,15 @@ export async function notificationsHandler(alarmInfo?: Alarms.Alarm) {
             query: !aoNotificationSetting.includes("allTxns")
               ? AR_RECEIVER_QUERY
               : ALL_AR_RECEIVER_QUERY,
-            variables: { address }
+            variables: { address },
+            isAllTxns: aoNotificationSetting.includes("allTxns")
           },
           {
             query: !aoNotificationSetting.includes("allTxns")
               ? AR_SENT_QUERY
               : ALL_AR_SENT_QUERY,
-            variables: { address }
+            variables: { address },
+            isAllTxns: aoNotificationSetting.includes("allTxns")
           }
         ]
       );
@@ -181,7 +184,11 @@ const arNotificationsHandler = async (
   address: string,
   lastStoredHeight: number,
   notificationSetting: boolean,
-  queriesConfig: { query: string; variables: Record<string, any> }[]
+  queriesConfig: {
+    query: string;
+    variables: Record<string, any>;
+    isAllTxns?: boolean;
+  }[]
 ): Promise<ArNotificationsHandlerReturnType> => {
   try {
     let transactionDiff = [];
@@ -189,7 +196,20 @@ const arNotificationsHandler = async (
     const queries = queriesConfig.map((config) =>
       gql(config.query, config.variables, suggestedGateways[1])
     );
-    const responses = await Promise.all(queries);
+    let responses = await Promise.all(queries);
+    responses = responses.map((response, index) => {
+      if (
+        typeof queriesConfig[index].isAllTxns === "boolean" &&
+        !queriesConfig[index].isAllTxns
+      ) {
+        response.data.transactions.edges =
+          response.data.transactions.edges.filter((edge) =>
+            BigNumber(edge.node.quantity.ar).gt(0)
+          );
+      }
+      return response;
+    });
+
     const combinedTransactions = combineAndSortTransactions(responses);
 
     const enrichedTransactions = processTransactions(

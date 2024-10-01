@@ -13,13 +13,7 @@ import {
   encryptWallet,
   freeDecryptedWallet
 } from "./encryption";
-import {
-  addExpiration,
-  checkPassword,
-  EXPIRATION_STORAGE,
-  getDecryptionKey,
-  setDecryptionKey
-} from "./auth";
+import { checkPassword, getDecryptionKey, setDecryptionKey } from "./auth";
 import { ArweaveSigner } from "arbundles";
 
 /**
@@ -344,11 +338,7 @@ export async function updatePassword(
     item.keyfile = encrypted;
   }
 
-  // remove previous expiration data
-  await ExtensionStorage.remove(EXPIRATION_STORAGE);
-
   // update state
-  await addExpiration();
   await setDecryptionKey(newPassword);
   await ExtensionStorage.set("wallets", wallets);
 }
