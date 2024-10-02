@@ -27,10 +27,6 @@ const background: ModuleFunction<number[][]> = async (
     isRawDataItem(dataItem);
   }
 
-  const app = new Application(appData.appURL);
-
-  // const allowance = await app.getAllowance();
-  // const alwaysAsk = allowance.enabled && allowance.limit.eq(BigNumber("0"));
   const results: number[][] = [];
 
   await authenticate({
@@ -51,7 +47,9 @@ const background: ModuleFunction<number[][]> = async (
 
   try {
     if (decryptedWallet.type !== "local") {
-      throw new Error("Only local wallets are supported for batch signing");
+      throw new Error(
+        "Only local wallets are currently supported for batch signing"
+      );
     }
 
     const dataSigner = new ArweaveSigner(decryptedWallet.keyfile);
@@ -67,7 +65,6 @@ const background: ModuleFunction<number[][]> = async (
       results.push(Array.from<number>(dataEntry.getRaw()));
     }
   } finally {
-    // Clean up: remove wallet from memory
     // @ts-expect-error
     freeDecryptedWallet(decryptedWallet.keyfile);
   }
