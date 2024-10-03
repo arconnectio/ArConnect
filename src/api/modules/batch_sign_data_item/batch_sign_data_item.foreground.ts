@@ -3,11 +3,25 @@ import type { ModuleFunction } from "~api/module";
 import type { RawDataItem, SignDataItemParams } from "../sign_data_item/types";
 import { isArrayBuffer } from "~utils/assertions";
 
+const MAX_TOTAL_SIZE = 200 * 1024;
+
 const foreground: ModuleFunction<Record<any, any>[]> = async (
   dataItems: SignDataItemParams[]
 ) => {
   if (!Array.isArray(dataItems)) {
     throw new Error("Input must be an array of data items");
+  }
+
+  const totalSize = dataItems.reduce((acc, dataItem) => {
+    const dataSize =
+      typeof dataItem.data === "string"
+        ? new TextEncoder().encode(dataItem.data).length
+        : dataItem.data.length;
+    return acc + dataSize;
+  }, 0);
+
+  if (totalSize > MAX_TOTAL_SIZE) {
+    throw new Error("Total size of data items exceeds 100 KB");
   }
 
   const rawDataItems: RawDataItem[] = dataItems.map((dataItem) => {
