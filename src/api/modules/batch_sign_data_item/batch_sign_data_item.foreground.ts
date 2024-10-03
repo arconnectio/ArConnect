@@ -21,7 +21,7 @@ const foreground: ModuleFunction<Record<any, any>[]> = async (
   }, 0);
 
   if (totalSize > MAX_TOTAL_SIZE) {
-    throw new Error("Total size of data items exceeds 100 KB");
+    throw new Error("Total size of data items exceeds 200 KB");
   }
 
   const rawDataItems: RawDataItem[] = dataItems.map((dataItem) => {
