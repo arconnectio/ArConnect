@@ -1,18 +1,11 @@
-import BigNumber from "bignumber.js";
 import type { ModuleFunction } from "~api/module";
-import Application from "~applications/application";
 import { isNotCancelError, isRawDataItem } from "~utils/assertions";
 import authenticate from "../connect/auth";
 import browser from "webextension-polyfill";
 import { getActiveKeyfile } from "~wallets";
 import { freeDecryptedWallet } from "~wallets/encryption";
-import Arweave from "arweave";
 import { ArweaveSigner, createData, DataItem } from "arbundles";
-
-interface RawDataItem {
-  data: number[];
-  tags?: { name: string; value: string }[];
-}
+import type { RawDataItem } from "../sign_data_item/types";
 
 const background: ModuleFunction<number[][]> = async (
   appData,
