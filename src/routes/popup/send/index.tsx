@@ -228,11 +228,13 @@ export default function Send({ id }: Props) {
   useEffect(() => {
     (async () => {
       if (token.id === "AR") {
+        console.log("SET 1", arBalance.toString());
         return setBalance(arBalance.toString());
       }
 
       // placeholder balance
       setBalance(token.balance);
+      console.log("SET 2", token.balance);
       if (!isAo) {
         const dre = await getDreForToken(token.id);
         const contract = new DREContract(tokenID || id, new DRENode(dre));
@@ -240,14 +242,17 @@ export default function Send({ id }: Props) {
           `$.balances.${activeAddress}`
         );
 
+        console.log("SET 3", result, token);
+
         setBalance(
-          balanceToFractioned(String(result[0]), {
+          balanceToFractioned(String(result[0] || 0), {
             id: token.id,
             decimals: token.decimals,
             divisibility: token.divisibility
           }).toString()
         );
       } else {
+        console.log("SET 4", token.balance);
         setBalance(token.balance);
       }
     })();
@@ -270,17 +275,32 @@ export default function Send({ id }: Props) {
       if (isAo) {
         return setPrice("0");
       }
-      const res = await redstone.getPrice(token.ticker);
 
-      if (!res.value) {
-        return setPrice("0");
-      }
+      const redstonePromise = redstone.getPrice(token.ticker);
+      const multiplierPromise =
+        currency === "usd"
+          ? 1
+          : await getPrice("usd", currency).catch((err) => {
+              console.warn(`Error fetching price for ${currency}`, err);
 
-      // get price in currency
-      const multiplier =
-        currency !== "usd" ? await getPrice("usd", currency) : 1;
+              return 0;
+            });
 
-      setPrice(BigNumber(res.value).multipliedBy(multiplier).toString());
+      const [redstoneResponse, multiplier] = await Promise.all([
+        redstonePromise,
+        multiplierPromise
+      ]);
+
+      const redstoneValue = redstoneResponse.value;
+
+      console.log("redstoneValue", redstoneValue);
+      console.log("multiplier", multiplier);
+
+      setPrice(
+        redstoneResponse && multiplier
+          ? BigNumber(redstoneValue).multipliedBy(multiplier).toString()
+          : "0"
+      );
     })();
   }, [token, currency]);
 
@@ -319,12 +339,14 @@ export default function Send({ id }: Props) {
 
   // maximum possible send amount
   const max = useMemo(() => {
+    console.log({ balance, networkFee, price });
+
     const balanceBigNum = BigNumber(balance);
     const networkFeeBigNum = BigNumber(networkFee);
-
-    let maxAmountToken = balanceBigNum.minus(networkFeeBigNum);
-
-    if (token.id !== "AR") maxAmountToken = balanceBigNum;
+    const maxAmountToken =
+      token.id === "AR"
+        ? BigNumber.max(0, balanceBigNum.minus(networkFeeBigNum))
+        : balanceBigNum;
 
     return maxAmountToken.multipliedBy(qtyMode === "fiat" ? price : 1);
   }, [balance, token, networkFee, qtyMode]);
@@ -339,7 +361,12 @@ export default function Send({ id }: Props) {
   // switch between fiat qty mode / token qty mode
   function switchQtyMode() {
     if (!+price) return;
-    setQty(secondaryQty.toFixed(4));
+
+    let formattedQuantity = secondaryQty.toFixed(4);
+
+    if (formattedQuantity === "0.0000") formattedQuantity = "0";
+
+    setQty(formattedQuantity);
     setQtyMode((val) => (val === "fiat" ? "token" : "fiat"));
   }
 
@@ -492,14 +519,20 @@ export default function Send({ id }: Props) {
               fullWidth
               icon={
                 <InputIcons>
-                  {!!+price && (
-                    <CurrencyButton onClick={switchQtyMode} disabled={isAo}>
-                      <Currency active={qtyMode === "fiat"}>USD</Currency>/
-                      <Currency active={qtyMode === "token"}>
-                        {token.ticker.toUpperCase()}
-                      </Currency>
-                    </CurrencyButton>
-                  )}
+                  <CurrencyButton
+                    onClick={switchQtyMode}
+                    disabled={isAo || !+price}
+                  >
+                    {!!+price && (
+                      <>
+                        <Currency active={qtyMode === "fiat"}>USD</Currency>
+                        {"/"}
+                      </>
+                    )}
+                    <Currency active={qtyMode === "token"}>
+                      {token.ticker.toUpperCase()}
+                    </Currency>
+                  </CurrencyButton>
                   <MaxButton
                     disabled={degraded}
                     altColor={theme === "dark" && "#423D59"}
@@ -573,79 +606,71 @@ export default function Send({ id }: Props) {
             <ArrowUpRightIcon style={{ marginLeft: "5px" }} />
           </ButtonV2>
         </BottomActions>
-        <AnimatePresence>
-          {showTokenSelector && (
-            <SliderWrapper
-              variants={animation}
-              initial="hidden"
-              animate="shown"
-              exit="hidden"
-            >
-              <TokensSection>
-                <ArToken onClick={() => updateSelectedToken("AR")} />
-                {aoTokens.map((token, i) => (
-                  <Token
-                    key={token.id}
-                    ao={true}
-                    type={"asset"}
-                    defaultLogo={token?.Logo}
-                    id={token.id}
-                    ticker={token.Ticker}
-                    divisibility={token.Denomination}
-                    balance={token.balance || "0"}
-                    onClick={() => updateSelectedToken(token.id)}
-                  />
-                ))}
-                {tokens
-                  .filter((token) => token.type === "asset")
-                  .map((token, i) => (
-                    <Token
-                      {...token}
-                      onClick={() => updateSelectedToken(token.id)}
-                      key={i}
-                    />
-                  ))}
-              </TokensSection>
-              <CollectiblesList>
-                {tokens
-                  .filter((token) => token.type === "collectible")
-                  .map((token, i) => (
-                    <Collectible
-                      id={token.id}
-                      name={token.name || token.ticker}
-                      balance={token.balance}
-                      divisibility={token.divisibility}
-                      decimals={token.decimals}
-                      onClick={() => updateSelectedToken(token.id)}
-                      key={i}
-                    />
-                  ))}
-              </CollectiblesList>
-              <Spacer y={3} />
-            </SliderWrapper>
-          )}
-          {showSlider && (
-            <SliderWrapper
-              partial
-              variants={animation2}
-              initial="hidden"
-              animate="shown"
-              exit="hidden"
-            >
-              <SliderMenu
-                title={browser.i18n.getMessage("send_to")}
-                onClose={() => {
-                  setShowSlider(false);
-                }}
-              >
-                <Recipient
-                  onClick={setRecipient}
-                  onClose={() => setShowSlider(false)}
+
+        <SliderMenu
+          title={browser.i18n.getMessage("send_to")}
+          isOpen={showTokenSelector}
+          onClose={() => {
+            setShownTokenSelector(false);
+          }}
+        >
+          <TokensList>
+            <ArToken onClick={() => updateSelectedToken("AR")} />
+
+            {aoTokens.map((token, i) => (
+              <Token
+                key={token.id}
+                ao={true}
+                type={"asset"}
+                defaultLogo={token?.Logo}
+                id={token.id}
+                ticker={token.Ticker}
+                divisibility={token.Denomination}
+                balance={token.balance || "0"}
+                onClick={() => updateSelectedToken(token.id)}
+              />
+            ))}
+
+            {tokens
+              .filter((token) => token.type === "asset")
+              .map((token, i) => (
+                <Token
+                  {...token}
+                  onClick={() => updateSelectedToken(token.id)}
+                  key={i}
                 />
-              </SliderMenu>
-            </SliderWrapper>
-          )}
-        </AnimatePresence>
+              ))}
+          </TokensList>
+
+          <CollectiblesList>
+            {tokens
+              .filter((token) => token.type === "collectible")
+              .map((token, i) => (
+                <Collectible
+                  id={token.id}
+                  name={token.name || token.ticker}
+                  balance={token.balance}
+                  divisibility={token.divisibility}
+                  decimals={token.decimals}
+                  onClick={() => updateSelectedToken(token.id)}
+                  key={i}
+                />
+              ))}
+          </CollectiblesList>
+        </SliderMenu>
+
+        <SliderMenu
+          title={browser.i18n.getMessage("send_to")}
+          isOpen={showSlider}
+          onClose={() => {
+            setShowSlider(false);
+          }}
+        >
+          <Recipient
+            onClick={setRecipient}
+            onClose={() => setShowSlider(false)}
+          />
+        </SliderMenu>
       </Wrapper>
     </>
   );
@@ -692,7 +717,7 @@ const MaxButton = styled.button<{ altColor?: string }>`
   box-shadow: 0 0 0 0 rgba(${(props) => props.theme.theme});
 `;
 
-const CurrencyButton = styled.button`
+const CurrencyButton = styled.button<{ altColor?: string }>`
   font-weight: 400;
   background-color: transparent;
   border-radius: 4px;
@@ -706,6 +731,7 @@ const CurrencyButton = styled.button`
   justify-content: center;
   outline: none;
   border: 0px;
+  color: #b9b9b9;
 `;
 
 const Wrapper = styled.div<{ showOverlay: boolean }>`
@@ -812,12 +838,6 @@ const InputIcons = styled.div`
   gap: 0.625rem;
 `;
 
-const qtyTextStyle = css`
-  font-size: ${defaulQtytSize}rem;
-  font-weight: 500;
-  line-height: 1.1em;
-`;
-
 const BottomActions = styled(Section)`
   display: flex;
   padding: 0 15px;
@@ -875,45 +895,12 @@ const TokenSelectorRightSide = styled.div`
   }
 `;
 
-export const SliderWrapper = styled(motion.div)<{ partial?: boolean }>`
-  position: fixed;
-  top: ${(props) => (props.partial ? "50px" : 0)};
-  left: 0;
-  bottom: 0;
-  right: 0;
-  overflow-y: auto;
-  background-color: rgb(${(props) => props.theme.background});
-  z-index: 1000;
-`;
-
-export const animation: Variants = {
-  hidden: { opacity: 0 },
-  shown: { opacity: 1 }
-};
-
-export const animation2: Variants = {
-  hidden: {
-    y: "100vh",
-    transition: {
-      duration: 0.2,
-      ease: "easeOut"
-    }
-  },
-  shown: {
-    y: "0",
-    transition: {
-      duration: 0.2,
-      ease: "easeInOut"
-    }
-  }
-};
-
-const TokensSection = styled(Section)`
+const TokensList = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 0.82rem;
-  padding-top: 2rem;
-  padding-bottom: 1.4rem;
+  padding: 0;
+  margin: 0;
 `;
 
 const CollectiblesList = styled(Section)`
@@ -921,4 +908,8 @@ const CollectiblesList = styled(Section)`
   grid-template-columns: 1fr 1fr;
   gap: 1.2rem;
   padding-top: 0;
+
+  &:empty {
+    display: none;
+  }
 `;

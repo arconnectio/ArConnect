@@ -70,15 +70,17 @@ const TabsWrapper = styled.div`
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
 `;
 
-const StyledTab = styled.div<{ active?: boolean; tabId: number }>`
+const StyledTab = styled.button<{ active?: boolean; tabId: number }>`
   position: relative;
   height: 25px;
   font-weight: 500;
   font-size: 18px;
   line-height: 25px;
-  color: ${(props) =>
-    props.active ? props.theme.primaryText : props.theme.secondaryTextv2};
+  color: ${(props) => (props.active ? "white" : props.theme.secondaryTextv2)};
   cursor: pointer;
+  background: transparent;
+  border: 0;
+  padding: 0;
 
   &::after {
     content: "";

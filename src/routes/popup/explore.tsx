@@ -104,7 +104,7 @@ const Title = styled.div`
 `;
 
 const Wrapper = styled.div`
-  padding: 18px 1rem;
+  padding: 18px 1rem 64px 1rem;
   display: flex;
   flex-direction: column;
   gap: 18px;

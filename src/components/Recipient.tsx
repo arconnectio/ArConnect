@@ -244,13 +244,17 @@ const ContactAddress = styled.div`
   color: #aeadcd;
 `;
 
-const Recents = styled.div`
+const Recents = styled.button`
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
   padding: 10px 4px;
   border-radius: 10px;
+  background: transparent;
+  border: 0;
+  color: inherit;
+
   &:hover {
     background-color: rgba(${(props) => props.theme.theme}, 0.12);
     cursor: pointer;

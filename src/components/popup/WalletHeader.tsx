@@ -296,6 +296,7 @@ export default function WalletHeader() {
           />
         </TooltipV2>
       </AddressContainer>
+
       <WalletActions>
         <TooltipV2
           content={browser.i18n.getMessage("setting_notifications")}
@@ -348,121 +349,135 @@ export default function WalletHeader() {
             />
           </MenuDots>
         </AppAction>
-        <AnimatePresence>
-          {appDataOpen && (
-            <AppInfoWrapper
-              variants={popoverAnimation}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Card>
-                <AppInfo>
-                  {(!!activeAppData && (
-                    <TooltipV2
-                      content={
-                        browser.i18n.getMessage("gateway") +
-                        ": " +
-                        activeAppData.gateway.host
-                      }
-                      position="topStart"
-                    >
-                      <ActiveAppIcon connected>
-                        {(activeAppData?.logo && (
-                          <img
-                            src={activeAppData.logo}
-                            alt={activeAppData.name || ""}
-                            draggable={false}
-                          />
-                        )) || <NoAppIcon />}
-                        <AppOnline online={!!activeAppData} />
-                      </ActiveAppIcon>
-                    </TooltipV2>
-                  )) || (
-                    <ActiveAppIcon connected={false}>
-                      <NoAppIcon />
-                    </ActiveAppIcon>
-                  )}
-                  <div>
-                    <AppName>
-                      {activeAppData?.name ||
-                        browser.i18n.getMessage(
-                          activeAppData ? "appConnected" : "not_connected"
-                        )}
-                    </AppName>
-                    <AppUrl>{getAppURL(activeTab.url)}</AppUrl>
-                  </div>
-                </AppInfo>
-                <AppOptions>
-                  {(!activeAppData && (
-                    <NotConnectedNote>
-                      {browser.i18n.getMessage("not_connected_text")}
-                    </NotConnectedNote>
-                  )) || (
-                    <>
-                      <AppActionButtons>
-                        <ButtonV2
-                          fullWidth
-                          secondary
-                          onClick={() =>
-                            browser.tabs.create({
-                              url: browser.runtime.getURL(
-                                `tabs/dashboard.html#/apps/${activeApp.url}`
-                              )
-                            })
-                          }
-                        >
-                          <SettingsIcon style={{ marginRight: "5px" }} />
-                          {browser.i18n.getMessage("settings")}
-                        </ButtonV2>
-                        <ButtonV2
-                          fullWidth
-                          onClick={async () => {
-                            await removeApp(getAppURL(activeTab.url));
-                            setActiveAppData(undefined);
-                            setAppDataOpen(false);
-                          }}
-                        >
-                          <LogOutIcon
-                            style={{
-                              position: "absolute",
-                              right: "120px",
-                              width: "24px",
-                              height: "24px",
-                              marginRight: "5px"
-                            }}
-                          />
-                          <div style={{ marginLeft: "24px" }}>
-                            {browser.i18n.getMessage("disconnect")}
-                          </div>
-                        </ButtonV2>
-                      </AppActionButtons>
-                    </>
-                  )}
-                </AppOptions>
-              </Card>
-            </AppInfoWrapper>
-          )}
-        </AnimatePresence>
       </WalletActions>
-      {(isOpen || appDataOpen) && (
+
+      {(isOpen || appDataOpen || menuOpen) && (
         <CloseLayer
+          key="WalletHeaderCloseLayer"
+          exit={{ opacity: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
           onClick={(e) => {
             e.stopPropagation();
             setOpen(false);
             setAppDataOpen(false);
+            setMenuOpen(false);
           }}
         />
       )}
-      <WalletSwitcher open={isOpen} close={() => setOpen(false)} />
+
+      <WalletSwitcher
+        open={isOpen}
+        close={() => setOpen(false)}
+        exactTop={true}
+      />
+
       <WalletMenu
         open={menuOpen}
         close={() => setMenuOpen(false)}
         menuItems={menuItems}
       />
+
+      <AnimatePresence>
+        {appDataOpen && (
+          <AppInfoWrapper
+            variants={popoverAnimation}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Card>
+              <AppInfo>
+                {(!!activeAppData && (
+                  <TooltipV2
+                    content={
+                      browser.i18n.getMessage("gateway") +
+                      ": " +
+                      activeAppData.gateway.host
+                    }
+                    position="topStart"
+                  >
+                    <ActiveAppIcon connected>
+                      {(activeAppData?.logo && (
+                        <img
+                          src={activeAppData.logo}
+                          alt={activeAppData.name || ""}
+                          draggable={false}
+                        />
+                      )) || <NoAppIcon />}
+                      <AppOnline online={!!activeAppData} />
+                    </ActiveAppIcon>
+                  </TooltipV2>
+                )) || (
+                  <ActiveAppIcon connected={false}>
+                    <NoAppIcon />
+                  </ActiveAppIcon>
+                )}
+                <div>
+                  <AppName>
+                    {activeAppData?.name ||
+                      browser.i18n.getMessage(
+                        activeAppData ? "appConnected" : "not_connected"
+                      )}
+                  </AppName>
+                  <AppUrl>{getAppURL(activeTab.url)}</AppUrl>
+                </div>
+              </AppInfo>
+              <AppOptions>
+                {(!activeAppData && (
+                  <NotConnectedNote>
+                    {browser.i18n.getMessage("not_connected_text")}
+                  </NotConnectedNote>
+                )) || (
+                  <>
+                    <AppActionButtons>
+                      <ButtonV2
+                        fullWidth
+                        secondary
+                        onClick={() =>
+                          browser.tabs.create({
+                            url: browser.runtime.getURL(
+                              `tabs/dashboard.html#/apps/${activeApp.url}`
+                            )
+                          })
+                        }
+                      >
+                        <SettingsIcon style={{ marginRight: "5px" }} />
+                        {browser.i18n.getMessage("settings")}
+                      </ButtonV2>
+                      <ButtonV2
+                        fullWidth
+                        onClick={async () => {
+                          await removeApp(getAppURL(activeTab.url));
+                          setActiveAppData(undefined);
+                          setAppDataOpen(false);
+                        }}
+                      >
+                        <LogOutIcon
+                          style={{
+                            position: "absolute",
+                            right: "120px",
+                            width: "24px",
+                            height: "24px",
+                            marginRight: "5px"
+                          }}
+                        />
+                        <div style={{ marginLeft: "24px" }}>
+                          {browser.i18n.getMessage("disconnect")}
+                        </div>
+                      </ButtonV2>
+                    </AppActionButtons>
+                  </>
+                )}
+              </AppOptions>
+            </Card>
+          </AppInfoWrapper>
+        )}
+      </AnimatePresence>
     </Wrapper>
   );
 }
 
-const Wrapper = styled(Section)<{
+const Wrapper = styled.nav<{
   displayTheme: DisplayTheme;
   scrolled: boolean;
 }>`
@@ -484,7 +499,8 @@ const Wrapper = styled(Section)<{
         (props.displayTheme === "light" ? "235, 235, 241" : "31, 30, 47") +
         ")"
       : "transparent"};
-  transition: all 0.23s ease-in-out;
+  transition: border 0.23s ease-in-out;
+  user-select: none;
 `;
 
 const WalletName = styled.div`
@@ -557,16 +573,11 @@ export const Avatar = styled(Squircle)`
   position: relative;
   width: ${avatarSize};
   height: ${avatarSize};
-  transition: all 0.07s ease-in-out;
 
   ${HardwareWalletIcon} {
     position: absolute;
     right: -5px;
     bottom: -5px;
-  }
-
-  &:active {
-    transform: scale(0.93);
   }
 `;
 
@@ -654,10 +665,10 @@ const AppInfoWrapper = styled(motion.div).attrs({
   exit: "closed"
 })`
   position: absolute;
-  top: 150%;
-  right: 0;
+  top: 100%;
+  right: 15px;
   z-index: 110;
-  width: calc(100vw - 2 * 20px);
+  width: calc(100% - 30px);
   cursor: default;
 
   ${Card} {
@@ -732,7 +743,7 @@ const AppUrl = styled(Text).attrs({
   line-height: 1.1em;
 `;
 
-export const CloseLayer = styled.div`
+export const CloseLayer = styled(motion.div)`
   position: fixed;
   z-index: 100;
   top: 0;
@@ -742,4 +753,5 @@ export const CloseLayer = styled.div`
   width: 100vw;
   height: 100vh;
   cursor: default;
+  background-color: rgba(${(props) => props.theme.background}, 0.85);
 `;
