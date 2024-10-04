@@ -228,21 +228,17 @@ export default function Send({ id }: Props) {
   useEffect(() => {
     (async () => {
       if (token.id === "AR") {
-        console.log("SET 1", arBalance.toString());
         return setBalance(arBalance.toString());
       }
 
       // placeholder balance
       setBalance(token.balance);
-      console.log("SET 2", token.balance);
       if (!isAo) {
         const dre = await getDreForToken(token.id);
         const contract = new DREContract(tokenID || id, new DRENode(dre));
         const result = await contract.query<[number]>(
           `$.balances.${activeAddress}`
         );
-
-        console.log("SET 3", result, token);
 
         setBalance(
           balanceToFractioned(String(result[0] || 0), {
@@ -252,7 +248,6 @@ export default function Send({ id }: Props) {
           }).toString()
         );
       } else {
-        console.log("SET 4", token.balance);
         setBalance(token.balance);
       }
     })();
@@ -292,9 +287,6 @@ export default function Send({ id }: Props) {
       ]);
 
       const redstoneValue = redstoneResponse.value;
-
-      console.log("redstoneValue", redstoneValue);
-      console.log("multiplier", multiplier);
 
       setPrice(
         redstoneResponse && multiplier
@@ -339,8 +331,6 @@ export default function Send({ id }: Props) {
 
   // maximum possible send amount
   const max = useMemo(() => {
-    console.log({ balance, networkFee, price });
-
     const balanceBigNum = BigNumber(balance);
     const networkFeeBigNum = BigNumber(networkFee);
     const maxAmountToken =
