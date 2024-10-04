@@ -431,6 +431,10 @@
       "message": "货币",
       "description": "Reset settings title"
   },
+  "currency": {
+    "message": "货币",
+    "description": "Select currency"
+  },
   "setting_dre_node": {
       "message": "Warp DRE 节点",
       "description": "Warp DRE node setting title"

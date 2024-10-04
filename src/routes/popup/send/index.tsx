@@ -598,7 +598,7 @@ export default function Send({ id }: Props) {
         </BottomActions>
 
         <SliderMenu
-          title={browser.i18n.getMessage("send_to")}
+          title={browser.i18n.getMessage("currency")}
           isOpen={showTokenSelector}
           onClose={() => {
             setShownTokenSelector(false);

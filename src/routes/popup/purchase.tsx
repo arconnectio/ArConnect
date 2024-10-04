@@ -249,7 +249,7 @@ export default function Purchase() {
           />
 
           <SliderMenu
-            title={browser.i18n.getMessage("send_to")}
+            title={browser.i18n.getMessage("currency")}
             isOpen={showCurrencySelector}
             onClose={() => {
               setShowCurrencySelector(false);
@@ -263,7 +263,7 @@ export default function Purchase() {
           </SliderMenu>
 
           <SliderMenu
-            title={browser.i18n.getMessage("send_to")}
+            title={browser.i18n.getMessage("buy_screen_payment_method")}
             isOpen={showPaymentSelector}
             onClose={() => {
               setShowPaymentSelector(false);

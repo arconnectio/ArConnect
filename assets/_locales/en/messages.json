@@ -435,6 +435,10 @@
     "message": "Currency",
     "description": "Reset settings title"
   },
+  "currency": {
+    "message": "Currency",
+    "description": "Select currency"
+  },
   "setting_dre_node": {
     "message": "Warp DRE node",
     "description": "Warp DRE node setting title"
