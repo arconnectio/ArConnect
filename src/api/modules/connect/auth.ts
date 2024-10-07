@@ -18,7 +18,8 @@ export type AuthType =
   | "subscription"
   | "signKeystone"
   | "signature"
-  | "signDataItem";
+  | "signDataItem"
+  | "batchSignDataItem";
 
 export interface AuthData {
   // type of auth to request from the user
