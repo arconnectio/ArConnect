@@ -95,7 +95,7 @@ const background: ModuleFunction<BackgroundResult> = async (
   // check if there is an allowance limit, if there is we need to check allowance
   // if alwaysAsk is true, then we'll need to signAuth popup
   // if allowance is disabled, proceed with signing
-  if (alwaysAsk) {
+  if (alwaysAsk || activeWallet.type === "hardware") {
     // get address of keyfile
     const addr =
       activeWallet.type === "local"
