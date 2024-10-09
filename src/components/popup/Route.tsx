@@ -1,5 +1,4 @@
 import { AnimatePresence, motion, type Variants } from "framer-motion";
-import { type HistoryAction, useHistory } from "~utils/hash_router";
 import { createElement, type PropsWithChildren } from "react";
 import { useRoute, Route as BaseRoute } from "wouter";
 import styled from "styled-components";
@@ -15,11 +14,9 @@ const Route: typeof BaseRoute = ({ path, component, children }) => {
     ? children(params)
     : children;
 
-  const [, _, action] = useHistory();
-
   return (
     <AnimatePresence initial={false}>
-      {matches && <Page action={action}>{routeContent}</Page>}
+      {matches && <Page>{routeContent}</Page>}
     </AnimatePresence>
   );
 };
@@ -42,51 +39,10 @@ const PageWrapper = styled(Wrapper)`
   transition: background-color 0.23s ease-in-out;
 `;
 
-const Page = ({
-  children,
-  action
-}: PropsWithChildren<{ action: HistoryAction }>) => {
-  const transition = { ease: [0.42, 0, 0.58, 1], duration: 0.27 };
-  const pageAnimation: Variants = {
-    enter: {
-      x: 0,
-      transition,
-      ...(action === "push"
-        ? {
-            right: 0,
-            left: 0,
-            bottom: 0
-          }
-        : {})
-    },
-    initial: {
-      x: action === "push" ? "100%" : "-25%",
-      transition,
-      ...(action === "push"
-        ? {
-            right: 0,
-            left: 0,
-            bottom: 0
-          }
-        : {})
-    },
-    exit: {
-      x: action === "pop" ? "100%" : "-10%",
-      zIndex: action === "pop" ? 1 : -1,
-      transition,
-      ...(action === "pop"
-        ? {
-            right: 0,
-            left: 0,
-            bottom: 0
-          }
-        : {})
-    }
-  };
-
+const Page = ({ children }: PropsWithChildren) => {
   const opacityAnimation: Variants = {
-    initial: { opacity: 0, scale: 0.8 },
-    enter: { opacity: 1, scale: 1 },
+    initial: { opacity: 0 },
+    enter: { opacity: 1 },
     exit: { opacity: 0, y: 0, transition: { duration: 0.2 } }
   };
 
@@ -95,11 +51,7 @@ const Page = ({
       initial="initial"
       animate="enter"
       exit="exit"
-      variants={
-        new URLSearchParams(window.location.search).get("expanded")
-          ? opacityAnimation
-          : pageAnimation
-      }
+      variants={opacityAnimation}
     >
       {children}
     </PageWrapper>

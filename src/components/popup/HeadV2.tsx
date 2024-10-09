@@ -6,7 +6,7 @@ import {
 } from "@arconnect/components";
 import { Avatar, CloseLayer, NoAvatarIcon } from "./WalletHeader";
 import { AnimatePresence, motion } from "framer-motion";
-import { hoverEffect, useTheme } from "~utils/theme";
+import { useTheme } from "~utils/theme";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ArrowLeftIcon } from "@iconicicons/react";
 import { useAnsProfile } from "~lib/ans";
@@ -22,6 +22,16 @@ import WalletSwitcher from "./WalletSwitcher";
 import styled from "styled-components";
 import { svgie } from "~utils/svgies";
 
+interface HeadV2Props {
+  title: string;
+  showOptions?: boolean;
+  // allow opening the wallet switcher
+  showBack?: boolean;
+  padding?: string;
+  allowOpen?: boolean;
+  back?: (...args) => any;
+}
+
 export default function HeadV2({
   title,
   showOptions = true,
@@ -29,7 +39,7 @@ export default function HeadV2({
   padding,
   showBack = true,
   allowOpen = true
-}: Props) {
+}: HeadV2Props) {
   // scroll position
   const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up");
   const [scrolled, setScrolled] = useState(false);
@@ -100,41 +110,45 @@ export default function HeadV2({
       scrolled={scrolled}
       padding={padding}
     >
-      <BackWrapper
+      <BackButton
         onClick={async () => {
           if (back) await back();
           else goBack();
         }}
       >
-        <BackButton />
-      </BackWrapper>
+        <BackButtonIcon />
+      </BackButton>
 
       <PageTitle>{title}</PageTitle>
 
-      <ClickableAvatar
-        img={ans?.avatar || svgieAvatar}
-        onClick={() => {
-          if (!allowOpen) return;
-          setOpen(true);
-        }}
-      >
-        {!ans?.avatar && !svgieAvatar && <NoAvatarIcon />}
-        <AnimatePresence initial={false}>
-          {hardwareApi === "keystone" && (
-            <HardwareWalletIcon
-              icon={keystoneLogo}
-              color="#2161FF"
-              {...hwIconAnimateProps}
-            />
-          )}
-        </AnimatePresence>
-      </ClickableAvatar>
+      <AvatarButton>
+        <ButtonAvatar
+          img={ans?.avatar || svgieAvatar}
+          onClick={() => {
+            if (!allowOpen) return;
+            setOpen(true);
+          }}
+        >
+          {!ans?.avatar && !svgieAvatar && <NoAvatarIcon />}
+          <AnimatePresence initial={false}>
+            {hardwareApi === "keystone" && (
+              <HardwareWalletIcon
+                icon={keystoneLogo}
+                color="#2161FF"
+                {...hwIconAnimateProps}
+              />
+            )}
+          </AnimatePresence>
+        </ButtonAvatar>
+      </AvatarButton>
+
       {isOpen && <CloseLayer onClick={() => setOpen(false)} />}
+
       <WalletSwitcher
         open={isOpen}
         close={() => setOpen(false)}
-        showOptions={showOptions}
         exactTop={true}
+        showOptions={showOptions}
       />
     </HeadWrapper>
   );
@@ -155,7 +169,7 @@ const HeadWrapper = styled(Section)<{
   flex-direction: row;
   width: full;
   padding: ${(props) => (props.padding ? props.padding : "15px")};
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   background-color: rgba(${(props) => props.theme.background}, 0.75);
   backdrop-filter: blur(15px);
@@ -167,24 +181,30 @@ const HeadWrapper = styled(Section)<{
         ")"
       : "transparent"};
   transition: border-color 0.23s ease-in-out;
+  user-select: none;
 `;
 
-const BackWrapper = styled.div`
-  position: relative;
+const BackButton = styled.button`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
   display: flex;
   width: max-content;
   align-items: center;
   justify-content: center;
-  padding: 8px 0;
+  padding: 0 15px;
   height: 100%;
   cursor: pointer;
+  background: transparent;
+  border: 0;
 
   &:active svg {
     transform: scale(0.92);
   }
 `;
 
-const BackButton = styled(ArrowLeftIcon)`
+const BackButtonIcon = styled(ArrowLeftIcon)`
   font-size: 1rem;
   width: 1em;
   height: 1em;
@@ -196,25 +216,6 @@ const BackButton = styled(ArrowLeftIcon)`
   }
 `;
 
-const PageInfo = styled(motion.div).attrs<{
-  scrollDirection: "up" | "down";
-  firstRender: boolean;
-}>((props) => ({
-  initial: !props.firstRender
-    ? { opacity: 0, y: props.scrollDirection === "up" ? 20 : -20 }
-    : undefined,
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: props.scrollDirection === "up" ? -20 : 20 }
-}))<{
-  firstRender: boolean;
-  scrollDirection: "up" | "down";
-}>`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-`;
-
 const PageTitle = styled(Text).attrs({
   subtitle: true,
   noMargin: true
@@ -223,10 +224,29 @@ const PageTitle = styled(Text).attrs({
   font-weight: 500;
 `;
 
-const ClickableAvatar = styled(Avatar)`
+const AvatarButton = styled.button`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
   cursor: pointer;
+  padding: 0 15px;
+  height: 100%;
+  background: transparent;
+  border: 0;
+`;
+
+const ButtonAvatar = styled(Avatar)`
   width: 2.1rem;
   height: 2.1rem;
+
+  & svg {
+    transition: transform 0.07s ease-in-out;
+  }
+
+  &:active svg {
+    transform: scale(0.93);
+  }
 
   ${HardwareWalletIcon} {
     position: absolute;
@@ -238,13 +258,3 @@ const ClickableAvatar = styled(Avatar)`
     font-size: 1.4rem;
   }
 `;
-
-interface Props {
-  title: string;
-  showOptions?: boolean;
-  // allow opening the wallet switcher
-  showBack?: boolean;
-  padding?: string;
-  allowOpen?: boolean;
-  back?: (...args) => any;
-}

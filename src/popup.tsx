@@ -72,7 +72,7 @@ export default function Popup() {
       <HardwareWalletTheme>
         <GlobalStyle />
         <HideScrollbar expanded={expanded} />
-        <ExpandedViewWrapper>
+        <ExpandedViewWrapper id="ExpandedViewWrapper">
           <Wrapper expanded={expanded}>
             <Router hook={useHashLocation}>
               <HistoryProvider>
@@ -212,12 +212,15 @@ export default function Popup() {
 }
 
 const HideScrollbar = createGlobalStyle<{ expanded?: boolean }>`
-  body {
+  * {
     scrollbar-width: none;
 
     &::-webkit-scrollbar {
       display: none
     }
+  }
+
+  body {
     ${(props) =>
       props?.expanded
         ? `background-image: linear-gradient( to right, transparent, rgba( ${props.theme.theme},.4 ), transparent);`

@@ -36,7 +36,12 @@ export default function Explore() {
         />
         <div>
           {filteredApps.map((app, index) => (
-            <AppWrapper key={index}>
+            <AppWrapper
+              key={index}
+              onClick={() => {
+                browser.tabs.create({ url: app.links.website });
+              }}
+            >
               <LogoDescriptionWrapper>
                 <LogoWrapper>
                   <AppShortcut
@@ -45,9 +50,6 @@ export default function Explore() {
                         ? app.assets?.lightBackground
                         : app.assets?.darkBackground
                     }
-                    onClick={() => {
-                      browser.tabs.create({ url: app.links.website });
-                    }}
                   >
                     <Logo src={app.assets.logo} />
                   </AppShortcut>
@@ -104,7 +106,7 @@ const Title = styled.div`
 `;
 
 const Wrapper = styled.div`
-  padding: 18px 1rem;
+  padding: 18px 1rem 64px 1rem;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -150,11 +152,16 @@ const Logo = styled.img`
   width: 25px;
 `;
 
-const AppWrapper = styled.div`
+const AppWrapper = styled.button`
   padding: 10px;
   gap: 12px;
   display: flex;
   justify-content: space-between;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
 `;
 
 const LogoDescriptionWrapper = styled.div`
