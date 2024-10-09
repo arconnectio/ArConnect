@@ -39,6 +39,8 @@ import verifyMessageModule from "./modules/verify_message";
 import verifyMessage from "./modules/verify_message/verify_message.background";
 import signDataItemModule from "./modules/sign_data_item";
 import signDataItem from "./modules/sign_data_item/sign_data_item.background";
+import batchSignDataItemModule from "./modules/batch_sign_data_item";
+import batchSignDataItem from "./modules/batch_sign_data_item/batch_sign_data_item.background";
 import subscriptionModule from "./modules/subscription";
 import subscription from "./modules/subscription/subscription.background";
 import userTokensModule from "./modules/user_tokens";
@@ -66,7 +68,8 @@ const modules: BackgroundModule<any>[] = [
   { ...verifyMessageModule, function: verifyMessage },
   { ...signDataItemModule, function: signDataItem },
   { ...subscriptionModule, function: subscription },
-  { ...userTokensModule, function: userTokens }
+  { ...userTokensModule, function: userTokens },
+  { ...batchSignDataItemModule, function: batchSignDataItem }
 ];
 
 export default modules;

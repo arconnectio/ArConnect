@@ -55,6 +55,10 @@ import privateHash, {
 } from "./modules/private_hash/private_hash.foreground";
 import verifyMessageModule from "./modules/verify_message";
 import verifyMessage from "./modules/verify_message/verify_message.foreground";
+import batchSignDataItemModule from "./modules/batch_sign_data_item";
+import batchSignDataItem, {
+  finalizer as batchSignDataItemFinalizer
+} from "./modules/batch_sign_data_item/batch_sign_data_item.foreground";
 import signDataItemModule from "./modules/sign_data_item";
 import signDataItem, {
   finalizer as signDataItemFinalizer
@@ -96,7 +100,12 @@ const modules: ForegroundModule[] = [
     finalizer: signDataItemFinalizer
   },
   { ...subscriptionModule, function: subscription },
-  { ...userTokensModule, function: userTokens }
+  { ...userTokensModule, function: userTokens },
+  {
+    ...batchSignDataItemModule,
+    function: batchSignDataItem,
+    finalizer: batchSignDataItemFinalizer
+  }
 ];
 
 export default modules;
