@@ -1321,12 +1321,26 @@
       "message": "签署项目",
       "description": "Sign message popup title"
   },
+  "batch_sign_items": {
+      "message": "批量签署项目",
+      "description": "批量签署消息弹出标题"
+  },
   "titles_signature": {
       "message": "签署消息",
       "description": "Sign message popup title"
   },
   "sign_data_description": {
       "message": "$APPNAME$ 想要签署一笔交易。请查看以下详细信息。",
+      "description": "Description for signing an item containing a transfer",
+      "placeholders": {
+          "appname": {
+              "content": "$1",
+              "example": "permafacts.arweave.dev"
+          }
+      }
+  },
+  "batch_sign_data_description": {
+      "message": "$APPNAME$ 想要签署以下交易。请查看以下详细信息。",
       "description": "Description for signing an item containing a transfer",
       "placeholders": {
           "appname": {

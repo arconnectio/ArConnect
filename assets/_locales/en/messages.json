@@ -1333,12 +1333,26 @@
     "message": "Sign Item",
     "description": "Sign message popup title"
   },
+  "batch_sign_items": {
+    "message": "Batch Sign Items",
+    "description": "Batch sign message popup title"
+  },
   "titles_signature": {
     "message": "Sign message",
     "description": "Sign message popup title"
   },
   "sign_data_description": {
     "message": "$APPNAME$ wants to sign a transaction. Review the details below.",
+    "description": "Desription for signing an item containing a transfer",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "permafacts.arweave.dev"
+      }
+    }
+  },
+  "batch_sign_data_description": {
+    "message": "$APPNAME$ wants to sign the following transactions. Review the details below.",
     "description": "Desription for signing an item containing a transfer",
     "placeholders": {
       "appname": {

@@ -54,6 +54,13 @@ browser.alarms.onAlarm.addListener(keyRemoveAlarmListener);
 // handle importing ao tokens
 browser.alarms.onAlarm.addListener(importAoTokens);
 
+// handle keep alive alarm
+browser.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === "keep-alive") {
+    console.log("keep alive alarm");
+  }
+});
+
 // handle window close
 browser.windows.onRemoved.addListener(onWindowClose);
 
