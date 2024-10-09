@@ -76,7 +76,8 @@ const StyledTab = styled.button<{ active?: boolean; tabId: number }>`
   font-weight: 500;
   font-size: 18px;
   line-height: 25px;
-  color: ${(props) => (props.active ? "white" : props.theme.secondaryTextv2)};
+  color: ${(props) =>
+    props.active ? props.theme.primaryText : props.theme.secondaryTextv2};
   cursor: pointer;
   background: transparent;
   border: 0;
