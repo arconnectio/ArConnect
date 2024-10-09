@@ -2152,6 +2152,10 @@
     "message": "No transactions found",
     "description": "No transactions message"
   },
+  "no_contacts" : {
+    "message" : "No contacts found",
+    "description": "No contacts found"
+  },
   "sent": {
     "message": "Sent",
     "description": "sent"

@@ -2138,6 +2138,10 @@
     "message": "未找到交易",
     "description": "No transactions message"
   },
+  "no_contacts": {
+    "message": "未找到联系人",
+    "description": "No contacts found message"
+  },
   "sent": {
     "message": "已发送",
     "description": "sent"
