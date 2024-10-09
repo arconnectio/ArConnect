@@ -67,7 +67,7 @@ const Wrapper = styled(motion.div)<{ displayTheme: DisplayTheme }>`
   left: 0;
   height: auto;
   max-height: 93%;
-  border: ${(props) =>
+  border-top: ${(props) =>
     props.displayTheme === "light"
       ? `1px solid ${props.theme.primary}`
       : "none"};

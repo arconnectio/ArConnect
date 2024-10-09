@@ -375,7 +375,9 @@ export default function Sign() {
                 } else await authorize();
               }}
             >
-              {browser.i18n.getMessage("sign_authorize")}
+              {!page
+                ? browser.i18n.getMessage("sign_authorize")
+                : browser.i18n.getMessage("keystone_scan")}
             </ButtonV2>
             <Spacer y={0.75} />
           </>
