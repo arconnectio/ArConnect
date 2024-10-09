@@ -65,7 +65,12 @@ const Wrapper = styled(motion.div)<{ displayTheme: DisplayTheme }>`
   position: fixed;
   bottom: 0;
   left: 0;
-  height: 93%;
+  height: auto;
+  max-height: 93%;
+  border: ${(props) =>
+    props.displayTheme === "light"
+      ? `1px solid ${props.theme.primary}`
+      : "none"};
   display: flex;
   flex-direction: column;
   width: 100%;
