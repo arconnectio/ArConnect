@@ -112,8 +112,9 @@ export const apps: App[] = [
       lightBackground: "rgba(230, 235, 240, 1)"
     },
     links: {
-      website: "https://bazar.arweave.dev",
-      twitter: "https://twitter.com/OurBazAR"
+      website: "https://bazar.arweave.net",
+      twitter: "https://twitter.com/OurBazAR",
+      discord: "https://discord.gg/weavers"
     }
   },
   {
@@ -302,7 +303,7 @@ export const apps: App[] = [
       lightBackground: "rgba(230, 235, 240, 1)"
     },
     links: {
-      website: "https://alex.arweave.dev/",
+      website: "https://alex.arweave.net/",
       twitter: "https://twitter.com/thealexarchive",
       discord: "http://discord.gg/2uZsWuTNvN"
     }
