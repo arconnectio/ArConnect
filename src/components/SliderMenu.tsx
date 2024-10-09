@@ -67,7 +67,7 @@ const Wrapper = styled(motion.div)<{ displayTheme: DisplayTheme }>`
   left: 0;
   height: auto;
   max-height: 93%;
-  border: ${(props) =>
+  border-top: ${(props) =>
     props.displayTheme === "light"
       ? `1px solid ${props.theme.primary}`
       : "none"};
@@ -78,7 +78,8 @@ const Wrapper = styled(motion.div)<{ displayTheme: DisplayTheme }>`
   overflow: scroll;
   background-color: ${(props) =>
     props.displayTheme === "light" ? "#ffffff" : "#191919"};
-  border-radius: 10px 10px 0 0;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 `;
 
 export const animationSlideFromBottom: Variants = {
