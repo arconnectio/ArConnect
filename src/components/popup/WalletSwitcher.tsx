@@ -305,16 +305,14 @@ const SwitcherPopover = styled(motion.div).attrs({
 })<{ exactTop?: boolean }>`
   position: absolute;
   top: ${(props) => (props.exactTop ? "100%" : "calc(100% - 1.05rem)")};
-  left: -5px;
+  left: 0;
   right: 0;
   z-index: 110;
   cursor: default;
 `;
 
 const Wrapper = styled(Section)<{ noPadding: boolean }>`
-  padding-top: 0;
-  padding-bottom: 0;
-  ${(props) => (props.noPadding ? "padding: 0;" : "")}
+  padding: 0 15px;
 `;
 
 const WalletsCard = styled(Card)`

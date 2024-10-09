@@ -15,6 +15,7 @@ import aoLinkLogo from "url:/assets/ecosystem/aolink.svg";
 import llamaLogo from "url:/assets/ecosystem/llama.png";
 import arswapLogo from "url:/assets/ecosystem/arswap.png";
 import liquidopsLogo from "url:/assets/ecosystem/liquidops.svg";
+import quantumLogo from "url:/assets/ecosystem/quantum-logo.svg";
 import betterideaLogo from "url:/assets/ecosystem/betteridea.png";
 
 export interface App {
@@ -99,6 +100,21 @@ export const apps: App[] = [
     links: {
       website: "https://www.liquidops.io",
       twitter: "https://x.com/Liquid_Ops"
+    }
+  },
+  {
+    name: "Quantum",
+    category: "Defi",
+    description: "Bridge. Earn and Explore the AO ecosystem with Quantum.",
+    assets: {
+      logo: quantumLogo,
+      thumbnail: "",
+      lightBackground: "rgba(25, 25, 25, 1)",
+      darkBackground: "rgba(25, 25, 25, 1)"
+    },
+    links: {
+      website: "https://bridge.astrousd.com",
+      twitter: "https://x.com/astrousd"
     }
   },
   {

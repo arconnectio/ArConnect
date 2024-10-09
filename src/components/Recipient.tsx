@@ -153,6 +153,8 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
     }, {} as Record<string, Contacts>);
   }, [storedContacts, targetInput.state]);
 
+  const hasContacts = Object.keys(filteredAndGroupedContacts).length > 0;
+
   return (
     <>
       <SearchBarWrapper>
@@ -200,29 +202,35 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
       </AddressesList>
       <ContactsSection>
         <SubText>{browser.i18n.getMessage("your_contacts")}</SubText>
-        {Object.keys(filteredAndGroupedContacts).map((letter) => (
-          <ContactList key={letter}>
-            <ContactAddress style={{ color: "white" }}>{letter}</ContactAddress>
+        {hasContacts ? (
+          <div>
+            {Object.keys(filteredAndGroupedContacts).map((letter) => (
+              <ContactList key={letter}>
+                <ContactAddress>{letter}</ContactAddress>
 
-            {filteredAndGroupedContacts[letter].map((contact) => (
-              <ListItem
-                small
-                title={contact?.name}
-                description={formatAddress(contact.address)}
-                img={
-                  contact.profileIcon
-                    ? contact.profileIcon
-                    : generateProfileIcon(contact?.name || contact.address)
-                }
-                key={contact.address}
-                onClick={() => {
-                  onClick({ contact, address: contact.address });
-                  onClose();
-                }}
-              />
+                {filteredAndGroupedContacts[letter].map((contact) => (
+                  <ListItem
+                    small
+                    title={contact?.name}
+                    description={formatAddress(contact.address)}
+                    img={
+                      contact.profileIcon
+                        ? contact.profileIcon
+                        : generateProfileIcon(contact?.name || contact.address)
+                    }
+                    key={contact.address}
+                    onClick={() => {
+                      onClick({ contact, address: contact.address });
+                      onClose();
+                    }}
+                  />
+                ))}
+              </ContactList>
             ))}
-          </ContactList>
-        ))}
+          </div>
+        ) : (
+          <NoContacts>{browser.i18n.getMessage("no_contacts")}</NoContacts>
+        )}
       </ContactsSection>
     </>
   );
@@ -231,6 +239,10 @@ export default function Recipient({ onClick, onClose }: RecipientProps) {
 const SearchBarWrapper = styled.div`
   display: flex;
   gap: 4px;
+`;
+
+const NoContacts = styled(Text)`
+  padding: 11.2px 13.76px;
 `;
 
 const SubText = styled.h3`
@@ -244,13 +256,17 @@ const ContactAddress = styled.div`
   color: #aeadcd;
 `;
 
-const Recents = styled.div`
+const Recents = styled.button`
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
   padding: 10px 4px;
   border-radius: 10px;
+  background: transparent;
+  border: 0;
+  color: inherit;
+
   &:hover {
     background-color: rgba(${(props) => props.theme.theme}, 0.12);
     cursor: pointer;

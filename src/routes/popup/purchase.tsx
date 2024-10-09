@@ -13,8 +13,6 @@ import { ChevronRight, Bank, BankNote01 } from "@untitled-ui/icons-react";
 import switchIcon from "url:/assets/ecosystem/switch-vertical.svg";
 import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
-import { AnimatePresence, type Variants } from "framer-motion";
-import { SliderWrapper } from "./send";
 import { useEffect, useMemo, useState } from "react";
 import { PageType, trackPage } from "~utils/analytics";
 import type { PaymentType, Quote } from "~lib/onramper";
@@ -22,6 +20,7 @@ import { useHistory } from "~utils/hash_router";
 import { ExtensionStorage } from "~utils/storage";
 import { useDebounce } from "~wallets/hooks";
 import { retryWithDelay } from "~utils/retry";
+import SliderMenu from "~components/SliderMenu";
 
 export default function Purchase() {
   const [push] = useHistory();
@@ -248,36 +247,34 @@ export default function Purchase() {
               </div>
             }
           />
-          <AnimatePresence>
-            {showCurrencySelector && (
-              <SliderWrapper
-                variants={animation}
-                initial="hidden"
-                animate="shown"
-                exit="hidden"
-              >
-                <CurrencySelectorScreen
-                  onClose={handleCurrencyClose}
-                  updateCurrency={setSelectedCurrency}
-                  currencies={currencies}
-                />
-              </SliderWrapper>
-            )}
-            {showPaymentSelector && (
-              <SliderWrapper
-                variants={animation}
-                initial="hidden"
-                animate="shown"
-                exit="hidden"
-              >
-                <PaymentSelectorScreen
-                  payments={selectedCurrency.paymentOptions}
-                  updatePayment={setPaymentMethod}
-                  onClose={handlePaymentClose}
-                />
-              </SliderWrapper>
-            )}
-          </AnimatePresence>
+
+          <SliderMenu
+            title={browser.i18n.getMessage("currency")}
+            isOpen={showCurrencySelector}
+            onClose={() => {
+              setShowCurrencySelector(false);
+            }}
+          >
+            <CurrencySelectorScreen
+              onClose={handleCurrencyClose}
+              updateCurrency={setSelectedCurrency}
+              currencies={currencies}
+            />
+          </SliderMenu>
+
+          <SliderMenu
+            title={browser.i18n.getMessage("buy_screen_payment_method")}
+            isOpen={showPaymentSelector}
+            onClose={() => {
+              setShowPaymentSelector(false);
+            }}
+          >
+            <PaymentSelectorScreen
+              payments={selectedCurrency?.paymentOptions}
+              updatePayment={setPaymentMethod}
+              onClose={handlePaymentClose}
+            />
+          </SliderMenu>
         </Top>
         <ButtonV2
           disabled={!quote}
@@ -321,15 +318,8 @@ const PaymentSelectorScreen = ({
   updatePayment: (payment: any) => void;
   payments: any[];
 }) => {
-  const searchInput = useInput();
-
   return (
     <SelectorWrapper>
-      <HeadV2
-        back={onClose}
-        title={"Choose a payment method"}
-        padding={"0 0 15px 0;"}
-      />
       {payments.map((payment, index) => {
         if (payment.isActive) {
           const isWireTransfer = payment.id === "pm_us_wire_bank_transfer";
@@ -388,11 +378,6 @@ const CurrencySelectorScreen = ({
 
   return (
     <SelectorWrapper>
-      <HeadV2
-        back={onClose}
-        title={"Select Fiat Currency"}
-        padding={"0 0 15px 0;"}
-      />
       <div style={{ paddingBottom: "18px" }}>
         <InputV2
           placeholder="Enter currency name"
@@ -480,10 +465,7 @@ const Wrapper = styled.div`
 const Top = styled.div``;
 
 const SelectorWrapper = styled.div`
-  max-width: 377.5px;
-  padding: 15px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
 `;
 
 const Switch = styled.button`
@@ -506,8 +488,3 @@ export const Line = styled.div<{ margin?: string }>`
 const SwitchText = styled(Text)`
   color: ${(props) => props.theme.primaryTextv2};
 `;
-
-const animation: Variants = {
-  hidden: { x: "-100%", opacity: 0 },
-  shown: { x: "0%", opacity: 1 }
-};
