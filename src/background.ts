@@ -1,7 +1,7 @@
+import { getCapabilities, getPrinters, handlePrintRequest } from "~lib/printer";
 import { addressChangeListener, walletsChangeListener } from "~wallets/event";
 import { keyRemoveAlarmListener, onWindowClose } from "~wallets/auth";
 import { appConfigChangeListener } from "~applications/events";
-import { getCapabilities, getPrinters } from "~lib/printer";
 import { handleApiCalls, handleChunkCalls } from "~api";
 import { handleGatewayUpdate } from "~gateways/cache";
 import { onMessage } from "@arconnect/webext-bridge";
@@ -88,6 +88,7 @@ browser.webNavigation.onBeforeNavigate.addListener(protocolHandler);
 if (typeof chrome !== "undefined") {
   chrome.printerProvider.onGetCapabilityRequested.addListener(getCapabilities);
   chrome.printerProvider.onGetPrintersRequested.addListener(getPrinters);
+  chrome.printerProvider.onPrintRequested.addListener(handlePrintRequest);
 }
 
 export {};
