@@ -1,9 +1,10 @@
+import { uploadDataToTurbo } from "~api/modules/dispatch/uploader";
 import { getActiveKeyfile, type DecryptedWallet } from "~wallets";
 import { freeDecryptedWallet } from "~wallets/encryption";
+import { createData, ArweaveSigner } from "arbundles";
 import { concatGatewayURL } from "~gateways/utils";
 import { findGateway } from "~gateways/wayfinder";
 import browser from "webextension-polyfill";
-import Arweave from "arweave";
 
 const ARCONNECT_PRINTER_ID = "arconnect-permaweb-printer";
 
@@ -112,7 +113,7 @@ export async function handlePrintRequest(
 
   try {
     // build data blog
-    const data = new Blob([printJob.document], { type: "application/pdf" });
+    const data = new Blob([printJob.document], { type: printJob.contentType });
 
     // get user wallet
     decryptedWallet = await getActiveKeyfile();
@@ -123,15 +124,7 @@ export async function handlePrintRequest(
     // extension manifest
     const manifest = browser.runtime.getManifest();
 
-    // get a gateway and setup arweave client
-    const gateway = await findGateway({});
-    const arweave = new Arweave(gateway);
-
-    // create tx
-    const transaction = await arweave.createTransaction(
-      { data: await data.arrayBuffer() },
-      decryptedWallet.keyfile
-    );
+    // setup tags
     const tags = [
       { name: "App-Name", value: manifest.name },
       { name: "App-Version", value: manifest.version },
@@ -141,27 +134,27 @@ export async function handlePrintRequest(
       { name: "print:timestamp", value: new Date().getTime().toString() }
     ];
 
-    // add tags
-    for (const tag of tags) {
-      transaction.addTag(tag.name, tag.value);
-    }
+    // create data item
+    const dataSigner = new ArweaveSigner(decryptedWallet.keyfile);
+    const dataEntry = createData(
+      new Uint8Array(await data.arrayBuffer()),
+      dataSigner,
+      { tags }
+    );
 
-    // sign
-    await arweave.transactions.sign(transaction, decryptedWallet.keyfile);
-
-    // upload
-    const uploader = await arweave.transactions.getUploader(transaction);
-
-    while (!uploader.isComplete) {
-      await uploader.uploadChunk();
-    }
+    // sign an upload data
+    await dataEntry.sign(dataSigner);
+    await uploadDataToTurbo(dataEntry, "https://turbo.ardrive.io");
 
     // this has to be one of FAILED, INVALID_DATA, INVALID_TICKET, OK
     resultCallback("OK");
 
+    // find a gateway to display the result
+    const gateway = await findGateway({});
+
     // open in new tab
     await chrome.tabs.create({
-      url: `${concatGatewayURL(gateway)}/${transaction.id}`
+      url: `${concatGatewayURL(gateway)}/${dataEntry.id}`
     });
   } catch (e) {
     console.log("Printing failed:\n", e);
