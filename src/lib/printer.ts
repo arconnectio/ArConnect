@@ -31,3 +31,23 @@ export function getCapabilities(
 type PrinterCapabilitiesCallback = (
   p: chrome.printerProvider.PrinterCapabilities
 ) => void;
+
+/**
+ * Returns a list of "virtual" printers,
+ * in our case "Print/Publish to Arweave"
+ */
+export function getPrinters(callback: PrinterInfoCallback) {
+  callback([
+    {
+      id: browser.runtime.id,
+      name: "Print to Arweave",
+      description:
+        "Publish the content you want to print on Arweave, permanently."
+    }
+  ]);
+}
+
+/**
+ * Printer info request callback type
+ */
+type PrinterInfoCallback = (p: chrome.printerProvider.PrinterInfo[]) => void;
