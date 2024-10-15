@@ -53,7 +53,7 @@ export default function Home() {
   const tokens = useTokens();
 
   // ao Tokens
-  const [aoTokens] = useAoTokens();
+  const [aoTokens, aoTokensLoading] = useAoTokens();
 
   // checking to see if it's a hardware wallet
   const wallet = useActiveWallet();
@@ -68,9 +68,11 @@ export default function Home() {
     if (!activeAddress) return;
 
     const findBalances = async (assets, aoTokens) => {
-      const hasTokensWithBalance = [...assets, ...aoTokens].some((token) =>
-        BigNumber(token.balance || "0").gt(0)
-      );
+      const hasTokensWithBalance =
+        aoTokensLoading ||
+        [...assets, ...aoTokens].some((token) =>
+          BigNumber(token.balance || "0").gt(0)
+        );
 
       if (
         hasTokensWithBalance ||
@@ -88,7 +90,14 @@ export default function Home() {
     } catch (error) {
       console.log(error);
     }
-  }, [activeAddress, assets, aoTokens, balance, historicalBalance]);
+  }, [
+    activeAddress,
+    assets,
+    aoTokens,
+    balance,
+    historicalBalance,
+    aoTokensLoading
+  ]);
 
   useEffect(() => {
     const trackEventAndPage = async () => {
