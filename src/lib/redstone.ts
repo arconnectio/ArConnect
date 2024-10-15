@@ -9,9 +9,14 @@ import BigNumber from "bignumber.js";
  * Hook for the redstone token price API
  *
  * @param symbol Token symbol
+ * @param isAoToken Token is ao token or not
  * @param opts Custom Redstone API "getPrice" options
  */
-export function usePrice(symbol?: string, opts?: GetPriceOptions) {
+export function usePrice(
+  symbol?: string,
+  isAoToken?: boolean,
+  opts?: GetPriceOptions
+) {
   const [price, setPrice] = useState<BigNumber>();
   const [loading, setLoading] = useState(false);
 
@@ -20,7 +25,7 @@ export function usePrice(symbol?: string, opts?: GetPriceOptions) {
 
   useEffect(() => {
     (async () => {
-      if (!symbol) {
+      if (!symbol || isAoToken) {
         return;
       }
 
