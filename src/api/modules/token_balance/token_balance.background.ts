@@ -9,17 +9,10 @@ const background: ModuleFunction<string> = async (_, id?: string) => {
   isAddress(id);
   const address = await ExtensionStorage.get("active_address");
 
-  let balance: string | null = null;
-  try {
-    if (id === AO_NATIVE_TOKEN) {
-      balance = await getNativeTokenBalance(address);
-    } else {
-      const balanceResult = await getAoTokenBalance(address, id);
-      balance = balanceResult.toString();
-    }
-  } catch (error) {
-    console.error(`Error fetching balance for token ${id}:`, error);
-  }
+  const balance =
+    id === AO_NATIVE_TOKEN
+      ? await getNativeTokenBalance(address)
+      : (await getAoTokenBalance(address, id)).toString();
 
   return balance;
 };

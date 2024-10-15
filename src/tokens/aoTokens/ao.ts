@@ -225,6 +225,10 @@ export async function getAoTokenBalance(
 
   const aoToken = aoTokens.find((token) => token.processId === process);
 
+  if (!aoToken) {
+    throw new Error(`Token not found for address '${address}'.`);
+  }
+
   const res = await dryrun({
     Id,
     Owner: address,
@@ -239,6 +243,9 @@ export async function getAoTokenBalance(
       return new Quantity(BigInt(balance), BigInt(aoToken.Denomination));
     }
   }
+
+  // default return
+  return new Quantity(0, BigInt(aoToken.Denomination));
 }
 
 export async function getNativeTokenBalance(address: string): Promise<string> {
