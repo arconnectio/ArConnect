@@ -46,7 +46,6 @@ import { ExtensionStorage, TempTransactionStorage } from "~utils/storage";
 import { useContact } from "~contacts/hooks";
 import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
 import BigNumber from "bignumber.js";
-import { Token } from "ao-tokens";
 import { fetchTokenByProcessId } from "~lib/transactions";
 import { useStorage } from "@plasmohq/storage/hook";
 import type { StoredWallet } from "~wallets";
@@ -176,11 +175,9 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
           );
 
           if (aoQuantity) {
-            let tokenInfo;
-            tokenInfo = await fetchTokenByProcessId(data.transaction.recipient);
-            if (!tokenInfo) {
-              tokenInfo = (await Token(data.transaction.recipient)).info;
-            }
+            const tokenInfo = await fetchTokenByProcessId(
+              data.transaction.recipient
+            );
             if (tokenInfo) {
               const amount = balanceToFractioned(aoQuantity.value, {
                 id: data.transaction.recipient,

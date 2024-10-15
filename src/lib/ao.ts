@@ -66,9 +66,12 @@ export class AOProcess {
     this.processId = processId;
     this.ao = connect({
       GRAPHQL_URL:
-        connectionConfig?.GATEWAY_URL ??
-        joinUrl({ url: defaultConfig.GATEWAY_URL, path: "graphql" }),
-      CU_URL: connectionConfig?.GATEWAY_URL ?? defaultConfig.CU_URL,
+        connectionConfig?.GRAPHQL_URL ??
+        joinUrl({
+          url: connectionConfig?.GATEWAY_URL ?? defaultConfig.GATEWAY_URL,
+          path: "graphql"
+        }),
+      CU_URL: connectionConfig?.CU_URL ?? defaultConfig.CU_URL,
       MU_URL: connectionConfig?.MU_URL ?? defaultConfig.MU_URL,
       GATEWAY_URL: connectionConfig?.GATEWAY_URL ?? defaultConfig.GATEWAY_URL
     });

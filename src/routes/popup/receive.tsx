@@ -45,9 +45,6 @@ export default function Receive({ walletName, walletAddress }: ReceiveProps) {
   // location
   const [, setLocation] = useLocation();
 
-  const wallet = useActiveWallet();
-  const keystoneWarning = wallet?.type === "hardware";
-
   const copyAddress: MouseEventHandler = (e) => {
     e.stopPropagation();
     copy(effectiveAddress);
@@ -77,16 +74,6 @@ export default function Receive({ walletName, walletAddress }: ReceiveProps) {
         />
       </div>
       <div>
-        {keystoneWarning && (
-          <Degraded>
-            <WarningWrapper>
-              <WarningIcon color="#fff" />
-            </WarningWrapper>
-            <div>
-              <span>{browser.i18n.getMessage("keystone_ao_description")}</span>
-            </div>
-          </Degraded>
-        )}
         <ContentWrapper>
           <Section style={{ padding: "8px 15px 0 15px" }}>
             <QRCodeWrapper>

@@ -66,10 +66,13 @@ const Wrapper = styled(motion.div)<{ displayTheme: DisplayTheme }>`
   bottom: 0;
   left: 0;
   height: auto;
-  max-height: calc(2 / 3 * 100%);
+  max-height: 93%;
+  border-top: ${(props) =>
+    props.displayTheme === "light"
+      ? `1px solid ${props.theme.primary}`
+      : "none"};
   display: flex;
   flex-direction: column;
-  padding-bottom: 16px;
   width: 100%;
   z-index: 1000;
   overflow: scroll;

@@ -17,6 +17,7 @@ import Token from "~routes/auth/token";
 import Sign from "~routes/auth/sign";
 import Subscription from "~routes/auth/subscription";
 import SignKeystone from "~routes/auth/signKeystone";
+import BatchSignDataItem from "~routes/auth/batchSignDataItem";
 
 export default function Auth() {
   const theme = useTheme();
@@ -39,6 +40,7 @@ export default function Auth() {
             <Route path="/signature" component={Signature} />
             <Route path="/subscription" component={Subscription} />
             <Route path="/signDataItem" component={SignDataItem} />
+            <Route path="/batchSignDataItem" component={BatchSignDataItem} />
           </Router>
         </Wrapper>
       </HardwareWalletTheme>

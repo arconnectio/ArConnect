@@ -5,7 +5,7 @@ import WalletHeader from "~components/popup/WalletHeader";
 import NoBalance from "~components/popup/home/NoBalance";
 import Balance from "~components/popup/home/Balance";
 import { AnnouncementPopup } from "./announcement";
-import { getDecryptionKey, isExpired } from "~wallets/auth";
+import { getDecryptionKey } from "~wallets/auth";
 import { useHistory } from "~utils/hash_router";
 import {
   trackEvent,
@@ -87,19 +87,11 @@ export default function Home() {
   }, [activeAddress, assets, aoTokens]);
 
   useEffect(() => {
-    // check if password is expired here
-    const checkExpiration = async () => {
-      const expired = await isExpired();
-      // delete expiration from storage here or in unlock page
-      if (expired) {
-        ExtensionStorage.remove("password_expires");
-        push("/unlock");
-      } else {
-        await trackEvent(EventType.LOGIN, {});
-        await trackPage(PageType.HOME);
-      }
+    const trackEventAndPage = async () => {
+      await trackEvent(EventType.LOGIN, {});
+      await trackPage(PageType.HOME);
     };
-    checkExpiration();
+    trackEventAndPage();
 
     // schedule import ao tokens
     scheduleImportAoTokens();
