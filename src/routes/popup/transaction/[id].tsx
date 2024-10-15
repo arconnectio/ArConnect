@@ -42,13 +42,14 @@ import {
   generateProfileIcon,
   ProfilePicture
 } from "~components/Recipient";
-import { TempTransactionStorage } from "~utils/storage";
+import { ExtensionStorage, TempTransactionStorage } from "~utils/storage";
 import { useContact } from "~contacts/hooks";
 import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
 import BigNumber from "bignumber.js";
 import { Token } from "ao-tokens";
 import { fetchTokenByProcessId } from "~lib/transactions";
-import type { TokenInfo } from "~tokens/aoTokens/ao";
+import { useStorage } from "@plasmohq/storage/hook";
+import type { StoredWallet } from "~wallets";
 
 // pull contacts and check if to address is in contacts
 
@@ -73,8 +74,22 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
   const childRef = useRef(null);
   useAdjustAmountTitleWidth(parentRef, childRef, quantity);
 
+  const [wallets] = useStorage<StoredWallet[]>(
+    {
+      key: "wallets",
+      instance: ExtensionStorage
+    },
+    []
+  );
+
+  const fromAddress = transaction?.owner.address;
+  const toAddress = transaction?.recipient;
+  const fromMe = wallets.find((wallet) => wallet.address === fromAddress);
+  const toMe = wallets.find((wallet) => wallet.address === toAddress);
+
   // const [contact, setContact] = useState<any | undefined>(undefined);
-  const contact = useContact(transaction?.recipient);
+  const fromContact = useContact(fromAddress);
+  const toContact = useContact(toAddress);
 
   const [ao, setAo] = useState<ao>({ isAo: false });
 
@@ -360,7 +375,50 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                     {browser.i18n.getMessage("transaction_from")}
                   </PropertyName>
                   <PropertyValue>
-                    {formatAddress(transaction.owner.address, 6)}
+                    <div>
+                      {!fromContact ? (
+                        <>
+                          {formatAddress(fromMe || fromAddress, 6)}
+
+                          {fromMe ? null : (
+                            <AddContact>
+                              {browser.i18n.getMessage("user_not_in_contacts")}{" "}
+                              <span
+                                onClick={() => {
+                                  trackEvent(EventType.ADD_CONTACT, {
+                                    fromSendFlow: true
+                                  });
+                                  browser.tabs.create({
+                                    url: browser.runtime.getURL(
+                                      `tabs/dashboard.html#/contacts/new?address=${fromAddress}`
+                                    )
+                                  });
+                                }}
+                              >
+                                {browser.i18n.getMessage("create_contact")}
+                              </span>
+                            </AddContact>
+                          )}
+                        </>
+                      ) : (
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          {fromContact.profileIcon ? (
+                            <ProfilePicture
+                              src={fromContact.profileIcon}
+                              size="19px"
+                            />
+                          ) : (
+                            <AutoContactPic size="19px">
+                              {generateProfileIcon(
+                                fromContact?.name || fromContact.address
+                              )}
+                            </AutoContactPic>
+                          )}
+                          {fromContact?.name ||
+                            formatAddress(fromContact.address, 6)}
+                        </div>
+                      )}
+                    </div>
                   </PropertyValue>
                 </TransactionProperty>
                 <TransactionProperty>
@@ -369,44 +427,46 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                   </PropertyName>
                   <PropertyValue>
                     <div>
-                      {!contact ? (
+                      {!toContact ? (
                         <>
-                          {(transaction.recipient &&
-                            formatAddress(transaction.recipient, 6)) ||
-                            "-"}
-                          <AddContact>
-                            {browser.i18n.getMessage("user_not_in_contacts")}{" "}
-                            <span
-                              onClick={() => {
-                                trackEvent(EventType.ADD_CONTACT, {
-                                  fromSendFlow: true
-                                });
-                                browser.tabs.create({
-                                  url: browser.runtime.getURL(
-                                    `tabs/dashboard.html#/contacts/new?address=${transaction.recipient}`
-                                  )
-                                });
-                              }}
-                            >
-                              {browser.i18n.getMessage("create_contact")}
-                            </span>
-                          </AddContact>
+                          {formatAddress(toMe || toAddress, 6)}
+
+                          {toMe ? null : (
+                            <AddContact>
+                              {browser.i18n.getMessage("user_not_in_contacts")}{" "}
+                              <span
+                                onClick={() => {
+                                  trackEvent(EventType.ADD_CONTACT, {
+                                    fromSendFlow: true
+                                  });
+                                  browser.tabs.create({
+                                    url: browser.runtime.getURL(
+                                      `tabs/dashboard.html#/contacts/new?address=${toAddress}`
+                                    )
+                                  });
+                                }}
+                              >
+                                {browser.i18n.getMessage("create_contact")}
+                              </span>
+                            </AddContact>
+                          )}
                         </>
                       ) : (
                         <div style={{ display: "flex", alignItems: "center" }}>
-                          {contact.profileIcon ? (
+                          {toContact.profileIcon ? (
                             <ProfilePicture
-                              src={contact.profileIcon}
+                              src={toContact.profileIcon}
                               size="19px"
                             />
                           ) : (
                             <AutoContactPic size="19px">
                               {generateProfileIcon(
-                                contact?.name || contact.address
+                                toContact?.name || toContact.address
                               )}
                             </AutoContactPic>
                           )}
-                          {contact?.name || formatAddress(contact.address, 6)}
+                          {toContact?.name ||
+                            formatAddress(toContact.address, 6)}
                         </div>
                       )}
                     </div>

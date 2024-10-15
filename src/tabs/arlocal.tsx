@@ -1,7 +1,7 @@
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { RefreshButton } from "~components/IconButton";
 import { useEffect, useMemo, useState } from "react";
-import { GlobalStyle, useTheme } from "~utils/theme";
+import { useTheme } from "~utils/theme";
 import { urlToGateway } from "~gateways/utils";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -209,7 +209,6 @@ export default function () {
 
   return (
     <Provider theme={theme}>
-      <GlobalStyle />
       <ArLocal />
     </Provider>
   );

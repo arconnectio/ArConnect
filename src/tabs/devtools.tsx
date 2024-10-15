@@ -1,5 +1,5 @@
 import { Card, Provider, Spacer, Text } from "@arconnect/components";
-import { GlobalStyle, useTheme } from "~utils/theme";
+import { useTheme } from "~utils/theme";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -52,7 +52,6 @@ export default function Devtools() {
 
   return (
     <Provider theme={theme}>
-      <GlobalStyle />
       <Wrapper>
         {noWallets && <NoWallets />}
         <CardBody>

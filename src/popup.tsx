@@ -1,6 +1,6 @@
 import Route, { Wrapper } from "~components/popup/Route";
 import styled, { createGlobalStyle } from "styled-components";
-import { GlobalStyle, useTheme } from "~utils/theme";
+import { useTheme } from "~utils/theme";
 import { useHashLocation } from "~utils/hash_router";
 import { Provider } from "@arconnect/components";
 import { syncLabels, useSetUp } from "~wallets";
@@ -50,6 +50,10 @@ import NewContact from "~routes/popup/settings/contacts/new";
 import NotificationSettings from "~routes/popup/settings/notifications";
 import GenerateQR from "~routes/popup/settings/wallets/[address]/qr";
 
+// Uncomment this to disable all animations/transitions from Framer Motion:
+// import { MotionGlobalConfig } from "framer-motion"
+// MotionGlobalConfig.skipAnimations = true;
+
 export default function Popup() {
   const theme = useTheme();
   const [expanded, setExpanded] = useState(false);
@@ -67,11 +71,12 @@ export default function Popup() {
     }
   }, []);
 
+  // TODO: Create custom Provider that stores the main theme in localStorage and a
+  // css variable that's used directly form popup.html!
+
   return (
     <Provider theme={theme}>
       <HardwareWalletTheme>
-        <GlobalStyle />
-        <HideScrollbar expanded={expanded} />
         <ExpandedViewWrapper id="ExpandedViewWrapper">
           <Wrapper expanded={expanded}>
             <Router hook={useHashLocation}>
@@ -210,23 +215,6 @@ export default function Popup() {
     </Provider>
   );
 }
-
-const HideScrollbar = createGlobalStyle<{ expanded?: boolean }>`
-  * {
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none
-    }
-  }
-
-  body {
-    ${(props) =>
-      props?.expanded
-        ? `background-image: linear-gradient( to right, transparent, rgba( ${props.theme.theme},.4 ), transparent);`
-        : ""}
-  }
-`;
 
 const ExpandedViewWrapper = styled.div`
   width: 100%;

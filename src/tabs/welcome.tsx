@@ -1,5 +1,5 @@
 import { type Path, pathToRegexp } from "path-to-regexp";
-import { GlobalStyle, useTheme } from "~utils/theme";
+import { useTheme } from "~utils/theme";
 import { useHashLocation } from "~utils/hash_router";
 import { Provider } from "@arconnect/components";
 import { Router, Route } from "wouter";
@@ -16,7 +16,6 @@ export default function Welcome() {
 
   return (
     <Provider theme={theme}>
-      <GlobalStyle />
       <Router hook={useHashLocation} matcher={customMatcher}>
         <Route path="/" component={Home} />
         <Route path="/start/:page" component={Start} />

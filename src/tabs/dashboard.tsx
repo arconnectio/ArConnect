@@ -1,4 +1,4 @@
-import { GlobalStyle, useTheme } from "~utils/theme";
+import { useTheme } from "~utils/theme";
 import { useHashLocation } from "~utils/hash_router";
 import { Provider } from "@arconnect/components";
 import { syncLabels, useSetUp } from "~wallets";
@@ -18,7 +18,6 @@ export default function Dashboard() {
 
   return (
     <Provider theme={theme}>
-      <GlobalStyle />
       <Router hook={useHashLocation}>
         <Route path="/:setting?/:subsetting?" component={Settings} />
       </Router>
