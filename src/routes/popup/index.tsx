@@ -131,12 +131,15 @@ export default function Home() {
       {loggedIn && <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />}
       <WalletHeader />
       <Balance />
-      {(!noBalance && (
+
+      {noBalance ? (
+        <NoBalance />
+      ) : (
         <>
           <BuyButton />
           <Tabs />
         </>
-      )) || <NoBalance />}
+      )}
     </HomeWrapper>
   );
 }
