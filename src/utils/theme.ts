@@ -5,35 +5,46 @@ import useSetting from "~settings/hook";
 
 type ThemeSetting = "light" | "dark" | "system";
 
-/**
- * Determinates the theme of the UI
- */
+const darkModePreference = window.matchMedia("(prefers-color-scheme: dark)");
+
+function getInitialDisplayTheme(themeSetting: ThemeSetting): DisplayTheme {
+  if (themeSetting !== "system") {
+    // "light" or "dark"
+    return themeSetting;
+  }
+
+  return darkModePreference.matches ? "dark" : "light";
+}
+
 export function useTheme() {
-  const [theme] = useSetting<ThemeSetting>("display_theme");
-  const [displayTheme, setDisplayTheme] = useState<DisplayTheme>("light");
+  const [themeSetting] = useSetting<ThemeSetting>("display_theme");
+
+  const [displayTheme, setDisplayTheme] = useState<DisplayTheme>(() => {
+    return getInitialDisplayTheme(themeSetting);
+  });
 
   useEffect(() => {
-    if (theme !== "system") {
-      return setDisplayTheme(theme);
+    setDisplayTheme(getInitialDisplayTheme(themeSetting));
+  }, [themeSetting]);
+
+  useEffect(() => {
+    if (themeSetting !== "system") return;
+
+    function handleDarkModePreferenceChange(e: MediaQueryListEvent) {
+      setDisplayTheme(e.matches ? "dark" : "light");
     }
 
-    // match theme
-    const darkModePreference = window.matchMedia(
-      "(prefers-color-scheme: dark)"
+    darkModePreference.addEventListener(
+      "change",
+      handleDarkModePreferenceChange
     );
 
-    setDisplayTheme(darkModePreference.matches ? "dark" : "light");
-
-    // listen for system theme changes
-    const listener = (e: MediaQueryListEvent) =>
-      setDisplayTheme(e.matches ? "dark" : "light");
-
-    darkModePreference.addEventListener("change", listener);
-
-    return () => darkModePreference.removeEventListener("change", listener);
-  }, [theme]);
-
-  console.log("displayTheme =", displayTheme);
+    return () =>
+      darkModePreference.removeEventListener(
+        "change",
+        handleDarkModePreferenceChange
+      );
+  }, [themeSetting]);
 
   return displayTheme;
 }

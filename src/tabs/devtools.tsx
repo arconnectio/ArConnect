@@ -1,5 +1,4 @@
-import { Card, Provider, Spacer, Text } from "@arconnect/components";
-import { useTheme } from "~utils/theme";
+import { Card, Spacer, Text } from "@arconnect/components";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -12,6 +11,7 @@ import NoWallets from "~components/devtools/NoWallets";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
+import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
 
 export default function Devtools() {
   // fetch app data
@@ -44,14 +44,11 @@ export default function Devtools() {
     return connectedApps.includes(app.url);
   }, [app, connectedApps]);
 
-  // ui theme
-  const theme = useTheme();
-
   // no wallets
   const noWallets = useNoWallets();
 
   return (
-    <Provider theme={theme}>
+    <ArConnectThemeProvider>
       <Wrapper>
         {noWallets && <NoWallets />}
         <CardBody>
@@ -67,7 +64,7 @@ export default function Devtools() {
             (connected && app && <AppSettings app={app} />)}
         </CardBody>
       </Wrapper>
-    </Provider>
+    </ArConnectThemeProvider>
   );
 }
 

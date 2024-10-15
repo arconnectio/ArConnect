@@ -26,10 +26,9 @@ export const Wrapper = styled(motion.div)<{
   expanded?: boolean;
 }>`
   position: relative;
-  width: ${(props) => (props.responsive ? "100%" : "377.5px")};
+  width: ${(props) => (props.responsive ? "100%" : "377px")};
   min-height: ${(props) => (props.expanded ? "100vh" : "600px")};
   max-height: max-content;
-  background-color: rgb(${(props) => props.theme.background});
 `;
 
 const PageWrapper = styled(Wrapper)`

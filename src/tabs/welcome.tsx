@@ -1,5 +1,4 @@
 import { type Path, pathToRegexp } from "path-to-regexp";
-import { useTheme } from "~utils/theme";
 import { useHashLocation } from "~utils/hash_router";
 import { Provider } from "@arconnect/components";
 import { Router, Route } from "wouter";
@@ -10,12 +9,11 @@ import Setup from "~routes/welcome/setup";
 
 import makeCachedMatcher from "wouter/matcher";
 import GettingStarted from "~routes/welcome/gettingStarted";
+import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
 
 export default function Welcome() {
-  const theme = useTheme();
-
   return (
-    <Provider theme={theme}>
+    <ArConnectThemeProvider>
       <Router hook={useHashLocation} matcher={customMatcher}>
         <Route path="/" component={Home} />
         <Route path="/start/:page" component={Start} />
@@ -31,7 +29,7 @@ export default function Welcome() {
           )}
         </Route>
       </Router>
-    </Provider>
+    </ArConnectThemeProvider>
   );
 }
 
