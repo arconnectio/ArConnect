@@ -12,7 +12,6 @@ import {
   useToasts
 } from "@arconnect/components";
 import HeadV2 from "~components/popup/HeadV2";
-import styled from "styled-components";
 
 export default function Unlock() {
   // password input
@@ -26,8 +25,12 @@ export default function Unlock() {
 
   // unlock ArConnect
   async function unlockWallet() {
+    console.log("unlockWallet()");
+
     // unlock using password
     const res = await unlock(passwordInput.state);
+
+    console.log("res =", res);
 
     if (!res) {
       passwordInput.setStatus("error");
@@ -37,6 +40,8 @@ export default function Unlock() {
         duration: 2200
       });
     }
+
+    console.log("REDIRECT HOME");
 
     push("/");
   }

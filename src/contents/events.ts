@@ -1,6 +1,8 @@
 import { onMessage } from "@arconnect/webext-bridge";
 import type { PlasmoCSConfig } from "plasmo";
 
+console.trace("HERE");
+
 export const config: PlasmoCSConfig = {
   matches: ["file://*/*", "http://*/*", "https://*/*"],
   run_at: "document_end",

@@ -259,7 +259,7 @@ export function useTokens() {
     })();
   }, [tokens, activeAddress, updatedTokens]);
 
-  return tokens;
+  return tokens || [];
 }
 
 /**

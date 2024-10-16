@@ -39,7 +39,7 @@ const PageWrapper = styled(Wrapper)`
   transition: background-color 0.23s ease-in-out;
 `;
 
-const Page = ({ children }: PropsWithChildren) => {
+export const Page = ({ children }: PropsWithChildren) => {
   const opacityAnimation: Variants = {
     initial: { opacity: 0 },
     enter: { opacity: 1 },

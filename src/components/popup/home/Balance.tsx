@@ -111,16 +111,13 @@ export default function Balance() {
     })();
   }, [activeAddress]);
 
-  // router push
-  const [push] = useHistory();
-
   // display theme
   const theme = useTheme();
 
   // lock wallet and terminate session
   async function lockWallet() {
+    // TODO: Add option to menu and simply remove it? The router should be aware of this change.
     await removeDecryptionKey();
-    push("/unlock");
   }
 
   useEffect(() => {
