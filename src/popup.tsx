@@ -50,12 +50,19 @@ import NewContact from "~routes/popup/settings/contacts/new";
 import NotificationSettings from "~routes/popup/settings/notifications";
 import GenerateQR from "~routes/popup/settings/wallets/[address]/qr";
 
+// Welcome Flow:
+import WelcomeHome from "~routes/welcome";
+import Start from "~routes/welcome/start";
+import Setup from "~routes/welcome/setup";
+import GettingStarted from "~routes/welcome/gettingStarted";
+
 export default function Popup() {
   const theme = useTheme();
   const [expanded, setExpanded] = useState(false);
 
+  // TODO: This will redirect to Welcome and end up with an infinite redirect...
   // init popup
-  useSetUp();
+  // useSetUp();
 
   useEffect(() => {
     // sync ans labels
@@ -76,6 +83,26 @@ export default function Popup() {
           <Wrapper expanded={expanded}>
             <Router hook={useHashLocation}>
               <HistoryProvider>
+                <Route path="/welcome/" component={WelcomeHome} />
+                <Route path="/welcome/start/:page" component={Start} />
+                <Route path="/welcome/getting-started/:page">
+                  {(params: { page: string }) => (
+                    <GettingStarted page={Number(params?.page)} />
+                  )}
+                </Route>
+
+                <Route path="/welcome/:setupMode(generate|load)/:page">
+                  {(params: {
+                    setupMode: "generate" | "load";
+                    page: string;
+                  }) => (
+                    <Setup
+                      setupMode={params?.setupMode}
+                      page={Number(params?.page)}
+                    />
+                  )}
+                </Route>
+
                 <Route path="/" component={Home} />
                 <Route path="/purchase" component={Purchase} />
                 <Route path="/confirm-purchase/:quoteId?">

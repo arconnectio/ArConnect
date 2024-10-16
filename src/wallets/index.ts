@@ -41,6 +41,8 @@ export type StoredWallet<KeyfileFormat = string> =
  * @returns Wallets in storage
  */
 export async function getWallets() {
+  console.log("getWallets()");
+
   let wallets: StoredWallet[] = await ExtensionStorage.get("wallets");
 
   return wallets || [];
@@ -49,8 +51,12 @@ export async function getWallets() {
 /**
  * Hook that opens a new tab if ArConnect has not been set up yet
  */
-export const useSetUp = () =>
+export function useSetUp() {
+  console.log("useSetUp()");
+
   useEffect(() => {
+    // TODO: #cover should only be removed after this...
+
     (async () => {
       const activeAddress = await getActiveAddress();
       const wallets = await getWallets();
@@ -68,11 +74,14 @@ export const useSetUp = () =>
       }
     })();
   }, []);
+}
 
 /**
  * Hook to get if there are no wallets added
  */
 export const useNoWallets = () => {
+  console.log("useNoWallets()");
+
   const [state, setState] = useState(false);
 
   useEffect(() => {

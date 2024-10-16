@@ -25,6 +25,14 @@ export default defineConfig({
       "~tokens": path.resolve(__dirname, "./src/tokens"),
       "~utils": path.resolve(__dirname, "./src/utils"),
       "~wallets": path.resolve(__dirname, "./src/wallets"),
+      "plasmohq/storage": path.resolve(
+        __dirname,
+        "./src/iframe/plasmohq/storage"
+      ),
+      "plasmohq/storage/hook": path.resolve(
+        __dirname,
+        "./src/iframe/plasmohq/storage/hook"
+      ),
       "url:/assets": path.resolve(__dirname, "./assets"),
       "webextension-polyfill": path.resolve(__dirname, "./src/iframe/browser")
     }
