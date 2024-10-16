@@ -66,10 +66,6 @@
 body {
     margin: 0;
     padding: 0;
-    /*
-    width: 377px;
-    height: 600px;
-    */
 }
 
 body,
@@ -94,12 +90,18 @@ button {
     left: 0;
     z-index: 99999999;
     background-color: var(--backgroundColor, var(--defaultBackgroundColor, white));
-    transition: background-color linear 100ms;
+    transition: background-color linear 230ms;
 }
 
 #cover[aria-hidden] {
     background: transparent;
     pointer-events: none;
+}
+
+#popup {
+    margin: 0 auto;
+    width: 377px;
+    min-height: 600px;
 }
 
 #popup::before {

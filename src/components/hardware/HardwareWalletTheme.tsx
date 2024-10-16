@@ -59,17 +59,12 @@ export function ThemeBackgroundObserver() {
       formattedBackgroundColor = `rgba(${backgroundColor})`;
     }
 
-    if (formattedBackgroundColor)
+    if (formattedBackgroundColor) {
       localStorage.setItem(
         ARCONNECT_THEME_BACKGROUND_COLOR,
         formattedBackgroundColor
       );
-
-    setTimeout(() => {
-      const coverElement = document.getElementById("cover");
-
-      if (coverElement) coverElement.setAttribute("aria-hidden", "true");
-    }, 230);
+    }
   }, [backgroundColor]);
 
   return null;
