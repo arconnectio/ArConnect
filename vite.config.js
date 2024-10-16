@@ -7,7 +7,10 @@ export default defineConfig({
   // root: "./src/iframe/index.html",
   plugins: [react()],
   define: {
-    "process.env": process?.env || {}
+    "process.env": {
+      PLASMO_PUBLIC_APP_TYPE: "embedded",
+      ...(process?.env || {})
+    }
   },
   resolve: {
     alias: {

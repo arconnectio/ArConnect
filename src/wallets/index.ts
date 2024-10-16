@@ -48,32 +48,96 @@ export async function getWallets() {
   return wallets || [];
 }
 
+type InitialScreenType = "cover" | "locked" | "generating" | "default";
+
 /**
  * Hook that opens a new tab if ArConnect has not been set up yet
  */
 export function useSetUp() {
-  console.log("useSetUp()");
+  console.log("useSetUp =", process.env.PLASMO_PUBLIC_APP_TYPE);
+
+  const [initialScreenType, setInitialScreenType] =
+    useState<InitialScreenType>("cover");
+
+  // TODO: Get all usages of `getDecryptionKey` as we won't be using this in the embedded wallet...
+
+  // TODO: There's no "disconnect" in the embedded wallet.
 
   useEffect(() => {
-    // TODO: #cover should only be removed after this...
+    async function checkWalletState() {
+      const [activeAddress, wallets, decryptionKey] = await Promise.all([
+        getActiveAddress(),
+        getWallets(),
+        getDecryptionKey()
+      ]);
 
-    (async () => {
-      const activeAddress = await getActiveAddress();
-      const wallets = await getWallets();
+      const hasWallets = activeAddress && wallets.length > 0;
 
-      if (
-        !activeAddress ||
-        activeAddress === "" ||
-        wallets.length === 0 ||
-        !wallets
-      ) {
-        await browser.tabs.create({
-          url: browser.runtime.getURL("tabs/welcome.html")
-        });
-        window.top.close();
+      let nextInitialScreenType: InitialScreenType = "cover";
+
+      switch (process.env.PLASMO_PUBLIC_APP_TYPE) {
+        // TODO: There should be no undefined here but the env variables do not seem to work:
+        case undefined:
+        case "extension": {
+          console.log("LOADING...");
+
+          if (!hasWallets) {
+            await browser.tabs.create({
+              url: browser.runtime.getURL("tabs/welcome.html")
+            });
+
+            window.top.close();
+          } else if (!decryptionKey) {
+            nextInitialScreenType = "locked";
+          } else {
+            nextInitialScreenType = "default";
+          }
+
+          break;
+        }
+
+        case "embedded": {
+          nextInitialScreenType = !hasWallets ? "generating" : "default";
+
+          break;
+        }
+
+        default: {
+          throw new Error(
+            `Unknown APP_TYPE = ${process.env.PLASMO_PUBLIC_APP_TYPE}`
+          );
+        }
       }
-    })();
+
+      console.log("nextInitialScreenType =", nextInitialScreenType);
+
+      setInitialScreenType(nextInitialScreenType);
+
+      const coverElement = document.getElementById("cover");
+
+      if (coverElement) {
+        if (nextInitialScreenType === "cover") {
+          coverElement.removeAttribute("aria-hidden");
+        } else {
+          coverElement.setAttribute("aria-hidden", "true");
+        }
+      }
+    }
+
+    ExtensionStorage.watch({
+      decryption_key: checkWalletState
+    });
+
+    checkWalletState();
+
+    return () => {
+      ExtensionStorage.unwatch({
+        decryption_key: checkWalletState
+      });
+    };
   }, []);
+
+  return initialScreenType;
 }
 
 /**

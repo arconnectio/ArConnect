@@ -67,13 +67,14 @@ const tabs = {
     // browser.runtime.getURL("tabs/dashboard.html#/contacts")
     // browser.runtime.getURL("assets/animation/arweave.png");
     // browser.runtime.getURL("tabs/auth.html")}?${objectToUrlParams(...)}
+    // `tabs/dashboard.html#/apps/${activeApp.url}`
 
     if (url === "tabs/welcome.html") {
       location.hash = "/welcome";
     } else if (url.startsWith("tabs/dashboard.html#")) {
       const hash = url.split("#").pop();
 
-      location.hash = hash;
+      location.hash = `/quick-settings${hash}`;
     } else if (url.startsWith("tabs/auth.html")) {
       throw new Error(`Cannot create tab for URL = ${url}`);
     } else if (url.startsWith("assets")) {
