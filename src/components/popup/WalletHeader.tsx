@@ -247,7 +247,7 @@ export default function WalletHeader() {
         icon: <Expand01 style={{ width: "18px", height: "17px" }} />,
         title: "expand_view",
         route: () => {
-          window.open(window.location.href.split("#")[0] + "?expanded=true");
+          window.open(window.location.href.split("#")[0]);
         }
       });
     }

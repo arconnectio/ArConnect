@@ -50,18 +50,10 @@ import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme
 import { AnimatePresence } from "framer-motion";
 
 export default function Popup() {
-  const [expanded, setExpanded] = useState(false);
-
   const initialScreenType = useSetUp();
 
   useEffect(() => {
-    // sync ans labels
     syncLabels();
-
-    // check expanded view
-    if (new URLSearchParams(window.location.search).get("expanded")) {
-      setExpanded(true);
-    }
   }, []);
 
   let content: React.ReactElement = null;
