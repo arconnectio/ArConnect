@@ -48,10 +48,6 @@ import NotificationSettings from "~routes/popup/settings/notifications";
 import GenerateQR from "~routes/popup/settings/wallets/[address]/qr";
 import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
 
-// Uncomment this to disable all animations/transitions from Framer Motion:
-// import { MotionGlobalConfig } from "framer-motion"
-// MotionGlobalConfig.skipAnimations = true;
-
 export default function Popup() {
   const [expanded, setExpanded] = useState(false);
 
@@ -67,9 +63,6 @@ export default function Popup() {
       setExpanded(true);
     }
   }, []);
-
-  // TODO: Create custom Provider that stores the main theme in localStorage and a
-  // css variable that's used directly form popup.html!
 
   return (
     <ArConnectThemeProvider>
