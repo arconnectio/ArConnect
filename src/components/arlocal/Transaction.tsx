@@ -109,6 +109,7 @@ export default function Transaction({ arweave }: Props) {
           content: browser.i18n.getMessage("invalidPassword"),
           duration: 2400
         });
+        setSendingTx(false);
         return;
       }
     }

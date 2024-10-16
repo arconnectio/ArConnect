@@ -91,20 +91,14 @@ export const useNoWallets = () => {
  * Hook for decryption key
  */
 export function useDecryptionKey(): [string, (val: string) => void] {
-  const [decryptionKey, setDecryptionKey] = useStorage<string>(
-    {
-      key: "decryption_key",
-      instance: ExtensionStorage
-    },
-    (val) => {
-      if (!val) return undefined;
-      return atob(val);
-    }
-  );
+  const [decryptionKey, setDecryptionKey] = useStorage<string>({
+    key: "decryption_key",
+    instance: ExtensionStorage
+  });
 
   const set = (val: string) => setDecryptionKey(btoa(val));
 
-  return [decryptionKey, set];
+  return [decryptionKey ? atob(decryptionKey) : undefined, set];
 }
 
 /**
