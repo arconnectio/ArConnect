@@ -16,6 +16,8 @@ import {
 import type { Alarms } from "webextension-polyfill";
 import type { KeystoneSigner } from "~wallets/hardware/keystone";
 import browser from "webextension-polyfill";
+import { fetchTokenByProcessId } from "~lib/transactions";
+import { tokenTypeRegistry } from "~tokens/token";
 
 export type AoInstance = ReturnType<typeof connect>;
 
@@ -223,11 +225,7 @@ export async function getAoTokenBalance(
 ): Promise<Quantity> {
   const aoTokens = (await ExtensionStorage.get<TokenInfo[]>("ao_tokens")) || [];
 
-  const aoToken = aoTokens.find((token) => token.processId === process);
-
-  if (!aoToken) {
-    throw new Error(`Token not found for address '${address}'.`);
-  }
+  let aoToken = aoTokens.find((token) => token.processId === process);
 
   const res = await dryrun({
     Id,
@@ -236,16 +234,31 @@ export async function getAoTokenBalance(
     tags: [{ name: "Action", value: "Balance" }]
   });
 
+  if (!res?.Messages) {
+    throw new Error("Balance handler missing");
+  }
+
+  if ((res as any)?.error) {
+    throw new Error((res as any)?.error);
+  }
+
   for (const msg of res.Messages as Message[]) {
     const balance = getTagValue("Balance", msg.Tags);
 
-    if (balance && aoToken) {
+    if (balance && +balance) {
+      if (!aoToken) {
+        aoToken = await fetchTokenByProcessId(process);
+        if (!aoToken) {
+          throw new Error("Could not load token info.");
+        }
+      }
+
       return new Quantity(BigInt(balance), BigInt(aoToken.Denomination));
     }
   }
 
   // default return
-  return new Quantity(0, BigInt(aoToken.Denomination));
+  return new Quantity(0n, 12n);
 }
 
 export async function getNativeTokenBalance(address: string): Promise<string> {
