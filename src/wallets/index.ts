@@ -57,10 +57,6 @@ export function useSetUp() {
   const [initialScreenType, setInitialScreenType] =
     useState<InitialScreenType>("cover");
 
-  // TODO: Get all usages of `getDecryptionKey` as we won't be using this in the embedded wallet...
-
-  // TODO: There's no "disconnect" in the embedded wallet.
-
   useEffect(() => {
     async function checkWalletState() {
       const [activeAddress, wallets, decryptionKey] = await Promise.all([
@@ -77,8 +73,6 @@ export function useSetUp() {
         // TODO: There should be no undefined here but the env variables do not seem to work:
         case undefined:
         case "extension": {
-          console.log("LOADING...");
-
           if (!hasWallets) {
             await browser.tabs.create({
               url: browser.runtime.getURL("tabs/welcome.html")
@@ -107,22 +101,17 @@ export function useSetUp() {
         }
       }
 
-      console.log("nextInitialScreenType =", nextInitialScreenType);
-
       setInitialScreenType(nextInitialScreenType);
 
-      setTimeout(() => {
-        const coverElement = document.getElementById("cover");
+      const coverElement = document.getElementById("cover");
 
-        if (coverElement) {
-          if (nextInitialScreenType === "cover") {
-            coverElement.removeAttribute("aria-hidden");
-          } else {
-            console.log("REMOVE 2");
-            coverElement.setAttribute("aria-hidden", "true");
-          }
+      if (coverElement) {
+        if (nextInitialScreenType === "cover") {
+          coverElement.removeAttribute("aria-hidden");
+        } else {
+          coverElement.setAttribute("aria-hidden", "true");
         }
-      }, 50);
+      }
     }
 
     ExtensionStorage.watch({
@@ -139,6 +128,16 @@ export function useSetUp() {
   }, []);
 
   return initialScreenType;
+}
+
+export function useRemoveCover() {
+  useEffect(() => {
+    const coverElement = document.getElementById("cover");
+
+    if (coverElement) {
+      coverElement.setAttribute("aria-hidden", "true");
+    }
+  }, []);
 }
 
 /**

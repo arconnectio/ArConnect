@@ -1,6 +1,5 @@
 import { type Path, pathToRegexp } from "path-to-regexp";
 import { useHashLocation } from "~utils/hash_router";
-import { Provider } from "@arconnect/components";
 import { Router, Route } from "wouter";
 
 import Home from "~routes/welcome";
@@ -10,8 +9,11 @@ import Setup from "~routes/welcome/setup";
 import makeCachedMatcher from "wouter/matcher";
 import GettingStarted from "~routes/welcome/gettingStarted";
 import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
+import { useRemoveCover } from "~wallets";
 
 export default function Welcome() {
+  useRemoveCover();
+
   return (
     <ArConnectThemeProvider>
       <Router hook={useHashLocation} matcher={customMatcher}>

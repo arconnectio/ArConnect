@@ -6,7 +6,7 @@ import { urlToGateway } from "~gateways/utils";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { RefreshIcon } from "@iconicicons/react";
-import { useNoWallets } from "~wallets";
+import { useNoWallets, useRemoveCover } from "~wallets";
 import {
   ButtonV2 as Button,
   InputV2 as Input,
@@ -33,6 +33,8 @@ import axios from "axios";
 import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
 
 export default function ArLocal() {
+  useRemoveCover();
+
   // testnet data
   const testnetInput = useInput();
   const [lastUsedTestnet, setLastUsedTestnet] = useStorage<string>(

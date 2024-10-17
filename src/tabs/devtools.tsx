@@ -4,7 +4,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { getTab } from "~applications/tab";
 import { getAppURL } from "~utils/format";
-import { useNoWallets } from "~wallets";
+import { useNoWallets, useRemoveCover } from "~wallets";
 import AppSettings from "~components/dashboard/subsettings/AppSettings";
 import Connector from "~components/devtools/Connector";
 import NoWallets from "~components/devtools/NoWallets";
@@ -13,7 +13,9 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
 
-export default function Devtools() {
+export default function DevTools() {
+  useRemoveCover();
+
   // fetch app data
   const [app, setApp] = useState<Application>();
 
