@@ -206,10 +206,9 @@ export default function WalletHeader() {
       {
         icon: <Users01 style={{ width: "18px", height: "18px" }} />,
         title: "setting_contacts",
-        route: () =>
-          browser.tabs.create({
-            url: browser.runtime.getURL("tabs/dashboard.html#/contacts")
-          })
+        route: () => {
+          push("/quick-settings/contacts");
+        }
       },
       {
         icon: <Container style={{ width: "18px", height: "17px" }} />,
