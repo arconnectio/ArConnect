@@ -52,8 +52,6 @@ type InitialScreenType = "cover" | "locked" | "generating" | "default";
  * Hook that opens a new tab if ArConnect has not been set up yet
  */
 export function useSetUp() {
-  console.log("useSetUp =", process.env.PLASMO_PUBLIC_APP_TYPE);
-
   const [initialScreenType, setInitialScreenType] =
     useState<InitialScreenType>("cover");
 
@@ -70,7 +68,8 @@ export function useSetUp() {
       let nextInitialScreenType: InitialScreenType = "cover";
 
       switch (process.env.PLASMO_PUBLIC_APP_TYPE) {
-        // TODO: There should be no undefined here but the env variables do not seem to work:
+        // `undefined` has been added here just in case, so that the default behavior if nothing is specific is
+        // building the browser extension, just like it was before adding support for the embedded wallet:
         case undefined:
         case "extension": {
           if (!hasWallets) {
