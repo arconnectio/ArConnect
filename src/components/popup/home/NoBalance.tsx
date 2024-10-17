@@ -18,12 +18,12 @@ export default function NoBalance() {
       <ButtonWrapper>
         <PureBuyButton />
         <ButtonV2
-          onClick={() => push("/receive")}
+          onClick={() => push("/tokens")}
           secondary
           fullWidth
           className="normal-font-weight"
         >
-          {browser.i18n.getMessage("receive_AR_button")}
+          {browser.i18n.getMessage("view_all_assets")}
           <ArrowRight style={{ marginLeft: "5px" }} />
         </ButtonV2>
       </ButtonWrapper>

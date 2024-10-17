@@ -1083,6 +1083,10 @@
     "message": "View all",
     "description": "View all link text"
   },
+  "view_all_assets": {
+    "message": "View all assets",
+    "description": "View all link text"
+  },
   "setting_tokens": {
     "message": "Tokens",
     "description": "Tokens setting title"
