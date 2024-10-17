@@ -94,9 +94,6 @@ export default function WalletHeader() {
     });
   };
 
-  // is the popup open in a tab
-  const [isExpanded, setExpanded] = useState(false);
-
   // profile picture
   const ansProfile = useAnsProfile(activeAddress);
 
@@ -155,11 +152,6 @@ export default function WalletHeader() {
     const listener = () => setScrollY(window.scrollY);
 
     window.addEventListener("scroll", listener);
-
-    const queryParameters = new URLSearchParams(window.location.search);
-    const expanded = queryParameters.get("expanded");
-
-    if (expanded) setExpanded(true);
 
     return () => window.removeEventListener("scroll", listener);
   }, []);
@@ -242,18 +234,23 @@ export default function WalletHeader() {
         }
       }
     ];
-    if (!isExpanded && items.length === 4) {
+
+    if (location.pathname === "/popup.html") {
+      // This option won't be shown in the fullscreen mode (fullscreen.html) or the embedded wallet:
+
       items.push({
         icon: <Expand01 style={{ width: "18px", height: "17px" }} />,
         title: "expand_view",
-        route: () => {
-          window.open(window.location.href.split("#")[0]);
+        route: async () => {
+          await browser.tabs.create({
+            url: browser.runtime.getURL("tabs/fullscreen.html")
+          });
         }
       });
     }
 
     return items;
-  }, [activeAddress, isExpanded]);
+  }, [activeAddress]);
 
   return (
     <Wrapper displayTheme={theme} scrolled={scrollY > 14}>

@@ -68,6 +68,29 @@ body {
     padding: 0;
 }
 
+body#popup {
+    width: 377px;
+    height: 600px;
+}
+
+body.fullscreen {
+    width: 377px;
+    height: 100vh;
+    margin: 0 auto;
+}
+
+body.fullscreen::before {
+    content: "";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 377px;
+    height: 100vh;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    box-shadow: 0 0 128px 0 rgba(171, 154, 255, .4);
+}
+
 body,
 button,
 input,
@@ -96,22 +119,4 @@ button {
 #cover[aria-hidden] {
     background: transparent;
     pointer-events: none;
-}
-
-#popup {
-    margin: 0 auto;
-    width: 377px;
-    min-height: 600px;
-}
-
-#popup::before {
-    content: "";
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 377px;
-    height: 100vh;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    box-shadow: 0 0 128px 0 rgba(171, 154, 255, .4);
 }
