@@ -234,12 +234,16 @@ export async function getAoTokenBalance(
     tags: [{ name: "Action", value: "Balance" }]
   });
 
-  if (!res?.Messages) {
-    throw new Error("Balance handler missing");
+  const errorMessage = (res as any)?.error || res?.Error;
+
+  if (errorMessage) {
+    throw new Error(errorMessage);
   }
 
-  if ((res as any)?.error) {
-    throw new Error((res as any)?.error);
+  if (res.Messages.length === 0) {
+    throw new Error(
+      "Invalid token process: Balance action handler missing or unsupported."
+    );
   }
 
   for (const msg of res.Messages as Message[]) {
