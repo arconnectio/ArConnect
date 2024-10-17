@@ -22,7 +22,9 @@ import { useStorage } from "@plasmohq/storage/hook";
 
 export default function Tokens() {
   const [isLoading, setIsLoading] = useState(false);
-  const [hasNextPage, setHasNextPage] = useState(true);
+  const [hasNextPage, setHasNextPage] = useState<boolean | undefined>(
+    undefined
+  );
   // all tokens
   const tokens = useTokens();
   // ao Tokens
@@ -166,9 +168,7 @@ export default function Tokens() {
             onClick={() => push(`/token/${token.id}`)}
             onSettingsClick={(e) => {
               e.preventDefault();
-              window.open(
-                `${browser.runtime.getURL("tabs/dashboard.html")}#/tokens`
-              );
+              push(`/quick-settings/tokens/${token.id}`);
             }}
             key={i}
           />
@@ -192,9 +192,10 @@ export default function Tokens() {
             }}
           />
         ))}
+
         {aoSupport && hasNextPage && (
           <ButtonV2
-            disabled={!hasNextPage || isLoading}
+            disabled={isLoading}
             style={{ alignSelf: "center", marginTop: "5px" }}
             onClick={searchAoTokens}
           >
@@ -207,8 +208,14 @@ export default function Tokens() {
             )}
           </ButtonV2>
         )}
+
         <ManageButton
-          href={`${browser.runtime.getURL("tabs/dashboard.html")}#/tokens`}
+          // TODO: The base should be iframe.html for the extension and some domain for the iframe.
+          href="#/quick-settings/tokens"
+          onClick={(e) => {
+            e.preventDefault();
+            push("/quick-settings/tokens");
+          }}
         >
           <EditIcon />
           {browser.i18n.getMessage("manage_assets_button")}
