@@ -6,6 +6,8 @@ import { concatGatewayURL } from "~gateways/utils";
 import { findGateway } from "~gateways/wayfinder";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
+import { signAuth } from "~api/modules/sign/sign_auth";
+import { getActiveTab } from "~applications";
 
 const ARCONNECT_PRINTER_ID = "arconnect-permaweb-printer";
 
@@ -129,7 +131,7 @@ export async function handlePrintRequest(
     const tags = [
       { name: "App-Name", value: manifest.name },
       { name: "App-Version", value: manifest.version },
-      { name: "Type", value: "Archive" },
+      { name: "Type", value: "Print-Archive" },
       { name: "Content-Type", value: printJob.contentType },
       { name: "print:title", value: printJob.title },
       { name: "print:timestamp", value: new Date().getTime().toString() }
@@ -139,14 +141,29 @@ export async function handlePrintRequest(
 
     // find a gateway to upload and display the result
     const gateway = await findGateway({});
+    const arweave = Arweave.init(gateway);
 
+    // create data item
+    const dataSigner = new ArweaveSigner(decryptedWallet.keyfile);
     const transactionData = new Uint8Array(await data.arrayBuffer());
+    const dataEntry = createData(transactionData, dataSigner, { tags });
+
+    // calculate reward for the transaction
+    const reward = await arweave.transactions.getPrice(
+      transactionData.byteLength
+    );
+
+    // get active tab
+    const activeTab = await getActiveTab();
+
+    await signAuth(
+      activeTab.url,
+      // @ts-expect-error
+      { ...dataEntry.toJSON(), reward },
+      decryptedWallet.address
+    );
 
     try {
-      // create data item
-      const dataSigner = new ArweaveSigner(decryptedWallet.keyfile);
-      const dataEntry = createData(transactionData, dataSigner, { tags });
-
       // sign an upload data
       await dataEntry.sign(dataSigner);
       await uploadDataToTurbo(dataEntry, "https://turbo.ardrive.io");
@@ -157,8 +174,6 @@ export async function handlePrintRequest(
       transactionId = dataEntry.id;
     } catch (error) {
       // sign & post if there is something wrong with turbo
-
-      const arweave = Arweave.init(gateway);
 
       const transaction = await arweave.createTransaction(
         { data: transactionData },
