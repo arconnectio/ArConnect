@@ -1,3 +1,4 @@
+import { getCapabilities, getPrinters, handlePrintRequest } from "~lib/printer";
 import { addressChangeListener, walletsChangeListener } from "~wallets/event";
 import { keyRemoveAlarmListener, onWindowClose } from "~wallets/auth";
 import { appConfigChangeListener } from "~applications/events";
@@ -82,5 +83,13 @@ browser.runtime.onInstalled.addListener(onInstalled);
 
 // handle ar:// protocol
 browser.webNavigation.onBeforeNavigate.addListener(protocolHandler);
+
+// print to the permaweb (only on chrome)
+if (typeof chrome !== "undefined") {
+  // @ts-expect-error
+  chrome.printerProvider.onGetCapabilityRequested.addListener(getCapabilities);
+  chrome.printerProvider.onGetPrintersRequested.addListener(getPrinters);
+  chrome.printerProvider.onPrintRequested.addListener(handlePrintRequest);
+}
 
 export {};

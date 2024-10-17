@@ -25,7 +25,8 @@
       "contextMenus",
       "tabs",
       "webNavigation",
-      "notifications"
+      "notifications",
+      "printerProvider"
     ],
     "web_accessible_resources": [
       {
