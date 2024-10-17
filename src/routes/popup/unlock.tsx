@@ -12,7 +12,6 @@ import {
   useToasts
 } from "@arconnect/components";
 import HeadV2 from "~components/popup/HeadV2";
-import styled from "styled-components";
 
 export default function Unlock() {
   // password input

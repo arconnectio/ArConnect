@@ -7,6 +7,7 @@ import styled, { useTheme } from "styled-components";
 
 interface SliderMenuProps {
   title: string;
+  hasNav?: boolean;
   isOpen: boolean;
   onClose?: () => void;
   children?: React.ReactNode;
@@ -14,6 +15,7 @@ interface SliderMenuProps {
 
 export default function SliderMenu({
   title,
+  hasNav,
   isOpen,
   onClose,
   children
@@ -37,6 +39,7 @@ export default function SliderMenu({
 
       <Wrapper
         displayTheme={theme.displayTheme}
+        hasNav={hasNav}
         ref={wrapperElementRef}
         variants={animationSlideFromBottom}
         initial="hidden"
@@ -61,12 +64,15 @@ const ExitButton = styled(CloseIcon)`
   cursor: pointer;
 `;
 
-const Wrapper = styled(motion.div)<{ displayTheme: DisplayTheme }>`
+const Wrapper = styled(motion.div)<{
+  displayTheme: DisplayTheme;
+  hasNav: boolean;
+}>`
   position: fixed;
   bottom: 0;
   left: 0;
   height: auto;
-  max-height: 93%;
+  max-height: calc(100% - 66px);
   border-top: ${(props) =>
     props.displayTheme === "light"
       ? `1px solid ${props.theme.primary}`
@@ -79,6 +85,8 @@ const Wrapper = styled(motion.div)<{ displayTheme: DisplayTheme }>`
   background-color: ${(props) =>
     props.displayTheme === "light" ? "#ffffff" : "#191919"};
   border-radius: 10px 10px 0 0;
+  padding-bottom: ${(props) => (props.hasNav ? "66px" : "0")};
+  box-sizing: border-box;
 `;
 
 export const animationSlideFromBottom: Variants = {

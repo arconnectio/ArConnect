@@ -1,4 +1,5 @@
 import BigNumber from "bignumber.js";
+import type { StoredWallet } from "~wallets";
 
 /**
  * Get app URL from any link
@@ -33,12 +34,27 @@ export function getCommunityUrl(link: string) {
  *
  * @returns Formatted address
  */
-export function formatAddress(address: string, count = 13) {
-  return (
-    address.substring(0, count) +
-    "..." +
-    address.substring(address.length - count, address.length)
-  );
+export function formatAddress(
+  addressOrWallet?: string | StoredWallet,
+  count = 13
+) {
+  // TODO: What about ANS?
+
+  if (!addressOrWallet) return "-";
+
+  if (typeof addressOrWallet === "string") {
+    return (
+      addressOrWallet.substring(0, count) +
+      "..." +
+      addressOrWallet.substring(
+        addressOrWallet.length - count,
+        addressOrWallet.length
+      )
+    );
+  }
+
+  // TODO: Does it make sense to use the nickname or you only see the active one?
+  return `${formatAddress(addressOrWallet.address, count)} (you)`;
 }
 
 /**

@@ -599,6 +599,7 @@ export default function Send({ id }: Props) {
 
         <SliderMenu
           title={browser.i18n.getMessage("currency")}
+          hasNav
           isOpen={showTokenSelector}
           onClose={() => {
             setShownTokenSelector(false);
@@ -651,6 +652,7 @@ export default function Send({ id }: Props) {
 
         <SliderMenu
           title={browser.i18n.getMessage("send_to")}
+          hasNav
           isOpen={showSlider}
           onClose={() => {
             setShowSlider(false);

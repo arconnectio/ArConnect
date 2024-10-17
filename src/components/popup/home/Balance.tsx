@@ -111,17 +111,8 @@ export default function Balance() {
     })();
   }, [activeAddress]);
 
-  // router push
-  const [push] = useHistory();
-
   // display theme
   const theme = useTheme();
-
-  // lock wallet and terminate session
-  async function lockWallet() {
-    await removeDecryptionKey();
-    push("/unlock");
-  }
 
   useEffect(() => {
     if (
@@ -166,7 +157,10 @@ export default function Balance() {
                   content={browser.i18n.getMessage("lock_wallet")}
                   position="top"
                 >
-                  <BalanceIconButton onClick={lockWallet} as={LockIcon} />
+                  <BalanceIconButton
+                    onClick={removeDecryptionKey}
+                    as={LockIcon}
+                  />
                 </TooltipV2>
               </IconButtons>
             </FiatBalanceText>
