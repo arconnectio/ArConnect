@@ -4,6 +4,7 @@ import { useHardwareApi } from "~wallets/hooks";
 import { useTheme } from "~utils/theme";
 import { Provider } from "@arconnect/components";
 import { useTheme as useStyledComponentsTheme } from "styled-components";
+import { MotionGlobalConfig } from "framer-motion";
 
 const ARCONNECT_THEME_BACKGROUND_COLOR = "ARCONNECT_THEME_BACKGROUND_COLOR";
 
@@ -25,13 +26,22 @@ function noThemeModifier(theme: DefaultTheme): DefaultTheme {
 }
 
 export function ArConnectThemeProvider({ children }: PropsWithChildren<{}>) {
-  // TODO: Add media query for disabled animations:
-  // import { MotionGlobalConfig } from "framer-motion"
-  // MotionGlobalConfig.skipAnimations = true;
-
   const hardwareApi = useHardwareApi();
   const theme = useTheme();
   const themeModifier = hardwareApi ? hardwareThemeModifier : noThemeModifier;
+
+  useEffect(() => {
+    const reducedMotionPreference = window.matchMedia(
+      "(prefers-reduced-motion)"
+    );
+
+    if (reducedMotionPreference.matches) {
+      // This could also be always set to `true` at the top of the file and then set to `false` after the application
+      // loads if we still notice some flicker due to any animation/transition playing when the view first loads.
+
+      MotionGlobalConfig.skipAnimations = true;
+    }
+  }, []);
 
   return (
     <Provider theme={theme}>
