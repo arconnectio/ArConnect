@@ -74,11 +74,11 @@ export default function Token({ onClick, ...props }: Props) {
   }, [fractBalance.toString()]);
 
   // token price
-  const { price, currency } = usePrice(props.ticker);
+  const { price, currency } = usePrice(props.ticker, props.ao);
 
   // fiat balance
   const fiatBalance = useMemo(() => {
-    if (!price) return <div />;
+    if (!price || props.ao) return <div />;
 
     const estimate = fractBalance.multipliedBy(price);
 
