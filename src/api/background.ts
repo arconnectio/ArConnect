@@ -45,6 +45,8 @@ import subscriptionModule from "./modules/subscription";
 import subscription from "./modules/subscription/subscription.background";
 import userTokensModule from "./modules/user_tokens";
 import userTokens from "./modules/user_tokens/user_tokens.background";
+import tokenBalanceModule from "./modules/token_balance";
+import tokenBalance from "./modules/token_balance/token_balance.background";
 
 /** Background modules */
 const modules: BackgroundModule<any>[] = [
@@ -69,6 +71,7 @@ const modules: BackgroundModule<any>[] = [
   { ...signDataItemModule, function: signDataItem },
   { ...subscriptionModule, function: subscription },
   { ...userTokensModule, function: userTokens },
+  { ...tokenBalanceModule, function: tokenBalance },
   { ...batchSignDataItemModule, function: batchSignDataItem }
 ];
 
