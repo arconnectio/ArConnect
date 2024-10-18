@@ -65,6 +65,8 @@ import signDataItem, {
 } from "./modules/sign_data_item/sign_data_item.foreground";
 import userTokensModule from "./modules/user_tokens";
 import userTokens from "./modules/user_tokens/user_tokens.foreground";
+import tokenBalanceModule from "./modules/token_balance";
+import tokenBalance from "./modules/token_balance/token_balance.foreground";
 
 /** Foreground modules */
 const modules: ForegroundModule[] = [
@@ -101,6 +103,7 @@ const modules: ForegroundModule[] = [
   },
   { ...subscriptionModule, function: subscription },
   { ...userTokensModule, function: userTokens },
+  { ...tokenBalanceModule, function: tokenBalance },
   {
     ...batchSignDataItemModule,
     function: batchSignDataItem,
