@@ -2,6 +2,8 @@
 
 Thank you for your interest in contributing to the ArConnect extension! Below are the guidelines to help you get started.
 
+> **Important:** Always work from the "development" branch when making contributions. This ensures your changes are based on the latest development version.
+
 ## Building the Project
 
 1. **Clone the Repository:** Clone this repository to your local machine.
