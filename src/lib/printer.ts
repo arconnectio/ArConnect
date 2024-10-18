@@ -8,6 +8,7 @@ import browser from "webextension-polyfill";
 import Arweave from "arweave";
 import { signAuth } from "~api/modules/sign/sign_auth";
 import { getActiveTab } from "~applications";
+import { sleep } from "~utils/sleep";
 
 const ARCONNECT_PRINTER_ID = "arconnect-permaweb-printer";
 
@@ -159,7 +160,11 @@ export async function handlePrintRequest(
     await signAuth(
       activeTab.url,
       // @ts-expect-error
-      { ...dataEntry.toJSON(), reward },
+      {
+        ...dataEntry.toJSON(),
+        reward,
+        sizeInBytes: transactionData.byteLength
+      },
       decryptedWallet.address
     );
 
@@ -167,6 +172,8 @@ export async function handlePrintRequest(
       // sign an upload data
       await dataEntry.sign(dataSigner);
       await uploadDataToTurbo(dataEntry, "https://turbo.ardrive.io");
+
+      await sleep(2000);
 
       // this has to be one of FAILED, INVALID_DATA, INVALID_TICKET, OK
       resultCallback("OK");
@@ -191,6 +198,8 @@ export async function handlePrintRequest(
       while (!uploader.isComplete) {
         await uploader.uploadChunk();
       }
+
+      await sleep(2000);
 
       // this has to be one of FAILED, INVALID_DATA, INVALID_TICKET, OK
       resultCallback("OK");
