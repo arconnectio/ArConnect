@@ -329,15 +329,17 @@ export default function Sign() {
                   <PropertyValue>{formatAddress(recipient, 6)}</PropertyValue>
                 </TransactionProperty>
               )}
-              <TransactionProperty>
-                <PropertyName>
-                  {browser.i18n.getMessage("transaction_fee")}
-                </PropertyName>
-                <PropertyValue>
-                  {fee}
-                  {" AR"}
-                </PropertyValue>
-              </TransactionProperty>
+              {!isPrintTx && (
+                <TransactionProperty>
+                  <PropertyName>
+                    {browser.i18n.getMessage("transaction_fee")}
+                  </PropertyName>
+                  <PropertyValue>
+                    {fee}
+                    {" AR"}
+                  </PropertyValue>
+                </TransactionProperty>
+              )}
               <TransactionProperty>
                 <PropertyName>
                   {browser.i18n.getMessage("transaction_size")}
