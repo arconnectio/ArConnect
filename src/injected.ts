@@ -85,6 +85,35 @@ for (const mod of modules) {
 // @ts-expect-error
 window.arweaveWallet = WalletAPI;
 
+/*
+if (process.env.NODE_ENV === "development") {
+  // @ts-expect-error
+  window.arweaveWalletDev = WalletAPI;
+
+  console.log(`Forcing development wallet (${ WalletAPI.walletName } ${ WalletAPI.walletVersion }) to be injected...`);
+
+  const t0 = Date.now();
+
+  const intervalID = setInterval(() => {
+    if (window.arweaveWallet && window.arweaveWallet !== WalletAPI) {
+      // @ts-expect-error
+      console.log(`Another wallet (${ window.arweaveWallet.walletName } ${ window.arweaveWallet.walletVersion }) was injected. Overriding...`);
+
+      // @ts-expect-error
+      window.arweaveWallet = WalletAPI;
+    }
+
+    const elapsed = Date.now() - t0;
+
+    if (elapsed >= 30000) {
+      console.log(`Stopped forcing development wallet (${ WalletAPI.walletName } ${ WalletAPI.walletVersion }) to be injected.`);
+
+      clearInterval(intervalID);
+    }
+  }, 250);
+}
+*/
+
 // at the end of the injected script,
 // we dispatch the wallet loaded event
 dispatchEvent(new CustomEvent("arweaveWalletLoaded", { detail: {} }));
