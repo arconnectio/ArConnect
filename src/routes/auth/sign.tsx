@@ -165,6 +165,14 @@ export default function Sign() {
     }));
   }, [transaction]);
 
+  // Check if it's a printTx
+  const isPrintTx = useMemo(() => {
+    return (
+      tags.some((tag) => tag.name === "print:title") &&
+      tags.some((tag) => tag.name === "print:timestamp")
+    );
+  }, [tags]);
+
   const recipient = useMemo(() => {
     if (tags.length === 0) return transaction?.target || "";
 
@@ -278,11 +286,32 @@ export default function Sign() {
         <Spacer y={0.75} />
         {(!page && (
           <Section>
-            <FiatAmount>{formatFiatBalance(fiatPrice, currency)}</FiatAmount>
+            {isPrintTx ? (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center"
+                }}
+              >
+                <PropertyName>
+                  {browser.i18n.getMessage("transaction_fee")}
+                </PropertyName>
+              </div>
+            ) : (
+              <FiatAmount>{formatFiatBalance(fiatPrice, currency)}</FiatAmount>
+            )}
             <AmountTitle>
-              {formatTokenBalance(quantity)}
+              {isPrintTx
+                ? size > 100000
+                  ? formatTokenBalance(fee, 5)
+                  : formatTokenBalance(0)
+                : formatTokenBalance(quantity)}
               <span>AR</span>
             </AmountTitle>
+            {isPrintTx && (
+              <FiatAmount>{formatFiatBalance(fee, currency)}</FiatAmount>
+            )}
             <Properties>
               <TransactionProperty>
                 <PropertyName>
