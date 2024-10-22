@@ -57,7 +57,7 @@ export default function WalletSwitcher({
   useEffect(
     () =>
       setWallets(
-        storedWallets.map((wallet) => ({
+        (storedWallets || []).map((wallet) => ({
           name: wallet.nickname,
           address: wallet.address,
           balance: "0",

@@ -252,7 +252,7 @@ async function balanceHistory(address: string, gateway: Gateway) {
             }
           }
         }
-      }    
+      }
     `,
       { owner: address, minHeight }
     )

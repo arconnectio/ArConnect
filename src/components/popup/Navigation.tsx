@@ -15,24 +15,28 @@ import { useTheme } from "~utils/theme";
 const buttons = [
   {
     title: "Home",
+    dictionaryKey: "home",
     icon: <Home02 />,
     size: "24px",
     route: "/"
   },
   {
     title: "Send",
+    dictionaryKey: "send",
     icon: <ArrowUpRight />,
     size: "24px",
     route: "/send/transfer"
   },
   {
     title: "Receive",
+    dictionaryKey: "receive",
     icon: <ArrowDownLeft />,
     size: "24px",
     route: "/receive"
   },
   {
     title: "Explore",
+    dictionaryKey: "explore",
     icon: <Compass03 />,
     size: "24px",
 
@@ -71,7 +75,7 @@ export const NavigationBar = () => {
             <IconWrapper displayTheme={theme} size={button.size}>
               {button.icon}
             </IconWrapper>
-            <div>{browser.i18n.getMessage(button.title)}</div>
+            <div>{browser.i18n.getMessage(button.dictionaryKey)}</div>
           </NavigationButton>
         );
       })}

@@ -1,8 +1,7 @@
-import Route, { Page, Wrapper } from "~components/popup/Route";
-import styled from "styled-components";
+import Route, { Page } from "~components/popup/Route";
 import { useHashLocation } from "~utils/hash_router";
 import { syncLabels, useSetUp } from "~wallets";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Router } from "wouter";
 
 import HistoryProvider from "~components/popup/HistoryProvider";
@@ -95,7 +94,6 @@ export default function Popup() {
             )}
           </Route>
           <Route path="/explore" component={Explore} />
-          <Route path="/unlock" component={Unlock} />
           <Route path="/subscriptions" component={Subscriptions} />
           <Route path="/quick-settings" component={QuickSettings} />
           <Route path="/quick-settings/wallets" component={Wallets} />

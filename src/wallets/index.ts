@@ -41,6 +41,8 @@ export type StoredWallet<KeyfileFormat = string> =
  * @returns Wallets in storage
  */
 export async function getWallets() {
+  console.log("getWallets()");
+
   let wallets: StoredWallet[] = await ExtensionStorage.get("wallets");
 
   return wallets || [];
@@ -52,8 +54,17 @@ type InitialScreenType = "cover" | "locked" | "generating" | "default";
  * Hook that opens a new tab if ArConnect has not been set up yet
  */
 export function useSetUp() {
+  console.log(
+    "useSetUp() + PLASMO_PUBLIC_APP_TYPE =",
+    process.env.PLASMO_PUBLIC_APP_TYPE
+  );
+
   const [initialScreenType, setInitialScreenType] =
     useState<InitialScreenType>("cover");
+
+  // TODO: Get all usages of `getDecryptionKey` as we won't be using this in the embedded wallet...
+
+  // TODO: There's no "disconnect" in the embedded wallet.
 
   useEffect(() => {
     async function checkWalletState() {
@@ -130,6 +141,8 @@ export function useSetUp() {
 }
 
 export function useRemoveCover() {
+  console.log("useRemoveCover()");
+
   useEffect(() => {
     const coverElement = document.getElementById("cover");
 
@@ -143,6 +156,8 @@ export function useRemoveCover() {
  * Hook to get if there are no wallets added
  */
 export const useNoWallets = () => {
+  console.log("useNoWallets()");
+
   const [state, setState] = useState(false);
 
   useEffect(() => {

@@ -13,6 +13,8 @@ export default function Dashboard() {
     syncLabels();
   }, []);
 
+  // TODO: This doesn't use the HistoryProvider, so would it always allow me in even if the wallet is not unlocked?
+
   return (
     <ArConnectThemeProvider>
       <Router hook={useHashLocation}>
