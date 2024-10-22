@@ -58,8 +58,9 @@ export default function Notifications() {
           n.arBalanceNotifications.arNotifications,
           n.aoNotifications.aoNotifications
         );
-        setNotifications(sortedNotifications);
-        const formattedTxMsgs = await formatTxMessage(sortedNotifications);
+        const { formattedTxMsgs, formattedNotifications } =
+          await formatTxMessage(sortedNotifications);
+        setNotifications(formattedNotifications);
         setFormattedTxMsgs(formattedTxMsgs);
         setLoading(false);
       } catch (error) {
@@ -80,12 +81,18 @@ export default function Notifications() {
 
   const formatTxMessage = async (
     notifications: Transaction[]
-  ): Promise<string[]> => {
-    const formattedTxMsgs = await Promise.all(
+  ): Promise<{
+    formattedTxMsgs: string[];
+    formattedNotifications: Transaction[];
+  }> => {
+    const address = await getActiveAddress();
+    let formattedNotifications = await Promise.all(
       notifications.map(async (notification) => {
         try {
           let formattedMessage: string = "";
-          if (notification.transactionType !== "Message") {
+          if (notification.transactionType === "PrintArchive") {
+            formattedMessage = browser.i18n.getMessage("print_archived");
+          } else if (notification.transactionType !== "Message") {
             let ticker: string;
             let quantityTransfered;
             if (notification.isAo) {
@@ -132,31 +139,67 @@ export default function Notifications() {
               }
             }
             if (notification.transactionType === "Sent") {
-              formattedMessage = `Sent ${quantityTransfered} ${ticker} to ${
+              formattedMessage = browser.i18n.getMessage("sent_balance", [
+                quantityTransfered,
+                ticker,
                 notification.isAo
                   ? findRecipient(notification)
                   : formatAddress(notification.node.recipient, 4)
-              }`;
+              ]);
             } else if (notification.transactionType === "Received") {
-              formattedMessage = `Received ${quantityTransfered} ${ticker} from ${formatAddress(
-                notification.node.owner.address,
-                4
-              )}`;
+              formattedMessage = browser.i18n.getMessage("received_balance", [
+                quantityTransfered,
+                ticker,
+                formatAddress(notification.node.owner.address, 4)
+              ]);
+            } else {
+              const recipient = notification.node.recipient;
+              const sender = notification.node.owner.address;
+              const isSent = sender === address;
+              const contentTypeTag = notification.node.tags.find(
+                (tag) => tag.name === "Content-Type"
+              );
+              if (!recipient && contentTypeTag) {
+                formattedMessage = browser.i18n.getMessage("new_data_uploaded");
+              } else {
+                formattedMessage = `${browser.i18n.getMessage(
+                  "new_transaction"
+                )} ${browser.i18n.getMessage(
+                  isSent ? "notification_to" : "notification_from"
+                )} ${formatAddress(isSent ? recipient : sender, 4)}`;
+              }
             }
           } else {
-            formattedMessage = `New message from ${formatAddress(
-              notification.node.owner.address,
-              4
-            )}`;
+            const recipient = notification.node.recipient;
+            const sender = notification.node.owner.address;
+            const isSent = sender === address;
+            formattedMessage = `${browser.i18n.getMessage(
+              "new_message"
+            )} ${browser.i18n.getMessage(
+              isSent ? "notification_to" : "notification_from"
+            )} ${formatAddress(isSent ? recipient : sender, 4)}`;
           }
-          return formattedMessage;
+          return { formattedMessage, notification };
         } catch {
-          return null;
+          return { formattedMessage: null, notification };
         }
       })
     );
 
-    return formattedTxMsgs.filter((msg) => msg);
+    formattedNotifications = formattedNotifications.filter(
+      (notification) => notification.formattedMessage
+    );
+
+    const formattedTxMsgs = formattedNotifications.map(
+      (notification) => notification.formattedMessage
+    );
+
+    return {
+      formattedTxMsgs,
+      formattedNotifications: formattedNotifications.map(
+        ({ notification }) => notification
+      )
+    };
   };
 
   const formatDate = (timestamp) => {

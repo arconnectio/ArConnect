@@ -2225,5 +2225,65 @@
   "transak_unavailable": {
     "message": "Transak is unavailable at the moment. Please try again later.",
     "description": "Transak unavailable error message"
+  },
+  "print_archived": {
+    "message": "Print archived",
+    "description": "Print archived description"
+  },
+  "new_data_uploaded": {
+    "message": "New data uploaded",
+    "description": "New data uploaded description"
+  },
+  "sent_balance": {
+      "message": "Sent $QTY$ $TICKER$ to $ADDRESS$",
+      "description": "Sent balance description",
+      "placeholders": {
+          "qty": {
+              "content": "$1",
+              "example": "10"
+          },
+          "ticker": {
+            "content": "$2",
+            "example": "AR"
+          },
+          "address": {
+              "content": "$3",
+              "example": "ljvCPN31...-CS-6Iho8U"
+          }
+      }
+  },
+  "received_balance": {
+    "message": "Received $QTY$ $TICKER$ from $ADDRESS$",
+    "description": "Received balance description",
+    "placeholders": {
+        "qty": {
+            "content": "$1",
+            "example": "10"
+        },
+        "ticker": {
+          "content": "$2",
+          "example": "AR"
+        },
+        "address": {
+            "content": "$3",
+            "example": "ljvCPN31...-CS-6Iho8U"
+        }
+    }
+  },
+  "notification_from": {
+    "message": "from",
+    "description": "From description"
+  },
+  "notification_to": {
+    "message": "to",
+    "description": "To description"
+  },
+  "new_message": {
+    "message": "New message",
+    "description": "New message description"
+  },
+  "new_transaction": {
+    "message": "New transaction",
+    "description": "New transaction description"
   }
 }
