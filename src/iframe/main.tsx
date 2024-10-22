@@ -4,6 +4,8 @@ import Popup from "../popup";
 
 // import './index.css'
 
+// TODO: Duplicate "Popup" as "Iframe" and move all routers to config to be able to combine Popup + Auth.
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Popup />

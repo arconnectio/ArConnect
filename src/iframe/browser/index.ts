@@ -76,7 +76,13 @@ const tabs = {
 
       location.hash = `/quick-settings${hash}`;
     } else if (url.startsWith("tabs/auth.html")) {
-      throw new Error(`Cannot create tab for URL = ${url}`);
+      console.warn(
+        "Auth popup routes not added to the embedded wallet iframe router!"
+      );
+
+      const paramsAndHash = url.replace("tabs/auth.html", "");
+
+      location.hash = `/auth${paramsAndHash}`;
     } else if (url.startsWith("assets")) {
       throw new Error(`Cannot create tab for URL = ${url}`);
     } else {
