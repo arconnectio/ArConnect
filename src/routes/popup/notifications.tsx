@@ -161,6 +161,10 @@ export default function Notifications() {
               );
               if (!recipient && contentTypeTag) {
                 formattedMessage = browser.i18n.getMessage("new_data_uploaded");
+              } else if (!recipient) {
+                formattedMessage = `${browser.i18n.getMessage(
+                  "new_transaction"
+                )} ${browser.i18n.getMessage("sent").toLowerCase()}`;
               } else {
                 formattedMessage = `${browser.i18n.getMessage(
                   "new_transaction"
