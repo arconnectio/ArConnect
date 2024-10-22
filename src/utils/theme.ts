@@ -5,7 +5,10 @@ import useSetting from "~settings/hook";
 
 type ThemeSetting = "light" | "dark" | "system";
 
-const darkModePreference = window.matchMedia("(prefers-color-scheme: dark)");
+const darkModePreference =
+  typeof window === "undefined"
+    ? null
+    : window.matchMedia("(prefers-color-scheme: dark)");
 
 function getInitialDisplayTheme(themeSetting: ThemeSetting): DisplayTheme {
   if (themeSetting !== "system") {

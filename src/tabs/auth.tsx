@@ -1,6 +1,6 @@
-import Route, { Wrapper } from "~components/popup/Route";
+import Route from "~components/popup/Route";
 import { useHashLocation } from "~utils/hash_router";
-import { syncLabels } from "~wallets";
+import { syncLabels, useRemoveCover } from "~wallets";
 import { useEffect } from "react";
 import { Router } from "wouter";
 
@@ -16,15 +16,18 @@ import Sign from "~routes/auth/sign";
 import Subscription from "~routes/auth/subscription";
 import SignKeystone from "~routes/auth/signKeystone";
 import BatchSignDataItem from "~routes/auth/batchSignDataItem";
+import { AnimatePresence } from "framer-motion";
 
 export default function Auth() {
+  useRemoveCover();
+
   useEffect(() => {
     syncLabels();
   }, []);
 
   return (
     <ArConnectThemeProvider>
-      <Wrapper responsive>
+      <AnimatePresence initial={false}>
         <Router hook={useHashLocation}>
           <Route path="/connect" component={Connect} />
           <Route path="/allowance" component={Allowance} />
@@ -37,7 +40,7 @@ export default function Auth() {
           <Route path="/signDataItem" component={SignDataItem} />
           <Route path="/batchSignDataItem" component={BatchSignDataItem} />
         </Router>
-      </Wrapper>
+      </AnimatePresence>
     </ArConnectThemeProvider>
   );
 }
