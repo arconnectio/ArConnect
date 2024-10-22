@@ -2211,5 +2211,65 @@
   "transak_unavailable": {
     "message": "Transak 目前不可用。请稍后再试。",
     "description": "Transak unavailable error message"
-  }
+  },
+   "print_archived": {
+    "message": "打印已归档",
+    "description": "Print archived description"
+  },
+  "new_data_uploaded": {
+    "message": "新数据已上传",
+    "description": "New data uploaded description"
+  },
+  "sent_balance": {
+      "message": "已发送 $QTY$ $TICKER$ 给 $ADDRESS$",
+      "description": "Sent balance description",
+      "placeholders": {
+          "qty": {
+              "content": "$1",
+              "example": "10"
+          },
+          "ticker": {
+            "content": "$2",
+            "example": "AR"
+          },
+          "address": {
+              "content": "$3",
+              "example": "ljvCPN31...-CS-6Iho8U"
+          }
+      }
+  },
+  "received_balance": {
+      "message": "收到 $QTY$ $TICKER$ 来自 $ADDRESS$",
+      "description": "Received balance description",
+      "placeholders": {
+          "qty": {
+              "content": "$1",
+              "example": "10"
+          },
+          "ticker": {
+            "content": "$2",
+            "example": "AR"
+          },
+          "address": {
+              "content": "$3",
+              "example": "ljvCPN31...-CS-6Iho8U"
+          }
+      }
+  },
+    "notification_from": {
+        "message": "来自",
+        "description": "From description"
+    },
+    "notification_to": {
+        "message": "至",
+        "description": "To description"
+    },
+    "new_message": {
+        "message": "新消息",
+        "description": "New message description"
+    },
+    "new_transaction": {
+        "message": "新交易",
+        "description": "New transaction description"
+    }
 }
