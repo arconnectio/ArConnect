@@ -1,108 +1,56 @@
-import { createGlobalStyle, css } from "styled-components";
+import { css } from "styled-components";
 import type { DisplayTheme } from "@arconnect/components";
 import { useEffect, useState } from "react";
 import useSetting from "~settings/hook";
 
-// import fonts
-import manropeLight from "url:/assets/fonts/Manrope-Light.woff2";
-import manropeRegular from "url:/assets/fonts/Manrope-Regular.woff2";
-import manropeMedium from "url:/assets/fonts/Manrope-Medium.woff2";
-import manropeSemiBold from "url:/assets/fonts/Manrope-SemiBold.woff2";
-import manropeBold from "url:/assets/fonts/Manrope-Bold.woff2";
-import manropeExtraBold from "url:/assets/fonts/Manrope-ExtraBold.woff2";
-
 type ThemeSetting = "light" | "dark" | "system";
 
-/**
- * Determinates the theme of the UI
- */
+const darkModePreference =
+  typeof window === "undefined"
+    ? null
+    : window.matchMedia("(prefers-color-scheme: dark)");
+
+function getInitialDisplayTheme(themeSetting: ThemeSetting): DisplayTheme {
+  if (themeSetting !== "system") {
+    // "light" or "dark"
+    return themeSetting;
+  }
+
+  return darkModePreference.matches ? "dark" : "light";
+}
+
 export function useTheme() {
-  const [theme] = useSetting<ThemeSetting>("display_theme");
-  const [displayTheme, setDisplayTheme] = useState<DisplayTheme>("light");
+  const [themeSetting] = useSetting<ThemeSetting>("display_theme");
+
+  const [displayTheme, setDisplayTheme] = useState<DisplayTheme>(() => {
+    return getInitialDisplayTheme(themeSetting);
+  });
 
   useEffect(() => {
-    if (theme !== "system") {
-      return setDisplayTheme(theme);
+    setDisplayTheme(getInitialDisplayTheme(themeSetting));
+  }, [themeSetting]);
+
+  useEffect(() => {
+    if (themeSetting !== "system") return;
+
+    function handleDarkModePreferenceChange(e: MediaQueryListEvent) {
+      setDisplayTheme(e.matches ? "dark" : "light");
     }
 
-    // match theme
-    const darkModePreference = window.matchMedia(
-      "(prefers-color-scheme: dark)"
+    darkModePreference.addEventListener(
+      "change",
+      handleDarkModePreferenceChange
     );
 
-    setDisplayTheme(darkModePreference.matches ? "dark" : "light");
-
-    // listen for system theme changes
-    const listener = (e: MediaQueryListEvent) =>
-      setDisplayTheme(e.matches ? "dark" : "light");
-
-    darkModePreference.addEventListener("change", listener);
-
-    return () => darkModePreference.removeEventListener("change", listener);
-  }, [theme]);
+    return () =>
+      darkModePreference.removeEventListener(
+        "change",
+        handleDarkModePreferenceChange
+      );
+  }, [themeSetting]);
 
   return displayTheme;
 }
-
-export const GlobalStyle = createGlobalStyle`
-  @font-face {
-    font-family: "ManropeLocal";
-    font-style: normal;
-    font-weight: 300;
-    src: url(${manropeLight}) format('woff2');
-  }
-
-  @font-face {
-    font-family: "ManropeLocal";
-    font-style: normal;
-    font-weight: 400;
-    src: url(${manropeRegular}) format('woff2');
-  }
-
-  @font-face {
-    font-family: "ManropeLocal";
-    font-style: normal;
-    font-weight: 500;
-    src: url(${manropeMedium}) format('woff2');
-  }
-
-  @font-face {
-    font-family: "ManropeLocal";
-    font-style: normal;
-    font-weight: 600;
-    src: url(${manropeSemiBold}) format('woff2');
-  }
-
-  @font-face {
-    font-family: "ManropeLocal";
-    font-style: normal;
-    font-weight: 600;
-    src: url(${manropeBold}) format('woff2');
-  }
-
-  @font-face {
-    font-family: "ManropeLocal";
-    font-style: normal;
-    font-weight: 700;
-    src: url(${manropeExtraBold}) format('woff2');
-  }
-
-  body {
-    margin: 0;
-    padding: 0;
-    min-height: 500px;
-    transition: background-color .23s ease-in-out;
-  }
-
-  body, button, input, select, textarea {
-    font-family: "ManropeLocal", "Manrope VF", "Manrope", sans-serif !important;
-  }
-
-  ::selection {
-    background-color: rgba(${(props) => props.theme.theme}, .6);
-    color: #fff;
-  }
-`;
 
 /**
  * Hover effect css

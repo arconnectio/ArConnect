@@ -10,13 +10,14 @@ export const tokenConfig: Intl.NumberFormatOptions = {
  * Format token balance
  */
 export function formatTokenBalance(
-  balance: string | number | BigNumber | Quantity
+  balance: string | number | BigNumber | Quantity,
+  config?: number
 ) {
   const bigNum = BigNumber.isBigNumber(balance)
     ? balance
     : BigNumber(balance.toString());
   return bigNum
-    .toFormat(tokenConfig.maximumFractionDigits)
+    .toFormat(config ? config : tokenConfig.maximumFractionDigits)
     .replace(/\.?0*$/, "");
 }
 

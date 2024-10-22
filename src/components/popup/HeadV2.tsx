@@ -28,7 +28,6 @@ interface HeadV2Props {
   // allow opening the wallet switcher
   showBack?: boolean;
   padding?: string;
-  allowOpen?: boolean;
   back?: (...args) => any;
 }
 
@@ -37,8 +36,7 @@ export default function HeadV2({
   showOptions = true,
   back,
   padding,
-  showBack = true,
-  allowOpen = true
+  showBack = true
 }: HeadV2Props) {
   // scroll position
   const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up");
@@ -110,37 +108,40 @@ export default function HeadV2({
       scrolled={scrolled}
       padding={padding}
     >
-      <BackButton
-        onClick={async () => {
-          if (back) await back();
-          else goBack();
-        }}
-      >
-        <BackButtonIcon />
-      </BackButton>
+      {showBack ? (
+        <BackButton
+          onClick={async () => {
+            if (back) await back();
+            else goBack();
+          }}
+        >
+          <BackButtonIcon />
+        </BackButton>
+      ) : null}
 
       <PageTitle>{title}</PageTitle>
 
-      <AvatarButton>
-        <ButtonAvatar
-          img={ans?.avatar || svgieAvatar}
-          onClick={() => {
-            if (!allowOpen) return;
-            setOpen(true);
-          }}
-        >
-          {!ans?.avatar && !svgieAvatar && <NoAvatarIcon />}
-          <AnimatePresence initial={false}>
-            {hardwareApi === "keystone" && (
-              <HardwareWalletIcon
-                icon={keystoneLogo}
-                color="#2161FF"
-                {...hwIconAnimateProps}
-              />
-            )}
-          </AnimatePresence>
-        </ButtonAvatar>
-      </AvatarButton>
+      {showOptions ? (
+        <AvatarButton>
+          <ButtonAvatar
+            img={ans?.avatar || svgieAvatar}
+            onClick={() => {
+              setOpen(true);
+            }}
+          >
+            {!ans?.avatar && !svgieAvatar && <NoAvatarIcon />}
+            <AnimatePresence initial={false}>
+              {hardwareApi === "keystone" && (
+                <HardwareWalletIcon
+                  icon={keystoneLogo}
+                  color="#2161FF"
+                  {...hwIconAnimateProps}
+                />
+              )}
+            </AnimatePresence>
+          </ButtonAvatar>
+        </AvatarButton>
+      ) : null}
 
       {isOpen && <CloseLayer onClick={() => setOpen(false)} />}
 

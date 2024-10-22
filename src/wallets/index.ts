@@ -46,28 +46,98 @@ export async function getWallets() {
   return wallets || [];
 }
 
+type InitialScreenType = "cover" | "locked" | "generating" | "default";
+
 /**
  * Hook that opens a new tab if ArConnect has not been set up yet
  */
-export const useSetUp = () =>
-  useEffect(() => {
-    (async () => {
-      const activeAddress = await getActiveAddress();
-      const wallets = await getWallets();
+export function useSetUp() {
+  const [initialScreenType, setInitialScreenType] =
+    useState<InitialScreenType>("cover");
 
-      if (
-        !activeAddress ||
-        activeAddress === "" ||
-        wallets.length === 0 ||
-        !wallets
-      ) {
-        await browser.tabs.create({
-          url: browser.runtime.getURL("tabs/welcome.html")
-        });
-        window.top.close();
+  useEffect(() => {
+    async function checkWalletState() {
+      const [activeAddress, wallets, decryptionKey] = await Promise.all([
+        getActiveAddress(),
+        getWallets(),
+        getDecryptionKey()
+      ]);
+
+      const hasWallets = activeAddress && wallets.length > 0;
+
+      let nextInitialScreenType: InitialScreenType = "cover";
+
+      switch (process.env.PLASMO_PUBLIC_APP_TYPE) {
+        // `undefined` has been added here just in case, so that the default behavior if nothing is specific is
+        // building the browser extension, just like it was before adding support for the embedded wallet:
+        case undefined:
+        case "extension": {
+          if (!hasWallets) {
+            await browser.tabs.create({
+              url: browser.runtime.getURL("tabs/welcome.html")
+            });
+
+            window.top.close();
+          } else if (!decryptionKey) {
+            nextInitialScreenType = "locked";
+          } else {
+            nextInitialScreenType = "default";
+          }
+
+          break;
+        }
+
+        case "embedded": {
+          nextInitialScreenType = !hasWallets ? "generating" : "default";
+
+          break;
+        }
+
+        default: {
+          throw new Error(
+            `Unknown APP_TYPE = ${process.env.PLASMO_PUBLIC_APP_TYPE}`
+          );
+        }
       }
-    })();
+
+      setInitialScreenType(nextInitialScreenType);
+
+      const coverElement = document.getElementById("cover");
+
+      if (coverElement) {
+        if (nextInitialScreenType === "cover") {
+          coverElement.removeAttribute("aria-hidden");
+        } else {
+          coverElement.setAttribute("aria-hidden", "true");
+        }
+      }
+    }
+
+    ExtensionStorage.watch({
+      decryption_key: checkWalletState
+    });
+
+    checkWalletState();
+
+    return () => {
+      ExtensionStorage.unwatch({
+        decryption_key: checkWalletState
+      });
+    };
   }, []);
+
+  return initialScreenType;
+}
+
+export function useRemoveCover() {
+  useEffect(() => {
+    const coverElement = document.getElementById("cover");
+
+    if (coverElement) {
+      coverElement.setAttribute("aria-hidden", "true");
+    }
+  }, []);
+}
 
 /**
  * Hook to get if there are no wallets added
@@ -245,6 +315,40 @@ export async function getKeyfile(address: string): Promise<DecryptedWallet> {
 }
 
 /**
+ * Function to generate a unique nickname for a wallet.
+ *
+ * This function scans the existing wallets to find the next available
+ * nickname in the format "Account X", where X is the smallest unused
+ * positive integer.
+ *
+ * @param {WalletWithNickname[]} wallets - The array of existing wallets, each with a potential nickname.
+ * @returns {string} The unique nickname for the new wallet.
+ */
+function generateUniqueNickname(wallets: WalletWithNickname[]): string {
+  const existingNumbers = new Set<number>();
+
+  // Populate the set with existing account numbers
+  wallets.forEach((wallet) => {
+    const match = wallet?.nickname?.match(/Account (\d+)/);
+    if (match) {
+      const accountNumber = parseInt(match[1], 10);
+      // Add positive account numbers to the set
+      if (accountNumber > 0) {
+        existingNumbers.add(accountNumber);
+      }
+    }
+  });
+
+  // Find the next available number
+  let number = 1;
+  while (existingNumbers.has(number)) {
+    number++;
+  }
+
+  return `Account ${number}`;
+}
+
+/**
  * Add a wallet for the user
  *
  * @param wallet Wallet JWK object
@@ -290,7 +394,7 @@ export async function addWallet(
     wallets.push({
       type: "local",
       // @ts-expect-error
-      nickname: item.nickname || `Account ${wallets.length + 1}`,
+      nickname: item.nickname || generateUniqueNickname(wallets),
       address,
       keyfile: encrypted
     });
