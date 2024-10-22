@@ -1,15 +1,12 @@
-import { GlobalStyle, useTheme } from "~utils/theme";
 import { useHashLocation } from "~utils/hash_router";
-import { Provider } from "@arconnect/components";
 import { syncLabels, useSetUp } from "~wallets";
 import { Router, Route } from "wouter";
 import { useEffect } from "react";
 
 import Settings from "~routes/dashboard";
+import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
 
 export default function Dashboard() {
-  const theme = useTheme();
-
   useSetUp();
 
   useEffect(() => {
@@ -19,11 +16,10 @@ export default function Dashboard() {
   // TODO: This doesn't use the HistoryProvider, so would it always allow me in even if the wallet is not unlocked?
 
   return (
-    <Provider theme={theme}>
-      <GlobalStyle />
+    <ArConnectThemeProvider>
       <Router hook={useHashLocation}>
         <Route path="/:setting?/:subsetting?" component={Settings} />
       </Router>
-    </Provider>
+    </ArConnectThemeProvider>
   );
 }

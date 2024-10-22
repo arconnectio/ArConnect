@@ -1,13 +1,9 @@
-import Route, { Page, Wrapper } from "~components/popup/Route";
-import styled, { createGlobalStyle } from "styled-components";
-import { GlobalStyle, useTheme } from "~utils/theme";
+import Route, { Page } from "~components/popup/Route";
 import { useHashLocation } from "~utils/hash_router";
-import { Provider } from "@arconnect/components";
 import { syncLabels, useSetUp } from "~wallets";
 import React, { useEffect, useState } from "react";
 import { Router } from "wouter";
 
-import HardwareWalletTheme from "~components/hardware/HardwareWalletTheme";
 import HistoryProvider from "~components/popup/HistoryProvider";
 
 import Home from "~routes/popup";
@@ -49,51 +45,32 @@ import ContactSettings from "~routes/popup/settings/contacts/[address]";
 import NewContact from "~routes/popup/settings/contacts/new";
 import NotificationSettings from "~routes/popup/settings/notifications";
 import GenerateQR from "~routes/popup/settings/wallets/[address]/qr";
+import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
 import { AnimatePresence } from "framer-motion";
 
 export default function Popup() {
-  const theme = useTheme();
-  const [expanded, setExpanded] = useState(false);
-
   const initialScreenType = useSetUp();
 
   useEffect(() => {
-    // sync ans labels
     syncLabels();
-
-    // check expanded view
-    if (new URLSearchParams(window.location.search).get("expanded")) {
-      setExpanded(true);
-    }
   }, []);
-
-  console.log("initialScreenType =", initialScreenType);
 
   let content: React.ReactElement = null;
 
   if (initialScreenType === "cover") {
-    content = (
-      <AnimatePresence initial={false}>
-        <Page>
-          <p>LOADING...</p>
-        </Page>
-      </AnimatePresence>
-    );
+    content = <Page />;
   } else if (initialScreenType === "locked") {
     content = (
-      <AnimatePresence initial={false}>
-        <Page>
-          <Unlock />
-        </Page>
-      </AnimatePresence>
+      <Page>
+        <Unlock />
+      </Page>
     );
   } else if (initialScreenType === "generating") {
+    // This can only happen in the embedded wallet:
     content = (
-      <AnimatePresence initial={false}>
-        <Page>
-          <p>GENERATING...</p>
-        </Page>
-      </AnimatePresence>
+      <Page>
+        <p>Generating Wallet...</p>
+      </Page>
     );
   } else {
     content = (
@@ -217,37 +194,8 @@ export default function Popup() {
   }
 
   return (
-    <Provider theme={theme}>
-      <HardwareWalletTheme>
-        <GlobalStyle />
-        <HideScrollbar expanded={expanded} />
-        <ExpandedViewWrapper id="ExpandedViewWrapper">
-          <Wrapper expanded={expanded}>{content}</Wrapper>
-        </ExpandedViewWrapper>
-      </HardwareWalletTheme>
-    </Provider>
+    <ArConnectThemeProvider>
+      <AnimatePresence initial={false}>{content}</AnimatePresence>
+    </ArConnectThemeProvider>
   );
 }
-
-const HideScrollbar = createGlobalStyle<{ expanded?: boolean }>`
-  * {
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none
-    }
-  }
-
-  body {
-    ${(props) =>
-      props?.expanded
-        ? `background-image: linear-gradient( to right, transparent, rgba( ${props.theme.theme},.4 ), transparent);`
-        : ""}
-  }
-`;
-
-const ExpandedViewWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-`;

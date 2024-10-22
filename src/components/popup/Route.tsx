@@ -14,29 +14,15 @@ const Route: typeof BaseRoute = ({ path, component, children }) => {
     ? children(params)
     : children;
 
-  return (
-    <AnimatePresence initial={false}>
-      {matches && <Page>{routeContent}</Page>}
-    </AnimatePresence>
-  );
+  return matches ? <Page>{routeContent}</Page> : null;
 };
 
-export const Wrapper = styled(motion.div)<{
-  responsive?: boolean;
-  expanded?: boolean;
-}>`
+const PageWrapper = styled(motion.main)`
   position: relative;
-  width: ${(props) => (props.responsive ? "100%" : "377.5px")};
-  min-height: ${(props) => (props.expanded ? "100vh" : "600px")};
-  max-height: max-content;
-  background-color: rgb(${(props) => props.theme.background});
-`;
-
-const PageWrapper = styled(Wrapper)`
-  position: absolute;
   top: 0;
   width: 100%;
-  transition: background-color 0.23s ease-in-out;
+  min-height: 100vh;
+  max-height: max-content;
 `;
 
 export const Page = ({ children }: PropsWithChildren) => {
@@ -48,6 +34,7 @@ export const Page = ({ children }: PropsWithChildren) => {
 
   return (
     <PageWrapper
+      id="Page"
       initial="initial"
       animate="enter"
       exit="exit"

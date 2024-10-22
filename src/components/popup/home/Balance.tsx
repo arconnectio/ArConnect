@@ -114,12 +114,6 @@ export default function Balance() {
   // display theme
   const theme = useTheme();
 
-  // lock wallet and terminate session
-  async function lockWallet() {
-    // TODO: Add option to menu and simply remove it? The router should be aware of this change.
-    await removeDecryptionKey();
-  }
-
   useEffect(() => {
     if (
       balance.toNumber() !== historicalBalance[historicalBalance.length - 1]
@@ -163,7 +157,10 @@ export default function Balance() {
                   content={browser.i18n.getMessage("lock_wallet")}
                   position="top"
                 >
-                  <BalanceIconButton onClick={lockWallet} as={LockIcon} />
+                  <BalanceIconButton
+                    onClick={removeDecryptionKey}
+                    as={LockIcon}
+                  />
                 </TooltipV2>
               </IconButtons>
             </FiatBalanceText>
@@ -255,7 +252,7 @@ async function balanceHistory(address: string, gateway: Gateway) {
             }
           }
         }
-      }    
+      }
     `,
       { owner: address, minHeight }
     )

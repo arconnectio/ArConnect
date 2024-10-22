@@ -22,6 +22,7 @@ import BuyButton from "~components/popup/home/BuyButton";
 import Tabs from "~components/popup/home/Tabs";
 import AoBanner from "~components/popup/home/AoBanner";
 import { scheduleImportAoTokens } from "~tokens/aoTokens/sync";
+import BigNumber from "bignumber.js";
 
 export default function Home() {
   // get if the user has no balance
@@ -38,13 +39,21 @@ export default function Home() {
     instance: ExtensionStorage
   });
 
+  const [historicalBalance] = useStorage<number[]>(
+    {
+      key: "historical_balance",
+      instance: ExtensionStorage
+    },
+    []
+  );
+
   const balance = useBalance();
 
   // all tokens
   const tokens = useTokens();
 
   // ao Tokens
-  const [aoTokens] = useAoTokens();
+  const [aoTokens, aoTokensLoading] = useAoTokens();
 
   // checking to see if it's a hardware wallet
   const wallet = useActiveWallet();
@@ -59,23 +68,20 @@ export default function Home() {
     if (!activeAddress) return;
 
     const findBalances = async (assets, aoTokens) => {
-      const t = [...assets, ...aoTokens];
-      const tokens = t.find((token) => token.balance !== 0);
-      if (tokens) {
+      const hasTokensWithBalance =
+        aoTokensLoading ||
+        [...assets, ...aoTokens].some((token) =>
+          BigNumber(token.balance || "0").gt(0)
+        );
+
+      if (
+        hasTokensWithBalance ||
+        balance.toNumber() ||
+        historicalBalance[historicalBalance.length - 1] !== 0
+      ) {
         setNoBalance(false);
-        return;
-      } else if (balance.toNumber()) {
-        setNoBalance(false);
-        return;
       } else {
-        const history = await ExtensionStorage.get("historical_balance");
-        // @ts-ignore
-        if (history[0] !== 0) {
-          setNoBalance(false);
-          return;
-        } else {
-          setNoBalance(true);
-        }
+        setNoBalance(true);
       }
     };
 
@@ -84,7 +90,14 @@ export default function Home() {
     } catch (error) {
       console.log(error);
     }
-  }, [activeAddress, assets, aoTokens]);
+  }, [
+    activeAddress,
+    assets,
+    aoTokens,
+    balance,
+    historicalBalance,
+    aoTokensLoading
+  ]);
 
   useEffect(() => {
     const trackEventAndPage = async () => {

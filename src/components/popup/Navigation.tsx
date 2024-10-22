@@ -92,7 +92,7 @@ const NavigationBarWrapper = styled.nav<{ displayTheme: DisplayTheme }>`
   height: 62px;
   background-color: ${(props) =>
     props.displayTheme === "light" ? "#F5F5F5" : "#191919"};
-  width: 378px;
+  width: 377px;
   display: flex;
 `;
 

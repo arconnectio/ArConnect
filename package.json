@@ -7,13 +7,14 @@
   "packageManager": "yarn@1.22.18",
   "homepage": "https://arconnect.io",
   "scripts": {
-    "dev:chrome": "plasmo dev",
+    "dev:chrome": "plasmo dev --verbose",
     "build:chrome": "plasmo build --no-hoist",
     "dev:firefox": "plasmo dev --target=firefox-mv2",
     "build:firefox": "plasmo build --target=firefox-mv2 --no-hoist",
     "dev:iframe": "vite",
     "build:iframe": "vite build",
     "preview:iframe": "vite preview",
+    "nuke": "rm -rf node_modules build .plasmo",
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check .",
     "prepare": "husky install"
@@ -28,7 +29,8 @@
       "contextMenus",
       "tabs",
       "webNavigation",
-      "notifications"
+      "notifications",
+      "printerProvider"
     ],
     "web_accessible_resources": [
       {
@@ -73,7 +75,7 @@
     "check-password-strength": "^2.0.7",
     "copy-to-clipboard": "^3.3.2",
     "dayjs": "^1.11.6",
-    "framer-motion": "7.5.3",
+    "framer-motion": "^11.11.7",
     "human-crypto-keys": "^0.1.4",
     "js-confetti": "^0.11.0",
     "mitt": "^3.0.0",

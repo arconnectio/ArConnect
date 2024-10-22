@@ -1071,6 +1071,10 @@
       "message": "查看全部",
       "description": "View all link text"
   },
+  "view_all_assets": {
+      "message": "查看所有资产",
+      "description": "View all assets link text"
+  },
   "setting_tokens": {
       "message": "代币",
       "description": "Tokens setting title"

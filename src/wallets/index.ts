@@ -54,7 +54,10 @@ type InitialScreenType = "cover" | "locked" | "generating" | "default";
  * Hook that opens a new tab if ArConnect has not been set up yet
  */
 export function useSetUp() {
-  console.log("useSetUp =", process.env.PLASMO_PUBLIC_APP_TYPE);
+  console.log(
+    "useSetUp() + PLASMO_PUBLIC_APP_TYPE =",
+    process.env.PLASMO_PUBLIC_APP_TYPE
+  );
 
   const [initialScreenType, setInitialScreenType] =
     useState<InitialScreenType>("cover");
@@ -76,11 +79,10 @@ export function useSetUp() {
       let nextInitialScreenType: InitialScreenType = "cover";
 
       switch (process.env.PLASMO_PUBLIC_APP_TYPE) {
-        // TODO: There should be no undefined here but the env variables do not seem to work:
+        // `undefined` has been added here just in case, so that the default behavior if nothing is specific is
+        // building the browser extension, just like it was before adding support for the embedded wallet:
         case undefined:
         case "extension": {
-          console.log("LOADING...");
-
           if (!hasWallets) {
             await browser.tabs.create({
               url: browser.runtime.getURL("tabs/welcome.html")
@@ -108,8 +110,6 @@ export function useSetUp() {
           );
         }
       }
-
-      console.log("nextInitialScreenType =", nextInitialScreenType);
 
       setInitialScreenType(nextInitialScreenType);
 
@@ -140,6 +140,18 @@ export function useSetUp() {
   return initialScreenType;
 }
 
+export function useRemoveCover() {
+  console.log("useRemoveCover()");
+
+  useEffect(() => {
+    const coverElement = document.getElementById("cover");
+
+    if (coverElement) {
+      coverElement.setAttribute("aria-hidden", "true");
+    }
+  }, []);
+}
+
 /**
  * Hook to get if there are no wallets added
  */
@@ -164,20 +176,14 @@ export const useNoWallets = () => {
  * Hook for decryption key
  */
 export function useDecryptionKey(): [string, (val: string) => void] {
-  const [decryptionKey, setDecryptionKey] = useStorage<string>(
-    {
-      key: "decryption_key",
-      instance: ExtensionStorage
-    },
-    (val) => {
-      if (!val) return undefined;
-      return atob(val);
-    }
-  );
+  const [decryptionKey, setDecryptionKey] = useStorage<string>({
+    key: "decryption_key",
+    instance: ExtensionStorage
+  });
 
   const set = (val: string) => setDecryptionKey(btoa(val));
 
-  return [decryptionKey, set];
+  return [decryptionKey ? atob(decryptionKey) : undefined, set];
 }
 
 /**
