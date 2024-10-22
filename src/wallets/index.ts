@@ -315,6 +315,40 @@ export async function getKeyfile(address: string): Promise<DecryptedWallet> {
 }
 
 /**
+ * Function to generate a unique nickname for a wallet.
+ *
+ * This function scans the existing wallets to find the next available
+ * nickname in the format "Account X", where X is the smallest unused
+ * positive integer.
+ *
+ * @param {WalletWithNickname[]} wallets - The array of existing wallets, each with a potential nickname.
+ * @returns {string} The unique nickname for the new wallet.
+ */
+function generateUniqueNickname(wallets: WalletWithNickname[]): string {
+  const existingNumbers = new Set<number>();
+
+  // Populate the set with existing account numbers
+  wallets.forEach((wallet) => {
+    const match = wallet?.nickname?.match(/Account (\d+)/);
+    if (match) {
+      const accountNumber = parseInt(match[1], 10);
+      // Add positive account numbers to the set
+      if (accountNumber > 0) {
+        existingNumbers.add(accountNumber);
+      }
+    }
+  });
+
+  // Find the next available number
+  let number = 1;
+  while (existingNumbers.has(number)) {
+    number++;
+  }
+
+  return `Account ${number}`;
+}
+
+/**
  * Add a wallet for the user
  *
  * @param wallet Wallet JWK object
@@ -360,7 +394,7 @@ export async function addWallet(
     wallets.push({
       type: "local",
       // @ts-expect-error
-      nickname: item.nickname || `Account ${wallets.length + 1}`,
+      nickname: item.nickname || generateUniqueNickname(wallets),
       address,
       keyfile: encrypted
     });
