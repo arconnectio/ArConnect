@@ -556,14 +556,14 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                         alignItems: "center"
                       }}
                     >
-                      {!message
-                        ? browser.i18n.getMessage("transaction_data")
-                        : browser.i18n.getMessage("signature_message")}
                       <a
                         href={`${concatGatewayURL(gateway)}/${id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
+                        {!message
+                          ? browser.i18n.getMessage("transaction_data")
+                          : browser.i18n.getMessage("signature_message")}
                         <DownloadIcon
                           style={{ width: "18px", height: "18px" }}
                         />
