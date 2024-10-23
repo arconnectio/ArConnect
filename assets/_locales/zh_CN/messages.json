@@ -1071,6 +1071,10 @@
       "message": "查看全部",
       "description": "View all link text"
   },
+  "view_all_assets": {
+      "message": "查看所有资产",
+      "description": "View all assets link text"
+  },
   "setting_tokens": {
       "message": "代币",
       "description": "Tokens setting title"
@@ -1549,7 +1553,7 @@
       "description": "Not connected indicator"
   },
   "not_connected_text": {
-      "message": "此应用尚未使用 ArConnect。找到页面上的“连接”按钮以连接。",
+      "message": "“连接/断开连接”是指示您的 ArConnect 钱包是否已连接到 Arweave 或 AO 应用程序的指示器。对于发送、接收、检查余额等常规使用，ArConnect 将始终显示断开连接。",
       "description": "Not connected indicator explainer"
   },
   "disconnect": {
@@ -2207,5 +2211,65 @@
   "transak_unavailable": {
     "message": "Transak 目前不可用。请稍后再试。",
     "description": "Transak unavailable error message"
-  }
+  },
+   "print_archived": {
+    "message": "打印已归档",
+    "description": "Print archived description"
+  },
+  "new_data_uploaded": {
+    "message": "新数据已上传",
+    "description": "New data uploaded description"
+  },
+  "sent_balance": {
+      "message": "已发送 $QTY$ $TICKER$ 给 $ADDRESS$",
+      "description": "Sent balance description",
+      "placeholders": {
+          "qty": {
+              "content": "$1",
+              "example": "10"
+          },
+          "ticker": {
+            "content": "$2",
+            "example": "AR"
+          },
+          "address": {
+              "content": "$3",
+              "example": "ljvCPN31...-CS-6Iho8U"
+          }
+      }
+  },
+  "received_balance": {
+      "message": "收到 $QTY$ $TICKER$ 来自 $ADDRESS$",
+      "description": "Received balance description",
+      "placeholders": {
+          "qty": {
+              "content": "$1",
+              "example": "10"
+          },
+          "ticker": {
+            "content": "$2",
+            "example": "AR"
+          },
+          "address": {
+              "content": "$3",
+              "example": "ljvCPN31...-CS-6Iho8U"
+          }
+      }
+  },
+    "notification_from": {
+        "message": "来自",
+        "description": "From description"
+    },
+    "notification_to": {
+        "message": "至",
+        "description": "To description"
+    },
+    "new_message": {
+        "message": "新消息",
+        "description": "New message description"
+    },
+    "new_transaction": {
+        "message": "新交易",
+        "description": "New transaction description"
+    }
 }

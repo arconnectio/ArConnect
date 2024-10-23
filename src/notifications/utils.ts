@@ -243,6 +243,59 @@ query($address: String!, $after: String) {
 }
 `;
 
+// PRINT ARWEAVE TRANSACTIONS
+export const PRINT_ARWEAVE_QUERY = `
+query ($address: String!) {
+  transactions(
+    first: 10,
+    owners: [$address],
+    tags: [{name: "Type", values: ["Print-Archive"]}]
+  ) {
+    edges {
+      cursor
+      node {
+        id
+        recipient
+        owner { address }
+        quantity { ar }
+        block { timestamp, height }
+        tags {
+          name
+          value
+        }
+      }
+    }
+  }
+}`;
+
+export const PRINT_ARWEAVE_QUERY_WITH_CURSOR = `
+query ($address: String!, $after: String) {
+  transactions(
+    first: 10,
+    owners: [$address],
+    tags: [{name: "Type", values: ["Print-Archive"]}],
+    after: $after
+  ) {
+    pageInfo {
+      hasNextPage
+    }
+    edges {
+      cursor
+      node {
+        id
+        recipient
+        owner { address }
+        quantity { ar }
+        block { timestamp, height }
+        tags {
+          name
+          value
+        }
+      }
+    }
+  }
+}`;
+
 export const combineAndSortTransactions = (responses: any[]) => {
   const combinedTransactions = responses.reduce((acc, response) => {
     const transactions = response.data.transactions.edges;
@@ -327,6 +380,13 @@ export const processTransactions = (
           warpContract = true;
           transactionType =
             transaction.node.owner.address === address ? "Sent" : "Received";
+        } else {
+          const printArchiveTag = transaction.node.tags.find(
+            (tag) => tag.name === "Type" && tag.value === "Print-Archive"
+          );
+          if (printArchiveTag) {
+            transactionType = "PrintArchive";
+          }
         }
       }
     }

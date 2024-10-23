@@ -178,6 +178,8 @@ export const getTransactionDescription = (transaction: ExtendedTransaction) => {
       return `${browser.i18n.getMessage("received")} ${
         transaction.aoInfo.tickerName
       }`;
+    case "printArchive":
+      return browser.i18n.getMessage("print_archived");
     default:
       return "";
   }

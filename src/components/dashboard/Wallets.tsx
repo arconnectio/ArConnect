@@ -5,7 +5,6 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import { useLocation, useRoute } from "wouter";
-import { PlusIcon } from "@iconicicons/react";
 import type { StoredWallet } from "~wallets";
 import { Reorder } from "framer-motion";
 import WalletListItem from "./list/WalletListItem";

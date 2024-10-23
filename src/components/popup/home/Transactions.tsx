@@ -10,7 +10,8 @@ import {
   AO_RECEIVER_QUERY,
   AO_SENT_QUERY,
   AR_RECEIVER_QUERY,
-  AR_SENT_QUERY
+  AR_SENT_QUERY,
+  PRINT_ARWEAVE_QUERY
 } from "~notifications/utils";
 import { useHistory } from "~utils/hash_router";
 import { getArPrice } from "~lib/coingecko";
@@ -53,15 +54,21 @@ export default function Transactions() {
             AR_RECEIVER_QUERY,
             AR_SENT_QUERY,
             AO_SENT_QUERY,
-            AO_RECEIVER_QUERY
+            AO_RECEIVER_QUERY,
+            PRINT_ARWEAVE_QUERY
           ];
 
-          const [rawReceived, rawSent, rawAoSent, rawAoReceived] =
-            await Promise.allSettled(
-              queries.map((query) =>
-                gql(query, { address: activeAddress }, suggestedGateways[1])
-              )
-            );
+          const [
+            rawReceived,
+            rawSent,
+            rawAoSent,
+            rawAoReceived,
+            rawPrintArchive
+          ] = await Promise.allSettled(
+            queries.map((query) =>
+              gql(query, { address: activeAddress }, suggestedGateways[1])
+            )
+          );
 
           let sent = await processTransactions(rawSent, "sent");
           sent = sent.filter((tx) => BigNumber(tx.node.quantity.ar).gt(0));
@@ -75,12 +82,17 @@ export default function Transactions() {
             "aoReceived",
             true
           );
+          const printArchive = await processTransactions(
+            rawPrintArchive,
+            "printArchive"
+          );
 
           let combinedTransactions: ExtendedTransaction[] = [
             ...sent,
             ...received,
             ...aoReceived,
-            ...aoSent
+            ...aoSent,
+            ...printArchive
           ];
 
           combinedTransactions.sort(sortFn);
@@ -154,12 +166,14 @@ export default function Transactions() {
                         : "Pending"}
                     </Secondary>
                   </Section>
-                  <Section alignRight>
-                    <Main>{getFormattedAmount(transaction)}</Main>
-                    <Secondary>
-                      {getFormattedFiatAmount(transaction, arPrice, currency)}
-                    </Secondary>
-                  </Section>
+                  {transaction.transactionType !== "printArchive" && (
+                    <Section alignRight>
+                      <Main>{getFormattedAmount(transaction)}</Main>
+                      <Secondary>
+                        {getFormattedFiatAmount(transaction, arPrice, currency)}
+                      </Secondary>
+                    </Section>
+                  )}
                 </Transaction>
               </TransactionItem>
             ))
