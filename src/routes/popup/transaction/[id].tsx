@@ -250,6 +250,12 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
     return !type.startsWith("text/") && !type.startsWith("application/");
   }, [transaction]);
 
+  const isPrintTx = useMemo(() => {
+    return transaction?.tags?.some(
+      (tag) => tag.name === "Type" && tag.value === "Print-Archive"
+    );
+  }, [transaction]);
+
   const isImage = useMemo(() => {
     const type = getContentType();
 
@@ -258,7 +264,7 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
 
   useEffect(() => {
     (async () => {
-      if (!transaction || !id || !arweave || isBinary) {
+      if (!transaction || !id || !arweave || isBinary || isPrintTx) {
         return;
       }
 
@@ -281,7 +287,7 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
 
       setData(txData);
     })();
-  }, [id, transaction, gateway, isBinary]);
+  }, [id, transaction, gateway, isBinary, isPrintTx]);
 
   // get custom back params
   const [backPath, setBackPath] = useState<string>();
@@ -540,7 +546,7 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                     <CodeArea>{JSON.stringify(input, undefined, 2)}</CodeArea>
                   </>
                 )}
-                {(data || isBinary) && (
+                {(data || isBinary || isPrintTx) && (
                   <>
                     <Spacer y={0.1} />
                     <PropertyName
@@ -550,32 +556,33 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                         alignItems: "center"
                       }}
                     >
-                      {!message
-                        ? browser.i18n.getMessage("transaction_data")
-                        : browser.i18n.getMessage("signature_message")}
                       <a
                         href={`${concatGatewayURL(gateway)}/${id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
+                        {!message
+                          ? browser.i18n.getMessage("transaction_data")
+                          : browser.i18n.getMessage("signature_message")}
                         <DownloadIcon
                           style={{ width: "18px", height: "18px" }}
                         />
                       </a>
                     </PropertyName>
-                    {(!isImage && (
-                      <CodeArea>
-                        {(isBinary &&
-                          browser.i18n.getMessage(
-                            "transaction_data_binary_warning"
-                          )) ||
-                          data}
-                      </CodeArea>
-                    )) || (
-                      <ImageDisplay
-                        src={`${concatGatewayURL(gateway)}/${id}`}
-                      />
-                    )}
+                    {!isPrintTx &&
+                      ((!isImage && (
+                        <CodeArea>
+                          {(isBinary &&
+                            browser.i18n.getMessage(
+                              "transaction_data_binary_warning"
+                            )) ||
+                            data}
+                        </CodeArea>
+                      )) || (
+                        <ImageDisplay
+                          src={`${concatGatewayURL(gateway)}/${id}`}
+                        />
+                      ))}
                   </>
                 )}
               </Properties>
