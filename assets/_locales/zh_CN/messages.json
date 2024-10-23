@@ -1549,7 +1549,7 @@
       "description": "Not connected indicator"
   },
   "not_connected_text": {
-      "message": "此应用尚未使用 ArConnect。找到页面上的“连接”按钮以连接。",
+      "message": "“连接/断开连接”是指示您的 ArConnect 钱包是否已连接到 Arweave 或 AO 应用程序的指示器。对于发送、接收、检查余额等常规使用，ArConnect 将始终显示断开连接。",
       "description": "Not connected indicator explainer"
   },
   "disconnect": {
