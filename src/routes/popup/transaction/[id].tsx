@@ -250,6 +250,12 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
     return !type.startsWith("text/") && !type.startsWith("application/");
   }, [transaction]);
 
+  const isPrintTx = useMemo(() => {
+    return transaction?.tags?.some(
+      (tag) => tag.name === "Type" && tag.value === "Print-Archive"
+    );
+  }, [transaction]);
+
   const isImage = useMemo(() => {
     const type = getContentType();
 
@@ -258,7 +264,7 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
 
   useEffect(() => {
     (async () => {
-      if (!transaction || !id || !arweave || isBinary) {
+      if (!transaction || !id || !arweave || isBinary || isPrintTx) {
         return;
       }
 
@@ -281,7 +287,7 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
 
       setData(txData);
     })();
-  }, [id, transaction, gateway, isBinary]);
+  }, [id, transaction, gateway, isBinary, isPrintTx]);
 
   // get custom back params
   const [backPath, setBackPath] = useState<string>();
