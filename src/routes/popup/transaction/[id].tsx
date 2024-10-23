@@ -546,7 +546,7 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                     <CodeArea>{JSON.stringify(input, undefined, 2)}</CodeArea>
                   </>
                 )}
-                {(data || isBinary) && (
+                {(data || isBinary || isPrintTx) && (
                   <>
                     <Spacer y={0.1} />
                     <PropertyName
@@ -569,19 +569,20 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                         />
                       </a>
                     </PropertyName>
-                    {(!isImage && (
-                      <CodeArea>
-                        {(isBinary &&
-                          browser.i18n.getMessage(
-                            "transaction_data_binary_warning"
-                          )) ||
-                          data}
-                      </CodeArea>
-                    )) || (
-                      <ImageDisplay
-                        src={`${concatGatewayURL(gateway)}/${id}`}
-                      />
-                    )}
+                    {!isPrintTx &&
+                      ((!isImage && (
+                        <CodeArea>
+                          {(isBinary &&
+                            browser.i18n.getMessage(
+                              "transaction_data_binary_warning"
+                            )) ||
+                            data}
+                        </CodeArea>
+                      )) || (
+                        <ImageDisplay
+                          src={`${concatGatewayURL(gateway)}/${id}`}
+                        />
+                      ))}
                   </>
                 )}
               </Properties>
