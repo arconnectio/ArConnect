@@ -1560,7 +1560,7 @@
     "description": "Not connected indicator"
   },
   "not_connected_text": {
-    "message": "This app is not yet using ArConnect. Find the \"Connect\" button on the page to connect it.",
+    "message": "\"Connect / Disconnect\" is an indicator for when your ArConnect wallet is connected to an Arweave or AO application.  For regular use like sending, receiving, checking balances, etc., ArConnect will always show disconnected.",
     "description": "Not connected indicator explainer"
   },
   "disconnect": {
