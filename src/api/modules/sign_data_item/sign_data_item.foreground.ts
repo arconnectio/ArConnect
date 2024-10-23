@@ -1,4 +1,4 @@
-import type { TransformFinalizer } from "~api/foreground";
+import type { TransformFinalizer } from "~api/foreground/foreground-modules";
 import type { ModuleFunction } from "~api/module";
 import type { RawDataItem, SignDataItemParams } from "./types";
 import { isArrayBuffer } from "~utils/assertions";

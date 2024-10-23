@@ -7,7 +7,7 @@ import { freeDecryptedWallet } from "~wallets/encryption";
 import { ArweaveSigner, createData, DataItem } from "arbundles";
 import type { RawDataItem } from "../sign_data_item/types";
 
-const background: ModuleFunction<number[][]> = async (
+const background: BackgroundModuleFunction<number[][]> = async (
   appData,
   dataItems: unknown[]
 ) => {

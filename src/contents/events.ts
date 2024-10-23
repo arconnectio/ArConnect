@@ -11,6 +11,8 @@ export const config: PlasmoCSConfig = {
 onMessage("event", ({ data, sender }) => {
   if (sender.context !== "background") return;
 
+  console.log("onMessage event");
+
   // send to mitt instance
   postMessage({
     type: "arconnect_event",
@@ -35,6 +37,8 @@ onMessage("switch_wallet_event", ({ data, sender }) => {
 // (not possible in the background)
 onMessage("copy_address", async ({ sender, data: addr }) => {
   if (sender.context !== "background") return;
+
+  console.log("copy_address");
 
   const input = document.createElement("input");
 

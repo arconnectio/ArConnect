@@ -1,10 +1,10 @@
 import { freeDecryptedWallet } from "~wallets/encryption";
-import type { ModuleFunction } from "~api/background";
+import type { BackgroundModuleFunction } from "~api/background/background-modules";
 import { isNotCancelError } from "~utils/assertions";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 
-const background: ModuleFunction<string> = async () => {
+const background: BackgroundModuleFunction<string> = async () => {
   // grab the user's keyfile
   const decryptedWallet = await getActiveKeyfile().catch((e) => {
     isNotCancelError(e);

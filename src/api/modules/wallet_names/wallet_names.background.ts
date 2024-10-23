@@ -1,11 +1,11 @@
-import type { ModuleFunction } from "~api/background";
+import type { BackgroundModuleFunction } from "~api/background/background-modules";
 import { getWallets } from "~wallets";
 
 type WalletNamesResult = {
   [address: string]: string;
 };
 
-const background: ModuleFunction<WalletNamesResult> = async () => {
+const background: BackgroundModuleFunction<WalletNamesResult> = async () => {
   const wallets = await getWallets();
 
   if (wallets.length === 0) {

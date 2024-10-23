@@ -1,5 +1,5 @@
 import type { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
-import type { TransformFinalizer } from "~api/foreground";
+import type { TransformFinalizer } from "~api/foreground/foreground-modules";
 import { createCoinWithAnimation } from "./animation";
 import type { ModuleFunction } from "~api/module";
 import { sendChunk } from "./chunks";

@@ -1,4 +1,4 @@
-import type { ModuleFunction } from "~api/background";
+import type { BackgroundModuleFunction } from "~api/background/background-modules";
 import { ExtensionStorage } from "~utils/storage";
 import {
   getAoTokenBalance,
@@ -8,10 +8,9 @@ import {
 } from "~tokens/aoTokens/ao";
 import { AO_NATIVE_TOKEN } from "~utils/ao_import";
 
-const background: ModuleFunction<TokenInfoWithBalance[] | TokenInfo[]> = async (
-  _,
-  options?: { fetchBalance?: boolean }
-) => {
+const background: BackgroundModuleFunction<
+  TokenInfoWithBalance[] | TokenInfo[]
+> = async (_, options?: { fetchBalance?: boolean }) => {
   const address = await ExtensionStorage.get("active_address");
   const tokens = (await ExtensionStorage.get<TokenInfo[]>("ao_tokens")) || [];
 

@@ -1,9 +1,8 @@
-import type { SubscriptionData } from "./subscription";
 import { addSubscription, getSubscriptionData } from "~subscriptions";
-import { ExtensionStorage } from "~utils/storage";
 import { getActiveAddress } from "~wallets";
-import { handleSubscriptionPayment } from "./payments";
 import type { Alarms } from "webextension-polyfill";
+import { handleSubscriptionPayment } from "~subscriptions/payments";
+import type { SubscriptionData } from "~subscriptions/subscription";
 
 /**
  * + fetch subscription auto withdrawal allowance
@@ -13,7 +12,7 @@ import type { Alarms } from "webextension-polyfill";
  * + notify user of manual payments
  */
 
-export async function subscriptionsHandler(alarmInfo?: Alarms.Alarm) {
+export async function handleSubscriptionsAlarm(alarmInfo?: Alarms.Alarm) {
   if (alarmInfo && !alarmInfo.name.startsWith("subscription-alarm-")) return;
 
   const prefixLength = "subscription-alarm-".length;

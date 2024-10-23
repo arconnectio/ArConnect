@@ -1,5 +1,5 @@
 import { freeDecryptedWallet } from "~wallets/encryption";
-import type { ModuleFunction } from "~api/background";
+import type { BackgroundModuleFunction } from "~api/background/background-modules";
 import { defaultGateway } from "~gateways/gateway";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
@@ -13,7 +13,7 @@ import {
   isRawArrayBuffer
 } from "~utils/assertions";
 
-const background: ModuleFunction<string | Uint8Array> = async (
+const background: BackgroundModuleFunction<string | Uint8Array> = async (
   _,
   data: unknown,
   options: Record<string, unknown>

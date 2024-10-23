@@ -2,16 +2,12 @@ import { getSetting } from "~settings";
 import { ExtensionStorage, TempTransactionStorage } from "./storage";
 import { AnalyticsBrowser } from "@segment/analytics-next";
 import {
-  getWallets,
   getActiveKeyfile,
   getActiveAddress,
   getWalletKeyLength
 } from "~wallets";
-import Arweave from "arweave";
-import { defaultGateway } from "~gateways/gateway";
 import { v4 as uuid } from "uuid";
-import browser, { type Alarms } from "webextension-polyfill";
-import BigNumber from "bignumber.js";
+import browser from "webextension-polyfill";
 import axios from "axios";
 import { isLocalWallet } from "./assertions";
 import { freeDecryptedWallet } from "~wallets/encryption";
@@ -171,37 +167,6 @@ export const trackEvent = async (eventName: EventType, properties: any) => {
   }
 };
 
-export const trackBalance = async (alarmInfo?: Alarms.Alarm) => {
-  if (alarmInfo && !alarmInfo.name.startsWith("track-balance")) return;
-  const wallets = await getWallets();
-  const arweave = new Arweave(defaultGateway);
-  let totalBalance = BigNumber("0");
-
-  await Promise.all(
-    wallets.map(async ({ address }) => {
-      try {
-        const balance = arweave.ar.winstonToAr(
-          await arweave.wallets.getBalance(address)
-        );
-        totalBalance = totalBalance.plus(balance);
-      } catch (e) {
-        console.log("invalid", e);
-      }
-    })
-  );
-  try {
-    await trackDirect(EventType.BALANCE, {
-      totalBalance: totalBalance.toFixed()
-    });
-    const timer = setToStartOfNextMonth(new Date());
-    browser.alarms.create("track-balance", {
-      when: timer.getTime()
-    });
-  } catch (err) {
-    console.log("err tracking", err);
-  }
-};
-
 /**
  * Initializes the AR balance event tracker.
  * This function sets up a monthly alarm to track the total balance.
@@ -223,7 +188,7 @@ export const initializeARBalanceMonitor = async () => {
  * @returns {Date} Date to trigger alarm
  */
 
-const setToStartOfNextMonth = (currentDate: Date): Date => {
+export const setToStartOfNextMonth = (currentDate: Date): Date => {
   const newDate = new Date(
     Date.UTC(
       currentDate.getUTCFullYear(),

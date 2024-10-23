@@ -1,14 +1,15 @@
-import Application, { type InitAppParams, PREFIX } from "./application";
 import { sendMessage } from "@arconnect/webext-bridge";
-import { getMissingPermissions } from "./permissions";
 import type { StorageChange } from "~utils/runtime";
 import { getStoredApps } from "~applications";
-import { compareGateways } from "../gateways/utils";
 import { getAppURL } from "~utils/format";
-import { forEachTab } from "./tab";
 import type { Event } from "shim";
+import { getMissingPermissions } from "~applications/permissions";
+import { forEachTab } from "~applications/tab";
+import { compareGateways } from "~gateways/utils";
+import type { InitAppParams } from "~applications/application";
+import Application, { PREFIX } from "~applications/application";
 
-export async function appConfigChangeListener(
+export async function handleAppConfigChange(
   changes: Record<string, StorageChange<InitAppParams>>,
   areaName: string
 ) {

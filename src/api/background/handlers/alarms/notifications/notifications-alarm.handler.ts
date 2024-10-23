@@ -2,53 +2,18 @@ import { ExtensionStorage } from "~utils/storage";
 import { getActiveAddress } from "~wallets";
 import iconUrl from "url:/assets/icon512.png";
 import browser, { type Alarms } from "webextension-polyfill";
-import { gql } from "~gateways/api";
-import { suggestedGateways } from "~gateways/gateway";
+import { arNotificationsHandler } from "~api/background/handlers/alarms/notifications/notifications-alarm.utils";
 import {
+  ALL_AR_RECEIVER_QUERY,
+  ALL_AR_SENT_QUERY,
   AO_RECEIVER_QUERY,
   AO_SENT_QUERY,
   AR_RECEIVER_QUERY,
-  AR_SENT_QUERY,
-  ALL_AR_RECEIVER_QUERY,
-  ALL_AR_SENT_QUERY,
-  combineAndSortTransactions,
-  processTransactions
-} from "./utils";
-import BigNumber from "bignumber.js";
+  AR_SENT_QUERY
+} from "~notifications/utils";
 
-export type RawTransaction = {
-  node: {
-    id: string;
-    recipient: string;
-    owner: {
-      address: string;
-    };
-    quantity: {
-      ar: string;
-    };
-    block: {
-      timestamp: number;
-      height: number;
-    };
-    tags: Array<{
-      name: string;
-      value: string;
-    }>;
-  };
-};
-
-export type Transaction = RawTransaction & {
-  transactionType: string;
-  quantity: string;
-  isAo?: boolean;
-  tokenId?: string;
-  warpContract?: boolean;
-};
-
-type ArNotificationsHandlerReturnType = [Transaction[], number, any[]];
-
-export async function notificationsHandler(alarmInfo?: Alarms.Alarm) {
-  if (alarmInfo && !alarmInfo.name.startsWith("notifications")) return;
+export async function handleNotificationsAlarm(alarm?: Alarms.Alarm) {
+  if (alarm && !alarm.name.startsWith("notifications")) return;
 
   const notificationSetting: boolean = await ExtensionStorage.get(
     "setting_notifications"
@@ -179,65 +144,3 @@ export async function notificationsHandler(alarmInfo?: Alarms.Alarm) {
     console.error("Error updating notifications:", err);
   }
 }
-
-const arNotificationsHandler = async (
-  address: string,
-  lastStoredHeight: number,
-  notificationSetting: boolean,
-  queriesConfig: {
-    query: string;
-    variables: Record<string, any>;
-    isAllTxns?: boolean;
-  }[]
-): Promise<ArNotificationsHandlerReturnType> => {
-  try {
-    let transactionDiff = [];
-
-    const queries = queriesConfig.map((config) =>
-      gql(config.query, config.variables, suggestedGateways[1])
-    );
-    let responses = await Promise.all(queries);
-    responses = responses.map((response, index) => {
-      if (
-        typeof queriesConfig[index].isAllTxns === "boolean" &&
-        !queriesConfig[index].isAllTxns
-      ) {
-        response.data.transactions.edges =
-          response.data.transactions.edges.filter((edge) =>
-            BigNumber(edge.node.quantity.ar).gt(0)
-          );
-      }
-      return response;
-    });
-
-    const combinedTransactions = combineAndSortTransactions(responses);
-
-    const enrichedTransactions = processTransactions(
-      combinedTransactions,
-      address
-    );
-
-    const newMaxHeight = Math.max(
-      ...enrichedTransactions
-        .filter((tx) => tx.node.block) // Filter out transactions without a block
-        .map((tx) => tx.node.block.height)
-    );
-    // filters out transactions that are older than last stored height,
-    if (newMaxHeight !== lastStoredHeight) {
-      const newTransactions = enrichedTransactions.filter(
-        (transaction) =>
-          transaction.node.block &&
-          transaction.node.block.height > lastStoredHeight
-      );
-
-      // if it's the first time loading notifications, don't send a message && notifications are enabled
-      if (lastStoredHeight !== 0 && notificationSetting) {
-        await ExtensionStorage.set("new_notifications", true);
-        transactionDiff = newTransactions;
-      }
-    }
-    return [enrichedTransactions, newMaxHeight, transactionDiff];
-  } catch (err) {
-    console.log("err", err);
-  }
-};

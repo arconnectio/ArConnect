@@ -19,7 +19,7 @@ import type { PaymentType, Quote } from "~lib/onramper";
 import { useHistory } from "~utils/hash_router";
 import { ExtensionStorage } from "~utils/storage";
 import { useDebounce } from "~wallets/hooks";
-import { retryWithDelay } from "~utils/retry";
+import { retryWithDelay } from "~utils/promises/retry";
 import SliderMenu from "~components/SliderMenu";
 
 export default function Purchase() {

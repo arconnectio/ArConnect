@@ -13,11 +13,10 @@ import {
   AO_NATIVE_TOKEN,
   AO_NATIVE_TOKEN_BALANCE_MIRROR
 } from "~utils/ao_import";
-import type { Alarms } from "webextension-polyfill";
 import type { KeystoneSigner } from "~wallets/hardware/keystone";
 import browser from "webextension-polyfill";
 import { fetchTokenByProcessId } from "~lib/transactions";
-import { tokenTypeRegistry } from "~tokens/token";
+import { timeoutPromise } from "~utils/promises/timeout";
 
 export type AoInstance = ReturnType<typeof connect>;
 
@@ -382,22 +381,6 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
 }
 
 /**
- * Timeout for resolving balances from ao
- */
-export async function timeoutPromise<T>(
-  promise: Promise<T>,
-  ms: number
-): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      reject(new Error(`Timeout after ${ms} ms`));
-    }, ms);
-
-    promise.then(resolve, reject).finally(() => clearTimeout(timer));
-  });
-}
-
-/**
  * Find the value for a tag name
  */
 export const getTagValue = (tagName: string, tags: Tag[]) =>
@@ -457,59 +440,6 @@ export const sendAoTransfer = async (
   } catch (err) {
     console.log("err", err);
   }
-};
-
-/**
- * Alarm handler for syncing ao tokens
- */
-export const aoTokensCacheHandler = async (alarmInfo?: Alarms.Alarm) => {
-  if (alarmInfo && !alarmInfo.name.startsWith("update_ao_tokens")) return;
-
-  const aoTokens = (await ExtensionStorage.get<TokenInfo[]>("ao_tokens")) || [];
-
-  const updatedTokens = [...aoTokens];
-
-  for (const token of aoTokens) {
-    try {
-      const res = await timeoutPromise(
-        dryrun({
-          Id,
-          Owner,
-          process: token.processId,
-          tags: [{ name: "Action", value: "Info" }]
-        }),
-        6000
-      );
-
-      if (res.Messages && Array.isArray(res.Messages)) {
-        for (const msg of res.Messages as Message[]) {
-          const Ticker = getTagValue("Ticker", msg.Tags);
-          const Name = getTagValue("Name", msg.Tags);
-          const Denomination = getTagValue("Denomination", msg.Tags);
-          const Logo = getTagValue("Logo", msg.Tags);
-          const updatedToken = {
-            Name,
-            Ticker,
-            Denomination: Number(Denomination),
-            processId: token.processId,
-            Logo,
-            lastUpdated: new Date().toISOString()
-          };
-
-          const index = updatedTokens.findIndex(
-            (t) => t.processId === token.processId
-          );
-
-          if (index !== -1) {
-            updatedTokens[index] = { ...updatedTokens[index], ...updatedToken };
-          }
-        }
-      }
-    } catch (err) {
-      console.error(`Failed to update token with id ${token.processId}:`, err);
-    }
-  }
-  await ExtensionStorage.set("ao_tokens", updatedTokens);
 };
 
 export const sendAoTransferKeystone = async (

@@ -19,14 +19,14 @@ export interface ModuleProperties {
   permissions: PermissionType[];
 }
 
-/** Full API module (background/foreground) */
-export interface Module<T> extends ModuleProperties {
-  function: ModuleFunction<T>;
-}
-
 /**
  * Function type for background and injected script API functions
  */
 export type ModuleFunction<ResultType> = (
   ...params: any[]
 ) => Promise<ResultType> | ResultType;
+
+/** Full API module (background/foreground) */
+export interface Module<T> extends ModuleProperties {
+  function: ModuleFunction<T>;
+}

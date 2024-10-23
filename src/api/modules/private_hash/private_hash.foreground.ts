@@ -1,5 +1,5 @@
 import type { SignMessageOptions } from "../sign_message/types";
-import type { TransformFinalizer } from "~api/foreground";
+import type { TransformFinalizer } from "~api/foreground/foreground-modules";
 import type { ModuleFunction } from "~api/module";
 import { isArrayBuffer } from "~utils/assertions";
 

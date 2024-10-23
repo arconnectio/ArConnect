@@ -8,13 +8,13 @@ import {
 } from "typed-assert";
 import { freeDecryptedWallet } from "~wallets/encryption";
 import { isNotCancelError, isSignatureAlgorithm } from "~utils/assertions";
-import type { ModuleFunction } from "~api/background";
+import type { BackgroundModuleFunction } from "~api/background/background-modules";
 import { getWhitelistRegExp } from "./whitelist";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 import authenticate from "../connect/auth";
 
-const background: ModuleFunction<number[]> = async (
+const background: BackgroundModuleFunction<number[]> = async (
   appData,
   data: unknown,
   algorithm: unknown

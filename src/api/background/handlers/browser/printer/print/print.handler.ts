@@ -1,3 +1,4 @@
+import { ARCONNECT_PRINTER_ID } from "~api/background/handlers/browser/printer/printer.constants";
 import { uploadDataToTurbo } from "~api/modules/dispatch/uploader";
 import { getActiveKeyfile, type DecryptedWallet } from "~wallets";
 import { freeDecryptedWallet } from "~wallets/encryption";
@@ -8,104 +9,17 @@ import browser from "webextension-polyfill";
 import Arweave from "arweave";
 import { signAuth } from "~api/modules/sign/sign_auth";
 import { getActiveTab } from "~applications";
-import { sleep } from "~utils/sleep";
-
-const ARCONNECT_PRINTER_ID = "arconnect-permaweb-printer";
+import { sleep } from "~utils/promises/sleep";
 
 /**
- * Tells Chrome about the virtual printer's
- * capabilities in CDD format
+ * Print request (result) callback
  */
-export function getCapabilities(
-  printerId: string,
-  callback: PrinterCapabilitiesCallback
-) {
-  // only return capabilities for the ArConnect printer
-  if (printerId !== ARCONNECT_PRINTER_ID) return;
-
-  // mimic a regular printer's capabilities
-  callback({
-    version: "1.0",
-    printer: {
-      supported_content_type: [
-        { content_type: "application/pdf" },
-        { content_type: "image/pwg-raster" }
-      ],
-      color: {
-        option: [
-          { type: "STANDARD_COLOR", is_default: true },
-          { type: "STANDARD_MONOCHROME" }
-        ]
-      },
-      copies: {
-        default_copies: 1,
-        max_copies: 100
-      },
-      media_size: {
-        option: [
-          {
-            name: "ISO_A4",
-            width_microns: 210000,
-            height_microns: 297000,
-            is_default: true
-          },
-          {
-            name: "NA_LETTER",
-            width_microns: 215900,
-            height_microns: 279400
-          }
-        ]
-      },
-      page_orientation: {
-        option: [
-          {
-            type: "PORTRAIT",
-            is_default: true
-          },
-          { type: "LANDSCAPE" },
-          { type: "AUTO" }
-        ]
-      },
-      duplex: {
-        option: [
-          { type: "NO_DUPLEX", is_default: true },
-          { type: "LONG_EDGE" },
-          { type: "SHORT_EDGE" }
-        ]
-      }
-    }
-  });
-}
-
-/**
- * Printer capabilities request callback type
- */
-type PrinterCapabilitiesCallback = (p: unknown) => void;
-
-/**
- * Returns a list of "virtual" printers,
- * in our case "Print/Publish to Arweave"
- */
-export function getPrinters(callback: PrinterInfoCallback) {
-  callback([
-    {
-      id: ARCONNECT_PRINTER_ID,
-      name: "Print to Arweave",
-      description:
-        "Publish the content you want to print on Arweave, permanently."
-    }
-  ]);
-}
-
-/**
- * Printer info request callback type
- */
-type PrinterInfoCallback = (p: chrome.printerProvider.PrinterInfo[]) => void;
+type PrintCallback = (result: string) => void;
 
 /**
  * Handles the request from the user to print the page to Arweave
  */
-export async function handlePrintRequest(
+export async function handlePrint(
   printJob: chrome.printerProvider.PrintJob,
   resultCallback: PrintCallback
 ) {
@@ -220,8 +134,3 @@ export async function handlePrintRequest(
   if (decryptedWallet?.type == "local")
     freeDecryptedWallet(decryptedWallet.keyfile);
 }
-
-/**
- * Print request (result) callback
- */
-type PrintCallback = (result: string) => void;

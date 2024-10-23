@@ -1,9 +1,9 @@
 import { isAddress, isTokenType, isValidURL } from "~utils/assertions";
-import type { ModuleFunction } from "~api/background";
+import type { BackgroundModuleFunction } from "~api/background/background-modules";
 import authenticate from "../connect/auth";
 import { getTokens } from "~tokens";
 
-const background: ModuleFunction<void> = async (
+const background: BackgroundModuleFunction<void> = async (
   appData,
   id: unknown,
   type?: unknown,

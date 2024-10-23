@@ -1,5 +1,5 @@
 import { freeDecryptedWallet } from "~wallets/encryption";
-import type { ModuleFunction } from "~api/background";
+import type { BackgroundModuleFunction } from "~api/background/background-modules";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 import { isString } from "typed-assert";
@@ -11,7 +11,7 @@ import {
   isSignMessageOptions
 } from "~utils/assertions";
 
-const background: ModuleFunction<boolean> = async (
+const background: BackgroundModuleFunction<boolean> = async (
   _,
   data: unknown,
   signature: unknown,

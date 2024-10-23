@@ -1,7 +1,7 @@
 import { arconfettiIcon, calculateReward, signNotification } from "./utils";
 import { allowanceAuth, getAllowance, updateAllowance } from "./allowance";
 import { freeDecryptedWallet } from "~wallets/encryption";
-import type { ModuleFunction } from "~api/background";
+import type { BackgroundModuleFunction } from "~api/background/background-modules";
 import { type JWKInterface } from "arweave/web/lib/wallet";
 import {
   isNotCancelError,
@@ -24,7 +24,7 @@ import Arweave from "arweave";
 import { EventType, trackDirect } from "~utils/analytics";
 import BigNumber from "bignumber.js";
 
-const background: ModuleFunction<BackgroundResult> = async (
+const background: BackgroundModuleFunction<BackgroundResult> = async (
   appData,
   tx: unknown,
   options: unknown | undefined | null,

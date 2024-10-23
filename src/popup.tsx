@@ -1,8 +1,6 @@
-import Route, { Page, Wrapper } from "~components/popup/Route";
-import styled from "styled-components";
+import Route, { Page } from "~components/popup/Route";
 import { useHashLocation } from "~utils/hash_router";
-import { syncLabels, useSetUp } from "~wallets";
-import { useEffect, useState } from "react";
+import { useSetUp } from "~wallets";
 import { Router } from "wouter";
 
 import HistoryProvider from "~components/popup/HistoryProvider";
@@ -52,15 +50,9 @@ import { AnimatePresence } from "framer-motion";
 export default function Popup() {
   const initialScreenType = useSetUp();
 
-  useEffect(() => {
-    syncLabels();
-  }, []);
-
   let content: React.ReactElement = null;
 
-  if (initialScreenType === "cover") {
-    content = <Page />;
-  } else if (initialScreenType === "locked") {
+  if (initialScreenType === "locked") {
     content = (
       <Page>
         <Unlock />
@@ -73,7 +65,7 @@ export default function Popup() {
         <p>Generating Wallet...</p>
       </Page>
     );
-  } else {
+  } else if (initialScreenType === "default") {
     content = (
       <Router hook={useHashLocation}>
         <HistoryProvider>
