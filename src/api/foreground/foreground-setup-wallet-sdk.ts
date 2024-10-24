@@ -1,11 +1,12 @@
 import type { ApiCall, ApiResponse, Event } from "shim";
 import type { InjectedEvents } from "~utils/events";
-import { version } from "../../../package.json";
+// import { version } from "../../../package.json";
 import { nanoid } from "nanoid";
 import { foregroundModules } from "~api/foreground/foreground-modules";
 import mitt from "mitt";
+import { getFullVersionLabel } from "~utils/runtime";
 
-export function injectWalletSDK() {
+export function setupWalletSDK(targetWindow: Window = window) {
   console.log("injectWallSDK()");
 
   /** Init events */
@@ -14,24 +15,9 @@ export function injectWalletSDK() {
   /** Init wallet API */
   const WalletAPI: Record<string, any> = {
     walletName: "ArConnect",
-    walletVersion: version,
+    walletVersion: getFullVersionLabel(),
     events
   };
-
-  /*
-
-        <Version>
-          {"v" + browser.runtime.getManifest().version}
-          {(process.env.NODE_ENV === "development" ||
-            !!process.env.BETA_VERSION) && (
-            <DevelopmentVersion>
-              {process.env.BETA_VERSION ||
-                browser.i18n.getMessage("development_version").toUpperCase()}
-            </DevelopmentVersion>
-          )}
-        </Version>
-
-  */
 
   /** Inject each module */
   for (const mod of foregroundModules) {
@@ -39,6 +25,7 @@ export function injectWalletSDK() {
     WalletAPI[mod.functionName] = (...params: any[]) =>
       new Promise<any>(async (resolve, reject) => {
         // execute foreground module
+        // TODO: Use a default function for those that do not have/need one and see if chunking can be done automatically or if it is needed at all:
         const foregroundResult = await mod.function(...params);
 
         // construct data to send to the background
@@ -54,14 +41,28 @@ export function injectWalletSDK() {
 
         console.log("postMessage from =", window.location.origin);
 
-        // send message to background
-        // TODO: Change window with iframe in ArConnect Embedded:
-        window.postMessage(data, window.location.origin);
+        // Send message to background script (ArConnect Extension) or to the iframe window (ArConnect Embedded):
+        targetWindow.postMessage(data, window.location.origin);
+
+        // TODO: Note this is replacing the following from `api.content-script.ts`, so the logic to await and get the response is missing with just the
+        // one-line change above.
+        //
+        // const res = await sendMessage(
+        //   data.type === "chunk" ? "chunk" : "api_call",
+        //   data,
+        //   "background"
+        // );
+        //
+        // window.postMessage(res, window.location.origin);
 
         // wait for result from background
         window.addEventListener("message", callback);
 
+        // TODO: Declare outside (factory) to facilitate testing?
         async function callback(e: MessageEvent<ApiResponse>) {
+          // TODO: Make sure the response comes from targetWindow.
+          // See https://stackoverflow.com/questions/16266474/javascript-listen-for-postmessage-events-from-specific-iframe.
+
           let { data: res } = e;
 
           // validate return message
@@ -115,6 +116,8 @@ export function injectWalletSDK() {
     if (!window.arweaveWallet) return;
     dispatchEvent(new CustomEvent("arweaveWalletLoaded", { detail: {} }));
   });
+
+  // TODO: Remove it before to make sure there's no duplicate listener?
 
   /** Handle events */
   window.addEventListener(

@@ -62,6 +62,8 @@ async function createAuthPopup(data: AuthData) {
   const authID = nanoid();
   const authData: AuthDataWithID = { ...data, authID };
 
+  // TODO: Update to check if there's already a popup and send messages to it!
+
   // create auth window
   const window = await browser.windows.create({
     url: `${browser.runtime.getURL("tabs/auth.html")}?${objectToUrlParams(

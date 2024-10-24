@@ -2,22 +2,21 @@ import { Spacer, Text } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import logo from "url:/assets/icon512.png";
 import styled from "styled-components";
+import { getPreReleaseVersionLabel, getVersionLabel } from "~utils/runtime";
 
 export default function About() {
+  const preReleaseVersionLabel = getPreReleaseVersionLabel();
+
   return (
     <>
       <Logo />
       <Spacer y={0.85} />
       <Name>ArConnect</Name>
       <Version>
-        {"v" + browser.runtime.getManifest().version}
-        {(process.env.NODE_ENV === "development" ||
-          !!process.env.BETA_VERSION) && (
-          <DevelopmentVersion>
-            {process.env.BETA_VERSION ||
-              browser.i18n.getMessage("development_version").toUpperCase()}
-          </DevelopmentVersion>
-        )}
+        {getVersionLabel()}
+        {preReleaseVersionLabel ? (
+          <DevelopmentVersion>{preReleaseVersionLabel}</DevelopmentVersion>
+        ) : null}
       </Version>
       <Version>{process.env.PLASMO_TARGET}</Version>
       <Spacer y={1.1} />
