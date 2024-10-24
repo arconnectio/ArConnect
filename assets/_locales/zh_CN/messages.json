@@ -1999,11 +1999,11 @@
     "description": "Popup description about ao token transfer learn more"
   },
   "ao_degraded": {
-      "message": "无法连接到 AO 令牌进程",
+      "message": "代币余额错误",
       "description": "ao degraded title text"
   },
   "ao_degraded_description": {
-      "message": "网络问题解决后，AO 余额将可用。",
+      "message": "ArConnect 无法获取您的代币余额。这只是一个用户界面问题。请稍后重试。",
       "description": "ao degraded description text"
   },
   "network_issue": {

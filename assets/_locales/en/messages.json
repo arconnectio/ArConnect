@@ -1564,7 +1564,7 @@
     "description": "Not connected indicator"
   },
   "not_connected_text": {
-    "message": "\"Connect / Disconnect\" is an indicator for when your ArConnect wallet is connected to an Arweave or AO application.  For regular use like sending, receiving, checking balances, etc., ArConnect will always show disconnected.",
+    "message": "\"Connect / Disconnect\" is a label for when your ArConnect wallet is connected to an Arweave or AO dapp.  For regular use like sending, receiving, checking balances, etc., ArConnect will always show disconnected.",
     "description": "Not connected indicator explainer"
   },
   "disconnect": {
@@ -2009,11 +2009,11 @@
     "description": "Popup description about ao token transfer learn more"
   },
   "ao_degraded": {
-    "message": "Unable to connect to AO Token Process",
+    "message": "Token balance error",
     "description": "ao degraded title text"
   },
   "ao_degraded_description": {
-    "message": "AO balance will be available when <br/>network issues are resolved.",
+    "message": "Oops, ArConnect is unable to fetch your token balance. Please try again later.",
     "description": "ao degraded description text"
   },
   "network_issue": {

@@ -166,13 +166,13 @@ export default function Token({ onClick, ...props }: Props) {
           {props?.loading ? (
             <Skeleton width="80px" height="20px" />
           ) : props?.error ? (
-            <TooltipV2 content={DegradedMessage} position="left">
+            <MessageTooltip content={DegradedMessage} position="left">
               <WarningIcon />
-            </TooltipV2>
+            </MessageTooltip>
           ) : props?.networkError ? (
-            <TooltipV2 content={NetworkErrorMessage} position="left">
+            <MessageTooltip content={NetworkErrorMessage} position="left">
               <NetworkErrorIcon />
-            </TooltipV2>
+            </MessageTooltip>
           ) : (
             <>
               {showTooltip ? (
@@ -371,6 +371,10 @@ const InnerWrapper = styled.div<{ width: string }>`
 
 const BalanceTooltip = styled(TooltipV2)`
   margin-right: 1rem;
+`;
+
+const MessageTooltip = styled(TooltipV2)`
+  max-width: 290px;
 `;
 
 const Image = styled.img`
