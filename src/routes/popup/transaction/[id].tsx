@@ -151,7 +151,7 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                 timestamp
               }
             }
-          }        
+          }
         `,
         { id },
         gateway
@@ -387,15 +387,16 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                             <AddContact>
                               {browser.i18n.getMessage("user_not_in_contacts")}{" "}
                               <span
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.preventDefault();
+
                                   trackEvent(EventType.ADD_CONTACT, {
                                     fromSendFlow: true
                                   });
-                                  browser.tabs.create({
-                                    url: browser.runtime.getURL(
-                                      `tabs/dashboard.html#/contacts/new?address=${fromAddress}`
-                                    )
-                                  });
+
+                                  push(
+                                    `/quick-settings/contacts/new?address=${fromAddress}`
+                                  );
                                 }}
                               >
                                 {browser.i18n.getMessage("create_contact")}
@@ -438,15 +439,16 @@ export default function Transaction({ id: rawId, gw, message }: Props) {
                             <AddContact>
                               {browser.i18n.getMessage("user_not_in_contacts")}{" "}
                               <span
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.preventDefault();
+
                                   trackEvent(EventType.ADD_CONTACT, {
                                     fromSendFlow: true
                                   });
-                                  browser.tabs.create({
-                                    url: browser.runtime.getURL(
-                                      `tabs/dashboard.html#/contacts/new?address=${toAddress}`
-                                    )
-                                  });
+
+                                  push(
+                                    `/quick-settings/contacts/new?address=${toAddress}`
+                                  );
                                 }}
                               >
                                 {browser.i18n.getMessage("create_contact")}

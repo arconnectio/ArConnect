@@ -27,6 +27,7 @@ import Arweave from "arweave";
 import { svgie } from "~utils/svgies";
 import { Action } from "./WalletHeader";
 import copy from "copy-to-clipboard";
+import { useHistory } from "~utils/hash_router";
 
 export default function WalletSwitcher({
   open,
@@ -165,6 +166,8 @@ export default function WalletSwitcher({
   // toasts
   const { setToast } = useToasts();
 
+  const [push] = useHistory();
+
   return (
     <AnimatePresence>
       {open && (
@@ -239,6 +242,7 @@ export default function WalletSwitcher({
                   </Wallet>
                 ))}
               </Wallets>
+
               {showOptions && (
                 <ActionBar>
                   <AddWalletButton
@@ -258,13 +262,11 @@ export default function WalletSwitcher({
                     position="topEnd"
                   >
                     <EditButton
-                      onClick={() =>
-                        browser.tabs.create({
-                          url: browser.runtime.getURL(
-                            `tabs/dashboard.html#/wallets/${activeAddress}`
-                          )
-                        })
-                      }
+                      onClick={(e) => {
+                        e.preventDefault();
+
+                        push(`/quick-settings/wallets/${activeAddress}`);
+                      }}
                     />
                   </TooltipV2>
                 </ActionBar>

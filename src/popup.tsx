@@ -123,16 +123,24 @@ export default function Popup() {
           </Route>
           <Route path="/quick-settings/tokens" component={QuickTokens} />
           <Route path="/quick-settings/tokens/:id">
-            {(params: { id: string }) => <TokenSettings id={params?.id} />}
+            {(params: { id: string }) =>
+              params?.id === "new" ? (
+                <NewToken />
+              ) : (
+                <TokenSettings id={params?.id} />
+              )
+            }
           </Route>
-          <Route path="/quick-settings/tokens/new" component={NewToken} />
           <Route path="/quick-settings/contacts" component={Contacts} />
           <Route path="/quick-settings/contacts/:address">
-            {(params: { address: string }) => (
-              <ContactSettings address={params?.address} />
-            )}
+            {(params: { address: string }) =>
+              params?.address === "new" ? (
+                <NewContact />
+              ) : (
+                <ContactSettings address={params?.address} />
+              )
+            }
           </Route>
-          <Route path="/quick-settings/contacts/new" component={NewContact} />
           <Route
             path="/quick-settings/notifications"
             component={NotificationSettings}
