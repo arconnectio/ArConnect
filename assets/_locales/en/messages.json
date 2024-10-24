@@ -2013,7 +2013,7 @@
     "description": "ao degraded title text"
   },
   "ao_degraded_description": {
-    "message": "Ops, we are unable to fetch your token balance. This is just an UI issue. Please try again later.",
+    "message": "Ops, ArConnect is unable to fetch your token balance. This is just an UI issue. Please try again later.",
     "description": "ao degraded description text"
   },
   "network_issue": {
