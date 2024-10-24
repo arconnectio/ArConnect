@@ -17,10 +17,10 @@ import { ResetButton } from "~components/dashboard/Reset";
 import SignDataItemDetails from "~components/signDataItem";
 import HeadV2 from "~components/popup/HeadV2";
 import { Quantity, Token } from "ao-tokens";
-import { timeoutPromise } from "~tokens/aoTokens/ao";
 import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "@plasmohq/storage/hook";
 import { checkPassword } from "~wallets/auth";
+import { timeoutPromise } from "~utils/promises/timeout";
 
 interface Tag {
   name: string;

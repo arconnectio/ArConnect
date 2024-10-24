@@ -1,5 +1,5 @@
 import { freeDecryptedWallet } from "~wallets/encryption";
-import type { ModuleFunction } from "~api/background";
+import type { BackgroundModuleFunction } from "~api/background/background-modules";
 import { getActiveKeyfile } from "~wallets";
 import browser from "webextension-polyfill";
 import {
@@ -11,7 +11,7 @@ import {
 import { signAuthKeystone, type AuthKeystoneData } from "../sign/sign_auth";
 import Arweave from "arweave";
 
-const background: ModuleFunction<number[]> = async (
+const background: BackgroundModuleFunction<number[]> = async (
   _,
   data: unknown,
   options = { hashAlgorithm: "SHA-256" }

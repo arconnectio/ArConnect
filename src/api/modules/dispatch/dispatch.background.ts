@@ -7,7 +7,7 @@ import { constructTransaction } from "../sign/transaction_builder";
 import { arconfettiIcon, signNotification } from "../sign/utils";
 import { cleanUpChunks, getChunks } from "../sign/chunks";
 import { freeDecryptedWallet } from "~wallets/encryption";
-import type { ModuleFunction } from "~api/background";
+import type { BackgroundModuleFunction } from "~api/background/background-modules";
 import { createData, ArweaveSigner } from "arbundles";
 import { getPrice, uploadDataToTurbo } from "./uploader";
 import type { DispatchResult } from "./index";
@@ -26,7 +26,7 @@ type ReturnType = {
   res: DispatchResult;
 };
 
-const background: ModuleFunction<ReturnType> = async (
+const background: BackgroundModuleFunction<ReturnType> = async (
   appData,
   tx: unknown,
   chunkCollectionID: unknown

@@ -5,7 +5,7 @@ import {
   isRawDataItem
 } from "~utils/assertions";
 import { freeDecryptedWallet } from "~wallets/encryption";
-import type { ModuleFunction } from "~api/background";
+import type { BackgroundModuleFunction } from "~api/background/background-modules";
 import { ArweaveSigner, createData } from "arbundles";
 import Application from "~applications/application";
 import { getPrice } from "../dispatch/uploader";
@@ -22,7 +22,7 @@ import BigNumber from "bignumber.js";
 import { createDataItem } from "~utils/data_item";
 import signMessage from "../sign_message";
 
-const background: ModuleFunction<number[]> = async (
+const background: BackgroundModuleFunction<number[]> = async (
   appData,
   dataItem: unknown
 ) => {

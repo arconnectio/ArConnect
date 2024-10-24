@@ -4,7 +4,7 @@ import {
   isSubscriptionType
 } from "~utils/assertions";
 import { getActiveAddress, getActiveKeyfile, getWallets } from "~wallets";
-import type { ModuleFunction } from "~api/background";
+import type { BackgroundModuleFunction } from "~api/background/background-modules";
 import authenticate from "../connect/auth";
 import { getSubscriptionData } from "~subscriptions";
 import {
@@ -12,7 +12,7 @@ import {
   type SubscriptionData
 } from "~subscriptions/subscription";
 
-const background: ModuleFunction<SubscriptionData> = async (
+const background: BackgroundModuleFunction<SubscriptionData> = async (
   appData,
   subscriptionData: SubscriptionData
 ) => {

@@ -1,7 +1,7 @@
-import type { ModuleFunction } from "~api/background";
+import type { BackgroundModuleFunction } from "~api/background/background-modules";
 import { ExtensionStorage } from "~utils/storage";
 
-const background: ModuleFunction<string> = async () => {
+const background: BackgroundModuleFunction<string> = async () => {
   const address = await ExtensionStorage.get("active_address");
 
   if (!address) throw new Error("No active address");

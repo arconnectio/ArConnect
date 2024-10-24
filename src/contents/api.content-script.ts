@@ -1,7 +1,9 @@
 import { sendMessage } from "@arconnect/webext-bridge";
 import type { PlasmoCSConfig } from "plasmo";
 import type { ApiCall } from "shim";
-import injectedScript from "url:../injected.ts";
+import injectedScript from "url:./injected/setup-wallet-sdk.injected-script.ts";
+
+console.log("contents/api.ts 2");
 
 export const config: PlasmoCSConfig = {
   matches: ["file://*/*", "http://*/*", "https://*/*"],
@@ -10,6 +12,7 @@ export const config: PlasmoCSConfig = {
 };
 
 // inject API script into the window
+
 const container = document.head || document.documentElement;
 const script = document.createElement("script");
 
@@ -20,7 +23,16 @@ script.setAttribute("src", injectedScript);
 container.insertBefore(script, container.children[0]);
 container.removeChild(script);
 
-// receive API calls
+// Receive API calls:
+//
+// Foreground modules (from `foreground-setup-wallet.ts`) will send messages as
+// `window.postMessage(data, window.location.origin)`, which are received here. Because this is a (sandboxed) extension
+// content script, it can use `sendMessage(...)` to talk to the background script.
+//
+// Note this part is not needed for ArConnect Embedded, because `postMessage(...)` can talk directly to the iframe:
+//
+//    iframeElement.contentWindow.postMessage(...);
+
 window.addEventListener(
   "message",
   async ({ data }: MessageEvent<ApiCall & { ext: "arconnect" }>) => {
@@ -33,6 +45,8 @@ window.addEventListener(
     if (!data.callID) {
       throw new Error("The call does not have a callID");
     }
+
+    console.log("content script message");
 
     // send call to the background
     const res = await sendMessage(

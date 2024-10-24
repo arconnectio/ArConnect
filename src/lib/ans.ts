@@ -11,6 +11,8 @@ import { useEffect, useState } from "react";
 export async function getAnsProfile(
   address: string | string[]
 ): Promise<AnsUser[] | AnsUser> {
+  // TODO: Fix this just like in Othent:
+
   if (typeof address === "string") {
     try {
       const user = await (
@@ -22,6 +24,7 @@ export async function getAnsProfile(
       return undefined;
     }
   }
+
   const { res } = await (
     await fetch("https://ans-stats.decent.land/users")
   ).json();
@@ -40,6 +43,7 @@ export async function getAnsProfileByLabel(label: string): Promise<AnsUser> {
     const user = await (
       await fetch(`http://ans-stats.decent.land/profile/${label}`)
     ).json();
+
     return user;
   } catch {
     return undefined;

@@ -1,6 +1,6 @@
-import Route from "~components/popup/Route";
+import Route, { Page } from "~components/popup/Route";
 import { useHashLocation } from "~utils/hash_router";
-import { syncLabels, useRemoveCover } from "~wallets";
+import { useSetUp } from "~wallets";
 import { useEffect } from "react";
 import { Router } from "wouter";
 
@@ -19,28 +19,36 @@ import BatchSignDataItem from "~routes/auth/batchSignDataItem";
 import { AnimatePresence } from "framer-motion";
 
 export default function Auth() {
-  useRemoveCover();
+  const initialScreenType = useSetUp();
 
-  useEffect(() => {
-    syncLabels();
-  }, []);
+  let content: React.ReactElement = null;
+
+  if (initialScreenType === "locked") {
+    content = (
+      <Page>
+        <Unlock />
+      </Page>
+    );
+  } else if (initialScreenType === "default") {
+    content = (
+      <Router hook={useHashLocation}>
+        <Route path="/connect" component={Connect} />
+        <Route path="/allowance" component={Allowance} />
+        <Route path="/unlock" component={Unlock} />
+        <Route path="/token" component={Token} />
+        <Route path="/sign" component={Sign} />
+        <Route path="/signKeystone" component={SignKeystone} />
+        <Route path="/signature" component={Signature} />
+        <Route path="/subscription" component={Subscription} />
+        <Route path="/signDataItem" component={SignDataItem} />
+        <Route path="/batchSignDataItem" component={BatchSignDataItem} />
+      </Router>
+    );
+  }
 
   return (
     <ArConnectThemeProvider>
-      <AnimatePresence initial={false}>
-        <Router hook={useHashLocation}>
-          <Route path="/connect" component={Connect} />
-          <Route path="/allowance" component={Allowance} />
-          <Route path="/unlock" component={Unlock} />
-          <Route path="/token" component={Token} />
-          <Route path="/sign" component={Sign} />
-          <Route path="/signKeystone" component={SignKeystone} />
-          <Route path="/signature" component={Signature} />
-          <Route path="/subscription" component={Subscription} />
-          <Route path="/signDataItem" component={SignDataItem} />
-          <Route path="/batchSignDataItem" component={BatchSignDataItem} />
-        </Router>
-      </AnimatePresence>
+      <AnimatePresence initial={false}>{content}</AnimatePresence>
     </ArConnectThemeProvider>
   );
 }

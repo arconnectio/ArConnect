@@ -6,14 +6,14 @@ import {
 } from "~utils/assertions";
 import { getMissingPermissions } from "~applications/permissions";
 import { createContextMenus } from "~utils/context_menus";
-import type { ModuleFunction } from "~api/background";
+import type { BackgroundModuleFunction } from "~api/background/background-modules";
 import { updateIcon } from "~utils/icon";
 import { getWallets } from "~wallets";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import authenticate from "./auth";
 
-const background: ModuleFunction<void> = async (
+const background: BackgroundModuleFunction<void> = async (
   appData,
   permissions: unknown,
   appInfo: unknown = {},

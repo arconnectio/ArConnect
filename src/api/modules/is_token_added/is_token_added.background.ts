@@ -1,9 +1,9 @@
-import type { ModuleFunction } from "~api/background";
+import type { BackgroundModuleFunction } from "~api/background/background-modules";
 import { isAddressFormat } from "~utils/format";
 import { getTokens } from "~tokens";
 import { isAddress } from "~utils/assertions";
 
-const background: ModuleFunction<boolean> = async (_, id: string) => {
+const background: BackgroundModuleFunction<boolean> = async (_, id: string) => {
   // check id
   isAddress(id);
 

@@ -1,4 +1,4 @@
-import type { TransformFinalizer } from "~api/foreground";
+import type { TransformFinalizer } from "~api/foreground/foreground-modules";
 import type { ModuleFunction } from "~api/module";
 
 // no need to transform anything in the foreground
